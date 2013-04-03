@@ -1,0 +1,47 @@
+<html>
+<head>
+	<title>rhes.es</title>
+	<script type="text/javascript" src="http://code.jquery.com/jquery-1.9.1.js"></script>
+	<script type="text/javascript" src="acorn.js"></script>
+	<script type="text/javascript" src="rheses.js"></script>
+	<style type="text/css">
+	  body {
+		  background-color: rgb(46,36,30);
+		  background-image: url(img/background-r.png);
+	  }
+	  .trans {
+	  	background-color: rgba(255,255,255,.5);
+	  	width: 80%;
+	  	height: 80%;
+	  	display:none;
+	  }
+	  #logo {
+		  background: url(img/rheses-color.png);
+		  background-repeat: no-repeat;
+		  width:171;
+		  height:64;
+		  position: absolute;
+	  }
+	  .slogan {
+		  background: url(img/you-got-your.png);
+		  background-repeat: no-repeat;
+		  width:543;
+		  height:48;
+		  position: absolute;
+		}
+	</style>
+</head>
+<body>
+	<div class="trans">
+		Let's say you want a div to follow another div, no matter what.
+
+		What if you could use the power of Javascript to change your CSS?
+
+		What if when you changed your CSS anyone who cared would know something changed?
+
+		Welcome to rhes.es
+	</div>
+	<div id="logo"></div>
+	<div class="slogan" r-style="top: Math.max(logo.height + logo.top, Math.min(parent.height - this.height, Mouse.top - this.height + 3)); left: Math.max(0, Math.min(parent.width - this.width, Mouse.left - (this.width / 2)));"></div>
+</body>
+</html>

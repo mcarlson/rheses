@@ -3,6 +3,9 @@
 	<script type="text/javascript" src="http://code.jquery.com/jquery-1.9.1.js"></script>
 	<script type="text/javascript" src="acorn.js"></script>
 	<script type="text/javascript" src="rheses.js"></script>
+	<script type="text/javascript">
+	var data = {foo: 100};
+	</script>
 	<style type="text/css">
 	body {
 		margin: 0;
@@ -11,10 +14,10 @@
 	</style>
 </head>
 <body>
-<div id="testdiv" r-style="top: parent.height - testdiv2.height; left: parent.width - this.width; width: Math.round(parent.width * .5);" style="position: relative; background-color: red;">Text</div>
-<div id="testdiv2" r-style="top: testdiv.top - this.height + parent.top; left: testdiv.left + this.width + Math.round(Math.random() * 100);" style="position: absolute; background-color: green;">Text</div>
-<div r-style="top: parent.height - this.height; left: parent.width - this.width" style="position: absolute; background-color: yellow;">
-	Hey
+<div r-style="top: parent.height - this.height; left: parent.width - this.width; width: parent.width * .5" style="position: relative; background-color: yellow;">
+<div id="testdiv" r-style="top: parent.height - testdiv2.height - this.height; left: parent.width - this.width - 100; width: Math.round(parent.width * .3);" style="position: relative; background-color: red;">Text</div>
+<div id="testdiv2" r-style="left: data.foo//testdiv.left + Math.round(Math.random() * 100); top: testdiv.top; width: window.width * .1" style="position: relative; background-color: green;">Text</div>
+Hello
 </div>
 </body>
 </html>
