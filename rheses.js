@@ -425,7 +425,7 @@ var rheses = (function() {
     return this;
   };
 
-  $(function() {
+  $(window).on('load', function() {
     bindConstraints();
   });
   return {
