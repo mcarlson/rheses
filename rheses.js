@@ -367,8 +367,10 @@ var rheses = (function() {
     delete constraints[cssprop];
   };
 
+  var defaultSelector = '[r-style]';
+
   var unbindConstraints = function(selector, cssprop) {
-    selector = selector || '[r-style]';
+    selector = selector || defaultSelector;
     $(selector).each(function(zstyle, el) {
       if (cssprop === undefined) {
         // remove constraints for all properties
@@ -388,7 +390,7 @@ var rheses = (function() {
 
   // initialize r-style attributes for the given selector, or initialize all elements with r-style attributes
   var bindConstraints = function(selector) {
-    selector = selector || '[r-style]';
+    selector = selector || defaultSelector;
     // TODO: use jquery.live/on() to listen for new elements
     $(selector).each(function(zstyle, el) {
       var css = el.getAttribute('r-style');
@@ -408,7 +410,7 @@ var rheses = (function() {
 
   // update constraints for the given selector, or update all elements with r-style attributes
   var updateConstraints = function(selector) {
-    selector = selector || '[r-style]';
+    selector = selector || defaultSelector;
     $(selector).each(function(zstyle, el) {
       var constraints = $.data(el, 'constraints');
       if (!constraints) return false;
