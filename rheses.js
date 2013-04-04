@@ -80,49 +80,56 @@ var rheses = (function() {
     };
 
   // singleton that listens for mouse position and holds the last left and top coordinate
-  Mouse = {
-    left: 0,
-    top: 0,
-    started: null,
-    dirty: false,
-    selector: null,
-    sender: function() {
-      if (this.started) requestAnimationFrame(this.sender);
-      if (this.dirty) {
-        this.dirty = false;
-        this.selector.trigger("move");
+  Mouse = (function() {
+    var left = 0;
+    var top = 0;
+    var started = null;
+    var dirty = false;
+    var selector = null;
+    var sender = function() {
+      if (started) requestAnimationFrame(sender);
+      if (dirty) {
+        dirty = false;
+        selector.trigger("move");
       }
-    },
-    handler: function(event) {
+    };
+    var handler = function(event) {
       //if (disabled) return;
-      this.dirty = true;
-      this.left = event.pageX;
-      this.top = event.pageY;
-    },
-    start: function() {
-      if (this.started) return;
-      if (this.started === null) {
-        this.selector = $(this);
-        this.offset = this.position;
-        this.sender = this.sender.bind(this);
-        this.handler = this.handler.bind(this);
+      dirty = true;
+      left = event.pageX;
+      top = event.pageY;
+    };
+
+    var start = function() {
+      if (started === null) {
+        selector = $(Mouse);
       }
-      this.started = true;
-      requestAnimationFrame(this.sender);
-      $(document).on("mousemove", this.handler);
-      $(document).one("mouseout", this.stop);
-    },
-    stop: function() {
-      if (! this.started) return;
-      this.started = false;
-      $(document).off("mousemove", this.handler);
-      $(document).one("mouseover", this.start);
-    },
-    position: function() {
+      if (started) return;
+      started = true;
+      requestAnimationFrame(sender);
+      $(document).on("mousemove", handler);
+      $(document).one("mouseout", stop);
+    };
+    var stop = function() {
+      if (!started) return;
+      started = false;
+      $(document).off("mousemove", handler);
+      $(document).one("mouseover", start);
+    };
+    var position = function() {
       // compatible with JQuery
-      return this;
-    }
-  };
+      return {
+        top: top,
+        left: left
+      };
+    };
+    return {
+      start: start,
+      stop: stop,
+      position: position,
+      offset: position
+    };
+  })();
 
   /*
   $(Mouse).on("move", function(e){
@@ -296,7 +303,9 @@ var rheses = (function() {
 
     var boundScopes = {};
     var scopeinfo = context.scopes;
+
     function bindToScope(scope, event) {
+      //console.log('bindToScope', scope, event);
       scope.on(event, context.update);
       scopeinfo.push(scope, event);
     }
@@ -338,7 +347,7 @@ var rheses = (function() {
         // listen for mouse move events
         //console.info('binding to', propname, 'mouse event');
         Mouse.start();
-        bindToScope(Mouse.selector, 'move');
+        bindToScope($(Mouse), 'move');
       }
       if (scopeel instanceof HTMLElement) {
         // bind to style change event
