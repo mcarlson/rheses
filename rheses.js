@@ -9,22 +9,21 @@ var rheses = (function() {
     if (!disabled) {
       var styles = {};
       if (typeof arguments[0] != 'object') {
-        styles[arguments[0]] = true;
+        styles[arguments[0]] = arguments[1];
       } else {
         styles = arguments[0];
       }
-      var scope = $(this);
-      scope.each(function(i, e) {
+      var self = $(this);
+      for (var i = 0, l = self.length; i < l; i++) {
+        var e = self[i];
         if (e && e.$sendstyle) {
           for (var style in styles) {
-            //console.log('each', style, styles, e);
             if (e.$sendstyle[style]) {
-              //console.log('style change event', style, e);
-              $(e).trigger('style-' + style);
+              self.trigger('style-' + style);
             }
           }
         }
-      });
+      }
     }
     return this;
   };
@@ -34,91 +33,89 @@ var rheses = (function() {
   $.fn.animate = function() {
     var args = Array.prototype.slice.call(arguments, 0);
     if (!disabled) {
-      $(this).each(function(i, e) {
-        if (e && e.$sendstyle) {
-          //console.log('animate', e.$sendstyle, args);
-          if (typeof args[1] != 'object') {
-            // process as duration
-            args[1] = {
-              duration: args[1],
-              easing: args[2],
-              complete: args[3]
-            };
-            args.length = 2;
-            //console.log('processed arguments', args);
-          }
+      //console.log('animate', e.$sendstyle, args);
 
-          // collect list of styles to send
-          var sendstyle = [];
-          for (var style in args[0]) {
-            if (e.$sendstyle[style]) {
-              sendstyle.push(style);
-            }
-          }
-          if (sendstyle.length) {
-            // change step method to send style events
-            var oldstep = args[1].step;
-            args[1].step = function() {
-              if (oldstep) oldstep.call(this, arguments);
-              for (var i = 0, l = sendstyle.length; i < l; i++) {
-                var style = sendstyle[i];
-                //console.log('sending style update', style, arguments[1]);
-                $(e).trigger('style-' + style);
-              }
-            };
+      // normalize args
+      if (typeof args[1] != 'object') {
+        // process as duration
+        args[1] = {
+          duration: args[1],
+          easing: args[2],
+          complete: args[3]
+        };
+        args.length = 2;
+        //console.log('processed arguments', args);
+      }
+
+      // collect list of style events to send
+      var self = $(this);
+      var styles = {};
+      var found = false;
+      for (var style in args[0]) {
+        for (var i = 0, l = self.length; i < l; i++) {
+          var e = self[i];
+          if (e && e.$sendstyle && e.$sendstyle[style]) {
+            found = styles[style] = true;
+            break;
           }
         }
-      });
+      }
+      if (found) {
+        // change step method to send style events
+        var oldstep = args[1].step;
+        args[1].step = function() {
+          if (oldstep) oldstep.call(this, arguments);
+          for (var style in styles) {
+            //console.log('sending style update', style, arguments[1]);
+            self.trigger('style-' + style);
+          }
+        };
+      }
     }
     return origanimate.apply(this, args);
   };
 
-  // borrowed from underscore
-  var throttle = function(n, t) {
-    var r, e, u, i, a = 0,
-      o = function() {
-        a = new Date, u = null, i = n.apply(r, e)
-      };
-    return function() {
-      var c = new Date,
-        l = t - (c - a);
-      return r = this, e = arguments, 0 >= l ? (clearTimeout(u), u = null, a = c, i = n.apply(r, e)) : u || (u = setTimeout(o, l)), i
-    }
-  };
+  var requestAnimationFrame = window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || function(delegate) {
+      setTimeout(delegate, 17);
+    };
 
-  // singleton that listens for mouse position and holds the last x and y coordinate
+  // singleton that listens for mouse position and holds the last left and top coordinate
   Mouse = {
-    x: 0,
-    y: 0,
+    left: 0,
+    top: 0,
+    started: null,
+    dirty: false,
+    sender: function() {
+      if (this.started) requestAnimationFrame(this.sender);
+      if (this.dirty) {
+        this.dirty = false;
+        this.selector.trigger("move");
+      }
+    },
     handler: function(event) {
       //if (disabled) return;
-      var x = event.pageX;
-      var y = event.pageY;
-      if ((Mouse.x === x) && (Mouse.y === y)) return;
-      Mouse.x = x;
-      Mouse.y = y;
-      $(Mouse).trigger("move");
+      this.dirty = true;
+      this.left = event.pageX;
+      this.top = event.pageY;
     },
-    start: function(interval) {
-      interval = interval || 17;
-
-      this.update = this.handler;
-      if (interval > 0) {
-        this.update = throttle(this.update, interval);
+    start: function() {
+      if (this.started === null) {
+        this.selector = $(this);
+        this.offset = this.position;
+        this.sender = this.sender.bind(this);
+        this.handler = this.handler.bind(this);
       }
-
-      this.stop();
-      $(document).on("mousemove", this.update);
+      this.started = true;
+      requestAnimationFrame(this.sender);
+      $(document).on("mousemove", this.handler);
     },
     stop: function() {
-      $(document).off("mousemove", this.update);
+      this.started = false;
+      $(document).off("mousemove", this.handler);
     },
     position: function() {
       // compatible with JQuery
-      return {
-        left: this.x,
-        top: this.y
-      };
+      return this;
     }
   };
 
@@ -198,8 +195,8 @@ var rheses = (function() {
   // rewrite expressions in AST
   var exprWalker = {};
   exprWalker.MemberExpression = function(n, p) {
-    var prop = n.property.name;
-    var scope = n.object;
+    //var prop = n.property.name;
+    //var scope = n.object;
     idWalker.process(n);
     //console.log('expr', prop, scope, n);
     return true;
@@ -209,20 +206,25 @@ var rheses = (function() {
   var scopeWalker = {
     foundScopes: []
   };
+  // filter out global constructors
+  var skipScopes = {
+    Math: true
+  };
   scopeWalker.MemberExpression = function(n, p) {
+    if (n.object.name in skipScopes) return true;
     var prop = n.property.name;
-    var scope = n.object;
     // remove last property to find scope
     n = n.object;
 
     idWalker.process(n);
-    //console.log('found scope', acorn.stringify(n), prop, scope, n);
+    //console.log('found scope', scopename, prop, n);
     scopeWalker.foundScopes.push({
-      scope: n,
+      scope: acorn.stringify(n),
       propname: prop
     });
     return true;
   };
+
   findScopes = function(jsexpression) {
     var scope = acorn.parse(jsexpression);
     scopeWalker.foundScopes = [];
@@ -233,11 +235,10 @@ var rheses = (function() {
   // create function from a javascipt function body, bound so 'this' is bound to an element
   var returnBoundExpression = function(javascript, el) {
     //console.log('parsing ', javascript);
-    return $.proxy(new Function([], javascript), el);
+    return (new Function([], javascript)).bind(el);
   };
 
-  // applies a constraint to a given element's css property, returning an expression to be evaluated once
-  var applyConstraint = function(el, cssprop, jsexpression) {
+  var parseExpression = function(jsexpression) {
     var ast;
     try {
       ast = acorn.parse(jsexpression);
@@ -247,76 +248,89 @@ var rheses = (function() {
     }
     // modify expressions in place
     acorn.walkDown(ast, exprWalker);
-    var parsedExpression = acorn.stringify(ast);
+    return acorn.stringify(ast);
+  };
+
+  // applies a constraint to a given element's css property, returning an expression to be evaluated once
+  var applyConstraint = function(el, cssprop, jsexpression) {
+    parsedExpression = parseExpression(jsexpression);
 
     var constraints = el.$constraints = (el.$constraints || {});
     // store parsed expressions
     if (!constraints[cssprop]) {
       constraints[cssprop] = {
-        get: returnBoundExpression('return ' + parsedExpression, el),
-        scopes: {}
+        //        get: returnBoundExpression('return ' + parsedExpression, el),
+        scopes: []
       };
     } else {
-      console.warn('Not binding: already applied', jsexpression, 'to property', cssprop, 'of', el);
+      //console.warn('Not binding: already applied', jsexpression, 'to property', cssprop, 'of', el);
       return false;
     }
 
     //console.info('Parsed "' + jsexpression + '" to "' + parsedExpression + '"');
+
     // close over this to get access to method and dependent scopes
     var context = constraints[cssprop];
 
-    // Set the css property to the value returned by the getter
-    context.set = function() {
+    // close over getter
+    var get = returnBoundExpression('return ' + parsedExpression, el);
+
+    // cache selector
+    var selector = $(el);
+
+    // store in the context for updateConstraints
+    context.update = function(e) {
+      // Updates the css property to the value returned by the getter
+      if (e) e.stopPropagation();
       if (disabled) return;
-      var get = el && el.$constraints && el.$constraints[cssprop] && el.$constraints[cssprop].get;
-      if (get) {
-        //console.log('set', cssprop, get(), el);
-        $(el).css(cssprop, get());
-      }
+      //var get = el && el.$constraints && el.$constraints[cssprop] && el.$constraints[cssprop].get;
+      //if (get) {
+      selector.css(cssprop, get());
+      //console.log('update', cssprop, context.get());
+      //}
     };
 
-    var localel = el;
+    var boundScopes = {};
+    var scopeinfo = context.scopes;
     // listen for style change events for each scope used by the expression
     findScopes(jsexpression).forEach(function(item) {
-      var scopeAST = item.scope;
+      var scopejs = item.scope;
       var propname = item.propname;
 
       // evaluate the scope relative to the element, returns a jquery expression 
-      var scopejs = acorn.stringify(scopeAST);
       var key = scopejs + '.' + propname;
-      if (context.scopes[key]) {
-        console.warn('Not binding: scope already bound for', key, 'in', parsedExpression, 'for', el);
+      if (boundScopes[key]) {
+        //console.warn('Not binding: scope already bound for', key, 'in', parsedExpression, 'for', el);
         return;
       }
-      var jqel = returnBoundExpression('return ' + scopejs, localel)();
-      //console.log('processing scope', propname, body, 'in', parsedExpression);
+      var scopes = returnBoundExpression('return ' + scopejs, el)();
+      //console.log('processing scope', propname, scopejs, 'in', parsedExpression);
 
       // there should only be one scope element
-      if (jqel.length > 1) {
-        console.warn('"' + body + '" may have an error. Found multiple scopes, only using the first in: ', jqel);
+      if (scopes.length > 1) {
+        console.warn('"' + scopejs + '" may have an error. Found multiple scopes, only using the first in: ', scopes);
       }
 
-      var scopeel = jqel && jqel[0];
-      if (scopeel === localel && propname === cssprop) {
-        console.warn('Not binding: expression "' + body + '" may have an error binding to own property:', cssprop, 'on element', localel);
+      var scopeel = scopes && scopes[0];
+      if (scopeel === el && propname === cssprop) {
+        console.warn('Not binding: expression "' + jsexpression + '" may have an error binding to own property:', cssprop, 'on element', el);
         return;
       }
+      boundScopes[key] = true;
 
-      var scopeinfo;
+      // append scope info for removeConstraint()
       var isBody = scopeel && (scopeel === window || scopeel.localName === 'body');
       if (isBody && (propname === 'width' || propname === 'height')) {
         // width/height bindings to body or window also listen for onresize
         //console.info('binding to', propname, 'resize event on window');
-        $(window).on('resize', context.set);
-        scopeinfo = context.scopes[key] = [];
-        scopeinfo.push(window, 'resize', context.set);
-      } else if (jqel === Mouse) {
+        $(window).on('resize', context.update);
+        scopeinfo.push(window, 'resize');
+      } else if (scopes === Mouse) {
         // listen for mouse move events
         //console.info('binding to', propname, 'mouse event');
-        Mouse.start(17);
-        $(Mouse).on("move", context.set);
-        scopeinfo = context.scopes[key] = [];
-        scopeinfo.push(Mouse, 'value', context.set);
+        Mouse.start();
+        $(Mouse).on("move", context.update);
+        scopeinfo.push(Mouse, 'move');
       }
       if (scopeel instanceof HTMLElement) {
         // bind to style change event
@@ -324,39 +338,26 @@ var rheses = (function() {
         if (!scopeel.$sendstyle) scopeel.$sendstyle = {};
         // so we get style listen events
         scopeel.$sendstyle[propname] = true;
-        var styleListener = function(e) {
-          if (e.target !== scopeel) {
-            //console.log('skipping changed style', propname, scopeel);
-            return;
-          }
-          //console.log('changed style', propname, scopeel);
-          context.set();
-        };
-        //styleListener.bind(scopeel);
         var stylekey = 'style-' + propname;
-        $(scopeel).on(stylekey, styleListener);
-        scopeinfo = context.scopes[key] = [];
-        scopeinfo.push(scopeel, stylekey, styleListener);
+        scopes.on(stylekey, context.update);
+        scopeinfo.push(scopeel, stylekey);
       }
     });
 
-    context.set();
+    context.update();
     return this;
   };
 
   var removeConstraint = function(el, cssprop) {
     var constraint = el && el.$constraints && el.$constraints[cssprop];
     if (!constraint) return;
+    var method = constraint.update;
     var scopes = constraint.scopes;
-    for (var scopekey in scopes) {
-      var scope = scopes[scopekey];
-      for (var i = 0, l = scope.length; i < l; i += 3) {
-        var obj = scope[i];
-        var eventname = scope[i + 1];
-        var fn = scope[i + 2];
-        //console.log('removeConstraint', eventname, obj, fn);
-        $(obj).off(eventname, fn);
-      }
+    for (var i = 0, l = scopes.length; i < l; i += 2) {
+      var obj = scopes[i];
+      var eventname = scopes[i + 1];
+      //console.log('removeConstraint', eventname, obj, fn);
+      $(obj).off(eventname, method);
     }
     delete el.$constraints[cssprop];
   };
@@ -407,8 +408,8 @@ var rheses = (function() {
       var constraints = el.$constraints;
       if (!constraints) return false;
       for (var key in constraints) {
-        //console.log('updateConstraints', constraints, constraints[key].set)
-        constraints[key].set();
+        //console.log('updateConstraints', constraints, constraints[key].update)
+        constraints[key].update();
       }
     });
     return this;
