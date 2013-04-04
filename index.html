@@ -7,6 +7,12 @@
 		  background-image: url(img/background-r.png);
 		  height: 100%;
 	  }
+	  @font-face {
+	    font-family: 'wildride';
+	    src: url('fonts/WildRide.ttf') format('truetype');
+	    font-weight: normal;
+	    font-style: normal;
+		}
 	  .trans {
 	  	background-color: rgba(255,255,255,.5);
 	  	width: 80%;
@@ -21,16 +27,16 @@
 		  position: absolute;
 	  }
 	  #slogan {
-		  background: url(img/you-got-your.png);
-		  background-repeat: no-repeat;
-		  width:543;
-		  height:48;
+		  font-family: wildride;
+		  color: rgb(154,123,75);
+		  font-size: 72px;
 		  position: absolute;
+      text-shadow: 0px 0px 4px rgb(46,36,30);
 		}
 	</style>
-	<script type="text/javascript" src="jquery-1.9.1.min.js"></script>
+	<script type="text/javascript" src="jquery-1.9.1.js"></script>
 	<script type="text/javascript" src="acorn.js"></script>
-	<script type="text/javascript" src="rheses.min.js"></script>
+	<script type="text/javascript" src="rheses.js"></script>
 </head>
 <body>
 	<div class="trans">
@@ -43,6 +49,6 @@
 		Welcome to rhes.es
 	</div>
 	<div id="logo" onclick="rheses.applyConstraint(this, 'left', 'Math.min((parent.width * .5) - (this.width * .5), slogan.left)')"></div>
-	<div id="slogan" r-style="top: Math.max(logo.height + logo.top, Math.min(parent.height - this.height, Mouse.top - this.height + 3)); left: Math.max(0, Math.min(parent.width - this.width, Mouse.left - (this.width / 2)));"></div>
+	<div id="slogan" r-style="top: Math.max(logo.height + logo.top, Math.min(parent.height - this.height, Mouse.top - this.height + 3)); left: Math.max(0, Math.min(parent.width - this.width, Mouse.left - (this.width / 2)));">You got your javascript in my css!</div>
 </body>
 </html>
