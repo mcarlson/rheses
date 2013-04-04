@@ -79,7 +79,7 @@ var rheses = (function() {
       setTimeout(delegate, 17);
     };
 
-  // singleton that listens for mouse position and holds the last left and top coordinate
+  // singleton that listens for mouse position and holds the most recent left and top coordinate
   Mouse = (function() {
     var left = 0;
     var top = 0;
@@ -95,26 +95,28 @@ var rheses = (function() {
     };
     var handler = function(event) {
       //if (disabled) return;
-      dirty = true;
       left = event.pageX;
       top = event.pageY;
+      dirty = true;
     };
+
+    var docSelector = $(document);
 
     var start = function() {
       if (started === null) {
-        selector = $(Mouse);
+        selector = exports.selector = $(Mouse);
       }
       if (started) return;
       started = true;
       requestAnimationFrame(sender);
-      $(document).on("mousemove", handler);
-      $(document).one("mouseout", stop);
+      docSelector.on("mousemove", handler);
+      docSelector.one("mouseout", stop);
     };
     var stop = function() {
       if (!started) return;
       started = false;
-      $(document).off("mousemove", handler);
-      $(document).one("mouseover", start);
+      docSelector.off("mousemove", handler);
+      docSelector.one("mouseover", start);
     };
     var position = function() {
       // compatible with JQuery
@@ -123,12 +125,13 @@ var rheses = (function() {
         left: left
       };
     };
-    return {
+    var exports = {
       start: start,
       stop: stop,
       position: position,
       offset: position
     };
+    return exports;
   })();
 
   /*
@@ -347,7 +350,7 @@ var rheses = (function() {
         // listen for mouse move events
         //console.info('binding to', propname, 'mouse event');
         Mouse.start();
-        bindToScope($(Mouse), 'move');
+        bindToScope(Mouse.selector, 'move');
       }
       if (scopeel instanceof HTMLElement) {
         // bind to style change event
