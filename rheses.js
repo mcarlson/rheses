@@ -15,10 +15,10 @@ var rheses = (function() {
       }
       var self = $(this);
       for (var i = 0, l = self.length; i < l; i++) {
-        var e = self[i];
-        if (e && e.$sendstyle) {
+        var sendstyle = $.data(self[i], 'sendstyle');
+        if (sendstyle) {
           for (var style in styles) {
-            if (e.$sendstyle[style]) {
+            if (sendstyle[style]) {
               self.trigger('style-' + style);
             }
           }
@@ -53,8 +53,8 @@ var rheses = (function() {
       var found = false;
       for (var style in args[0]) {
         for (var i = 0, l = self.length; i < l; i++) {
-          var e = self[i];
-          if (e && e.$sendstyle && e.$sendstyle[style]) {
+          var sendstyle = $.data(self[i], 'sendstyle');
+          if (sendstyle && sendstyle[style]) {
             found = styles[style] = true;
             break;
           }
@@ -257,7 +257,9 @@ var rheses = (function() {
   var applyConstraint = function(el, cssprop, jsexpression) {
     parsedExpression = parseExpression(jsexpression);
 
-    var constraints = el.$constraints = (el.$constraints || {});
+    var constraints = $.data(el, 'constraints') || {};
+    $.data(el, 'constraints', constraints);
+
     // store parsed expressions
     if (!constraints[cssprop]) {
       constraints[cssprop] = {
@@ -285,15 +287,15 @@ var rheses = (function() {
       // Updates the css property to the value returned by the getter
       if (e) e.stopPropagation();
       if (disabled) return;
-      //var get = el && el.$constraints && el.$constraints[cssprop] && el.$constraints[cssprop].get;
-      //if (get) {
       selector.css(cssprop, get());
-      //console.log('update', cssprop, context.get());
-      //}
     };
 
     var boundScopes = {};
     var scopeinfo = context.scopes;
+    function bindToScope(scope, event) {
+      scope.on(event, context.update);
+      scopeinfo.push(scope, event);
+    }
     // listen for style change events for each scope used by the expression
     findScopes(jsexpression).forEach(function(item) {
       var scopejs = item.scope;
@@ -317,7 +319,7 @@ var rheses = (function() {
 
       var scopeel = scope && scope[0];
       if (scopeel === el && propname === cssprop) {
-        console.warn('Not binding: expression "' + jsexpression + '" may have an error binding to own property:', cssprop, 'on element', el);
+        console.warn('Not binding: expression "' + jsexpression + '" may have an error binding to own property', cssprop, 'on element', el);
         return;
       }
       boundScopes[key] = true;
@@ -327,24 +329,21 @@ var rheses = (function() {
       if (isBody && (propname === 'width' || propname === 'height')) {
         // width/height bindings to body or window also listen for onresize
         //console.info('binding to', propname, 'resize event on window');
-        $(window).on('resize', context.update);
-        scopeinfo.push(window, 'resize');
+        bindToScope($(window), 'resize');
       } else if (scope === Mouse) {
         // listen for mouse move events
         //console.info('binding to', propname, 'mouse event');
         Mouse.start();
-        Mouse.selector.on("move", context.update);
-        scopeinfo.push(Mouse, 'move');
+        bindToScope(Mouse.selector, 'move');
       }
       if (scopeel instanceof HTMLElement) {
         // bind to style change event
         //console.info('binding to', propname, 'style change event on', scopeel);
-        if (!scopeel.$sendstyle) scopeel.$sendstyle = {};
-        // so we get style listen events
-        scopeel.$sendstyle[propname] = true;
-        var stylekey = 'style-' + propname;
-        scope.on(stylekey, context.update);
-        scopeinfo.push(scopeel, stylekey);
+        var sendstyle = $.data(scopeel, 'sendstyle') || {};
+        // so we get style events
+        sendstyle[propname] = true;
+        $.data(scopeel, 'sendstyle', sendstyle);
+        bindToScope(scope, 'style-' + propname);
       }
     });
 
@@ -353,8 +352,10 @@ var rheses = (function() {
   };
 
   var removeConstraint = function(el, cssprop) {
-    var constraint = el && el.$constraints && el.$constraints[cssprop];
-    if (!constraint) return;
+    var constraints = $.data(el, 'constraints');
+    if (!constraints) return;
+    // unbind scopes
+    var constraint = constraints && constraints[cssprop];
     var method = constraint.update;
     var scopes = constraint.scopes;
     for (var i = 0, l = scopes.length; i < l; i += 2) {
@@ -363,7 +364,7 @@ var rheses = (function() {
       //console.log('removeConstraint', eventname, obj, method);
       $(obj).off(eventname, method);
     }
-    delete el.$constraints[cssprop];
+    delete constraints[cssprop];
   };
 
   var unbindConstraints = function(selector, cssprop) {
@@ -371,7 +372,7 @@ var rheses = (function() {
     $(selector).each(function(zstyle, el) {
       if (cssprop === undefined) {
         // remove constraints for all properties
-        var constraints = el && el.$constraints;
+        var constraints = $.data(el, 'constraints');
         if (constraints) {
           for (var prop in constraints) {
             removeConstraint(el, prop);
@@ -409,7 +410,7 @@ var rheses = (function() {
   var updateConstraints = function(selector) {
     selector = selector || '[r-style]';
     $(selector).each(function(zstyle, el) {
-      var constraints = el.$constraints;
+      var constraints = $.data(el, 'constraints');
       if (!constraints) return false;
       for (var key in constraints) {
         //console.log('updateConstraints', constraints, constraints[key].update)
