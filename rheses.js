@@ -100,6 +100,7 @@ var rheses = (function() {
       this.top = event.pageY;
     },
     start: function() {
+      if (this.started) return;
       if (this.started === null) {
         this.selector = $(this);
         this.offset = this.position;
@@ -109,10 +110,13 @@ var rheses = (function() {
       this.started = true;
       requestAnimationFrame(this.sender);
       $(document).on("mousemove", this.handler);
+      $(document).one("mouseout", this.stop);
     },
     stop: function() {
+      if (! this.started) return;
       this.started = false;
       $(document).off("mousemove", this.handler);
+      $(document).one("mouseover", this.start);
     },
     position: function() {
       // compatible with JQuery
