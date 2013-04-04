@@ -1,25 +1,28 @@
-var rheses = (function() {
+var rheses = (function($) {
   // if true, jQuery acts normally and constraints are disabled
   var disabled = false;
 
+  var eventNamespace = '.rheses';
   // hack jquery to send a style event when CSS changes, see http://stackoverflow.com/questions/2157963/is-it-possible-to-listen-to-a-style-change-event
   var origcss = $.fn.css;
   $.fn.css = function() {
     origcss.apply(this, arguments);
     if (!disabled) {
       var styles = {};
-      if (typeof arguments[0] != 'object') {
-        styles[arguments[0]] = arguments[1];
+      var firstarg = arguments[0];
+      if (typeof firstarg != 'object') {
+        styles[firstarg] = arguments[1];
       } else {
-        styles = arguments[0];
+        styles = firstarg;
       }
       var self = $(this);
       for (var i = 0, l = self.length; i < l; i++) {
         var sendstyle = $.data(self[i], 'sendstyle');
         if (sendstyle) {
           for (var style in styles) {
+            // filter to styles registered on this element
             if (sendstyle[style]) {
-              self.trigger('style-' + style);
+              self.trigger(style + eventNamespace);
             }
           }
         }
@@ -47,30 +50,20 @@ var rheses = (function() {
         //console.log('processed arguments', args);
       }
 
-      // collect list of style events to send
+      // change step method to send style events for all possible animated styles
+      var otherstep = args[1].step;
       var self = $(this);
-      var styles = {};
-      var found = false;
-      for (var style in args[0]) {
-        for (var i = 0, l = self.length; i < l; i++) {
-          var sendstyle = $.data(self[i], 'sendstyle');
-          if (sendstyle && sendstyle[style]) {
-            found = styles[style] = true;
-            break;
-          }
+      args[1].step = function(now, fx) {
+        // call other step function if provided
+        if (otherstep) otherstep.call(this, arguments);
+
+        var style = fx.prop;
+        var sendstyle = $.data(this, 'sendstyle');
+        if (sendstyle && sendstyle[style]) {
+          //console.log('sending style update', style, this, now, fx);
+          self.trigger(style + eventNamespace);
         }
-      }
-      if (found) {
-        // change step method to send style events
-        var oldstep = args[1].step;
-        args[1].step = function() {
-          if (oldstep) oldstep.call(this, arguments);
-          for (var style in styles) {
-            //console.log('sending style update', style, arguments[1]);
-            self.trigger('style-' + style);
-          }
-        };
-      }
+      };
     }
     return origanimate.apply(this, args);
   };
@@ -103,10 +96,10 @@ var rheses = (function() {
     var docSelector = $(document);
 
     var start = function() {
+      if (started) return;
       if (started === null) {
         selector = exports.selector = $(Mouse);
       }
-      if (started) return;
       started = true;
       requestAnimationFrame(sender);
       docSelector.on("mousemove", handler);
@@ -151,8 +144,11 @@ var rheses = (function() {
 
   // process identifiers in AST
   var idWalker = {
+    // default scope
     scope: 'this'
   };
+
+  // rewrites identifiers and determines top-level scope
   idWalker.process = function(n) {
     var findOuterIdentifier = function(n) {
       while (n.object && n.object.type === 'MemberExpression') {
@@ -204,7 +200,7 @@ var rheses = (function() {
     // rewrite to a regular identifier
     n.type = "Identifier";
     n.name = "$(this)";
-    // don't apply scope
+    // don't prepend scope
     idWalker.scope = null;
   };
 
@@ -229,7 +225,7 @@ var rheses = (function() {
   scopeWalker.MemberExpression = function(n, p) {
     if (n.object.name in skipScopes) return true;
     var prop = n.property.name;
-    // remove last property to find scope
+    // remove last property
     n = n.object;
 
     idWalker.process(n);
@@ -304,14 +300,15 @@ var rheses = (function() {
       selector.css(cssprop, get());
     };
 
-    var boundScopes = {};
     var scopeinfo = context.scopes;
-
-    function bindToScope(scope, event) {
+    function bindToScope(event, scope) {
       //console.log('bindToScope', scope, event);
-      scope.on(event, context.update);
-      scopeinfo.push(scope, event);
+      scope.on(event + eventNamespace, context.update);
+      scopeinfo.push(event, scope);
     }
+
+    // track scopes we are already bound to
+    var boundScopes = {};
     // listen for style change events for each scope used by the expression
     findScopes(jsexpression).forEach(function(item) {
       var scopejs = item.scope;
@@ -345,21 +342,23 @@ var rheses = (function() {
       if (isBody && (propname === 'width' || propname === 'height')) {
         // width/height bindings to body or window also listen for onresize
         //console.info('binding to', propname, 'resize event on window');
-        bindToScope($(window), 'resize');
+        bindToScope('resize', $(window));
       } else if (scope === Mouse) {
         // listen for mouse move events
         //console.info('binding to', propname, 'mouse event');
         Mouse.start();
-        bindToScope(Mouse.selector, 'move');
+        bindToScope('move', Mouse.selector);
       }
       if (scopeel instanceof HTMLElement) {
         // bind to style change event
         //console.info('binding to', propname, 'style change event on', scopeel);
-        var sendstyle = $.data(scopeel, 'sendstyle') || {};
+        var sendstyle = $.data(scopeel, 'sendstyle');
+        if (! sendstyle) {
+          sendstyle = $.data(scopeel, 'sendstyle', {});
+        }
         // so we get style events
         sendstyle[propname] = true;
-        $.data(scopeel, 'sendstyle', sendstyle);
-        bindToScope(scope, 'style-' + propname);
+        bindToScope(propname, scope);
       }
     });
 
@@ -375,8 +374,8 @@ var rheses = (function() {
     var method = constraint.update;
     var scopes = constraint.scopes;
     for (var i = 0, l = scopes.length; i < l; i += 2) {
-      var obj = scopes[i];
-      var eventname = scopes[i + 1];
+      var obj = scopes[i + 1];
+      var eventname = scopes[i];
       //console.log('removeConstraint', eventname, obj, method);
       $(obj).off(eventname, method);
     }
@@ -454,4 +453,4 @@ var rheses = (function() {
     setEnabled: setEnabled,
     updateConstraints: updateConstraints
   };
-})();
+})(jQuery);
