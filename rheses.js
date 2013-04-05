@@ -1,8 +1,9 @@
-var rheses = (function($) {
+(function($) {
   // if true, jQuery acts normally and constraints are disabled
   var disabled = false;
 
-  var eventNamespace = '.rheses';
+  var eventNamespace = '.style';
+
   // hack jquery to send a style event when CSS changes, see http://stackoverflow.com/questions/2157963/is-it-possible-to-listen-to-a-style-change-event
   var origcss = $.fn.css;
   $.fn.css = function() {
@@ -15,9 +16,9 @@ var rheses = (function($) {
       } else {
         styles = firstarg;
       }
-      var self = $(this);
-      for (var i = 0, l = self.length; i < l; i++) {
-        var sendstyle = $.data(self[i], 'sendstyle');
+      var self = this;
+      this.each(function(i, el) {
+        var sendstyle = $.data(el, 'sendstyle');
         if (sendstyle) {
           for (var style in styles) {
             // filter to styles registered on this element
@@ -26,7 +27,7 @@ var rheses = (function($) {
             }
           }
         }
-      }
+      });
     }
     return this;
   };
@@ -52,7 +53,7 @@ var rheses = (function($) {
 
       // change step method to send style events for all possible animated styles
       var otherstep = args[1].step;
-      var self = $(this);
+      var self = this;
       args[1].step = function(now, fx) {
         // call other step function if provided
         if (otherstep) otherstep.call(this, arguments);
@@ -67,71 +68,99 @@ var rheses = (function($) {
     }
     return origanimate.apply(this, args);
   };
+  $.fn.bindStyle = function(style, callback) {
+    var self = this;
+    return this.each(function() {
+      var sendstyle = $.data(this, 'sendstyle');
+      if (!sendstyle) {
+        sendstyle = $.data(this, 'sendstyle', {});
+      }
+      //console.log('bindStyle', style, this, sendstyle);
+      // so we get style events
+      sendstyle[style] = true;
+      self.on(style + eventNamespace, callback);
+    });
+  };
+  $.fn.unbindStyle = function(callback, style) {
+    if (!style) style = '';
+    style += eventNamespace;
+    var self = this;
+    return this.each(function() {
+      //console.log('unbindStyle', style, callback);
+      self.off(style, callback);
+    });
+  };
+})(jQuery);
 
+
+// singleton that listens for mouse position and holds the most recent left and top coordinate
+Mouse = (function($) {
   var requestAnimationFrame = window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || function(delegate) {
       setTimeout(delegate, 17);
     };
+  var left = 0;
+  var top = 0;
+  var started = null;
+  var dirty = false;
+  var selector = null;
+  var sender = function() {
+    if (started) requestAnimationFrame(sender);
+    if (dirty) {
+      dirty = false;
+      selector.trigger("move");
+    }
+  };
+  var handler = function(event) {
+    //if (disabled) return;
+    left = event.pageX;
+    top = event.pageY;
+    dirty = true;
+  };
 
-  // singleton that listens for mouse position and holds the most recent left and top coordinate
-  Mouse = (function() {
-    var left = 0;
-    var top = 0;
-    var started = null;
-    var dirty = false;
-    var selector = null;
-    var sender = function() {
-      if (started) requestAnimationFrame(sender);
-      if (dirty) {
-        dirty = false;
-        selector.trigger("move");
-      }
-    };
-    var handler = function(event) {
-      //if (disabled) return;
-      left = event.pageX;
-      top = event.pageY;
-      dirty = true;
-    };
+  var docSelector = $(document);
 
-    var docSelector = $(document);
-
-    var start = function() {
-      if (started) return;
-      if (started === null) {
-        selector = exports.selector = $(Mouse);
-      }
-      started = true;
-      requestAnimationFrame(sender);
-      docSelector.on("mousemove", handler);
-      docSelector.one("mouseout", stop);
+  var start = function() {
+    if (started) return;
+    if (started === null) {
+      selector = exports.selector = $(Mouse);
+    }
+    started = true;
+    requestAnimationFrame(sender);
+    docSelector.on("mousemove", handler);
+    docSelector.one("mouseout", stop);
+  };
+  var stop = function() {
+    if (!started) return;
+    started = false;
+    docSelector.off("mousemove", handler);
+    docSelector.one("mouseover", start);
+  };
+  var position = function() {
+    // compatible with JQuery
+    return {
+      top: top,
+      left: left
     };
-    var stop = function() {
-      if (!started) return;
-      started = false;
-      docSelector.off("mousemove", handler);
-      docSelector.one("mouseover", start);
-    };
-    var position = function() {
-      // compatible with JQuery
-      return {
-        top: top,
-        left: left
-      };
-    };
-    var exports = {
-      start: start,
-      stop: stop,
-      position: position,
-      offset: position
-    };
-    return exports;
-  })();
-
-  /*
+  };
+  var exports = {
+    start: start,
+    stop: stop,
+    position: position,
+    offset: position
+  };
+  return exports;
+})(jQuery);
+/*
   $(Mouse).on("move", function(e){
     console.log("move just happened.", e);
   });
-  */
+*/
+
+var rheses = (function($) {
+  var disabled = false;
+
+  var eventNamespace = '.rheses';
+
 
   // transform names to jQuery expressions
   var transforms = {
@@ -301,10 +330,12 @@ var rheses = (function($) {
 
     // track events for unbindConstraint()
     var scopeinfo = context.scopes;
+
     function bindToScope(event, scope) {
       //console.log('bindToScope', event, scope);
-      scope.on(event + eventNamespace, context.update);
-      scopeinfo.push(event, scope);
+      event += eventNamespace;
+      scope.on(event, context.update);
+      scopeinfo.push(scope);
     }
 
     // track scopes we are already bound to
@@ -352,13 +383,9 @@ var rheses = (function($) {
       if (scopeel instanceof HTMLElement) {
         // bind to style change event
         //console.info('binding to', propname, 'style change event on', scopeel);
-        var sendstyle = $.data(scopeel, 'sendstyle');
-        if (! sendstyle) {
-          sendstyle = $.data(scopeel, 'sendstyle', {});
-        }
-        // so we get style events
-        sendstyle[propname] = true;
-        bindToScope(propname, scope);
+        scope.bindStyle(propname, context.update);
+        // for cleanup later
+        scopeinfo.push(scope);
       }
     });
 
@@ -374,11 +401,11 @@ var rheses = (function($) {
     var constraint = constraints && constraints[cssprop];
     var method = constraint.update;
     var scopes = constraint.scopes;
-    for (var i = 0, l = scopes.length; i < l; i += 2) {
-      var obj = scopes[i + 1];
-      var eventname = scopes[i];
-      //console.log('unbindConstraint', eventname, obj, method);
-      $(obj).off(eventname, method);
+    for (var i = 0, l = scopes.length; i < l; i++) {
+      var obj = scopes[i];
+      //console.log('unbindConstraint', obj, method);
+      // clear all style and rhesus-specific events
+      obj.unbindStyle(method).off(eventNamespace, method);
     }
     delete constraints[cssprop];
   };
@@ -388,7 +415,7 @@ var rheses = (function($) {
   // unbind constraints for the given selector. If cssprop isn't specified, unregister all constraints.
   var unbindConstraints = function(selector, cssprop) {
     selector = selector || defaultSelector;
-    $(selector).each(function(zstyle, el) {
+    $(selector).each(function(i, el) {
       if (cssprop === undefined) {
         // remove constraints for all properties
         var constraints = $.data(el, 'constraints');
@@ -409,7 +436,7 @@ var rheses = (function($) {
   var bindConstraints = function(selector) {
     selector = selector || defaultSelector;
     // TODO: use jquery.live/on() to listen for new elements
-    $(selector).each(function(zstyle, el) {
+    $(selector).each(function(i, el) {
       var css = el.getAttribute('r-style');
 
       // TODO: use a real CSS parser
@@ -428,7 +455,7 @@ var rheses = (function($) {
   // update constraints for the given selector, or update all elements with r-style attributes
   var updateConstraints = function(selector) {
     selector = selector || defaultSelector;
-    $(selector).each(function(zstyle, el) {
+    $(selector).each(function(i, el) {
       var constraints = $.data(el, 'constraints');
       if (!constraints) return false;
       for (var key in constraints) {
