@@ -27,11 +27,14 @@ var rheses = (function() {
   var doTick = function() {
     for (var key in tickEvents) {
       //console.log('tick', key, tickEvents[key]);
-      tickEvents[key]();
+      if (tickEvents[key]) {
+        tickEvents[key]();
+        tickEvents[key] = null;
+      }
     }
-    tickEvents = {};
     ticking = false;
   };
+
   function requestTick(key, callback) {
     tickEvents[key] = callback;
     if (!ticking) {
@@ -39,7 +42,7 @@ var rheses = (function() {
     }
     ticking = true;
   }
-  // singleton that listens for mouse position and holds the most recent left and top coordinate
+  // singleton that listens for mouse position and holds the most recent left and top coordinates
   Mouse = (function() {
     var left = 0;
     var top = 0;
@@ -214,6 +217,7 @@ var rheses = (function() {
     return (new Function([], javascript)).bind(el);
   };
 
+  var guid = 0;
   // applies a constraint to a given element's css property, returning an expression to be evaluated once
   var applyConstraint = function(el, cssprop, jsexpression) {
     parsedExpression = parseExpression(jsexpression);
@@ -230,7 +234,7 @@ var rheses = (function() {
       constraints[cssprop] = {
         //        get: returnBoundExpression('return ' + parsedExpression, el),
         scopes: []
-//        js: parsedExpression
+        //js: parsedExpression
       };
     }
 
@@ -244,12 +248,17 @@ var rheses = (function() {
 
     // close over getter
     var get = returnBoundExpression('return ' + parsedExpression, selector);
+    var set = function() {
+      selector.css(cssprop, get());
+    };
 
+    var uid = guid++;
     // store in the context for updateConstraints
     context.update = function() {
       // Updates the css property to the value returned by the getter
       if (disabled) return;
-      selector.css(cssprop, get());
+      requestTick(uid, set);
+      //set();
       // stop propagation
       return false;
     };
