@@ -1,166 +1,74 @@
-(function($) {
+var rheses = (function() {
   // if true, jQuery acts normally and constraints are disabled
-  var disabled = false;
-
-  var eventNamespace = '.style';
-
-  // hack jquery to send a style event when CSS changes, see http://stackoverflow.com/questions/2157963/is-it-possible-to-listen-to-a-style-change-event
-  var origcss = $.fn.css;
-  $.fn.css = function() {
-    origcss.apply(this, arguments);
-    if (!disabled) {
-      var styles = {};
-      var firstarg = arguments[0];
-      if (typeof firstarg != 'object') {
-        styles[firstarg] = arguments[1];
-      } else {
-        styles = firstarg;
-      }
-      var self = this;
-      this.each(function(i, el) {
-        var sendstyle = $.data(el, 'sendstyle');
-        if (sendstyle) {
-          for (var style in styles) {
-            // filter to styles registered on this element
-            if (sendstyle[style]) {
-              self.trigger(style + eventNamespace);
-            }
-          }
-        }
-      });
-    }
-    return this;
-  };
-
-  // hack animate to send style change events when needed
-  var origanimate = $.fn.animate;
-  $.fn.animate = function() {
-    var args = Array.prototype.slice.call(arguments, 0);
-    if (!disabled) {
-      //console.log('animate', e.$sendstyle, args);
-
-      // normalize args to ( properties, options ) signature
-      if (typeof args[1] != 'object') {
-        // process as duration
-        args[1] = {
-          duration: args[1],
-          easing: args[2],
-          complete: args[3]
-        };
-        args.length = 2;
-        //console.log('processed arguments', args);
-      }
-
-      // change step method to send style events for all possible animated styles
-      var otherstep = args[1].step;
-      var self = this;
-      args[1].step = function(now, fx) {
-        // call other step function if provided
-        if (otherstep) otherstep.call(this, arguments);
-
-        var style = fx.prop;
-        var sendstyle = $.data(this, 'sendstyle');
-        if (sendstyle && sendstyle[style]) {
-          //console.log('sending style update', style, this, now, fx);
-          self.trigger(style + eventNamespace);
-        }
-      };
-    }
-    return origanimate.apply(this, args);
-  };
-  $.fn.bindStyle = function(style, callback) {
-    var self = this;
-    return this.each(function() {
-      var sendstyle = $.data(this, 'sendstyle');
-      if (!sendstyle) {
-        sendstyle = $.data(this, 'sendstyle', {});
-      }
-      //console.log('bindStyle', style, this, sendstyle);
-      // so we get style events
-      sendstyle[style] = true;
-      self.on(style + eventNamespace, callback);
-    });
-  };
-  $.fn.unbindStyle = function(callback, style) {
-    if (!style) style = '';
-    style += eventNamespace;
-    var self = this;
-    return this.each(function() {
-      //console.log('unbindStyle', style, callback);
-      self.off(style, callback);
-    });
-  };
-})(jQuery);
-
-
-// singleton that listens for mouse position and holds the most recent left and top coordinate
-Mouse = (function($) {
-  var requestAnimationFrame = window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || function(delegate) {
-      setTimeout(delegate, 17);
-    };
-  var left = 0;
-  var top = 0;
-  var started = null;
-  var dirty = false;
-  var selector = null;
-  var sender = function() {
-    if (started) requestAnimationFrame(sender);
-    if (dirty) {
-      dirty = false;
-      selector.trigger("move");
-    }
-  };
-  var handler = function(event) {
-    //if (disabled) return;
-    left = event.pageX;
-    top = event.pageY;
-    dirty = true;
-  };
-
-  var docSelector = $(document);
-
-  var start = function() {
-    if (started) return;
-    if (started === null) {
-      selector = exports.selector = $(Mouse);
-    }
-    started = true;
-    requestAnimationFrame(sender);
-    docSelector.on("mousemove", handler);
-    docSelector.one("mouseout", stop);
-  };
-  var stop = function() {
-    if (!started) return;
-    started = false;
-    docSelector.off("mousemove", handler);
-    docSelector.one("mouseover", start);
-  };
-  var position = function() {
-    // compatible with JQuery
-    return {
-      top: top,
-      left: left
-    };
-  };
-  var exports = {
-    start: start,
-    stop: stop,
-    position: position,
-    offset: position
-  };
-  return exports;
-})(jQuery);
-/*
-  $(Mouse).on("move", function(e){
-    console.log("move just happened.", e);
-  });
-*/
-
-var rheses = (function($) {
   var disabled = false;
 
   var eventNamespace = '.rheses';
 
+  // hack jquery to send a style event when CSS changes
+  var origstyle = $.style;
+  $.style = function(elem, name, value) {
+    var returnval = origstyle.apply(this, arguments);
+    if (!(value === undefined || disabled)) {
+      // we are setting and aren't disabled
+      var sendstyle = $.data(elem, 'sendstyle');
+      if (sendstyle && sendstyle[name]) {
+        $(elem).trigger(name + eventNamespace);
+      }
+    }
+    return returnval;
+  };
+
+  var requestAnimationFrame = window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || function(delegate) {
+      setTimeout(delegate, 17);
+    };
+  // singleton that listens for mouse position and holds the most recent left and top coordinate
+  Mouse = (function() {
+    var left = 0;
+    var top = 0;
+    var started = null;
+    var selector = $(this);
+    var docSelector = $(document);
+    var sender = function() {
+      selector.trigger("move");
+    };
+    var handler = function(event) {
+      //if (disabled) return;
+      if (started) requestAnimationFrame(sender);
+      left = event.pageX;
+      top = event.pageY;
+    };
+    var start = function() {
+      if (started) return;
+      started = true;
+      docSelector.on("mousemove", handler).one("mouseout", stop);
+    };
+    var stop = function() {
+      if (!started) return;
+      started = false;
+      docSelector.off("mousemove", handler).one("mouseover", start);
+    };
+    var position = function() {
+      // compatible with JQuery
+      return {
+        top: top,
+        left: left
+      };
+    };
+    var exports = {
+      start: start,
+      stop: stop,
+      position: position,
+      offset: position,
+      selector: selector
+    };
+    return exports;
+  })();
+
+  /*
+  $(Mouse).on("move", function(e){
+    console.log("move just happened.", e);
+  });
+  */
 
   // transform names to jQuery expressions
   var transforms = {
@@ -333,8 +241,7 @@ var rheses = (function($) {
 
     function bindToScope(event, scope) {
       //console.log('bindToScope', event, scope);
-      event += eventNamespace;
-      scope.on(event, context.update);
+      scope.on(event + eventNamespace, context.update);
       scopeinfo.push(scope);
     }
 
@@ -383,9 +290,13 @@ var rheses = (function($) {
       if (scopeel instanceof HTMLElement) {
         // bind to style change event
         //console.info('binding to', propname, 'style change event on', scopeel);
-        scope.bindStyle(propname, context.update);
-        // for cleanup later
-        scopeinfo.push(scope);
+        var sendstyle = $.data(scopeel, 'sendstyle');
+        if (!sendstyle) {
+          sendstyle = $.data(scopeel, 'sendstyle', {});
+        }
+        // so we get style events
+        sendstyle[propname] = true;
+        bindToScope(propname, scope);
       }
     });
 
@@ -404,8 +315,8 @@ var rheses = (function($) {
     for (var i = 0, l = scopes.length; i < l; i++) {
       var obj = scopes[i];
       //console.log('unbindConstraint', obj, method);
-      // clear all style and rhesus-specific events
-      obj.unbindStyle(method).off(eventNamespace, method);
+      // clear rhesus-specific events
+      obj.off(eventNamespace, method);
     }
     delete constraints[cssprop];
   };
