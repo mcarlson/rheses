@@ -21,6 +21,24 @@ var rheses = (function() {
   var requestAnimationFrame = window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || function(delegate) {
       setTimeout(delegate, 17);
     };
+
+  var ticking = false;
+  var tickEvents = {};
+  var doTick = function() {
+    for (var key in tickEvents) {
+      //console.log('tick', key, tickEvents[key]);
+      tickEvents[key]();
+    }
+    tickEvents = {};
+    ticking = false;
+  };
+  function requestTick(key, callback) {
+    tickEvents[key] = callback;
+    if (!ticking) {
+      requestAnimationFrame(doTick);
+    }
+    ticking = true;
+  }
   // singleton that listens for mouse position and holds the most recent left and top coordinate
   Mouse = (function() {
     var left = 0;
@@ -33,7 +51,7 @@ var rheses = (function() {
     };
     var handler = function(event) {
       //if (disabled) return;
-      if (started) requestAnimationFrame(sender);
+      if (started) requestTick('mousemove', sender);
       left = event.pageX;
       top = event.pageY;
     };
