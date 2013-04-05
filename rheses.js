@@ -204,7 +204,7 @@ var rheses = (function($) {
     idWalker.scope = null;
   };
 
-  // rewrite expressions in AST
+  // rewrite member expressions in AST
   var exprWalker = {};
   exprWalker.MemberExpression = function(n, p) {
     //var prop = n.property.name;
@@ -215,39 +215,29 @@ var rheses = (function($) {
   };
 
   // Find scopes to listen for changes on
-  var scopeWalker = {
-    foundScopes: []
-  };
-  // filter out global constructors
-  var skipScopes = {
-    Math: true
-  };
+  var scopeWalker = {};
   scopeWalker.MemberExpression = function(n, p) {
-    if (n.object.name in skipScopes) return true;
-    var prop = n.property.name;
+    // Don't process global constructors, e.g. Math
+    if (typeof window[n.object.name] === 'function') return true;
+    var name = n.property.name;
     // remove last property
     n = n.object;
 
     idWalker.process(n);
-    //console.log('found scope', scopename, prop, n);
+    //console.log('found scope', name, n);
     scopeWalker.foundScopes.push({
       scope: acorn.stringify(n),
-      propname: prop
+      propname: name
     });
     return true;
   };
 
+  // Find scope and properties for a given js expression.
   findScopes = function(jsexpression) {
     var scope = acorn.parse(jsexpression);
     scopeWalker.foundScopes = [];
     acorn.walkDown(scope, scopeWalker);
     return scopeWalker.foundScopes;
-  };
-
-  // create function from a javascipt function body, bound so 'this' is bound to an element
-  var returnBoundExpression = function(javascript, el) {
-    //console.log('parsing ', javascript);
-    return (new Function([], javascript)).bind(el);
   };
 
   var parseExpression = function(jsexpression) {
@@ -261,6 +251,12 @@ var rheses = (function($) {
     // modify expressions in place
     acorn.walkDown(ast, exprWalker);
     return acorn.stringify(ast);
+  };
+
+  // create function from a javascipt function body, bound so 'this' is bound to an element
+  var returnBoundExpression = function(javascript, el) {
+    //console.log('parsing ', javascript);
+    return (new Function([], javascript)).bind(el);
   };
 
   // applies a constraint to a given element's css property, returning an expression to be evaluated once
@@ -295,13 +291,15 @@ var rheses = (function($) {
     var get = returnBoundExpression('return ' + parsedExpression, selector);
 
     // store in the context for updateConstraints
-    context.update = function(e) {
+    context.update = function() {
       // Updates the css property to the value returned by the getter
-      if (e) e.stopPropagation();
       if (disabled) return;
       selector.css(cssprop, get());
+      // stop propagation
+      return false;
     };
 
+    // track events for unbindConstraint()
     var scopeinfo = context.scopes;
     function bindToScope(event, scope) {
       //console.log('bindToScope', event, scope);
@@ -368,6 +366,7 @@ var rheses = (function($) {
     return this;
   };
 
+  // unbind a constraint for the given element and css property.
   var unbindConstraint = function(el, cssprop) {
     var constraints = $.data(el, 'constraints');
     if (!constraints) return;
@@ -386,6 +385,7 @@ var rheses = (function($) {
 
   var defaultSelector = '[r-style]';
 
+  // unbind constraints for the given selector. If cssprop isn't specified, unregister all constraints.
   var unbindConstraints = function(selector, cssprop) {
     selector = selector || defaultSelector;
     $(selector).each(function(zstyle, el) {
