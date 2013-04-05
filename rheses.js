@@ -38,7 +38,7 @@ var rheses = (function($) {
     if (!disabled) {
       //console.log('animate', e.$sendstyle, args);
 
-      // normalize args
+      // normalize args to ( properties, options ) signature
       if (typeof args[1] != 'object') {
         // process as duration
         args[1] = {
@@ -270,15 +270,17 @@ var rheses = (function($) {
     var constraints = $.data(el, 'constraints') || {};
     $.data(el, 'constraints', constraints);
 
+    if (constraints[cssprop]) {
+      unbindConstraint(el, cssprop);
+      //console.warn('Removing existing constraint because one is already already applied', constraints[cssprop].js, 'to property', cssprop, 'of', el);
+    }
     // store parsed expressions
     if (!constraints[cssprop]) {
       constraints[cssprop] = {
         //        get: returnBoundExpression('return ' + parsedExpression, el),
         scopes: []
+//        js: parsedExpression
       };
-    } else {
-      //console.warn('Not binding: already applied', jsexpression, 'to property', cssprop, 'of', el);
-      return false;
     }
 
     //console.info('Parsed "' + jsexpression + '" to "' + parsedExpression + '"');
@@ -302,7 +304,7 @@ var rheses = (function($) {
 
     var scopeinfo = context.scopes;
     function bindToScope(event, scope) {
-      //console.log('bindToScope', scope, event);
+      //console.log('bindToScope', event, scope);
       scope.on(event + eventNamespace, context.update);
       scopeinfo.push(event, scope);
     }
@@ -337,7 +339,7 @@ var rheses = (function($) {
       }
       boundScopes[key] = true;
 
-      // append scope info for removeConstraint()
+      // append scope info for unbindConstraint()
       var isBody = scopeel && (scopeel === window || scopeel.localName === 'body');
       if (isBody && (propname === 'width' || propname === 'height')) {
         // width/height bindings to body or window also listen for onresize
@@ -366,7 +368,7 @@ var rheses = (function($) {
     return this;
   };
 
-  var removeConstraint = function(el, cssprop) {
+  var unbindConstraint = function(el, cssprop) {
     var constraints = $.data(el, 'constraints');
     if (!constraints) return;
     // unbind scopes
@@ -376,7 +378,7 @@ var rheses = (function($) {
     for (var i = 0, l = scopes.length; i < l; i += 2) {
       var obj = scopes[i + 1];
       var eventname = scopes[i];
-      //console.log('removeConstraint', eventname, obj, method);
+      //console.log('unbindConstraint', eventname, obj, method);
       $(obj).off(eventname, method);
     }
     delete constraints[cssprop];
@@ -392,12 +394,12 @@ var rheses = (function($) {
         var constraints = $.data(el, 'constraints');
         if (constraints) {
           for (var prop in constraints) {
-            removeConstraint(el, prop);
+            unbindConstraint(el, prop);
           }
         }
       } else {
         // remove constraint for the specified property
-        removeConstraint(el, cssprop);
+        unbindConstraint(el, cssprop);
       }
     });
     return this;
