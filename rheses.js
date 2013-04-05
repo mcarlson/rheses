@@ -1,6 +1,84 @@
-var rheses = (function() {
+//"use strict";
+
+var requestTick = (function() {
+  var requestAnimationFrame = window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || function(delegate) {
+      setTimeout(delegate, 17);
+    };
+  var ticking = false;
+  var tickEvents = {};
+  var doTick = function() {
+    for (var key in tickEvents) {
+      if (tickEvents[key]) {
+        //console.log('tick', key, tickEvents[key]);
+        tickEvents[key]();
+        tickEvents[key] = null;
+      }
+    }
+    ticking = false;
+  };
+
+  return function requestTick(key, callback) {
+    //if (tickEvents[key] !== null) console.log('hit', key)
+    if (!ticking) {
+      requestAnimationFrame(doTick);
+    }
+    ticking = true;
+    tickEvents[key] = callback;
+  };
+})();
+
+// singleton that listens for mouse position and holds the most recent left and top coordinates
+var Mouse = (function($) {
+  var left = 0;
+  var top = 0;
+  var started = null;
+  var selector = $(this);
+  var docSelector = $(document);
+  var sender = function() {
+    selector.trigger("move");
+  };
+  var handler = function(event) {
+    //if (disabled) return;
+    if (started) requestTick(0, sender);
+    left = event.pageX;
+    top = event.pageY;
+  };
+  var start = function() {
+    if (started) return;
+    started = true;
+    docSelector.on("mousemove", handler).one("mouseout", stop);
+  };
+  var stop = function() {
+    if (!started) return;
+    started = false;
+    docSelector.off("mousemove", handler).one("mouseover", start);
+  };
+  var position = function() {
+    // compatible with JQuery
+    return {
+      top: top,
+      left: left
+    };
+  };
+  var exports = {
+    start: start,
+    stop: stop,
+    position: position,
+    offset: position,
+    selector: selector
+  };
+  return exports;
+})(jQuery);
+
+/*
+  $(Mouse).on("move", function(e){
+    console.log("move just happened.", e);
+  });
+  */
+var rheses = (function($, acorn, Mouse, requestTick) {
   // if true, jQuery acts normally and constraints are disabled
   var disabled = false;
+  var console = window.console || function(){};
 
   var eventNamespace = '.rheses';
 
@@ -18,78 +96,7 @@ var rheses = (function() {
     return returnval;
   };
 
-  var requestAnimationFrame = window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || function(delegate) {
-      setTimeout(delegate, 17);
-    };
 
-  var ticking = false;
-  var tickEvents = {};
-  var doTick = function() {
-    for (var key in tickEvents) {
-      //console.log('tick', key, tickEvents[key]);
-      if (tickEvents[key]) {
-        tickEvents[key]();
-        tickEvents[key] = null;
-      }
-    }
-    ticking = false;
-  };
-
-  function requestTick(key, callback) {
-    tickEvents[key] = callback;
-    if (!ticking) {
-      requestAnimationFrame(doTick);
-    }
-    ticking = true;
-  }
-  // singleton that listens for mouse position and holds the most recent left and top coordinates
-  Mouse = (function() {
-    var left = 0;
-    var top = 0;
-    var started = null;
-    var selector = $(this);
-    var docSelector = $(document);
-    var sender = function() {
-      selector.trigger("move");
-    };
-    var handler = function(event) {
-      //if (disabled) return;
-      if (started) requestTick('mousemove', sender);
-      left = event.pageX;
-      top = event.pageY;
-    };
-    var start = function() {
-      if (started) return;
-      started = true;
-      docSelector.on("mousemove", handler).one("mouseout", stop);
-    };
-    var stop = function() {
-      if (!started) return;
-      started = false;
-      docSelector.off("mousemove", handler).one("mouseover", start);
-    };
-    var position = function() {
-      // compatible with JQuery
-      return {
-        top: top,
-        left: left
-      };
-    };
-    var exports = {
-      start: start,
-      stop: stop,
-      position: position,
-      offset: position,
-      selector: selector
-    };
-    return exports;
-  })();
-
-  /*
-  $(Mouse).on("move", function(e){
-    console.log("move just happened.", e);
-  });
-  */
 
   // transform names to jQuery expressions
   var transforms = {
@@ -191,7 +198,7 @@ var rheses = (function() {
   };
 
   // Find scope and properties for a given js expression.
-  findScopes = function(jsexpression) {
+  var findScopes = function(jsexpression) {
     var scope = acorn.parse(jsexpression);
     scopeWalker.foundScopes = [];
     acorn.walkDown(scope, scopeWalker);
@@ -203,7 +210,7 @@ var rheses = (function() {
     try {
       ast = acorn.parse(jsexpression);
     } catch (e) {
-      console.error('Failed to parse', jsexpression, 'for', cssprop, 'of', el);
+      console.error('Failed to parse', jsexpression);
       return false;
     }
     // modify expressions in place
@@ -217,10 +224,10 @@ var rheses = (function() {
     return (new Function([], javascript)).bind(el);
   };
 
-  var guid = 0;
+  var guid = 1;
   // applies a constraint to a given element's css property, returning an expression to be evaluated once
   var applyConstraint = function(el, cssprop, jsexpression) {
-    parsedExpression = parseExpression(jsexpression);
+    var parsedExpression = parseExpression(jsexpression);
 
     var constraints = $.data(el, 'constraints') || {};
     $.data(el, 'constraints', constraints);
@@ -233,6 +240,7 @@ var rheses = (function() {
     if (!constraints[cssprop]) {
       constraints[cssprop] = {
         //        get: returnBoundExpression('return ' + parsedExpression, el),
+        // track events for unbindConstraint()
         scopes: []
         //js: parsedExpression
       };
@@ -249,13 +257,13 @@ var rheses = (function() {
     // close over getter
     var get = returnBoundExpression('return ' + parsedExpression, selector);
     var set = function() {
+      // Updates the css property to the value returned by the getter
       selector.css(cssprop, get());
     };
 
     var uid = guid++;
     // store in the context for updateConstraints
     context.update = function() {
-      // Updates the css property to the value returned by the getter
       if (disabled) return;
       requestTick(uid, set);
       //set();
@@ -263,13 +271,11 @@ var rheses = (function() {
       return false;
     };
 
-    // track events for unbindConstraint()
-    var scopeinfo = context.scopes;
 
     function bindToScope(event, scope) {
       //console.log('bindToScope', event, scope);
       scope.on(event + eventNamespace, context.update);
-      scopeinfo.push(scope);
+      context.scopes.push(scope);
     }
 
     // track scopes we are already bound to
@@ -420,4 +426,4 @@ var rheses = (function() {
     setEnabled: setEnabled,
     updateConstraints: updateConstraints
   };
-})(jQuery);
+})(jQuery, acorn, Mouse, requestTick);
