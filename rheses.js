@@ -78,7 +78,7 @@ var Mouse = (function($) {
 var rheses = (function($, acorn, Mouse, requestTick) {
   // if true, jQuery acts normally and constraints are disabled
   var disabled = false;
-  var console = window.console || function(){};
+  var console = window.console || function() {};
 
   var eventNamespace = '.rheses';
 
@@ -95,8 +95,6 @@ var rheses = (function($, acorn, Mouse, requestTick) {
     }
     return returnval;
   };
-
-
 
   // transform names to jQuery expressions
   var transforms = {
@@ -178,9 +176,21 @@ var rheses = (function($, acorn, Mouse, requestTick) {
     //console.log('expr', prop, scope, n);
     return true;
   };
+  exprWalker.Identifier = function(n, p) {
+    idWalker.process(n);
+    return true;
+  };
 
   // Find scopes to listen for changes on
   var scopeWalker = {};
+  var scopeProcessor = function(node, name) {
+    idWalker.process(node);
+    scopeWalker.foundScopes.push({
+      scope: acorn.stringify(node),
+      propname: name
+    });
+    return true;
+  };
   scopeWalker.MemberExpression = function(n, p) {
     // Don't process global constructors, e.g. Math
     if (typeof window[n.object.name] === 'function') return true;
@@ -188,13 +198,12 @@ var rheses = (function($, acorn, Mouse, requestTick) {
     // remove last property
     n = n.object;
 
-    idWalker.process(n);
-    //console.log('found scope', name, n);
-    scopeWalker.foundScopes.push({
-      scope: acorn.stringify(n),
-      propname: name
-    });
-    return true;
+    return scopeProcessor(n, name);
+  };
+  scopeWalker.Identifier = function(n, p) {
+    var name = n.name;
+    //console.log('Identifier', name, p)
+    return scopeProcessor(n, name);
   };
 
   // Find scope and properties for a given js expression.
@@ -202,6 +211,7 @@ var rheses = (function($, acorn, Mouse, requestTick) {
     var scope = acorn.parse(jsexpression);
     scopeWalker.foundScopes = [];
     acorn.walkDown(scope, scopeWalker);
+    //console.log('findScopes', scopeWalker.foundScopes, jsexpression)
     return scopeWalker.foundScopes;
   };
 
