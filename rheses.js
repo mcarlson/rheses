@@ -96,137 +96,159 @@ var rheses = (function($, acorn, Mouse, requestTick) {
     return returnval;
   };
 
-  // transform names to jQuery expressions
-  var transforms = {
-    top: 'position().top',
-    left: 'position().left',
-    width: 'width()',
-    height: 'height()',
-    parent: 'parent()'
-  };
-
-  // process identifiers in AST
-  var idWalker = {
-    // default scope
-    scope: 'this'
-  };
-
-  // rewrites identifiers and determines top-level scope
-  idWalker.process = function(n) {
-    var findOuterIdentifier = function(n) {
-      while (n.object && n.object.type === 'MemberExpression') {
-        n = n.object;
-      }
-      //console.log('found outer', n.object || n);
-      return n.object || n;
+  // transforms idiomatic JS to jQuery expressions, e.g. 'parent.left' -> '$(this).parent().position().left'.
+  // also 
+  var parser = (function() {
+    // transform names to jQuery expressions
+    var transforms = {
+      top: 'position().top',
+      left: 'position().left',
+      width: 'width()',
+      height: 'height()',
+      parent: 'parent()'
     };
-    var addScopeLookup = function(n, scope) {
-      var outer = findOuterIdentifier(n);
-      var propname = outer.name;
-      //console.log('addScopeLookup', scope)
-      if (scope) {
-        // look up scope
-        outer.name = "$(" + scope + ")";
-        if (scope === 'this') {
-          // append property name for this expressions
-          outer.name += "." + propname;
-        }
-      }
-    };
-    this.scope = 'this';
-    acorn.walkDown(n, this);
-    addScopeLookup(n, this.scope);
-  };
-  idWalker.Identifier = function(n, p) {
-    var name = n.name;
-    //console.log('Identifier', name, n, p);
-    if (name in transforms) {
-      //console.log('transforming', name, 'to', transforms[name]);
-      n.name = transforms[name];
-    } else {
-      if (name in window) {
-        var obj = window[name];
-        //console.log('found global object', obj);
-        if (obj instanceof HTMLElement) {
-          // found div ID
-          idWalker.scope = "'#" + name + "'";
-        } else if (obj === window || obj === document) {
-          // explicitly look in window or object
-          idWalker.scope = name;
+
+    // rewrites identifiers and determines top-level scope
+    var idWalker = {
+      scope: 'this',
+      process: function(n) {
+        var findOuterIdentifier = function(n) {
+          while (n.object && n.object.type === 'MemberExpression') {
+            n = n.object;
+          }
+          //console.log('found outer', n.object || n);
+          return n.object || n;
+        },
+        addScopeLookup = function(n, scope) {
+          var outer = findOuterIdentifier(n);
+          var propname = outer.name;
+          //console.log('addScopeLookup', scope)
+          if (scope) {
+            // look up scope
+            outer.name = "$(" + scope + ")";
+            if (scope === 'this') {
+              // append property name for this expressions
+              outer.name += "." + propname;
+            }
+          }
+        };
+        this.scope = 'this';
+        acorn.walkDown(n, this);
+        addScopeLookup(n, this.scope);
+      },
+      Identifier: function(n, p) {
+        //console.log('idwalker Identifier', acorn.stringify(n), p, acorn.stringify(p));
+        var name = n.name;
+        if (name in transforms) {
+          //console.log('transforming', name, 'to', transforms[name]);
+          n.name = transforms[name];
         } else {
-          idWalker.scope = null;
+          if (name in window) {
+            var obj = window[name];
+            //console.log('found global object', obj);
+            if (obj instanceof HTMLElement) {
+              // found div ID
+              idWalker.scope = "'#" + name + "'";
+            } else if (obj === window || obj === document) {
+              // explicitly look in window or object
+              idWalker.scope = name;
+            } else {
+              idWalker.scope = null;
+            }
+          }
         }
+      },
+      ThisExpression: function(n) {
+        // rewrite to a regular identifier
+        //console.log('id thisexpression', acorn.stringify(n))
+        n.type = "Identifier";
+        n.name = "$(this)";
+        // don't prepend scope
+        idWalker.scope = null;
       }
-    }
-  };
-  idWalker.ThisExpression = function(n, p) {
-    // rewrite to a regular identifier
-    n.type = "Identifier";
-    n.name = "$(this)";
-    // don't prepend scope
-    idWalker.scope = null;
-  };
+    };
 
-  // rewrite member expressions in AST
-  var exprWalker = {};
-  exprWalker.MemberExpression = function(n, p) {
-    //var prop = n.property.name;
-    //var scope = n.object;
-    idWalker.process(n);
-    //console.log('expr', prop, scope, n);
-    return true;
-  };
-  exprWalker.Identifier = function(n, p) {
-    idWalker.process(n);
-    return true;
-  };
+    // rewrite member expressions in AST
+    var expressionWalker = (function() {
+      var process = function(node) {
+        idWalker.process(node);
+        //console.log('expr', node);
+        return true;
+      };
+      return {
+        MemberExpression: process,
+        Identifier: process,
+        parse: function(jsexpression) {
+          var ast;
+          try {
+            ast = acorn.parse(jsexpression);
+          } catch (e) {
+            console.error('Failed to parse', jsexpression);
+            return false;
+          }
+          //console.log('parsed', jsexpression, ast)
+          // modify expressions in place
+          acorn.walkDown(ast, this);
+          return acorn.stringify(ast);
+        }
+      };
+    })();
 
-  // Find scopes to listen for changes on
-  var scopeWalker = {};
-  var scopeProcessor = function(node, name) {
-    idWalker.process(node);
-    scopeWalker.foundScopes.push({
-      scope: acorn.stringify(node),
-      propname: name
-    });
-    return true;
-  };
-  scopeWalker.MemberExpression = function(n, p) {
-    // Don't process global constructors, e.g. Math
-    if (typeof window[n.object.name] === 'function') return true;
-    var name = n.property.name;
-    // remove last property
-    n = n.object;
-
-    return scopeProcessor(n, name);
-  };
-  scopeWalker.Identifier = function(n, p) {
-    var name = n.name;
-    //console.log('Identifier', name, p)
-    return scopeProcessor(n, name);
-  };
-
-  // Find scope and properties for a given js expression.
-  var findScopes = function(jsexpression) {
-    var scope = acorn.parse(jsexpression);
-    scopeWalker.foundScopes = [];
-    acorn.walkDown(scope, scopeWalker);
-    //console.log('findScopes', scopeWalker.foundScopes, jsexpression)
-    return scopeWalker.foundScopes;
-  };
-
-  var parseExpression = function(jsexpression) {
-    var ast;
-    try {
-      ast = acorn.parse(jsexpression);
-    } catch (e) {
-      console.error('Failed to parse', jsexpression);
-      return false;
-    }
-    // modify expressions in place
-    acorn.walkDown(ast, exprWalker);
-    return acorn.stringify(ast);
-  };
+    // Find scopes to listen for changes on, e.g. parent.left evaluates to propname 'left' and scope '$(this).parent()'
+    var scopeWalker = (function() {
+      var foundScopes = [];
+      var process = function(node, name) {
+        //console.log('scope processing', acorn.stringify(node), name)
+        idWalker.process(node);
+        //console.log('scope processed', acorn.stringify(node), name)
+        foundScopes.push({
+          scope: acorn.stringify(node),
+          propname: name
+        });
+        return true;
+      };
+      return {
+        MemberExpression: function(n) {
+          //console.log('skipping global constructor', n.object.name, typeof window[n.object.name])
+          // Don't process global constructors, e.g. Math
+          if (n.object.name in window) {
+            //return true;
+          }
+          var name = n.property.name;
+          // remove last property
+          n = n.object;
+          //console.log('scope Member', acorn.stringify(n), name)
+          return process(n, name);
+        },
+        Identifier: function(n, p) {
+          var name = n.name;
+          if (p.node.type !== 'MemberExpression') {
+            n = {
+              type: 'ThisExpression'
+            };
+            //console.log('setting scope of bare identifier to this:', acorn.stringify(n));
+          }
+          //console.log('scope Identifier', acorn.stringify(n), acorn.stringify(p.node), name)
+          return process(n, name);
+        },
+        ThisExpression: function(n) {
+          idWalker.process(n);
+        },
+        // Find scope and properties for a given js expression.
+        findScopes: function(jsexpression) {
+          var scope = acorn.parse(jsexpression);
+          foundScopes = [];
+          acorn.walkDown(scope, this);
+          //console.log('findScopes', foundScopes, jsexpression)
+          return foundScopes;
+        }
+      };
+    })();
+    return {
+      findScopes: scopeWalker.findScopes.bind(scopeWalker),
+      parse: expressionWalker.parse.bind(expressionWalker)
+    };
+  })();
 
   // create function from a javascipt function body, bound so 'this' is bound to an element
   var returnBoundExpression = function(javascript, el) {
@@ -237,7 +259,7 @@ var rheses = (function($, acorn, Mouse, requestTick) {
   var guid = 1;
   // applies a constraint to a given element's css property, returning an expression to be evaluated once
   var applyConstraint = function(el, cssprop, jsexpression) {
-    var parsedExpression = parseExpression(jsexpression);
+    var parsedExpression = parser.parse(jsexpression);
 
     var constraints = $.data(el, 'constraints') || {};
     $.data(el, 'constraints', constraints);
@@ -249,7 +271,7 @@ var rheses = (function($, acorn, Mouse, requestTick) {
     // store parsed expressions
     if (!constraints[cssprop]) {
       constraints[cssprop] = {
-        //        get: returnBoundExpression('return ' + parsedExpression, el),
+        // get: returnBoundExpression('return ' + parsedExpression, el),
         // track events for unbindConstraint()
         scopes: []
         //js: parsedExpression
@@ -281,17 +303,17 @@ var rheses = (function($, acorn, Mouse, requestTick) {
       return false;
     };
 
-
     function bindToScope(event, scope) {
       //console.log('bindToScope', event, scope);
       scope.on(event + eventNamespace, context.update);
+      // append scope info for unbindConstraint()
       context.scopes.push(scope);
     }
 
     // track scopes we are already bound to
     var boundScopes = {};
     // listen for style change events for each scope used by the expression
-    findScopes(jsexpression).forEach(function(item) {
+    parser.findScopes(jsexpression).forEach(function(item) {
       var scopejs = item.scope;
       var propname = item.propname;
 
@@ -318,7 +340,7 @@ var rheses = (function($, acorn, Mouse, requestTick) {
       }
       boundScopes[key] = true;
 
-      // append scope info for unbindConstraint()
+      // special case window and Mouse
       var isBody = scopeel && (scopeel === window || scopeel.localName === 'body');
       if (isBody && (propname === 'width' || propname === 'height')) {
         // width/height bindings to body or window also listen for onresize
