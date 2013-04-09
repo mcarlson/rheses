@@ -4,11 +4,11 @@ hackstyle = do ->
 	origstyle = $.style;
 	$.style = (elem, name, value) ->
 	  returnval = origstyle.apply(this, arguments);
-	  locked = elem?.$view?._locked
+	  locked = elem.$view?._locked
 	  name = stylemap[name] or name
 	  if locked != name
 		  # we are setting and aren't disabled
-		  sendstyle = elem?.$view?._callbacks?[name]
+		  sendstyle = elem.$view?._callbacks?[name]
 #		  console.log('sending style', name, elem.$view._locked) if sendstyle
 		  if sendstyle
 		    elem.$view._locked = name;
@@ -111,8 +111,6 @@ window.lz = do ->
 
 		constructor: (el, options) ->
 			@children = []
-			@types = {}
-			@constraints = {}
 #			console.log 'new node', @, @ instanceof View
 			@init(options) unless @ instanceof View
 
@@ -138,6 +136,7 @@ window.lz = do ->
 		applyConstraint: (name, value) ->
 			constraint = value.match?(matchConstraint)
 			if expression = constraint?[1]
+				@constraints ?= {}
 				@constraints[name] = (new Function([], 'return ' + expression)).bind(@)
 #				console.log 'adding constraint', name, constraint[1], this
 #				console.log 'eval', @constraints[name]()
@@ -146,12 +145,12 @@ window.lz = do ->
 #				console.log 'found scopes', scopes
 
 				constraintBinding = @constraints[name];
-				constraintBinding.bindings ?= {}
+				bindings = constraintBinding.bindings or= {}
 
 				for scope in scopes
 					{binding, property} = scope
 					bindingfn = (new Function([], 'return ' + binding)).bind(@)
-					constraintBinding.bindings[property] = bindingfn;
+					bindings[property] = bindingfn;
 #					console.log('bound', name, expression, property, binding)
 
 #				console.log 'matched constraint', name, @, expression
@@ -161,8 +160,8 @@ window.lz = do ->
 			return if @applyConstraint(name, value)
 				
 			# coerce value to type
-			if name of @types
-				type = @types[name]
+			if name of types
+				type = types[name]
 				if type == 'number'
 					value = parseFloat(value)
 #				console.log 'type', name, type, value
@@ -183,10 +182,10 @@ window.lz = do ->
 			# send event
 			@trigger(name)
 
-		# generate a callback for an event expression, e.g. on_x="console.log(value, ...)"
+		# generate a callback for an event expression in a way that preserves scope, e.g. on_x="console.log(value, this, ...)"
 		eventCallback: (name, js, scope) ->
 #			console.log 'binding to event expression', name, js, scope
-			() =>
+			() ->
 				val = scope[name]
 #				console.log 'event callback', name, val, scope
 				(new Function(['value'], js).bind(scope))(val)
@@ -197,16 +196,16 @@ window.lz = do ->
 #				console.log 'applying constraint', name, value, this
 #				console.log 'applied', value()
 				@setAttribute(name, value())
-				for js, binding of @constraints[name].bindings
+				for event, binding of @constraints[name].bindings
 #					console.log 'binding to scope', js, binding, name, value()
-					binding().bind(js, @constraintCallback(js, value, name))
+					binding().bind(event, @constraintCallback(name, value))
 
 		# generate a callback for a constraint expression, e.g. x="${this.parent.baz.x + 10}"
-		constraintCallback: (name, fn, propname) ->
+		constraintCallback: (name, value) ->
 #			console.log('binding to constraint expression', name, fn, @)
 			() =>
 #				console.log 'setting', name, fn(), @
-				@setAttribute(propname, fn())
+				@setAttribute(name, value())
 
 		init: (attributes) ->
 			for name, value of attributes
@@ -231,9 +230,8 @@ window.lz = do ->
 			@parent?[name] = @
 
 
-
 	# sprite mixin
-	# method names must be unique across all classes they're mixed into :(
+	# WARNING: method names must be unique across all classes they're mixed into :(
 	stylemap= {x: 'left', y: 'top', bgcolor: 'background-color'}
 	Sprite =
 #		guid = 0
@@ -260,6 +258,7 @@ window.lz = do ->
 #			console.log("module included: ", @, module)
 
 
+	types = {x: 'number', y: 'number', width: 'number', height: 'number'}
 	class View extends Node
 		@include Sprite
 
@@ -271,7 +270,6 @@ window.lz = do ->
 					console.warn 'already bound view', el.$view, el
 					return
 
-			@types = {x: 'number', y: 'number', width: 'number', height: 'number'}
 
 			if el
 				if el instanceof View
@@ -288,8 +286,8 @@ window.lz = do ->
 			super(name, value)
 
 
-	# init views based on an existing element
-	viewFromElement = (el, parent) ->
+	# init classes based on an existing element
+	initFromElement = (el, parent) ->
 		tagname = el.localName
 		if not tagname of lz
 			console.warn 'could not find element', tagname, el
@@ -306,20 +304,20 @@ window.lz = do ->
 
 		children = (child for child in el.childNodes when child.nodeType == 1)
 
-		view = new lz[tagname](el, options)
+		parent = new lz[tagname](el, options)
 
 		for child in children
-	#		console.log 'creating child', child, view
+	#		console.log 'creating child', child, parent
 	#		console.dir(child)
 			if tagname is 'class'
 				child.$defer = true
 			else
-				viewFromElement(child, view) 
+				initFromElement(child, parent) 
 
 	# init all views in the DOM recursively
 	init = (selector = $('view')) ->
 		for el, i in selector
-			viewFromElement(el) unless el.$defer
+			initFromElement(el) unless el.$defer
 
 
 	class Class extends Node
@@ -340,24 +338,23 @@ window.lz = do ->
 					options[key] = value
 				delete options.name unless overrides.name
 #				console.log 'creating class instance', name, options.name, children, options
-				view = new View(instanceel, options)
-				viewel = view.sprite?[0]
+				parent = new View(instanceel, options)
+				viewel = parent.sprite?[0]
 				return if not viewel
 
 				viewel.innerHTML = body
 				children = (child for child in viewel.childNodes when child.nodeType == 1)
 				for child in children
 					delete child.$defer
-#					console.log 'creating class child in parent', child, view
-					viewFromElement(child, view) 
+#					console.log 'creating class child in parent', child, parent
+					initFromElement(child, parent) 
 
 
 	exports = {
 		view: View,
 		class: Class,
 		node: Node,
-		init: init,
-		stylemap: stylemap
+		init: init
 	}
 
 $(window).on('load', () ->

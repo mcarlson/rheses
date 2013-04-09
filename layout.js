@@ -19,10 +19,10 @@
       var locked, returnval, sendstyle, _ref, _ref1, _ref2;
 
       returnval = origstyle.apply(this, arguments);
-      locked = elem != null ? (_ref = elem.$view) != null ? _ref._locked : void 0 : void 0;
+      locked = (_ref = elem.$view) != null ? _ref._locked : void 0;
       name = stylemap[name] || name;
       if (locked !== name) {
-        sendstyle = elem != null ? (_ref1 = elem.$view) != null ? (_ref2 = _ref1._callbacks) != null ? _ref2[name] : void 0 : void 0 : void 0;
+        sendstyle = (_ref1 = elem.$view) != null ? (_ref2 = _ref1._callbacks) != null ? _ref2[name] : void 0 : void 0;
         if (sendstyle) {
           elem.$view._locked = name;
           elem.$view.setAttribute(name, value);
@@ -34,7 +34,7 @@
   })();
 
   window.lz = (function() {
-    var Class, Events, Module, Node, Sprite, View, exports, init, moduleKeywords, stylemap, viewFromElement;
+    var Class, Events, Module, Node, Sprite, View, exports, init, initFromElement, moduleKeywords, stylemap, types;
 
     Events = {
       bind: function(ev, callback) {
@@ -191,8 +191,6 @@
 
       function Node(el, options) {
         this.children = [];
-        this.types = {};
-        this.constraints = {};
         if (!(this instanceof View)) {
           this.init(options);
         }
@@ -225,21 +223,22 @@
       matchConstraint = /\${(.+)}/;
 
       Node.prototype.applyConstraint = function(name, value) {
-        var binding, bindingfn, constraint, constraintBinding, expression, property, scope, _i, _len, _ref;
+        var binding, bindingfn, bindings, constraint, constraintBinding, expression, property, scope, _i, _len, _ref;
 
         constraint = typeof value.match === "function" ? value.match(matchConstraint) : void 0;
         if (expression = constraint != null ? constraint[1] : void 0) {
+          if ((_ref = this.constraints) == null) {
+            this.constraints = {};
+          }
           this.constraints[name] = (new Function([], 'return ' + expression)).bind(this);
           scopes = propertyBindings.find(expression);
           constraintBinding = this.constraints[name];
-          if ((_ref = constraintBinding.bindings) == null) {
-            constraintBinding.bindings = {};
-          }
+          bindings = constraintBinding.bindings || (constraintBinding.bindings = {});
           for (_i = 0, _len = scopes.length; _i < _len; _i++) {
             scope = scopes[_i];
             binding = scope.binding, property = scope.property;
             bindingfn = (new Function([], 'return ' + binding)).bind(this);
-            constraintBinding.bindings[property] = bindingfn;
+            bindings[property] = bindingfn;
           }
           return true;
         }
@@ -251,8 +250,8 @@
         if (this.applyConstraint(name, value)) {
           return;
         }
-        if (name in this.types) {
-          type = this.types[name];
+        if (name in types) {
+          type = types[name];
           if (type === 'number') {
             value = parseFloat(value);
           }
@@ -272,8 +271,6 @@
       };
 
       Node.prototype.eventCallback = function(name, js, scope) {
-        var _this = this;
-
         return function() {
           var val;
 
@@ -283,7 +280,7 @@
       };
 
       Node.prototype.bindConstraints = function() {
-        var binding, js, name, value, _ref, _results;
+        var binding, event, name, value, _ref, _results;
 
         _ref = this.constraints;
         _results = [];
@@ -295,9 +292,9 @@
 
             _ref1 = this.constraints[name].bindings;
             _results1 = [];
-            for (js in _ref1) {
-              binding = _ref1[js];
-              _results1.push(binding().bind(js, this.constraintCallback(js, value, name)));
+            for (event in _ref1) {
+              binding = _ref1[event];
+              _results1.push(binding().bind(event, this.constraintCallback(name, value)));
             }
             return _results1;
           }).call(this));
@@ -305,11 +302,11 @@
         return _results;
       };
 
-      Node.prototype.constraintCallback = function(name, fn, propname) {
+      Node.prototype.constraintCallback = function(name, value) {
         var _this = this;
 
         return function() {
-          return _this.setAttribute(propname, fn());
+          return _this.setAttribute(name, value());
         };
       };
 
@@ -380,6 +377,12 @@
         return this.sprite.attr('id', this.id);
       }
     };
+    types = {
+      x: 'number',
+      y: 'number',
+      width: 'number',
+      height: 'number'
+    };
     View = (function(_super) {
       __extends(View, _super);
 
@@ -396,12 +399,6 @@
             return;
           }
         }
-        this.types = {
-          x: 'number',
-          y: 'number',
-          width: 'number',
-          height: 'number'
-        };
         if (el) {
           if (el instanceof View) {
             el = el.sprite;
@@ -420,8 +417,8 @@
       return View;
 
     })(Node);
-    viewFromElement = function(el, parent) {
-      var child, children, i, options, tagname, view, _i, _j, _len, _len1, _ref, _results;
+    initFromElement = function(el, parent) {
+      var child, children, i, options, tagname, _i, _j, _len, _len1, _ref, _results;
 
       tagname = el.localName;
       if (!tagname in lz) {
@@ -451,14 +448,14 @@
         }
         return _results;
       })();
-      view = new lz[tagname](el, options);
+      parent = new lz[tagname](el, options);
       _results = [];
       for (_j = 0, _len1 = children.length; _j < _len1; _j++) {
         child = children[_j];
         if (tagname === 'class') {
           _results.push(child.$defer = true);
         } else {
-          _results.push(viewFromElement(child, view));
+          _results.push(initFromElement(child, parent));
         }
       }
       return _results;
@@ -473,7 +470,7 @@
       for (i = _i = 0, _len = selector.length; _i < _len; i = ++_i) {
         el = selector[i];
         if (!el.$defer) {
-          _results.push(viewFromElement(el));
+          _results.push(initFromElement(el));
         } else {
           _results.push(void 0);
         }
@@ -499,7 +496,7 @@
           console.warn('class exists, overwriting', name);
         }
         lz[name] = function(instanceel, overrides) {
-          var child, children, key, view, viewel, _i, _len, _ref, _results;
+          var child, children, key, parent, viewel, _i, _len, _ref, _results;
 
           for (key in overrides) {
             value = overrides[key];
@@ -508,8 +505,8 @@
           if (!overrides.name) {
             delete options.name;
           }
-          view = new View(instanceel, options);
-          viewel = (_ref = view.sprite) != null ? _ref[0] : void 0;
+          parent = new View(instanceel, options);
+          viewel = (_ref = parent.sprite) != null ? _ref[0] : void 0;
           if (!viewel) {
             return;
           }
@@ -531,7 +528,7 @@
           for (_i = 0, _len = children.length; _i < _len; _i++) {
             child = children[_i];
             delete child.$defer;
-            _results.push(viewFromElement(child, view));
+            _results.push(initFromElement(child, parent));
           }
           return _results;
         };
@@ -544,8 +541,7 @@
       view: View,
       "class": Class,
       node: Node,
-      init: init,
-      stylemap: stylemap
+      init: init
     };
   })();
 
