@@ -8,7 +8,7 @@ hackstyle = do ->
 	  name = stylemap[name] or name
 	  if locked != name
 		  # we are setting and aren't disabled
-		  sendstyle = elem.$view?._callbacks?[name]
+		  sendstyle = elem.$view?.events?[name]
 #		  console.log('sending style', name, elem.$view._locked) if sendstyle
 		  if sendstyle
 		    elem.$view._locked = name;
@@ -16,8 +16,8 @@ hackstyle = do ->
 		    elem.$view._locked = null
 
 	  returnval;
-	return (isActive) ->
-		if isActive
+	return (active) ->
+		if active
 			$.style = newstyle;
 		else
 			$.style = oldstyle;
@@ -28,7 +28,7 @@ window.lz = do ->
 	  bind: (ev, callback) ->
 #	    console.log 'binding', ev, callback
 	    evs   = ev.split(' ')
-	    calls = @hasOwnProperty('_callbacks') and @_callbacks or= {}
+	    calls = @hasOwnProperty('events') and @events or= {}
 	    for name in evs
 	      calls[name] or= []
 	      calls[name].push(callback)
@@ -41,7 +41,7 @@ window.lz = do ->
 
 	  trigger: (args...) ->
 	    ev = args.shift()
-	    list = @hasOwnProperty('_callbacks') and @_callbacks?[ev]
+	    list = @hasOwnProperty('events') and @events?[ev]
 	    return unless list
 #	    if list then console.log 'trigger', ev, list
 	    for callback in list
@@ -78,19 +78,19 @@ window.lz = do ->
 
 	  unbind: (ev, callback) ->
 	    unless ev
-	      @_callbacks = {}
+	      @events = {}
 	      return this
 	    evs  = ev.split(' ')
 	    for name in evs
-	      list = @_callbacks?[name]
+	      list = @events?[name]
 	      continue unless list
 	      unless callback
-	        delete @_callbacks[name]
+	        delete @events[name]
 	        continue
 	      for cb, i in list when (cb is callback)
 	        list = list.slice()
 	        list.splice(i, 1)
-	        @_callbacks[name] = list
+	        @events[name] = list
 	        break
 	    this
 
@@ -114,7 +114,6 @@ window.lz = do ->
 		@include Events
 
 		constructor: (el, options) ->
-			@children = []
 #			console.log 'new node', @, @ instanceof View
 			@init(options) unless @ instanceof View
 
@@ -184,7 +183,7 @@ window.lz = do ->
 				@[name] = value
 
 			# send event
-			@trigger(name) if @_callbacks?[name]
+			@trigger(name) if @events?[name]
 
 		# generate a callback for an event expression in a way that preserves scope, e.g. on_x="console.log(value, this, ...)"
 		eventCallback: (name, js, scope) ->
@@ -215,7 +214,7 @@ window.lz = do ->
 			for name, value of attributes
 				@setAttribute(name, value)
 			@bindConstraints() if @constraints
-			@trigger('init') if @_callbacks?[name]
+			@trigger('init') if @events?[name]
 
 		set_parent: (parent) ->
 #			console.log 'set_parent', parent, @name if @name
@@ -224,8 +223,9 @@ window.lz = do ->
 				# store references to parent and children
 				@parent = parent
 				parent[@name] = @ if @name?
+				parent.children ?= []
 				parent.children.push(@)
-				parent.trigger('newchild') if @_callbacks?[name]
+				parent.trigger('newchild') if @events?[name]
 				parent = parent.sprite
 			@setParent? parent
 

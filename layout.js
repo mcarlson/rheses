@@ -22,7 +22,7 @@
       locked = (_ref = elem.$view) != null ? _ref._locked : void 0;
       name = stylemap[name] || name;
       if (locked !== name) {
-        sendstyle = (_ref1 = elem.$view) != null ? (_ref2 = _ref1._callbacks) != null ? _ref2[name] : void 0 : void 0;
+        sendstyle = (_ref1 = elem.$view) != null ? (_ref2 = _ref1.events) != null ? _ref2[name] : void 0 : void 0;
         if (sendstyle) {
           elem.$view._locked = name;
           elem.$view.setAttribute(name, value);
@@ -31,8 +31,8 @@
       }
       return returnval;
     };
-    return function(isActive) {
-      if (isActive) {
+    return function(active) {
+      if (active) {
         return $.style = newstyle;
       } else {
         return $.style = oldstyle;
@@ -48,7 +48,7 @@
         var calls, evs, name, _i, _len;
 
         evs = ev.split(' ');
-        calls = this.hasOwnProperty('_callbacks') && this._callbacks || (this._callbacks = {});
+        calls = this.hasOwnProperty('events') && this.events || (this.events = {});
         for (_i = 0, _len = evs.length; _i < _len; _i++) {
           name = evs[_i];
           calls[name] || (calls[name] = []);
@@ -67,7 +67,7 @@
 
         args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
         ev = args.shift();
-        list = this.hasOwnProperty('_callbacks') && ((_ref = this._callbacks) != null ? _ref[ev] : void 0);
+        list = this.hasOwnProperty('events') && ((_ref = this.events) != null ? _ref[ev] : void 0);
         if (!list) {
           return;
         }
@@ -134,18 +134,18 @@
         var cb, evs, i, list, name, _i, _j, _len, _len1, _ref;
 
         if (!ev) {
-          this._callbacks = {};
+          this.events = {};
           return this;
         }
         evs = ev.split(' ');
         for (_i = 0, _len = evs.length; _i < _len; _i++) {
           name = evs[_i];
-          list = (_ref = this._callbacks) != null ? _ref[name] : void 0;
+          list = (_ref = this.events) != null ? _ref[name] : void 0;
           if (!list) {
             continue;
           }
           if (!callback) {
-            delete this._callbacks[name];
+            delete this.events[name];
             continue;
           }
           for (i = _j = 0, _len1 = list.length; _j < _len1; i = ++_j) {
@@ -155,7 +155,7 @@
             }
             list = list.slice();
             list.splice(i, 1);
-            this._callbacks[name] = list;
+            this.events[name] = list;
             break;
           }
         }
@@ -197,7 +197,6 @@
       Node.include(Events);
 
       function Node(el, options) {
-        this.children = [];
         if (!(this instanceof View)) {
           this.init(options);
         }
@@ -274,7 +273,7 @@
         } else {
           this[name] = value;
         }
-        if ((_ref = this._callbacks) != null ? _ref[name] : void 0) {
+        if ((_ref = this.events) != null ? _ref[name] : void 0) {
           return this.trigger(name);
         }
       };
@@ -329,21 +328,24 @@
         if (this.constraints) {
           this.bindConstraints();
         }
-        if ((_ref = this._callbacks) != null ? _ref[name] : void 0) {
+        if ((_ref = this.events) != null ? _ref[name] : void 0) {
           return this.trigger('init');
         }
       };
 
       Node.prototype.set_parent = function(parent) {
-        var _ref;
+        var _ref, _ref1;
 
         if (parent instanceof View) {
           this.parent = parent;
           if (this.name != null) {
             parent[this.name] = this;
           }
+          if ((_ref = parent.children) == null) {
+            parent.children = [];
+          }
           parent.children.push(this);
-          if ((_ref = this._callbacks) != null ? _ref[name] : void 0) {
+          if ((_ref1 = this.events) != null ? _ref1[name] : void 0) {
             parent.trigger('newchild');
           }
           parent = parent.sprite;
