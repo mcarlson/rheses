@@ -110,8 +110,8 @@ window.lz = do ->
 		@include Events
 
 		constructor: (el, options) ->
-#			console.log 'new node', @, @ instanceof View
-			@init(options) unless @ instanceof View
+#			console.log 'new node', @, options
+			@init(options)
 
 		scopes = null
 		propertyBindings = 
@@ -168,7 +168,7 @@ window.lz = do ->
 #			console.log 'setAttribute', name, value
 			setter = 'set_' + name
 			if setter of @
-	#			console.log 'calling setter', setter, value, @[setter]
+#				console.log 'calling setter', setter, value #, @[setter]
 				@[setter]?(value)
 			else if name.indexOf('on_') == 0
 				name = name.substr(3)
@@ -179,7 +179,7 @@ window.lz = do ->
 				@[name] = value
 
 			# send event
-			@trigger(name) if @events?[name]
+			@trigger(name, value) if @events?[name]
 
 		# generate a callback for an event expression in a way that preserves scope, e.g. on_x="console.log(value, this, ...)"
 		eventCallback: (name, js, scope) ->
@@ -210,20 +210,18 @@ window.lz = do ->
 			for name, value of attributes
 				@setAttribute(name, value)
 			@bindConstraints() if @constraints
-			@trigger('init') if @events?[name]
+			@trigger('init', @) if @events?[name]
 
 		set_parent: (parent) ->
-#			console.log 'set_parent', parent, @name if @name
+#			console.log 'set_parent', parent, @
 			# normalize to jQuery object
-			if parent instanceof View
+			if parent instanceof Node
 				# store references to parent and children
 				@parent = parent
 				parent[@name] = @ if @name?
-				parent.children ?= []
-				parent.children.push(@)
-				parent.trigger('newchild') if @events?[name]
-				parent = parent.sprite
-			@setParent? parent
+				parent.subnodes ?= []
+				parent.subnodes.push(@)
+				parent.trigger('subnodes', @) if parent.events?['subnodes']
 
 		set_name: (@name) ->
 #			console.log 'set_name', name, this
@@ -264,13 +262,10 @@ window.lz = do ->
 		@include Sprite
 
 		constructor: (el, options = {}) ->
-			super(options)
-
 			if el instanceof HTMLElement 
 				if el.$view
 					console.warn 'already bound view', el.$view, el
 					return
-
 
 			if el
 				if el instanceof View
@@ -282,18 +277,28 @@ window.lz = do ->
 			@init(options);
 #			console.log 'new view', el, options, @
 
-		setAttribute: (name, value) ->
-			@setStyle(name, value) unless skipStyle[name]
 		setAttribute: (name, value, skipsend) ->
 			@setStyle(name, value) unless (skipsend or skipStyle[name])
 			super(name, value)
+
+		set_parent: (parent) ->
+#			console.log 'view set_parent', parent, @
+			super(parent)
+
+			# store references subviews
+			if parent instanceof View
+				parent.subviews ?= []
+				parent.subviews.push(@)
+				parent.trigger('subviews', @) if parent.events?['subviews']
+				parent = parent.sprite
+			@setParent parent
 
 
 	# init classes based on an existing element
 	initFromElement = (el, parent) ->
 		tagname = el.localName
-		if not tagname of lz
-			console.warn 'could not find element', tagname, el
+		if not (tagname of lz)
+			console.warn 'could not find class for tag', tagname, el
 			return
 
 		options = {}
@@ -303,14 +308,14 @@ window.lz = do ->
 
 		parent ?= el.parentNode
 		options.parent = parent
-	#	console.log 'parent', tagname, options, parent
+#		console.log 'parent', tagname, options, parent
 
 		children = (child for child in el.childNodes when child.nodeType == 1)
 
 		parent = new lz[tagname](el, options)
 
 		for child in children
-	#		console.log 'creating child', child, parent
+#			console.log 'creating child', child, parent
 	#		console.dir(child)
 			if tagname is 'class'
 				child.$defer = true
@@ -325,17 +330,17 @@ window.lz = do ->
 		hackstyle(true)
 
 
-	class Class extends Node
+	class Class
 		constructor: (el, options) ->
+			name = options.name
 			delete options.name
 			body = el.innerHTML
 			el.innerHTML = ''
-			name = el.attributes.name.value
 #			console.log('new class', name, options)
 			console.warn 'class exists, overwriting', name if name of lz
 			lz[name] = (instanceel, overrides) ->
 				for key, value of overrides
-#					console.log 'overriding class option', key, value
+#  				console.log 'overriding class option', key, value
 					options[key] = value
 				delete options.name unless overrides.name
 #				console.log 'creating class instance', name, options.name, children, options
@@ -348,7 +353,7 @@ window.lz = do ->
 				for child in children
 					delete child.$defer
 #					console.log 'creating class child in parent', child, parent
-					initFromElement(child, parent) 
+					initFromElement(child, parent)
 
 
 	exports = {

@@ -268,7 +268,7 @@
           this[name] = value;
         }
         if ((_ref = this.events) != null ? _ref[name] : void 0) {
-          return this.trigger(name);
+          return this.trigger(name, value);
         }
       };
 
@@ -323,7 +323,7 @@
           this.bindConstraints();
         }
         if ((_ref = this.events) != null ? _ref[name] : void 0) {
-          return this.trigger('init');
+          return this.trigger('init', this);
         }
       };
 
@@ -339,8 +339,8 @@
             parent.subnodes = [];
           }
           parent.subnodes.push(this);
-          if ((_ref1 = parent.events) != null ? _ref1['newchild'] : void 0) {
-            return parent.trigger('newchild');
+          if ((_ref1 = parent.events) != null ? _ref1['subnodes'] : void 0) {
+            return parent.trigger('subnodes', this);
           }
         }
       };
@@ -408,7 +408,6 @@
         if (options == null) {
           options = {};
         }
-        View.__super__.constructor.call(this, options);
         if (el instanceof HTMLElement) {
           if (el.$view) {
             console.warn('already bound view', el.$view, el);
@@ -420,7 +419,6 @@
             el = el.sprite;
           }
         }
-        this.subviews = [];
         this.initSprite(el);
         this.sprite[0].$view = this;
         this.init(options);
@@ -434,9 +432,17 @@
       };
 
       View.prototype.set_parent = function(parent) {
+        var _ref, _ref1;
+
         View.__super__.set_parent.call(this, parent);
         if (parent instanceof View) {
+          if ((_ref = parent.subviews) == null) {
+            parent.subviews = [];
+          }
           parent.subviews.push(this);
+          if ((_ref1 = parent.events) != null ? _ref1['subviews'] : void 0) {
+            parent.trigger('subviews', this);
+          }
           parent = parent.sprite;
         }
         return this.setParent(parent);
@@ -562,13 +568,13 @@
         if (options == null) {
           options = {};
         }
-        this.setup = __bind(this.setup, this);
+        this.added = __bind(this.added, this);
         Layout.__super__.constructor.call(this, el, options);
-        this.parent.bind('newchild', this.setup);
+        this.parent.bind('subviews', this.added);
       }
 
-      Layout.prototype.setup = function() {
-        return console.log(this.parent.subviews);
+      Layout.prototype.added = function(child) {
+        return console.log('added', child);
       };
 
       Layout.prototype.update = function() {};
