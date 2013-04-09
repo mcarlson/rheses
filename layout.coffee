@@ -1,6 +1,8 @@
 window.lz = do ->
+	# from https://github.com/spine/spine/tree/dev/src
 	Events =
 	  bind: (ev, callback) ->
+#	    console.log 'binding', ev, callback
 	    evs   = ev.split(' ')
 	    calls = @hasOwnProperty('_callbacks') and @_callbacks or= {}
 	    for name in evs
@@ -17,6 +19,7 @@ window.lz = do ->
 	    ev = args.shift()
 	    list = @hasOwnProperty('_callbacks') and @_callbacks?[ev]
 	    return unless list
+#	    if list then console.log 'trigger', ev, list.length
 	    for callback in list
 	      if callback.apply(this, args) is false
 	        break
@@ -70,6 +73,8 @@ window.lz = do ->
 	Events.on = Events.bind
 	Events.off = Events.unbind
 
+
+	# mixins adapted from https://github.com/spine/spine/tree/dev/src
 	moduleKeywords = ['included', 'extended']
 	class Module
 	  @include: (obj) ->
@@ -80,6 +85,112 @@ window.lz = do ->
 	    obj.included?.apply(this, [obj])
 	    this
 
+
+	class Node extends Module
+		@include Events
+
+		constructor: (el, options) ->
+			@children = []
+			@types = {}
+			@constraints = {}
+#			console.log 'new node', @, @ instanceof View
+			@init(options) unless @ instanceof View
+
+		matchConstraint = /\${(.+)}/
+		matchBinding = /(this[^ ]+)\./g
+
+		applyConstraint: (name, value) ->
+			constraint = value.match?(matchConstraint)
+			if constraint
+				@constraints[name] = (new Function([], 'return ' + constraint[1])).bind(@)
+#				console.log 'adding constraint', name, constraint[1], this
+#				console.log 'eval', @constraints[name]()
+				bindings = value.match(matchBinding)
+				for binding in bindings
+					@constraints[name].bindings = {} unless @constraints[name].bindings
+					bindingjs = binding.substr(0, binding.length - 1)
+					bindingfn = (new Function([], 'return ' + bindingjs)).bind(@)
+					@constraints[name].bindings[bindingjs] = bindingfn;
+#					console.log('bound', constraint[1], bindingjs)
+
+#				console.log 'matched constraint', name, @, constraint[1]
+				return true
+
+		setAttribute: (name, value) ->
+			return if @applyConstraint(name, value)
+				
+			# coerce value to type
+			if name of @types
+				type = @types[name]
+				if type == 'number'
+					value = value * 1
+#				console.log 'type', name, type, value
+
+#			console.log 'setAttribute', name, value
+			setter = 'set_' + name
+			if setter of @
+	#			console.log 'calling setter', setter, value, @[setter]
+				@[setter]?(value)
+			else if name.indexOf('on_') == 0
+				name = name.substr(3)
+#				console.log('binding to event expression', name, value, @)
+				@bind(name, @eventCallback(name, value, @))
+			else
+	#			console.log 'setting style', name, value
+				@[name] = value
+
+			# send event
+			@trigger(name)
+
+		# generate a callback for an event expression, e.g. on_x="console.log(value, ...)"
+		eventCallback: (name, js, scope) ->
+#			console.log 'binding to event expression', name, js, scope
+			() =>
+				val = scope[name]
+#				console.log 'event callback', name, val, scope
+				(new Function(['value'], js).bind(scope))(val)
+
+		bindConstraints: () ->
+			# register constraints last
+			for name, value of @constraints
+#				console.log 'applying constraint', name, value, this
+#				console.log 'applied', value()
+				@setAttribute(name, value())
+				for js, binding of @constraints[name].bindings
+#					console.log 'binding to scope', name, value()
+					binding().bind(name, @constraintCallback(name, value, @))
+
+		# generate a callback for a constraint expression, e.g. x="${this.parent.baz.x + 10}"
+		constraintCallback: (name, js) ->
+#			console.log('binding to constraint expression', name, js, scope, @)
+			() =>
+				val = @[name]
+#				console.log 'setting', name, js(), @
+				@setAttribute(name, js(val))
+
+		init: (attributes) ->
+			for name, value of attributes
+				@setAttribute(name, value)
+			@bindConstraints()
+
+		set_parent: (parent) ->
+#			console.log 'set_parent', parent, @name if @name
+			# normalize to jQuery object
+			if parent instanceof View
+				# store references to parent and children
+				@parent = parent
+				parent[@name] = @
+				parent.children.push(@)
+				parent = parent.sprite
+			# module APIs must be unique :(
+			@setParent? parent
+
+		set_name: (@name) ->
+#			console.log 'set_name', name, this
+			@parent?[name] = @
+
+
+	# sprite mixin
 	Sprite =
 #		guid = 0
 		initSprite: (@sprite = $('<div/>')) ->
@@ -105,40 +216,10 @@ window.lz = do ->
 #		included: (module) ->
 #			console.log("module included: ", @, module)
 
-	class Node extends Module
-		constructor: (options = {}) ->
-			@events = {}
-			@types = {}
-		setAttribute: (name, value) ->
-			# coerce value to type
-			if name of @types
-				type = @types[name]
-				if type == 'number'
-					value = value * 1
-#				console.log 'type', name, type, value
-
-#			console.log 'setAttribute', name, value
-			setter = 'set_' + name
-			if setter of @
-	#			console.log 'calling setter', setter, value, @[setter]
-				@[setter]?(value)
-			else if name.indexOf('on_') == 0
-#				console.log('binding to event expression', name, value)
-				@bindEvent(name, value)
-			else
-	#			console.log 'setting style', name, value
-				@[name] = value
-
-			# send event
-			if (@events[name])
-#				console.log 'sending event', name, @events[name]
-				@events[name]()
 
 	class View extends Node
 		@include Sprite
 
-		matchConstraint = /\${(.+)}/
-		matchBinding = /(this[^ ]+)\./g
 		constructor: (el, options = {}) ->
 			super(options)
 
@@ -148,8 +229,6 @@ window.lz = do ->
 					return
 
 			@types = {x: 'number', y: 'number', width: 'number', height: 'number'}
-			@constraints = {}
-			@children = []
 
 			if el
 				if el instanceof View
@@ -158,75 +237,12 @@ window.lz = do ->
 			@initSprite el
 			@sprite[0].$view = @
 
-			# register events first
-			for name, i in (event for event of options when event.indexOf('on_') == 0)
-				@setAttribute(name, options[name])
-				delete options[name]
-
-			for name, value of options
-				@setAttribute(name, value)
-
-			# register constraints last
-			for name, value of @constraints
-#				console.log 'applying constraint', name, value, this
-#				console.log 'applied', value()
-				@setAttribute(name, value())
-				for js, binding of @constraints[name].bindings
-#					console.log 'binding to scope', name, value()
-					binding().bindEvent('on_' + name, value, @)
-
-
+			@init(options);
 #			console.log 'new view', el, options, @
 
-		bindEvent: (name, js, scope) ->
-#			console.log('binding to event expression', name, js, scope, @)
-			attrname = name.substr(3)
-			oldevent = @events[attrname]
-			@events[attrname] = () =>
-				val = @[attrname]
-#				console.log 'firing event', attrname, js?() or js, val
-				oldevent?(val)
-				if typeof js is 'function'
-#					console.log 'setting', attrname, js(), @
-					scope.setAttribute(attrname, js(val))
-				else 
-					(new Function(['value'], js).bind(@))(val)
-
-
 		setAttribute: (name, value) ->
-			constraint = value.match?(matchConstraint)
-			if constraint
-				@constraints[name] = (new Function([], 'return ' + constraint[1])).bind(@)
-#				console.log 'adding constraint', name, constraint[1], this
-#				console.log 'eval', @constraints[name]()
-				bindings = value.match(matchBinding)
-				for binding in bindings
-					@constraints[name].bindings = {} unless @constraints[name].bindings
-					bindingjs = binding.substr(0, binding.length - 1)
-					bindingfn = (new Function([], 'return ' + bindingjs)).bind(@)
-					@constraints[name].bindings[bindingjs] = bindingfn;
-#					console.log('bound', constraint[1], @constraints[name].bindings)
-
-#				console.log 'matched constraint', name, @, constraint[1]
-				return
 			@setStyle(name, value)
 			super(name, value)
-
-		set_parent: (parent) ->
-#			console.log 'set_parent', parent, @name if @name
-			# normalize to jQuery object
-			if parent instanceof View
-				# store references to parent and children
-				@parent = parent
-				parent[@name] = @
-				parent.children.push(@)
-				parent = parent.sprite
-			# module APIs must be unique :(
-			@setParent parent
-
-		set_name: (@name) ->
-#			console.log 'set_name', name, this
-			@parent?[name] = @
 
 	# init views based on an existing element
 	viewFromElement = (el, parent) ->
@@ -293,6 +309,7 @@ window.lz = do ->
 	exports = {
 		view: View,
 		class: Class,
+		node: Node,
 		init: init
 	}
 

@@ -47,7 +47,8 @@
 </head>
 <body>
 	<div id="canvas"></div>
-	<view bgcolor="yellow" y="300" width="100" height="100">
+	<view id="container" bgcolor="yellow" y="300" width="100" height="100">
+		<node name="barg" x="${this.parent.width + 10 + this.parent.height}" on_name="console.log('yo from x', value, this)"></node>
 		<class name="foo" x="10" y="10" bgcolor="blue" width="10" height="10">
 			<view x="5" y="5" width="5" height="5" bgcolor="purple"></view>
 		</class>
