@@ -4,16 +4,16 @@ hackstyle = do ->
 	origstyle = $.style;
 	$.style = (elem, name, value) ->
 	  returnval = origstyle.apply(this, arguments);
-	  locked = elem?.$view?.locked
+	  locked = elem?.$view?._locked
 	  name = stylemap[name] or name
 	  if locked != name
 		  # we are setting and aren't disabled
 		  sendstyle = elem?.$view?._callbacks?[name]
-#		  console.log('sending style', name, elem.$view.locked) if sendstyle
+#		  console.log('sending style', name, elem.$view._locked) if sendstyle
 		  if sendstyle
-		    elem.$view.locked = name;
+		    elem.$view._locked = name;
 		    elem.$view.setAttribute(name, value)
-		    elem.$view.locked = null
+		    elem.$view._locked = null
 
 	  returnval;
 
@@ -212,6 +212,7 @@ window.lz = do ->
 			for name, value of attributes
 				@setAttribute(name, value)
 			@bindConstraints()
+			@trigger('init')
 
 		set_parent: (parent) ->
 #			console.log 'set_parent', parent, @name if @name
@@ -219,10 +220,10 @@ window.lz = do ->
 			if parent instanceof View
 				# store references to parent and children
 				@parent = parent
-				parent[@name] = @
+				parent[@name] = @ if @name?
 				parent.children.push(@)
+				parent.trigger('newchild')
 				parent = parent.sprite
-			# module APIs must be unique :(
 			@setParent? parent
 
 		set_name: (@name) ->
@@ -232,6 +233,7 @@ window.lz = do ->
 
 
 	# sprite mixin
+	# method names must be unique across all classes they're mixed into :(
 	stylemap= {x: 'left', y: 'top', bgcolor: 'background-color'}
 	Sprite =
 #		guid = 0
@@ -320,7 +322,7 @@ window.lz = do ->
 			viewFromElement(el) unless el.$defer
 
 
-	class Class
+	class Class extends Node
 		constructor: (el, classoptions) ->
 			options = {}
 			for name, value of classoptions

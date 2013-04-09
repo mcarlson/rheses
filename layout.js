@@ -19,14 +19,14 @@
       var locked, returnval, sendstyle, _ref, _ref1, _ref2;
 
       returnval = origstyle.apply(this, arguments);
-      locked = elem != null ? (_ref = elem.$view) != null ? _ref.locked : void 0 : void 0;
+      locked = elem != null ? (_ref = elem.$view) != null ? _ref._locked : void 0 : void 0;
       name = stylemap[name] || name;
       if (locked !== name) {
         sendstyle = elem != null ? (_ref1 = elem.$view) != null ? (_ref2 = _ref1._callbacks) != null ? _ref2[name] : void 0 : void 0 : void 0;
         if (sendstyle) {
-          elem.$view.locked = name;
+          elem.$view._locked = name;
           elem.$view.setAttribute(name, value);
-          elem.$view.locked = null;
+          elem.$view._locked = null;
         }
       }
       return returnval;
@@ -320,14 +320,18 @@
           value = attributes[name];
           this.setAttribute(name, value);
         }
-        return this.bindConstraints();
+        this.bindConstraints();
+        return this.trigger('init');
       };
 
       Node.prototype.set_parent = function(parent) {
         if (parent instanceof View) {
           this.parent = parent;
-          parent[this.name] = this;
+          if (this.name != null) {
+            parent[this.name] = this;
+          }
           parent.children.push(this);
+          parent.trigger('newchild');
           parent = parent.sprite;
         }
         return typeof this.setParent === "function" ? this.setParent(parent) : void 0;
@@ -476,7 +480,9 @@
       }
       return _results;
     };
-    Class = (function() {
+    Class = (function(_super) {
+      __extends(Class, _super);
+
       function Class(el, classoptions) {
         var body, name, options, value;
 
@@ -533,7 +539,7 @@
 
       return Class;
 
-    })();
+    })(Node);
     return exports = {
       view: View,
       "class": Class,
