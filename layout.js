@@ -155,7 +155,7 @@
 
     })();
     Node = (function(_super) {
-      var matchBinding, matchConstraint;
+      var matchBinding, matchConstraint, scopeWalker, scopes;
 
       __extends(Node, _super);
 
@@ -174,21 +174,45 @@
 
       matchBinding = /(this[^ ]+)\./g;
 
+      scopes = [];
+
+      scopeWalker = {
+        process: function(expression) {
+          var ast;
+
+          ast = acorn.parse(expression);
+          scopes = [];
+          acorn.walkDown(ast, this);
+          return scopes;
+        },
+        MemberExpression: function(n) {
+          var name;
+
+          name = n.property.name;
+          n = n.object;
+          scopes.push(name);
+          return true;
+        }
+      };
+
       Node.prototype.applyConstraint = function(name, value) {
-        var binding, bindingfn, bindingjs, bindings, constraint, _i, _len;
+        var binding, bindingfn, bindingjs, bindings, constraint, expression, i, properties, targetscope, _i, _len;
 
         constraint = typeof value.match === "function" ? value.match(matchConstraint) : void 0;
         if (constraint) {
-          this.constraints[name] = (new Function([], 'return ' + constraint[1])).bind(this);
+          expression = constraint[1];
+          this.constraints[name] = (new Function([], 'return ' + expression)).bind(this);
+          properties = scopeWalker.process(expression);
           bindings = value.match(matchBinding);
-          for (_i = 0, _len = bindings.length; _i < _len; _i++) {
-            binding = bindings[_i];
+          for (i = _i = 0, _len = bindings.length; _i < _len; i = ++_i) {
+            binding = bindings[i];
+            targetscope = properties[i];
             if (!this.constraints[name].bindings) {
               this.constraints[name].bindings = {};
             }
             bindingjs = binding.substr(0, binding.length - 1);
             bindingfn = (new Function([], 'return ' + bindingjs)).bind(this);
-            this.constraints[name].bindings[bindingjs] = bindingfn;
+            this.constraints[name].bindings[targetscope] = bindingfn;
           }
           return true;
         }
@@ -246,7 +270,7 @@
             _results1 = [];
             for (js in _ref1) {
               binding = _ref1[js];
-              _results1.push(binding().bind(name, this.constraintCallback(name, value, this)));
+              _results1.push(binding().bind(js, this.constraintCallback(js, value, name)));
             }
             return _results1;
           }).call(this));
@@ -254,14 +278,11 @@
         return _results;
       };
 
-      Node.prototype.constraintCallback = function(name, js) {
+      Node.prototype.constraintCallback = function(name, fn, propname) {
         var _this = this;
 
         return function() {
-          var val;
-
-          val = _this[name];
-          return _this.setAttribute(name, js(val));
+          return _this.setAttribute(propname, fn());
         };
       };
 

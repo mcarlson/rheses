@@ -99,19 +99,40 @@ window.lz = do ->
 		matchConstraint = /\${(.+)}/
 		matchBinding = /(this[^ ]+)\./g
 
+		scopes = []
+		scopeWalker = 
+			process: (expression) ->
+				ast = acorn.parse(expression)
+				scopes = []
+				acorn.walkDown(ast, @)
+				return scopes
+			MemberExpression: (n) ->
+        name = n.property.name
+
+        # remove last property
+        n = n.object;
+        scopes.push(name)
+#        console.log 'MemberExpression', name
+        return true
+
 		applyConstraint: (name, value) ->
 			constraint = value.match?(matchConstraint)
 			if constraint
-				@constraints[name] = (new Function([], 'return ' + constraint[1])).bind(@)
+				expression = constraint[1]
+				@constraints[name] = (new Function([], 'return ' + expression)).bind(@)
 #				console.log 'adding constraint', name, constraint[1], this
 #				console.log 'eval', @constraints[name]()
+
+				properties = scopeWalker.process(expression)
+#				console.log 'parsed', value, properties
 				bindings = value.match(matchBinding)
-				for binding in bindings
+				for binding, i in bindings
+					targetscope = properties[i]
 					@constraints[name].bindings = {} unless @constraints[name].bindings
 					bindingjs = binding.substr(0, binding.length - 1)
 					bindingfn = (new Function([], 'return ' + bindingjs)).bind(@)
-					@constraints[name].bindings[bindingjs] = bindingfn;
-#					console.log('bound', constraint[1], bindingjs)
+					@constraints[name].bindings[targetscope] = bindingfn;
+#					console.log('bound', name, expression, targetscope, bindingjs)
 
 #				console.log 'matched constraint', name, @, constraint[1]
 				return true
@@ -157,16 +178,15 @@ window.lz = do ->
 #				console.log 'applied', value()
 				@setAttribute(name, value())
 				for js, binding of @constraints[name].bindings
-#					console.log 'binding to scope', name, value()
-					binding().bind(name, @constraintCallback(name, value, @))
+#					console.log 'binding to scope', js, binding, name, value()
+					binding().bind(js, @constraintCallback(js, value, name))
 
 		# generate a callback for a constraint expression, e.g. x="${this.parent.baz.x + 10}"
-		constraintCallback: (name, js) ->
-#			console.log('binding to constraint expression', name, js, scope, @)
+		constraintCallback: (name, fn, propname) ->
+#			console.log('binding to constraint expression', name, fn, @)
 			() =>
-				val = @[name]
-#				console.log 'setting', name, js(), @
-				@setAttribute(name, js(val))
+#				console.log 'setting', name, fn(), @
+				@setAttribute(propname, fn())
 
 		init: (attributes) ->
 			for name, value of attributes
