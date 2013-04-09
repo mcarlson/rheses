@@ -1,8 +1,8 @@
 hackstyle = do ->
-	# hack jquery to send a style event when CSS changes
+	# hack jQuery to send a style event when CSS changes
 	stylemap= {left: 'x', top: 'y', 'background-color': 'bgcolor'}
 	origstyle = $.style;
-	$.style = (elem, name, value) ->
+	newstyle = (elem, name, value) ->
 	  returnval = origstyle.apply(this, arguments);
 	  locked = elem.$view?._locked
 	  name = stylemap[name] or name
@@ -16,7 +16,11 @@ hackstyle = do ->
 		    elem.$view._locked = null
 
 	  returnval;
-
+	return (isActive) ->
+		if isActive
+			$.style = newstyle;
+		else
+			$.style = oldstyle;
 
 window.lz = do ->
 	# from https://github.com/spine/spine/tree/dev/src
@@ -133,31 +137,31 @@ window.lz = do ->
         return true
 
 		matchConstraint = /\${(.+)}/
-		applyConstraint: (name, value) ->
-			constraint = value.match?(matchConstraint)
-			if expression = constraint?[1]
-				@constraints ?= {}
-				@constraints[name] = (new Function([], 'return ' + expression)).bind(@)
+		applyConstraint: (name, expression) ->
+			@constraints ?= {}
+			@constraints[name] = (new Function([], 'return ' + expression)).bind(@)
 #				console.log 'adding constraint', name, constraint[1], this
 #				console.log 'eval', @constraints[name]()
 
-				scopes = propertyBindings.find(expression)
+			scopes = propertyBindings.find(expression)
 #				console.log 'found scopes', scopes
 
-				constraintBinding = @constraints[name];
-				bindings = constraintBinding.bindings or= {}
+			constraintBinding = @constraints[name];
+			bindings = constraintBinding.bindings or= {}
 
-				for scope in scopes
-					{binding, property} = scope
-					bindingfn = (new Function([], 'return ' + binding)).bind(@)
-					bindings[property] = bindingfn;
+			for scope in scopes
+				{binding, property} = scope
+				bindingfn = (new Function([], 'return ' + binding)).bind(@)
+				bindings[property] = bindingfn;
 #					console.log('bound', name, expression, property, binding)
 
 #				console.log 'matched constraint', name, @, expression
-				return true
 
 		setAttribute: (name, value) ->
-			return if @applyConstraint(name, value)
+			constraint = value.match?(matchConstraint)
+			if constraint
+		  	@applyConstraint(name, constraint[1])
+		  	return
 				
 			# coerce value to type
 			if name of types
@@ -180,7 +184,7 @@ window.lz = do ->
 				@[name] = value
 
 			# send event
-			@trigger(name)
+			@trigger(name) if @_callbacks?[name]
 
 		# generate a callback for an event expression in a way that preserves scope, e.g. on_x="console.log(value, this, ...)"
 		eventCallback: (name, js, scope) ->
@@ -196,9 +200,9 @@ window.lz = do ->
 #				console.log 'applying constraint', name, value, this
 #				console.log 'applied', value()
 				@setAttribute(name, value())
-				for event, binding of @constraints[name].bindings
+				for ev, binding of @constraints[name].bindings
 #					console.log 'binding to scope', js, binding, name, value()
-					binding().bind(event, @constraintCallback(name, value))
+					binding().bind(ev, @constraintCallback(name, value))
 
 		# generate a callback for a constraint expression, e.g. x="${this.parent.baz.x + 10}"
 		constraintCallback: (name, value) ->
@@ -210,8 +214,8 @@ window.lz = do ->
 		init: (attributes) ->
 			for name, value of attributes
 				@setAttribute(name, value)
-			@bindConstraints()
-			@trigger('init')
+			@bindConstraints() if @constraints
+			@trigger('init') if @_callbacks?[name]
 
 		set_parent: (parent) ->
 #			console.log 'set_parent', parent, @name if @name
@@ -221,7 +225,7 @@ window.lz = do ->
 				@parent = parent
 				parent[@name] = @ if @name?
 				parent.children.push(@)
-				parent.trigger('newchild')
+				parent.trigger('newchild') if @_callbacks?[name]
 				parent = parent.sprite
 			@setParent? parent
 
@@ -233,6 +237,7 @@ window.lz = do ->
 	# sprite mixin
 	# WARNING: method names must be unique across all classes they're mixed into :(
 	stylemap= {x: 'left', y: 'top', bgcolor: 'background-color'}
+	skipStyle= {parent: true, id: true, name: true};
 	Sprite =
 #		guid = 0
 		initSprite: (@sprite = $('<div/>')) ->
@@ -282,7 +287,7 @@ window.lz = do ->
 #			console.log 'new view', el, options, @
 
 		setAttribute: (name, value) ->
-			@setStyle(name, value)
+			@setStyle(name, value) unless skipStyle[name]
 			super(name, value)
 
 
@@ -318,14 +323,12 @@ window.lz = do ->
 	init = (selector = $('view')) ->
 		for el, i in selector
 			initFromElement(el) unless el.$defer
+		# listen for jQuery style changes
+		hackstyle(true)
 
 
 	class Class extends Node
-		constructor: (el, classoptions) ->
-			options = {}
-			for name, value of classoptions
-#				console.log 'classoption', name, value
-				options[name] = value
+		constructor: (el, options) ->
 			delete options.name
 			body = el.innerHTML
 			el.innerHTML = ''

@@ -7,7 +7,7 @@
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   hackstyle = (function() {
-    var origstyle, stylemap;
+    var newstyle, origstyle, stylemap;
 
     stylemap = {
       left: 'x',
@@ -15,7 +15,7 @@
       'background-color': 'bgcolor'
     };
     origstyle = $.style;
-    return $.style = function(elem, name, value) {
+    newstyle = function(elem, name, value) {
       var locked, returnval, sendstyle, _ref, _ref1, _ref2;
 
       returnval = origstyle.apply(this, arguments);
@@ -31,10 +31,17 @@
       }
       return returnval;
     };
+    return function(isActive) {
+      if (isActive) {
+        return $.style = newstyle;
+      } else {
+        return $.style = oldstyle;
+      }
+    };
   })();
 
   window.lz = (function() {
-    var Class, Events, Module, Node, Sprite, View, exports, init, initFromElement, moduleKeywords, stylemap, types;
+    var Class, Events, Module, Node, Sprite, View, exports, init, initFromElement, moduleKeywords, skipStyle, stylemap, types;
 
     Events = {
       bind: function(ev, callback) {
@@ -222,32 +229,32 @@
 
       matchConstraint = /\${(.+)}/;
 
-      Node.prototype.applyConstraint = function(name, value) {
-        var binding, bindingfn, bindings, constraint, constraintBinding, expression, property, scope, _i, _len, _ref;
+      Node.prototype.applyConstraint = function(name, expression) {
+        var binding, bindingfn, bindings, constraintBinding, property, scope, _i, _len, _ref, _results;
 
-        constraint = typeof value.match === "function" ? value.match(matchConstraint) : void 0;
-        if (expression = constraint != null ? constraint[1] : void 0) {
-          if ((_ref = this.constraints) == null) {
-            this.constraints = {};
-          }
-          this.constraints[name] = (new Function([], 'return ' + expression)).bind(this);
-          scopes = propertyBindings.find(expression);
-          constraintBinding = this.constraints[name];
-          bindings = constraintBinding.bindings || (constraintBinding.bindings = {});
-          for (_i = 0, _len = scopes.length; _i < _len; _i++) {
-            scope = scopes[_i];
-            binding = scope.binding, property = scope.property;
-            bindingfn = (new Function([], 'return ' + binding)).bind(this);
-            bindings[property] = bindingfn;
-          }
-          return true;
+        if ((_ref = this.constraints) == null) {
+          this.constraints = {};
         }
+        this.constraints[name] = (new Function([], 'return ' + expression)).bind(this);
+        scopes = propertyBindings.find(expression);
+        constraintBinding = this.constraints[name];
+        bindings = constraintBinding.bindings || (constraintBinding.bindings = {});
+        _results = [];
+        for (_i = 0, _len = scopes.length; _i < _len; _i++) {
+          scope = scopes[_i];
+          binding = scope.binding, property = scope.property;
+          bindingfn = (new Function([], 'return ' + binding)).bind(this);
+          _results.push(bindings[property] = bindingfn);
+        }
+        return _results;
       };
 
       Node.prototype.setAttribute = function(name, value) {
-        var setter, type;
+        var constraint, setter, type, _ref;
 
-        if (this.applyConstraint(name, value)) {
+        constraint = typeof value.match === "function" ? value.match(matchConstraint) : void 0;
+        if (constraint) {
+          this.applyConstraint(name, constraint[1]);
           return;
         }
         if (name in types) {
@@ -267,7 +274,9 @@
         } else {
           this[name] = value;
         }
-        return this.trigger(name);
+        if ((_ref = this._callbacks) != null ? _ref[name] : void 0) {
+          return this.trigger(name);
+        }
       };
 
       Node.prototype.eventCallback = function(name, js, scope) {
@@ -280,7 +289,7 @@
       };
 
       Node.prototype.bindConstraints = function() {
-        var binding, event, name, value, _ref, _results;
+        var binding, ev, name, value, _ref, _results;
 
         _ref = this.constraints;
         _results = [];
@@ -292,9 +301,9 @@
 
             _ref1 = this.constraints[name].bindings;
             _results1 = [];
-            for (event in _ref1) {
-              binding = _ref1[event];
-              _results1.push(binding().bind(event, this.constraintCallback(name, value)));
+            for (ev in _ref1) {
+              binding = _ref1[ev];
+              _results1.push(binding().bind(ev, this.constraintCallback(name, value)));
             }
             return _results1;
           }).call(this));
@@ -311,24 +320,32 @@
       };
 
       Node.prototype.init = function(attributes) {
-        var name, value;
+        var name, value, _ref;
 
         for (name in attributes) {
           value = attributes[name];
           this.setAttribute(name, value);
         }
-        this.bindConstraints();
-        return this.trigger('init');
+        if (this.constraints) {
+          this.bindConstraints();
+        }
+        if ((_ref = this._callbacks) != null ? _ref[name] : void 0) {
+          return this.trigger('init');
+        }
       };
 
       Node.prototype.set_parent = function(parent) {
+        var _ref;
+
         if (parent instanceof View) {
           this.parent = parent;
           if (this.name != null) {
             parent[this.name] = this;
           }
           parent.children.push(this);
-          parent.trigger('newchild');
+          if ((_ref = this._callbacks) != null ? _ref[name] : void 0) {
+            parent.trigger('newchild');
+          }
           parent = parent.sprite;
         }
         return typeof this.setParent === "function" ? this.setParent(parent) : void 0;
@@ -348,6 +365,11 @@
       x: 'left',
       y: 'top',
       bgcolor: 'background-color'
+    };
+    skipStyle = {
+      parent: true,
+      id: true,
+      name: true
     };
     Sprite = {
       initSprite: function(sprite) {
@@ -410,7 +432,9 @@
       }
 
       View.prototype.setAttribute = function(name, value) {
-        this.setStyle(name, value);
+        if (!skipStyle[name]) {
+          this.setStyle(name, value);
+        }
         return View.__super__.setAttribute.call(this, name, value);
       };
 
@@ -461,33 +485,25 @@
       return _results;
     };
     init = function(selector) {
-      var el, i, _i, _len, _results;
+      var el, i, _i, _len;
 
       if (selector == null) {
         selector = $('view');
       }
-      _results = [];
       for (i = _i = 0, _len = selector.length; _i < _len; i = ++_i) {
         el = selector[i];
         if (!el.$defer) {
-          _results.push(initFromElement(el));
-        } else {
-          _results.push(void 0);
+          initFromElement(el);
         }
       }
-      return _results;
+      return hackstyle(true);
     };
     Class = (function(_super) {
       __extends(Class, _super);
 
-      function Class(el, classoptions) {
-        var body, name, options, value;
+      function Class(el, options) {
+        var body, name;
 
-        options = {};
-        for (name in classoptions) {
-          value = classoptions[name];
-          options[name] = value;
-        }
         delete options.name;
         body = el.innerHTML;
         el.innerHTML = '';
@@ -496,7 +512,7 @@
           console.warn('class exists, overwriting', name);
         }
         lz[name] = function(instanceel, overrides) {
-          var child, children, key, parent, viewel, _i, _len, _ref, _results;
+          var child, children, key, parent, value, viewel, _i, _len, _ref, _results;
 
           for (key in overrides) {
             value = overrides[key];
