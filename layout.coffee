@@ -97,13 +97,14 @@ window.lz = do ->
 			@init(options) unless @ instanceof View
 
 		matchConstraint = /\${(.+)}/
-		matchBinding = /(this[^ ]+)\./g
 
 		scopes = []
+		props = []
 		scopeWalker = 
 			process: (expression) ->
 				ast = acorn.parse(expression)
 				scopes = []
+				props = []
 				acorn.walkDown(ast, @)
 				return scopes
 			MemberExpression: (n) ->
@@ -111,8 +112,9 @@ window.lz = do ->
 
         # remove last property
         n = n.object;
-        scopes.push(name)
-#        console.log 'MemberExpression', name
+        scopes.push(acorn.stringify n)
+        props.push(name)
+#       console.log 'MemberExpression', name, acorn.stringify n
         return true
 
 		applyConstraint: (name, value) ->
@@ -123,18 +125,16 @@ window.lz = do ->
 #				console.log 'adding constraint', name, constraint[1], this
 #				console.log 'eval', @constraints[name]()
 
-				properties = scopeWalker.process(expression)
-#				console.log 'parsed', value, properties
-				bindings = value.match(matchBinding)
-				for binding, i in bindings
-					targetscope = properties[i]
+				scopeWalker.process(expression)
+#				console.log 'parsed', value, props
+				for binding, i in scopes
+					targetscope = props[i]
 					@constraints[name].bindings = {} unless @constraints[name].bindings
-					bindingjs = binding.substr(0, binding.length - 1)
-					bindingfn = (new Function([], 'return ' + bindingjs)).bind(@)
+					bindingfn = (new Function([], 'return ' + binding)).bind(@)
 					@constraints[name].bindings[targetscope] = bindingfn;
-#					console.log('bound', name, expression, targetscope, bindingjs)
+#					console.log('bound', name, expression, targetscope, binding)
 
-#				console.log 'matched constraint', name, @, constraint[1]
+#				console.log 'matched constraint', name, @, expression
 				return true
 
 		setAttribute: (name, value) ->

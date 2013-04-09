@@ -155,7 +155,7 @@
 
     })();
     Node = (function(_super) {
-      var matchBinding, matchConstraint, scopeWalker, scopes;
+      var matchConstraint, props, scopeWalker, scopes;
 
       __extends(Node, _super);
 
@@ -172,9 +172,9 @@
 
       matchConstraint = /\${(.+)}/;
 
-      matchBinding = /(this[^ ]+)\./g;
-
       scopes = [];
+
+      props = [];
 
       scopeWalker = {
         process: function(expression) {
@@ -182,6 +182,7 @@
 
           ast = acorn.parse(expression);
           scopes = [];
+          props = [];
           acorn.walkDown(ast, this);
           return scopes;
         },
@@ -190,28 +191,27 @@
 
           name = n.property.name;
           n = n.object;
-          scopes.push(name);
+          scopes.push(acorn.stringify(n));
+          props.push(name);
           return true;
         }
       };
 
       Node.prototype.applyConstraint = function(name, value) {
-        var binding, bindingfn, bindingjs, bindings, constraint, expression, i, properties, targetscope, _i, _len;
+        var binding, bindingfn, constraint, expression, i, targetscope, _i, _len;
 
         constraint = typeof value.match === "function" ? value.match(matchConstraint) : void 0;
         if (constraint) {
           expression = constraint[1];
           this.constraints[name] = (new Function([], 'return ' + expression)).bind(this);
-          properties = scopeWalker.process(expression);
-          bindings = value.match(matchBinding);
-          for (i = _i = 0, _len = bindings.length; _i < _len; i = ++_i) {
-            binding = bindings[i];
-            targetscope = properties[i];
+          scopeWalker.process(expression);
+          for (i = _i = 0, _len = scopes.length; _i < _len; i = ++_i) {
+            binding = scopes[i];
+            targetscope = props[i];
             if (!this.constraints[name].bindings) {
               this.constraints[name].bindings = {};
             }
-            bindingjs = binding.substr(0, binding.length - 1);
-            bindingfn = (new Function([], 'return ' + bindingjs)).bind(this);
+            bindingfn = (new Function([], 'return ' + binding)).bind(this);
             this.constraints[name].bindings[targetscope] = bindingfn;
           }
           return true;
