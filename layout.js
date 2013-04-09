@@ -4,7 +4,8 @@
     __slice = [].slice,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
     __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   hackstyle = (function() {
     var newstyle, origstyle, stylemap;
@@ -16,18 +17,13 @@
     };
     origstyle = $.style;
     newstyle = function(elem, name, value) {
-      var locked, returnval, sendstyle, _ref, _ref1, _ref2;
+      var returnval, sendstyle, _ref, _ref1;
 
       returnval = origstyle.apply(this, arguments);
-      locked = (_ref = elem.$view) != null ? _ref._locked : void 0;
       name = stylemap[name] || name;
-      if (locked !== name) {
-        sendstyle = (_ref1 = elem.$view) != null ? (_ref2 = _ref1.events) != null ? _ref2[name] : void 0 : void 0;
-        if (sendstyle) {
-          elem.$view._locked = name;
-          elem.$view.setAttribute(name, value);
-          elem.$view._locked = null;
-        }
+      sendstyle = (_ref = elem.$view) != null ? (_ref1 = _ref.events) != null ? _ref1[name] : void 0 : void 0;
+      if (sendstyle) {
+        elem.$view.setAttribute(name, value, true);
       }
       return returnval;
     };
@@ -41,7 +37,7 @@
   })();
 
   window.lz = (function() {
-    var Class, Events, Module, Node, Sprite, View, exports, init, initFromElement, moduleKeywords, skipStyle, stylemap, types;
+    var Class, Events, Layout, Module, Node, Sprite, View, exports, init, initFromElement, moduleKeywords, skipStyle, stylemap, types;
 
     Events = {
       bind: function(ev, callback) {
@@ -197,9 +193,7 @@
       Node.include(Events);
 
       function Node(el, options) {
-        if (!(this instanceof View)) {
-          this.init(options);
-        }
+        this.init(options);
       }
 
       scopes = null;
@@ -336,21 +330,19 @@
       Node.prototype.set_parent = function(parent) {
         var _ref, _ref1;
 
-        if (parent instanceof View) {
+        if (parent instanceof Node) {
           this.parent = parent;
           if (this.name != null) {
             parent[this.name] = this;
           }
-          if ((_ref = parent.children) == null) {
-            parent.children = [];
+          if ((_ref = parent.subnodes) == null) {
+            parent.subnodes = [];
           }
-          parent.children.push(this);
-          if ((_ref1 = this.events) != null ? _ref1[name] : void 0) {
-            parent.trigger('newchild');
+          parent.subnodes.push(this);
+          if ((_ref1 = parent.events) != null ? _ref1['newchild'] : void 0) {
+            return parent.trigger('newchild');
           }
-          parent = parent.sprite;
         }
-        return typeof this.setParent === "function" ? this.setParent(parent) : void 0;
       };
 
       Node.prototype.set_name = function(name) {
@@ -428,16 +420,26 @@
             el = el.sprite;
           }
         }
+        this.subviews = [];
         this.initSprite(el);
         this.sprite[0].$view = this;
         this.init(options);
       }
 
-      View.prototype.setAttribute = function(name, value) {
-        if (!skipStyle[name]) {
+      View.prototype.setAttribute = function(name, value, skipsend) {
+        if (!(skipsend || skipStyle[name])) {
           this.setStyle(name, value);
         }
         return View.__super__.setAttribute.call(this, name, value);
+      };
+
+      View.prototype.set_parent = function(parent) {
+        View.__super__.set_parent.call(this, parent);
+        if (parent instanceof View) {
+          parent.subviews.push(this);
+          parent = parent.sprite;
+        }
+        return this.setParent(parent);
       };
 
       return View;
@@ -447,8 +449,8 @@
       var child, children, i, options, tagname, _i, _j, _len, _len1, _ref, _results;
 
       tagname = el.localName;
-      if (!tagname in lz) {
-        console.warn('could not find element', tagname, el);
+      if (!(tagname in lz)) {
+        console.warn('could not find class for tag', tagname, el);
         return;
       }
       options = {};
@@ -500,16 +502,14 @@
       }
       return hackstyle(true);
     };
-    Class = (function(_super) {
-      __extends(Class, _super);
-
+    Class = (function() {
       function Class(el, options) {
         var body, name;
 
+        name = options.name;
         delete options.name;
         body = el.innerHTML;
         el.innerHTML = '';
-        name = el.attributes.name.value;
         if (name in lz) {
           console.warn('class exists, overwriting', name);
         }
@@ -554,11 +554,33 @@
 
       return Class;
 
+    })();
+    Layout = (function(_super) {
+      __extends(Layout, _super);
+
+      function Layout(el, options) {
+        if (options == null) {
+          options = {};
+        }
+        this.setup = __bind(this.setup, this);
+        Layout.__super__.constructor.call(this, el, options);
+        this.parent.bind('newchild', this.setup);
+      }
+
+      Layout.prototype.setup = function() {
+        return console.log(this.parent.subviews);
+      };
+
+      Layout.prototype.update = function() {};
+
+      return Layout;
+
     })(Node);
     return exports = {
       view: View,
       "class": Class,
       node: Node,
+      layout: Layout,
       init: init
     };
   })();

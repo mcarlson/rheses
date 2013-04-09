@@ -4,16 +4,12 @@ hackstyle = do ->
 	origstyle = $.style;
 	newstyle = (elem, name, value) ->
 	  returnval = origstyle.apply(this, arguments);
-	  locked = elem.$view?._locked
 	  name = stylemap[name] or name
-	  if locked != name
-		  # we are setting and aren't disabled
-		  sendstyle = elem.$view?.events?[name]
+	  # we are setting and aren't disabled
+	  sendstyle = elem.$view?.events?[name]
 #		  console.log('sending style', name, elem.$view._locked) if sendstyle
-		  if sendstyle
-		    elem.$view._locked = name;
-		    elem.$view.setAttribute(name, value)
-		    elem.$view._locked = null
+	  if sendstyle
+	    elem.$view.setAttribute(name, value, true)
 
 	  returnval;
 	return (active) ->
@@ -288,6 +284,8 @@ window.lz = do ->
 
 		setAttribute: (name, value) ->
 			@setStyle(name, value) unless skipStyle[name]
+		setAttribute: (name, value, skipsend) ->
+			@setStyle(name, value) unless (skipsend or skipStyle[name])
 			super(name, value)
 
 
