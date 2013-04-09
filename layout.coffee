@@ -96,43 +96,43 @@ window.lz = do ->
 #			console.log 'new node', @, @ instanceof View
 			@init(options) unless @ instanceof View
 
-		matchConstraint = /\${(.+)}/
-
-		scopes = []
-		props = []
-		scopeWalker = 
-			process: (expression) ->
+		scopes = null
+		propertyBindings = 
+			find: (expression) ->
 				ast = acorn.parse(expression)
 				scopes = []
-				props = []
 				acorn.walkDown(ast, @)
 				return scopes
 			MemberExpression: (n) ->
+				# grab the property name
         name = n.property.name
 
-        # remove last property
+        # remove the property so we can compute the rest of the expression
         n = n.object;
-        scopes.push(acorn.stringify n)
-        props.push(name)
+
+        scopes.push({binding: acorn.stringify(n), property: name})
 #       console.log 'MemberExpression', name, acorn.stringify n
         return true
 
+		matchConstraint = /\${(.+)}/
 		applyConstraint: (name, value) ->
 			constraint = value.match?(matchConstraint)
-			if constraint
-				expression = constraint[1]
+			if expression = constraint?[1]
 				@constraints[name] = (new Function([], 'return ' + expression)).bind(@)
 #				console.log 'adding constraint', name, constraint[1], this
 #				console.log 'eval', @constraints[name]()
 
-				scopeWalker.process(expression)
-#				console.log 'parsed', value, props
-				for binding, i in scopes
-					targetscope = props[i]
-					@constraints[name].bindings = {} unless @constraints[name].bindings
+				scopes = propertyBindings.find(expression)
+#				console.log 'found scopes', scopes
+
+				constraintBinding = @constraints[name];
+				constraintBinding.bindings ?= {}
+
+				for scope in scopes
+					{binding, property} = scope
 					bindingfn = (new Function([], 'return ' + binding)).bind(@)
-					@constraints[name].bindings[targetscope] = bindingfn;
-#					console.log('bound', name, expression, targetscope, binding)
+					constraintBinding.bindings[property] = bindingfn;
+#					console.log('bound', name, expression, property, binding)
 
 #				console.log 'matched constraint', name, @, expression
 				return true
@@ -264,6 +264,7 @@ window.lz = do ->
 			@setStyle(name, value)
 			super(name, value)
 
+
 	# init views based on an existing element
 	viewFromElement = (el, parent) ->
 		tagname = el.localName
@@ -276,7 +277,7 @@ window.lz = do ->
 	#				console.log 'option', i.name, i.value
 			options[i.name] = i.value
 
-		parent = el.parentNode unless parent
+		parent ?= el.parentNode
 		options.parent = parent
 	#	console.log 'parent', tagname, options, parent
 
@@ -296,6 +297,7 @@ window.lz = do ->
 	init = (selector = $('view')) ->
 		for el, i in selector
 			viewFromElement(el) unless el.$defer
+
 
 	class Class
 		constructor: (el, classoptions) ->
@@ -325,6 +327,7 @@ window.lz = do ->
 					delete child.$defer
 #					console.log 'creating class child in parent', child, view
 					viewFromElement(child, view) 
+
 
 	exports = {
 		view: View,

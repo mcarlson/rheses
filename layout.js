@@ -155,7 +155,7 @@
 
     })();
     Node = (function(_super) {
-      var matchConstraint, props, scopeWalker, scopes;
+      var matchConstraint, propertyBindings, scopes;
 
       __extends(Node, _super);
 
@@ -170,19 +170,14 @@
         }
       }
 
-      matchConstraint = /\${(.+)}/;
+      scopes = null;
 
-      scopes = [];
-
-      props = [];
-
-      scopeWalker = {
-        process: function(expression) {
+      propertyBindings = {
+        find: function(expression) {
           var ast;
 
           ast = acorn.parse(expression);
           scopes = [];
-          props = [];
           acorn.walkDown(ast, this);
           return scopes;
         },
@@ -191,28 +186,32 @@
 
           name = n.property.name;
           n = n.object;
-          scopes.push(acorn.stringify(n));
-          props.push(name);
+          scopes.push({
+            binding: acorn.stringify(n),
+            property: name
+          });
           return true;
         }
       };
 
+      matchConstraint = /\${(.+)}/;
+
       Node.prototype.applyConstraint = function(name, value) {
-        var binding, bindingfn, constraint, expression, i, targetscope, _i, _len;
+        var binding, bindingfn, constraint, constraintBinding, expression, property, scope, _i, _len, _ref;
 
         constraint = typeof value.match === "function" ? value.match(matchConstraint) : void 0;
-        if (constraint) {
-          expression = constraint[1];
+        if (expression = constraint != null ? constraint[1] : void 0) {
           this.constraints[name] = (new Function([], 'return ' + expression)).bind(this);
-          scopeWalker.process(expression);
-          for (i = _i = 0, _len = scopes.length; _i < _len; i = ++_i) {
-            binding = scopes[i];
-            targetscope = props[i];
-            if (!this.constraints[name].bindings) {
-              this.constraints[name].bindings = {};
-            }
+          scopes = propertyBindings.find(expression);
+          constraintBinding = this.constraints[name];
+          if ((_ref = constraintBinding.bindings) == null) {
+            constraintBinding.bindings = {};
+          }
+          for (_i = 0, _len = scopes.length; _i < _len; _i++) {
+            scope = scopes[_i];
+            binding = scope.binding, property = scope.property;
             bindingfn = (new Function([], 'return ' + binding)).bind(this);
-            this.constraints[name].bindings[targetscope] = bindingfn;
+            constraintBinding.bindings[property] = bindingfn;
           }
           return true;
         }
@@ -405,7 +404,7 @@
         i = _ref[_i];
         options[i.name] = i.value;
       }
-      if (!parent) {
+      if (parent == null) {
         parent = el.parentNode;
       }
       options.parent = parent;
