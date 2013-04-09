@@ -1,3 +1,23 @@
+hackstyle = do ->
+	# hack jquery to send a style event when CSS changes
+	stylemap= {left: 'x', top: 'y', 'background-color': 'bgcolor'}
+	origstyle = $.style;
+	$.style = (elem, name, value) ->
+	  returnval = origstyle.apply(this, arguments);
+	  locked = elem?.$view?.locked
+	  name = stylemap[name] or name
+	  if locked != name
+		  # we are setting and aren't disabled
+		  sendstyle = elem?.$view?._callbacks?[name]
+#		  console.log('sending style', name, elem.$view.locked) if sendstyle
+		  if sendstyle
+		    elem.$view.locked = name;
+		    elem.$view.setAttribute(name, value)
+		    elem.$view.locked = null
+
+	  returnval;
+
+
 window.lz = do ->
 	# from https://github.com/spine/spine/tree/dev/src
 	Events =
@@ -19,7 +39,7 @@ window.lz = do ->
 	    ev = args.shift()
 	    list = @hasOwnProperty('_callbacks') and @_callbacks?[ev]
 	    return unless list
-#	    if list then console.log 'trigger', ev, list.length
+#	    if list then console.log 'trigger', ev, list
 	    for callback in list
 	      if callback.apply(this, args) is false
 	        break
@@ -144,7 +164,7 @@ window.lz = do ->
 			if name of @types
 				type = @types[name]
 				if type == 'number'
-					value = value * 1
+					value = parseFloat(value)
 #				console.log 'type', name, type, value
 
 #			console.log 'setAttribute', name, value
@@ -210,7 +230,9 @@ window.lz = do ->
 			@parent?[name] = @
 
 
+
 	# sprite mixin
+	stylemap= {x: 'left', y: 'top', bgcolor: 'background-color'}
 	Sprite =
 #		guid = 0
 		initSprite: (@sprite = $('<div/>')) ->
@@ -222,7 +244,6 @@ window.lz = do ->
 #			console.log 'new sprite', @sprite, @parent
 		setStyle: (name, value) ->
 			value ?= ''
-			stylemap= {x: 'left', y: 'top', bgcolor: 'background-color'}
 			name = stylemap[name] if name of stylemap
 	#		console.log('setStyle', name, value)
 			@sprite.css(name, value)
@@ -333,7 +354,8 @@ window.lz = do ->
 		view: View,
 		class: Class,
 		node: Node,
-		init: init
+		init: init,
+		stylemap: stylemap
 	}
 
 $(window).on('load', () ->
