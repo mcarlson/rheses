@@ -384,8 +384,8 @@ window.lz = do ->
 			@update()
 			#console.log('layout', @parent, options)
 
-		added: (child) ->
-#			console.log 'added', child
+		added: (child) =>
+#			console.log 'added', child, @
 			@update(child)
 
 		update: (sender) ->
