@@ -360,10 +360,46 @@ window.lz = do ->
 					initFromElement(child, parent)
 
 
+	class Layout extends Node
+		attribute = 'x'
+		otherattribute = 'width'
+		spacing = 10
+		locked = true
+		constructor: (el, options = {}) ->
+			super(el, options)
+			@parent.bind('subviews', @added)
+			for subview in @parent.subviews
+				@added(subview)
+			locked = false
+			@update()
+			#console.log('layout', @parent, options)
+
+		added: (child) =>
+#			console.log 'added', child
+			child.bind(otherattribute, @update)
+			@update(child)
+
+		update: (sender) =>
+			return if locked
+#			console.log 'update', sender
+			subviews = @parent.subviews
+			pos = 0
+			skip = true if sender
+			for subview in @parent.subviews
+				if (skip and subview != sender)
+#					console.log 'skipping', subview
+				else 
+					subview.setAttribute(attribute, pos)
+					skip = false
+
+				pos += spacing + subview[otherattribute]
+
+
 	exports = {
 		view: View,
 		class: Class,
 		node: Node,
+		layout: Layout,
 		init: init
 	}
 
