@@ -270,9 +270,8 @@ window.lz = do ->
 #			console.log("module included: ", @, module)
 
 
+	ignoredAttributes = {parent: true, id: true, name: true}
 	class View extends Node
-		skipStyle= {parent: true, id: true, name: true}
-
 		constructor: (el, options = {}) ->
 			if (el instanceof HTMLElement and el.$view)
 				console.warn 'already bound view', el.$view, el
@@ -287,7 +286,7 @@ window.lz = do ->
 #			console.log 'new view', el, options, @
 
 		setAttribute: (name, value, skipsend) ->
-			if (skipsend or skipStyle[name] or value == this[name])
+			if (skipsend or ignoredAttributes[name] or value == this[name])
 #				console.log 'skipping style', name, this[name], value, @
 			else
 				@sprite.setStyle(name, value)
@@ -348,7 +347,9 @@ window.lz = do ->
 	class Class
 		constructor: (el, options = {}) ->
 			name = options.name
-			delete options.name
+			for ignored of ignoredAttributes
+				delete options[ignored]
+				
 			body = el.innerHTML
 			el.innerHTML = ''
 #			console.log('new class', name, options)
