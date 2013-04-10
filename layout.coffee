@@ -195,7 +195,7 @@ window.lz = do ->
 			() ->
 				val = scope[name]
 #				console.log 'event callback', name, val, scope
-				(new Function(['value'], js).bind(scope))(val)
+				(new Function(['value'], js)).bind(scope)(val)
 
 		bindConstraints: () ->
 			# register constraints last
@@ -257,7 +257,7 @@ window.lz = do ->
 	#		console.log('setStyle', name, value)
 			@jqel.css(name, value)
 		setParent: (parent) ->
-			if (parent instanceof Sprite)
+			if parent instanceof Sprite
 				parent = parent.jqel
 
 			parent = $(parent) unless parent instanceof jQuery
