@@ -407,7 +407,9 @@ window.lz = do ->
 			@update()
 
 		set_attribute: (attr) ->
-			axis = 'height' if attr is 'y'
+			axis = switch attr
+				when 'x' then 'width' 
+				when 'y' then 'height'
 			axis = 'width' if attr is 'x'
 			attribute = attr
 #			console.log('set_attribute', attr, typeof attr)
@@ -443,7 +445,7 @@ window.lz = do ->
 #					console.log 'skipping', subview
 				else 
 #					console.log 'updating', subview, attribute, pos
-					subview.setAttribute(attribute, pos)
+					subview.setAttribute(attribute, pos) unless subview[attribute] == pos
 					skip = false
 
 				pos += spacing + subview[axis]
