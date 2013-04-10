@@ -396,10 +396,12 @@ window.lz = do ->
 		attribute = 'x'
 		axis = 'width'
 		spacing = 10
+		inset = 10
 
 		constructor: (el, options = {}) ->
 			options.types ?= {}
 			options.types.spacing = 'number'
+			options.types.inset = 'number'
 			super(el, options)
 			@update()
 
@@ -415,6 +417,11 @@ window.lz = do ->
 			spacing = space
 			@update()
 
+		set_inset: (i) ->
+#			console.log('set_spacing', space, typeof space)
+			inset = i
+			@update()
+
 		added: (child) ->
 #			console.log 'added', child
 			child.bind(axis, @update)
@@ -428,7 +435,7 @@ window.lz = do ->
 			if not subviews
 				return
 			super(sender)
-			pos = 0
+			pos = inset
 			skip = true if sender
 			for subview in subviews
 				if (skip and subview != sender)
