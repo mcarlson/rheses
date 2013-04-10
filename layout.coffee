@@ -14,11 +14,13 @@ hackstyle = do ->
 		    view.setAttribute(name, value, true)
 
 	  returnval
+
 	return (active) ->
 		if active
 			$.style = styletap
 		else
 			$.style = origstyle
+
 
 window.lz = do ->
 	# from https://github.com/spine/spine/tree/dev/src
@@ -268,8 +270,9 @@ window.lz = do ->
 		set_id: (@id) ->
 #			console.log('setid', @id)
 			@jqel.attr('id', @id)
-#		included: (module) ->
-#			console.log("module included: ", @, module)
+		animate: =>
+#			console.log 'sprite animate', arguments, @jqel
+			@jqel.animate.apply(@jqel, arguments)
 
 
 	ignoredAttributes = {parent: true, id: true, name: true, extends: true}
@@ -308,6 +311,10 @@ window.lz = do ->
 
 		set_id: (@id) ->
 			@sprite.set_id(id)
+
+		animate: ->
+#			console.log 'animate', arguments, @sprite.animate
+			@sprite.animate.apply(this, arguments)
 
 
 	# init classes based on an existing element

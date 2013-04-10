@@ -49,16 +49,18 @@
 	<view id="container" bgcolor="yellow" y="300" width="100" height="100">
 		<node name="barg" x="${this.parent.width + 10 + this.parent.height}" on_x="console.log('yo from barg x', value, this)"></node>
 		<class name="foo" x="10" y="10" bgcolor="blue" width="10" height="10">
-			<view x="5" y="${this.parent.height - this.height}" width="5" height="5" bgcolor="purple"></view>
+			<view x="${this.parent.width - this.width}" y="${this.parent.height - this.height}" width="5" height="5" bgcolor="purple"></view>
 		</class>
-		<class name="lay" extends="layout"></class>
+		<class name="lay" extends="layout">
+			<attribute name="spacing" type="number" value="10"></attribute>
+		</class>
 		<lay id="lay"></lay>
 		<foo id="bazzle" name="baz"></foo>
-		<foo id="bazzleor" bgcolor="orange"></foo>
+		<foo id="bazzleor" onclick="this.$view.animate({width: 100, height: 90})" bgcolor="orange"></foo>
 		<foo id="bazzlegr" bgcolor="green"></foo>
-		<simplelayout attribute="y" spacing="5"></simplelayout>
+		<simplelayout axis="x" spacing="5"></simplelayout>
 	</view>
-	<view id="logo" y="100" on_y="console.log('hey from logo y', value, this)"></view>
+	<view id="logo" y="100"></view>
 	<view id="slogan" x="200">You got your javascript in my css!</view>
 </body>
 </html>
