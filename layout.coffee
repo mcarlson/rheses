@@ -358,21 +358,24 @@ window.lz = do ->
 
 
 	class Class
-		constructor: (el, attributes = {}) ->
-			name = attributes.name
-			ext = attributes.extends ?= 'view'
+		constructor: (el, classattributes = {}) ->
+			name = classattributes.name
+			ext = classattributes.extends ?= 'view'
 			for ignored of ignoredAttributes
-				delete attributes[ignored]
-				
+				delete classattributes[ignored]
+
 			body = el.innerHTML
 			el.innerHTML = ''
-#			console.log('new class', name, attributes)
+#			console.log('new class', name, classattributes)
 			console.warn 'class exists, overwriting', name if name of lz
 			lz[name] = (instanceel, overrides) ->
+				attributes = {}
+				for key, value of classattributes
+					attributes[key] = value;
 				for key, value of overrides
 #  				console.log 'overriding class option', key, value
 					attributes[key] = value
-#				console.log 'creating class instance', name, attributes.name, children, attributes
+#				console.log 'creating class instance', name, attributes
 				parent = new lz[ext](instanceel, attributes)
 #				console.log 'created instance', name, parent
 
