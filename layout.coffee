@@ -1,9 +1,9 @@
 hackstyle = do ->
 	# hack jQuery to send a style event when CSS changes
 	stylemap= {left: 'x', top: 'y', 'background-color': 'bgcolor'}
-	origstyle = $.style;
+	origstyle = $.style
 	newstyle = (elem, name, value) ->
-	  returnval = origstyle.apply(this, arguments);
+	  returnval = origstyle.apply(this, arguments)
 	  name = stylemap[name] or name
 	  # we are setting and aren't disabled
 	  sendstyle = elem.$view?.events?[name]
@@ -11,12 +11,12 @@ hackstyle = do ->
 	  if sendstyle
 	    elem.$view.setAttribute(name, value, true)
 
-	  returnval;
+	  returnval
 	return (active) ->
 		if active
-			$.style = newstyle;
+			$.style = newstyle
 		else
-			$.style = oldstyle;
+			$.style = oldstyle
 
 window.lz = do ->
 	# from https://github.com/spine/spine/tree/dev/src
@@ -109,7 +109,7 @@ window.lz = do ->
 	class Node extends Module
 		@include Events
 
-		constructor: (el, options) ->
+		constructor: (el, options = {}) ->
 #			console.log 'new node', @, options
 			@init(options)
 
@@ -125,7 +125,7 @@ window.lz = do ->
         name = n.property.name
 
         # remove the property so we can compute the rest of the expression
-        n = n.object;
+        n = n.object
 
         scopes.push({binding: acorn.stringify(n), property: name})
 #       console.log 'MemberExpression', name, acorn.stringify n
@@ -141,13 +141,13 @@ window.lz = do ->
 			scopes = propertyBindings.find(expression)
 #				console.log 'found scopes', scopes
 
-			constraintBinding = @constraints[name];
+			constraintBinding = @constraints[name]
 			bindings = constraintBinding.bindings or= {}
 
 			for scope in scopes
 				{binding, property} = scope
 				bindingfn = (new Function([], 'return ' + binding)).bind(@)
-				bindings[property] = bindingfn;
+				bindings[property] = bindingfn
 #					console.log('bound', name, expression, property, binding)
 
 #				console.log 'matched constraint', name, @, expression
@@ -262,7 +262,7 @@ window.lz = do ->
 
 	types = {x: 'number', y: 'number', width: 'number', height: 'number'}
 	class View extends Node
-		skipStyle= {parent: true, id: true, name: true};
+		skipStyle= {parent: true, id: true, name: true}
 
 		constructor: (el, options = {}) ->
 			if (el instanceof HTMLElement and el.$view)
@@ -331,7 +331,7 @@ window.lz = do ->
 
 
 	class Class
-		constructor: (el, options) ->
+		constructor: (el, options = {}) ->
 			name = options.name
 			delete options.name
 			body = el.innerHTML
