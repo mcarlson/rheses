@@ -111,16 +111,16 @@ window.lz = do ->
 	class Node extends Module
 		@include Events
 
-		constructor: (el, options = {}) ->
+		constructor: (el, attributes = {}) ->
 			@types = {x: 'number', y: 'number', width: 'number', height: 'number'}
-			if options.types
-				for name, type of options.types
+			if attributes.types
+				for name, type of attributes.types
 #					console.log 'adding type', name, type
 					@types[name] = type
-				delete options.types
+				delete attributes.types
 
-#			console.log 'new node', @, options
-			@init(options)
+#			console.log 'new node', @, attributes
+			@init(attributes)
 
 		scopes = null
 		propertyBindings = 
@@ -274,7 +274,7 @@ window.lz = do ->
 
 	ignoredAttributes = {parent: true, id: true, name: true, extends: true}
 	class View extends Node
-		constructor: (el, options = {}) ->
+		constructor: (el, attributes = {}) ->
 			if (el instanceof HTMLElement and el.$view)
 				console.warn 'already bound view', el.$view, el
 				return
@@ -284,8 +284,8 @@ window.lz = do ->
 
 			@sprite = new Sprite(el, @)
 
-			super(el, options)
-#			console.log 'new view', el, options, @
+			super(el, attributes)
+#			console.log 'new view', el, attributes, @
 
 		setAttribute: (name, value, skipsend) ->
 			if (skipsend or ignoredAttributes[name] or value == this[name])
@@ -317,18 +317,18 @@ window.lz = do ->
 			console.warn 'could not find class for tag', tagname, el
 			return
 
-		options = {}
+		attributes = {}
 		for i in el.attributes
 	#				console.log 'option', i.name, i.value
-			options[i.name] = i.value
+			attributes[i.name] = i.value
 
 		parent ?= el.parentNode
-		options.parent = parent
-#		console.log 'parent', tagname, options, parent
+		attributes.parent = parent
+#		console.log 'parent', tagname, attributes, parent
 
 		children = (child for child in el.childNodes when child.nodeType == 1)
 
-		parent = new lz[tagname](el, options)
+		parent = new lz[tagname](el, attributes)
 
 		for child in children
 #			console.log 'creating child', child, parent
@@ -347,23 +347,22 @@ window.lz = do ->
 
 
 	class Class
-		constructor: (el, options = {}) ->
-			name = options.name
-			ext = options.extends ?= 'view'
+		constructor: (el, attributes = {}) ->
+			name = attributes.name
+			ext = attributes.extends ?= 'view'
 			for ignored of ignoredAttributes
-				delete options[ignored]
+				delete attributes[ignored]
 				
 			body = el.innerHTML
 			el.innerHTML = ''
-#			console.log('new class', name, options)
+#			console.log('new class', name, attributes)
 			console.warn 'class exists, overwriting', name if name of lz
 			lz[name] = (instanceel, overrides) ->
 				for key, value of overrides
 #  				console.log 'overriding class option', key, value
-					options[key] = value
-				delete options.name unless overrides.name
-#				console.log 'creating class instance', name, options.name, children, options
-				parent = new lz[ext](instanceel, options)
+					attributes[key] = value
+#				console.log 'creating class instance', name, attributes.name, children, attributes
+				parent = new lz[ext](instanceel, attributes)
 #				console.log 'created instance', name, parent
 
 				viewel = parent.sprite?.jqel?[0]
@@ -378,9 +377,9 @@ window.lz = do ->
 
 
 	class Layout extends Node
-		constructor: (el, options = {}) ->
+		constructor: (el, attributes = {}) ->
 			@locked = true
-			super(el, options)
+			super(el, attributes)
 			@parent.bind('subviews', @added)
 			subviews = @parent.subviews
 			if subviews
@@ -388,7 +387,7 @@ window.lz = do ->
 					@added(subview)
 			@locked = false
 			@update()
-			#console.log('layout', @parent, options)
+			#console.log('layout', @parent, attributes)
 
 		added: (child) =>
 #			console.log 'added', child, @
@@ -404,11 +403,11 @@ window.lz = do ->
 		spacing = 10
 		inset = 10
 
-		constructor: (el, options = {}) ->
-			options.types ?= {}
-			options.types.spacing = 'number'
-			options.types.inset = 'number'
-			super(el, options)
+		constructor: (el, attributes = {}) ->
+			attributes.types ?= {}
+			attributes.types.spacing = 'number'
+			attributes.types.inset = 'number'
+			super(el, attributes)
 			@update()
 
 		set_attribute: (attr) ->
