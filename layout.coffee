@@ -272,7 +272,7 @@ window.lz = do ->
 #			console.log("module included: ", @, module)
 
 
-	ignoredAttributes = {parent: true, id: true, name: true}
+	ignoredAttributes = {parent: true, id: true, name: true, extends: true}
 	class View extends Node
 		constructor: (el, options = {}) ->
 			if (el instanceof HTMLElement and el.$view)
@@ -349,6 +349,7 @@ window.lz = do ->
 	class Class
 		constructor: (el, options = {}) ->
 			name = options.name
+			ext = options.extends ?= 'view'
 			for ignored of ignoredAttributes
 				delete options[ignored]
 				
@@ -362,8 +363,10 @@ window.lz = do ->
 					options[key] = value
 				delete options.name unless overrides.name
 #				console.log 'creating class instance', name, options.name, children, options
-				parent = new View(instanceel, options)
-				viewel = parent.sprite.jqel?[0]
+				parent = new lz[ext](instanceel, options)
+#				console.log 'created instance', name, parent
+
+				viewel = parent.sprite?.jqel?[0]
 				return if not viewel
 
 				viewel.innerHTML = body

@@ -49,8 +49,10 @@
 	<view id="container" bgcolor="yellow" y="300" width="100" height="100">
 		<node name="barg" x="${this.parent.width + 10 + this.parent.height}" on_x="console.log('yo from barg x', value, this)"></node>
 		<class name="foo" x="10" y="10" bgcolor="blue" width="10" height="10">
-			<view x="5" y="5" width="5" height="5" bgcolor="purple"></view>
+			<view x="5" y="${this.parent.height - this.height}" width="5" height="5" bgcolor="purple"></view>
 		</class>
+		<class name="lay" extends="layout"></class>
+		<lay id="lay"></lay>
 		<foo id="bazzle" name="baz"></foo>
 		<foo id="bazzleor" bgcolor="orange"></foo>
 		<foo id="bazzlegr" bgcolor="green"></foo>
