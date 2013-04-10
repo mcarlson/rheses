@@ -469,25 +469,29 @@ window.lz = do ->
 	# singleton that listens for mouse position and holds the most recent left and top coordinates
 	class Mouse extends Module
 		constructor: () ->
-		  @docSelector = $(document).on('click', @handler)
-		  @started - null
-
+		  @docSelector = $(document).on('click mouseover mouseout mousedown mouseup', @handler)
 	  sender: () ->
-	    trigger("move", left, top)
+	    trigger("mousemove", left, top)
 	  handler: (event) ->
-	  	event.target.$view.trigger('click', event.target.$view)
-	  	if @started
+	  	view = event.target.$view
+	  	type = event.type
+	  	if view?.events?[type]
+		  	view.trigger(event.type, view)
+#	  	console.log 'event', event.type, event.target.$view
+	  	if @started and type == 'mousemove' and @events['mousemove']
 		    requestTick 0, sender 
 		    @left = event.pageX
 		    @top = event.pageY
 	  start: () ->
 	    return if @started
-	    started = true
+	    @started = true
 	    @docSelector.on("mousemove", @handler).one("mouseout", @stop)
 	  stop: () ->
-	    return if not Mouse.started
-	    started = false
+	    return if not @started
+	    @started = false
 	    @docSelector.off("mousemove", @handler).one("mouseover", @start)
+
+	  mouse = new Mouse()
 
 	exports = {
 		view: View,
@@ -495,8 +499,6 @@ window.lz = do ->
 		node: Node,
 		layout: Layout,
 		simplelayout: SimpleLayout,
-		mouse: new Mouse(),
-		init: init
 		initViews: init
 	}
 
