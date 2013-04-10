@@ -153,33 +153,34 @@ window.lz = do ->
 #				console.log 'matched constraint', name, @, expression
 
 		setAttribute: (name, value) ->
-			constraint = value.match?(matchConstraint)
-			if constraint
-		  	@applyConstraint(name, constraint[1])
-		  	return
-				
-			# coerce value to type
-			if name of types
-				type = types[name]
-				if type == 'number'
-					value = parseFloat(value)
+			if @[name] != value
+				constraint = value.match?(matchConstraint)
+				if constraint
+			  	@applyConstraint(name, constraint[1])
+			  	return
+					
+				# coerce value to type
+				if name of types
+					type = types[name]
+					if type == 'number'
+						value = parseFloat(value)
 #				console.log 'type', name, type, value
 
 #			console.log 'setAttribute', name, value
-			setter = 'set_' + name
-			if setter of @
-#				console.log 'calling setter', setter, value #, @[setter]
-				@[setter]?(value)
-			else if name.indexOf('on_') == 0
-				name = name.substr(3)
-#				console.log('binding to event expression', name, value, @)
-				@bind(name, @eventCallback(name, value, @))
-			else
-	#			console.log 'setting style', name, value
-				@[name] = value
+				setter = 'set_' + name
+				if setter of @
+	#				console.log 'calling setter', setter, value #, @[setter]
+					@[setter]?(value)
+				else if name.indexOf('on_') == 0
+					name = name.substr(3)
+	#				console.log('binding to event expression', name, value, @)
+					@bind(name, @eventCallback(name, value, @))
+				else
+		#			console.log 'setting style', name, value
+					@[name] = value
 
 			# send event
-			@trigger(name, value) if @events?[name]
+			@trigger(name, @, name, value) if @events?[name]
 
 		# generate a callback for an event expression in a way that preserves scope, e.g. on_x="console.log(value, this, ...)"
 		eventCallback: (name, js, scope) ->
@@ -278,7 +279,10 @@ window.lz = do ->
 #			console.log 'new view', el, options, @
 
 		setAttribute: (name, value, skipsend) ->
-			@sprite.setStyle(name, value) unless (skipsend or skipStyle[name])
+			if (skipsend or skipStyle[name] or value == this[name])
+#				console.log 'skipping style', name, this[name], value, @
+			else
+				@sprite.setStyle(name, value)
 			super(name, value)
 
 		set_parent: (parent) ->
