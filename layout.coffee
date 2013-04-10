@@ -182,10 +182,11 @@ window.lz = do ->
 				if setter of @
 	#				console.log 'calling setter', setter, value #, @[setter]
 					@[setter]?(value)
-				else if name.indexOf('on_') == 0
-					name = name.substr(3)
-	#				console.log('binding to event expression', name, value, @)
+				else if name.indexOf('on') == 0
+					name = name.substr(2)
+#					console.log('binding to event expression', name, value, @)
 					@bind(name, @eventCallback(name, value, @))
+					return
 				else
 		#			console.log 'setting style', name, value
 					@[name] = value
@@ -329,6 +330,9 @@ window.lz = do ->
 	#				console.log 'option', i.name, i.value
 			attributes[i.name] = i.value
 
+		# swallow attributes
+		delete el.removeAttribute('onclick')
+
 		parent ?= el.parentNode
 		attributes.parent = parent
 #		console.log 'parent', tagname, attributes, parent
@@ -462,12 +466,36 @@ window.lz = do ->
 				pos += spacing + subview[axis]
 
 
+	# singleton that listens for mouse position and holds the most recent left and top coordinates
+	class Mouse extends Module
+		constructor: () ->
+		  @docSelector = $(document).on('click', @handler)
+		  @started - null
+
+	  sender: () ->
+	    trigger("move", left, top)
+	  handler: (event) ->
+	  	event.target.$view.trigger('click', event.target.$view)
+	  	if @started
+		    requestTick 0, sender 
+		    @left = event.pageX
+		    @top = event.pageY
+	  start: () ->
+	    return if @started
+	    started = true
+	    @docSelector.on("mousemove", @handler).one("mouseout", @stop)
+	  stop: () ->
+	    return if not Mouse.started
+	    started = false
+	    @docSelector.off("mousemove", @handler).one("mouseover", @start)
+
 	exports = {
 		view: View,
 		class: Class,
 		node: Node,
 		layout: Layout,
 		simplelayout: SimpleLayout,
+		mouse: new Mouse(),
 		init: init
 	}
 

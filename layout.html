@@ -47,7 +47,7 @@
 <body>
 	<div id="canvas"></div>
 	<view id="container" bgcolor="yellow" y="300" width="100" height="100">
-		<node name="barg" x="${this.parent.width + 10 + this.parent.height}" on_x="console.log('yo from barg x', value, this)"></node>
+		<node name="barg" x="${this.parent.width + 10 + this.parent.height}" onx="console.log('yo from barg x', value, this)"></node>
 		<class name="foo" x="10" y="10" bgcolor="blue" width="10" height="10">
 			<view x="${this.parent.width - this.width}" y="${this.parent.height - this.height}" width="5" height="5" bgcolor="purple"></view>
 		</class>
@@ -56,7 +56,7 @@
 		</class>
 		<lay id="lay"></lay>
 		<foo id="bazzle" name="baz"></foo>
-		<foo id="bazzleor" onclick="this.$view.animate({width: 100, height: 90})" bgcolor="orange"></foo>
+		<foo id="bazzleor" onclick="this.animate({width: 100, height: 90})" bgcolor="orange"></foo>
 		<foo id="bazzlegr" bgcolor="green"></foo>
 		<simplelayout axis="x" spacing="5"></simplelayout>
 	</view>
