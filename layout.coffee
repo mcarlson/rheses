@@ -2,21 +2,23 @@ hackstyle = do ->
 	# hack jQuery to send a style event when CSS changes
 	stylemap= {left: 'x', top: 'y', 'background-color': 'bgcolor'}
 	origstyle = $.style
-	newstyle = (elem, name, value) ->
+	styletap = (elem, name, value) ->
 	  returnval = origstyle.apply(this, arguments)
 	  name = stylemap[name] or name
 	  # we are setting and aren't disabled
 	  sendstyle = elem.$view?.events?[name]
 #		  console.log('sending style', name, elem.$view._locked) if sendstyle
 	  if sendstyle
-	    elem.$view.setAttribute(name, value, true)
+	  	view = elem.$view
+	  	if (view[name] != value)	
+		    view.setAttribute(name, value, true)
 
 	  returnval
 	return (active) ->
 		if active
-			$.style = newstyle
+			$.style = styletap
 		else
-			$.style = oldstyle
+			$.style = origstyle
 
 window.lz = do ->
 	# from https://github.com/spine/spine/tree/dev/src
