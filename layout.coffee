@@ -228,57 +228,57 @@ window.lz = do ->
 			@parent?[name] = @
 
 
-	# sprite mixin
-	# WARNING: method names must be unique across all classes they're mixed into :(
-	stylemap= {x: 'left', y: 'top', bgcolor: 'background-color'}
-	skipStyle= {parent: true, id: true, name: true};
-	Sprite =
+	class Sprite
 #		guid = 0
-		initSprite: (@sprite = $('<div/>')) ->
+		stylemap= {x: 'left', y: 'top', bgcolor: 'background-color'}
+
+		constructor: (@jqel = $('<div/>'), view) ->
+#			console.log 'new sprite', @jqel, view
+			@jqel = $(@jqel) unless @jqel instanceof jQuery
+			@jqel[0].$view = view
+
 			# normalize to jQuery object
-			@sprite = $(@sprite) unless @sprite instanceof jQuery
 #			guid++
-#			@sprite.attr('id', 'sprite-' + guid) if not @sprite.attr('id')
-			@sprite.addClass('sprite')
-#			console.log 'new sprite', @sprite, @parent
+#			@jqel.attr('id', 'jqel-' + guid) if not @jqel.attr('id')
+			@jqel.addClass('sprite')
 		setStyle: (name, value) ->
 			value ?= ''
 			name = stylemap[name] if name of stylemap
 	#		console.log('setStyle', name, value)
-			@sprite.css(name, value)
+			@jqel.css(name, value)
 		setParent: (parent) ->
+			if (parent instanceof Sprite)
+				parent = parent.jqel
+
 			parent = $(parent) unless parent instanceof jQuery
 	#		console.log 'set_parent', parent
-			parent.append(@sprite)
+			parent.append(@jqel)
 		set_id: (@id) ->
 #			console.log('setid', @id)
-			@sprite.attr('id', @id)
+			@jqel.attr('id', @id)
 #		included: (module) ->
 #			console.log("module included: ", @, module)
 
 
 	types = {x: 'number', y: 'number', width: 'number', height: 'number'}
 	class View extends Node
-		@include Sprite
+		skipStyle= {parent: true, id: true, name: true};
 
 		constructor: (el, options = {}) ->
-			if el instanceof HTMLElement 
-				if el.$view
-					console.warn 'already bound view', el.$view, el
-					return
+			if (el instanceof HTMLElement and el.$view)
+				console.warn 'already bound view', el.$view, el
+				return
 
-			if el
-				if el instanceof View
-					el = el.sprite
+			if (el and el instanceof View)
+				el = el.sprite
 
-			@initSprite el
-			@sprite[0].$view = @
+			@sprite = new Sprite(el, @)
 
-			@init(options);
+			super(el, options)
 #			console.log 'new view', el, options, @
 
 		setAttribute: (name, value, skipsend) ->
-			@setStyle(name, value) unless (skipsend or skipStyle[name])
+			@sprite.setStyle(name, value) unless (skipsend or skipStyle[name])
 			super(name, value)
 
 		set_parent: (parent) ->
@@ -291,7 +291,7 @@ window.lz = do ->
 				parent.subviews.push(@)
 				parent.trigger('subviews', @) if parent.events?['subviews']
 				parent = parent.sprite
-			@setParent parent
+			@sprite.setParent parent
 
 
 	# init classes based on an existing element
@@ -345,7 +345,7 @@ window.lz = do ->
 				delete options.name unless overrides.name
 #				console.log 'creating class instance', name, options.name, children, options
 				parent = new View(instanceel, options)
-				viewel = parent.sprite?[0]
+				viewel = parent.sprite.jqel?[0]
 				return if not viewel
 
 				viewel.innerHTML = body
