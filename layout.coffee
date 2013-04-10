@@ -103,7 +103,7 @@ window.lz = do ->
 	    for key, value of obj when key not in moduleKeywords
 #		    	console.log key, obj, @::
 	      @::[key] = value
-	    obj.included?.apply(this, [obj])
+	    obj.included?.call(this, obj)
 	    this
 
 
@@ -256,9 +256,9 @@ window.lz = do ->
 		setStyle: (name, value) ->
 			value ?= ''
 			name = stylemap[name] if name of stylemap
-	#		console.log('setStyle', name, value)
+			console.log('setStyle', name, value)
 			@jqel.css(name, value)
-		setParent: (parent) ->
+		set_parent: (parent) ->
 			if parent instanceof Sprite
 				parent = parent.jqel
 
@@ -305,7 +305,7 @@ window.lz = do ->
 				parent.subviews.push(@)
 				parent.trigger('subviews', @) if parent.events?['subviews']
 				parent = parent.sprite
-			@sprite.setParent parent
+			@sprite.set_parent parent
 
 		set_id: (@id) ->
 			@sprite.set_id(id)
@@ -324,11 +324,12 @@ window.lz = do ->
 
 		attributes = {}
 		for i in el.attributes
-	#				console.log 'option', i.name, i.value
+	#				console.log 'attribute', i.name, i.value
 			attributes[i.name] = i.value
 
-		# swallow attributes
-		delete el.removeAttribute('onclick')
+		# swallow builtin attributes
+		for event in mouseEvents
+			el.removeAttribute('on' + event)
 
 		parent ?= el.parentNode
 		attributes.parent = parent
@@ -365,12 +366,12 @@ window.lz = do ->
 			el.innerHTML = ''
 #			console.log('new class', name, classattributes)
 			console.warn 'class exists, overwriting', name if name of lz
-			lz[name] = (instanceel, overrides) ->
+			lz[name] = (instanceel, instanceattributes) ->
 				attributes = {}
 				for key, value of classattributes
-					attributes[key] = value;
-				for key, value of overrides
-#  				console.log 'overriding class option', key, value
+					attributes[key] = instanceattributes[key] ? value
+				for key, value of instanceattributes
+#  				console.log 'overriding class attribute', key, value
 					attributes[key] = value
 #				console.log 'creating class instance', name, attributes
 				parent = new lz[ext](instanceel, attributes)
@@ -467,9 +468,12 @@ window.lz = do ->
 
 
 	# singleton that listens for mouse position and holds the most recent left and top coordinates
+	mouseEvents = ['click', 'mouseover', 'mouseout', 'mousedown', 'mouseup']
 	class Mouse extends Module
 		constructor: () ->
-		  @docSelector = $(document).on('click mouseover mouseout mousedown mouseup', @handler)
+		  @docSelector = $(document)
+		  for event in mouseEvents
+		  	@docSelector.on(event, @handler)
 	  sender: () ->
 	    trigger("mousemove", left, top)
 	  handler: (event) ->
