@@ -142,7 +142,7 @@ window.lz = do ->
 		applyConstraint: (name, expression) ->
 			@constraints ?= {}
 			@constraints[name] = (new Function([], 'return ' + expression)).bind(@)
-#				console.log 'adding constraint', name, constraint[1], this
+#			console.log 'adding constraint', name, expression, @
 #				console.log 'eval', @constraints[name]()
 
 			scopes = propertyBindings.find(expression)
@@ -152,10 +152,10 @@ window.lz = do ->
 			bindings = constraintBinding.bindings or= {}
 
 			for scope in scopes
-				{binding, property} = scope
-				bindingfn = (new Function([], 'return ' + binding)).bind(@)
-				bindings[property] = bindingfn
-#					console.log('bound', name, expression, property, binding)
+				bindexpression = scope.binding
+				scope.compiled = (new Function([], 'return ' + bindexpression)).bind(@)
+				bindings[bindexpression] = scope
+#				console.log 'applied', scope.property, bindexpression, 'for', @
 
 #				console.log 'matched constraint', name, @, expression
 
@@ -200,12 +200,14 @@ window.lz = do ->
 		bindConstraints: () ->
 			# register constraints last
 			for name, value of @constraints
-#				console.log 'applying constraint', name, value, this
-#				console.log 'applied', value()
+#				console.log 'binding constraint', name, value, this
 				@setAttribute(name, value())
-				for ev, binding of @constraints[name].bindings
-#					console.log 'binding to scope', js, binding, name, value()
-					binding().bind(ev, @constraintCallback(name, value))
+				for bindexpression, binding of @constraints[name].bindings
+					property = binding.property
+					boundref = binding.compiled()
+					boundref = boundref.$view if boundref.$view
+#					console.log 'binding to', property, 'on', boundref
+					boundref.bind(property, @constraintCallback(name, value))
 
 		# generate a callback for a constraint expression, e.g. x="${this.parent.baz.x + 10}"
 		constraintCallback: (name, value) ->
