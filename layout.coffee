@@ -110,6 +110,13 @@ window.lz = do ->
 		@include Events
 
 		constructor: (el, options = {}) ->
+			@types = {x: 'number', y: 'number', width: 'number', height: 'number'}
+			if options.types
+				for name, type of options.types
+#					console.log 'adding type', name, type
+					@types[name] = type
+				delete options.types
+
 #			console.log 'new node', @, options
 			@init(options)
 
@@ -160,8 +167,8 @@ window.lz = do ->
 			  	return
 					
 				# coerce value to type
-				if name of types
-					type = types[name]
+				if name of @types
+					type = @types[name]
 					if type == 'number'
 						value = parseFloat(value)
 #				console.log 'type', name, type, value
@@ -261,7 +268,6 @@ window.lz = do ->
 #			console.log("module included: ", @, module)
 
 
-	types = {x: 'number', y: 'number', width: 'number', height: 'number'}
 	class View extends Node
 		skipStyle= {parent: true, id: true, name: true}
 
@@ -296,6 +302,9 @@ window.lz = do ->
 				parent.trigger('subviews', @) if parent.events?['subviews']
 				parent = parent.sprite
 			@sprite.setParent parent
+
+		set_id: (@id) ->
+			@sprite.set_id(id)
 
 
 	# init classes based on an existing element
@@ -361,38 +370,73 @@ window.lz = do ->
 
 
 	class Layout extends Node
-		attribute = 'x'
-		otherattribute = 'width'
-		spacing = 10
-		locked = true
 		constructor: (el, options = {}) ->
+			@locked = true
 			super(el, options)
 			@parent.bind('subviews', @added)
-			for subview in @parent.subviews
-				@added(subview)
-			locked = false
+			subviews = @parent.subviews
+			if subviews
+				for subview in subviews
+					@added(subview)
+			@locked = false
 			@update()
 			#console.log('layout', @parent, options)
 
-		added: (child) =>
+		added: (child) ->
 #			console.log 'added', child
-			child.bind(otherattribute, @update)
 			@update(child)
 
-		update: (sender) =>
-			return if locked
+		update: (sender) ->
 #			console.log 'update', sender
+
+
+	class SimpleLayout extends Layout
+		attribute = 'x'
+		axis = 'width'
+		spacing = 10
+
+		constructor: (el, options = {}) ->
+			options.types ?= {}
+			options.types.spacing = 'number'
+			super(el, options)
+			@update()
+
+		set_attribute: (attr) ->
+			axis = 'height' if attr is 'y'
+			axis = 'width' if attr is 'x'
+			attribute = attr
+#			console.log('set_attribute', attr, typeof attr)
+			@update()
+
+		set_spacing: (space) ->
+#			console.log('set_spacing', space, typeof space)
+			spacing = space
+			@update()
+
+		added: (child) ->
+#			console.log 'added', child
+			child.bind(axis, @update)
+			super(child)
+
+		update: (sender) ->
+			if @locked
+#				console.log 'locked'
+				return
 			subviews = @parent.subviews
+			if not subviews
+				return
+			super(sender)
 			pos = 0
 			skip = true if sender
-			for subview in @parent.subviews
+			for subview in subviews
 				if (skip and subview != sender)
 #					console.log 'skipping', subview
 				else 
+#					console.log 'updating', subview, attribute, pos
 					subview.setAttribute(attribute, pos)
 					skip = false
 
-				pos += spacing + subview[otherattribute]
+				pos += spacing + subview[axis]
 
 
 	exports = {
@@ -400,6 +444,7 @@ window.lz = do ->
 		class: Class,
 		node: Node,
 		layout: Layout,
+		simplelayout: SimpleLayout,
 		init: init
 	}
 
