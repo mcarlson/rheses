@@ -256,7 +256,7 @@ window.lz = do ->
     setStyle: (name, value) ->
       value ?= ''
       name = stylemap[name] if name of stylemap
-      console.log('setStyle', name, value)
+      # console.log('setStyle', name, value, @jqel[0])
       @jqel.css(name, value)
     set_parent: (parent) ->
       if parent instanceof Sprite
@@ -362,7 +362,9 @@ window.lz = do ->
       for ignored of ignoredAttributes
         delete classattributes[ignored]
 
+      # serialize the tag's contents
       body = el.innerHTML
+      # clear to prevent events from firing, e.g. onclick
       el.innerHTML = ''
 #      console.log('new class', name, classattributes)
       console.warn 'class exists, overwriting', name if name of lz
@@ -392,17 +394,21 @@ window.lz = do ->
     constructor: (el, attributes = {}) ->
       @locked = true
       super(el, attributes)
+      # listen for new subviews
       @parent.bind('subviews', @added)
+
+      # iterate through subviews that already exist
       subviews = @parent.subviews
       if subviews
         for subview in subviews
           @added(subview)
       @locked = false
       @update()
-      #console.log('layout', @parent, attributes)
+      # console.log('layout', @parent, attributes)
 
+    # called when a new subview is added to the parent view
     added: (child) =>
-#      console.log 'added', child, @
+      # console.log 'added', child, @
       @update(child)
 
     update: (sender) ->
