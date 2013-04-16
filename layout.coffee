@@ -411,8 +411,14 @@ window.lz = do ->
       # console.log 'added', child, @
       @update(child)
 
-    update: (sender) ->
-#      console.log 'update', sender
+    # override to update the position of the parent view's children
+    update: (sender) =>
+      # console.log 'update', sender
+      return if @skip
+    
+    # returns true if the layout should't update 
+    skip: () =>
+      true if @locked or (not @parent?.subviews)
 
 
   class SimpleLayout extends Layout
@@ -426,47 +432,40 @@ window.lz = do ->
       attributes.types.spacing = 'number'
       attributes.types.inset = 'number'
       super(el, attributes)
-      @update()
 
     set_attribute: (attr) ->
       axis = switch attr
         when 'x' then 'width' 
         when 'y' then 'height'
-      axis = 'width' if attr is 'x'
       attribute = attr
-#      console.log('set_attribute', attr, typeof attr)
+     # console.log('set_attribute', attr, typeof attr)
       @update()
 
     set_spacing: (space) ->
-#      console.log('set_spacing', space, typeof space)
+     # console.log('set_spacing', space, typeof space)
       spacing = space
       @update()
 
     set_inset: (i) ->
-#      console.log('set_spacing', space, typeof space)
+     # console.log('set_spacing', space, typeof space)
       inset = i
       @update()
 
     added: (child) ->
-#      console.log 'added', child
+     # console.log 'added', child
       child.bind(axis, @update)
       super(child)
 
-    update: (sender) ->
-      if @locked
-#        console.log 'locked'
-        return
-      subviews = @parent.subviews
-      if not subviews
-        return
-      super(sender)
+    update: (sender) =>
+      # console.log('skip', @skip, @locked)
+      return if @skip()
       pos = inset
       skip = true if sender
-      for subview in subviews
+      for subview in @parent.subviews
         if (skip and subview != sender)
-#          console.log 'skipping', subview
+          # console.log 'skipping', subview
         else 
-#          console.log 'updating', subview, attribute, pos
+          # console.log 'updating', subview, @attribute, pos
           subview.setAttribute(attribute, pos) unless subview[attribute] == pos
           skip = false
 
