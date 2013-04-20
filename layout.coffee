@@ -190,9 +190,12 @@ window.lz = do ->
     eventCallback: (name, js, scope) ->
       # console.log 'binding to event expression', name, js, scope
       () ->
-        val = scope[name]
-        # console.log 'event callback', name, val, scope
-        (new Function(['value'], js)).bind(scope)(val)
+        if name of scope
+          args = [scope[name]]
+        else 
+          args = _.flatten(arguments)
+        # console.log 'event callback', name, args, scope
+        (new Function(['value'], js)).apply(scope, args)
 
     bindConstraints: () ->
       # register constraints last
