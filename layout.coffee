@@ -184,7 +184,7 @@ window.lz = do ->
           @[name] = value
 
       # send event
-      @trigger(name, @, name, value) if @events?[name]
+      @trigger(name, value, name, @) if @events?[name]
 
     # generate a callback for an event expression in a way that preserves scope, e.g. on_x="console.log(value, this, ...)"
     eventCallback: (name, js, scope) ->
