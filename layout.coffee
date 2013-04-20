@@ -7,7 +7,7 @@ hackstyle = do ->
     name = stylemap[name] or name
     view = elem.$view
     if (view[name] != value and view?.events?[name])
-#      console.log('sending style', name, elem.$view._locked) if sendstyle
+      # console.log('sending style', name, elem.$view._locked) if sendstyle
       view.setAttribute(name, value, true)
 
     returnval
@@ -23,7 +23,7 @@ window.lz = do ->
   # from https://github.com/spine/spine/tree/dev/src
   Events =
     bind: (ev, callback) ->
-#      console.log 'binding', ev, callback
+      # console.log 'binding', ev, callback
       evs   = ev.split(' ')
       calls = @hasOwnProperty('events') and @events or= {}
       for name in evs
@@ -101,7 +101,7 @@ window.lz = do ->
     @include: (obj) ->
       throw new Error('include(obj) requires obj') unless obj
       for key, value of obj when key not in moduleKeywords
-#          console.log key, obj, @::
+        # console.log key, obj, @::
         @::[key] = value
       obj.included?.call(this, obj)
       this
@@ -114,11 +114,11 @@ window.lz = do ->
       @types = {x: 'number', y: 'number', width: 'number', height: 'number'}
       if attributes.types
         for name, type of attributes.types
-#          console.log 'adding type', name, type
+          # console.log 'adding type', name, type
           @types[name] = type
         delete attributes.types
 
-#      console.log 'new node', @, attributes
+      # console.log 'new node', @, attributes
       @init(attributes)
 
     scopes = null
@@ -136,18 +136,18 @@ window.lz = do ->
         n = n.object
 
         scopes.push({binding: acorn.stringify(n), property: name})
-#       console.log 'MemberExpression', name, acorn.stringify n
+        # console.log 'MemberExpression', name, acorn.stringify n
         return true
 
     matchConstraint = /\${(.+)}/
     applyConstraint: (name, expression) ->
       @constraints ?= {}
       @constraints[name] = (new Function([], 'return ' + expression)).bind(@)
-#      console.log 'adding constraint', name, expression, @
-#        console.log 'eval', @constraints[name]()
+      # console.log 'adding constraint', name, expression, @
+      # console.log 'eval', @constraints[name]()
 
       scopes = propertyBindings.find(expression)
-#        console.log 'found scopes', scopes
+      # console.log 'found scopes', scopes
 
       constraintBinding = @constraints[name]
       bindings = constraintBinding.bindings or= {}
@@ -156,9 +156,9 @@ window.lz = do ->
         bindexpression = scope.binding
         scope.compiled = (new Function([], 'return ' + bindexpression)).bind(@)
         bindings[bindexpression] = scope
-#        console.log 'applied', scope.property, bindexpression, 'for', @
+        # console.log 'applied', scope.property, bindexpression, 'for', @
 
-#        console.log 'matched constraint', name, @, expression
+      # console.log 'matched constraint', name, @, expression
 
     setAttribute: (name, value) ->
       if @[name] != value
@@ -172,20 +172,20 @@ window.lz = do ->
           type = @types[name]
           if type == 'number'
             value = parseFloat(value)
-#        console.log 'type', name, type, value
+        # console.log 'type', name, type, value
 
-#      console.log 'setAttribute', name, value
+        # console.log 'setAttribute', name, value
         setter = 'set_' + name
         if setter of @
-  #        console.log 'calling setter', setter, value #, @[setter]
+          # console.log 'calling setter', setter, value #, @[setter]
           @[setter]?(value)
         else if name.indexOf('on') == 0
           name = name.substr(2)
-#          console.log('binding to event expression', name, value, @)
+          # console.log('binding to event expression', name, value, @)
           @bind(name, @eventCallback(name, value, @))
           return
         else
-    #      console.log 'setting style', name, value
+          # console.log 'setting style', name, value
           @[name] = value
 
       # send event
@@ -193,29 +193,29 @@ window.lz = do ->
 
     # generate a callback for an event expression in a way that preserves scope, e.g. on_x="console.log(value, this, ...)"
     eventCallback: (name, js, scope) ->
-#      console.log 'binding to event expression', name, js, scope
+      # console.log 'binding to event expression', name, js, scope
       () ->
         val = scope[name]
-#        console.log 'event callback', name, val, scope
+        # console.log 'event callback', name, val, scope
         (new Function(['value'], js)).bind(scope)(val)
 
     bindConstraints: () ->
       # register constraints last
       for name, value of @constraints
-#        console.log 'binding constraint', name, value, this
+       # console.log 'binding constraint', name, value, this
         @setAttribute(name, value())
         for bindexpression, binding of @constraints[name].bindings
           property = binding.property
           boundref = binding.compiled()
           boundref = boundref.$view if boundref.$view
-#          console.log 'binding to', property, 'on', boundref
+          # console.log 'binding to', property, 'on', boundref
           boundref.bind(property, @constraintCallback(name, value))
 
     # generate a callback for a constraint expression, e.g. x="${this.parent.baz.x + 10}"
     constraintCallback: (name, value) ->
-#      console.log('binding to constraint expression', name, fn, @)
+      # console.log('binding to constraint expression', name, fn, @)
       () =>
-#        console.log 'setting', name, fn(), @
+        # console.log 'setting', name, fn(), @
         @setAttribute(name, value())
 
     init: (attributes) ->
@@ -225,7 +225,7 @@ window.lz = do ->
       @trigger('init', @) if @events?[name]
 
     set_parent: (parent) ->
-#      console.log 'set_parent', parent, @
+      # console.log 'set_parent', parent, @
       # normalize to jQuery object
       if parent instanceof Node
         # store references to parent and children
@@ -236,7 +236,7 @@ window.lz = do ->
         parent.trigger('subnodes', @) if parent.events?['subnodes']
 
     set_name: (@name) ->
-#      console.log 'set_name', name, this
+      # console.log 'set_name', name, this
       @parent?[name] = @
 
 
@@ -245,7 +245,7 @@ window.lz = do ->
     stylemap= {x: 'left', y: 'top', bgcolor: 'background-color'}
 
     constructor: (@jqel = $('<div/>'), view) ->
-#      console.log 'new sprite', @jqel, view
+      # console.log 'new sprite', @jqel, view
       @jqel = $(@jqel) unless @jqel instanceof jQuery
       @jqel[0].$view = view
 
@@ -263,13 +263,13 @@ window.lz = do ->
         parent = parent.jqel
 
       parent = $(parent) unless parent instanceof jQuery
-  #    console.log 'set_parent', parent
+      # console.log 'set_parent', parent
       parent.append(@jqel)
     set_id: (@id) ->
-#      console.log('setid', @id)
+      # console.log('setid', @id)
       @jqel.attr('id', @id)
     animate: =>
-#      console.log 'sprite animate', arguments, @jqel
+      # console.log 'sprite animate', arguments, @jqel
       @jqel.animate.apply(@jqel, arguments)
 
 
@@ -286,17 +286,17 @@ window.lz = do ->
       @sprite = new Sprite(el, @)
 
       super(el, attributes)
-#      console.log 'new view', el, attributes, @
+      # console.log 'new view', el, attributes, @
 
     setAttribute: (name, value, skipsend) ->
       if (skipsend or ignoredAttributes[name] or value == this[name])
-#        console.log 'skipping style', name, this[name], value, @
+      # console.log 'skipping style', name, this[name], value, @
       else
         @sprite.setStyle(name, value)
       super(name, value)
 
     set_parent: (parent) ->
-#      console.log 'view set_parent', parent, @
+      # console.log 'view set_parent', parent, @
       super(parent)
 
       # store references subviews
@@ -311,7 +311,7 @@ window.lz = do ->
       @sprite.set_id(id)
 
     animate: ->
-#      console.log 'animate', arguments, @sprite.animate
+      # console.log 'animate', arguments, @sprite.animate
       @sprite.animate.apply(this, arguments)
 
 
@@ -324,7 +324,7 @@ window.lz = do ->
 
     attributes = {}
     for i in el.attributes
-  #        console.log 'attribute', i.name, i.value
+      # console.log 'attribute', i.name, i.value
       attributes[i.name] = i.value
 
     # swallow builtin attributes
@@ -333,15 +333,15 @@ window.lz = do ->
 
     parent ?= el.parentNode
     attributes.parent = parent
-#    console.log 'parent', tagname, attributes, parent
+    # console.log 'parent', tagname, attributes, parent
 
     children = (child for child in el.childNodes when child.nodeType == 1)
 
     parent = new lz[tagname](el, attributes)
 
     for child in children
-#      console.log 'creating child', child, parent
-  #    console.dir(child)
+      # console.log 'creating child', child.localName, child, parent
+      # console.dir(child)
       if tagname is 'class'
         child.$defer = true
       else
@@ -366,18 +366,18 @@ window.lz = do ->
       body = el.innerHTML
       # clear to prevent events from firing, e.g. onclick
       el.innerHTML = ''
-#      console.log('new class', name, classattributes)
+      # console.log('new class', name, classattributes)
       console.warn 'class exists, overwriting', name if name of lz
       lz[name] = (instanceel, instanceattributes) ->
         attributes = {}
         for key, value of classattributes
           attributes[key] = instanceattributes[key] ? value
         for key, value of instanceattributes
-#          console.log 'overriding class attribute', key, value
+          # console.log 'overriding class attribute', key, value
           attributes[key] = value
-#        console.log 'creating class instance', name, attributes
+        # console.log 'creating class instance', name, attributes
         parent = new lz[ext](instanceel, attributes)
-#        console.log 'created instance', name, parent
+        # console.log 'created instance', name, parent
 
         viewel = parent.sprite?.jqel?[0]
         return if not viewel
@@ -386,7 +386,7 @@ window.lz = do ->
         children = (child for child in viewel.childNodes when child.nodeType == 1)
         for child in children
           delete child.$defer
-#          console.log 'creating class child in parent', child, parent
+          # console.log 'creating class child in parent', child, parent
           initFromElement(child, parent)
 
 
@@ -438,21 +438,21 @@ window.lz = do ->
         when 'x' then 'width' 
         when 'y' then 'height'
       attribute = attr
-     # console.log('set_attribute', attr, typeof attr)
+      # console.log('set_attribute', attr, typeof attr)
       @update()
 
     set_spacing: (space) ->
-     # console.log('set_spacing', space, typeof space)
+      # console.log('set_spacing', space, typeof space)
       spacing = space
       @update()
 
     set_inset: (i) ->
-     # console.log('set_spacing', space, typeof space)
+      # console.log('set_spacing', space, typeof space)
       inset = i
       @update()
 
     added: (child) ->
-     # console.log 'added', child
+      # console.log 'added', child
       child.bind(axis, @update)
       super(child)
 
@@ -472,8 +472,8 @@ window.lz = do ->
         pos += spacing + subview[axis]
 
 
-  # singleton that listens for mouse position and holds the most recent left and top coordinates
   mouseEvents = ['click', 'mouseover', 'mouseout', 'mousedown', 'mouseup']
+  # singleton that listens for mouse position and holds the most recent left and top coordinates
   class Mouse extends Module
     constructor: () ->
       @docSelector = $(document)
@@ -486,8 +486,8 @@ window.lz = do ->
       type = event.type
       if view?.events?[type]
         view.trigger(event.type, view)
-#      console.log 'event', event.type, event.target.$view
       if @started and type == 'mousemove' and @events['mousemove']
+        # console.log 'event', event.type, event.target.$view
         requestTick 0, sender 
         @left = event.pageX
         @top = event.pageY
