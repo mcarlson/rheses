@@ -109,6 +109,8 @@ window.lz = do ->
 
   class Node extends Module
     @include Events
+    typemappings = 
+      number: parseFloat
 
     constructor: (el, attributes = {}) ->
       @types = attributes.types ? {}
@@ -145,7 +147,7 @@ window.lz = do ->
       # console.log 'found scopes', scopes
 
       constraintBinding = @constraints[name]
-      bindings = constraintBinding.bindings or= {}
+      bindings = constraintBinding.bindings ?= {}
 
       for scope in scopes
         bindexpression = scope.binding
@@ -165,20 +167,14 @@ window.lz = do ->
         # coerce value to type
         if name of @types
           type = @types[name]
-          if type == 'number'
-            value = parseFloat(value)
-        # console.log 'type', name, type, value
+          value = typemappings[type]?(value)
+          # console.log 'type', name, type, value
 
         # console.log 'setAttribute', name, value
         setter = 'set_' + name
         if setter of @
           # console.log 'calling setter', setter, value #, @[setter]
           @[setter]?(value)
-        else if name.indexOf('on') == 0
-          name = name.substr(2)
-          # console.log('binding to event expression', name, value, @)
-          @bind(name, @eventCallback(name, value, @))
-          return
         else
           # console.log 'setting style', name, value
           @[name] = value
@@ -218,9 +214,14 @@ window.lz = do ->
 
     init: (attributes) ->
       for name, value of attributes
-        @setAttribute(name, value)
+        if name.indexOf('on') == 0
+          name = name.substr(2)
+          # console.log('binding to event expression', name, value, @)
+          @bind(name, @eventCallback(name, value, @))
+        else
+          @setAttribute(name, value)
       @bindConstraints() if @constraints
-      @trigger('init', @) if @events?[name]
+      @trigger('init', @) if @events?['init']
 
     set_parent: (parent) ->
       # console.log 'set_parent', parent, @
@@ -377,6 +378,7 @@ window.lz = do ->
           js = elchild.innerHTML
           # Prevent display
           elchild.innerHTML = ''
+          # TODO: sort out how to pass args attribute to change default arg name from 'value'
           classattributes[attributes.name] = js
           # console.log 'added handler', attributes.name, js, classattributes
       # serialize the tag's contents
@@ -504,8 +506,8 @@ window.lz = do ->
       type = event.type
       if view?.events?[type]
         view.trigger(event.type, view)
-      if @started and type == 'mousemove' and @events['mousemove']
         # console.log 'event', event.type, event.target.$view
+      if @started
         requestTick 0, sender 
         @left = event.pageX
         @top = event.pageY
