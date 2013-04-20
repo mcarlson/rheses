@@ -362,6 +362,16 @@ window.lz = do ->
       for ignored of ignoredAttributes
         delete classattributes[ignored]
 
+      classattributes.types ?= {}
+      for elchild in el.childNodes
+        if elchild.localName is 'attribute'
+          # console.log 'attribute tag', elchild
+          attributes = {}
+            attributes[i.name] = i.value
+            # classattributes[i.name] = i.value
+
+          classattributes.types[attributes.name] = attributes.type
+          # console.log 'set class attribute', attributes, classattributes
       # serialize the tag's contents
       body = el.innerHTML
       # clear to prevent events from firing, e.g. onclick
@@ -391,8 +401,8 @@ window.lz = do ->
 
 
   class Layout extends Node
+    locked = true
     constructor: (el, attributes = {}) ->
-      @locked = true
       super(el, attributes)
       # listen for new subviews
       @parent.bind('subviews', @added)
@@ -402,7 +412,7 @@ window.lz = do ->
       if subviews
         for subview in subviews
           @added(subview)
-      @locked = false
+      locked = false
       @update()
       # console.log('layout', @parent, attributes)
 
@@ -418,7 +428,7 @@ window.lz = do ->
     
     # returns true if the layout should't update 
     skip: () =>
-      true if @locked or (not @parent?.subviews)
+      true if locked or (not @parent?.subviews)
 
 
   class SimpleLayout extends Layout

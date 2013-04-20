@@ -1,0 +1,60 @@
+<html>
+<head>
+	<title>rhes.es</title>
+	<style type="text/css">
+	  body {
+		  background-color: rgb(46,36,30);
+		  background-image: url(img/x2/background-r.png);
+		  background-size: 259px 259px;
+	  }
+	  @font-face {
+	    font-family: 'wildride';
+	    src: url('fonts/WildRide.ttf') format('truetype');
+	    font-weight: normal;
+	    font-style: normal;
+		}
+		.sprite {
+			position: absolute;
+		}
+	  .trans {
+	  	background-color: rgba(255,255,255,.5);
+	  	width: 80%;
+	  	height: 80%;
+	  	display:none;
+	  }
+	  #logo {
+		  background-repeat: no-repeat;
+		  width:171;
+		  height:64;
+		  position: absolute;
+		  background-image: url(img/x2/rheses-color.png);
+		  background-repeat: no-repeat;
+		  background-size: 171px 64px;
+	  }
+	  #slogan {
+		  font-family: wildride;
+		  white-space: nowrap;
+		  color: rgb(154,123,75);
+		  font-size: 72px;
+		  position: absolute;
+      text-shadow: 0px 0px 4px rgb(46,36,30);
+		}
+	</style>
+	<script type="text/javascript" src="jquery-1.9.1.min.js"></script>
+	<script type="text/javascript" src="acorn.js"></script>
+	<script type="text/javascript" src="underscore.js"></script>
+	<script type="text/javascript" src="layout.js"></script>
+</head>
+<body>
+	<view id="container" bgcolor="yellow" y="300" width="100" height="100">
+		<class name="lay" extends="layout">
+			<attribute name="spacing" type="number" value="15"></attribute>
+			<handler name="onsubviews" args="subviews" reference="this.parent">
+				console.log('onsubviews', subviews)
+			</handler>
+		</class>
+		<lay name="lay"></lay>
+		<lay name="lay" spacing="42"></lay>
+	</view>
+</body>
+</html>
