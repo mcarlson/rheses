@@ -419,6 +419,7 @@ window.lz = do ->
     # called when a new subview is added to the parent view
     added: (child) =>
       # console.log 'added', child, @
+      @trigger('subview', child) if @events?['subview']
       @update(child)
 
     # override to update the position of the parent view's children
