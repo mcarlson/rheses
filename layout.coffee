@@ -200,12 +200,12 @@ window.lz = do ->
     bindConstraints: () ->
       # register constraints last
       for name, value of @constraints
-       # console.log 'binding constraint', name, value, this
+        # console.log 'binding constraint', name, value, @
         @setAttribute(name, value())
         for bindexpression, binding of @constraints[name].bindings
           property = binding.property
           boundref = binding.compiled()
-          boundref = boundref.$view if boundref.$view
+          boundref ?= boundref.$view
           # console.log 'binding to', property, 'on', boundref
           boundref.bind(property, @constraintCallback(name, value))
 
@@ -313,6 +313,12 @@ window.lz = do ->
       # console.log 'animate', arguments, @sprite.animate
       @sprite.animate.apply(this, arguments)
 
+  # flatten element.attributes to a hash
+  flattenattributes = (namednodemap)  ->
+    attributes = {}
+    for i in namednodemap
+      attributes[i.name] = i.value
+    attributes
 
   # init classes based on an existing element
   initFromElement = (el, parent) ->
@@ -321,10 +327,7 @@ window.lz = do ->
       console.warn 'could not find class for tag', tagname, el
       return
 
-    attributes = {}
-    for i in el.attributes
-      # console.log 'attribute', i.name, i.value
-      attributes[i.name] = i.value
+    attributes = flattenattributes(el.attributes)
 
     # swallow builtin attributes
     for event in mouseEvents
@@ -365,10 +368,8 @@ window.lz = do ->
       for elchild in el.childNodes
         if elchild.localName is 'attribute'
           # console.log 'attribute tag', elchild
-          attributes = {}
-            attributes[i.name] = i.value
-            # classattributes[i.name] = i.value
-
+          attributes = flattenattributes(elchild.attributes)
+          classattributes[attributes.name] = attributes.value
           classattributes.types[attributes.name] = attributes.type
           # console.log 'set class attribute', attributes, classattributes
       # serialize the tag's contents
@@ -380,7 +381,7 @@ window.lz = do ->
       lz[name] = (instanceel, instanceattributes) ->
         attributes = {}
         for key, value of classattributes
-          attributes[key] = instanceattributes[key] ? value
+          attributes[key] = value
         for key, value of instanceattributes
           # console.log 'overriding class attribute', key, value
           attributes[key] = value
