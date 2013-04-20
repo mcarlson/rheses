@@ -111,13 +111,8 @@ window.lz = do ->
     @include Events
 
     constructor: (el, attributes = {}) ->
-      @types = {x: 'number', y: 'number', width: 'number', height: 'number'}
-      if attributes.types
-        for name, type of attributes.types
-          # console.log 'adding type', name, type
-          @types[name] = type
-        delete attributes.types
-
+      @types = attributes.types ? {}
+      delete attributes.types
       # console.log 'new node', @, attributes
       @init(attributes)
 
@@ -276,6 +271,7 @@ window.lz = do ->
   ignoredAttributes = {parent: true, id: true, name: true, extends: true}
   class View extends Node
     constructor: (el, attributes = {}) ->
+      attributes.types = {x: 'number', y: 'number', width: 'number', height: 'number'}
       if (el instanceof HTMLElement and el.$view)
         console.warn 'already bound view', el.$view, el
         return
