@@ -467,7 +467,7 @@ window.lz = do ->
       @update()
 
     set_inset: (i) ->
-      # console.log('set_spacing', space, typeof space)
+      # console.log('set_inset', i, typeof i)
       inset = i
       @update()
 
@@ -476,14 +476,14 @@ window.lz = do ->
       child.bind(axis, @update)
       super(child)
 
-    update: (sender) =>
+    update: (value, name, sender) =>
       # console.log('skip', @skip, @locked)
       return if @skip()
       pos = inset
       skip = true if sender
       for subview in @parent.subviews
         if (skip and subview != sender)
-          # console.log 'skipping', subview
+          # console.log 'skipping', subview, sender
         else 
           # console.log 'updating', subview, @attribute, pos
           subview.setAttribute(attribute, pos) unless subview[attribute] == pos
