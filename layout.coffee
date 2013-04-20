@@ -372,6 +372,13 @@ window.lz = do ->
           classattributes[attributes.name] = attributes.value
           classattributes.types[attributes.name] = attributes.type
           # console.log 'set class attribute', attributes, classattributes
+        else if elchild.localName is 'handler'
+          attributes = flattenattributes(elchild.attributes)
+          js = elchild.innerHTML
+          # Prevent display
+          elchild.innerHTML = ''
+          classattributes[attributes.name] = js
+          # console.log 'added handler', attributes.name, js, classattributes
       # serialize the tag's contents
       body = el.innerHTML
       # clear to prevent events from firing, e.g. onclick

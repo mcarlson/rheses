@@ -8,7 +8,7 @@
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   hackstyle = (function() {
-    var newstyle, origstyle, stylemap;
+    var origstyle, stylemap, styletap;
 
     stylemap = {
       left: 'x',
@@ -16,28 +16,28 @@
       'background-color': 'bgcolor'
     };
     origstyle = $.style;
-    newstyle = function(elem, name, value) {
-      var returnval, sendstyle, _ref, _ref1;
+    styletap = function(elem, name, value) {
+      var returnval, view, _ref;
 
       returnval = origstyle.apply(this, arguments);
       name = stylemap[name] || name;
-      sendstyle = (_ref = elem.$view) != null ? (_ref1 = _ref.events) != null ? _ref1[name] : void 0 : void 0;
-      if (sendstyle) {
-        elem.$view.setAttribute(name, value, true);
+      view = elem.$view;
+      if (view[name] !== value && (view != null ? (_ref = view.events) != null ? _ref[name] : void 0 : void 0)) {
+        view.setAttribute(name, value, true);
       }
       return returnval;
     };
     return function(active) {
       if (active) {
-        return $.style = newstyle;
+        return $.style = styletap;
       } else {
-        return $.style = oldstyle;
+        return $.style = origstyle;
       }
     };
   })();
 
   window.lz = (function() {
-    var Class, Events, Layout, Module, Node, Sprite, View, exports, init, initFromElement, moduleKeywords, skipStyle, stylemap, types;
+    var Class, Events, Layout, Module, Mouse, Node, SimpleLayout, Sprite, View, exports, flattenattributes, ignoredAttributes, init, initFromElement, moduleKeywords, mouseEvents;
 
     Events = {
       bind: function(ev, callback) {
@@ -177,7 +177,7 @@
           }
         }
         if ((_ref = obj.included) != null) {
-          _ref.apply(this, [obj]);
+          _ref.call(this, obj);
         }
         return this;
       };
@@ -192,8 +192,15 @@
 
       Node.include(Events);
 
-      function Node(el, options) {
-        this.init(options);
+      function Node(el, attributes) {
+        var _ref;
+
+        if (attributes == null) {
+          attributes = {};
+        }
+        this.types = (_ref = attributes.types) != null ? _ref : {};
+        delete attributes.types;
+        this.init(attributes);
       }
 
       scopes = null;
@@ -223,7 +230,7 @@
       matchConstraint = /\${(.+)}/;
 
       Node.prototype.applyConstraint = function(name, expression) {
-        var binding, bindingfn, bindings, constraintBinding, property, scope, _i, _len, _ref, _results;
+        var bindexpression, bindings, constraintBinding, scope, _i, _len, _ref, _results;
 
         if ((_ref = this.constraints) == null) {
           this.constraints = {};
@@ -235,9 +242,9 @@
         _results = [];
         for (_i = 0, _len = scopes.length; _i < _len; _i++) {
           scope = scopes[_i];
-          binding = scope.binding, property = scope.property;
-          bindingfn = (new Function([], 'return ' + binding)).bind(this);
-          _results.push(bindings[property] = bindingfn);
+          bindexpression = scope.binding;
+          scope.compiled = (new Function([], 'return ' + bindexpression)).bind(this);
+          _results.push(bindings[bindexpression] = scope);
         }
         return _results;
       };
@@ -245,44 +252,51 @@
       Node.prototype.setAttribute = function(name, value) {
         var constraint, setter, type, _ref;
 
-        constraint = typeof value.match === "function" ? value.match(matchConstraint) : void 0;
-        if (constraint) {
-          this.applyConstraint(name, constraint[1]);
-          return;
-        }
-        if (name in types) {
-          type = types[name];
-          if (type === 'number') {
-            value = parseFloat(value);
+        if (this[name] !== value) {
+          constraint = typeof value.match === "function" ? value.match(matchConstraint) : void 0;
+          if (constraint) {
+            this.applyConstraint(name, constraint[1]);
+            return;
           }
-        }
-        setter = 'set_' + name;
-        if (setter in this) {
-          if (typeof this[setter] === "function") {
-            this[setter](value);
+          if (name in this.types) {
+            type = this.types[name];
+            if (type === 'number') {
+              value = parseFloat(value);
+            }
           }
-        } else if (name.indexOf('on_') === 0) {
-          name = name.substr(3);
-          this.bind(name, this.eventCallback(name, value, this));
-        } else {
-          this[name] = value;
+          setter = 'set_' + name;
+          if (setter in this) {
+            if (typeof this[setter] === "function") {
+              this[setter](value);
+            }
+          } else if (name.indexOf('on') === 0) {
+            name = name.substr(2);
+            this.bind(name, this.eventCallback(name, value, this));
+            return;
+          } else {
+            this[name] = value;
+          }
         }
         if ((_ref = this.events) != null ? _ref[name] : void 0) {
-          return this.trigger(name, value);
+          return this.trigger(name, value, name, this);
         }
       };
 
       Node.prototype.eventCallback = function(name, js, scope) {
         return function() {
-          var val;
+          var args;
 
-          val = scope[name];
-          return (new Function(['value'], js).bind(scope))(val);
+          if (name in scope) {
+            args = [scope[name]];
+          } else {
+            args = _.flatten(arguments);
+          }
+          return (new Function(['value'], js)).apply(scope, args);
         };
       };
 
       Node.prototype.bindConstraints = function() {
-        var binding, ev, name, value, _ref, _results;
+        var bindexpression, binding, boundref, name, property, value, _ref, _results;
 
         _ref = this.constraints;
         _results = [];
@@ -294,9 +308,14 @@
 
             _ref1 = this.constraints[name].bindings;
             _results1 = [];
-            for (ev in _ref1) {
-              binding = _ref1[ev];
-              _results1.push(binding().bind(ev, this.constraintCallback(name, value)));
+            for (bindexpression in _ref1) {
+              binding = _ref1[bindexpression];
+              property = binding.property;
+              boundref = binding.compiled();
+              if (boundref == null) {
+                boundref = boundref.$view;
+              }
+              _results1.push(boundref.bind(property, this.constraintCallback(name, value)));
             }
             return _results1;
           }).call(this));
@@ -355,78 +374,92 @@
       return Node;
 
     })(Module);
-    stylemap = {
-      x: 'left',
-      y: 'top',
-      bgcolor: 'background-color'
-    };
-    skipStyle = {
-      parent: true,
-      id: true,
-      name: true
-    };
-    Sprite = {
-      initSprite: function(sprite) {
-        this.sprite = sprite != null ? sprite : $('<div/>');
-        if (!(this.sprite instanceof jQuery)) {
-          this.sprite = $(this.sprite);
+    Sprite = (function() {
+      var stylemap;
+
+      stylemap = {
+        x: 'left',
+        y: 'top',
+        bgcolor: 'background-color'
+      };
+
+      function Sprite(jqel, view) {
+        this.jqel = jqel != null ? jqel : $('<div/>');
+        this.animate = __bind(this.animate, this);
+        if (!(this.jqel instanceof jQuery)) {
+          this.jqel = $(this.jqel);
         }
-        return this.sprite.addClass('sprite');
-      },
-      setStyle: function(name, value) {
+        this.jqel[0].$view = view;
+        this.jqel.addClass('sprite');
+      }
+
+      Sprite.prototype.setStyle = function(name, value) {
         if (value == null) {
           value = '';
         }
         if (name in stylemap) {
           name = stylemap[name];
         }
-        return this.sprite.css(name, value);
-      },
-      setParent: function(parent) {
+        return this.jqel.css(name, value);
+      };
+
+      Sprite.prototype.set_parent = function(parent) {
+        if (parent instanceof Sprite) {
+          parent = parent.jqel;
+        }
         if (!(parent instanceof jQuery)) {
           parent = $(parent);
         }
-        return parent.append(this.sprite);
-      },
-      set_id: function(id) {
+        return parent.append(this.jqel);
+      };
+
+      Sprite.prototype.set_id = function(id) {
         this.id = id;
-        return this.sprite.attr('id', this.id);
-      }
-    };
-    types = {
-      x: 'number',
-      y: 'number',
-      width: 'number',
-      height: 'number'
+        return this.jqel.attr('id', this.id);
+      };
+
+      Sprite.prototype.animate = function() {
+        return this.jqel.animate.apply(this.jqel, arguments);
+      };
+
+      return Sprite;
+
+    })();
+    ignoredAttributes = {
+      parent: true,
+      id: true,
+      name: true,
+      "extends": true
     };
     View = (function(_super) {
       __extends(View, _super);
 
-      View.include(Sprite);
-
-      function View(el, options) {
-        if (options == null) {
-          options = {};
+      function View(el, attributes) {
+        if (attributes == null) {
+          attributes = {};
         }
-        if (el instanceof HTMLElement) {
-          if (el.$view) {
-            console.warn('already bound view', el.$view, el);
-            return;
-          }
+        attributes.types = {
+          x: 'number',
+          y: 'number',
+          width: 'number',
+          height: 'number'
+        };
+        if (el instanceof HTMLElement && el.$view) {
+          console.warn('already bound view', el.$view, el);
+          return;
         }
-        if (el) {
-          if (el instanceof View) {
-            el = el.sprite;
-          }
+        if (el && el instanceof View) {
+          el = el.sprite;
         }
-        this.initSprite(el);
-        this.sprite[0].$view = this;
-        this.init(options);
+        this.sprite = new Sprite(el, this);
+        View.__super__.constructor.call(this, el, attributes);
       }
 
       View.prototype.setAttribute = function(name, value, skipsend) {
-        if (!(skipsend || skipStyle[name])) {
-          this.setStyle(name, value);
+        if (skipsend || ignoredAttributes[name] || value === this[name]) {
+
+        } else {
+          this.sprite.setStyle(name, value);
         }
         return View.__super__.setAttribute.call(this, name, value);
       };
@@ -445,44 +478,62 @@
           }
           parent = parent.sprite;
         }
-        return this.setParent(parent);
+        return this.sprite.set_parent(parent);
+      };
+
+      View.prototype.set_id = function(id) {
+        this.id = id;
+        return this.sprite.set_id(id);
+      };
+
+      View.prototype.animate = function() {
+        return this.sprite.animate.apply(this, arguments);
       };
 
       return View;
 
     })(Node);
+    flattenattributes = function(namednodemap) {
+      var attributes, i, _i, _len;
+
+      attributes = {};
+      for (_i = 0, _len = namednodemap.length; _i < _len; _i++) {
+        i = namednodemap[_i];
+        attributes[i.name] = i.value;
+      }
+      return attributes;
+    };
     initFromElement = function(el, parent) {
-      var child, children, i, options, tagname, _i, _j, _len, _len1, _ref, _results;
+      var attributes, child, children, event, tagname, _i, _j, _len, _len1, _results;
 
       tagname = el.localName;
       if (!(tagname in lz)) {
         console.warn('could not find class for tag', tagname, el);
         return;
       }
-      options = {};
-      _ref = el.attributes;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        i = _ref[_i];
-        options[i.name] = i.value;
+      attributes = flattenattributes(el.attributes);
+      for (_i = 0, _len = mouseEvents.length; _i < _len; _i++) {
+        event = mouseEvents[_i];
+        el.removeAttribute('on' + event);
       }
       if (parent == null) {
         parent = el.parentNode;
       }
-      options.parent = parent;
+      attributes.parent = parent;
       children = (function() {
-        var _j, _len1, _ref1, _results;
+        var _j, _len1, _ref, _results;
 
-        _ref1 = el.childNodes;
+        _ref = el.childNodes;
         _results = [];
-        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-          child = _ref1[_j];
+        for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+          child = _ref[_j];
           if (child.nodeType === 1) {
             _results.push(child);
           }
         }
         return _results;
       })();
-      parent = new lz[tagname](el, options);
+      parent = new lz[tagname](el, attributes);
       _results = [];
       for (_j = 0, _len1 = children.length; _j < _len1; _j++) {
         child = children[_j];
@@ -509,39 +560,67 @@
       return hackstyle(true);
     };
     Class = (function() {
-      function Class(el, options) {
-        var body, name;
+      function Class(el, classattributes) {
+        var attributes, body, elchild, ext, ignored, js, name, _i, _len, _ref, _ref1, _ref2;
 
-        name = options.name;
-        delete options.name;
+        if (classattributes == null) {
+          classattributes = {};
+        }
+        name = classattributes.name;
+        ext = (_ref = classattributes["extends"]) != null ? _ref : classattributes["extends"] = 'view';
+        for (ignored in ignoredAttributes) {
+          delete classattributes[ignored];
+        }
+        if ((_ref1 = classattributes.types) == null) {
+          classattributes.types = {};
+        }
+        _ref2 = el.childNodes;
+        for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+          elchild = _ref2[_i];
+          if (elchild.localName === 'attribute') {
+            attributes = flattenattributes(elchild.attributes);
+            classattributes[attributes.name] = attributes.value;
+            classattributes.types[attributes.name] = attributes.type;
+          } else if (elchild.localName === 'handler') {
+            attributes = flattenattributes(elchild.attributes);
+            js = elchild.innerHTML;
+            elchild.innerHTML = '';
+            classattributes[attributes.name] = js;
+          } else if (elchild.localName === 'method') {
+            attributes = flattenattributes(elchild.attributes);
+            js = elchild.innerHTML;
+          }
+        }
         body = el.innerHTML;
         el.innerHTML = '';
         if (name in lz) {
           console.warn('class exists, overwriting', name);
         }
-        lz[name] = function(instanceel, overrides) {
-          var child, children, key, parent, value, viewel, _i, _len, _ref, _results;
+        lz[name] = function(instanceel, instanceattributes) {
+          var child, children, key, parent, value, viewel, _j, _len1, _ref3, _ref4, _results;
 
-          for (key in overrides) {
-            value = overrides[key];
-            options[key] = value;
+          attributes = {};
+          for (key in classattributes) {
+            value = classattributes[key];
+            attributes[key] = value;
           }
-          if (!overrides.name) {
-            delete options.name;
+          for (key in instanceattributes) {
+            value = instanceattributes[key];
+            attributes[key] = value;
           }
-          parent = new View(instanceel, options);
-          viewel = (_ref = parent.sprite) != null ? _ref[0] : void 0;
+          parent = new lz[ext](instanceel, attributes);
+          viewel = (_ref3 = parent.sprite) != null ? (_ref4 = _ref3.jqel) != null ? _ref4[0] : void 0 : void 0;
           if (!viewel) {
             return;
           }
           viewel.innerHTML = body;
           children = (function() {
-            var _i, _len, _ref1, _results;
+            var _j, _len1, _ref5, _results;
 
-            _ref1 = viewel.childNodes;
+            _ref5 = viewel.childNodes;
             _results = [];
-            for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-              child = _ref1[_i];
+            for (_j = 0, _len1 = _ref5.length; _j < _len1; _j++) {
+              child = _ref5[_j];
               if (child.nodeType === 1) {
                 _results.push(child);
               }
@@ -549,8 +628,8 @@
             return _results;
           })();
           _results = [];
-          for (_i = 0, _len = children.length; _i < _len; _i++) {
-            child = children[_i];
+          for (_j = 0, _len1 = children.length; _j < _len1; _j++) {
+            child = children[_j];
             delete child.$defer;
             _results.push(initFromElement(child, parent));
           }
@@ -562,39 +641,216 @@
 
     })();
     Layout = (function(_super) {
+      var locked;
+
       __extends(Layout, _super);
 
-      function Layout(el, options) {
-        if (options == null) {
-          options = {};
+      locked = true;
+
+      function Layout(el, attributes) {
+        var subview, subviews, _i, _len;
+
+        if (attributes == null) {
+          attributes = {};
         }
+        this.skip = __bind(this.skip, this);
+        this.update = __bind(this.update, this);
         this.added = __bind(this.added, this);
-        Layout.__super__.constructor.call(this, el, options);
+        Layout.__super__.constructor.call(this, el, attributes);
         this.parent.bind('subviews', this.added);
+        subviews = this.parent.subviews;
+        if (subviews) {
+          for (_i = 0, _len = subviews.length; _i < _len; _i++) {
+            subview = subviews[_i];
+            this.added(subview);
+          }
+        }
+        locked = false;
+        this.update();
       }
 
       Layout.prototype.added = function(child) {
-        return console.log('added', child);
+        var _ref;
+
+        if ((_ref = this.events) != null ? _ref['subview'] : void 0) {
+          this.trigger('subview', child);
+        }
+        return this.update(child);
       };
 
-      Layout.prototype.update = function() {};
+      Layout.prototype.update = function(sender) {
+        if (this.skip) {
+
+        }
+      };
+
+      Layout.prototype.skip = function() {
+        var _ref;
+
+        if (locked || (!((_ref = this.parent) != null ? _ref.subviews : void 0))) {
+          return true;
+        }
+      };
 
       return Layout;
 
     })(Node);
+    SimpleLayout = (function(_super) {
+      var attribute, axis, inset, spacing;
+
+      __extends(SimpleLayout, _super);
+
+      attribute = 'x';
+
+      axis = 'width';
+
+      spacing = 10;
+
+      inset = 10;
+
+      function SimpleLayout(el, attributes) {
+        var _ref;
+
+        if (attributes == null) {
+          attributes = {};
+        }
+        this.update = __bind(this.update, this);
+        if ((_ref = attributes.types) == null) {
+          attributes.types = {};
+        }
+        attributes.types.spacing = 'number';
+        attributes.types.inset = 'number';
+        SimpleLayout.__super__.constructor.call(this, el, attributes);
+      }
+
+      SimpleLayout.prototype.set_attribute = function(attr) {
+        axis = (function() {
+          switch (attr) {
+            case 'x':
+              return 'width';
+            case 'y':
+              return 'height';
+          }
+        })();
+        attribute = attr;
+        return this.update();
+      };
+
+      SimpleLayout.prototype.set_spacing = function(space) {
+        spacing = space;
+        return this.update();
+      };
+
+      SimpleLayout.prototype.set_inset = function(i) {
+        inset = i;
+        return this.update();
+      };
+
+      SimpleLayout.prototype.added = function(child) {
+        child.bind(axis, this.update);
+        return SimpleLayout.__super__.added.call(this, child);
+      };
+
+      SimpleLayout.prototype.update = function(sender) {
+        var pos, skip, subview, _i, _len, _ref, _results;
+
+        if (this.skip()) {
+          return;
+        }
+        pos = inset;
+        if (sender) {
+          skip = true;
+        }
+        _ref = this.parent.subviews;
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          subview = _ref[_i];
+          if (skip && subview !== sender) {
+
+          } else {
+            if (subview[attribute] !== pos) {
+              subview.setAttribute(attribute, pos);
+            }
+            skip = false;
+          }
+          _results.push(pos += spacing + subview[axis]);
+        }
+        return _results;
+      };
+
+      return SimpleLayout;
+
+    })(Layout);
+    mouseEvents = ['click', 'mouseover', 'mouseout', 'mousedown', 'mouseup'];
+    Mouse = (function(_super) {
+      var mouse;
+
+      __extends(Mouse, _super);
+
+      function Mouse() {
+        var event, _i, _len;
+
+        this.docSelector = $(document);
+        for (_i = 0, _len = mouseEvents.length; _i < _len; _i++) {
+          event = mouseEvents[_i];
+          this.docSelector.on(event, this.handler);
+        }
+      }
+
+      Mouse.prototype.sender = function() {
+        return trigger("mousemove", left, top);
+      };
+
+      Mouse.prototype.handler = function(event) {
+        var type, view, _ref;
+
+        view = event.target.$view;
+        type = event.type;
+        if (view != null ? (_ref = view.events) != null ? _ref[type] : void 0 : void 0) {
+          view.trigger(event.type, view);
+        }
+        if (this.started) {
+          requestTick(0, sender);
+          this.left = event.pageX;
+          return this.top = event.pageY;
+        }
+      };
+
+      Mouse.prototype.start = function() {
+        if (this.started) {
+          return;
+        }
+        this.started = true;
+        return this.docSelector.on("mousemove", this.handler).one("mouseout", this.stop);
+      };
+
+      Mouse.prototype.stop = function() {
+        if (!this.started) {
+          return;
+        }
+        this.started = false;
+        return this.docSelector.off("mousemove", this.handler).one("mouseover", this.start);
+      };
+
+      mouse = new Mouse();
+
+      return Mouse;
+
+    })(Module);
     return exports = {
       view: View,
       "class": Class,
       node: Node,
       layout: Layout,
-      init: init
+      simplelayout: SimpleLayout,
+      initViews: init
     };
   })();
 
   $(window).on('load', function() {
     var aview, canvas;
 
-    lz.init();
+    lz.initViews();
     canvas = new lz.view(null, {
       x: 100,
       y: 100,
@@ -616,3 +872,7 @@
   });
 
 }).call(this);
+
+/*
+//@ sourceMappingURL=layout.map
+*/
