@@ -117,6 +117,19 @@ window.lz = do ->
       @types = attributes.types ? {}
       delete attributes.types
 
+      # Install methods
+      for name, method of attributes.methods
+        if @[name]
+          supr = @[name]
+          @[name] = () =>
+            method.apply(@, arguments)
+            supr.apply(@, arguments)
+          # console.log('overrode method', name, @)
+        else
+          @[name] = method
+          # console.log('installed method', name, @)
+      delete attributes.methods
+
       # Bind to event expressions and set attributes
       for name, value of attributes
         if name.indexOf('on') == 0
@@ -336,27 +349,61 @@ window.lz = do ->
       el.removeAttribute('on' + event)
 
     parent ?= el.parentNode
-    attributes.parent = parent
+    attributes.parent = parent if parent?
     # console.log 'parent', tagname, attributes, parent
 
     children = (child for child in el.childNodes when child.nodeType == 1)
 
+    if tagname is 'class'
+      for child in children
+        # console.log 'creating child', tagname, child.localName, child, parent
+        # console.dir(child)
+        # console.log 'defer', child
+        child.$defer = true
+        
+    processSpecialTags(el, attributes)
+
     parent = new lz[tagname](el, attributes)
 
-    for child in children
-      # console.log 'creating child', child.localName, child, parent
-      # console.dir(child)
-      if tagname is 'class'
-        child.$defer = true
-      else
-        initFromElement(child, parent) 
+    unless tagname is 'class'
+      for child in children
+        initFromElement(child, parent) unless child.localName in ['attribute', 'method', 'handler']
+
 
   # init all views in the DOM recursively
   init = (selector = $('view')) ->
+    style = document.createElement('style')
+    style.type = 'text/css'
+    style.innerHTML = '.sprite{position:absolute;} .hidden{display:none;}'
+    document.getElementsByTagName('head')[0].appendChild(style)
+
     for el, i in selector
       initFromElement(el) unless el.$defer
     # listen for jQuery style changes
     hackstyle(true)
+
+
+  processSpecialTags = (el, classattributes) ->
+    classattributes.types ?= {}
+    classattributes.methods ?= {}
+    children = _.filter(el.childNodes, (child) -> child.localName in ['handler', 'method', 'attributes'])
+    for child in children
+      attributes = flattenattributes(child.attributes)
+      child.setAttribute('class', 'hidden')
+
+      switch child.localName
+        when 'handler'
+          # TODO: sort out how to pass args attribute to change default arg name from 'value'
+          classattributes[attributes.name] = child.innerHTML
+          # console.log 'added handler', attributes.name, js, attributes
+        when 'method'
+          args = (attributes.args ? '').split()
+          classattributes.methods[attributes.name] = (new Function(args, child.innerHTML))
+          # console.log 'added method', attributes.name, js, classattributes
+        when 'attribute'
+          classattributes[attributes.name] = attributes.value
+          classattributes.types[attributes.name] = attributes.type
+          # console.log 'set class attribute', attributes, classattributes
 
 
   class Class
@@ -366,46 +413,35 @@ window.lz = do ->
       for ignored of ignoredAttributes
         delete classattributes[ignored]
 
-      classattributes.types ?= {}
-      for elchild in el.childNodes
-        if elchild.localName is 'attribute'
-          # console.log 'attribute tag', elchild
-          attributes = flattenattributes(elchild.attributes)
-          classattributes[attributes.name] = attributes.value
-          classattributes.types[attributes.name] = attributes.type
-          # console.log 'set class attribute', attributes, classattributes
-        else if elchild.localName is 'handler'
-          attributes = flattenattributes(elchild.attributes)
-          js = elchild.innerHTML
-          # Prevent display
-          elchild.innerHTML = ''
-          # TODO: sort out how to pass args attribute to change default arg name from 'value'
-          classattributes[attributes.name] = js
-          # console.log 'added handler', attributes.name, js, classattributes
+      processSpecialTags(el, classattributes)
+
       # serialize the tag's contents
       body = el.innerHTML
-      # clear to prevent events from firing, e.g. onclick
-      el.innerHTML = ''
+
       # console.log('new class', name, classattributes)
       console.warn 'class exists, overwriting', name if name of lz
       lz[name] = (instanceel, instanceattributes) ->
-        attributes = {}
-        for key, value of classattributes
-          attributes[key] = value
+        attributes = _.clone(classattributes)
         for key, value of instanceattributes
           # console.log 'overriding class attribute', key, value
-          attributes[key] = value
+          if (key is 'methods' or key is 'types') and key of attributes
+            attributes[key] = _.clone(attributes[key])
+            # console.log('overwriting', key, attributes.methods, value)
+            for propname, val of value
+              attributes[key][propname] = val
+          else 
+            attributes[key] = value
+
         # console.log 'creating class instance', name, attributes
         parent = new lz[ext](instanceel, attributes)
         # console.log 'created instance', name, parent
 
-        viewel = parent.sprite?.jqel?[0]
-        return if not viewel
+        return if not (viewel = parent.sprite?.jqel[0])
 
         viewel.innerHTML = body
         children = (child for child in viewel.childNodes when child.nodeType == 1)
         for child in children
-          delete child.$defer
+          child.$defer = null
           # console.log 'creating class child in parent', child, parent
           initFromElement(child, parent)
 

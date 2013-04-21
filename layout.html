@@ -13,9 +13,6 @@
 	    font-weight: normal;
 	    font-style: normal;
 		}
-		.sprite {
-			position: absolute;
-		}
 	  .trans {
 	  	background-color: rgba(255,255,255,.5);
 	  	width: 80%;
@@ -58,7 +55,7 @@
 			<attribute name="attribute" type="string" value="x"></attribute>
 			<handler name="onsubview">
 				console.log('onsubview', value, this)
-				value.bind('width', function(value, name, scope) {
+				value.bind('width', function(value, scope, name) {
 					console.debug(name, value, scope)
 				})
 			</handler>
