@@ -113,10 +113,22 @@ window.lz = do ->
       number: parseFloat
 
     constructor: (el, attributes = {}) ->
+      # Install types
       @types = attributes.types ? {}
       delete attributes.types
+
+      # Bind to event expressions and set attributes
+      for name, value of attributes
+        if name.indexOf('on') == 0
+          name = name.substr(2)
+          # console.log('binding to event expression', name, value, @)
+          @bind(name, @eventCallback(name, value, @))
+        else
+          @setAttribute(name, value)
+
+      @bindConstraints() if @constraints
       # console.log 'new node', @, attributes
-      @init(attributes)
+      @trigger('init', @) if @events?['init']
 
     scopes = null
     propertyBindings = 
@@ -211,17 +223,6 @@ window.lz = do ->
       () =>
         # console.log 'setting', name, fn(), @
         @setAttribute(name, value())
-
-    init: (attributes) ->
-      for name, value of attributes
-        if name.indexOf('on') == 0
-          name = name.substr(2)
-          # console.log('binding to event expression', name, value, @)
-          @bind(name, @eventCallback(name, value, @))
-        else
-          @setAttribute(name, value)
-      @bindConstraints() if @constraints
-      @trigger('init', @) if @events?['init']
 
     set_parent: (parent) ->
       # console.log 'set_parent', parent, @
