@@ -192,7 +192,7 @@ window.lz = do ->
           @[name] = value
 
       # send event
-      @trigger(name, value, name, @) if @events?[name]
+      @trigger(name, value, @, name) if @events?[name]
 
     # generate a callback for an event expression in a way that preserves scope, e.g. on_x="console.log(value, this, ...)"
     eventCallback: (name, js, scope) ->
@@ -477,7 +477,7 @@ window.lz = do ->
       child.bind(axis, @update)
       super(child)
 
-    update: (value, name, sender) =>
+    update: (value, sender) =>
       # console.log('skip', @skip, @locked)
       return if @skip()
       pos = inset
