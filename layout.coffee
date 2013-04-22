@@ -107,27 +107,32 @@ window.lz = do ->
       this
 
 
+  typemappings = 
+    number: parseFloat
   class Node extends Module
     @include Events
-    typemappings = 
-      number: parseFloat
 
     constructor: (el, attributes = {}) ->
       # Install types
       @types = attributes.types ? {}
       delete attributes.types
 
+      methods = attributes.methods
       # Install methods
-      for name, method of attributes.methods
-        if @[name]
-          supr = @[name]
-          @[name] = () =>
-            method.apply(@, arguments)
-            supr.apply(@, arguments)
-          # console.log('overrode method', name, @)
+      for methodname, method of methods
+        if methodname of @
+          invoke = () =>
+            supr = @[methodname]
+            meth = method
+            @[methodname] = () =>
+              # console.log 'applying overridden method', methodname, arguments
+              supr.apply(@, arguments)
+              meth.apply(@, arguments)
+            # console.log('overrode method', methodname, @, supr, meth)
+          invoke()
         else
-          @[name] = method
-          # console.log('installed method', name, @)
+          # console.log('installed method', methodname, @, @[methodname])
+          @[methodname] = method
       delete attributes.methods
 
       # Bind to event expressions and set attributes
@@ -192,20 +197,22 @@ window.lz = do ->
         # coerce value to type
         if name of @types
           type = @types[name]
-          value = typemappings[type]?(value)
+          if type of typemappings
+            value = typemappings[type](value)
           # console.log 'type', name, type, value
 
         # console.log 'setAttribute', name, value
         setter = 'set_' + name
         if setter of @
-          # console.log 'calling setter', setter, value #, @[setter]
-          @[setter]?(value)
+          # console.log 'calling setter', setter, value, @[setter]
+          @[setter](value)
         else
           # console.log 'setting style', name, value
           @[name] = value
 
       # send event
       @trigger(name, value, @, name) if @events?[name]
+      @
 
     # generate a callback for an event expression in a way that preserves scope, e.g. on_x="console.log(value, this, ...)"
     eventCallback: (name, js, scope) ->
@@ -335,6 +342,7 @@ window.lz = do ->
       attributes[i.name] = i.value
     attributes
 
+  specialtags = ['handler', 'method', 'attribute', 'setter']
   # init classes based on an existing element
   initFromElement = (el, parent) ->
     tagname = el.localName
@@ -367,7 +375,7 @@ window.lz = do ->
 
     unless tagname is 'class'
       for child in children
-        initFromElement(child, parent) unless child.localName in ['attribute', 'method', 'handler']
+        initFromElement(child, parent) unless child.localName in specialtags
 
 
   # init all views in the DOM recursively
@@ -378,32 +386,49 @@ window.lz = do ->
     document.getElementsByTagName('head')[0].appendChild(style)
 
     for el, i in selector
-      initFromElement(el) unless el.$defer
+      initFromElement(el) unless el.$defer or el.$view
     # listen for jQuery style changes
     hackstyle(true)
 
+  # http://stackoverflow.com/questions/1248849/converting-sanitised-html-back-to-displayable-html
+  htmlDecode = (input) ->
+    return if not input
+    e = document.createElement('div');
+    e.innerHTML = input;
+    return e.childNodes[0].nodeValue;
 
   processSpecialTags = (el, classattributes) ->
     classattributes.types ?= {}
     classattributes.methods ?= {}
-    children = _.filter(el.childNodes, (child) -> child.localName in ['handler', 'method', 'attributes'])
+    children = _.filter(el.childNodes, (child) -> child.nodeType == 1 and child.localName in specialtags)
     for child in children
       attributes = flattenattributes(child.attributes)
       child.setAttribute('class', 'hidden')
+      # console.log child, attributes, classattributes
+      js = htmlDecode(child.innerHTML)
 
-      switch child.localName
-        when 'handler'
-          # TODO: sort out how to pass args attribute to change default arg name from 'value'
-          classattributes[attributes.name] = child.innerHTML
-          # console.log 'added handler', attributes.name, js, attributes
-        when 'method'
-          args = (attributes.args ? '').split()
-          classattributes.methods[attributes.name] = (new Function(args, child.innerHTML))
-          # console.log 'added method', attributes.name, js, classattributes
-        when 'attribute'
-          classattributes[attributes.name] = attributes.value
-          classattributes.types[attributes.name] = attributes.type
-          # console.log 'set class attribute', attributes, classattributes
+      childname = child.localName
+      if childname == 'handler'
+        # TODO: sort out how to pass args attribute to change default arg name from 'value'
+        classattributes[attributes.name] = js
+        # console.log 'added handler', attributes.name, js, attributes
+      else if childname == 'method'
+        args = (attributes.args ? '').split()
+        classattributes.methods[attributes.name] = new Function(args, js)
+        # console.log 'added method', attributes.name, js, classattributes
+      else if childname == 'setter'
+        args = (attributes.args ? '').split()
+        classattributes.methods['set_' + attributes.name] = new Function(args, js)
+        # console.log 'added setter', 'set_' + attributes.name, args, classattributes.methods
+      else if childname == 'attribute'
+        type = attributes.type
+        value = attributes.value
+        if type of typemappings
+          # console.log 'mapping type', typemappings[type], value
+          value = typemappings[type]?(value)
+        classattributes[attributes.name] = attributes.value
+        classattributes.types[attributes.name] = attributes.type
+        # console.log 'added attribute', attributes, classattributes
 
 
   class Class
@@ -426,7 +451,7 @@ window.lz = do ->
           # console.log 'overriding class attribute', key, value
           if (key is 'methods' or key is 'types') and key of attributes
             attributes[key] = _.clone(attributes[key])
-            # console.log('overwriting', key, attributes.methods, value)
+            # console.log('overwriting', key, attributes[key], value)
             for propname, val of value
               attributes[key][propname] = val
           else 
@@ -434,7 +459,7 @@ window.lz = do ->
 
         # console.log 'creating class instance', name, attributes
         parent = new lz[ext](instanceel, attributes)
-        # console.log 'created instance', name, parent
+        # console.log 'created instance', name, ext, parent
 
         return if not (viewel = parent.sprite?.jqel[0])
 
