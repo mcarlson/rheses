@@ -109,6 +109,7 @@ window.lz = do ->
 
   typemappings = 
     number: parseFloat
+
   class Node extends Module
     @include Events
 
@@ -186,6 +187,7 @@ window.lz = do ->
         # console.log 'applied', scope.property, bindexpression, 'for', @
 
       # console.log 'matched constraint', name, @, expression
+      return
 
     setAttribute: (name, value) ->
       if @[name] != value
@@ -236,6 +238,8 @@ window.lz = do ->
           boundref ?= boundref.$view
           # console.log 'binding to', property, 'on', boundref
           boundref.bind(property, @constraintCallback(name, value))
+
+      return
 
     # generate a callback for a constraint expression, e.g. x="${this.parent.baz.x + 10}"
     constraintCallback: (name, value) ->
@@ -377,6 +381,8 @@ window.lz = do ->
       for child in children
         initFromElement(child, parent) unless child.localName in specialtags
 
+    return
+
 
   # init all views in the DOM recursively
   init = (selector = $('view')) ->
@@ -429,6 +435,7 @@ window.lz = do ->
         classattributes[attributes.name] = attributes.value
         classattributes.types[attributes.name] = attributes.type
         # console.log 'added attribute', attributes, classattributes
+    return 
 
 
   class Class
