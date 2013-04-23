@@ -477,6 +477,8 @@ window.lz = do ->
       super(el, attributes)
       # listen for new subviews
       @parent.bind('subviews', @added)
+      @parent.layouts ?= []
+      @parent.layouts.push(this)
 
       # iterate through subviews that already exist
       subviews = @parent.subviews
@@ -485,18 +487,18 @@ window.lz = do ->
           @added(subview)
       locked = false
       @update()
-      # console.log('layout', @parent, attributes)
+      # console.log('layout', attributes, @)
 
     # called when a new subview is added to the parent view
     added: (child) =>
-      # console.log 'added', child, @
+      # console.log 'added layout', child, @
       @trigger('subview', child) if @events?['subview']
-      @update(child)
+      @update(null, child)
 
     # override to update the position of the parent view's children
-    update: (sender) =>
-      # console.log 'update', sender
-      return if @skip
+    update: (ignore, sender) =>
+      # console.log 'update layout', sender
+      return if @skip()
     
     # returns true if the layout should't update 
     skip: () =>
@@ -504,54 +506,60 @@ window.lz = do ->
 
 
   class SimpleLayout extends Layout
-    attribute = 'x'
-    axis = 'width'
-    spacing = 10
-    inset = 10
-
     constructor: (el, attributes = {}) ->
+      @attribute = 'x'
+      @axis = 'width'
+      @spacing = 10
+      @inset = 10
       attributes.types ?= {}
       attributes.types.spacing = 'number'
       attributes.types.inset = 'number'
       super(el, attributes)
 
     set_attribute: (attr) ->
-      axis = switch attr
+      newaxis = switch attr
         when 'x' then 'width' 
         when 'y' then 'height'
-      attribute = attr
-      # console.log('set_attribute', attr, typeof attr)
+
+      for subview in @parent.subviews?
+        subview.unbind(@axis, @update).bind(newaxis, @update)
+
+      @axis = newaxis
+
+      @attribute = attr
+      # console.log('set_attribute', attr, typeof attr, @attribute, @axis, newaxis)
       @update()
 
     set_spacing: (space) ->
       # console.log('set_spacing', space, typeof space)
-      spacing = space
+      @spacing = space
       @update()
 
     set_inset: (i) ->
       # console.log('set_inset', i, typeof i)
-      inset = i
+      @inset = i
       @update()
 
-    added: (child) ->
+    added: (child) =>
       # console.log 'added', child
-      child.bind(axis, @update)
+      child.bind(@axis, @update)
       super(child)
 
     update: (value, sender) =>
       # console.log('skip', @skip, @locked)
       return if @skip()
-      pos = inset
+      pos = @inset
       skip = true if sender
       for subview in @parent.subviews
         if (skip and subview != sender)
           # console.log 'skipping', subview, sender
         else 
           # console.log 'updating', subview, @attribute, pos
-          subview.setAttribute(attribute, pos) unless subview[attribute] == pos
+          subview.setAttribute(@attribute, pos) unless subview[@attribute] == pos
           skip = false
-
-        pos += spacing + subview[axis]
+        # console.log 'value', pos, @spacing, @inset, @attribute, @axis, subview[@axis]
+        pos += @spacing + subview[@axis]
+      return pos
 
 
   mouseEvents = ['click', 'mouseover', 'mouseout', 'mousedown', 'mouseup']
