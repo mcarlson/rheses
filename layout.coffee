@@ -112,6 +112,20 @@ window.lz = do ->
   typemappings = 
     number: parseFloat
 
+  installMethod = (scope, methodname, method) ->
+    if methodname of scope
+      # Cheesy override
+      supr = scope[methodname]
+      meth = method
+      scope[methodname] = () ->
+        # console.log 'applying overridden method', methodname, arguments
+        supr.apply(scope, arguments)
+        meth.apply(scope, arguments)
+      # console.log('overrode method', methodname, @, supr, meth)
+    else
+      # console.log('installed method', methodname, @, @[methodname])
+      scope[methodname] = method
+
   class Node extends Module
     @include Events
 
@@ -120,22 +134,9 @@ window.lz = do ->
       @types = attributes.types ? {}
       delete attributes.types
 
-      methods = attributes.methods
       # Install methods
-      for methodname, method of methods
-        if methodname of @
-          invoke = () =>
-            supr = @[methodname]
-            meth = method
-            @[methodname] = () =>
-              # console.log 'applying overridden method', methodname, arguments
-              supr.apply(@, arguments)
-              meth.apply(@, arguments)
-            # console.log('overrode method', methodname, @, supr, meth)
-          invoke()
-        else
-          # console.log('installed method', methodname, @, @[methodname])
-          @[methodname] = method
+      for methodname, method of attributes.methods
+        installMethod(@, methodname, method)
       delete attributes.methods
 
       # Bind to event expressions and set attributes
@@ -379,8 +380,7 @@ window.lz = do ->
         # console.log 'defer', child
         child.$defer = true
         
-    type = attributes.type
-    processSpecialTags(el, attributes, type)
+    processSpecialTags(el, attributes, attributes.type)
 
     parent = new lz[tagname](el, attributes)
 
@@ -418,6 +418,7 @@ window.lz = do ->
       CoffeeScript.compile(js, bare: true) if js
 
   compileScript = (script='', args=[], compiler) ->
+    # console.log 'compileScript', compiler, script, args
     if compiler of compilermappings
       # console.log 'compiling coffee-script', compiler, script
       script = compilermappings[compiler](script)
@@ -468,12 +469,13 @@ window.lz = do ->
   class Class
     constructor: (el, classattributes = {}) ->
       name = classattributes.name
-      ext = classattributes.extends ?= 'view'
-      type = classattributes.type
+      extend = classattributes.extends ?= 'view'
+      compilertype = classattributes.type
       for ignored of ignoredAttributes
         delete classattributes[ignored]
 
-      processSpecialTags(el, classattributes, type)
+      processSpecialTags(el, classattributes, compilertype)
+      # console.log('compiled class', name, extend, (classattributes))
 
       # serialize the tag's contents
       body = el.innerHTML
@@ -493,8 +495,8 @@ window.lz = do ->
             attributes[key] = value
 
         # console.log 'creating class instance', name, attributes
-        parent = new lz[ext](instanceel, attributes)
-        # console.log 'created instance', name, ext, parent
+        parent = new lz[extend](instanceel, attributes)
+        # console.log 'created instance', name, extend, parent
 
         return if not (viewel = parent.sprite?.jqel[0])
 
