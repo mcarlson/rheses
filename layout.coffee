@@ -172,7 +172,7 @@ window.lz = do ->
     matchConstraint = /\${(.+)}/
     applyConstraint: (name, expression) ->
       @constraints ?= {}
-      @constraints[name] = (new Function([], 'return ' + expression)).bind(@)
+      @constraints[name] = (compileScript('return ' + expression)).bind(@)
       # console.log 'adding constraint', name, expression, @
       # console.log 'eval', @constraints[name]()
 
@@ -184,7 +184,7 @@ window.lz = do ->
 
       for scope in scopes
         bindexpression = scope.binding
-        scope.compiled = (new Function([], 'return ' + bindexpression)).bind(@)
+        scope.compiled = (compileScript('return ' + bindexpression)).bind(@)
         bindings[bindexpression] = scope
         # console.log 'applied', scope.property, bindexpression, 'for', @
 
@@ -227,7 +227,7 @@ window.lz = do ->
         else 
           args = _.flatten(arguments)
         # console.log 'event callback', name, args, scope
-        (new Function(['value'], js)).apply(scope, args)
+        (compileScript(js, ['value'])).apply(scope, args)
 
     bindConstraints: () ->
       # register constraints last
@@ -299,7 +299,7 @@ window.lz = do ->
       @jqel.animate.apply(@jqel, arguments)
 
 
-  ignoredAttributes = {parent: true, id: true, name: true, extends: true}
+  ignoredAttributes = {parent: true, id: true, name: true, extends: true, type: true}
   class View extends Node
     constructor: (el, attributes = {}) ->
       attributes.types = {x: 'number', y: 'number', width: 'number', height: 'number'}
@@ -379,7 +379,8 @@ window.lz = do ->
         # console.log 'defer', child
         child.$defer = true
         
-    processSpecialTags(el, attributes)
+    type = attributes.type
+    processSpecialTags(el, attributes, type)
 
     parent = new lz[tagname](el, attributes)
 
@@ -409,7 +410,24 @@ window.lz = do ->
     e.innerHTML = input;
     return e.childNodes[0].nodeValue;
 
-  processSpecialTags = (el, classattributes) ->
+  compilermappings = 
+    coffee: (js) ->
+      if not window.CoffeeScript
+        console.warn 'missing coffee-script.js include'
+        return
+      CoffeeScript.compile(js, bare: true) if js
+
+  compileScript = (script='', args=[], compiler) ->
+    if compiler of compilermappings
+      # console.log 'compiling coffee-script', compiler, script
+      script = compilermappings[compiler](script)
+      # console.log 'compiled coffee-script', compiler, script
+    try 
+      new Function(args, script)
+    catch e
+      console.error('failed to compile', e, script, args)
+
+  processSpecialTags = (el, classattributes, defaulttype) ->
     classattributes.types ?= {}
     classattributes.methods ?= {}
     children = _.filter(el.childNodes, (child) -> child.nodeType == 1 and child.localName in specialtags)
@@ -417,20 +435,23 @@ window.lz = do ->
       attributes = flattenattributes(child.attributes)
       child.setAttribute('class', 'hidden')
       # console.log child, attributes, classattributes
-      js = htmlDecode(child.innerHTML)
 
       childname = child.localName
       if childname == 'handler'
         # TODO: sort out how to pass args attribute to change default arg name from 'value'
-        classattributes[attributes.name] = js
-        # console.log 'added handler', attributes.name, js, attributes
+        classattributes[attributes.name] = script
+        # console.log 'added handler', attributes.name, script, attributes
       else if childname == 'method'
         args = (attributes.args ? '').split()
-        classattributes.methods[attributes.name] = new Function(args, js)
-        # console.log 'added method', attributes.name, js, classattributes
+        script = htmlDecode(child.innerHTML)
+        type = attributes.type or defaulttype
+        classattributes.methods[attributes.name] = compileScript(script, args, type)
+        # console.log 'added method', attributes.name, script, classattributes
       else if childname == 'setter'
         args = (attributes.args ? '').split()
-        classattributes.methods['set_' + attributes.name] = new Function(args, js)
+        script = htmlDecode(child.innerHTML)
+        type = attributes.type or defaulttype
+        classattributes.methods['set_' + attributes.name] = compileScript(script, args, type)
         # console.log 'added setter', 'set_' + attributes.name, args, classattributes.methods
       else if childname == 'attribute'
         type = attributes.type
@@ -448,10 +469,11 @@ window.lz = do ->
     constructor: (el, classattributes = {}) ->
       name = classattributes.name
       ext = classattributes.extends ?= 'view'
+      type = classattributes.type
       for ignored of ignoredAttributes
         delete classattributes[ignored]
 
-      processSpecialTags(el, classattributes)
+      processSpecialTags(el, classattributes, type)
 
       # serialize the tag's contents
       body = el.innerHTML
