@@ -180,19 +180,18 @@ window.lz = do ->
     matchConstraint = /\${(.+)}/
     applyConstraint: (name, expression) ->
       @constraints ?= {}
-      @constraints[name] = (compileScript('return ' + expression)).bind(@)
+      @constraints[name] = compileScript('return ' + expression).bind(@)
       # console.log 'adding constraint', name, expression, @
       # console.log 'eval', @constraints[name]()
-
-      scopes = propertyBindings.find(expression)
-      # console.log 'found scopes', scopes
 
       constraintBinding = @constraints[name]
       bindings = constraintBinding.bindings ?= {}
 
+      scopes = propertyBindings.find(expression)
+      # console.log 'found scopes', scopes
       for scope in scopes
         bindexpression = scope.binding
-        scope.compiled = (compileScript('return ' + bindexpression)).bind(@)
+        scope.compiled = compileScript('return ' + bindexpression).bind(@)
         bindings[bindexpression] = scope
         # console.log 'applied', scope.property, bindexpression, 'for', @
 
@@ -242,22 +241,24 @@ window.lz = do ->
       # register constraints last
       for name, value of @constraints
         # console.log 'binding constraint', name, value, @
-        @setAttribute(name, value())
+        constraint = @constraintCallback(name, value)
         for bindexpression, binding of @constraints[name].bindings
           property = binding.property
           boundref = binding.compiled()
           boundref ?= boundref.$view
           # console.log 'binding to', property, 'on', boundref
-          boundref.bind(property, @constraintCallback(name, value))
+          boundref.bind(property, constraint)
+          
+        @setAttribute(name, value())
 
       return
 
     # generate a callback for a constraint expression, e.g. x="${this.parent.baz.x + 10}"
-    constraintCallback: (name, value) ->
-      # console.log('binding to constraint expression', name, fn, @)
+    constraintCallback: (name, fn) ->
+      # console.log('binding to constraint fn', name, fn, @)
       () =>
         # console.log 'setting', name, fn(), @
-        @setAttribute(name, value())
+        @setAttribute(name, fn())
 
     set_parent: (parent) ->
       # console.log 'set_parent', parent, @
@@ -316,7 +317,7 @@ window.lz = do ->
         console.warn 'already bound view', el.$view, el
         return
 
-      if (el and el instanceof View)
+      if (el instanceof View)
         el = el.sprite
 
       @sprite = new Sprite(el, @)
@@ -371,7 +372,7 @@ window.lz = do ->
 
     attributes = flattenattributes(el.attributes)
 
-    # swallow builtin attributes
+    # swallow builtin mouse attributes to prevent events from the tag
     for event in mouseEvents
       el.removeAttribute('on' + event)
 
@@ -411,30 +412,29 @@ window.lz = do ->
     # listen for jQuery style changes
     hackstyle(true)
 
-  # http://stackoverflow.com/questions/1248849/converting-sanitised-html-back-to-displayable-html
-  htmlDecode = (input) ->
-    return if not input
-    e = document.createElement('div');
-    e.innerHTML = input;
-    return e.childNodes[0].nodeValue;
-
   compilermappings = 
     coffee: (js) ->
       if not window.CoffeeScript
         console.warn 'missing coffee-script.js include'
         return
+      # console.log 'compiling coffee-script', compiler, script
       CoffeeScript.compile(js, bare: true) if js
+      # console.log 'compiled coffee-script', compiler, script, args
 
   compileScript = (script='', args=[], compiler) ->
     # console.log 'compileScript', compiler, script, args
-    if compiler of compilermappings
-      # console.log 'compiling coffee-script', compiler, script
-      script = compilermappings[compiler](script)
-      # console.log 'compiled coffee-script', compiler, script, args
+    script = compilermappings[compiler](script) if compiler of compilermappings
     try 
       new Function(args, script)
     catch e
       console.error('failed to compile', script, args, e)
+
+  # http://stackoverflow.com/questions/1248849/converting-sanitised-html-back-to-displayable-html
+  htmlDecode = (input) ->
+    # return if not input
+    e = document.createElement('div');
+    e.innerHTML = input;
+    e.childNodes[0].nodeValue;
 
   processSpecialTags = (el, classattributes, defaulttype) ->
     classattributes.$types ?= {}
@@ -472,11 +472,6 @@ window.lz = do ->
         classattributes.$methods['set_' + attributes.name] = compileScript(script, args, type)
         # console.log 'added setter', 'set_' + attributes.name, args, classattributes.$methods
       else if childname == 'attribute'
-        type = attributes.type
-        value = attributes.value
-        if type of typemappings
-          # console.log 'mapping type', typemappings[type], value
-          value = typemappings[type]?(value)
         classattributes[attributes.name] = attributes.value
         classattributes.$types[attributes.name] = attributes.type
         # console.log 'added attribute', attributes, classattributes
@@ -498,7 +493,7 @@ window.lz = do ->
       body = el.innerHTML
 
       # console.log('new class', name, classattributes)
-      console.warn 'class exists, overwriting', name if name of lz
+      console.warn 'overwriting class', name if name of lz
       lz[name] = (instanceel, instanceattributes) ->
         attributes = _.clone(classattributes)
         for key, value of instanceattributes
@@ -507,6 +502,7 @@ window.lz = do ->
             attributes[key] = _.clone(attributes[key])
             # console.log('overwriting', key, attributes[key], value)
             for propname, val of value
+              # TODO: deal with method overrides here?
               attributes[key][propname] = val
           else if key is '$handlers' and key of attributes
             # console.log 'concat', attributes[key], value
@@ -527,6 +523,7 @@ window.lz = do ->
           child.$defer = null
           # console.log 'creating class child in parent', child, parent
           initFromElement(child, parent)
+        return
 
 
   class Layout extends Node
@@ -559,7 +556,7 @@ window.lz = do ->
       return if @skip()
     
     # returns true if the layout should't update 
-    skip: () =>
+    skip: () ->
       true if locked or (not @parent?.subviews)
 
 
@@ -598,12 +595,12 @@ window.lz = do ->
       @inset = i
       @update()
 
-    added: (child) =>
+    added: (child) ->
       # console.log 'added', child
       child.bind(@axis, @update)
       super(child)
 
-    update: (value, sender) =>
+    update: (value, sender) ->
       # console.log('skip', @skip, @locked)
       return if @skip()
       pos = @inset
