@@ -234,7 +234,7 @@ window.lz = do ->
         if name of scope
           args = [scope[name]]
         else 
-          args = _.flatten(arguments)
+          args = arguments
         # console.log 'event callback', name, args, scope, js
         js.apply(scope, args)
 
@@ -437,10 +437,10 @@ window.lz = do ->
       console.error('failed to compile', script, args, e)
 
   processSpecialTags = (el, classattributes, defaulttype) ->
-    children = _.filter(el.childNodes, (child) -> child.nodeType == 1 and child.localName in specialtags)
     classattributes.$types ?= {}
     classattributes.$methods ?= {}
     classattributes.$handlers ?= []
+    children = (child for child in el.childNodes when child.nodeType == 1 and child.localName in specialtags)
     for child in children
       attributes = flattenattributes(child.attributes)
       child.setAttribute('class', 'hidden')
