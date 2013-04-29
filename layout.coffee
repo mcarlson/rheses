@@ -121,10 +121,10 @@ window.lz = do ->
         # console.log 'applying overridden method', methodname, arguments
         supr.apply(scope, arguments)
         meth.apply(scope, arguments)
-      # console.log('overrode method', methodname, @, supr, meth)
+      # console.log('overrode method', methodname, scope, supr, meth)
     else
-      # console.log('installed method', methodname, @, @[methodname])
       scope[methodname] = method
+      # console.log('installed method', methodname, scope, scope[methodname])
 
   class Node extends Module
     @include Events
@@ -138,6 +138,15 @@ window.lz = do ->
       for methodname, method of attributes.methods
         installMethod(@, methodname, method)
       delete attributes.methods
+
+      if attributes.handlers
+        for handler in attributes.handlers
+          {name, script, args, type} = handler
+          name = name.substr(2)
+          # console.log 'installing handler', name, args, type, script, @
+          @bind(name, @eventCallback(name, script, @, args, type))
+          # installMethod(@, methodname, method)
+        delete attributes.handlers
 
       # Bind to event expressions and set attributes
       for name, value of attributes
@@ -220,15 +229,16 @@ window.lz = do ->
       @
 
     # generate a callback for an event expression in a way that preserves scope, e.g. on_x="console.log(value, this, ...)"
-    eventCallback: (name, js, scope) ->
+    eventCallback: (name, script, scope, fnargs=['value'], type) ->
       # console.log 'binding to event expression', name, js, scope
+      js = compileScript(script, fnargs, type)
       () ->
         if name of scope
           args = [scope[name]]
         else 
           args = _.flatten(arguments)
-        # console.log 'event callback', name, args, scope
-        (compileScript(js, ['value'])).apply(scope, args)
+        # console.log 'event callback', name, args, scope, js
+        js.apply(scope, args)
 
     bindConstraints: () ->
       # register constraints last
@@ -422,15 +432,16 @@ window.lz = do ->
     if compiler of compilermappings
       # console.log 'compiling coffee-script', compiler, script
       script = compilermappings[compiler](script)
-      # console.log 'compiled coffee-script', compiler, script
+      # console.log 'compiled coffee-script', compiler, script, args
     try 
       new Function(args, script)
     catch e
-      console.error('failed to compile', e, script, args)
+      console.error('failed to compile', script, args, e)
 
   processSpecialTags = (el, classattributes, defaulttype) ->
     classattributes.types ?= {}
     classattributes.methods ?= {}
+    classattributes.handlers ?= []
     children = _.filter(el.childNodes, (child) -> child.nodeType == 1 and child.localName in specialtags)
     for child in children
       attributes = flattenattributes(child.attributes)
@@ -439,8 +450,16 @@ window.lz = do ->
 
       childname = child.localName
       if childname == 'handler'
-        # TODO: sort out how to pass args attribute to change default arg name from 'value'
-        classattributes[attributes.name] = script
+        args = (attributes.args ? '').split()
+        script = htmlDecode(child.innerHTML)
+        type = attributes.type or defaulttype
+        handler = 
+          name: attributes.name
+          script: script
+          args: args
+          type: type
+
+        classattributes.handlers.push(handler)
         # console.log 'added handler', attributes.name, script, attributes
       else if childname == 'method'
         args = (attributes.args ? '').split()
@@ -491,6 +510,10 @@ window.lz = do ->
             # console.log('overwriting', key, attributes[key], value)
             for propname, val of value
               attributes[key][propname] = val
+          else if key is 'handlers' and key of attributes
+            # console.log 'concat', attributes[key], value
+            attributes[key] = attributes[key].concat(value)
+            # console.log 'after concat', attributes[key]
           else 
             attributes[key] = value
 

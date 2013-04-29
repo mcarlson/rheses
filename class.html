@@ -53,12 +53,13 @@
       <handler name="oninit">
         # console.log('oninit', this)
       </handler>
-      <handler name="oninset" args="in">
-        # console.log('oninset', in)
+      <handler name="oninset" args="inset">
+      	this.inset = inset
+        # console.log('oninset', inset)
       </handler>
       <handler name="onsubview" args="subview">
-        # console.log('onsubview', arguments, this)
-        value.bind(this.axis, this.update)
+        # console.log('onsubview', this.axis, this.update, subview, this)
+        subview.bind(this.axis, this.update)
       </handler>
       <setter name="spacing" args="spacing">
         this.spacing = spacing
@@ -84,7 +85,7 @@
       <method name="update" args="value, sender">
         # console.log('skip', @skip, @locked)
         return if @skip()
-        pos = @inset
+        pos = @inset ? 0 
         skip = true if sender
         for subview in @parent.subviews
           if (skip and subview != sender)
@@ -93,8 +94,8 @@
             # console.log 'updating', subview, @attribute, pos
             subview.setAttribute(@attribute, pos) unless subview[@attribute] == pos
             skip = false
-          # console.log 'value', pos, @spacing, @inset, @attribute, @axis, subview[@axis]
-          pos += @spacing + subview[@axis]
+          # console.log 'value', pos, @spacing, @inset, @attribute, @axis, subview, subview[@axis]
+          pos += @spacing + subview[@axis] 
         return pos
       </method>
     </class>
