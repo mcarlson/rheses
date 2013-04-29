@@ -131,22 +131,20 @@ window.lz = do ->
 
     constructor: (el, attributes = {}) ->
       # Install types
-      @types = attributes.types ? {}
-      delete attributes.types
+      @types = attributes.$types ? {}
+      delete attributes.$types
 
       # Install methods
-      for methodname, method of attributes.methods
+      for methodname, method of attributes.$methods
         installMethod(@, methodname, method)
-      delete attributes.methods
+      delete attributes.$methods
 
-      if attributes.handlers
-        for handler in attributes.handlers
-          {name, script, args, type} = handler
-          name = name.substr(2)
-          # console.log 'installing handler', name, args, type, script, @
-          @bind(name, @eventCallback(name, script, @, args, type))
-          # installMethod(@, methodname, method)
-        delete attributes.handlers
+      for {name, script, args, type} in attributes.$handlers?
+        name = name.substr(2)
+        # console.log 'installing handler', name, args, type, script, @
+        @bind(name, @eventCallback(name, script, @, args, type))
+        # installMethod(@, methodname, method)
+      delete attributes.$handlers
 
       # Bind to event expressions and set attributes
       for name, value of attributes
@@ -313,7 +311,7 @@ window.lz = do ->
   ignoredAttributes = {parent: true, id: true, name: true, extends: true, type: true}
   class View extends Node
     constructor: (el, attributes = {}) ->
-      attributes.types = {x: 'number', y: 'number', width: 'number', height: 'number'}
+      attributes.$types = {x: 'number', y: 'number', width: 'number', height: 'number'}
       if (el instanceof HTMLElement and el.$view)
         console.warn 'already bound view', el.$view, el
         return
@@ -439,10 +437,10 @@ window.lz = do ->
       console.error('failed to compile', script, args, e)
 
   processSpecialTags = (el, classattributes, defaulttype) ->
-    classattributes.types ?= {}
-    classattributes.methods ?= {}
-    classattributes.handlers ?= []
     children = _.filter(el.childNodes, (child) -> child.nodeType == 1 and child.localName in specialtags)
+    classattributes.$types ?= {}
+    classattributes.$methods ?= {}
+    classattributes.$handlers ?= []
     for child in children
       attributes = flattenattributes(child.attributes)
       child.setAttribute('class', 'hidden')
@@ -459,20 +457,20 @@ window.lz = do ->
           args: args
           type: type
 
-        classattributes.handlers.push(handler)
+        classattributes.$handlers.push(handler)
         # console.log 'added handler', attributes.name, script, attributes
       else if childname == 'method'
         args = (attributes.args ? '').split()
         script = htmlDecode(child.innerHTML)
         type = attributes.type or defaulttype
-        classattributes.methods[attributes.name] = compileScript(script, args, type)
+        classattributes.$methods[attributes.name] = compileScript(script, args, type)
         # console.log 'added method', attributes.name, script, classattributes
       else if childname == 'setter'
         args = (attributes.args ? '').split()
         script = htmlDecode(child.innerHTML)
         type = attributes.type or defaulttype
-        classattributes.methods['set_' + attributes.name] = compileScript(script, args, type)
-        # console.log 'added setter', 'set_' + attributes.name, args, classattributes.methods
+        classattributes.$methods['set_' + attributes.name] = compileScript(script, args, type)
+        # console.log 'added setter', 'set_' + attributes.name, args, classattributes.$methods
       else if childname == 'attribute'
         type = attributes.type
         value = attributes.value
@@ -480,7 +478,7 @@ window.lz = do ->
           # console.log 'mapping type', typemappings[type], value
           value = typemappings[type]?(value)
         classattributes[attributes.name] = attributes.value
-        classattributes.types[attributes.name] = attributes.type
+        classattributes.$types[attributes.name] = attributes.type
         # console.log 'added attribute', attributes, classattributes
     return 
 
@@ -505,12 +503,12 @@ window.lz = do ->
         attributes = _.clone(classattributes)
         for key, value of instanceattributes
           # console.log 'overriding class attribute', key, value
-          if (key is 'methods' or key is 'types') and key of attributes
+          if (key is '$methods' or key is '$types') and key of attributes
             attributes[key] = _.clone(attributes[key])
             # console.log('overwriting', key, attributes[key], value)
             for propname, val of value
               attributes[key][propname] = val
-          else if key is 'handlers' and key of attributes
+          else if key is '$handlers' and key of attributes
             # console.log 'concat', attributes[key], value
             attributes[key] = attributes[key].concat(value)
             # console.log 'after concat', attributes[key]
@@ -571,9 +569,9 @@ window.lz = do ->
       @axis = 'width'
       @spacing = 10
       @inset = 10
-      attributes.types ?= {}
-      attributes.types.spacing = 'number'
-      attributes.types.inset = 'number'
+      attributes.$types ?= {}
+      attributes.$types.spacing = 'number'
+      attributes.$types.inset = 'number'
       super(el, attributes)
 
     set_attribute: (attr) ->
