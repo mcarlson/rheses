@@ -130,12 +130,14 @@ window.lz = do ->
     @include Events
 
     constructor: (el, attributes = {}) ->
+      @subnodes = []
       # Install types
       @types = attributes.$types ? {}
       delete attributes.$types
 
       # Install methods
       for methodname, method of attributes.$methods
+        # console.log 'installing method', methodname, method, @
         installMethod(@, methodname, method)
       delete attributes.$methods
 
@@ -143,7 +145,6 @@ window.lz = do ->
         name = name.substr(2)
         # console.log 'installing handler', name, args, type, script, @
         @bind(name, @eventCallback(name, script, @, args, type))
-        # installMethod(@, methodname, method)
       delete attributes.$handlers
 
       # Bind to event expressions and set attributes
@@ -177,7 +178,6 @@ window.lz = do ->
         # console.log 'MemberExpression', name, acorn.stringify n
         return true
 
-    matchConstraint = /\${(.+)}/
     applyConstraint: (name, expression) ->
       @constraints ?= {}
       @constraints[name] = compileScript('return ' + expression).bind(@)
@@ -198,6 +198,7 @@ window.lz = do ->
       # console.log 'matched constraint', name, @, expression
       return
 
+    matchConstraint = /\${(.+)}/
     setAttribute: (name, value) ->
       if @[name] != value
         constraint = value.match?(matchConstraint)
@@ -227,7 +228,7 @@ window.lz = do ->
 
     # generate a callback for an event expression in a way that preserves scope, e.g. on_x="console.log(value, this, ...)"
     eventCallback: (name, script, scope, fnargs=['value'], type) ->
-      # console.log 'binding to event expression', name, js, scope
+      # console.log 'binding to event expression', name, script, scope
       js = compileScript(script, fnargs, type)
       () ->
         if name of scope
@@ -266,8 +267,7 @@ window.lz = do ->
       if parent instanceof Node
         # store references to parent and children
         @parent = parent
-        parent[@name] = @ if @name?
-        parent.subnodes ?= []
+        parent[@name] = @ if @name
         parent.subnodes.push(@)
         parent.trigger('subnodes', @) if parent.events?['subnodes']
 
@@ -312,6 +312,7 @@ window.lz = do ->
   ignoredAttributes = {parent: true, id: true, name: true, extends: true, type: true}
   class View extends Node
     constructor: (el, attributes = {}) ->
+      @subviews = []
       attributes.$types = {x: 'number', y: 'number', width: 'number', height: 'number'}
       if (el instanceof HTMLElement and el.$view)
         console.warn 'already bound view', el.$view, el
@@ -342,7 +343,6 @@ window.lz = do ->
 
       # store references subviews
       if parent instanceof View
-        parent.subviews ?= []
         parent.subviews.push(@)
         parent.trigger('subviews', @) if parent.events?['subviews']
         parent = parent.sprite
