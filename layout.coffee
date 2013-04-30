@@ -126,6 +126,30 @@ window.lz = do ->
       scope[methodname] = method
       # console.log('installed method', methodname, scope, scope[methodname])
 
+
+  compileCache.bindings ?= {}
+  scopes = null
+  propertyBindings = 
+    find: (expression) ->
+      return compileCache.bindings[expression] if expression of compileCache.bindings
+      ast = acorn.parse(expression)
+      scopes = []
+      acorn.walkDown(ast, @)
+      compileCache.bindings[expression] = scopes
+      # console.log compileCache.bindings
+      # return scopes
+    MemberExpression: (n) ->
+      # grab the property name
+      name = n.property.name
+
+      # remove the property so we can compute the rest of the expression
+      n = n.object
+
+      scopes.push({binding: acorn.stringify(n), property: name})
+      # console.log 'MemberExpression', name, acorn.stringify n
+      return true
+  # propertyBindings.find = _.memoize(propertyBindings.find)
+
   class Node extends Module
     @include Events
 
@@ -164,23 +188,7 @@ window.lz = do ->
       # console.log 'new node', @, attributes
       @trigger('init', @) if @events?['init']
 
-    scopes = null
-    propertyBindings = 
-      find: (expression) ->
-        ast = acorn.parse(expression)
-        scopes = []
-        acorn.walkDown(ast, @)
-        return scopes
-      MemberExpression: (n) ->
-        # grab the property name
-        name = n.property.name
-
-        # remove the property so we can compute the rest of the expression
-        n = n.object
-
-        scopes.push({binding: acorn.stringify(n), property: name})
-        # console.log 'MemberExpression', name, acorn.stringify n
-        return true
+ 
 
     applyConstraint: (name, expression) ->
       @constraints ?= {}
