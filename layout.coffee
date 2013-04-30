@@ -129,6 +129,7 @@ window.lz = do ->
   class Node extends Module
     @include Events
 
+    matchConstraint = /\${(.+)}/
     constructor: (el, attributes = {}) ->
       @subnodes = []
       # Install types
@@ -149,7 +150,10 @@ window.lz = do ->
 
       # Bind to event expressions and set attributes
       for name, value of attributes
-        if name.indexOf('on') == 0
+        constraint = value.match?(matchConstraint)
+        if constraint
+          @applyConstraint(name, constraint[1])
+        else if name.indexOf('on') == 0
           name = name.substr(2)
           # console.log('binding to event expression', name, value, @)
           @bind(name, @eventCallback(name, value, @))
@@ -198,21 +202,20 @@ window.lz = do ->
       # console.log 'matched constraint', name, @, expression
       return
 
-    matchConstraint = /\${(.+)}/
     setAttribute: (name, value) ->
-      if @[name] != value
-        constraint = value.match?(matchConstraint)
-        if constraint
-          @applyConstraint(name, constraint[1])
-          return
-          
-        # coerce value to type
-        if name of @types
-          type = @types[name]
-          if type of typemappings
-            value = typemappings[type](value)
-          # console.log 'type', name, type, value
+      # TODO: add support for dynamic constraints
+      # constraint = value.match?(matchConstraint)
+      # if constraint
+      #   @applyConstraint(name, constraint[1])
+      #   return
 
+      # coerce value to type
+      type = @types[name]
+      if type
+        value = typemappings[type](value) if type of typemappings
+        # console.log 'type', name, type, value, @
+
+      if @[name] != value
         # console.log 'setAttribute', name, value
         setter = 'set_' + name
         if setter of @
