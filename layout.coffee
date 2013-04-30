@@ -127,15 +127,28 @@ window.lz = do ->
       # console.log('installed method', methodname, scope, scope[methodname])
 
 
+  cacheKey = "compilecache"
+  if cacheKey of localStorage
+    compileCache = JSON.parse(localStorage[cacheKey])
+    # console.log 'restored', compileCache
+  else
+    compileCache = {}
+
+  $(window).on('unload', () -> 
+    localStorage[cacheKey] = JSON.stringify(compileCache) 
+    # console.log 'onunload', localStorage[cacheKey]
+  )
+
   compileCache.bindings ?= {}
+  bindingCache = compileCache.bindings
   scopes = null
   propertyBindings = 
     find: (expression) ->
-      return compileCache.bindings[expression] if expression of compileCache.bindings
+      return bindingCache[expression] if expression of bindingCache
       ast = acorn.parse(expression)
       scopes = []
       acorn.walkDown(ast, @)
-      compileCache.bindings[expression] = scopes
+      bindingCache[expression] = scopes
       # console.log compileCache.bindings
       # return scopes
     MemberExpression: (n) ->
@@ -424,15 +437,23 @@ window.lz = do ->
       initFromElement(el) unless el.$defer or el.$view
     # listen for jQuery style changes
     hackstyle(true)
+    # console.log 'caches', compileCache
 
+  compileCache.script ?= {'coffee': {}}
+  coffeeCache = compileCache.script.coffee
   compilermappings = 
     coffee: (script) ->
+      if script of coffeeCache
+        # console.log 'cache hit', script
+        return coffeeCache[script]
       if not window.CoffeeScript
         console.warn 'missing coffee-script.js include'
         return
       # console.log 'compiling coffee-script', script
-      CoffeeScript.compile(script, bare: true) if script
+      coffeeCache[script] = CoffeeScript.compile(script, bare: true) if script
       # console.log 'compiled coffee-script', script
+      # console.log coffeeCache
+      # return coffeeCache[script]
 
   compileScript = (script='', args=[], compiler) ->
     script = compilermappings[compiler](script) if compiler of compilermappings
