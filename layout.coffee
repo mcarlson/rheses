@@ -400,13 +400,15 @@ window.lz = do ->
     return
 
 
-  # init all views in the DOM recursively
-  init = (selector = $('view')) ->
+  # write default CSS to the DOM 
+  writeDefaultStyle = () ->
     style = document.createElement('style')
     style.type = 'text/css'
     style.innerHTML = '.sprite{position:absolute;} .hidden{display:none;}'
     document.getElementsByTagName('head')[0].appendChild(style)
 
+  # init all views in the DOM recursively
+  init = (selector = $('view')) ->
     for el, i in selector
       initFromElement(el) unless el.$defer or el.$view
     # listen for jQuery style changes
@@ -654,8 +656,10 @@ window.lz = do ->
     layout: Layout,
     simplelayout: SimpleLayout,
     initViews: init
+    writeDefaultStyle: writeDefaultStyle
   }
 
+lz.writeDefaultStyle()
 $(window).on('load', () ->
   lz.initViews()
   canvas = new lz.view(null, {x: 100, y: 100, bgcolor: 'red', width: 100, height: 100, transform: 'rotate(45deg)', parent: $('#canvas')})
