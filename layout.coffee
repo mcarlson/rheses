@@ -187,6 +187,18 @@ window.lz = do ->
     catch e
       console.error('failed to compile', args, script, e)
 
+  # generate a callback for an event expression in a way that preserves scope, e.g. on_x="console.log(value, this, ...)"
+  eventCallback = (name, script, scope, fnargs=['value'], type) ->
+    # console.log 'binding to event expression', name, script, scope
+    js = compileScript(script, fnargs, type)
+    () ->
+      if name of scope
+        args = [scope[name]]
+      else 
+        args = arguments
+      # console.log 'event callback', name, args, scope, js
+        js.apply(scope, args)
+
 
   class Node extends Module
     @include Events
@@ -207,26 +219,26 @@ window.lz = do ->
       for {name, script, args, type} in attributes.$handlers?
         name = name.substr(2)
         # console.log 'installing handler', name, args, type, script, @
-        @bind(name, @eventCallback(name, script, @, args, type))
+        @bind(name, eventCallback(name, script, @, args, type))
       delete attributes.$handlers
 
       # Bind to event expressions and set attributes
       for name, value of attributes
         constraint = value.match?(matchConstraint)
         if constraint
-          @applyConstraint(name, constraint[1])
+          @_applyConstraint(name, constraint[1])
         else if name.indexOf('on') == 0
           name = name.substr(2)
           # console.log('binding to event expression', name, value, @)
-          @bind(name, @eventCallback(name, value, @))
+          @bind(name, eventCallback(name, value, @))
         else
           @setAttribute(name, value)
 
-      @bindConstraints() if @constraints
+      @_bindConstraints() if @constraints
       # console.log 'new node', @, attributes
       @trigger('init', @) if @events?['init']
 
-    applyConstraint: (name, expression) ->
+    _applyConstraint: (name, expression) ->
       @constraints ?= {}
       @constraints[name] = compileScript('return ' + expression).bind(@)
       # console.log 'adding constraint', name, expression, @
@@ -250,7 +262,7 @@ window.lz = do ->
       # TODO: add support for dynamic constraints
       # constraint = value.match?(matchConstraint)
       # if constraint
-      #   @applyConstraint(name, constraint[1])
+      #   @_applyConstraint(name, constraint[1])
       #   return
 
       # coerce value to type
@@ -273,23 +285,11 @@ window.lz = do ->
       @trigger(name, value, @, name) if @events?[name]
       @
 
-    # generate a callback for an event expression in a way that preserves scope, e.g. on_x="console.log(value, this, ...)"
-    eventCallback: (name, script, scope, fnargs=['value'], type) ->
-      # console.log 'binding to event expression', name, script, scope
-      js = compileScript(script, fnargs, type)
-      () ->
-        if name of scope
-          args = [scope[name]]
-        else 
-          args = arguments
-        # console.log 'event callback', name, args, scope, js
-        js.apply(scope, args)
-
-    bindConstraints: () ->
+    _bindConstraints: () ->
       # register constraints last
       for name, value of @constraints
         # console.log 'binding constraint', name, value, @
-        constraint = @constraintCallback(name, value)
+        constraint = @_constraintCallback(name, value)
         for bindexpression, binding of @constraints[name].bindings
           property = binding.property
           boundref = binding.compiled()
@@ -302,7 +302,7 @@ window.lz = do ->
       return
 
     # generate a callback for a constraint expression, e.g. x="${this.parent.baz.x + 10}"
-    constraintCallback: (name, fn) ->
+    _constraintCallback: (name, fn) ->
       # console.log('binding to constraint fn', name, fn, @)
       () =>
         # console.log 'setting', name, fn(), @
