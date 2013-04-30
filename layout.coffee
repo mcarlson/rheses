@@ -163,6 +163,31 @@ window.lz = do ->
       return true
   # propertyBindings.find = _.memoize(propertyBindings.find)
 
+  compileCache.script ?= {'coffee': {}}
+  coffeeCache = compileCache.script.coffee
+  compilermappings = 
+    coffee: (script) ->
+      if script of coffeeCache
+        # console.log 'cache hit', script
+        return coffeeCache[script]
+      if not window.CoffeeScript
+        console.warn 'missing coffee-script.js include'
+        return
+      # console.log 'compiling coffee-script', script
+      coffeeCache[script] = CoffeeScript.compile(script, bare: true) if script
+      # console.log 'compiled coffee-script', script
+      # console.log coffeeCache
+      # return coffeeCache[script]
+
+  compileScript = (script='', args=[], compiler) ->
+    script = compilermappings[compiler](script) if compiler of compilermappings
+    # console.log 'compileScript', compiler, args, script
+    try 
+      new Function(args, script)
+    catch e
+      console.error('failed to compile', args, script, e)
+
+
   class Node extends Module
     @include Events
 
@@ -176,7 +201,7 @@ window.lz = do ->
       # Install methods
       for methodname, method of attributes.$methods
         # console.log 'installing method', methodname, method, @
-        installMethod(@, methodname, method)
+        installMethod(@, methodname, compileScript.apply(null, method))
       delete attributes.$methods
 
       for {name, script, args, type} in attributes.$handlers?
@@ -200,8 +225,6 @@ window.lz = do ->
       @bindConstraints() if @constraints
       # console.log 'new node', @, attributes
       @trigger('init', @) if @events?['init']
-
- 
 
     applyConstraint: (name, expression) ->
       @constraints ?= {}
@@ -439,30 +462,6 @@ window.lz = do ->
     hackstyle(true)
     # console.log 'caches', compileCache
 
-  compileCache.script ?= {'coffee': {}}
-  coffeeCache = compileCache.script.coffee
-  compilermappings = 
-    coffee: (script) ->
-      if script of coffeeCache
-        # console.log 'cache hit', script
-        return coffeeCache[script]
-      if not window.CoffeeScript
-        console.warn 'missing coffee-script.js include'
-        return
-      # console.log 'compiling coffee-script', script
-      coffeeCache[script] = CoffeeScript.compile(script, bare: true) if script
-      # console.log 'compiled coffee-script', script
-      # console.log coffeeCache
-      # return coffeeCache[script]
-
-  compileScript = (script='', args=[], compiler) ->
-    script = compilermappings[compiler](script) if compiler of compilermappings
-    # console.log 'compileScript', compiler, args, script
-    try 
-      new Function(args, script)
-    catch e
-      console.error('failed to compile', args, script, e)
-
   # http://stackoverflow.com/questions/1248849/converting-sanitised-html-back-to-displayable-html
   htmlDecode = (input) ->
     # return if not input
@@ -497,13 +496,13 @@ window.lz = do ->
         args = (attributes.args ? '').split()
         script = htmlDecode(child.innerHTML)
         type = attributes.type or defaulttype
-        classattributes.$methods[attributes.name] = compileScript(script, args, type)
+        classattributes.$methods[attributes.name] = [script, args, type]
         # console.log 'added method', attributes.name, script, classattributes
       else if childname == 'setter'
         args = (attributes.args ? '').split()
         script = htmlDecode(child.innerHTML)
         type = attributes.type or defaulttype
-        classattributes.$methods['set_' + attributes.name] = compileScript(script, args, type)
+        classattributes.$methods['set_' + attributes.name] = [script, args, type]
         # console.log 'added setter', 'set_' + attributes.name, args, classattributes.$methods
       else if childname == 'attribute'
         classattributes[attributes.name] = attributes.value
@@ -521,7 +520,7 @@ window.lz = do ->
         delete classattributes[ignored]
 
       processSpecialTags(el, classattributes, compilertype)
-      # console.log('compiled class', name, extend, (classattributes))
+      # console.log('compiled class', name, extend, classattributes)
 
       # serialize the tag's contents
       body = el.innerHTML
