@@ -418,21 +418,21 @@ window.lz = do ->
     hackstyle(true)
 
   compilermappings = 
-    coffee: (js) ->
+    coffee: (script) ->
       if not window.CoffeeScript
         console.warn 'missing coffee-script.js include'
         return
-      # console.log 'compiling coffee-script', compiler, script
-      CoffeeScript.compile(js, bare: true) if js
-      # console.log 'compiled coffee-script', compiler, script, args
+      # console.log 'compiling coffee-script', script
+      CoffeeScript.compile(script, bare: true) if script
+      # console.log 'compiled coffee-script', script
 
   compileScript = (script='', args=[], compiler) ->
-    # console.log 'compileScript', compiler, script, args
     script = compilermappings[compiler](script) if compiler of compilermappings
+    # console.log 'compileScript', compiler, args, script
     try 
       new Function(args, script)
     catch e
-      console.error('failed to compile', script, args, e)
+      console.error('failed to compile', args, script, e)
 
   # http://stackoverflow.com/questions/1248849/converting-sanitised-html-back-to-displayable-html
   htmlDecode = (input) ->
