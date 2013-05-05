@@ -326,6 +326,9 @@ window.lz = do ->
       # console.log 'set_name', name, this
       @parent?[name] = @
 
+    set_clickable: (clickable) ->
+
+
 
   class Sprite
 #    guid = 0
@@ -372,12 +375,21 @@ window.lz = do ->
       # console.log 'sprite animate', arguments, @jqel
       @jqel.animate.apply(@jqel, arguments)
 
+    set_clickable: (@clickable) ->
+      @setStyle('pointer-events', if @clickable then 'auto' else 'none')
+
+      # TODO: retrigger the event for the element below for IE and Opera? See http://stackoverflow.com/questions/3680429/click-through-a-div-to-underlying-elements
+      # el = $(event.target)
+      # el.hide();
+      # $(document.elementFromPoint(event.clientX,event.clientY)).trigger(type);
+      # el.show();
+
 
   ignoredAttributes = {parent: true, id: true, name: true, extends: true, type: true}
   class View extends Node
     constructor: (el, attributes = {}) ->
       @subviews = []
-      attributes.$types = {x: 'number', y: 'number', width: 'number', height: 'number'}
+      attributes.$types = {x: 'number', y: 'number', width: 'number', height: 'number', clickable: 'boolean'}
       if (el instanceof HTMLElement and el.$view)
         console.warn 'already bound view', el.$view, el
         return
@@ -407,12 +419,16 @@ window.lz = do ->
         parent = parent.sprite
 
       @sprite.set_parent parent
+
     set_id: (@id) ->
       @sprite.set_id(id)
 
     animate: ->
       # console.log 'animate', arguments, @sprite.animate
       @sprite.animate.apply(this, arguments)
+
+    set_clickable: (clickable) ->
+      @sprite.set_clickable(clickable)
 
   # flatten element.attributes to a hash
   flattenattributes = (namednodemap)  ->
@@ -431,9 +447,12 @@ window.lz = do ->
 
     attributes = flattenattributes(el.attributes)
 
-    # swallow builtin mouse attributes to prevent events from the tag
+    # swallow builtin mouse attributes to allow event delegation, set clickable if an event is found
     for event in mouseEvents
-      el.removeAttribute('on' + event)
+      eventname = 'on' + event
+      if eventname of attributes
+        attributes.clickable = true unless attributes.clickable == false
+        el.removeAttribute(eventname)
 
     parent ?= el.parentNode
     attributes.parent = parent if parent?
@@ -463,7 +482,7 @@ window.lz = do ->
   writeDefaultStyle = () ->
     style = document.createElement('style')
     style.type = 'text/css'
-    style.innerHTML = '.sprite{position:absolute;} .hidden{display:none;}'
+    style.innerHTML = '.sprite{position:absolute;pointer-events:none;} .hidden{display:none;}'
     document.getElementsByTagName('head')[0].appendChild(style)
 
   # init all views in the DOM recursively
