@@ -10,7 +10,7 @@ hackstyle = do ->
     # if (view[name] != value and view?.events?[name])
       # console.log('sending style', name, elem.$view._locked) if sendstyle
       # view.setAttribute(name, value, true)
-      view.gotStyle(name, value)
+      view.setAttribute(name, value, true)
 
     returnval
 
@@ -373,13 +373,8 @@ window.lz = do ->
       super(el, attributes)
       # console.log 'new view', el, attributes, @
 
-    gotStyle: (name, value) ->
-      if not ignoredAttributes[name] 
-        # if view.events?[name])
-        _super::setAttribute.apply(@, arguments)
-
-    setAttribute: (name, value) ->
-      if not (ignoredAttributes[name] or @[name] == value)
+    setAttribute: (name, value, skip) ->
+      if not (skip or ignoredAttributes[name] or @[name] == value)
         # console.log 'setting style', name, @[name], value, @
         @sprite.setStyle(name, value)
       super(name, value)
