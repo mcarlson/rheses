@@ -179,8 +179,11 @@ window.lz = do ->
       # console.log coffeeCache
       # return coffeeCache[script]
 
-  compileScript = (script='', args=[], compiler) ->
-    script = compilermappings[compiler](script) if compiler of compilermappings
+  transformScript = (script='', compiler) ->
+    return script unless compiler of compilermappings
+    script = compilermappings[compiler](script) 
+
+  compileScript = (script='', args=[]) ->
     # console.log 'compileScript', compiler, args, script
     try 
       new Function(args, script)
@@ -188,9 +191,9 @@ window.lz = do ->
       console.error('failed to compile', args, script, e)
 
   # generate a callback for an event expression in a way that preserves scope, e.g. on_x="console.log(value, this, ...)"
-  eventCallback = (name, script, scope, fnargs=['value'], type) ->
+  eventCallback = (name, script, scope, fnargs=['value']) ->
     # console.log 'binding to event expression', name, script, scope
-    js = compileScript(script, fnargs, type)
+    js = compileScript(script, fnargs)
     () ->
       if name of scope
         args = [scope[name]]
@@ -219,7 +222,7 @@ window.lz = do ->
       for {name, script, args, type} in attributes.$handlers?
         name = name.substr(2)
         # console.log 'installing handler', name, args, type, script, @
-        @bind(name, eventCallback(name, script, @, args, type))
+        @bind(name, eventCallback(name, script, @, args))
       delete attributes.$handlers
 
       # Bind to event expressions and set attributes
@@ -494,9 +497,8 @@ window.lz = do ->
         type = attributes.type or defaulttype
         handler = 
           name: attributes.name
-          script: script
+          script: transformScript(script, type)
           args: args
-          type: type
 
         classattributes.$handlers.push(handler)
         # console.log 'added handler', attributes.name, script, attributes
@@ -504,13 +506,13 @@ window.lz = do ->
         args = (attributes.args ? '').split()
         script = htmlDecode(child.innerHTML)
         type = attributes.type or defaulttype
-        classattributes.$methods[attributes.name] = [script, args, type]
+        classattributes.$methods[attributes.name] = [transformScript(script, type), args]
         # console.log 'added method', attributes.name, script, classattributes
       else if childname == 'setter'
         args = (attributes.args ? '').split()
         script = htmlDecode(child.innerHTML)
         type = attributes.type or defaulttype
-        classattributes.$methods['set_' + attributes.name] = [script, args, type]
+        classattributes.$methods['set_' + attributes.name] = [transformScript(script, type), args]
         # console.log 'added setter', 'set_' + attributes.name, args, classattributes.$methods
       else if childname == 'attribute'
         classattributes[attributes.name] = attributes.value
