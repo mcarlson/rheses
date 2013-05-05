@@ -469,8 +469,6 @@ window.lz = do ->
   init = (selector = $('view')) ->
     for el, i in selector
       initFromElement(el) unless el.$defer or el.$view
-    # listen for jQuery style changes
-    hackstyle(true)
     # console.log 'caches', compileCache
 
   # http://stackoverflow.com/questions/1248849/converting-sanitised-html-back-to-displayable-html
@@ -701,4 +699,8 @@ window.lz = do ->
   }
 
 lz.writeDefaultStyle()
-$(window).on('load', () -> lz.initViews() )
+$(window).on('load', () -> 
+  lz.initViews() 
+  # listen for jQuery style changes
+  hackstyle(true)
+)
