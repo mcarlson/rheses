@@ -327,31 +327,44 @@ window.lz = do ->
 #    guid = 0
     stylemap= {x: 'left', y: 'top', bgcolor: 'background-color'}
 
-    constructor: (@jqel = $('<div/>'), view) ->
-      # console.log 'new sprite', @jqel, view
-      @jqel = $(@jqel) unless @jqel instanceof jQuery
-      @jqel[0].$view = view
+    constructor: (jqel, view) ->
+      # console.log 'new sprite', jqel, view
+      if not jqel?
+        @el = document.createElement('div')
+      else if jqel instanceof jQuery
+        @el = jqel[0]
+      else if jqel instanceof HTMLElement
+        @el = jqel
+      # console.log 'sprite el', @el, @
+      @el.$view = view
 
       # normalize to jQuery object
 #      guid++
-#      @jqel.attr('id', 'jqel-' + guid) if not @jqel.attr('id')
-      @jqel.addClass('sprite')
+#      jqel.attr('id', 'jqel-' + guid) if not jqel.attr('id')
+      @el.setAttribute('class', 'sprite')
+      # @jqel = $(@el)
     setStyle: (name, value) ->
       value ?= ''
       name = stylemap[name] if name of stylemap
-      # console.log('setStyle', name, value, @jqel[0])
-      @jqel.css(name, value)
+      # console.log('setStyle', name, value, @el)
+      @el.style[name] = value
+      # @jqel.css(name, value)
     set_parent: (parent) ->
       if parent instanceof Sprite
-        parent = parent.jqel
+        parent = parent.el
+      else if parent instanceof jQuery
+        parent = parent[0]
 
-      parent = $(parent) unless parent instanceof jQuery
-      # console.log 'set_parent', parent
-      parent.append(@jqel)
+      # parent = $(parent) unless parent instanceof jQuery
+      # parent.append(@jqel)
+      # parent = parent[0] if parent instanceof jQuery
+      # console.log 'set_parent', parent, @el
+      parent.appendChild(@el)
     set_id: (@id) ->
       # console.log('setid', @id)
-      @jqel.attr('id', @id)
+      @el.setAttribute('id', @id)
     animate: =>
+      @jqel ?= $(@el)
       # console.log 'sprite animate', arguments, @jqel
       @jqel.animate.apply(@jqel, arguments)
 
@@ -388,8 +401,8 @@ window.lz = do ->
         parent.subviews.push(@)
         parent.trigger('subviews', @) if parent.events?['subviews']
         parent = parent.sprite
-      @sprite.set_parent parent
 
+      @sprite.set_parent parent
     set_id: (@id) ->
       @sprite.set_id(id)
 
@@ -543,7 +556,7 @@ window.lz = do ->
         parent = new lz[extend](instanceel, attributes)
         # console.log 'created instance', name, extend, parent
 
-        return if not (viewel = parent.sprite?.jqel[0])
+        return if not (viewel = parent.sprite?.el)
 
         viewel.innerHTML = body
         children = (child for child in viewel.childNodes when child.nodeType == 1)
