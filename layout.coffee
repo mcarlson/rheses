@@ -686,8 +686,4 @@ window.lz = do ->
   }
 
 lz.writeDefaultStyle()
-$(window).on('load', () ->
-  lz.initViews()
-  canvas = new lz.view(null, {x: 100, y: 100, bgcolor: 'red', width: 100, height: 100, transform: 'rotate(45deg)', parent: $('#canvas')})
-  aview = new lz.view(null, {x: 50, y:50, width:20, height:20, bgcolor: 'green', 'border-radius': '4px', parent:canvas})
-)
+$(window).on('load', () -> lz.initViews() )
