@@ -466,7 +466,7 @@ window.lz = do ->
         # console.log 'defer', child
         child.$defer = true
         
-    processSpecialTags(el, attributes, attributes.type)
+    processSpecialTags(el, attributes, attributes.type) unless tagname is 'class'
 
     parent = new lz[tagname](el, attributes)
 
@@ -584,7 +584,7 @@ window.lz = do ->
         for child in children
           child.$defer = null
           # console.log 'creating class child in parent', child, parent
-          initFromElement(child, parent)
+          initFromElement(child, parent) unless child.localName in specialtags
         return
 
 
