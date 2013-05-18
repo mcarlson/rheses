@@ -579,12 +579,19 @@ window.lz = do ->
 
         return if not (viewel = parent.sprite?.el)
 
+        # cache the old contents
+        oldbody = viewel.innerHTML
+
+        # unpack instance 
         viewel.innerHTML = body
         children = (child for child in viewel.childNodes when child.nodeType == 1)
         for child in children
           child.$defer = null
           # console.log 'creating class child in parent', child, parent
           initFromElement(child, parent) unless child.localName in specialtags
+
+        # restore old contents
+        viewel.innerHTML = oldbody if (oldbody)
         return
 
 
