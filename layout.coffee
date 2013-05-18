@@ -122,7 +122,7 @@ window.lz = do ->
         # console.log 'applying overridden method', methodname, arguments
         supr.apply(scope, arguments)
         meth.apply(scope, arguments)
-      # console.log('overrode method', methodname, scope, supr, meth)
+        # console.log('overrode method', methodname, scope, supr, meth)
     else
       scope[methodname] = method
       # console.log('installed method', methodname, scope, scope[methodname])
@@ -193,14 +193,14 @@ window.lz = do ->
 
   # generate a callback for an event expression in a way that preserves scope, e.g. on_x="console.log(value, this, ...)"
   eventCallback = (name, script, scope, fnargs=['value']) ->
-    # console.log 'binding to event expression', name, script, scope
+    # console.log 'binding to event expression', name, script, scope, fnargs
     js = compileScript(script, fnargs)
     () ->
       if name of scope
         args = [scope[name]]
       else 
         args = arguments
-      # console.log 'event callback', name, args, scope, js
+        # console.log 'event callback', name, args, scope, js
         js.apply(scope, args)
 
 
@@ -390,9 +390,6 @@ window.lz = do ->
     constructor: (el, attributes = {}) ->
       @subviews = []
       attributes.$types = {x: 'number', y: 'number', width: 'number', height: 'number', clickable: 'boolean'}
-      if (el instanceof HTMLElement and el.$view)
-        console.warn 'already bound view', el.$view, el
-        return
 
       if (el instanceof View)
         el = el.sprite
@@ -482,7 +479,7 @@ window.lz = do ->
   writeDefaultStyle = () ->
     style = document.createElement('style')
     style.type = 'text/css'
-    style.innerHTML = '.sprite{position:absolute;pointer-events:none;} .hidden{display:none;}'
+    style.innerHTML = '.sprite{ position: absolute; pointer-events: none; } .hidden{ display: none; }'
     document.getElementsByTagName('head')[0].appendChild(style)
 
   # init all views in the DOM recursively
@@ -508,34 +505,36 @@ window.lz = do ->
       child.setAttribute('class', 'hidden')
       # console.log child, attributes, classattributes
 
-      childname = child.localName
-      if childname == 'handler'
-        args = (attributes.args ? '').split()
-        script = htmlDecode(child.innerHTML)
-        type = attributes.type or defaulttype
-        handler = 
-          name: attributes.name
-          script: transformScript(script, type)
-          args: args
+      switch child.localName
+        when 'handler'
+          args = (attributes.args ? '').split()
+          script = htmlDecode(child.innerHTML)
+          type = attributes.type or defaulttype
+          handler = 
+            name: attributes.name
+            script: transformScript(script, type)
+            args: args
 
-        classattributes.$handlers.push(handler)
-        # console.log 'added handler', attributes.name, script, attributes
-      else if childname == 'method'
-        args = (attributes.args ? '').split()
-        script = htmlDecode(child.innerHTML)
-        type = attributes.type or defaulttype
-        classattributes.$methods[attributes.name] = [transformScript(script, type), args]
-        # console.log 'added method', attributes.name, script, classattributes
-      else if childname == 'setter'
-        args = (attributes.args ? '').split()
-        script = htmlDecode(child.innerHTML)
-        type = attributes.type or defaulttype
-        classattributes.$methods['set_' + attributes.name] = [transformScript(script, type), args]
-        # console.log 'added setter', 'set_' + attributes.name, args, classattributes.$methods
-      else if childname == 'attribute'
-        classattributes[attributes.name] = attributes.value
-        classattributes.$types[attributes.name] = attributes.type
-        # console.log 'added attribute', attributes, classattributes
+          classattributes.$handlers.push(handler)
+          # console.log 'added handler', attributes.name, script, attributes
+        when 'method'
+          args = (attributes.args ? '').split()
+          script = htmlDecode(child.innerHTML)
+          type = attributes.type or defaulttype
+          classattributes.$methods[attributes.name] = [transformScript(script, type), args]
+          # console.log 'added method', attributes.name, script, classattributes
+        when 'setter'
+          args = (attributes.args ? '').split()
+          script = htmlDecode(child.innerHTML)
+          type = attributes.type or defaulttype
+          classattributes.$methods['set_' + attributes.name] = [transformScript(script, type), args]
+          # console.log 'added setter', 'set_' + attributes.name, args, classattributes.$methods
+        when 'attribute'
+          classattributes[attributes.name] = attributes.value
+          classattributes.$types[attributes.name] = attributes.type
+          # console.log 'added attribute', attributes, classattributes
+
+    # console.log('processSpecialTags', classattributes)
     return 
 
 
@@ -706,7 +705,7 @@ window.lz = do ->
       @started = false
       @docSelector.off("mousemove", @handler).one("mouseover", @start)
 
-    mouse = new Mouse()
+  mouse = new Mouse()
 
   exports = {
     view: View,
@@ -717,6 +716,7 @@ window.lz = do ->
     initViews: init
     writeDefaultStyle: writeDefaultStyle
   }
+
 
 lz.writeDefaultStyle()
 $(window).on('load', () -> 
