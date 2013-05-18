@@ -214,17 +214,19 @@ window.lz = do ->
       @types = attributes.$types ? {}
       delete attributes.$types
 
-      # Install methods
-      for methodname, method of attributes.$methods
-        # console.log 'installing method', methodname, method, @
-        installMethod(@, methodname, compileScript.apply(null, method))
-      delete attributes.$methods
+      if attributes.$methods
+        # Install methods
+        for methodname, method of attributes.$methods
+          # console.log 'installing method', methodname, method, @
+          installMethod(@, methodname, compileScript.apply(null, method))
+        delete attributes.$methods
 
-      for {name, script, args, type} in attributes.$handlers?
-        name = name.substr(2)
-        # console.log 'installing handler', name, args, type, script, @
-        @bind(name, eventCallback(name, script, @, args))
-      delete attributes.$handlers
+      if attributes.$handlers
+        for {name, script, args, type} in attributes.$handlers
+          name = name.substr(2)
+          # console.log 'installing handler', name, args, type, script, @
+          @bind(name, eventCallback(name, script, @, args))
+        delete attributes.$handlers
 
       # Bind to event expressions and set attributes
       for name, value of attributes
