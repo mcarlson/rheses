@@ -438,8 +438,13 @@ window.lz = do ->
     constructor: (el, attributes = {}) ->
       @subviews = []
       types = {x: 'number', y: 'number', width: 'number', height: 'number', clickable: 'boolean', clip: 'boolean'}
-      for key, value of attributes.$types
-        types[key] = value;
+      for key, type of types
+        if not (key of attributes)
+          @[key] = if type is 'number' then 0 else false
+          # console.log 'set default', key, type, @[key]
+
+      for key, type of attributes.$types
+        types[key] = type;
       attributes.$types = types
 
       if (el instanceof View)
