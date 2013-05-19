@@ -206,7 +206,18 @@
     <clickresize bgcolor="yellow" onclick="this.destroy();"></clickresize>
     <clickresize bgcolor="green"></clickresize>
     <clickresize bgcolor="black"></clickresize>
-    <clickresize bgcolor="blue"></clickresize>
+    <clickresize bgcolor="blue">
+      <handler name="onclick" type="coffee">
+        if (@subviews.length)
+          #console.log('destroy', @, @destroy)
+          @destroy()
+        else
+          new lz.simplelayout(null, {parent: @})
+          for i of ([0..1000])
+            #console.log('creating', i)
+            new lz.view(null, {parent: @, bgcolor: 'red', width: 10, height: 10})
+      </handler>
+    </clickresize>
     <text onclick="this.setAttribute('text', 'Hi mum this is a lot wider!')" bgcolor="yellow">Hello</text>
     <text width="100" multiline="true" bgcolor="orange">This text should wrap at my width</text>
     <inputtext bgcolor="green" name="inp">Text</inputtext>
