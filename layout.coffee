@@ -200,8 +200,8 @@ window.lz = do ->
         args = [scope[name]]
       else 
         args = arguments
-        # console.log 'event callback', name, args, scope, js
-        js.apply(scope, args)
+      # console.log 'event callback', name, args, scope, js
+      js.apply(scope, args)
 
 
   class Node extends Module
