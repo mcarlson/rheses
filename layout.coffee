@@ -118,7 +118,7 @@ window.lz = do ->
       # Cheesy override
       supr = scope[methodname]
       meth = method
-      scope[methodname] = () ->
+      scope[methodname] = ->
         # console.log 'applying overridden method', methodname, arguments
         supr.apply(scope, arguments)
         meth.apply(scope, arguments)
@@ -135,7 +135,7 @@ window.lz = do ->
   else
     compileCache = {}
 
-  $(window).on('unload', () -> 
+  $(window).on('unload', -> 
     localStorage[cacheKey] = JSON.stringify(compileCache) 
     # console.log 'onunload', localStorage[cacheKey]
   )
@@ -195,7 +195,7 @@ window.lz = do ->
   eventCallback = (name, script, scope, fnargs=['value']) ->
     # console.log 'binding to event expression', name, script, scope, fnargs
     js = compileScript(script, fnargs)
-    () ->
+    ->
       if name of scope
         args = [scope[name]]
       else 
@@ -294,7 +294,7 @@ window.lz = do ->
       @trigger(name, value, @, name) if @events?[name]
       @
 
-    _bindConstraints: () ->
+    _bindConstraints: ->
       # register constraints last
       for name, value of @constraints
         # console.log 'binding constraint', name, value, @
@@ -534,7 +534,7 @@ window.lz = do ->
 
 
   # write default CSS to the DOM 
-  writeDefaultStyle = () ->
+  writeDefaultStyle = ->
     style = document.createElement('style')
     style.type = 'text/css'
     style.innerHTML = '.sprite{ position: absolute; pointer-events: none; } .hidden{ display: none; }'
@@ -683,7 +683,7 @@ window.lz = do ->
       return if @skip()
     
     # returns true if the layout should't update 
-    skip: () ->
+    skip: ->
       true if @locked or (not @parent?.subviews) or (@parent.subviews.length == 0)
 
     destroy: ->
@@ -753,11 +753,11 @@ window.lz = do ->
   mouseEvents = ['click', 'mouseover', 'mouseout', 'mousedown', 'mouseup']
   # singleton that listens for mouse position and holds the most recent left and top coordinates
   class Mouse extends Module
-    constructor: () ->
+    constructor: ->
       @docSelector = $(document)
       for event in mouseEvents
         @docSelector.on(event, @handler)
-    sender: () ->
+    sender: ->
       trigger("mousemove", left, top)
     handler: (event) ->
       view = event.target.$view
@@ -769,11 +769,11 @@ window.lz = do ->
         requestTick 0, sender 
         @left = event.pageX
         @top = event.pageY
-    start: () ->
+    start: ->
       return if @started
       @started = true
       @docSelector.on("mousemove", @handler).one("mouseout", @stop)
-    stop: () ->
+    stop: ->
       return if not @started
       @started = false
       @docSelector.off("mousemove", @handler).one("mouseover", @start)
@@ -792,7 +792,7 @@ window.lz = do ->
 
 
 lz.writeDefaultStyle()
-$(window).on('load', () -> 
+$(window).on('load', -> 
   lz.initViews() 
   # listen for jQuery style changes
   hackstyle(true)
