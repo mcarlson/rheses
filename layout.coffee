@@ -391,7 +391,10 @@ window.lz = do ->
   class View extends Node
     constructor: (el, attributes = {}) ->
       @subviews = []
-      attributes.$types = {x: 'number', y: 'number', width: 'number', height: 'number', clickable: 'boolean'}
+      types = {x: 'number', y: 'number', width: 'number', height: 'number', clickable: 'boolean'}
+      for key, value of attributes.$types
+        types[key] = value;
+      attributes.$types = types
 
       if (el instanceof View)
         el = el.sprite

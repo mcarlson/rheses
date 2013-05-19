@@ -99,6 +99,7 @@
         return pos
       </method>
     </class>
+    <!-- Set the parent's width/height to match its children -->
     <class name="boundslayout" extends="layout" type="coffee">
       <attribute name="width" type="number" value="0"></attribute>
       <attribute name="height" type="number" value="0"></attribute>
@@ -144,21 +145,29 @@
         return
       </method>
     </class>
+
     <class name="text" extends="view" type="coffee">
-      <setter name="text" args="text">
+      <attribute name="multiline" value="false" type="boolean"></attribute>
+      <method name="updateSize">
         el = @sprite.el
         style = el.style
-        style.width = 'auto'
+        style.width = if @multiline then (@width + 'px') else 'auto'
         style.height = 'auto'
+        style.whiteSpace = 'nowrap'
         width = el.clientWidth
         height = el.clientHeight
         @setAttribute('width', width)
         @setAttribute('height', height)
-        # console.log('set_text', text, width, height, el, @)
+      </method>
+      <setter name="text" args="text">
+        # console.log('set_text', text)
+        @sprite.el.innerHTML = text
+        @updateSize()
       </setter>
       <handler name="oninit">
-        # console.log('oninit', @)
-        @setAttribute('text', @sprite.el.innerHTML)
+        console.log('oninit', @)
+        @updateSize()
+        # @setAttribute('text', @sprite.el.innerHTML)
       </handler>
     </class>
 
@@ -172,12 +181,13 @@
       </method>
     </simplelayout>
     <boundslayout></boundslayout>
+
     <view width="10" height="10" bgcolor="red"></view>
     <view width="10" height="10" bgcolor="yellow"></view>
     <view width="10" height="10" bgcolor="green" id="grn"></view>
     <view width="10" height="10" bgcolor="black"></view>
-    <view x="100" y="100" width="10" height="10" bgcolor="blue" onclick="this.animate({width: 100, height: 100});"></view>
-    <text bgcolor="red">Hello</text>
+    <view x="100" y="100" width="10" height="10" bgcolor="blue" onclick="this.animate({width: 100, height: 100})"></view>
+    <text onclick="this.setAttribute('text', 'Hi mum this is a lot wider!')">Hello</text>
   </view>
 </body>
 </html>
