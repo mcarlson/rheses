@@ -154,18 +154,13 @@
     <class name="text" type="coffee">
       <attribute name="multiline" value="false" type="boolean"></attribute>
       <method name="updateSize">
-        el = @sprite.el
-        style = el.style
-        style.width = if @multiline then (@width + 'px') else 'auto'
-        style.height = 'auto'
-        style.whiteSpace = if @multiline then '' else 'nowrap'
-
-        @setAttribute('width', el.clientWidth)
-        @setAttribute('height', el.clientHeight)
+        {width, height} = @sprite.measureTextSize(@multiline, @width)
+        @setAttribute('width', width)
+        @setAttribute('height', height)
       </method>
       <setter name="text" args="text">
         # console.log('set_text', text)
-        @sprite.el.innerHTML = text
+        @sprite.text(text)
         @updateSize()
       </setter>
       <handler name="oninit">

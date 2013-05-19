@@ -435,6 +435,20 @@ window.lz = do ->
       # console.log('setid', @id)
       @setStyle('overflow', if clip then 'hidden' else '')
 
+    text: (text) ->
+      if text?
+        @el.innerHTML = text
+      else
+        @el.innerHTML
+
+    measureTextSize: (multiline, width) ->
+      @el.setAttribute('class', 'sprite sprite-text')
+      if multiline
+        @setStyle('width', width)
+        @setStyle('whiteSpace', 'normal')
+      else
+        @setStyle('width', 'auto')
+      {width: @el.clientWidth, height: @el.clientHeight}
 
   ignoredAttributes = {parent: true, id: true, name: true, extends: true, type: true}
   class View extends Node
@@ -550,7 +564,7 @@ window.lz = do ->
   writeDefaultStyle = ->
     style = document.createElement('style')
     style.type = 'text/css'
-    style.innerHTML = '.sprite{ position: absolute; pointer-events: none; } .hidden{ display: none; }'
+    style.innerHTML = '.sprite{ position: absolute; pointer-events: none; } .sprite-text{ width: auto; height; auto; white-space: nowrap; } .hidden{ display: none; }'
     document.getElementsByTagName('head')[0].appendChild(style)
 
   # init all views in the DOM recursively
