@@ -51,7 +51,7 @@ window.lz = do ->
     listenTo: (obj, ev, callback) ->
       obj.bind(ev, callback)
       @listeningTo or= []
-      @listeningTo.push obj
+      @listeningTo.push {obj: obj, ev: ev, callback: callback}
       this
 
     listenToOnce: (obj, ev, callback) ->
@@ -71,8 +71,8 @@ window.lz = do ->
           idx = listeningTo.indexOf(obj)
           listeningTo.splice(idx, 1) unless idx is -1
       else
-        for obj in @listeningTo
-          obj.unbind()
+        for {obj, ev, callback} in @listeningTo
+          obj.unbind(ev, callback)
         @listeningTo = undefined
 
     unbind: (ev, callback) ->
