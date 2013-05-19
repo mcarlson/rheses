@@ -335,12 +335,12 @@ window.lz = do ->
       # console.log 'set_name', name, this
       @parent?[name] = @
 
-    _removeFromParent: (name, skipevents) ->
+    _removeFromParent: (name) ->
       return if not @parent
       index = @parent[name].indexOf(@)
       if (index != -1)
         @parent[name].splice(index, 1)
-        @parent.trigger(name) if (not skipevents) and @parent.events?[name]
+        @parent.sendEvent(name)
       return
 
     destroy: (skipevents) ->
@@ -351,13 +351,16 @@ window.lz = do ->
         @stopListening()
       @unbind()
 
+      # remove name reference
       if (@parent?[@name] == @)
         delete @parent[@name]
 
-      for subnode, i in @subnodes
+      # console.log 'destroying', @subnodes, @
+      for subnode in @subnodes
+        # console.log 'destroying', subnode, @
         subnode.destroy(true)
 
-      @_removeFromParent('subnodes', skipevents)
+      @_removeFromParent('subnodes') unless skipevents
 
 
   class Sprite
@@ -486,10 +489,10 @@ window.lz = do ->
     set_clip: (clip) ->
       @sprite.set_clip(clip)
 
-    destroy: ->
+    destroy: (skipevents) ->
       # console.log 'destroy view', @
-      super()
-      @_removeFromParent('subviews')
+      super(skipevents)
+      @_removeFromParent('subviews') unless skipevents
 
       @sprite.destroy()
       @sprite = null
@@ -696,11 +699,11 @@ window.lz = do ->
     skip: ->
       true if @locked or (not @parent?.subviews) or (@parent.subviews.length == 0)
 
-    destroy: ->
+    destroy: (skipevents) ->
       @locked = true
       # console.log 'destroy layout', @
-      super()
-      @_removeFromParent('layouts')
+      super(skipevents)
+      @_removeFromParent('layouts') unless skipevents
 
 
   class SimpleLayout extends Layout
