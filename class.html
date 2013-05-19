@@ -169,6 +169,22 @@
       </handler>
     </class>
 
+    <class name="inputtext"  type="coffee" clickable="true">
+      <attribute name="multiline" value="false" type="boolean"></attribute>
+      <method name="updateSize">
+        {width, height} = @sprite.measureTextSize(@multiline, @width)
+        @setAttribute('width', width)
+        @setAttribute('height', height)
+      </method>
+      <handler name="oninit">
+        el = @sprite.el
+        @text = @sprite.text()
+        @sprite.text('')
+        @sprite.createInputtextElement(@text, @multiline, @width)
+        @updateSize()
+      </handler>
+    </class>
+
     <simplelayout name="lay" spacing="42">
       <handler name="oninit">
         // console.log('oninit instance', this)
@@ -193,6 +209,8 @@
     <clickresize bgcolor="blue"></clickresize>
     <text onclick="this.setAttribute('text', 'Hi mum this is a lot wider!')" bgcolor="yellow">Hello</text>
     <text width="100" multiline="true" bgcolor="orange">This text should wrap at my width</text>
+    <inputtext bgcolor="green" name="inp">Text</inputtext>
+    <text text="${this.parent.inp.text}"></text>
   </view>
 </body>
 </html>

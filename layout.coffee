@@ -450,6 +450,19 @@ window.lz = do ->
         @setStyle('width', 'auto')
       {width: @el.clientWidth, height: @el.clientHeight}
 
+    createInputtextElement: (text, multiline, width) ->
+      input = document.createElement('input')
+      input.setAttribute('type', 'text')
+      input.setAttribute('value', text)
+      input.setAttribute('style', 'border: none; outline: none; background-color:transparent;')
+      @el.appendChild(input)
+
+      setTimeout(() =>
+        input = @el.getElementsByTagName('input')[0]
+        input.$view = @el.$view
+      , 0);
+
+
   ignoredAttributes = {parent: true, id: true, name: true, extends: true, type: true}
   class View extends Node
     constructor: (el, attributes = {}) ->
@@ -784,20 +797,37 @@ window.lz = do ->
 
 
   mouseEvents = ['click', 'mouseover', 'mouseout', 'mousedown', 'mouseup']
+  keyboardEvents = ['focus', 'blur', 'select', 'keyup', 'keydown']
   # singleton that listens for mouse position and holds the most recent left and top coordinates
-  class Mouse extends Module
+  class InputEvents extends Module
     constructor: ->
       @docSelector = $(document)
-      for event in mouseEvents
-        @docSelector.on(event, @handler)
+      @docSelector.on(mouseEvents.join(' '), @handleMouse)
+      @docSelector.on(keyboardEvents.join(' '), @handleKeyboard)
     sender: ->
       trigger("mousemove", left, top)
-    handler: (event) ->
+    handleKeyboard: (event) ->
       view = event.target.$view
       type = event.type
-      if view?.events?[type]
-        view.trigger(event.type, view)
-        # console.log 'event', event.type, event.target.$view
+      if view
+        view.sendEvent(type, view)
+        # send text events
+        if (type == 'keyup' or type == 'blur')
+          value = event.target.value
+          if (view.text != value)
+            view.text = value
+            view.sendEvent('text', value);
+      # else
+      #   trigger(type)
+      # console.log 'handleKeyboard', type, view, event
+    handleMouse: (event) ->
+      view = event.target.$view
+      type = event.type
+      if view
+        view.sendEvent(type, view)
+      # else
+      #   trigger(type)
+      # console.log 'event', event.type, event.target.$view
       if @started
         requestTick 0, sender 
         @left = event.pageX
@@ -811,7 +841,7 @@ window.lz = do ->
       @started = false
       @docSelector.off("mousemove", @handler).one("mouseover", @start)
 
-  mouse = new Mouse()
+  mouse = new InputEvents()
 
   exports = {
     view: View,
