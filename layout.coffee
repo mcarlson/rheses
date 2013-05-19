@@ -226,6 +226,9 @@ window.lz = do ->
           name = name.substr(2)
           # console.log 'installing handler', name, args, type, script, @
           @bind(name, eventCallback(name, script, @, args))
+          if name in mouseEvents
+            attributes.clickable = true unless attributes.clickable == false
+            # console.log 'registered for clickable', attributes.clickable
         delete attributes.$handlers
 
       # Bind to event expressions and set attributes
