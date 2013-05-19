@@ -328,13 +328,13 @@ window.lz = do ->
       # console.log 'set_name', name, this
       @parent?[name] = @
 
-    set_clickable: (clickable) ->
-
-
 
   class Sprite
 #    guid = 0
-    stylemap= {x: 'left', y: 'top', bgcolor: 'background-color'}
+    stylemap= {x: 'left', y: 'top', bgcolor: 'backgroundColor'}
+    fcamelCase = ( all, letter ) ->
+      letter.toUpperCase()
+    rdashAlpha = /-([\da-z])/gi
 
     constructor: (jqel, view) ->
       # console.log 'new sprite', jqel, view
@@ -354,7 +354,11 @@ window.lz = do ->
       # @jqel = $(@el)
     setStyle: (name, value) ->
       value ?= ''
-      name = stylemap[name] if name of stylemap
+      if name of stylemap
+        name = stylemap[name] 
+      else if name.match(rdashAlpha)
+        # console.log "replacing #{name}"
+        name = name.replace( rdashAlpha, fcamelCase )
       # console.log('setStyle', name, value, @el)
       @el.style[name] = value
       # @jqel.css(name, value)
@@ -569,6 +573,7 @@ window.lz = do ->
             for propname, val of value
               # TODO: deal with method overrides here?
               attributes[key][propname] = val
+            # console.log 'overwrote class attribute', key, attributes[key], value
           else if key is '$handlers' and key of attributes
             # console.log 'concat', attributes[key], value
             attributes[key] = attributes[key].concat(value)
@@ -725,7 +730,7 @@ window.lz = do ->
     node: Node,
     layout: Layout,
     simplelayout: SimpleLayout,
-    initViews: init
+    initViews: init,
     writeDefaultStyle: writeDefaultStyle
   }
 

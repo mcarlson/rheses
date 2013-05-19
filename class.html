@@ -44,7 +44,7 @@
   <script type="text/javascript" src="coffee-script.js"></script>
 </head>
 <body>
-  <view id="container" y="300" width="100" height="100" bgcolor="purple">
+  <view id="container" y="300" width="100" height="100" background-color="purple" border-radius="4px" overflow="hidden">
     <class name="simplelayout" extends="layout" type="coffee">
       <attribute name="attribute" type="string" value="x"></attribute>
       <attribute name="inset" type="number" value="0"></attribute>
@@ -99,6 +99,7 @@
         return pos
       </method>
     </class>
+
     <!-- Set the parent's width/height to match its children -->
     <class name="boundslayout" extends="layout" type="coffee">
       <attribute name="width" type="number" value="0"></attribute>
@@ -114,7 +115,7 @@
         # console.log('skip', @skip, @locked)
         return if @skip()
         if sender?
-          # update based on sender attribute and value
+          # update based on sender attribute where available
           if (! attribute or attribute == 'x' or attribute == 'width')
             width = Math.max(@width, (sender.x || 0) + (sender.width || 0))
             @setAttribute('width', width)
@@ -124,6 +125,7 @@
             height = Math.max(@height, (sender.y || 0) + (sender.height || 0))
             @setAttribute('height', height)
             @parent.setAttribute('height', height)
+
           # console.log('sender', value, sender, attribute, width, height)
         else if @parent.subviews.length
           # console.log('brute update')
@@ -146,7 +148,7 @@
       </method>
     </class>
 
-    <class name="text" extends="view" type="coffee">
+    <class name="text" type="coffee">
       <attribute name="multiline" value="false" type="boolean"></attribute>
       <method name="updateSize">
         el = @sprite.el
@@ -154,10 +156,9 @@
         style.width = if @multiline then (@width + 'px') else 'auto'
         style.height = 'auto'
         style.whiteSpace = if @multiline then '' else 'nowrap'
-        width = el.clientWidth
-        height = el.clientHeight
-        @setAttribute('width', width)
-        @setAttribute('height', height)
+
+        @setAttribute('width', el.clientWidth)
+        @setAttribute('height', el.clientHeight)
       </method>
       <setter name="text" args="text">
         # console.log('set_text', text)
@@ -167,7 +168,6 @@
       <handler name="oninit">
         # console.log('oninit', @)
         @updateSize()
-        # @setAttribute('text', @sprite.el.innerHTML)
       </handler>
     </class>
 
@@ -186,8 +186,8 @@
     <view width="10" height="10" bgcolor="yellow"></view>
     <view width="10" height="10" bgcolor="green" id="grn"></view>
     <view width="10" height="10" bgcolor="black"></view>
-    <view x="100" y="100" width="10" height="10" bgcolor="blue" onclick="this.animate({width: 100, height: 100})"></view>
-    <text onclick="this.setAttribute('text', 'Hi mum this is a lot wider!')" bgcolor="orange">Hello</text>
+    <view width="10" height="10" bgcolor="blue" onclick="this.animate({width: 100, height: 100})"></view>
+    <text onclick="this.setAttribute('text', 'Hi mum this is a lot wider!')" bgcolor="yellow">Hello</text>
     <text width="100" multiline="true" bgcolor="orange">This text should wrap at my width</text>
   </view>
 </body>
