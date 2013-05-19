@@ -400,9 +400,11 @@ window.lz = do ->
       # parent = parent[0] if parent instanceof jQuery
       # console.log 'set_parent', parent, @el
       parent.appendChild(@el)
-    set_id: (@id) ->
+
+    set_id: (id) ->
       # console.log('setid', @id)
-      @el.setAttribute('id', @id)
+      @el.setAttribute('id', id)
+
     animate: =>
       @jqel ?= $(@el)
       # console.log 'sprite animate', arguments, @jqel
@@ -421,12 +423,16 @@ window.lz = do ->
       @el.parentNode.removeChild(@el);
       @el = @jqel = null
 
+    set_clip: (clip) ->
+      # console.log('setid', @id)
+      @setStyle('overflow', if clip then 'hidden' else '')
+
 
   ignoredAttributes = {parent: true, id: true, name: true, extends: true, type: true}
   class View extends Node
     constructor: (el, attributes = {}) ->
       @subviews = []
-      types = {x: 'number', y: 'number', width: 'number', height: 'number', clickable: 'boolean'}
+      types = {x: 'number', y: 'number', width: 'number', height: 'number', clickable: 'boolean', clip: 'boolean'}
       for key, value of attributes.$types
         types[key] = value;
       attributes.$types = types
@@ -466,6 +472,9 @@ window.lz = do ->
 
     set_clickable: (clickable) ->
       @sprite.set_clickable(clickable)
+
+    set_clip: (@clip) ->
+      @sprite.set_clip(@clip)
 
     destroy: ->
       # console.log 'destroy view', @
