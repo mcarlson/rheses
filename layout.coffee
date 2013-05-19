@@ -328,6 +328,30 @@ window.lz = do ->
       # console.log 'set_name', name, this
       @parent?[name] = @
 
+    _removeFromParent: (name, skipevents) ->
+      return if not @parent
+      index = @parent[name].indexOf(@)
+      if (index != -1)
+        @parent[name].splice(index, 1)
+        @parent.trigger(name) if (not skipevents) and @parent.events?[name]
+      return
+
+    destroy: (skipevents) ->
+      # console.log 'destroy node', @
+      @trigger('destroy', @) if events?['destroy']
+
+      if @listeningTo
+        @stopListening()
+      @unbind()
+
+      if (@parent?[@name] == @)
+        delete @parent[@name]
+
+      for subnode, i in @subnodes
+        subnode.destroy(true)
+
+      @_removeFromParent('subnodes', skipevents)
+
 
   class Sprite
 #    guid = 0
@@ -390,6 +414,10 @@ window.lz = do ->
       # $(document.elementFromPoint(event.clientX,event.clientY)).trigger(type);
       # el.show();
 
+    destroy: ->
+      @el.parentNode.removeChild(@el);
+      @el = @jqel = null
+
 
   ignoredAttributes = {parent: true, id: true, name: true, extends: true, type: true}
   class View extends Node
@@ -435,6 +463,15 @@ window.lz = do ->
 
     set_clickable: (clickable) ->
       @sprite.set_clickable(clickable)
+
+    destroy: ->
+      # console.log 'destroy view', @
+      super()
+      @_removeFromParent('subviews')
+
+      @sprite.destroy()
+      @sprite = null
+
 
   # flatten element.attributes to a hash
   flattenattributes = (namednodemap)  ->
@@ -608,7 +645,7 @@ window.lz = do ->
     constructor: (el, attributes = {}) ->
       super(el, attributes)
       # listen for new subviews
-      @parent.bind('subviews', @added)
+      @listenTo(@parent, 'subviews', @added)
       @parent.layouts ?= []
       @parent.layouts.push(this)
 
@@ -621,20 +658,27 @@ window.lz = do ->
       @update()
       # console.log('layout', attributes, @)
 
-    # called when a new subview is added to the parent view
+    # called when a new subview is added or removed from the parent view
     added: (child) =>
       # console.log 'added layout', child, @
-      @trigger('subview', child) if @events?['subview']
+      if child
+        @trigger('subview', child) if @events?['subview']
       @update(null, child)
 
     # override to update the position of the parent view's children
-    update: (ignore, sender) =>
+    update: (value, sender) =>
       # console.log 'update layout', sender
       return if @skip()
     
     # returns true if the layout should't update 
     skip: () ->
-      true if locked or (not @parent?.subviews)
+      true if locked or (not @parent?.subviews) or (@parent.subviews.length == 0)
+
+    destroy: ->
+      locked = true
+      # console.log 'destroy layout', @
+      super()
+      @_removeFromParent('layouts')
 
 
   class SimpleLayout extends Layout
@@ -674,7 +718,7 @@ window.lz = do ->
 
     added: (child) ->
       # console.log 'added', child
-      child.bind(@axis, @update)
+      @listenTo(child, @axis, @update)
       super(child)
 
     update: (value, sender) ->
