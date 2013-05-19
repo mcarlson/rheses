@@ -610,6 +610,12 @@ window.lz = do ->
 
 
   class Class
+    clone = (obj) ->
+      newobj = {}
+      for name, val of obj
+        newobj[name] = val 
+      newobj
+
     constructor: (el, classattributes = {}) ->
       name = classattributes.name
       extend = classattributes.extends ?= 'view'
@@ -626,11 +632,11 @@ window.lz = do ->
       # console.log('new class', name, classattributes)
       console.warn 'overwriting class', name if name of lz
       lz[name] = (instanceel, instanceattributes) ->
-        attributes = _.clone(classattributes)
+        attributes = clone(classattributes)
         for key, value of instanceattributes
           # console.log 'overriding class attribute', key, value
           if (key is '$methods' or key is '$types') and key of attributes
-            attributes[key] = _.clone(attributes[key])
+            attributes[key] = clone(attributes[key])
             # console.log('overwriting', key, attributes[key], value)
             for propname, val of value
               # TODO: deal with method overrides here?
