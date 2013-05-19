@@ -111,7 +111,7 @@ window.lz = do ->
 
   typemappings = 
     number: parseFloat
-    boolean: (val) -> (!! val)
+    boolean: (val) -> (if (typeof val == 'string') then val == 'true' else (!! val))
 
   installMethod = (scope, methodname, method) ->
     if methodname of scope
