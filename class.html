@@ -45,6 +45,11 @@
 </head>
 <body>
   <view id="container" y="300" width="100" height="100" background-color="purple" border-radius="4px" overflow="hidden">
+    <handler name="onclick">
+      this.bnd.destroy()
+      // console.log('onclick', this)
+    </handler>
+
     <class name="simplelayout" extends="layout" type="coffee">
       <attribute name="attribute" type="string" value="x"></attribute>
       <attribute name="inset" type="number" value="0"></attribute>
@@ -180,7 +185,7 @@
         // console.log('hello instance', a,b,c, this)
       </method>
     </simplelayout>
-    <boundslayout></boundslayout>
+    <boundslayout name="bnd"></boundslayout>
 
     <class name="clickresize" width="10" height="10" onclick="this.animate({width: 100, height: 100})"></class>
 
