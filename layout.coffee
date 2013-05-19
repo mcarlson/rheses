@@ -267,6 +267,11 @@ window.lz = do ->
       # console.log 'matched constraint', name, @, expression
       return
 
+    sendEvent: (name, value) ->
+      @[name] = value
+      # send event
+      @trigger(name, value, @) if @events?[name]
+
     setAttribute: (name, value) ->
       # TODO: add support for dynamic constraints
       # constraint = value.match?(matchConstraint)
@@ -286,12 +291,8 @@ window.lz = do ->
         if setter of @
           # console.log 'calling setter', setter, value, @[setter]
           @[setter](value)
-        else
-          # console.log 'setting style', name, value
-          @[name] = value
 
-      # send event
-      @trigger(name, value, @, name) if @events?[name]
+      @sendEvent(name, value)
       @
 
     _bindConstraints: ->
@@ -322,12 +323,11 @@ window.lz = do ->
       # normalize to jQuery object
       if parent instanceof Node
         # store references to parent and children
-        @parent = parent
         parent[@name] = @ if @name
         parent.subnodes.push(@)
         parent.trigger('subnodes', @) if parent.events?['subnodes']
 
-    set_name: (@name) ->
+    set_name: (name) ->
       # console.log 'set_name', name, this
       @parent?[name] = @
 
@@ -410,8 +410,8 @@ window.lz = do ->
       # console.log 'sprite animate', arguments, @jqel
       @jqel.animate.apply(@jqel, arguments)
 
-    set_clickable: (@clickable) ->
-      @setStyle('pointer-events', if @clickable then 'auto' else 'none')
+    set_clickable: (clickable) ->
+      @setStyle('pointer-events', if clickable then 'auto' else 'none')
 
       # TODO: retrigger the event for the element below for IE and Opera? See http://stackoverflow.com/questions/3680429/click-through-a-div-to-underlying-elements
       # el = $(event.target)
@@ -463,7 +463,7 @@ window.lz = do ->
 
       @sprite.set_parent parent
 
-    set_id: (@id) ->
+    set_id: (id) ->
       @sprite.set_id(id)
 
     animate: ->
@@ -473,8 +473,8 @@ window.lz = do ->
     set_clickable: (clickable) ->
       @sprite.set_clickable(clickable)
 
-    set_clip: (@clip) ->
-      @sprite.set_clip(@clip)
+    set_clip: (clip) ->
+      @sprite.set_clip(clip)
 
     destroy: ->
       # console.log 'destroy view', @
