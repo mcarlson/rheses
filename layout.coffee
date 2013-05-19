@@ -245,7 +245,7 @@ window.lz = do ->
 
       @_bindConstraints() if @constraints
       # console.log 'new node', @, attributes
-      @trigger('init', @) if @events?['init']
+      @sendEvent('init', @)
 
     _applyConstraint: (name, expression) ->
       @constraints ?= {}
@@ -268,9 +268,11 @@ window.lz = do ->
       return
 
     sendEvent: (name, value) ->
-      @[name] = value
       # send event
-      @trigger(name, value, @) if @events?[name]
+      if @events?[name]
+        @trigger(name, value, @) 
+      # else
+      #   console.log 'no event named', name, @events, @
 
     setAttribute: (name, value) ->
       # TODO: add support for dynamic constraints
@@ -291,6 +293,8 @@ window.lz = do ->
         if setter of @
           # console.log 'calling setter', setter, value, @[setter]
           @[setter](value)
+
+        @[name] = value
 
       @sendEvent(name, value)
       @
@@ -325,7 +329,7 @@ window.lz = do ->
         # store references to parent and children
         parent[@name] = @ if @name
         parent.subnodes.push(@)
-        parent.trigger('subnodes', @) if parent.events?['subnodes']
+        parent.sendEvent('subnodes', @)
 
     set_name: (name) ->
       # console.log 'set_name', name, this
@@ -341,7 +345,7 @@ window.lz = do ->
 
     destroy: (skipevents) ->
       # console.log 'destroy node', @
-      @trigger('destroy', @) if events?['destroy']
+      @sendEvent('destroy', @)
 
       if @listeningTo
         @stopListening()
@@ -389,6 +393,7 @@ window.lz = do ->
       # console.log('setStyle', name, value, @el)
       @el.style[name] = value
       # @jqel.css(name, value)
+
     set_parent: (parent) ->
       if parent instanceof Sprite
         parent = parent.el
@@ -458,7 +463,7 @@ window.lz = do ->
       # store references subviews
       if parent instanceof View
         parent.subviews.push(@)
-        parent.trigger('subviews', @) if parent.events?['subviews']
+        parent.sendEvent('subviews', @)
         parent = parent.sprite
 
       @sprite.set_parent parent
@@ -674,7 +679,7 @@ window.lz = do ->
     added: (child) =>
       # console.log 'added layout', child, @
       if child
-        @trigger('subview', child) if @events?['subview']
+        @sendEvent('subview', child)
       @update(null, child)
 
     # override to update the position of the parent view's children
