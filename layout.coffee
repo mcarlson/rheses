@@ -644,8 +644,8 @@ window.lz = do ->
 
 
   class Layout extends Node
-    locked = true
     constructor: (el, attributes = {}) ->
+      @locked = true
       super(el, attributes)
       # listen for new subviews
       @listenTo(@parent, 'subviews', @added)
@@ -657,7 +657,7 @@ window.lz = do ->
       if subviews
         for subview in subviews
           @added(subview)
-      locked = false
+      @locked = false
       @update()
       # console.log('layout', attributes, @)
 
@@ -675,10 +675,10 @@ window.lz = do ->
     
     # returns true if the layout should't update 
     skip: () ->
-      true if locked or (not @parent?.subviews) or (@parent.subviews.length == 0)
+      true if @locked or (not @parent?.subviews) or (@parent.subviews.length == 0)
 
     destroy: ->
-      locked = true
+      @locked = true
       # console.log 'destroy layout', @
       super()
       @_removeFromParent('layouts')
