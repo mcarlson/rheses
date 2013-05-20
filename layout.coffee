@@ -910,15 +910,14 @@ window.lz = do ->
   keyboard = new Keyboard()
 
 
-  exports = {
-    view: View,
-    class: Class,
-    node: Node,
-    layout: Layout,
-    simplelayout: SimpleLayout,
-    initViews: init,
+  exports = 
+    view: View
+    class: Class
+    node: Node
+    layout: Layout
+    simplelayout: SimpleLayout
+    initViews: init
     writeDefaultStyle: writeDefaultStyle
-  }
 
 
 lz.writeDefaultStyle()
