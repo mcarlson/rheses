@@ -184,10 +184,14 @@ window.lz = do ->
     return script unless compiler of compilermappings
     script = compilermappings[compiler](script) 
 
+  scriptCache = {}
   compileScript = (script='', args=[]) ->
+    key = script + args.join()
+    return scriptCache[key] if key of scriptCache
     # console.log 'compileScript', compiler, args, script
     try 
-      new Function(args, script)
+      # console.log scriptCache
+      scriptCache[key] = new Function(args, script)
     catch e
       console.error('failed to compile', args, script, e)
 
