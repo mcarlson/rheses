@@ -830,17 +830,63 @@ window.lz = do ->
       return pos
 
 
-  mouseEvents = ['click', 'mouseover', 'mouseout', 'mousedown', 'mouseup']
-  keyboardEvents = ['focus', 'blur', 'select', 'keyup', 'keydown']
   # singleton that listens for keyboard and mouse events. Holds data about the most recent left and top mouse coordinates
-  class Inputs extends Eventable
+  mouseEvents = ['click', 'mouseover', 'mouseout', 'mousedown', 'mouseup']
+  class Mouse extends Eventable
     constructor: ->
       @docSelector = $(document)
-      @docSelector.on(mouseEvents.join(' '), @handleMouse)
-      @docSelector.on(keyboardEvents.join(' '), @handleKeyboard)
-    sender: ->
-      @trigger("mousemove", left, top)
-    handleKeyboard: (event) =>
+      @docSelector.on(mouseEvents.join(' '), @handle)
+    bind: (ev, callback) ->
+      super(ev, callback)
+      if @events['mousemove'].length
+        @start()
+    unbind: (ev, callback) ->
+      super(ev, callback)
+      if @events['mousemove'].length is 0
+        @stop()
+    handle: (event) =>
+      view = event.target.$view
+      type = event.type
+      # console.log 'event', type, view
+      if view
+        view.sendEvent(type, view)
+
+      @pos = {x: event.pageX, y: event.pageY}
+      @sendEvent(type, view) unless type is 'mousemove'
+
+    sender: =>
+      @sendEvent("mousemove", @pos) if @pos
+
+    start: (event) =>
+      return if @started
+      return if event and event.target != document
+      @started = true
+      @tId = setInterval(@sender, 17)
+      # console.log 'start'
+      @docSelector.on("mousemove", @handle).one("mouseout", @stop)
+
+    stop: (event) =>
+      return if not @started
+      return if event and event.target != document
+      @started = false
+      clearInterval(@tId)
+      # console.log 'stop'
+      @docSelector.off("mousemove", @handle).one("mouseover", @start)
+
+
+  keyboardEvents = ['focus', 'blur', 'select', 'keyup', 'keydown']
+  class Keyboard extends Eventable
+    keys =
+      shiftKey: false
+      altKey: false
+      ctrlKey: false
+      metaKey: false
+      keyCode: 0
+
+    constructor: ->
+      $(document).on(keyboardEvents.join(' '), @handle)
+
+    handle: (event) =>
       view = event.target.$view
       type = event.type
       if view
@@ -852,30 +898,17 @@ window.lz = do ->
             view.text = value
             view.sendEvent('text', value);
 
-      @sendEvent(type, view)
-      # console.log 'handleKeyboard', type, view, event
-    handleMouse: (event) =>
-      view = event.target.$view
-      type = event.type
-      if view
-        view.sendEvent(type, view)
+      for key, value of keys
+        # console.log value, key
+        keys[key] = event[key]
 
-      @sendEvent(type, view)
-      # console.log 'event', event.type, event.target.$view
-      if @started
-        requestTick 0, sender 
-        @left = event.pageX
-        @top = event.pageY
-    start: ->
-      return if @started
-      @started = true
-      @docSelector.on("mousemove", @handler).one("mouseout", @stop)
-    stop: ->
-      return if not @started
-      @started = false
-      @docSelector.off("mousemove", @handler).one("mouseover", @start)
+      @sendEvent(type, view, keys)
+      # console.log 'handleKeyboard', type, view, keys, event
 
-  new Inputs()
+
+  mouse = new Mouse()
+  keyboard = new Keyboard()
+
 
   exports = {
     view: View,
