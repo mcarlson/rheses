@@ -337,10 +337,11 @@ window.lz = do ->
 
     _removeFromParent: (name) ->
       return if not @parent
-      index = @parent[name].indexOf(@)
+      arr = @parent[name]
+      index = arr.indexOf(@)
       if (index != -1)
-        @parent[name].splice(index, 1)
-        @parent.sendEvent(name)
+        arr.splice(index, 1)
+        @parent.sendEvent(name, arr[index])
       return
 
     destroy: (skipevents) ->
@@ -441,6 +442,12 @@ window.lz = do ->
       else
         @el.innerHTML
 
+    value: (value) ->
+      if value?
+        @input.value = value
+      else
+        @input.value
+
     measureTextSize: (multiline, width) ->
       @el.setAttribute('class', 'sprite sprite-text')
       if multiline
@@ -458,8 +465,8 @@ window.lz = do ->
       @el.appendChild(input)
 
       setTimeout(() =>
-        input = @el.getElementsByTagName('input')[0]
-        input.$view = @el.$view
+        @input = @el.getElementsByTagName('input')[0]
+        @input.$view = @el.$view
       , 0);
 
 
@@ -812,7 +819,7 @@ window.lz = do ->
       if view
         view.sendEvent(type, view)
         # send text events
-        if (type == 'keyup' or type == 'blur')
+        if (type == 'keydown' or type == 'keyup' or type == 'blur')
           value = event.target.value
           if (view.text != value)
             view.text = value

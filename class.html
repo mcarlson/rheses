@@ -176,6 +176,11 @@
         @setAttribute('width', width)
         @setAttribute('height', height)
       </method>
+      <setter name="text" args="text">
+        # console.log('set_text', text)
+        @sprite.value(text)
+        @updateSize()
+      </setter>
       <handler name="oninit">
         el = @sprite.el
         @text = @sprite.text()
@@ -198,12 +203,12 @@
 
     <class name="clickresize" width="10" height="10">
       <handler name="onclick">
-        this.animate({width: 100, height: 100});
+        this.animate({width: 100, height: 100})
       </handler>
     </class>
 
     <clickresize bgcolor="red"></clickresize>
-    <clickresize bgcolor="yellow" onclick="this.destroy();"></clickresize>
+    <clickresize bgcolor="yellow" onclick="this.destroy()"></clickresize>
     <clickresize bgcolor="green"></clickresize>
     <clickresize bgcolor="black"></clickresize>
     <clickresize bgcolor="blue">
@@ -220,8 +225,8 @@
     </clickresize>
     <text onclick="this.setAttribute('text', 'Hi mum this is a lot wider!')" bgcolor="yellow">Hello</text>
     <text width="100" multiline="true" bgcolor="orange">This text should wrap at my width</text>
-    <inputtext bgcolor="green" name="inp">Text</inputtext>
-    <text text="${this.parent.inp.text}"></text>
+    <inputtext bgcolor="green" name="inp" onclick="this.setAttribute('text', 'Yooyoyo')">Text</inputtext>
+    <text text="${this.parent.inp.text}" bgcolor="red"></text>
   </view>
 </body>
 </html>
