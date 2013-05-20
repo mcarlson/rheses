@@ -645,7 +645,7 @@ window.lz = do ->
           # console.log 'added attribute', attributes, classattributes
 
     # console.log('processSpecialTags', classattributes)
-    return 
+    return children
 
 
   class Class
@@ -662,14 +662,14 @@ window.lz = do ->
       for ignored of ignoredAttributes
         delete classattributes[ignored]
 
-      processSpecialTags(el, classattributes, compilertype)
+      processedChildren = processSpecialTags(el, classattributes, compilertype)
+
       # console.log('compiled class', name, extend, classattributes)
 
       # cache the old contents
       oldbody = el.innerHTML.trim()
 
-      children = (child for child in el.childNodes when child.nodeType == 1 and child.localName in specialtags)
-      for child in children
+      for child in processedChildren
         child.parentNode.removeChild(child)
 
       # serialize the tag's contents
