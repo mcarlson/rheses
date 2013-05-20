@@ -72,6 +72,7 @@ window.lz = do ->
           listeningTo.splice(idx, 1) unless idx is -1
       else
         for {obj, ev, callback} in @listeningTo
+          # console.log 'stopped listening', obj, ev, callback
           obj.unbind(ev, callback)
         @listeningTo = undefined
 
@@ -107,6 +108,43 @@ window.lz = do ->
         @::[key] = value
       obj.included?.call(this, obj)
       this
+
+
+  class Eventable extends Module
+    @include Events
+
+    setAttribute: (name, value) ->
+      # TODO: add support for dynamic constraints
+      # constraint = value.match?(matchConstraint)
+      # if constraint
+      #   @_applyConstraint(name, constraint[1])
+      #   return
+
+      # coerce value to type
+      type = @types[name]
+      if type# and type of typemappings
+        value = typemappings[type](value)
+        # console.log 'type', name, type, value, @
+
+      if @[name] != value
+        # console.log 'setAttribute', name, value
+        setter = 'set_' + name
+        if setter of @
+          # console.log 'calling setter', setter, value, @[setter]
+          @[setter](value)
+
+        @[name] = value
+
+      @sendEvent(name, value)
+      @
+
+    sendEvent: (name, value) ->
+      # send event
+      if @events?[name]
+        @trigger(name, value, @) 
+      # else
+      #   console.log 'no event named', name, @events, @
+      @
 
 
   typemappings = 
@@ -185,6 +223,7 @@ window.lz = do ->
     return script unless compiler of compilermappings
     script = compilermappings[compiler](script) 
 
+  # cache scripts to speed up instantiation
   scriptCache = {}
   compileScript = (script='', args=[]) ->
     key = script + args.join()
@@ -209,10 +248,9 @@ window.lz = do ->
       js.apply(scope, args)
 
 
-  class Node extends Module
-    @include Events
-
+  class Node extends Eventable
     matchConstraint = /\${(.+)}/
+
     constructor: (el, attributes = {}) ->
       @subnodes = []
       # Install types
@@ -271,38 +309,6 @@ window.lz = do ->
 
       # console.log 'matched constraint', name, @, expression
       return
-
-    sendEvent: (name, value) ->
-      # send event
-      if @events?[name]
-        @trigger(name, value, @) 
-      # else
-      #   console.log 'no event named', name, @events, @
-
-    setAttribute: (name, value) ->
-      # TODO: add support for dynamic constraints
-      # constraint = value.match?(matchConstraint)
-      # if constraint
-      #   @_applyConstraint(name, constraint[1])
-      #   return
-
-      # coerce value to type
-      type = @types[name]
-      if type# and type of typemappings
-        value = typemappings[type](value)
-        # console.log 'type', name, type, value, @
-
-      if @[name] != value
-        # console.log 'setAttribute', name, value
-        setter = 'set_' + name
-        if setter of @
-          # console.log 'calling setter', setter, value, @[setter]
-          @[setter](value)
-
-        @[name] = value
-
-      @sendEvent(name, value)
-      @
 
     _bindConstraints: ->
       # register constraints last
@@ -568,6 +574,7 @@ window.lz = do ->
     children = (child for child in el.childNodes when child.nodeType == 1)
 
     if tagname is 'class'
+      # defer creation of children
       for child in children
         # console.log 'creating child', tagname, child.localName, child, parent
         # console.dir(child)
@@ -579,6 +586,7 @@ window.lz = do ->
     parent = new lz[tagname](el, attributes)
 
     unless tagname is 'class'
+      # create children now
       for child in children
         initFromElement(child, parent) unless child.localName in specialtags
 
