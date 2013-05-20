@@ -265,10 +265,16 @@ window.lz = do ->
         delete attributes.$methods
 
       if attributes.$handlers
-        for {name, script, args, type} in attributes.$handlers
+        for {name, script, args, reference} in attributes.$handlers
           name = name.substr(2)
+
           # console.log 'installing handler', name, args, type, script, @
-          @bind(name, eventCallback(name, script, @, args))
+          callback = eventCallback(name, script, @, args)
+          if reference?
+            @listenTo(eval(reference), name, callback)
+          else
+            @bind(name, callback)
+
           if name in mouseEvents
             attributes.clickable = true unless attributes.clickable == false
             # console.log 'registered for clickable', attributes.clickable
@@ -627,11 +633,12 @@ window.lz = do ->
         when 'handler'
           args = (attributes.args ? '').split()
           script = htmlDecode(child.innerHTML)
-          type = attributes.type or defaulttype
+          type = attributes.type ? defaulttype
           handler = 
             name: attributes.name
             script: transformScript(script, type)
             args: args
+            reference: attributes.reference
 
           classattributes.$handlers.push(handler)
           # console.log 'added handler', attributes.name, script, attributes
