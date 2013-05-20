@@ -78,7 +78,8 @@
         # console.log 'coffee', attr, arguments, @, @parent 
         unless @skip() 
           for subview in @parent.subviews
-            subview.unbind(@axis, @update).bind(newaxis, @update)
+            @stopListening(subview, @axis, @update)
+            @listenTo(subview, newaxis, @update)
 
         @axis = newaxis
 
@@ -120,12 +121,12 @@
         if sender?
           # update based on sender attribute where available
           if (! attribute or attribute == 'x' or attribute == 'width')
-            width = Math.max(@width, (sender.x || 0) + (sender.width || 0))
+            width = Math.max(@width, sender.x + sender.width)
             @setAttribute('width', width)
             @parent.setAttribute('width', width)
 
           if (! attribute or attribute == 'y' or attribute == 'height')
-            height = Math.max(@height, (sender.y || 0) + (sender.height || 0))
+            height = Math.max(@height, sender.y + sender.height)
             @setAttribute('height', height)
             @parent.setAttribute('height', height)
 
@@ -137,8 +138,8 @@
           height = 0
           for subview in @parent.subviews
             # console.log 'updating', subview, @attribute, pos
-            width = Math.max(width, (subview.x || 0) + (subview.width || 0))
-            height = Math.max(height, (subview.y || 0) + (subview.height || 0))
+            width = Math.max(width, subview.x + subview.width)
+            height = Math.max(height, subview.y + subview.height)
             # return if isNaN(width) or isNaN(height)
             # console.log 'value', subview, width, height
 
