@@ -161,7 +161,7 @@
       <setter name="text" args="text">
         # console.log('set_text', text)
         @sprite.text(text)
-        @updateSize()
+        @updateSize() if (text != @text)
       </setter>
       <handler name="oninit">
         # console.log('oninit', @)
@@ -179,7 +179,7 @@
       <setter name="text" args="text">
         # console.log('set_text', text)
         @sprite.value(text)
-        @updateSize()
+        @updateSize() if (text != @text)
       </setter>
       <handler name="oninit">
         el = @sprite.el
