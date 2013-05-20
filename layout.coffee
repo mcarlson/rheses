@@ -112,6 +112,7 @@ window.lz = do ->
   typemappings = 
     number: parseFloat
     boolean: (val) -> (if (typeof val == 'string') then val == 'true' else (!! val))
+    string: (val) -> val + ''
 
   installMethod = (scope, methodname, method) ->
     if methodname of scope
@@ -287,8 +288,8 @@ window.lz = do ->
 
       # coerce value to type
       type = @types[name]
-      if type
-        value = typemappings[type](value) if type of typemappings
+      if type# and type of typemappings
+        value = typemappings[type](value)
         # console.log 'type', name, type, value, @
 
       if @[name] != value
