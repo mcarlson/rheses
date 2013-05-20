@@ -665,8 +665,18 @@ window.lz = do ->
       processSpecialTags(el, classattributes, compilertype)
       # console.log('compiled class', name, extend, classattributes)
 
+      # cache the old contents
+      oldbody = el.innerHTML.trim()
+
+      children = (child for child in el.childNodes when child.nodeType == 1 and child.localName in specialtags)
+      for child in children
+        child.parentNode.removeChild(child)
+
       # serialize the tag's contents
-      body = el.innerHTML
+      body = el.innerHTML.trim()
+
+      # restore old contents
+      el.innerHTML = oldbody if (oldbody)
 
       # console.log('new class', name, classattributes)
       console.warn 'overwriting class', name if name of lz
@@ -694,19 +704,16 @@ window.lz = do ->
 
         return if not (viewel = parent.sprite?.el)
 
-        # cache the old contents
-        oldbody = viewel.innerHTML
-
         # unpack instance 
-        viewel.innerHTML = body
-        children = (child for child in viewel.childNodes when child.nodeType == 1)
-        for child in children
-          child.$defer = null
-          # console.log 'creating class child in parent', child, parent
-          initFromElement(child, parent) unless child.localName in specialtags
+        if body
+          # console.log 'body', body
+          viewel.innerHTML = body
+          children = (child for child in viewel.childNodes when child.nodeType == 1)
+          for child in children
+            child.$defer = null
+            # console.log 'creating class child in parent', child, parent
+            initFromElement(child, parent)
 
-        # restore old contents
-        viewel.innerHTML = oldbody if (oldbody)
         return
 
 
