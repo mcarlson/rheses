@@ -825,15 +825,15 @@ window.lz = do ->
 
   mouseEvents = ['click', 'mouseover', 'mouseout', 'mousedown', 'mouseup']
   keyboardEvents = ['focus', 'blur', 'select', 'keyup', 'keydown']
-  # singleton that listens for mouse position and holds the most recent left and top coordinates
-  class InputEvents extends Module
+  # singleton that listens for keyboard and mouse events. Holds data about the most recent left and top mouse coordinates
+  class Inputs extends Eventable
     constructor: ->
       @docSelector = $(document)
       @docSelector.on(mouseEvents.join(' '), @handleMouse)
       @docSelector.on(keyboardEvents.join(' '), @handleKeyboard)
     sender: ->
-      trigger("mousemove", left, top)
-    handleKeyboard: (event) ->
+      @trigger("mousemove", left, top)
+    handleKeyboard: (event) =>
       view = event.target.$view
       type = event.type
       if view
@@ -844,16 +844,16 @@ window.lz = do ->
           if (view.text != value)
             view.text = value
             view.sendEvent('text', value);
-      # else
-      #   trigger(type)
+
+      @sendEvent(type, view)
       # console.log 'handleKeyboard', type, view, event
-    handleMouse: (event) ->
+    handleMouse: (event) =>
       view = event.target.$view
       type = event.type
       if view
         view.sendEvent(type, view)
-      # else
-      #   trigger(type)
+
+      @sendEvent(type, view)
       # console.log 'event', event.type, event.target.$view
       if @started
         requestTick 0, sender 
@@ -868,7 +868,7 @@ window.lz = do ->
       @started = false
       @docSelector.off("mousemove", @handler).one("mouseover", @start)
 
-  mouse = new InputEvents()
+  new Inputs()
 
   exports = {
     view: View,
