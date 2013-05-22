@@ -283,7 +283,7 @@ window.lz = do ->
             @bind(name, callback)
 
           if name in mouseEvents
-            attributes.clickable = true unless attributes.clickable == false
+            attributes.clickable = true unless attributes.clickable is "false"
             # console.log 'registered for clickable', attributes.clickable
         delete attributes.$handlers
 
