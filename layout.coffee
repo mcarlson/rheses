@@ -607,7 +607,7 @@ window.lz = do ->
 
   # init all views in the DOM recursively
   init = (selector = $('view')) ->
-    for el, i in selector
+    for el in selector
       initFromElement(el) unless el.$defer or el.$view
     # console.log 'caches', compileCache
 
@@ -865,7 +865,7 @@ window.lz = do ->
 
     unbind: (ev, callback) ->
       super(ev, callback)
-      if @events['mousemove']?.length is 0 and @events['x']?.length is 0 or @events['y']?.length is 0
+      if @events['mousemove']?.length is 0 and @events['x']?.length is 0 and @events['y']?.length is 0
         @stop()
 
     handle: (event) =>
