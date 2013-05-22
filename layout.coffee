@@ -146,6 +146,11 @@ window.lz = do ->
         # console.log 'no event named', name, @events, @
       @
 
+    set: (attributes) ->
+      for name, value of attributes
+        @setAttribute(name, value)
+      @
+
 
   typemappings = 
     number: parseFloat
