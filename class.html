@@ -228,14 +228,7 @@
     <inputtext bgcolor="green" name="inp" onclick="this.setAttribute('text', 'Yooyoyo')">Text</inputtext>
     <text text="${this.parent.inp.text}" bgcolor="red"></text>
 
-    <view width="10" height="10" bgcolor="cyan">
-      <handler name="onmousemove" reference="mouse" args="moved" type="coffee">
-        this.setAttribute('x', moved.x - (@parent?.x || 0) - 5).setAttribute('y', moved.y - (@parent?.y || 0) - 5)
-      </handler>
-      <handler name="onclick">
-        this.destroy()
-      </handler>
-    </view>
+    <view width="10" height="10" bgcolor="cyan" x="${lz.mouse.x - (this.parent.x || 0) - 5}" y="${lz.mouse.y - (this.parent.y || 0) - 5}"></view>
   </view>
 
 </body>

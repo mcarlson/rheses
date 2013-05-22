@@ -143,7 +143,7 @@ window.lz = do ->
       if @events?[name]
         @trigger(name, value, @) 
       # else
-      #   console.log 'no event named', name, @events, @
+        # console.log 'no event named', name, @events, @
       @
 
 
@@ -300,7 +300,6 @@ window.lz = do ->
       @constraints ?= {}
       @constraints[name] = compileScript('return ' + expression).bind(@)
       # console.log 'adding constraint', name, expression, @
-      # console.log 'eval', @constraints[name]()
 
       constraintBinding = @constraints[name]
       bindings = constraintBinding.bindings ?= {}
@@ -854,16 +853,21 @@ window.lz = do ->
   mouseEvents = ['click', 'mouseover', 'mouseout', 'mousedown', 'mouseup']
   class Mouse extends Eventable
     constructor: ->
+      @x = 0
+      @y = 0
       @docSelector = $(document)
       @docSelector.on(mouseEvents.join(' '), @handle)
+
     bind: (ev, callback) ->
       super(ev, callback)
-      if @events['mousemove'].length
+      if @events['mousemove']?.length or @events['x']?.length or @events['y']?.length
         @start()
+
     unbind: (ev, callback) ->
       super(ev, callback)
-      if @events['mousemove'].length is 0
+      if @events['mousemove']?.length is 0 and @events['x']?.length is 0 or @events['y']?.length is 0
         @stop()
+
     handle: (event) =>
       view = event.target.$view
       type = event.type
@@ -871,11 +875,17 @@ window.lz = do ->
       if view
         view.sendEvent(type, view)
 
-      @pos = {x: event.pageX, y: event.pageY}
-      @sendEvent(type, view) unless type is 'mousemove'
+      if @started and type is 'mousemove'
+        @x = event.pageX
+        @y = event.pageY
+        requestTick(0, @sender) 
+      else 
+        @sendEvent(type, view)
 
     sender: =>
-      @sendEvent("mousemove", @pos) if @pos
+      @sendEvent("mousemove", {x: @x, y: @y})
+      @sendEvent('x', @x)
+      @sendEvent('y', @y)
 
     start: (event) =>
       return if @started
@@ -934,6 +944,8 @@ window.lz = do ->
     view: View
     class: Class
     node: Node
+    mouse: mouse
+    keyboard: keyboard
     layout: Layout
     simplelayout: SimpleLayout
     initViews: init
