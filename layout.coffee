@@ -184,52 +184,58 @@ window.lz = do ->
     # console.log 'onunload', localStorage[cacheKey]
   )
 
-  compileCache.bindings ?= {}
-  bindingCache = compileCache.bindings
-  scopes = null
-  propertyBindings = 
-    find: (expression) ->
+  findPropertyBindings = do ->
+    compileCache.bindings ?= {}
+    bindingCache = compileCache.bindings
+    scopes = null
+    propertyBindings = 
+      MemberExpression: (n) ->
+        # grab the property name
+        name = n.property.name
+
+        # remove the property so we can compute the rest of the expression
+        n = n.object
+
+        # push the scope onto the list
+        scopes.push({binding: acorn.stringify(n), property: name})
+        # console.log 'MemberExpression', name, acorn.stringify n
+        return true
+
+    (expression) ->
       return bindingCache[expression] if expression of bindingCache
       ast = acorn.parse(expression)
       scopes = []
-      acorn.walkDown(ast, @)
+      acorn.walkDown(ast, propertyBindings)
       bindingCache[expression] = scopes
       # console.log compileCache.bindings
       # return scopes
-    MemberExpression: (n) ->
-      # grab the property name
-      name = n.property.name
+    # propertyBindings.find = _.memoize(propertyBindings.find)
 
-      # remove the property so we can compute the rest of the expression
-      n = n.object
+  # transforms a script to javascript using a runtime compiler
+  transformScript = do ->    
+    compileCache.script ?= {'coffee': {}}
+    coffeeCache = compileCache.script.coffee
+    compilers = 
+      coffee: (script) ->
+        if script of coffeeCache
+          # console.log 'cache hit', script
+          return coffeeCache[script]
+        if not window.CoffeeScript
+          console.warn 'missing coffee-script.js include'
+          return
+        # console.log 'compiling coffee-script', script
+        coffeeCache[script] = CoffeeScript.compile(script, bare: true) if script
+        # console.log 'compiled coffee-script', script
+        # console.log coffeeCache
+        # return coffeeCache[script]
 
-      scopes.push({binding: acorn.stringify(n), property: name})
-      # console.log 'MemberExpression', name, acorn.stringify n
-      return true
-  # propertyBindings.find = _.memoize(propertyBindings.find)
+    (script='', name) ->
+      return script unless name of compilers
+      compilers[name](script) 
 
-  compileCache.script ?= {'coffee': {}}
-  coffeeCache = compileCache.script.coffee
-  compilermappings = 
-    coffee: (script) ->
-      if script of coffeeCache
-        # console.log 'cache hit', script
-        return coffeeCache[script]
-      if not window.CoffeeScript
-        console.warn 'missing coffee-script.js include'
-        return
-      # console.log 'compiling coffee-script', script
-      coffeeCache[script] = CoffeeScript.compile(script, bare: true) if script
-      # console.log 'compiled coffee-script', script
-      # console.log coffeeCache
-      # return coffeeCache[script]
-
-  transformScript = (script='', compiler) ->
-    return script unless compiler of compilermappings
-    script = compilermappings[compiler](script) 
-
-  # cache scripts to speed up instantiation
+  # cache compiled scripts to speed up instantiation
   scriptCache = {}
+  # compile a string into a function
   compileScript = (script='', args=[]) ->
     key = script + args.join()
     return scriptCache[key] if key of scriptCache
@@ -240,28 +246,21 @@ window.lz = do ->
     catch e
       console.error('failed to compile', args, script, e)
 
-  # generate a callback for an event expression in a way that preserves scope, e.g. on_x="console.log(value, this, ...)"
-  eventCallback = (name, script, scope, fnargs=['value']) ->
-    # console.log 'binding to event expression', name, script, scope, fnargs
-    js = compileScript(script, fnargs)
-    ->
-      if name of scope
-        args = [scope[name]]
-      else 
-        args = arguments
-      # console.log 'event callback', name, args, scope, js
-      js.apply(scope, args)
-
-
-  # this _must_ be called after initFromElement() to allow late binding constraints
-  constraintScopes = []
-  initConstraints = ->
-    for constraint in constraintScopes
-      constraint._bindConstraints()
-    constraintScopes = []
 
   class Node extends Eventable
     matchConstraint = /\${(.+)}/
+
+    # generate a callback for an event expression in a way that preserves scope, e.g. on_x="console.log(value, this, ...)"
+    eventCallback = (name, script, scope, fnargs=['value']) ->
+      # console.log 'binding to event expression', name, script, scope, fnargs
+      js = compileScript(script, fnargs)
+      ->
+        if name of scope
+          args = [scope[name]]
+        else 
+          args = arguments
+        # console.log 'event callback', name, args, scope, js
+        js.apply(scope, args)
 
     constructor: (el, attributes = {}) ->
       @subnodes = []
@@ -317,7 +316,7 @@ window.lz = do ->
         bindings: {}
 
       bindings = @constraints[property].bindings
-      scopes = propertyBindings.find(expression)
+      scopes = findPropertyBindings(expression)
       # console.log 'found scopes', scopes
       for scope in scopes
         bindexpression = scope.binding
@@ -570,10 +569,15 @@ window.lz = do ->
       attributes[i.name] = i.value
     attributes
 
+  # a list of constraint scopes gathered at init time
+  constraintScopes = []
   # initialize an element
   initFromElement = (el) ->
     initElement(el)
-    initConstraints()
+    # init constraints
+    for constraint in constraintScopes
+      constraint._bindConstraints()
+    constraintScopes = []
 
   specialtags = ['handler', 'method', 'attribute', 'setter']
   # recursively init classes based on an existing element
@@ -599,11 +603,8 @@ window.lz = do ->
     children = (child for child in el.childNodes when child.nodeType == 1)
 
     if tagname is 'class'
-      # defer creation of children
+      # defer creation of children if selected by init()
       for child in children
-        # console.log 'creating child', tagname, child.localName, child, parent
-        # console.dir(child)
-        # console.log 'defer', child
         child.$defer = true
         
     processSpecialTags(el, attributes, attributes.type) unless tagname is 'class'
