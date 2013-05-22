@@ -154,9 +154,7 @@
     <class name="text" type="coffee">
       <attribute name="multiline" value="false" type="boolean"></attribute>
       <method name="updateSize">
-        {width, height} = @sprite.measureTextSize(@multiline, @width)
-        @setAttribute('width', width)
-        @setAttribute('height', height)
+        @set(@sprite.measureTextSize(@multiline, @width))
       </method>
       <setter name="text" args="text">
         # console.log('set_text', text)
@@ -169,12 +167,10 @@
       </handler>
     </class>
 
-    <class name="inputtext"  type="coffee" clickable="true">
+    <class name="inputtext" type="coffee" clickable="true">
       <attribute name="multiline" value="false" type="boolean"></attribute>
       <method name="updateSize">
-        {width, height} = @sprite.measureTextSize(@multiline, @width)
-        @setAttribute('width', width)
-        @setAttribute('height', height)
+        @set(@sprite.measureTextSize(@multiline, @width))
       </method>
       <setter name="text" args="text">
         # console.log('set_text', text)
@@ -201,7 +197,7 @@
     </simplelayout>
     <boundslayout name="bnd"></boundslayout>
 
-    <class name="clickresize" width="10" height="10">
+    <class name="clickresize" width="10" height="10" bgcolor="red">
       <handler name="onclick">
         this.animate({width: 100, height: 100})
       </handler>
@@ -220,7 +216,7 @@
           new lz.simplelayout(null, {parent: @})
           for i of ([0..1000])
             #console.log('creating', i)
-            new lz.view(null, {parent: @, bgcolor: 'red', width: 10, height: 10})
+            new lz.clickresize(null, {parent: @})
       </handler>
     </clickresize>
     <text onclick="this.setAttribute('text', 'Hi mum this is a lot wider!')" bgcolor="yellow">Hello</text>
@@ -228,7 +224,11 @@
     <text text="${this.parent.inp.text}" bgcolor="red"></text>
     <inputtext bgcolor="green" name="inp" onclick="this.setAttribute('text', 'Yooyoyo')">Text</inputtext>
 
-    <view width="10" height="10" bgcolor="cyan" x="${lz.mouse.x - (this.parent.x || 0) - 5}" y="${lz.mouse.y - (this.parent.y || 0) - 5}"></view>
+    <view width="10" height="10" bgcolor="cyan" x="${lz.mouse.x - (this.parent.x || 0) - (this.width * .5)}" y="${lz.mouse.y - (this.parent.y || 0) - (this.width * .5)}" clickable="false">
+      <handler name="onclick" reference="lz.mouse" args="scope">
+        this.animate({width: 100, height: 100, opacity: .2}, 1000)
+      </handler>
+    </view>
   </view>
 
 </body>
