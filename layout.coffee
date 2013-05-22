@@ -117,7 +117,7 @@ window.lz = do ->
       # TODO: add support for dynamic constraints
       # constraint = value.match?(matchConstraint)
       # if constraint
-      #   @_applyConstraint(name, constraint[1])
+      #   @applyConstraint(name, constraint[1])
       #   return
 
       # coerce value to type
@@ -284,7 +284,7 @@ window.lz = do ->
       for name, value of attributes
         constraint = value.match?(matchConstraint)
         if constraint
-          @_applyConstraint(name, constraint[1])
+          @applyConstraint(name, constraint[1])
         else if name.indexOf('on') == 0
           name = name.substr(2)
           # console.log('binding to event expression', name, value, @)
@@ -296,7 +296,7 @@ window.lz = do ->
       # console.log 'new node', @, attributes
       @sendEvent('init', @)
 
-    _applyConstraint: (name, expression) ->
+    applyConstraint: (name, expression) ->
       @constraints ?= {}
       @constraints[name] = compileScript('return ' + expression).bind(@)
       # console.log 'adding constraint', name, expression, @
