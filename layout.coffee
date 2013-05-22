@@ -830,6 +830,26 @@ window.lz = do ->
       return pos
 
 
+  requestAnimationFrame = window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame# || (delegate) -> setTimeout(delegate, 17);
+  ticking = false
+  tickEvents = {}
+
+  doTick = ->
+    for key of tickEvents
+      if tickEvents[key] 
+        # console.log('tick', key, tickEvents[key]);
+        tickEvents[key]()
+        tickEvents[key] = null;
+    ticking = false;
+
+  requestTick = (key, callback) ->
+    # console.log('requesttick', key, callback);
+    # if (tickEvents[key] !== null) console.log('hit', key)
+    if !ticking
+      requestAnimationFrame(doTick);
+    ticking = true;
+    tickEvents[key] = callback;
+
   # singleton that listens for keyboard and mouse events. Holds data about the most recent left and top mouse coordinates
   mouseEvents = ['click', 'mouseover', 'mouseout', 'mousedown', 'mouseup']
   class Mouse extends Eventable
@@ -861,7 +881,7 @@ window.lz = do ->
       return if @started
       return if event and event.target != document
       @started = true
-      @tId = setInterval(@sender, 17)
+      # @tId = setInterval(@sender, 17)
       # console.log 'start'
       @docSelector.on("mousemove", @handle).one("mouseout", @stop)
 
@@ -869,7 +889,7 @@ window.lz = do ->
       return if not @started
       return if event and event.target != document
       @started = false
-      clearInterval(@tId)
+      # clearInterval(@tId)
       # console.log 'stop'
       @docSelector.off("mousemove", @handle).one("mouseover", @start)
 
