@@ -248,6 +248,13 @@ window.lz = do ->
       js.apply(scope, args)
 
 
+  # this _must_ be called after initFromElement() to allow late binding constraints
+  constraintScopes = []
+  initConstraints = ->
+    for constraint in constraintScopes
+      constraint._bindConstraints()
+    constraintScopes = []
+
   class Node extends Eventable
     matchConstraint = /\${(.+)}/
 
@@ -292,42 +299,44 @@ window.lz = do ->
         else
           @setAttribute(name, value)
 
-      @_bindConstraints() if @constraints
+      constraintScopes.push(@) if @constraints
+
       # console.log 'new node', @, attributes
       @sendEvent('init', @)
 
-    applyConstraint: (name, expression) ->
+    applyConstraint: (property, expression) ->
       @constraints ?= {}
-      @constraints[name] = compileScript('return ' + expression).bind(@)
-      # console.log 'adding constraint', name, expression, @
+      @constraints[property] = 
+        expression: 'return ' + expression #compileScript('return ' + expression).bind(@)
+      # console.log 'adding constraint', property, expression, @
+        bindings: {}
 
-      constraintBinding = @constraints[name]
-      bindings = constraintBinding.bindings ?= {}
-
+      bindings = @constraints[property].bindings
       scopes = propertyBindings.find(expression)
       # console.log 'found scopes', scopes
       for scope in scopes
         bindexpression = scope.binding
-        scope.compiled = compileScript('return ' + bindexpression).bind(@)
         bindings[bindexpression] = scope
         # console.log 'applied', scope.property, bindexpression, 'for', @
 
-      # console.log 'matched constraint', name, @, expression
+      # console.log 'matched constraint', property, @, expression
       return
 
     _bindConstraints: ->
       # register constraints last
-      for name, value of @constraints
-        # console.log 'binding constraint', name, value, @
-        constraint = @_constraintCallback(name, value)
-        for bindexpression, binding of @constraints[name].bindings
+      for name, constraint of @constraints
+        {bindings, expression} = constraint
+        fn = compileScript(expression).bind(@)
+        # console.log 'binding constraint', name, expression, @
+        constraint = @_constraintCallback(name, fn)
+        for bindexpression, binding of bindings
           property = binding.property
-          boundref = binding.compiled()
+          boundref = compileScript('return ' + bindexpression).bind(@)()
           boundref ?= boundref.$view
           # console.log 'binding to', property, 'on', boundref
           boundref.bind(property, constraint)
           
-        @setAttribute(name, value())
+        @setAttribute(name, fn())
 
       return
 
@@ -403,6 +412,7 @@ window.lz = do ->
 #      jqel.attr('id', 'jqel-' + guid) if not jqel.attr('id')
       @el.setAttribute('class', 'sprite')
       # @jqel = $(@el)
+
     setStyle: (name, value) ->
       value ?= ''
       if name of stylemap
@@ -555,9 +565,14 @@ window.lz = do ->
       attributes[i.name] = i.value
     attributes
 
+  # initialize an element
+  initFromElement = (el) ->
+    initElement(el)
+    initConstraints()
+
   specialtags = ['handler', 'method', 'attribute', 'setter']
-  # init classes based on an existing element
-  initFromElement = (el, parent) ->
+  # recursively init classes based on an existing element
+  initElement = (el, parent) ->
     tagname = el.localName
     if not (tagname of lz)
       console.warn 'could not find class for tag', tagname, el
@@ -593,7 +608,7 @@ window.lz = do ->
     unless tagname is 'class'
       # create children now
       for child in children
-        initFromElement(child, parent) unless child.localName in specialtags
+        initElement(child, parent) unless child.localName in specialtags
 
     return
 
@@ -726,7 +741,7 @@ window.lz = do ->
           for child in children
             child.$defer = null
             # console.log 'creating class child in parent', child, parent
-            initFromElement(child, parent)
+            initElement(child, parent)
 
         return
 

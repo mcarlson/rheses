@@ -225,8 +225,8 @@
     </clickresize>
     <text onclick="this.setAttribute('text', 'Hi mum this is a lot wider!')" bgcolor="yellow">Hello</text>
     <text width="100" multiline="true" bgcolor="orange">This text should wrap at my width</text>
-    <inputtext bgcolor="green" name="inp" onclick="this.setAttribute('text', 'Yooyoyo')">Text</inputtext>
     <text text="${this.parent.inp.text}" bgcolor="red"></text>
+    <inputtext bgcolor="green" name="inp" onclick="this.setAttribute('text', 'Yooyoyo')">Text</inputtext>
 
     <view width="10" height="10" bgcolor="cyan" x="${lz.mouse.x - (this.parent.x || 0) - 5}" y="${lz.mouse.y - (this.parent.y || 0) - 5}"></view>
   </view>
