@@ -925,7 +925,7 @@ window.lz = do ->
       @docSelector.off("mousemove", @handle).one("mouseover", @start)
 
 
-  keyboardEvents = ['focus', 'blur', 'select', 'keyup', 'keydown']
+  keyboardEvents = ['focus', 'blur', 'select', 'keyup', 'keydown', 'change']
   class Keyboard extends Eventable
     keys =
       shiftKey: false
@@ -938,23 +938,26 @@ window.lz = do ->
       $(document).on(keyboardEvents.join(' '), @handle)
 
     handle: (event) =>
-      view = event.target.$view
+      inputtext = event.target.$view
       type = event.type
-      if view
-        view.sendEvent(type, view)
-        # send text events
-        if (type == 'keydown' or type == 'keyup' or type == 'blur')
-          value = event.target.value
-          if (view.text != value)
-            view.text = value
-            view.sendEvent('text', value);
 
       for key, value of keys
         # console.log value, key
         keys[key] = event[key]
+      keys.type = type
+      
+      if inputtext
+        inputtext.sendEvent(type, keys)
+        # send text events
+        if (type == 'keydown' or type == 'keyup' or type == 'blur' or type == 'change')
+          value = event.target.value
+          if (inputtext.text != value)
+            inputtext.text = value
+            inputtext.sendEvent('text', value);
 
-      @sendEvent(type, view, keys)
-      # console.log 'handleKeyboard', type, view, keys, event
+      # keys.inputtext = inputtext
+      @sendEvent(type, keys)
+      # console.log 'handleKeyboard', type, inputtext, keys, event
 
 
   mouse = new Mouse()
