@@ -198,7 +198,7 @@ window.lz = do ->
 
         # push the scope onto the list
         scopes.push({binding: acorn.stringify(n), property: name})
-        # console.log 'MemberExpression', name, acorn.stringify n
+        # console.log 'MemberExpression', name, n, acorn.stringify n
         return true
 
     (expression) ->
@@ -338,7 +338,7 @@ window.lz = do ->
           boundref = compileScript('return ' + bindexpression).bind(@)()
           boundref ?= boundref.$view
           # console.log 'binding to', property, 'on', boundref
-          boundref.bind(property, constraint)
+          boundref.bind?(property, constraint)
           
         @setAttribute(name, fn())
 
