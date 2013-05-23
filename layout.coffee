@@ -856,25 +856,27 @@ window.lz = do ->
       return pos
 
 
-  requestAnimationFrame = window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame# || (delegate) -> setTimeout(delegate, 17);
-  ticking = false
-  tickEvents = {}
+  onIdle = do ->
+    requestAnimationFrame = window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame# || (delegate) -> setTimeout(delegate, 17);
+    ticking = false
+    tickEvents = []
 
-  doTick = ->
-    for key of tickEvents
-      if tickEvents[key] 
-        # console.log('tick', key, tickEvents[key]);
-        tickEvents[key]()
-        tickEvents[key] = null;
-    ticking = false;
+    doTick = ->
+      for key of tickEvents
+        if tickEvents[key] 
+          # console.log('tick', key, tickEvents[key])
+          tickEvents[key]()
+          tickEvents[key] = null
+      ticking = false
 
-  requestTick = (key, callback) ->
-    # console.log('requesttick', key, callback);
-    # if (tickEvents[key] !== null) console.log('hit', key)
-    if !ticking
-      requestAnimationFrame(doTick);
-    ticking = true;
-    tickEvents[key] = callback;
+    (key, callback) ->
+      # console.log('onIdle', key, callback)
+      # if (tickEvents[key] !== null) console.log('hit', key)
+      if !ticking
+        requestAnimationFrame(doTick)
+      ticking = true;
+      tickEvents[key] = callback
+
 
   # singleton that listens for keyboard and mouse events. Holds data about the most recent left and top mouse coordinates
   mouseEvents = ['click', 'mouseover', 'mouseout', 'mousedown', 'mouseup']
@@ -905,7 +907,7 @@ window.lz = do ->
       if @started and type is 'mousemove'
         @x = event.pageX
         @y = event.pageY
-        requestTick(0, @sender) 
+        onIdle(0, @sender) 
       else 
         @sendEvent(type, view)
 
