@@ -226,7 +226,7 @@ window.lz = do ->
     compile = (script='', args=[]) ->
       key = script + args.join()
       return scriptCache[key] if key of scriptCache
-      # console.log 'compile', compiler, args, script
+      # console.log 'compile', args, script
       try 
         # console.log scriptCache
         scriptCache[key] = new Function(args, script)
@@ -568,125 +568,134 @@ window.lz = do ->
       @sprite = null
 
 
-  # flatten element.attributes to a hash
-  flattenattributes = (namednodemap)  ->
-    attributes = {}
-    for i in namednodemap
-      attributes[i.name] = i.value
-    attributes
 
   # a list of constraint scopes gathered at init time
   constraintScopes = []
-  # initialize an element
-  initFromElement = (el) ->
-    initElement(el)
-    # init constraints
-    for constraint in constraintScopes
-      constraint._bindConstraints()
-    constraintScopes = []
 
-  specialtags = ['handler', 'method', 'attribute', 'setter']
-  # recursively init classes based on an existing element
-  initElement = (el, parent) ->
-    tagname = el.localName
-    if not (tagname of lz)
-      console.warn 'could not find class for tag', tagname, el
+  dom = do ->
+    # flatten element.attributes to a hash
+    flattenattributes = (namednodemap)  ->
+      attributes = {}
+      for i in namednodemap
+        attributes[i.name] = i.value
+      attributes
+
+    # initialize an element
+    initFromElement = (el) ->
+      initElement(el)
+      # init constraints
+      for constraint in constraintScopes
+        constraint._bindConstraints()
+      constraintScopes = []
+
+    specialtags = ['handler', 'method', 'attribute', 'setter']
+    # recursively init classes based on an existing element
+    initElement = (el, parent) ->
+      tagname = el.localName
+      if not (tagname of lz)
+        console.warn 'could not find class for tag', tagname, el
+        return
+
+      attributes = flattenattributes(el.attributes)
+
+      # swallow builtin mouse attributes to allow event delegation, set clickable if an event is found
+      for event in mouseEvents
+        eventname = 'on' + event
+        if eventname of attributes
+          attributes.clickable = true unless attributes.clickable == false
+          el.removeAttribute(eventname)
+
+      parent ?= el.parentNode
+      attributes.parent = parent if parent?
+      # console.log 'parent', tagname, attributes, parent
+
+      children = (child for child in el.childNodes when child.nodeType == 1)
+
+      if tagname is 'class'
+        # defer creation of children if selected by init()
+        for child in children
+          child.$defer = true
+          
+      dom.processSpecialTags(el, attributes, attributes.type) unless tagname is 'class'
+
+      parent = new lz[tagname](el, attributes)
+
+      unless tagname is 'class'
+        # create children now
+        for child in children
+          initElement(child, parent) unless child.localName in specialtags
+
       return
 
-    attributes = flattenattributes(el.attributes)
 
-    # swallow builtin mouse attributes to allow event delegation, set clickable if an event is found
-    for event in mouseEvents
-      eventname = 'on' + event
-      if eventname of attributes
-        attributes.clickable = true unless attributes.clickable == false
-        el.removeAttribute(eventname)
+    # write default CSS to the DOM 
+    writeCSS = ->
+      style = document.createElement('style')
+      style.type = 'text/css'
+      style.innerHTML = '.sprite{ position: absolute; pointer-events: none; } .sprite-text{ width: auto; height; auto; white-space: nowrap; } .hidden{ display: none; }'
+      document.getElementsByTagName('head')[0].appendChild(style)
 
-    parent ?= el.parentNode
-    attributes.parent = parent if parent?
-    # console.log 'parent', tagname, attributes, parent
+    # init all views in the DOM recursively
+    initAllElements = (selector = $('view')) ->
+      for el in selector
+        initFromElement(el) unless el.$defer or el.$view
+      # console.log 'caches', compileCache
 
-    children = (child for child in el.childNodes when child.nodeType == 1)
+    # http://stackoverflow.com/questions/1248849/converting-sanitised-html-back-to-displayable-html
+    htmlDecode = (input) ->
+      # return if not input
+      e = document.createElement('div');
+      e.innerHTML = input;
+      e.childNodes[0].nodeValue;
 
-    if tagname is 'class'
-      # defer creation of children if selected by init()
+    processSpecialTags = (el, classattributes, defaulttype) ->
+      classattributes.$types ?= {}
+      classattributes.$methods ?= {}
+      classattributes.$handlers ?= []
+      children = (child for child in el.childNodes when child.nodeType == 1 and child.localName in specialtags)
       for child in children
-        child.$defer = true
-        
-    processSpecialTags(el, attributes, attributes.type) unless tagname is 'class'
+        attributes = flattenattributes(child.attributes)
+        child.setAttribute('class', 'hidden')
+        # console.log child, attributes, classattributes
 
-    parent = new lz[tagname](el, attributes)
+        switch child.localName
+          when 'handler'
+            args = (attributes.args ? '').split()
+            script = htmlDecode(child.innerHTML)
+            type = attributes.type ? defaulttype
+            handler = 
+              name: attributes.name
+              script: compiler.transform(script, type)
+              args: args
+              reference: attributes.reference
 
-    unless tagname is 'class'
-      # create children now
-      for child in children
-        initElement(child, parent) unless child.localName in specialtags
+            classattributes.$handlers.push(handler)
+            # console.log 'added handler', attributes.name, script, attributes
+          when 'method'
+            args = (attributes.args ? '').split()
+            script = htmlDecode(child.innerHTML)
+            type = attributes.type or defaulttype
+            classattributes.$methods[attributes.name] = [compiler.transform(script, type), args]
+            # console.log 'added method', attributes.name, script, classattributes
+          when 'setter'
+            args = (attributes.args ? '').split()
+            script = htmlDecode(child.innerHTML)
+            type = attributes.type or defaulttype
+            classattributes.$methods['set_' + attributes.name] = [compiler.transform(script, type), args]
+            # console.log 'added setter', 'set_' + attributes.name, args, classattributes.$methods
+          when 'attribute'
+            classattributes[attributes.name] = attributes.value
+            classattributes.$types[attributes.name] = attributes.type
+            # console.log 'added attribute', attributes, classattributes
 
-    return
+      # console.log('processSpecialTags', classattributes)
+      return children
 
-
-  # write default CSS to the DOM 
-  writeDefaultStyle = ->
-    style = document.createElement('style')
-    style.type = 'text/css'
-    style.innerHTML = '.sprite{ position: absolute; pointer-events: none; } .sprite-text{ width: auto; height; auto; white-space: nowrap; } .hidden{ display: none; }'
-    document.getElementsByTagName('head')[0].appendChild(style)
-
-  # init all views in the DOM recursively
-  init = (selector = $('view')) ->
-    for el in selector
-      initFromElement(el) unless el.$defer or el.$view
-    # console.log 'caches', compileCache
-
-  # http://stackoverflow.com/questions/1248849/converting-sanitised-html-back-to-displayable-html
-  htmlDecode = (input) ->
-    # return if not input
-    e = document.createElement('div');
-    e.innerHTML = input;
-    e.childNodes[0].nodeValue;
-
-  processSpecialTags = (el, classattributes, defaulttype) ->
-    classattributes.$types ?= {}
-    classattributes.$methods ?= {}
-    classattributes.$handlers ?= []
-    children = (child for child in el.childNodes when child.nodeType == 1 and child.localName in specialtags)
-    for child in children
-      attributes = flattenattributes(child.attributes)
-      child.setAttribute('class', 'hidden')
-      # console.log child, attributes, classattributes
-
-      switch child.localName
-        when 'handler'
-          args = (attributes.args ? '').split()
-          script = htmlDecode(child.innerHTML)
-          type = attributes.type ? defaulttype
-          handler = 
-            name: attributes.name
-            script: compiler.transform(script, type)
-            args: args
-            reference: attributes.reference
-
-          classattributes.$handlers.push(handler)
-          # console.log 'added handler', attributes.name, script, attributes
-        when 'method'
-          args = (attributes.args ? '').split()
-          script = htmlDecode(child.innerHTML)
-          type = attributes.type or defaulttype
-          classattributes.$methods[attributes.name] = [compiler.transform(script, type), args]
-          # console.log 'added method', attributes.name, script, classattributes
-        when 'setter'
-          args = (attributes.args ? '').split()
-          script = htmlDecode(child.innerHTML)
-          type = attributes.type or defaulttype
-          classattributes.$methods['set_' + attributes.name] = [compiler.transform(script, type), args]
-          # console.log 'added setter', 'set_' + attributes.name, args, classattributes.$methods
-        when 'attribute'
-          classattributes[attributes.name] = attributes.value
-          classattributes.$types[attributes.name] = attributes.type
-          # console.log 'added attribute', attributes, classattributes
-
-    # console.log('processSpecialTags', classattributes)
-    return children
+    exports =
+      initAllElements: initAllElements
+      initElement: initElement
+      processSpecialTags: processSpecialTags
+      writeCSS: writeCSS
 
 
   class Class
@@ -703,7 +712,7 @@ window.lz = do ->
       for ignored of ignoredAttributes
         delete classattributes[ignored]
 
-      processedChildren = processSpecialTags(el, classattributes, compilertype)
+      processedChildren = dom.processSpecialTags(el, classattributes, compilertype)
 
       # console.log('compiled class', name, extend, classattributes)
 
@@ -753,7 +762,7 @@ window.lz = do ->
           for child in children
             child.$defer = null
             # console.log 'creating class child in parent', child, parent
-            initElement(child, parent)
+            dom.initElement(child, parent)
 
         return
 
@@ -856,7 +865,7 @@ window.lz = do ->
       return pos
 
 
-  onIdle = do ->
+  idle = do ->
     requestAnimationFrame = window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame# || (delegate) -> setTimeout(delegate, 17);
     ticking = false
     tickEvents = []
@@ -870,7 +879,7 @@ window.lz = do ->
       ticking = false
 
     (key, callback) ->
-      # console.log('onIdle', key, callback)
+      # console.log('idle', key, callback)
       # if (tickEvents[key] !== null) console.log('hit', key)
       if !ticking
         requestAnimationFrame(doTick)
@@ -907,7 +916,7 @@ window.lz = do ->
       if @started and type is 'mousemove'
         @x = event.pageX
         @y = event.pageY
-        onIdle(0, @sender) 
+        idle(0, @sender) 
       else 
         @sendEvent(type, view)
 
@@ -933,8 +942,9 @@ window.lz = do ->
       @docSelector.off("mousemove", @handle).one("mouseover", @start)
 
 
-  keyboardEvents = ['focus', 'blur', 'select', 'keyup', 'keydown', 'change']
   class Keyboard extends Eventable
+    keyboardEvents = ['focus', 'blur', 'select', 'keyup', 'keydown', 'change']
+
     keys =
       shiftKey: false
       altKey: false
@@ -972,6 +982,7 @@ window.lz = do ->
   keyboard = new Keyboard()
 
 
+
   exports = 
     view: View
     class: Class
@@ -980,13 +991,13 @@ window.lz = do ->
     keyboard: keyboard
     layout: Layout
     simplelayout: SimpleLayout
-    initViews: init
-    writeDefaultStyle: writeDefaultStyle
+    initElements: dom.initAllElements
+    writeCSS: dom.writeCSS
 
 
-lz.writeDefaultStyle()
+lz.writeCSS()
 $(window).on('load', -> 
-  lz.initViews() 
+  lz.initElements() 
   # listen for jQuery style changes
   hackstyle(true)
 )
