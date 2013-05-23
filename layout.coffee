@@ -113,6 +113,11 @@ window.lz = do ->
   class Eventable extends Module
     @include Events
 
+    typemappings= 
+      number: parseFloat
+      boolean: (val) -> (if (typeof val == 'string') then val == 'true' else (!! val))
+      string: (val) -> val + ''
+
     setAttribute: (name, value) ->
       # TODO: add support for dynamic constraints
       # constraint = value.match?(matchConstraint)
@@ -152,115 +157,90 @@ window.lz = do ->
       @
 
 
-  typemappings = 
-    number: parseFloat
-    boolean: (val) -> (if (typeof val == 'string') then val == 'true' else (!! val))
-    string: (val) -> val + ''
-
-  installMethod = (scope, methodname, method) ->
-    if methodname of scope
-      # Cheesy override
-      supr = scope[methodname]
-      meth = method
-      scope[methodname] = ->
-        # console.log 'applying overridden method', methodname, arguments
-        supr.apply(scope, arguments)
-        meth.apply(scope, arguments)
-        # console.log('overrode method', methodname, scope, supr, meth)
+  compiler = do ->
+    cacheKey = "compilecache"
+    if cacheKey of localStorage
+      compileCache = JSON.parse(localStorage[cacheKey])
+      # console.log 'restored', compileCache
     else
-      scope[methodname] = method
-      # console.log('installed method', methodname, scope, scope[methodname])
+      compileCache = 
+        bindings: {}
+        script: 
+          coffee: {}
 
+    $(window).on('unload', -> 
+      localStorage[cacheKey] = JSON.stringify(compileCache) 
+      # console.log 'onunload', localStorage[cacheKey]
+    )
 
-  cacheKey = "compilecache"
-  if cacheKey of localStorage
-    compileCache = JSON.parse(localStorage[cacheKey])
-    # console.log 'restored', compileCache
-  else
-    compileCache = {}
+    findBindings = do ->
+      bindingCache = compileCache.bindings
+      scopes = null
+      propertyBindings = 
+        MemberExpression: (n) ->
+          # grab the property name
+          name = n.property.name
 
-  $(window).on('unload', -> 
-    localStorage[cacheKey] = JSON.stringify(compileCache) 
-    # console.log 'onunload', localStorage[cacheKey]
-  )
+          # remove the property so we can compute the rest of the expression
+          n = n.object
 
-  findPropertyBindings = do ->
-    compileCache.bindings ?= {}
-    bindingCache = compileCache.bindings
-    scopes = null
-    propertyBindings = 
-      MemberExpression: (n) ->
-        # grab the property name
-        name = n.property.name
+          # push the scope onto the list
+          scopes.push({binding: acorn.stringify(n), property: name})
+          # console.log 'MemberExpression', name, n, acorn.stringify n
+          return true
 
-        # remove the property so we can compute the rest of the expression
-        n = n.object
+      (expression) ->
+        return bindingCache[expression] if expression of bindingCache
+        ast = acorn.parse(expression)
+        scopes = []
+        acorn.walkDown(ast, propertyBindings)
+        bindingCache[expression] = scopes
+        # console.log compileCache.bindings
+        # return scopes
+      # propertyBindings.find = _.memoize(propertyBindings.find)
 
-        # push the scope onto the list
-        scopes.push({binding: acorn.stringify(n), property: name})
-        # console.log 'MemberExpression', name, n, acorn.stringify n
-        return true
+    # transforms a script to javascript using a runtime compiler
+    transform = do ->    
+      coffeeCache = compileCache.script.coffee
+      compilers = 
+        coffee: (script) ->
+          if script of coffeeCache
+            # console.log 'cache hit', script
+            return coffeeCache[script]
+          if not window.CoffeeScript
+            console.warn 'missing coffee-script.js include'
+            return
+          # console.log 'compiling coffee-script', script
+          coffeeCache[script] = CoffeeScript.compile(script, bare: true) if script
+          # console.log 'compiled coffee-script', script
+          # console.log coffeeCache
+          # return coffeeCache[script]
 
-    (expression) ->
-      return bindingCache[expression] if expression of bindingCache
-      ast = acorn.parse(expression)
-      scopes = []
-      acorn.walkDown(ast, propertyBindings)
-      bindingCache[expression] = scopes
-      # console.log compileCache.bindings
-      # return scopes
-    # propertyBindings.find = _.memoize(propertyBindings.find)
+      (script='', name) ->
+        return script unless name of compilers
+        compilers[name](script) 
 
-  # transforms a script to javascript using a runtime compiler
-  transformScript = do ->    
-    compileCache.script ?= {'coffee': {}}
-    coffeeCache = compileCache.script.coffee
-    compilers = 
-      coffee: (script) ->
-        if script of coffeeCache
-          # console.log 'cache hit', script
-          return coffeeCache[script]
-        if not window.CoffeeScript
-          console.warn 'missing coffee-script.js include'
-          return
-        # console.log 'compiling coffee-script', script
-        coffeeCache[script] = CoffeeScript.compile(script, bare: true) if script
-        # console.log 'compiled coffee-script', script
-        # console.log coffeeCache
-        # return coffeeCache[script]
+    # cache compiled scripts to speed up instantiation
+    scriptCache = {}
+    # compile a string into a function
+    compile = (script='', args=[]) ->
+      key = script + args.join()
+      return scriptCache[key] if key of scriptCache
+      # console.log 'compile', compiler, args, script
+      try 
+        # console.log scriptCache
+        scriptCache[key] = new Function(args, script)
+      catch e
+        console.error('failed to compile', args, script, e)
 
-    (script='', name) ->
-      return script unless name of compilers
-      compilers[name](script) 
-
-  # cache compiled scripts to speed up instantiation
-  scriptCache = {}
-  # compile a string into a function
-  compileScript = (script='', args=[]) ->
-    key = script + args.join()
-    return scriptCache[key] if key of scriptCache
-    # console.log 'compileScript', compiler, args, script
-    try 
-      # console.log scriptCache
-      scriptCache[key] = new Function(args, script)
-    catch e
-      console.error('failed to compile', args, script, e)
+    exports = 
+      compile: compile
+      transform: transform
+      findBindings: findBindings
 
 
   class Node extends Eventable
     matchConstraint = /\${(.+)}/
-
-    # generate a callback for an event expression in a way that preserves scope, e.g. on_x="console.log(value, this, ...)"
-    eventCallback = (name, script, scope, fnargs=['value']) ->
-      # console.log 'binding to event expression', name, script, scope, fnargs
-      js = compileScript(script, fnargs)
-      ->
-        if name of scope
-          args = [scope[name]]
-        else 
-          args = arguments
-        # console.log 'event callback', name, args, scope, js
-        js.apply(scope, args)
 
     constructor: (el, attributes = {}) ->
       @subnodes = []
@@ -272,7 +252,7 @@ window.lz = do ->
         # Install methods
         for methodname, method of attributes.$methods
           # console.log 'installing method', methodname, method, @
-          installMethod(@, methodname, compileScript.apply(null, method))
+          installMethod(@, methodname, compiler.compile.apply(null, method))
         delete attributes.$methods
 
       if attributes.$handlers
@@ -308,15 +288,41 @@ window.lz = do ->
       # console.log 'new node', @, attributes
       @sendEvent('init', @)
 
+    # generate a callback for an event expression in a way that preserves scope, e.g. on_x="console.log(value, this, ...)"
+    eventCallback = (name, script, scope, fnargs=['value']) ->
+      # console.log 'binding to event expression', name, script, scope, fnargs
+      js = compiler.compile(script, fnargs)
+      ->
+        if name of scope
+          args = [scope[name]]
+        else 
+          args = arguments
+        # console.log 'event callback', name, args, scope, js
+        js.apply(scope, args)
+
+    installMethod = (scope, methodname, method) ->
+      if methodname of scope
+        # Cheesy override
+        supr = scope[methodname]
+        meth = method
+        scope[methodname] = ->
+          # console.log 'applying overridden method', methodname, arguments
+          supr.apply(scope, arguments)
+          meth.apply(scope, arguments)
+          # console.log('overrode method', methodname, scope, supr, meth)
+      else
+        scope[methodname] = method
+      # console.log('installed method', methodname, scope, scope[methodname])
+
     applyConstraint: (property, expression) ->
       @constraints ?= {}
       @constraints[property] = 
-        expression: 'return ' + expression #compileScript('return ' + expression).bind(@)
+        expression: 'return ' + expression #compiler.compile('return ' + expression).bind(@)
       # console.log 'adding constraint', property, expression, @
         bindings: {}
 
       bindings = @constraints[property].bindings
-      scopes = findPropertyBindings(expression)
+      scopes = compiler.findBindings(expression)
       # console.log 'found scopes', scopes
       for scope in scopes
         bindexpression = scope.binding
@@ -330,12 +336,12 @@ window.lz = do ->
       # register constraints last
       for name, constraint of @constraints
         {bindings, expression} = constraint
-        fn = compileScript(expression).bind(@)
+        fn = compiler.compile(expression).bind(@)
         # console.log 'binding constraint', name, expression, @
         constraint = @_constraintCallback(name, fn)
         for bindexpression, binding of bindings
           property = binding.property
-          boundref = compileScript('return ' + bindexpression).bind(@)()
+          boundref = compiler.compile('return ' + bindexpression).bind(@)()
           boundref ?= boundref.$view
           # console.log 'binding to', property, 'on', boundref
           boundref.bind?(property, constraint)
@@ -656,7 +662,7 @@ window.lz = do ->
           type = attributes.type ? defaulttype
           handler = 
             name: attributes.name
-            script: transformScript(script, type)
+            script: compiler.transform(script, type)
             args: args
             reference: attributes.reference
 
@@ -666,13 +672,13 @@ window.lz = do ->
           args = (attributes.args ? '').split()
           script = htmlDecode(child.innerHTML)
           type = attributes.type or defaulttype
-          classattributes.$methods[attributes.name] = [transformScript(script, type), args]
+          classattributes.$methods[attributes.name] = [compiler.transform(script, type), args]
           # console.log 'added method', attributes.name, script, classattributes
         when 'setter'
           args = (attributes.args ? '').split()
           script = htmlDecode(child.innerHTML)
           type = attributes.type or defaulttype
-          classattributes.$methods['set_' + attributes.name] = [transformScript(script, type), args]
+          classattributes.$methods['set_' + attributes.name] = [compiler.transform(script, type), args]
           # console.log 'added setter', 'set_' + attributes.name, args, classattributes.$methods
         when 'attribute'
           classattributes[attributes.name] = attributes.value
