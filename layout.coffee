@@ -505,6 +505,10 @@ window.lz = do ->
         @input.$view = @el.$view
       , 0);
 
+    set_class: (classname) ->
+      # console.log('setid', @id)
+      @el.setAttribute('class', klass)
+
 
   ignoredAttributes = {parent: true, id: true, name: true, extends: true, type: true}
   class View extends Node
@@ -567,6 +571,8 @@ window.lz = do ->
       @sprite.destroy()
       @sprite = null
 
+    set_class: (classname) ->
+      @sprite.set_class(classname)
 
 
   # a list of constraint scopes gathered at init time
@@ -632,7 +638,7 @@ window.lz = do ->
     writeCSS = ->
       style = document.createElement('style')
       style.type = 'text/css'
-      style.innerHTML = '.sprite{ position: absolute; pointer-events: none; } .sprite-text{ width: auto; height; auto; white-space: nowrap; } .hidden{ display: none; }'
+      style.innerHTML = '.sprite{ position: absolute; pointer-events: none; } .sprite-text{ width: auto; height; auto; white-space: nowrap; } .hidden{ display: none; } method { display: none; } handler { display: none; } setter { display: none; }'
       document.getElementsByTagName('head')[0].appendChild(style)
 
     # init all views in the DOM recursively
@@ -655,7 +661,6 @@ window.lz = do ->
       children = (child for child in el.childNodes when child.nodeType == 1 and child.localName in specialtags)
       for child in children
         attributes = flattenattributes(child.attributes)
-        child.setAttribute('class', 'hidden')
         # console.log child, attributes, classattributes
 
         switch child.localName
@@ -980,7 +985,6 @@ window.lz = do ->
 
   mouse = new Mouse()
   keyboard = new Keyboard()
-
 
 
   exports = 
