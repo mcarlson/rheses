@@ -808,7 +808,7 @@ window.lz = do ->
     # override to update the position of the parent view's children
     update: (value, sender) =>
       # console.log 'update layout', sender
-      return if @skip()
+      # return if @skip()
     
     # returns true if the layout should't update 
     skip: ->
@@ -820,6 +820,12 @@ window.lz = do ->
       super(skipevents)
       @_removeFromParent('layouts') unless skipevents
 
+    set_locked: (locked) ->
+      changed = @locked != locked
+      @locked = locked
+      @sendEvent('locked', locked)
+      # console.log 'set_locked', locked
+      @update() if (changed and not locked)
 
   class SimpleLayout extends Layout
     constructor: (el, attributes = {}) ->
