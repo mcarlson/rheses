@@ -505,6 +505,11 @@ window.lz = do ->
         @input.$view = @el.$view
       , 0);
 
+    getAbsolute: () ->
+      @jqel ?= $(@el)
+      pos = @jqel.position()
+      {x: pos.left, y: pos.top}
+
     set_class: (classname) ->
       # console.log('setid', @id)
       @el.setAttribute('class', klass)
@@ -570,6 +575,9 @@ window.lz = do ->
 
       @sprite.destroy()
       @sprite = null
+
+    getAbsolute: () ->
+      @sprite.getAbsolute()
 
     set_class: (classname) ->
       @sprite.set_class(classname)
