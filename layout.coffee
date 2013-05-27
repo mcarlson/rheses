@@ -765,7 +765,7 @@ window.lz = do ->
         parent = new lz[extend](instanceel, attributes)
         # console.log 'created instance', name, extend, parent
 
-        return if not (viewel = parent.sprite?.el)
+        return parent if not (viewel = parent.sprite?.el)
 
         # unpack instance 
         if body
@@ -777,7 +777,7 @@ window.lz = do ->
             # console.log 'creating class child in parent', child, parent
             dom.initElement(child, parent)
 
-        return
+        return parent
 
 
   class Layout extends Node
