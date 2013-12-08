@@ -117,6 +117,11 @@ window.lz = do ->
       number: parseFloat
       boolean: (val) -> (if (typeof val == 'string') then val == 'true' else (!! val))
       string: (val) -> val + ''
+      json: (val) -> JSON.parse(val)
+      expression: (val) -> 
+        if typeof val != 'string'
+          return val
+        eval(val)
 
     setAttribute: (name, value) ->
       # TODO: add support for dynamic constraints

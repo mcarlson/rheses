@@ -1,0 +1,1391 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"he",
+				"head	Tag"
+			],
+			[
+				"err",
+				"errors"
+			],
+			[
+				"ver",
+				"verification"
+			],
+			[
+				"paymen",
+				"payment_errors"
+			],
+			[
+				"erro",
+				"errorTemplate"
+			],
+			[
+				"suc",
+				"success"
+			],
+			[
+				"success",
+				"successresponse"
+			],
+			[
+				"re",
+				"receiveUpdate"
+			],
+			[
+				"app",
+				"appTemplate"
+			],
+			[
+				"las",
+				"last_name"
+			],
+			[
+				"la",
+				"last_name"
+			],
+			[
+				"last",
+				"last"
+			],
+			[
+				"first",
+				"first_name"
+			],
+			[
+				"fir",
+				"first_name"
+			],
+			[
+				"valida",
+				"validation_reason"
+			],
+			[
+				"val",
+				"validation_reason"
+			],
+			[
+				"sel",
+				"selectRange"
+			],
+			[
+				"keydo",
+				"keydownhandler"
+			],
+			[
+				"font",
+				"font-size"
+			],
+			[
+				"se",
+				"searching"
+			],
+			[
+				"sig",
+				"signedurl"
+			],
+			[
+				"ke",
+				"keyhandler"
+			],
+			[
+				"sug",
+				"suggestion"
+			],
+			[
+				"va",
+				"values"
+			],
+			[
+				"html",
+				"htmlBuffer"
+			],
+			[
+				"cap",
+				"CapturePlusError"
+			],
+			[
+				"is",
+				"is_a"
+			],
+			[
+				"su",
+				"suggestion"
+			],
+			[
+				"sugg",
+				"suggestions"
+			],
+			[
+				"pa",
+				"payment_method"
+			],
+			[
+				"shipping",
+				"shipping_address"
+			],
+			[
+				"numb",
+				"number_or_email"
+			],
+			[
+				"sugges",
+				"suggestion"
+			],
+			[
+				"ship",
+				"shipping_address"
+			],
+			[
+				"det",
+				"details"
+			],
+			[
+				"stre",
+				"streets"
+			],
+			[
+				"chan",
+				"change"
+			],
+			[
+				"fin",
+				"finalizeSuggestion"
+			],
+			[
+				"bill",
+				"billingDirty"
+			],
+			[
+				"sho",
+				"showAddressSuggestion"
+			],
+			[
+				"fon",
+				"font-size"
+			],
+			[
+				"bor",
+				"border-radius"
+			],
+			[
+				"paddin",
+				"padding-bottom"
+			],
+			[
+				"atr",
+				"attr"
+			],
+			[
+				"attr",
+				"attr"
+			],
+			[
+				"htm",
+				"htmlBuffer"
+			],
+			[
+				"add",
+				"addClass"
+			],
+			[
+				"b",
+				"block"
+			],
+			[
+				"upd",
+				"update"
+			],
+			[
+				"stat",
+				"state_or_province_code"
+			],
+			[
+				"coun",
+				"country"
+			],
+			[
+				"co",
+				"correctedfields"
+			],
+			[
+				"up",
+				"updates"
+			],
+			[
+				"validae",
+				"validated"
+			],
+			[
+				"P",
+				"PostalCode"
+			],
+			[
+				"Ad",
+				"AdministrativeArea"
+			],
+			[
+				"do",
+				"docSelector"
+			],
+			[
+				"mou",
+				"mouseEvents"
+			],
+			[
+				"eve",
+				"event"
+			],
+			[
+				"cla",
+				"classattributes"
+			],
+			[
+				"ig",
+				"ignoredAttributes"
+			],
+			[
+				"ev",
+				"events"
+			],
+			[
+				"tr",
+				"true"
+			],
+			[
+				"spr",
+				"sprite"
+			],
+			[
+				"set",
+				"set_id"
+			],
+			[
+				"sub",
+				"subviews"
+			],
+			[
+				"sim",
+				"SimpleLayout"
+			],
+			[
+				"skip",
+				"skipsend"
+			],
+			[
+				"li",
+				"listening"
+			],
+			[
+				"bind",
+				"bindings"
+			],
+			[
+				"const",
+				"constructor"
+			],
+			[
+				"chil",
+				"children"
+			],
+			[
+				"vie",
+				"views"
+			],
+			[
+				"con",
+				"constraints"
+			],
+			[
+				"ex",
+				"extends"
+			],
+			[
+				"st",
+				"stylemap"
+			],
+			[
+				"send",
+				"sendstyle"
+			],
+			[
+				"v",
+				"view"
+			],
+			[
+				"cons",
+				"constraintBinding"
+			],
+			[
+				"pro",
+				"props"
+			],
+			[
+				"scop",
+				"scopeWalker"
+			],
+			[
+				"bin",
+				"binding"
+			],
+			[
+				"setS",
+				"setSprite"
+			],
+			[
+				"ma",
+				"matchBinding"
+			],
+			[
+				"class",
+				"classoptions"
+			],
+			[
+				"mat",
+				"matchConstraint"
+			],
+			[
+				"in",
+				"instanceof"
+			],
+			[
+				"ins",
+				"instanceel"
+			],
+			[
+				"no",
+				"nodeType"
+			],
+			[
+				"crea",
+				"createView"
+			],
+			[
+				"lo",
+				"localName"
+			],
+			[
+				"pare",
+				"parentNode"
+			],
+			[
+				"css",
+				"cssexpressions"
+			],
+			[
+				"prev",
+				"prevselector"
+			],
+			[
+				"appl",
+				"applyConstraint"
+			],
+			[
+				"update",
+				"updatemethods"
+			],
+			[
+				"upda",
+				"updatemethods"
+			],
+			[
+				"parsed",
+				"parsedExpression"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "layout.coffee",
+			"settings":
+			{
+				"buffer_size": 32491,
+				"line_ending": "Unix"
+			}
+		}
+	],
+	"build_system": "",
+	"command_palette":
+	{
+		"height": 187.0,
+		"selected_items":
+		[
+			[
+				"gitdc",
+				"Git: Diff Current File"
+			],
+			[
+				"pack",
+				"Package Control: List Packages"
+			],
+			[
+				"pac",
+				"Package Control: Remove Package"
+			],
+			[
+				"packr",
+				"Package Control: Remove Package"
+			],
+			[
+				"grem",
+				"Package Control: Remove Package"
+			],
+			[
+				"packre",
+				"Package Control: Remove Package"
+			],
+			[
+				":e",
+				":$ - EOF"
+			],
+			[
+				"gitcom",
+				"Git: Commit"
+			],
+			[
+				"gitac",
+				"Git: Add Current File"
+			],
+			[
+				"gitpu",
+				"Git: Push"
+			],
+			[
+				"java",
+				"Format: Javascript"
+			],
+			[
+				"gitbl",
+				"Git: Blame"
+			],
+			[
+				"ru",
+				"Format: Ruby"
+			],
+			[
+				"rub",
+				"Format: Ruby"
+			],
+			[
+				"form",
+				"Format: Javascript"
+			],
+			[
+				":Wq",
+				"BracketHighlighter: Swap Quotes"
+			],
+			[
+				":wq",
+				"BracketHighlighter: Swap Quotes"
+			],
+			[
+				"gitcomh",
+				"Git: Commit history"
+			],
+			[
+				"githi",
+				"Git: Commit history"
+			],
+			[
+				"git bl",
+				"Git: Blame"
+			],
+			[
+				"git",
+				"Git: Blame"
+			],
+			[
+				":E",
+				":$ - EOF"
+			],
+			[
+				"pret",
+				"HTMLPrettify: Prettify"
+			],
+			[
+				":w",
+				":w - Save"
+			],
+			[
+				"ruy",
+				"Format: Ruby"
+			],
+			[
+				"git blam",
+				"Git: Blame"
+			],
+			[
+				"gitblam",
+				"Git: Blame"
+			],
+			[
+				":W",
+				":w - Save"
+			],
+			[
+				"git push",
+				"Git: Push"
+			],
+			[
+				"packin",
+				"Package Control: Install Package"
+			],
+			[
+				"git pu",
+				"Git: Pull"
+			],
+			[
+				"GITCOM",
+				"Git: Commit"
+			],
+			[
+				"GITAC",
+				"Git: Add Current File"
+			],
+			[
+				"j",
+				"Format: Javascript"
+			],
+			[
+				"for",
+				"Tag: Auto-Format Tags on Document"
+			],
+			[
+				"J",
+				"Format: Javascript"
+			]
+		],
+		"width": 467.0
+	},
+	"console":
+	{
+		"height": 0.0,
+		"history":
+		[
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/Users/maxcarlson/Library/Application Support/Sublime Text 3/Packages/GitGutter/GitGutter.sublime-settings",
+		"/Users/maxcarlson/Library/Application Support/Sublime Text 3/Packages/SublimeLinter/SublimeLinter.sublime-settings",
+		"/Users/maxcarlson/Library/Application Support/Sublime Text 3/Packages/User/Plain text.sublime-settings",
+		"/Users/maxcarlson/Library/Application Support/Sublime Text 3/Packages/User/SublimeLinter.sublime-settings",
+		"/Users/maxcarlson/Library/Application Support/Sublime Text 3/Packages/Default/Preferences.sublime-settings",
+		"/Users/maxcarlson/Library/Application Support/Sublime Text 3/Packages/SublimeLinter/README.md",
+		"/Users/maxcarlson/Library/Application Support/Sublime Text 3/Packages/Git/Git.sublime-settings",
+		"/Users/maxcarlson/bzc/magik/homebase/app/models/leap-app.js",
+		"/Users/maxcarlson/bzc/magik/leapweb-stage7/Gemfile",
+		"/Users/maxcarlson/bzc/magik/devise_oauth2_providable/lib/devise/oauth2_providable/strategies/oauth2_refresh_token_grant_type_strategy.rb",
+		"/Users/maxcarlson/bzc/magik/leapweb-stage7/config/environment.rb",
+		"/Users/maxcarlson/bzc/magik/leapweb/app/models/preorder.rb",
+		"/Users/maxcarlson/bzc/magik/leapweb/app/views/admin/preorder_errors/_table_rows.html.erb",
+		"/Users/maxcarlson/bzc/magik/leapweb/lib/audited_helper.rb",
+		"/Users/maxcarlson/bzc/magik/leapweb/lib/audited_override.rb",
+		"/Users/maxcarlson/bzc/magik/leapweb/app/views/admin/_audits.erb",
+		"/Users/maxcarlson/bzc/magik/leapweb/config/routes.rb",
+		"/Users/maxcarlson/bzc/magik/leapweb/app/models/payment_method.rb",
+		"/Users/maxcarlson/bzc/magik/leapweb/app/models/payment_error.rb",
+		"/Users/maxcarlson/bzc/magik/leapweb/app/controllers/admin/news_items_controller.rb",
+		"/Users/maxcarlson/bzc/magik/leapweb/app/models/user.rb",
+		"/Users/maxcarlson/bzc/magik/leapweb/db/migrate/20130515222708_create_payment_errors.rb",
+		"/Users/maxcarlson/bzc/magik/leapweb/db/migrate/20130214215031_create_login_tokens.rb",
+		"/Users/maxcarlson/bzc/magik/leapweb/db/migrate/20130429173258_opt_in_reasons.rb",
+		"/Users/maxcarlson/bzc/magik/leapweb/db/migrate/20120823181959_create_preorders.rb",
+		"/Users/maxcarlson/bzc/magik/leapweb/db/schema.rb",
+		"/Users/maxcarlson/bzc/magik/geocode.html",
+		"/Users/maxcarlson/bzc/magik/leapweb/app/controllers/preorders_controller.rb",
+		"/Users/maxcarlson/bzc/magik/address.html",
+		"/Users/maxcarlson/bzc/magik/leapweb/app/controllers/developer_applications_controller.rb",
+		"/Users/maxcarlson/bzc/magik/leapweb/app/models/developer_application.rb",
+		"/Users/maxcarlson/bzc/magik/leapweb/app/controllers/application_controller.rb",
+		"/Users/maxcarlson/bzc/magik/leapweb/app/helpers/address_helper.rb",
+		"/Users/maxcarlson/bzc/magik/leapweb/config/application.rb",
+		"/Users/maxcarlson/bzc/magik/leapweb/Gemfile",
+		"/Users/maxcarlson/bzc/magik/leapweb/config/initializers/yahoo_geo.rb",
+		"/Users/maxcarlson/bzc/magik/leapweb/app/assets/stylesheets/styles/preorders.scss",
+		"/Users/maxcarlson/js/old/spring2012/assignment14c.html",
+		"/Users/maxcarlson/js/dhtml.html",
+		"/Users/maxcarlson/bzc/magik/leapweb/lib/yahoogeo.rb",
+		"/Users/maxcarlson/Desktop/samplefile.csv.kml",
+		"/Users/maxcarlson/bzc/magik/query_result.csv",
+		"/Users/maxcarlson/Downloads/samplefile.kdx",
+		"/Users/maxcarlson/Downloads/pcajavascript/PCA_Payment_Validation.html",
+		"/Users/maxcarlson/bzc/magik/leapweb/lib/tasks/test.rake",
+		"/Users/maxcarlson/bzc/magik/leapweb/Gemfile.lock",
+		"/Users/maxcarlson/bzc/magik/leapweb/config/locales/en.yml",
+		"/Users/maxcarlson/bzc/magik/leapweb/app/views/payment_methods/_form.erb",
+		"/Users/maxcarlson/bzc/magik/leapweb/app/views/payment_methods/_field.erb",
+		"/Users/maxcarlson/bzc/magik/leapweb/app/assets/javascripts/app/payment_methods.js.coffee",
+		"/Users/maxcarlson/bzc/magik/leapweb/app/assets/javascripts/app/preorders.js.coffee",
+		"/Users/maxcarlson/bzc/magik/leapweb/app/controllers/admin/preorders_controller.rb",
+		"/Users/maxcarlson/bzc/magik/leapweb/app/views/preorders/_form.html.erb",
+		"/Users/maxcarlson/bzc/magik/leapweb/app/views/preorders/edit.html.erb",
+		"/Users/maxcarlson/bzc/magik/leapweb/app/views/preorders/new.erb",
+		"/Users/maxcarlson/bzc/magik/leapweb/app/assets/javascripts/app/app.js",
+		"/Users/maxcarlson/bzc/magik/leapweb/test/unit/models/preorder_test.rb",
+		"/Users/maxcarlson/bzc/magik/leapweb/test/test_helper.rb",
+		"/Users/maxcarlson/bzc/magik/leapweb/test/factories/preorder_factory.rb",
+		"/Users/maxcarlson/bzc/magik/leapweb/app/views/preorders/_manage_form.erb",
+		"/Users/maxcarlson/bzc/magik/leapweb/README.md",
+		"/Users/maxcarlson/bzc/magik/leapweb/config/initializers/braintree.rb",
+		"/Users/maxcarlson/bzc/magik/leapweb/lib/tasks/migrate.rake",
+		"/Users/maxcarlson/bzc/magik/leapweb/app/assets/javascripts/shared/utils.js.coffee",
+		"/Users/maxcarlson/bzc/magik/leapweb/db/migrate/20130430213454_add_validation_reason_to_addresses.rb",
+		"/Users/maxcarlson/bzc/magik/leapweb/app/helpers/preorders_helper.rb",
+		"/Users/maxcarlson/bzc/magik/leapweb/db/migrate/20130410002423_add_verification_columns_to_addresses.rb",
+		"/Users/maxcarlson/bzc/magik/leapweb/db/migrate/20130218222315_add_canceled_at_to_preorders.rb",
+		"/Users/maxcarlson/bzc/magik/leapweb/.git/rebase-apply/patch",
+		"/Users/maxcarlson/bzc/magik/leapweb/app/assets/stylesheets/var/mixins/components.scss",
+		"/Users/maxcarlson/bzc/magik/leapweb/app/assets/stylesheets/shared/components.scss",
+		"/Users/maxcarlson/bzc/magik/leapweb/tmp/cache/sass/62886b57de19b6de59bf7704cd842e73edec4ed5/_component-animations.scssc",
+		"/Users/maxcarlson/bzc/magik/leapweb/app/assets/stylesheets/var/mixins/css3.scss",
+		"/Users/maxcarlson/bzc/magik/leapweb/app/controllers/admin/addresses_controller.rb",
+		"/Users/maxcarlson/bzc/magik/leapweb/test/integration/preorders_controller_test.rb",
+		"/Users/maxcarlson/bzc/magik/leapweb/app/views/admin/preorders/edit.erb",
+		"/Users/maxcarlson/Library/Application Support/Sublime Text 2/Packages/User/Preferences.sublime-settings",
+		"/Users/maxcarlson/bzc/magik/leapweb/app/assets/stylesheets/styles/pre-order.scss",
+		"/Users/maxcarlson/bzc/magik/leapweb/app/assets/stylesheets/application.css.scss",
+		"/Users/maxcarlson/bzc/magik/preorder emails.csv",
+		"/Users/maxcarlson/bzc/magik/leapweb/db/migrate/20130424204729_add_has_changes_to_address.rb",
+		"/Users/maxcarlson/Desktop/homework-class3-bosullivan.html",
+		"/Users/maxcarlson/bzc/magik/leapweb/config/initializers/fedex.rb",
+		"/Users/maxcarlson/bzc/magik/leapweb/config/initializers/melissa_data.rb",
+		"/Users/maxcarlson/bzc/magik/leapweb/lib/melissa_data.rb",
+		"/Users/maxcarlson/.ssh/id_rsa.pub",
+		"/Users/maxcarlson/.ssh/id_mosaic.pub",
+		"/Users/maxcarlson/Downloads/International_PHP_Sample/md_index.php",
+		"/Users/maxcarlson/Downloads/International_REST_VBScript_Win/VBScript.html",
+		"/Users/maxcarlson/bzc/magik/leapweb/lib/wsdls/GlobalAddress_v3.wsdl",
+		"/Users/maxcarlson/Downloads/International_PHP_Sample/global_mdResult.php",
+		"/Users/maxcarlson/Downloads/International_PHP_Sample/global_mdForm.php",
+		"/Users/maxcarlson/bzc/magik/leapweb/test/unit/models/address_test.rb",
+		"/Users/maxcarlson/bzc/magik/leapweb/app/models/address.rb",
+		"/Users/maxcarlson/bzc/magik/leapweb/.git/config",
+		"/Users/maxcarlson/bzc/magik/leapweb/test/functional/api_controller_test.rb",
+		"/Users/maxcarlson/bzc/magik/leapweb/test/factories/payment_method_factory.rb",
+		"/Users/maxcarlson/bzc/magik/leapweb/test/factories/address.rb",
+		"/Users/maxcarlson/bzc/magik/leapweb/lib/fedex.rb",
+		"/Users/maxcarlson/bzc/magik/leapweb/test/integration/admin/shipping_records_controller_test.rb",
+		"/Users/maxcarlson/bzc/magik/leapweb/log/test.log",
+		"/Users/maxcarlson/bzc/magik/leapweb/app/views/payment_methods/_summary.html.erb",
+		"/Users/maxcarlson/bzc/magik/leapweb/config/initializers/taxes.rb",
+		"/Users/maxcarlson/bzc/magik/leapweb/db/migrate/20130417233520_add_valid_and_residential_to_address.rb",
+		"/Users/maxcarlson/bzc/magik/leapweb/db/migrate/20120831065424_add_admin_to_users.rb",
+		"/Users/maxcarlson/bzc/magik/leapweb/db/migrate/20121206175522_remove_developer_applications2_table.rb",
+		"/Users/maxcarlson/bzc/magik/leapweb/app/views/preorders/_footnotes.html.erb",
+		"/Users/maxcarlson/bzc/magik/leapweb/app/views/preorders/show.html.erb",
+		"/Users/maxcarlson/bzc/magik/leapweb/app/helpers/payment_method_helper.rb",
+		"/Users/maxcarlson/bzc/magik/leapweb/app/views/payment_methods/edit.erb",
+		"/Users/maxcarlson/bzc/magik/leapweb/app/views/payment_methods/show.erb",
+		"/Users/maxcarlson/bzc/magik/leapweb/app/views/payment_methods/new.erb",
+		"/Users/maxcarlson/bzc/magik/leapweb/app/views/admin/preorders/index.erb",
+		"/Users/maxcarlson/bzc/magik/leapweb/lib/shipping_csv.rb",
+		"/Users/maxcarlson/bzc/magik/leapweb/lib/shipping_helper.rb",
+		"/Users/maxcarlson/bzc/magik/leapweb/app/models/shipping_method.rb",
+		"/Users/maxcarlson/rheses/rheses.js",
+		"/Users/maxcarlson/rheses/layout.js",
+		"/Users/maxcarlson/rheses/rheses.min.js",
+		"/Users/maxcarlson/rheses/acorn.js",
+		"/Users/maxcarlson/rheses/layout.html",
+		"/Users/maxcarlson/rheses/layout.min.js",
+		"/Users/maxcarlson/rheses/jquery-1.9.1.js"
+	],
+	"find":
+	{
+		"height": 35.0
+	},
+	"find_in_files":
+	{
+		"height": 93.0,
+		"where_history":
+		[
+			""
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"Javasc",
+			"next",
+			"_installFromServer",
+			"StoreLeapApp",
+			"createAppModel",
+			"handleAppJson",
+			"getFrozenApps",
+			"switchToSlide",
+			"CLICK",
+			"sent d",
+			"responseParts",
+			"res",
+			"params",
+			"getAuthorizationUrl",
+			"params",
+			"url",
+			"post",
+			"Prebundle",
+			"Programs",
+			"getJson",
+			"return",
+			"authdata",
+			"baseDir",
+			"path",
+			"getJson",
+			"authdata",
+			"_afterAuthorize",
+			"connectToStoreServer",
+			"getAccessToken",
+			"AppListingEndpoint",
+			"NonStor",
+			"PlatformDirs",
+			"getJson",
+			"https",
+			"\\.get",
+			".get",
+			"\\.post",
+			"post",
+			"_appDir",
+			"__userDataDir",
+			"__appDir",
+			"dirsByPlatform",
+			"os",
+			"AppsUserDataDir",
+			"_getDir",
+			"PlatformAppDirs",
+			"AppsDir",
+			"_userDataDir",
+			"PlatformUserDataDirs",
+			"Library",
+			"FsScanner",
+			"getFrozenApps",
+			"_scanFilesystem",
+			"authenticate_grant_type",
+			"leapauth_helper",
+			"leap",
+			"http_simple",
+			"simple_auth",
+			"simple",
+			"invalid client ",
+			"decode_credentials",
+			"Invalid",
+			"Invalid client",
+			"cc_meta",
+			"errors",
+			"self",
+			"errors",
+			" \"",
+			"errors",
+			"Rollback",
+			"rescue",
+			"address",
+			"audited",
+			".new",
+			"new",
+			"process_bt_error_result",
+			"audited",
+			"respond",
+			"frequency",
+			"apps",
+			"receiveUpdate",
+			"getManifest",
+			"appUpdate",
+			"useraddy",
+			"first_name",
+			"Replaces",
+			"records",
+			"load_preorder",
+			"Preorder.new",
+			"calculate_total",
+			"calculate_",
+			"Preorder.new",
+			"  console",
+			"\\t",
+			"copyValues",
+			"div",
+			"input",
+			"fields",
+			"index",
+			"@params",
+			"query_string",
+			"percent_encode",
+			"signed",
+			"body",
+			"o",
+			"VALID_CHANGES",
+			"contains",
+			"suggestion",
+			"parsed_url",
+			"o",
+			"EXPORT",
+			"VALID_CHANGES",
+			"updates",
+			"parsed_url",
+			"central.leapmotion.com",
+			"div",
+			"input",
+			"textarea",
+			"input",
+			"div",
+			"    ",
+			".connection",
+			"ei",
+			"location",
+			"loadCapturePlus",
+			"kf77cn22cf89ha5914313",
+			"<head",
+			"postcodeanywhere"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": true,
+		"replace_history":
+		[
+			"  "
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 0,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "layout.coffee",
+					"semi_transient": true,
+					"settings":
+					{
+						"buffer_size": 32491,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"annotations":
+							[
+								"TODO",
+								"README",
+								"FIXME"
+							],
+							"csslint_options":
+							{
+								"adjoining-classes": "warning",
+								"box-model": true,
+								"box-sizing": "warning",
+								"compatible-vendor-prefixes": "warning",
+								"display-property-grouping": true,
+								"duplicate-background-images": "warning",
+								"duplicate-properties": true,
+								"empty-rules": true,
+								"errors": true,
+								"fallback-colors": "warning",
+								"floats": "warning",
+								"font-faces": "warning",
+								"font-sizes": "warning",
+								"gradients": "warning",
+								"ids": "warning",
+								"import": "warning",
+								"important": "warning",
+								"known-properties": true,
+								"outline-none": "warning",
+								"overqualified-elements": "warning",
+								"qualified-headings": "warning",
+								"regex-selectors": "warning",
+								"rules-count": "warning",
+								"shorthand": "warning",
+								"star-property-hack": "warning",
+								"text-indent": "warning",
+								"underscore-property-hack": "warning",
+								"unique-headings": "warning",
+								"universal-selector": "warning",
+								"vendor-prefix": true,
+								"zero-units": "warning"
+							},
+							"gjslint_ignore":
+							[
+								110
+							],
+							"gjslint_options":
+							[
+							],
+							"javascript_linter": "jshint",
+							"jshint_options":
+							{
+								"browser": true,
+								"evil": true,
+								"regexdash": true,
+								"sub": true,
+								"trailing": true,
+								"wsh": true
+							},
+							"pep8": true,
+							"pep8_ignore":
+							[
+								"E501"
+							],
+							"perl_linter": "perlcritic",
+							"pyflakes_ignore":
+							[
+							],
+							"pyflakes_ignore_import_*": true,
+							"sublimelinter": true,
+							"sublimelinter_delay": 2,
+							"sublimelinter_disable":
+							[
+							],
+							"sublimelinter_executable_map":
+							{
+							},
+							"sublimelinter_fill_outlines": false,
+							"sublimelinter_gutter_marks": false,
+							"sublimelinter_mark_style": "outline",
+							"sublimelinter_notes": false,
+							"sublimelinter_objj_check_ascii": false,
+							"sublimelinter_popup_errors_on_save": false,
+							"sublimelinter_syntax_map":
+							{
+								"C++": "c",
+								"Python Django": "python",
+								"Ruby on Rails": "ruby"
+							},
+							"sublimelinter_wrap_find": true,
+							"syntax": "Packages/sublime-better-coffeescript/CoffeeScript.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true,
+							"vintage":
+							{
+								"action": null,
+								"action_digits":
+								[
+								],
+								"cancel_action": false,
+								"expecting_register": false,
+								"expecting_user_input": false,
+								"mode": 2,
+								"motion": null,
+								"motion_digits":
+								[
+								],
+								"next_mode": 2,
+								"next_mode_command": null,
+								"register": null,
+								"stashed_action": null,
+								"user_action_input": null,
+								"user_input": null,
+								"user_motion_input": null,
+								"xpos": 0
+							}
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 34.0
+	},
+	"input":
+	{
+		"height": 32.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.exec":
+	{
+		"height": 110.0
+	},
+	"output.git":
+	{
+		"height": 110.0
+	},
+	"project": "rheses.sublime-project",
+	"replace":
+	{
+		"height": 62.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+			[
+				"uigl",
+				"app/ui-globals.js"
+			],
+			[
+				"carou",
+				"app/views/carousel/carousel.js"
+			],
+			[
+				"oath",
+				"app/utils/oauth.js"
+			],
+			[
+				"conf",
+				"config/config.js"
+			],
+			[
+				"token",
+				"devise_oauth2_providable/app/controllers/devise/oauth2_providable/tokens_controller.rb"
+			],
+			[
+				"conpreor",
+				"app/controllers/preorders_controller.rb"
+			],
+			[
+				"preorder",
+				"app/models/preorder.rb"
+			],
+			[
+				"paymen",
+				"app/models/payment_method.rb"
+			],
+			[
+				"admin/pre",
+				"app/views/admin/preorders/index.erb"
+			],
+			[
+				"audits",
+				"app/views/admin/_audits.erb"
+			],
+			[
+				"user",
+				"app/models/user.rb"
+			],
+			[
+				"migration",
+				"db/migrate/20130429173258_opt_in_reasons.rb"
+			],
+			[
+				"contpreo",
+				"app/controllers/preorders_controller.rb"
+			],
+			[
+				"devapp",
+				"app/controllers/developer_applications_controller.rb"
+			],
+			[
+				"developa",
+				"app/models/developer_application.rb"
+			],
+			[
+				"rout",
+				"config/routes.rb"
+			],
+			[
+				"",
+				"lib/tasks/migrate.rake"
+			],
+			[
+				"mig",
+				"lib/tasks/migrate.rake"
+			],
+			[
+				"migr",
+				"lib/tasks/migrate.rake"
+			],
+			[
+				"migra",
+				"lib/tasks/migrate.rake"
+			],
+			[
+				"fede",
+				"lib/fedex.rb"
+			],
+			[
+				"mel",
+				"lib/melissa_data.rb"
+			],
+			[
+				"meliss",
+				"config/initializers/melissa_data.rb"
+			],
+			[
+				"fedex",
+				"lib/fedex.rb"
+			],
+			[
+				"test",
+				"testcaptureplus.html"
+			],
+			[
+				"gemf",
+				"Gemfile"
+			],
+			[
+				"confi",
+				"config/application.rb"
+			],
+			[
+				"en.",
+				"config/locales/en.yml"
+			],
+			[
+				"scss",
+				"app/assets/stylesheets/styles/preorders.scss"
+			],
+			[
+				"test/",
+				"test/factories/preorder_factory.rb"
+			],
+			[
+				"gemfile",
+				"Gemfile"
+			],
+			[
+				"testh",
+				"test/test_helper.rb"
+			],
+			[
+				"modelproet",
+				"test/unit/models/preorder_test.rb"
+			],
+			[
+				"app.js",
+				"app/assets/javascripts/app/app.js"
+			],
+			[
+				"preorjsco",
+				"app/assets/javascripts/app/preorders.js.coffee"
+			],
+			[
+				"preorders_con",
+				"app/controllers/preorders_controller.rb"
+			],
+			[
+				"component",
+				"app/assets/stylesheets/shared/components.scss"
+			],
+			[
+				"component-animations.scss",
+				"tmp/cache/sass/62886b57de19b6de59bf7704cd842e73edec4ed5/_component-animations.scssc"
+			],
+			[
+				"preorhel",
+				"app/helpers/preorders_helper.rb"
+			],
+			[
+				"controadd",
+				"app/controllers/admin/addresses_controller.rb"
+			],
+			[
+				"modadd",
+				"app/models/address.rb"
+			],
+			[
+				"modelpr",
+				"app/models/preorder.rb"
+			],
+			[
+				"preor",
+				"app/controllers/preorders_controller.rb"
+			],
+			[
+				"form",
+				"app/views/preorders/_form.html.erb"
+			],
+			[
+				"preosc",
+				"app/assets/stylesheets/styles/preorders.scss"
+			],
+			[
+				"localen",
+				"config/locales/en.yml"
+			],
+			[
+				"preorscs",
+				"app/assets/stylesheets/styles/preorders.scss"
+			],
+			[
+				"viewadminpreor",
+				"app/views/admin/preorders/edit.erb"
+			],
+			[
+				"modelpreo",
+				"app/models/preorder.rb"
+			],
+			[
+				"meli",
+				"lib/melissa_data.rb"
+			],
+			[
+				"preocon",
+				"app/controllers/preorders_controller.rb"
+			],
+			[
+				"addre",
+				"app/models/address.rb"
+			],
+			[
+				"conrpreo",
+				"app/controllers/preorders_controller.rb"
+			],
+			[
+				"brain",
+				"config/initializers/braintree.rb"
+			],
+			[
+				"initfe",
+				"config/initializers/fedex.rb"
+			],
+			[
+				"wsdl",
+				"lib/wsdls/GlobalAddress_v3.wsdl"
+			],
+			[
+				"add",
+				"app/models/address.rb"
+			],
+			[
+				"initialfe",
+				"config/initializers/fedex.rb"
+			],
+			[
+				"shireccon",
+				"test/integration/admin/shipping_records_controller_test.rb"
+			],
+			[
+				"gem",
+				"Gemfile.lock"
+			],
+			[
+				"_form",
+				"app/views/payment_methods/_form.erb"
+			],
+			[
+				"initfex",
+				"config/initializers/fedex.rb"
+			],
+			[
+				"shipping",
+				"lib/shipping_csv.rb"
+			],
+			[
+				"preorders",
+				"app/views/admin/preorders/index.erb"
+			],
+			[
+				"preo",
+				"app/models/preorder.rb"
+			],
+			[
+				"address_test",
+				"test/unit/models/address_test.rb"
+			],
+			[
+				"preordercont",
+				"test/integration/preorders_controller_test.rb"
+			],
+			[
+				"rh",
+				"rheses.js"
+			],
+			[
+				"rhes",
+				"rheses.js"
+			],
+			[
+				"layj",
+				"layout.js"
+			],
+			[
+				"laym",
+				"layout.min.js"
+			],
+			[
+				"laymi",
+				"layout.min.js"
+			],
+			[
+				"j",
+				"jquery-1.9.1.js"
+			]
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 500.0,
+		"selected_items":
+		[
+		],
+		"width": 380.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"settings":
+	{
+		"vintage":
+		{
+		}
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 125.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}

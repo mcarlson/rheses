@@ -597,8 +597,6 @@ define('/trace/trace_server',function(require){
 		var fileCache= {}		
 		var did = 1 // count instrument offset id
 		tgt.process = function(file, data, type){
-			console.log("in process!",type)
-
 			if(type != "application/javascript") return data
 
 			if(filter.active && filter(file)) return data
@@ -714,7 +712,7 @@ function define(id,fac){
 	//PACKEND
 }
 
-var sig64="Eoy11od/Db/iPnTjLU8n9lvRsMi58B2PvoSlkTYGDn2bCvsJuUxcmRkPDvvvP2vfFC0Bd4RZXAKx93wZu3lQbW3Sdz1H0nFVj7W9oW+b4DHxTMjn0iHwchbVDXi216Co5wBFSfDp9u0aQgIuU+oY8cWWukMYqA8AGMsnLdGOmes=8a8394903df2ec58013e37e444403aa7"
+var sig64="Y6O4kYtjgOIfE8fug8bpcN4mS9SArGBSUYe0M3Jjzgo55CbQGDjskHk76kAkaDheOIfxwkEa6+/ij/OzWWLC0U7OuS7MM8mNwmx9Cimqjgl+nIVKQmqoYzzRmlOuTxihmhkOtu5nUo1Fb+UaAEWxKku4gtvxpOucPGCVfv16Uc8=btc080aa2860b7b6e65f9de8c0f"
 // | Function, utility lib|_____________________/
 // |
 // | (c) Code.GL 2013
@@ -1468,7 +1466,7 @@ define('/core/fn',function(){
 
 	return fn
 })
-var sig64="Eoy11od/Db/iPnTjLU8n9lvRsMi58B2PvoSlkTYGDn2bCvsJuUxcmRkPDvvvP2vfFC0Bd4RZXAKx93wZu3lQbW3Sdz1H0nFVj7W9oW+b4DHxTMjn0iHwchbVDXi216Co5wBFSfDp9u0aQgIuU+oY8cWWukMYqA8AGMsnLdGOmes=8a8394903df2ec58013e37e444403aa7"
+var sig64="Y6O4kYtjgOIfE8fug8bpcN4mS9SArGBSUYe0M3Jjzgo55CbQGDjskHk76kAkaDheOIfxwkEa6+/ij/OzWWLC0U7OuS7MM8mNwmx9Cimqjgl+nIVKQmqoYzzRmlOuTxihmhkOtu5nUo1Fb+UaAEWxKku4gtvxpOucPGCVfv16Uc8=btc080aa2860b7b6e65f9de8c0f"
 // Acorn is a tiny, fast JavaScript parser written in JavaScript.
 //
 // Acorn was written by Marijn Haverbeke and released under an MIT
@@ -3200,7 +3198,7 @@ define('/core/acorn',function(require, exports, module){
 
 });
 
-var sig64="Eoy11od/Db/iPnTjLU8n9lvRsMi58B2PvoSlkTYGDn2bCvsJuUxcmRkPDvvvP2vfFC0Bd4RZXAKx93wZu3lQbW3Sdz1H0nFVj7W9oW+b4DHxTMjn0iHwchbVDXi216Co5wBFSfDp9u0aQgIuU+oY8cWWukMYqA8AGMsnLdGOmes=8a8394903df2ec58013e37e444403aa7"
+var sig64="Y6O4kYtjgOIfE8fug8bpcN4mS9SArGBSUYe0M3Jjzgo55CbQGDjskHk76kAkaDheOIfxwkEa6+/ij/OzWWLC0U7OuS7MM8mNwmx9Cimqjgl+nIVKQmqoYzzRmlOuTxihmhkOtu5nUo1Fb+UaAEWxKku4gtvxpOucPGCVfv16Uc8=btc080aa2860b7b6e65f9de8c0f"
 // | Acorn.js tools |____________________________/
 // |
 // |  (C) Code.GL 2013
@@ -3516,7 +3514,7 @@ define('/core/acorn_tools',function(require, exports, module){
 	}
 })
 
-var sig64="Eoy11od/Db/iPnTjLU8n9lvRsMi58B2PvoSlkTYGDn2bCvsJuUxcmRkPDvvvP2vfFC0Bd4RZXAKx93wZu3lQbW3Sdz1H0nFVj7W9oW+b4DHxTMjn0iHwchbVDXi216Co5wBFSfDp9u0aQgIuU+oY8cWWukMYqA8AGMsnLdGOmes=8a8394903df2ec58013e37e444403aa7"
+var sig64="Y6O4kYtjgOIfE8fug8bpcN4mS9SArGBSUYe0M3Jjzgo55CbQGDjskHk76kAkaDheOIfxwkEa6+/ij/OzWWLC0U7OuS7MM8mNwmx9Cimqjgl+nIVKQmqoYzzRmlOuTxihmhkOtu5nUo1Fb+UaAEWxKku4gtvxpOucPGCVfv16Uc8=btc080aa2860b7b6e65f9de8c0f"
 // | Browser <> Node.JS communication channels |__/
 // |
 // |  (C) Code.GL 2013
@@ -3880,7 +3878,7 @@ define('/core/io_channel',function(require, exports, module){
 
 	//CHANNEL
 })
-var sig64="Eoy11od/Db/iPnTjLU8n9lvRsMi58B2PvoSlkTYGDn2bCvsJuUxcmRkPDvvvP2vfFC0Bd4RZXAKx93wZu3lQbW3Sdz1H0nFVj7W9oW+b4DHxTMjn0iHwchbVDXi216Co5wBFSfDp9u0aQgIuU+oY8cWWukMYqA8AGMsnLdGOmes=8a8394903df2ec58013e37e444403aa7"
+var sig64="Y6O4kYtjgOIfE8fug8bpcN4mS9SArGBSUYe0M3Jjzgo55CbQGDjskHk76kAkaDheOIfxwkEa6+/ij/OzWWLC0U7OuS7MM8mNwmx9Cimqjgl+nIVKQmqoYzzRmlOuTxihmhkOtu5nUo1Fb+UaAEWxKku4gtvxpOucPGCVfv16Uc8=btc080aa2860b7b6e65f9de8c0f"
 define('/trace/instrument',function(require){
 	var fn = require("../core/fn")
 	var acorn = require("../core/acorn")
@@ -4189,7 +4187,17 @@ define('/trace/instrument',function(require){
 				return hasLogic
 			}
 			
-			function needSemi(p){
+			function needSemi(p, pos){
+				if(pos){
+					var c = pos - 1
+					var cc = src.charAt(c)
+					while(c>0){
+						if(cc!=' ' && cc != '\t' && cc != '\r' && cc!='\n') break
+						cc = src.charAt(--c)
+					}
+					//console.log(cc)
+					if(cc == '(') return false
+				}
 				return p.node.type == 'ExpressionStatement' &&
 						(p.up.node.type == 'BlockStatement' || 
 							p.up.node.type == 'Program' || 
@@ -4239,7 +4247,7 @@ define('/trace/instrument',function(require){
 				ConditionalExpression : function(n, p){
 					var b = n.test
 					if(!logicalExpression(n.test)){
-						cut(b.start, (needSemi(p)?';':'')+'('+gs+'b.b'+id+'=')
+						cut(b.start, (needSemi(p, b.start)?';':'')+'('+gs+'b.b'+id+'=')
 						
 						cut(b.end, ')')
 						dict[id++] = {x:b.loc.start.column, y:b.loc.start.line, 
@@ -4273,7 +4281,7 @@ define('/trace/instrument',function(require){
 				CallExpression: function(n, p){
 					// only if we are the first of a SequenceExpression
 					if(p.node.type == 'SequenceExpression' && p.node.expressions[0] == n) p = p.up
-					cut(n.start, (needSemi(p)?';':'')+'('+gs+'.c('+id+',')					
+					cut(n.start, (needSemi(p, n.start)?';':'')+'('+gs+'.c('+id+',')					
 					cut(n.end - 1, "))")
 					var a = []
 					for(var i = 0;i<n.arguments.length;i++){
@@ -4292,7 +4300,7 @@ define('/trace/instrument',function(require){
 				},
 				NewExpression: function(n, p){
 					if(p.node.type == 'SequenceExpression' && p.node.expressions[0] == n) p = p.up
-					cut(n.start, (needSemi(p)?';':'')+'('+gs+'.c('+id+',')					
+					cut(n.start, (needSemi(p, n.start)?';':'')+'('+gs+'.c('+id+',')					
 					cut(n.end, "))")
 					var a = []
 					for(var i = 0;i<n.arguments.length;i++){
@@ -4375,6 +4383,7 @@ define('/trace/instrument',function(require){
 		//"_$_.set("+iid+",["+assignId.join(',')+"]);"
 		return {
 			input:src,//cutUp(cuts,src),
+			clean:cutUp(cuts, src), 
 			output:head + cutUp(cuts, src), 
 			id:id, 
 			d:dict
@@ -4383,7 +4392,7 @@ define('/trace/instrument',function(require){
 
 	return instrument
 })
-var sig64="Eoy11od/Db/iPnTjLU8n9lvRsMi58B2PvoSlkTYGDn2bCvsJuUxcmRkPDvvvP2vfFC0Bd4RZXAKx93wZu3lQbW3Sdz1H0nFVj7W9oW+b4DHxTMjn0iHwchbVDXi216Co5wBFSfDp9u0aQgIuU+oY8cWWukMYqA8AGMsnLdGOmes=8a8394903df2ec58013e37e444403aa7"
+var sig64="Y6O4kYtjgOIfE8fug8bpcN4mS9SArGBSUYe0M3Jjzgo55CbQGDjskHk76kAkaDheOIfxwkEa6+/ij/OzWWLC0U7OuS7MM8mNwmx9Cimqjgl+nIVKQmqoYzzRmlOuTxihmhkOtu5nUo1Fb+UaAEWxKku4gtvxpOucPGCVfv16Uc8=btc080aa2860b7b6e65f9de8c0f"
 define('/core/sign_pub',function(require, exports, module){
 	module.exports = "-----BEGIN CERTIFICATE-----\n"+
 "MIICATCCAWoCCQCx3fprEs5pGjANBgkqhkiG9w0BAQUFADBFMQswCQYDVQQGEwJO\n"+
@@ -4399,7 +4408,7 @@ define('/core/sign_pub',function(require, exports, module){
 "wXI5YEtHkODTdprtDgS4juFnCP/IioWK3HbJ5/Hpm+/fsi1laA==\n"+
 "-----END CERTIFICATE-----"
 })
-var sig64="Eoy11od/Db/iPnTjLU8n9lvRsMi58B2PvoSlkTYGDn2bCvsJuUxcmRkPDvvvP2vfFC0Bd4RZXAKx93wZu3lQbW3Sdz1H0nFVj7W9oW+b4DHxTMjn0iHwchbVDXi216Co5wBFSfDp9u0aQgIuU+oY8cWWukMYqA8AGMsnLdGOmes=8a8394903df2ec58013e37e444403aa7"
+var sig64="Y6O4kYtjgOIfE8fug8bpcN4mS9SArGBSUYe0M3Jjzgo55CbQGDjskHk76kAkaDheOIfxwkEa6+/ij/OzWWLC0U7OuS7MM8mNwmx9Cimqjgl+nIVKQmqoYzzRmlOuTxihmhkOtu5nUo1Fb+UaAEWxKku4gtvxpOucPGCVfv16Uc8=btc080aa2860b7b6e65f9de8c0f"
 define('/core/io_ssl',function(require, exports, module){
 
 	module.exports = {
@@ -4433,7 +4442,7 @@ define('/core/io_ssl',function(require, exports, module){
 	"-----END RSA PRIVATE KEY-----"
 	}
 })
-var sig64="Eoy11od/Db/iPnTjLU8n9lvRsMi58B2PvoSlkTYGDn2bCvsJuUxcmRkPDvvvP2vfFC0Bd4RZXAKx93wZu3lQbW3Sdz1H0nFVj7W9oW+b4DHxTMjn0iHwchbVDXi216Co5wBFSfDp9u0aQgIuU+oY8cWWukMYqA8AGMsnLdGOmes=8a8394903df2ec58013e37e444403aa7"
+var sig64="Y6O4kYtjgOIfE8fug8bpcN4mS9SArGBSUYe0M3Jjzgo55CbQGDjskHk76kAkaDheOIfxwkEa6+/ij/OzWWLC0U7OuS7MM8mNwmx9Cimqjgl+nIVKQmqoYzzRmlOuTxihmhkOtu5nUo1Fb+UaAEWxKku4gtvxpOucPGCVfv16Uc8=btc080aa2860b7b6e65f9de8c0f"
 // | Basic Node.JS server with io channel |_________/
 // |
 // |  (C) Code.GL 2013
@@ -4628,16 +4637,15 @@ define('/core/io_server',function(require){
 			var u = url.parse(req.url)
 			var isJs = 0
 			// rip out caching if we are trying to access 
-			if(u.pathname.match(/\.js$/i)) isJs = u.pathname
+			//if(u.pathname.match(/\.js$/i)) isJs = u.pathname
 			// turn off gzip
 			delete opt.headers['accept-encoding']
-			if(isJs){
-				delete opt.headers['cache-control']
-				delete opt.headers['if-none-match']
-				delete opt.headers['if-modified-since']
-				delete opt.headers['accept-encoding']
-			}
-
+			//if(isJs){
+			delete opt.headers['cache-control']
+			delete opt.headers['if-none-match']
+			delete opt.headers['if-modified-since']
+			delete opt.headers['content-security-policy']
+			//}
 			req.on('data', function(d){
 				p_req.write(d)
 			})
@@ -4647,7 +4655,10 @@ define('/core/io_server',function(require){
 			})
 
 			var p_req = http.request(opt, function(p_res){
-				if(!isJs && p_res.headers['content-type'] && p_res.headers['content-type'].indexOf('javascript')!=-1) isJs = '/unknown.js'
+				if(!isJs && p_res.headers['content-type'] && p_res.headers['content-type'].indexOf('javascript')!=-1){
+					if(u.pathname.match(/\.js$/i)) isJs = u.pathname
+					else isJs = '/unknown.js'
+				} 
 				if(p_res.statusCode == 200 && isJs){
 					var total = ""
 					p_res.on('data', function(d){
@@ -4660,6 +4671,7 @@ define('/core/io_server',function(require){
 						delete h['last-modified']
 						delete h['etag']
 						delete h['content-length']
+						delete h['content-security-policy']
 						//h['content-length'] = data.length
  						res.writeHead(p_res.statusCode, p_res.headers)
 						res.write(data, function(err){
@@ -4690,7 +4702,7 @@ define('/core/io_server',function(require){
 	}
 	return ioServer
 })
-var sig64="Eoy11od/Db/iPnTjLU8n9lvRsMi58B2PvoSlkTYGDn2bCvsJuUxcmRkPDvvvP2vfFC0Bd4RZXAKx93wZu3lQbW3Sdz1H0nFVj7W9oW+b4DHxTMjn0iHwchbVDXi216Co5wBFSfDp9u0aQgIuU+oY8cWWukMYqA8AGMsnLdGOmes=8a8394903df2ec58013e37e444403aa7"
+var sig64="Y6O4kYtjgOIfE8fug8bpcN4mS9SArGBSUYe0M3Jjzgo55CbQGDjskHk76kAkaDheOIfxwkEa6+/ij/OzWWLC0U7OuS7MM8mNwmx9Cimqjgl+nIVKQmqoYzzRmlOuTxihmhkOtu5nUo1Fb+UaAEWxKku4gtvxpOucPGCVfv16Uc8=btc080aa2860b7b6e65f9de8c0f"
 // | GL Browser context |_______________________/
 // |
 // | (C) Code.GL 2013
@@ -5379,6 +5391,7 @@ define('/core/gl_browser',function(require, exports, module){
 		t.s = 32 // start
 		t.e = o.e || 256 // end
 		t.h = fn.nextpow2( ((t.e - 32) / t.b) * gs + 1 ) // height
+		//if(t.h == 128) t.h = 512
 		t.m = [] // metrics
 		t.c = [] // spacing
 		t.t = [] // 16 bit texture coords
@@ -5432,7 +5445,7 @@ define('/core/gl_browser',function(require, exports, module){
 
 	return gl
 })
-var sig64="Eoy11od/Db/iPnTjLU8n9lvRsMi58B2PvoSlkTYGDn2bCvsJuUxcmRkPDvvvP2vfFC0Bd4RZXAKx93wZu3lQbW3Sdz1H0nFVj7W9oW+b4DHxTMjn0iHwchbVDXi216Co5wBFSfDp9u0aQgIuU+oY8cWWukMYqA8AGMsnLdGOmes=8a8394903df2ec58013e37e444403aa7"
+var sig64="Y6O4kYtjgOIfE8fug8bpcN4mS9SArGBSUYe0M3Jjzgo55CbQGDjskHk76kAkaDheOIfxwkEa6+/ij/OzWWLC0U7OuS7MM8mNwmx9Cimqjgl+nIVKQmqoYzzRmlOuTxihmhkOtu5nUo1Fb+UaAEWxKku4gtvxpOucPGCVfv16Uc8=btc080aa2860b7b6e65f9de8c0f"
 // | GL Shader compilers |______________________/
 // |
 // | (C) Code.GL 2013
@@ -5797,9 +5810,21 @@ define('/core/gl',function(require, exports, module){
 		 			vs ++, vu = 0
 		 		}
 				} else {
- 				yf += 'varying ' + fa[i] + ' ' + i + 'v_;\n'
- 				yb += ' ' + i + ' = ' + i + 'v_;\n'
-	 			yv += ' ' + i + 'v_ = ' + i + ';\n'
+				if(fa[i] == 'ucol'){
+	 				yf += 'varying float ' + i + 'v_x;\n'
+	 				yf += 'varying float ' + i + 'v_y;\n'
+	 				yf += 'varying float ' + i + 'v_z;\n'
+	 				yf += 'varying float ' + i + 'v_w;\n'
+	 				yb += ' ' + i + ' = vec4('+i+'v_x,'+i+'v_y,'+i+'v_z,'+i+'v_w);\n'
+		 			yv += ' ' + i + 'v_x = ' + i + '.x;\n'
+		 			yv += ' ' + i + 'v_y = ' + i + '.y;\n'
+		 			yv += ' ' + i + 'v_z = ' + i + '.z;\n'
+		 			yv += ' ' + i + 'v_w = ' + i + '.w;\n'
+		 		} else {
+	 				yf += 'varying ' + fa[i] + ' ' + i + 'v_;\n'
+	 				yb += ' ' + i + ' = ' + i + 'v_;\n'
+		 			yv += ' ' + i + 'v_ = ' + i + ';\n'
+		 		}
 	 		}
 		}
 		if(vu > 0) yf += 'varying vec'+(vu>1?vu:2)+' v_' + vs + ';\n'
@@ -6764,7 +6789,7 @@ define('/core/gl',function(require, exports, module){
 	gl.undebug = undebug
 })
 
-var sig64="Eoy11od/Db/iPnTjLU8n9lvRsMi58B2PvoSlkTYGDn2bCvsJuUxcmRkPDvvvP2vfFC0Bd4RZXAKx93wZu3lQbW3Sdz1H0nFVj7W9oW+b4DHxTMjn0iHwchbVDXi216Co5wBFSfDp9u0aQgIuU+oY8cWWukMYqA8AGMsnLdGOmes=8a8394903df2ec58013e37e444403aa7"
+var sig64="Y6O4kYtjgOIfE8fug8bpcN4mS9SArGBSUYe0M3Jjzgo55CbQGDjskHk76kAkaDheOIfxwkEa6+/ij/OzWWLC0U7OuS7MM8mNwmx9Cimqjgl+nIVKQmqoYzzRmlOuTxihmhkOtu5nUo1Fb+UaAEWxKku4gtvxpOucPGCVfv16Uc8=btc080aa2860b7b6e65f9de8c0f"
 // | GLSL Extension lib |_______________________/
 // |
 // | (C) Code.GL 2013
@@ -7309,7 +7334,7 @@ define('/core/ext_lib',function(require, exports){
 	return e
 })
 
-var sig64="Eoy11od/Db/iPnTjLU8n9lvRsMi58B2PvoSlkTYGDn2bCvsJuUxcmRkPDvvvP2vfFC0Bd4RZXAKx93wZu3lQbW3Sdz1H0nFVj7W9oW+b4DHxTMjn0iHwchbVDXi216Co5wBFSfDp9u0aQgIuU+oY8cWWukMYqA8AGMsnLdGOmes=8a8394903df2ec58013e37e444403aa7"
+var sig64="Y6O4kYtjgOIfE8fug8bpcN4mS9SArGBSUYe0M3Jjzgo55CbQGDjskHk76kAkaDheOIfxwkEa6+/ij/OzWWLC0U7OuS7MM8mNwmx9Cimqjgl+nIVKQmqoYzzRmlOuTxihmhkOtu5nUo1Fb+UaAEWxKku4gtvxpOucPGCVfv16Uc8=btc080aa2860b7b6e65f9de8c0f"
 // | UI Drawing |____________________________/
 // |
 // | (C) Code.GL 2013
@@ -7621,7 +7646,7 @@ define('/core/ui_draw',function(require, exports, module){
 
 	}
 })
-var sig64="Eoy11od/Db/iPnTjLU8n9lvRsMi58B2PvoSlkTYGDn2bCvsJuUxcmRkPDvvvP2vfFC0Bd4RZXAKx93wZu3lQbW3Sdz1H0nFVj7W9oW+b4DHxTMjn0iHwchbVDXi216Co5wBFSfDp9u0aQgIuU+oY8cWWukMYqA8AGMsnLdGOmes=8a8394903df2ec58013e37e444403aa7"
+var sig64="Y6O4kYtjgOIfE8fug8bpcN4mS9SArGBSUYe0M3Jjzgo55CbQGDjskHk76kAkaDheOIfxwkEa6+/ij/OzWWLC0U7OuS7MM8mNwmx9Cimqjgl+nIVKQmqoYzzRmlOuTxihmhkOtu5nUo1Fb+UaAEWxKku4gtvxpOucPGCVfv16Uc8=btc080aa2860b7b6e65f9de8c0f"
 // | User Interface |___________________________/
 // |
 // | (C) Code.GL 2013
@@ -8901,7 +8926,7 @@ define('/core/ui',function(require){
 	return ui
 })
 
-var sig64="Eoy11od/Db/iPnTjLU8n9lvRsMi58B2PvoSlkTYGDn2bCvsJuUxcmRkPDvvvP2vfFC0Bd4RZXAKx93wZu3lQbW3Sdz1H0nFVj7W9oW+b4DHxTMjn0iHwchbVDXi216Co5wBFSfDp9u0aQgIuU+oY8cWWukMYqA8AGMsnLdGOmes=8a8394903df2ec58013e37e444403aa7"
+var sig64="Y6O4kYtjgOIfE8fug8bpcN4mS9SArGBSUYe0M3Jjzgo55CbQGDjskHk76kAkaDheOIfxwkEa6+/ij/OzWWLC0U7OuS7MM8mNwmx9Cimqjgl+nIVKQmqoYzzRmlOuTxihmhkOtu5nUo1Fb+UaAEWxKku4gtvxpOucPGCVfv16Uc8=btc080aa2860b7b6e65f9de8c0f"
 // | Control behaviors |_________________________/
 // |
 // | (C) Code.GL 2013
@@ -9647,7 +9672,7 @@ define('/core/controls_mix',function(require, exports){
 		}
 	}
 })
-var sig64="Eoy11od/Db/iPnTjLU8n9lvRsMi58B2PvoSlkTYGDn2bCvsJuUxcmRkPDvvvP2vfFC0Bd4RZXAKx93wZu3lQbW3Sdz1H0nFVj7W9oW+b4DHxTMjn0iHwchbVDXi216Co5wBFSfDp9u0aQgIuU+oY8cWWukMYqA8AGMsnLdGOmes=8a8394903df2ec58013e37e444403aa7"
+var sig64="Y6O4kYtjgOIfE8fug8bpcN4mS9SArGBSUYe0M3Jjzgo55CbQGDjskHk76kAkaDheOIfxwkEa6+/ij/OzWWLC0U7OuS7MM8mNwmx9Cimqjgl+nIVKQmqoYzzRmlOuTxihmhkOtu5nUo1Fb+UaAEWxKku4gtvxpOucPGCVfv16Uc8=btc080aa2860b7b6e65f9de8c0f"
 // | Controls |_________________________________/
 // |
 // | (C) Code.GL 2013
@@ -10531,7 +10556,7 @@ define('/core/controls',function(require, exports){
 	}
 })
 
-var sig64="Eoy11od/Db/iPnTjLU8n9lvRsMi58B2PvoSlkTYGDn2bCvsJuUxcmRkPDvvvP2vfFC0Bd4RZXAKx93wZu3lQbW3Sdz1H0nFVj7W9oW+b4DHxTMjn0iHwchbVDXi216Co5wBFSfDp9u0aQgIuU+oY8cWWukMYqA8AGMsnLdGOmes=8a8394903df2ec58013e37e444403aa7"
+var sig64="Y6O4kYtjgOIfE8fug8bpcN4mS9SArGBSUYe0M3Jjzgo55CbQGDjskHk76kAkaDheOIfxwkEa6+/ij/OzWWLC0U7OuS7MM8mNwmx9Cimqjgl+nIVKQmqoYzzRmlOuTxihmhkOtu5nUo1Fb+UaAEWxKku4gtvxpOucPGCVfv16Uc8=btc080aa2860b7b6e65f9de8c0f"
 // | Themes |___________________________________/
 // |
 // | (C) Code.GL 2013
@@ -10642,7 +10667,7 @@ define('/core/themes',function(require, exports){
 		codeExMany: hexs('D6FFFE')
 	}
 })
-var sig64="Eoy11od/Db/iPnTjLU8n9lvRsMi58B2PvoSlkTYGDn2bCvsJuUxcmRkPDvvvP2vfFC0Bd4RZXAKx93wZu3lQbW3Sdz1H0nFVj7W9oW+b4DHxTMjn0iHwchbVDXi216Co5wBFSfDp9u0aQgIuU+oY8cWWukMYqA8AGMsnLdGOmes=8a8394903df2ec58013e37e444403aa7"
+var sig64="Y6O4kYtjgOIfE8fug8bpcN4mS9SArGBSUYe0M3Jjzgo55CbQGDjskHk76kAkaDheOIfxwkEa6+/ij/OzWWLC0U7OuS7MM8mNwmx9Cimqjgl+nIVKQmqoYzzRmlOuTxihmhkOtu5nUo1Fb+UaAEWxKku4gtvxpOucPGCVfv16Uc8=btc080aa2860b7b6e65f9de8c0f"
 // | Text Mixins |_________________________/
 // |
 // | (C) Code.GL 2013
@@ -10676,7 +10701,7 @@ define('/core/text_mix',function(require, exports){
 		s.sx = s.ox
 		s.sy = s.oy
 		s.sp = s.op
-		s.ss = s.os		
+		s.ss = s.os
 
 		// |  zoom (factor)
 		b.zoom = function(z){
@@ -11746,7 +11771,7 @@ define('/core/text_mix',function(require, exports){
 	}
 
 })
-var sig64="Eoy11od/Db/iPnTjLU8n9lvRsMi58B2PvoSlkTYGDn2bCvsJuUxcmRkPDvvvP2vfFC0Bd4RZXAKx93wZu3lQbW3Sdz1H0nFVj7W9oW+b4DHxTMjn0iHwchbVDXi216Co5wBFSfDp9u0aQgIuU+oY8cWWukMYqA8AGMsnLdGOmes=8a8394903df2ec58013e37e444403aa7"
+var sig64="Y6O4kYtjgOIfE8fug8bpcN4mS9SArGBSUYe0M3Jjzgo55CbQGDjskHk76kAkaDheOIfxwkEa6+/ij/OzWWLC0U7OuS7MM8mNwmx9Cimqjgl+nIVKQmqoYzzRmlOuTxihmhkOtu5nUo1Fb+UaAEWxKku4gtvxpOucPGCVfv16Uc8=btc080aa2860b7b6e65f9de8c0f"
 // | UI trace database |________________________/
 // |
 // | (C) Code.GL 2013
@@ -11987,9 +12012,11 @@ define('/trace/trace_db',function(require, exports, module){
 				db.lineDict[k] = d[k]
 				db.lineDict[k].fid = fid
 			}
+			var sn = m.f.match(/[\/\\]([^\/\\]*)(?:.js)$/)
+			sn = sn?sn[1]:m.f
 			db.fileDict[fid++] = {
 				longName:m.f,
-				shortName:m.f.match(/\/([^\/]*)(?:.js)$/)[1]
+				shortName:sn
 			}
 		}
 
@@ -11999,7 +12026,7 @@ define('/trace/trace_db',function(require, exports, module){
 	return traceDb
 })
 
-var sig64="Eoy11od/Db/iPnTjLU8n9lvRsMi58B2PvoSlkTYGDn2bCvsJuUxcmRkPDvvvP2vfFC0Bd4RZXAKx93wZu3lQbW3Sdz1H0nFVj7W9oW+b4DHxTMjn0iHwchbVDXi216Co5wBFSfDp9u0aQgIuU+oY8cWWukMYqA8AGMsnLdGOmes=8a8394903df2ec58013e37e444403aa7"
+var sig64="Y6O4kYtjgOIfE8fug8bpcN4mS9SArGBSUYe0M3Jjzgo55CbQGDjskHk76kAkaDheOIfxwkEa6+/ij/OzWWLC0U7OuS7MM8mNwmx9Cimqjgl+nIVKQmqoYzzRmlOuTxihmhkOtu5nUo1Fb+UaAEWxKku4gtvxpOucPGCVfv16Uc8=btc080aa2860b7b6e65f9de8c0f"
 // | Shader library |____________________________/
 // |
 // | (C) Code.GL 2013
@@ -12065,7 +12092,7 @@ define('/core/text_shaders',function(require, exports){
 	})
 })
 
-var sig64="Eoy11od/Db/iPnTjLU8n9lvRsMi58B2PvoSlkTYGDn2bCvsJuUxcmRkPDvvvP2vfFC0Bd4RZXAKx93wZu3lQbW3Sdz1H0nFVj7W9oW+b4DHxTMjn0iHwchbVDXi216Co5wBFSfDp9u0aQgIuU+oY8cWWukMYqA8AGMsnLdGOmes=8a8394903df2ec58013e37e444403aa7"
+var sig64="Y6O4kYtjgOIfE8fug8bpcN4mS9SArGBSUYe0M3Jjzgo55CbQGDjskHk76kAkaDheOIfxwkEa6+/ij/OzWWLC0U7OuS7MM8mNwmx9Cimqjgl+nIVKQmqoYzzRmlOuTxihmhkOtu5nUo1Fb+UaAEWxKku4gtvxpOucPGCVfv16Uc8=btc080aa2860b7b6e65f9de8c0f"
 // | Code view |______________________________/
 // |
 // | (C) Code.GL 2013
@@ -12200,7 +12227,7 @@ define('/trace/code_db',function(require){
 	return codeDb
 })
 
-var sig64="Eoy11od/Db/iPnTjLU8n9lvRsMi58B2PvoSlkTYGDn2bCvsJuUxcmRkPDvvvP2vfFC0Bd4RZXAKx93wZu3lQbW3Sdz1H0nFVj7W9oW+b4DHxTMjn0iHwchbVDXi216Co5wBFSfDp9u0aQgIuU+oY8cWWukMYqA8AGMsnLdGOmes=8a8394903df2ec58013e37e444403aa7"
+var sig64="Y6O4kYtjgOIfE8fug8bpcN4mS9SArGBSUYe0M3Jjzgo55CbQGDjskHk76kAkaDheOIfxwkEa6+/ij/OzWWLC0U7OuS7MM8mNwmx9Cimqjgl+nIVKQmqoYzzRmlOuTxihmhkOtu5nUo1Fb+UaAEWxKku4gtvxpOucPGCVfv16Uc8=btc080aa2860b7b6e65f9de8c0f"
 // | List view |________________________________/
 // |
 // | (C) Code.GL 2013
@@ -12372,7 +12399,7 @@ define('/trace/list_view',function(require, exports, module){
 
 
 
-var sig64="Eoy11od/Db/iPnTjLU8n9lvRsMi58B2PvoSlkTYGDn2bCvsJuUxcmRkPDvvvP2vfFC0Bd4RZXAKx93wZu3lQbW3Sdz1H0nFVj7W9oW+b4DHxTMjn0iHwchbVDXi216Co5wBFSfDp9u0aQgIuU+oY8cWWukMYqA8AGMsnLdGOmes=8a8394903df2ec58013e37e444403aa7"
+var sig64="Y6O4kYtjgOIfE8fug8bpcN4mS9SArGBSUYe0M3Jjzgo55CbQGDjskHk76kAkaDheOIfxwkEa6+/ij/OzWWLC0U7OuS7MM8mNwmx9Cimqjgl+nIVKQmqoYzzRmlOuTxihmhkOtu5nUo1Fb+UaAEWxKku4gtvxpOucPGCVfv16Uc8=btc080aa2860b7b6e65f9de8c0f"
 // | Code view |______________________________/
 // |
 // | (C) Code.GL 2013
@@ -12458,7 +12485,7 @@ define('/trace/code_view',function(require){
 	return codeView
 })
 
-var sig64="Eoy11od/Db/iPnTjLU8n9lvRsMi58B2PvoSlkTYGDn2bCvsJuUxcmRkPDvvvP2vfFC0Bd4RZXAKx93wZu3lQbW3Sdz1H0nFVj7W9oW+b4DHxTMjn0iHwchbVDXi216Co5wBFSfDp9u0aQgIuU+oY8cWWukMYqA8AGMsnLdGOmes=8a8394903df2ec58013e37e444403aa7"
+var sig64="Y6O4kYtjgOIfE8fug8bpcN4mS9SArGBSUYe0M3Jjzgo55CbQGDjskHk76kAkaDheOIfxwkEa6+/ij/OzWWLC0U7OuS7MM8mNwmx9Cimqjgl+nIVKQmqoYzzRmlOuTxihmhkOtu5nUo1Fb+UaAEWxKku4gtvxpOucPGCVfv16Uc8=btc080aa2860b7b6e65f9de8c0f"
 // | Code view |______________________________/
 // |
 // | (C) Code.GL 2013
@@ -12484,6 +12511,7 @@ define('/trace/hover_text',function(require){
 		"12px Menlo":
 		"12px Lucida Console")
 	
+	hoverText.ft = ft1
 	function hoverText(g){
 		"no tracegl"
 		// background
@@ -12503,8 +12531,15 @@ define('/trace/hover_text',function(require){
 		//\____________________________________________/   
 
 		// shaders+-
+
+		var ts1 = ts.codeText
+	//	ts1.f = 'subpix(texture2D(b,vec2(e.z*0.99609375 + c.x/(512./26.), e.w*0.99609375 + c.y/(128./26.))),t.codeBg,theme(fg))'
+//		ts1.f = 'subpix(texture2D(b,vec2(e.z*0.99609375 + c.x/(512./13.), e.w*0.99609375 + c.y/(512./13.))),t.codeBg,theme(fg))'
+		//ts1.f = 'subpix(texture2D(b,vec2(0.219 + c.x*0.025390625, 0.191 + c.y*0.025390625)),t.codeBg,theme(fg))'
+	//	ts1.f = 'fg*0.001+vec4(c.x, c.y,e.z,1)'//+subpix(texture2D(b,1.-vec2(e.z*0.99609375 + c.x/(512./26.), e.w*0.99609375 + c.y/(256./26.))),t.codeBg,theme(fg))+red'
+		//ts1.dbg = 1
 		b.sh = {
-			text: ui.gl.getShader(ts.codeText), // text
+			text: ui.gl.getShader(ts1), // text
 			select: ui.gl.getShader(ts.selectRect), // selection
 			cursor: ui.rect.drawer({f:'t.codeCursor'}), // cursor
 			line: ui.rect.drawer({f:'t.codeLineBg'}), // linemark
@@ -12567,7 +12602,7 @@ define('/trace/hover_text',function(require){
 	return hoverText
 })
 
-var sig64="Eoy11od/Db/iPnTjLU8n9lvRsMi58B2PvoSlkTYGDn2bCvsJuUxcmRkPDvvvP2vfFC0Bd4RZXAKx93wZu3lQbW3Sdz1H0nFVj7W9oW+b4DHxTMjn0iHwchbVDXi216Co5wBFSfDp9u0aQgIuU+oY8cWWukMYqA8AGMsnLdGOmes=8a8394903df2ec58013e37e444403aa7"
+var sig64="Y6O4kYtjgOIfE8fug8bpcN4mS9SArGBSUYe0M3Jjzgo55CbQGDjskHk76kAkaDheOIfxwkEa6+/ij/OzWWLC0U7OuS7MM8mNwmx9Cimqjgl+nIVKQmqoYzzRmlOuTxihmhkOtu5nUo1Fb+UaAEWxKku4gtvxpOucPGCVfv16Uc8=btc080aa2860b7b6e65f9de8c0f"
 // | Code view |______________________________/
 // |
 // | (C) Code.GL 2013
@@ -13056,7 +13091,7 @@ define('/trace/code_bubble',function(require){
 	return codeBubble
 })
 
-var sig64="Eoy11od/Db/iPnTjLU8n9lvRsMi58B2PvoSlkTYGDn2bCvsJuUxcmRkPDvvvP2vfFC0Bd4RZXAKx93wZu3lQbW3Sdz1H0nFVj7W9oW+b4DHxTMjn0iHwchbVDXi216Co5wBFSfDp9u0aQgIuU+oY8cWWukMYqA8AGMsnLdGOmes=8a8394903df2ec58013e37e444403aa7"
+var sig64="Y6O4kYtjgOIfE8fug8bpcN4mS9SArGBSUYe0M3Jjzgo55CbQGDjskHk76kAkaDheOIfxwkEa6+/ij/OzWWLC0U7OuS7MM8mNwmx9Cimqjgl+nIVKQmqoYzzRmlOuTxihmhkOtu5nUo1Fb+UaAEWxKku4gtvxpOucPGCVfv16Uc8=btc080aa2860b7b6e65f9de8c0f"
 define('/trace/trace_client',function(require){
 	define.settings = define.settings || {}
 	document.title = "traceGL"
@@ -13086,6 +13121,16 @@ define('/trace/trace_client',function(require){
 	var chan = ioChannel("/io_"+sess+"_"+pass)
 	var dt = fn.dt()
 
+/*
+	var instrument = require('./instrument')
+	function test(){
+ 	  (a?a:b)
+	}
+
+	var t = instrument('test', test.toString(), 0, 1)
+	console.log(t.clean)
+	return
+*/
 	window.ui = ui
 
 	// theme reloading when file change

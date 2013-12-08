@@ -44,7 +44,7 @@
 </head>
 <body>
   <div id="canvas"></div>
-  <view id="container" bgcolor="yellow" y="300" width="100" height="100">
+  <view id="container" bgcolor="yellow" y="300">
     <node name="barg" x="${this.parent.width + 10 + this.parent.height}" onx="console.log('yo from barg x', value, this)"></node>
     <class name="foo" x="10" y="10" bgcolor="blue" width="20" height="20">
       <view x="${this.parent.width - this.width}" y="${this.parent.height - this.height}" width="10" height="10" bgcolor="purple"  onmouseover="this.setAttribute('bgcolor', 'red')" onmouseout="this.setAttribute('bgcolor', 'purple')" onclick="this.setAttribute('clickable', false)"></view>

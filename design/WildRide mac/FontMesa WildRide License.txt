@@ -1,0 +1,70 @@
+
+ ___   __  _  _  ____  __  __  ___  ___   __      __  __  __  __ 
+(  _) /  \( \( )(_  _)(  \/  )(  _)/ __) (  )    / _)/  \(  \/  )
+ ) _)( () ))  (   )(   )    (  ) _)\__ \ /__\  _( (_( () ))    ( 
+(_)   \__/(_)\_) (__) (_/\/\_)(___)(___/(_)(_)(_)\__)\__/(_/\/\_)
+
+Font Name - WildRide v1.0 (Freeware)
+*******************************************************
+
+
+Available for PC Truetype and Type1
+Uppercase & Lowercase: Yes
+International Characters: No
+Euro symbol: No
+Kerning: Yes
+Platform: Win95, Win98, WinME
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+FontMesa Freeware Terms of Use
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+By downloading and installing this font you agree to the terms of
+use as follows:
+ 
+
+1) Grant of License
+
+This software is free for home or personal use only, you may use this software for commercial testing but if you decide to use this software for a commercial purpose then a fee is required, please contact support@fontmesa.com for a current price list.
+
+The download and installation of this software grants to you ("user") as licensee, the non-exclusive right to use and display a copy of the software on an unlimited number of computers, multiple copies may be made for backup.  You may transfer the original software from one party to another provided all licensing materials are included and that the recipient agrees to the licensing terms and conditions. 
+
+You may use the Software on or over a network or any other transfer device providing each concurrent user has his or her own copy of the software with its documentation.
+
+
+ 
+
+2) Copyright
+
+All intellectual property rights in the Software are owned by FontMesa Type Foundry and are protected by United States copyright laws and international treaty provisions.  FontMesa Type Foundry its suppliers and licensors retain all rights not expressly granted.  You must treat the Software like any other copyrighted material, except that you may either make copies of the Software for backup or archival purposes.  You may not rent or lease the Software, but you may transfer your rights under this agreement on a permanent basis provided you include a copy of this license  agreement with the Software and the recipient agrees to the terms of this agreement.  You may not reverse engineer, decompile or disassemble the Software, except to the extent applicable law expressly prohibits this restriction.
+
+ 
+
+3) Policy
+
+At the option of FontMesa Type Foundry there may be updated versions of the software, which will be offered to users through FontMesa.com and those individuals on our list.
+
+ 
+
+4) Limited Warranty (For Commercial Use Only)
+
+FONTMESA WARRANTS THAT THE DISTRIBUTED SOFTWARE IS FREE FROM DEFECTS FOR A PERIOD OF THIRTY DAYS FROM TIME OF RECEIPT.
+
+ANY AND ALL OTHER IMPLIED WARRANTIES WITH RESPECT TO THE SOFTWARE AND THE ACCOMPANYING WRITTEN MATERIALS, INCLUDING BUT NOT LIMITED TO IMPLIED WARRANTIES OF MERCHANTABILITY AND
+
+FITNESS FOR A PARTICULAR PURPOSE, ARE LIMITED TO NINETY (90) DAYS.
+
+THIS LIMITED WARRANTY IS VOID IF FAILURE OF THE SOFTWARE HAS RESULTED FROM ACCIDENT, ABUSE, OR MISAPPLICATION.  
+
+ANY REPLACEMENT SOFTWARE WILL BE WARRANTED FOR THE REMAINDER OF THE ORIGINAL WARRANTY PERIOD.
+
+ 
+
+5) Limitation of Liabilities
+
+IN NO EVENT WILL FONTMESA TYPE FOUNDRY, ITS SUPPLIERS AND
+
+LICENSORS BE LIABLE FOR ANY INDIRECT, SPECIAL, INCIDENTAL, ECONOMIC, COVER OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OF OR INABILITY TO USE THE SOFTWARE, USER DOCUMENTATION OR RELATED TECHNICAL SUPPORT, INCLUDING WITHOUT LIMITATION, DAMAGES OR COSTS RELATING TO THE LOSS OF PROFITS, BUSINESS, GOODWILL, DATA OR COMPUTER PROGRAMS, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. IN NO EVENT WILL FONTMESA TYPE FOUNDRY, ITS SUPPLIERS AND LICENSORS' LIABILITY EXCEED THE AMOUNT PAID BY YOU FOR THE SOFTWARE.
+
+Some states or jurisdictions do not allow the exclusions of limitations of incidental, consequential or special damages, so the above exclusion may not apply to you.  Also some states or jurisdictions do not allow the exclusions of implied warranties or 
+
+limitations on how long and implied warranty may last, so the above limitations may not apply to you.  To the extent permissible, any implied warranties are limited to ninety (90) days. This warranty gives you specific legal rights. You may have other rights, which vary from state to state or jurisdiction to jurisdiction.  
