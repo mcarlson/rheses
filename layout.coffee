@@ -246,6 +246,14 @@ window.lz = do ->
       findBindings: findBindings
 
 
+  # a list of constraint scopes gathered at init time
+  constraintScopes = []
+  # init constraints
+  _initConstraints = ->
+    for constraint in constraintScopes
+      constraint._bindConstraints()
+    constraintScopes = []
+
   class Node extends Eventable
     matchConstraint = /\${(.+)}/
 
@@ -294,6 +302,10 @@ window.lz = do ->
 
       # console.log 'new node', @, attributes
       @sendEvent('init', @)
+
+    initConstraints: ->
+      _initConstraints()
+      
 
     # generate a callback for an event expression in a way that preserves scope, e.g. on_x="console.log(value, this, ...)"
     eventCallback = (name, script, scope, fnargs=['value']) ->
@@ -590,8 +602,6 @@ window.lz = do ->
       @sprite.set_class(classname)
 
 
-  # a list of constraint scopes gathered at init time
-  constraintScopes = []
 
   dom = do ->
     # flatten element.attributes to a hash
@@ -604,10 +614,14 @@ window.lz = do ->
     # initialize an element
     initFromElement = (el) ->
       initElement(el)
-      # init constraints
-      for constraint in constraintScopes
-        constraint._bindConstraints()
-      constraintScopes = []
+      for child of _children
+        {name, el, attributes} = child
+        console.log name, el, attributes
+        parent = new lz[name](el, attributes)
+      _children = []
+
+      _initConstraints()
+
 
     specialtags = ['handler', 'method', 'attribute', 'setter']
     # recursively init classes based on an existing element
