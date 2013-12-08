@@ -133,15 +133,17 @@ window.lz = do ->
       # coerce value to type
       type = @types[name]
       if type# and type of typemappings
+        # console.log 'type', name, type, value, typemappings[type], @
         value = typemappings[type](value)
-        # console.log 'type', name, type, value, @
 
       if @[name] != value
         # console.log 'setAttribute', name, value
-        setter = 'set_' + name
-        if setter of @
+        @["set_#{name}"]?(value)
+        
+        # setter = 'set_' + name
+        # if setter of @
           # console.log 'calling setter', setter, value, @[setter]
-          @[setter](value)
+          # @[setter](value)
 
         @[name] = value
 
