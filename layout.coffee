@@ -633,11 +633,11 @@ window.lz = do ->
       children = (child for child in el.childNodes when child.nodeType == 1)
 
       if tagname is 'class'
-        # defer creation of children if selected by init()
+        # defer creation of children created elsewhere
         for child in children
           child.$defer = true
-          
-      dom.processSpecialTags(el, attributes, attributes.type) unless tagname is 'class'
+      else 
+        dom.processSpecialTags(el, attributes, attributes.type)
 
       parent = new lz[tagname](el, attributes)
 
