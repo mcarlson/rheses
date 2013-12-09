@@ -265,11 +265,16 @@ window.lz = do ->
         delete attributes.$methods
 
       if attributes.$handlers
-        for {name, script, args, reference} in attributes.$handlers
+        for {name, script, args, reference, method} in attributes.$handlers
           name = name.substr(2)
 
           # console.log 'installing handler', name, args, type, script, @
-          callback = eventCallback(name, script, @, args)
+          if method
+            callback = @[method]
+            # console.log('using method', method, callback)
+          else
+            callback = eventCallback(name, script, @, args)
+
           if reference?
             @listenTo(eval(reference), name, callback)
           else
@@ -675,7 +680,7 @@ window.lz = do ->
       # return if not input
       e = document.createElement('div');
       e.innerHTML = input;
-      e.childNodes[0].nodeValue;
+      e.childNodes[0]?.nodeValue
 
     processSpecialTags = (el, classattributes, defaulttype) ->
       classattributes.$types ?= {}
@@ -696,6 +701,7 @@ window.lz = do ->
               script: compiler.transform(script, type)
               args: args
               reference: attributes.reference
+              method: attributes.method
 
             classattributes.$handlers.push(handler)
             # console.log 'added handler', attributes.name, script, attributes
