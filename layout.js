@@ -373,7 +373,7 @@
         this.types = (_ref1 = attributes.$types) != null ? _ref1 : {};
         delete attributes.$types;
         if (el != null ? el.textContent : void 0) {
-          attributes.textContent = el.textContent;
+          attributes.textcontent = el.textContent;
         }
         if (attributes.$methods) {
           _ref2 = attributes.$methods;
@@ -1018,7 +1018,7 @@
           }
           parent = new lz[extend](instanceel, attributes);
           if (extend === 'node') {
-            instanceel.style.display = 'none';
+            instanceel.setAttribute('class', 'hidden');
           }
           if (!(viewel = (_ref1 = parent.sprite) != null ? _ref1.el : void 0)) {
             return parent;

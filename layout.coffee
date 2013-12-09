@@ -257,6 +257,10 @@ window.lz = do ->
       @types = attributes.$types ? {}
       delete attributes.$types
 
+      # store textual content
+      if el?.textContent 
+        attributes.textcontent = el.textContent
+
       if attributes.$methods
         # Install methods
         for methodname, method of attributes.$methods
@@ -786,7 +790,7 @@ window.lz = do ->
         parent = new lz[extend](instanceel, attributes)
         # console.log 'created instance', name, extend, parent
 
-        instanceel.style.display = 'none' if extend == 'node'
+        instanceel.setAttribute('class', 'hidden') if extend == 'node'
 
         return parent if not (viewel = parent.sprite?.el)
 
