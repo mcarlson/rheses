@@ -88,7 +88,7 @@
         @update()
       </setter>
       <method name="update" args="value, sender">
-        # console.log('skip', @skip, @locked)
+        # console.log('skip', @skip(), @locked)
         return if @skip()
         pos = @inset
         skip = true if sender
@@ -164,6 +164,9 @@
       <method name="updateSize">
         @set(@sprite.measureTextSize(@multiline, @width))
       </method>
+      <handler name="ondata" args="d">
+        @setAttribute('text', d)
+      </handler>
       <setter name="text" args="text">
         # console.log('set_text', text)
         @sprite.text(text)
@@ -180,6 +183,9 @@
       <method name="updateSize">
         @set(@sprite.measureTextSize(@multiline, @width))
       </method>
+      <handler name="ondata" args="d">
+        @setAttribute('text', d)
+      </handler>
       <setter name="text" args="text">
         # console.log('set_text', text)
         @sprite.value(text)
@@ -195,20 +201,10 @@
     </class>
 
     <class name="replicator" type="coffee" extends="node">
-      <handler name="oninit">
-        # TODO: handle implicit declaration of child instead of classname
-        # @class = @sprite.text()
-        #console.log 'innerhtml', @sprite.text(), @data, @classname, @
-        if @textContent
-          @data = JSON.parse(@textContent) 
-          # console.log('handling text', @textContent, @data)
-          # for datum in @data
-            # console.log('data', datum)
-        @applyData()
-      </handler>
       <attribute name="data" value="[]" type="expression"></attribute>
       <attribute name="classname" value="" type="string"></attribute>
       <attribute name="datapath" value="" type="string"></attribute>
+      <handler name="oninit" method="applyData"></handler>
       <handler name="onclassname" method="applyData"></handler>
       <handler name="ondata" method="applyData"></handler>
       <handler name="ondatapath" method="applyData"></handler>
@@ -217,6 +213,32 @@
           # console.log('skipping')
           return
         # console.log('set_json', @data, @classname)
+
+        if @datapath
+          re = /^\$([^\.]+)/
+          match = @datapath.match(re)
+          if match and match[1]
+            # console.log('evaluating datapath', @datapath, match[1])
+            dataset = lz.datasets[match[1]]
+            # console.log('listening to dataset', dataset)
+            @listenTo(dataset, 'data', (data) =>
+              # console.log('callback', @, data)
+              @setAttribute('data', data)
+            )
+            path = @datapath.replace(re, '$')
+            if path == '$'
+              # console.log('no path', dataset, dataset.data)
+              data = [dataset]
+            else
+              # console.log('evaluation path', path, dataset.data)
+              data = jsonPath(dataset.data, path)
+          else if @parent.data.data
+            data = jsonPath(@parent.data.data, @datapath)
+            # console.log('looking for data', @datapath, @parent.data.data, data)
+        else
+          data = @data
+
+        return unless data
 
         if @parent.layouts
           for layout in @parent.layouts
@@ -227,15 +249,9 @@
             child.destroy()
         @children = []
 
-        if @datapath
-          console.log('evaluating datapath', @datapath)
-          data = jsonPath(@data, @datapath)
-        else
-          data = @data
-
         for datum in data
           child = new lz[@classname](null, {data: datum, parent: @parent, replicator: @})
-          console.log 'created', datum, @classname, child
+          # console.log 'created', datum, @classname, child
           child.initConstraints()
           @children.push(child)
 
@@ -292,10 +308,77 @@
       </handler>
     </view>
 
-    <class name="clickrepl" extends="clickresize" bgcolor="${this.data}" onclick="this.replicator.setAttribute('data', {'good': 'aqua'}); this.replicator.setAttribute('datapath', 'good');"></class>
-    <replicator data="['red', 'green', 'blue', 'yellow', 'orange', 'black']" datapath="*" classname="clickrepl" type="coffee">
-      {"good":"red", "green":"green", "blue":"blue", "yellow":"yellow", "orange":"orange", "black":"black"}
-    </replicator>
+    <class name="dataset" type="coffee" extends="node">
+      <handler name="oninit">
+        lz.datasets ?= {}
+        lz.datasets[@name] = @
+      </handler>
+      <attribute name="url" type="string" value=""></attribute>
+      <handler name="ontextcontent">
+        if @textcontent
+          @setAttribute('data', JSON.parse(@textcontent))
+          # console.log('data', @name, @data)
+      </handler>
+      <handler name="onurl" method="loadURL"></handler>
+      <method name="loadURL" args="url">
+        # console.log('loading url', url)
+        # assume JSONP
+        $.ajax({
+          url: url,
+          dataType: 'jsonp'
+        }).done((data) =>
+          # console.log('data', url, data)
+          @setAttribute('data', data)
+        );
+      </method>
+    </class>
+
+    <dataset name="storedata">
+    { "store": {
+        "book": [ 
+          { "category": "reference",
+            "author": "Nigel Rees",
+            "title": "Sayings of the Century",
+            "price": 8.95
+          },
+          { "category": "fiction",
+            "author": "Evelyn Waugh",
+            "title": "Sword of Honour",
+            "price": 12.99
+          },
+          { "category": "fiction",
+            "author": "Herman Melville",
+            "title": "Moby Dick",
+            "isbn": "0-553-21311-3",
+            "price": 8.99
+          },
+          { "category": "fiction",
+            "author": "J. R. R. Tolkien",
+            "title": "The Lord of the Rings",
+            "isbn": "0-395-19395-8",
+            "price": 22.99
+          }
+        ],
+        "bicycle": {
+          "color": "red",
+          "price": 19.95
+        }
+      }
+    }
+    </dataset>
+    <dataset name="tempdata" url="http://api.openweathermap.org/data/2.5/weather?q=San+Francisco,CA&units=imperial&callback=?"></dataset>
+
+    <replicator datapath="$storedata.store.book[*].author" classname="text"></replicator>
+    <replicator datapath="$tempdata.main.temp" classname="text"></replicator>
+
+    <class name="weather">
+      <simplelayout></simplelayout>
+      <boundslayout></boundslayout>
+      <replicator datapath="weather[0].main" classname="text"></replicator>
+      <replicator datapath="main.temp" classname="text"></replicator>
+      <replicator datapath="wind.speed" classname="text"></replicator>
+    </class>
+    <replicator datapath="$tempdata" classname="weather"></replicator>
   </view
 
 </body>
