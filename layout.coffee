@@ -786,6 +786,8 @@ window.lz = do ->
         parent = new lz[extend](instanceel, attributes)
         # console.log 'created instance', name, extend, parent
 
+        instanceel.style.display = 'none' if extend == 'node'
+
         return parent if not (viewel = parent.sprite?.el)
 
         # unpack instance 
