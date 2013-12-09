@@ -136,15 +136,9 @@ window.lz = do ->
         # console.log 'type', name, type, value, typemappings[type], @
         value = typemappings[type](value)
 
+      @["set_#{name}"]?(value)
       if @[name] != value
         # console.log 'setAttribute', name, value
-        @["set_#{name}"]?(value)
-        
-        # setter = 'set_' + name
-        # if setter of @
-          # console.log 'calling setter', setter, value, @[setter]
-          # @[setter](value)
-
         @[name] = value
 
       @sendEvent(name, value)

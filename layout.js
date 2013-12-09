@@ -390,7 +390,6 @@
             name = name.substr(2);
             if (method) {
               callback = this[method];
-              console.log('using method', method, callback);
             } else {
               callback = eventCallback(name, script, this, args);
             }
