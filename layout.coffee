@@ -534,7 +534,7 @@ window.lz = do ->
 
     set_class: (classname) ->
       # console.log('setid', @id)
-      @el.setAttribute('class', klass)
+      @el.setAttribute('class', classname)
 
 
   ignoredAttributes = {parent: true, id: true, name: true, extends: true, type: true}
@@ -829,7 +829,7 @@ window.lz = do ->
     added: (child) =>
       # console.log 'added layout', child, @
       if child
-        @sendEvent('subview', child)
+        @sendEvent('subview', child) unless child.ignorelayout
       @update(null, child)
 
     # override to update the position of the parent view's children
