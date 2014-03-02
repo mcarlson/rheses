@@ -535,6 +535,17 @@
         }
       };
 
+      Node.prototype._findInParents = function(name) {
+        var p;
+        p = this.parent;
+        while (p) {
+          if (name in p) {
+            return p[name];
+          }
+          p = p.parent;
+        }
+      };
+
       Node.prototype.destroy = function(skipevents) {
         var subnode, _i, _len, _ref1, _ref2;
         this.sendEvent('destroy', this);
@@ -688,7 +699,7 @@
       };
 
       Sprite.prototype.set_class = function(classname) {
-        return this.el.setAttribute('class', klass);
+        return this.el.setAttribute('class', classname);
       };
 
       return Sprite;
@@ -806,7 +817,6 @@
         initElement(el);
         for (child in _children) {
           name = child.name, el = child.el, attributes = child.attributes;
-          console.log(name, el, attributes);
           parent = new lz[name](el, attributes);
         }
         _children = [];

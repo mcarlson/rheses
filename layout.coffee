@@ -401,6 +401,14 @@ window.lz = do ->
         @parent.sendEvent(name, arr[index])
       return
 
+    _findInParents: (name) ->
+      p = @parent
+      while (p)
+        if name of p
+          # console.log 'found in parent', name, p
+          return p[name]
+        p = p.parent
+
     destroy: (skipevents) ->
       # console.log 'destroy node', @
       @sendEvent('destroy', @)
@@ -619,7 +627,7 @@ window.lz = do ->
       initElement(el)
       for child of _children
         {name, el, attributes} = child
-        console.log name, el, attributes
+        # console.log name, el, attributes
         parent = new lz[name](el, attributes)
       _children = []
 
