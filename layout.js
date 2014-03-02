@@ -1147,7 +1147,7 @@
       }
 
       SimpleLayout.prototype.set_attribute = function(attr) {
-        var newaxis, subview, _i, _len, _ref1;
+        var newaxis, subview, _i, _len, _ref1, _ref2;
         newaxis = (function() {
           switch (attr) {
             case 'x':
@@ -1156,9 +1156,9 @@
               return 'height';
           }
         })();
-        _ref1 = this.parent.subviews != null;
-        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-          subview = _ref1[_i];
+        _ref2 = ((_ref1 = this.parent) != null ? _ref1.subviews : void 0) != null;
+        for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+          subview = _ref2[_i];
           subview.unbind(this.axis, this.update).bind(newaxis, this.update);
         }
         this.axis = newaxis;

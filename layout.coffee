@@ -878,7 +878,7 @@ window.lz = do ->
         when 'x' then 'width' 
         when 'y' then 'height'
 
-      for subview in @parent.subviews?
+      for subview in @parent?.subviews?
         subview.unbind(@axis, @update).bind(newaxis, @update)
 
       @axis = newaxis
