@@ -209,15 +209,14 @@
       <handler name="ondata" method="applyData"></handler>
       <handler name="ondatapath" method="applyData"></handler>
       <method name="applyData">
-        unless @data and @classname and @parent
-          # console.log('skipping')
-          return
-        # console.log('set_json', @data, @classname)
+        return unless @parent
+        # console.log('applyData', @data, @classname)
 
         if @datapath
           re = /^\$([^\.]+)/
           match = @datapath.match(re)
           if match and match[1]
+            # absolute datapath
             # console.log('evaluating datapath', @datapath, match[1])
             dataset = lz.datasets[match[1]]
             # console.log('listening to dataset', dataset)
@@ -227,15 +226,21 @@
             )
             path = @datapath.replace(re, '$')
             if path == '$'
-              # console.log('no path', dataset, dataset.data)
+              # console.log('dataset only', dataset, dataset.data)
               data = [dataset]
             else
-              # console.log('evaluation path', path, dataset.data)
+              # console.log('evaluating path', path, dataset.data)
               data = jsonPath(dataset.data, path)
-          else if @parent.data.data
-            data = jsonPath(@parent.data.data, @datapath)
-            # console.log('looking for data', @datapath, @parent.data.data, data)
+          else 
+            # relative datapath, look for dataset in parent(s)
+            parentdata = @_findInParents('data')
+            if parentdata?
+              data = jsonPath(parentdata.data, @datapath)
+              # console.log('looking for data', @datapath, parentdata.data, data)
+            else
+              console.warn('No parent datapath found', @datapath, @)
         else
+          # no datapath
           data = @data
 
         return unless data
@@ -372,11 +377,15 @@
     <replicator datapath="$tempdata.main.temp" classname="text"></replicator>
 
     <class name="weather">
-      <simplelayout></simplelayout>
       <boundslayout></boundslayout>
-      <replicator datapath="weather[0].main" classname="text"></replicator>
-      <replicator datapath="main.temp" classname="text"></replicator>
-      <replicator datapath="wind.speed" classname="text"></replicator>
+      <view>
+        <simplelayout></simplelayout>
+        <boundslayout></boundslayout>
+        <replicator datapath="weather[0].main" classname="text"></replicator>
+        <replicator datapath="main.temp" classname="text"></replicator>
+        <replicator datapath="wind.speed" classname="text"></replicator>
+        <replicator datapath="wind.deg" classname="text"></replicator>
+      </view>
     </class>
     <replicator datapath="$tempdata" classname="weather"></replicator>
   </view
