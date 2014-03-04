@@ -189,14 +189,20 @@
       <setter name="text" args="text">
         # console.log('set_text', text)
         @sprite.value(text)
-        @updateSize() if (text != @text)
+        # @updateSize() if (text != @text)
       </setter>
       <handler name="oninit">
         # el = @sprite.el
-        @text = @sprite.text()
+        # Prefer text attribute, fall back to innerHTML
+        text = @text || @sprite.text()
+        # clear innerHTML
         @sprite.text('')
-        @sprite.createInputtextElement(@text, @multiline, @width)
+        @sprite.createInputtextElement(text, @multiline, @width)
         @updateSize()
+      </handler>
+      <handler name="onchange">
+        return unless @replicator
+        @replicator.updateData(@text)
       </handler>
     </class>
 
@@ -208,6 +214,9 @@
       <handler name="onclassname" method="applyData"></handler>
       <handler name="ondata" method="applyData"></handler>
       <handler name="ondatapath" method="applyData"></handler>
+      <method name="updateData" args="data">
+        @dataset.updateData(@parsedpath, data);
+      </method>
       <method name="applyData">
         return unless @parent
         # console.log('applyData', @data, @classname)
@@ -218,13 +227,13 @@
           if match and match[1]
             # absolute datapath
             # console.log('evaluating datapath', @datapath, match[1])
-            dataset = lz.datasets[match[1]]
+            @dataset = dataset = lz.datasets[match[1]]
             # console.log('listening to dataset', dataset)
             @listenTo(dataset, 'data', (data) =>
               # console.log('callback', @, data)
               @setAttribute('data', data)
             )
-            path = @datapath.replace(re, '$')
+            @parsedpath = path = @datapath.replace(re, '$')
             if path == '$'
               # console.log('dataset only', dataset, dataset.data)
               data = [dataset]
@@ -336,6 +345,22 @@
           @setAttribute('data', data)
         );
       </method>
+      <method name="updateData" args="path, data">
+        # find the scope and property to be updated
+        re = /\.([^\.]+)$/
+        property = path.match(re)
+        if property and property[1]
+          subpath = path.replace(re, '')
+
+          scope = jsonPath(@data, subpath)
+          # only handle updating a single field
+          return unless scope.length == 1
+
+          # console.log(data, @data, path, scope[0], property[1], scope[0][property[1]])
+          scope[0][property[1]] = data
+          # TODO: send smaller updates based on path argument
+          @sendEvent('data', @data)
+      </method>
     </class>
 
     <dataset name="storedata">
@@ -374,7 +399,7 @@
     <dataset name="tempdata" url="http://api.openweathermap.org/data/2.5/weather?q=San+Francisco,CA&units=imperial&callback=?"></dataset>
 
     <replicator datapath="$storedata.store.book[*].author" classname="text"></replicator>
-    <replicator datapath="$tempdata.main.temp" classname="text"></replicator>
+    <replicator datapath="$tempdata.main.temp" classname="inputtext"></replicator>
 
     <class name="weather">
       <boundslayout></boundslayout>
