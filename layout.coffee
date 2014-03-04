@@ -509,6 +509,7 @@ window.lz = do ->
         @el.innerHTML
 
     value: (value) ->
+      return unless @input
       if value?
         @input.value = value
       else
@@ -523,6 +524,12 @@ window.lz = do ->
         @setStyle('width', 'auto')
       {width: @el.clientWidth, height: @el.clientHeight}
 
+    handle: (event) =>
+      view = event.target.$view
+      return unless view
+      # console.log 'event', event.type, view
+      view.sendEvent(event.type, view)
+
     createInputtextElement: (text, multiline, width) ->
       input = document.createElement('input')
       input.setAttribute('type', 'text')
@@ -531,8 +538,10 @@ window.lz = do ->
       @el.appendChild(input)
 
       setTimeout(() =>
+        return unless @el
         @input = @el.getElementsByTagName('input')[0]
         @input.$view = @el.$view
+        $(input).on('focus blur', @handle)
       , 0);
 
     getAbsolute: () ->
@@ -997,7 +1006,7 @@ window.lz = do ->
 
 
   class Keyboard extends Eventable
-    keyboardEvents = ['focus', 'blur', 'select', 'keyup', 'keydown', 'change']
+    keyboardEvents = ['select', 'keyup', 'keydown', 'change']
 
     keys =
       shiftKey: false
