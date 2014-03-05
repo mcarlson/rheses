@@ -585,6 +585,7 @@
       rdashAlpha = /-([\da-z])/gi;
 
       function Sprite(jqel, view) {
+        this.handle = __bind(this.handle, this);
         this.animate = __bind(this.animate, this);
         if (jqel == null) {
           this.el = document.createElement('div');
@@ -651,6 +652,9 @@
       };
 
       Sprite.prototype.value = function(value) {
+        if (!this.input) {
+          return;
+        }
         if (value != null) {
           return this.input.value = value;
         } else {
@@ -672,6 +676,15 @@
         };
       };
 
+      Sprite.prototype.handle = function(event) {
+        var view;
+        view = event.target.$view;
+        if (!view) {
+          return;
+        }
+        return view.sendEvent(event.type, view);
+      };
+
       Sprite.prototype.createInputtextElement = function(text, multiline, width) {
         var input,
           _this = this;
@@ -681,8 +694,12 @@
         input.setAttribute('style', 'border: none; outline: none; background-color:transparent;');
         this.el.appendChild(input);
         return setTimeout(function() {
+          if (!_this.el) {
+            return;
+          }
           _this.input = _this.el.getElementsByTagName('input')[0];
-          return _this.input.$view = _this.el.$view;
+          _this.input.$view = _this.el.$view;
+          return $(input).on('focus blur', _this.handle);
         }, 0);
       };
 
@@ -1318,7 +1335,7 @@
 
       __extends(Keyboard, _super);
 
-      keyboardEvents = ['focus', 'blur', 'select', 'keyup', 'keydown', 'change'];
+      keyboardEvents = ['select', 'keyup', 'keydown', 'change'];
 
       keys = {
         shiftKey: false,
