@@ -904,16 +904,12 @@
       initAllElements = function(selector) {
         var el, _i, _len, _results;
         if (selector == null) {
-          selector = $('view');
+          selector = $('view').not('view view');
         }
         _results = [];
         for (_i = 0, _len = selector.length; _i < _len; _i++) {
           el = selector[_i];
-          if (!(el.$defer || el.$view)) {
-            _results.push(initFromElement(el));
-          } else {
-            _results.push(void 0);
-          }
+          _results.push(initFromElement(el));
         }
         return _results;
       };

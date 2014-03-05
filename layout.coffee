@@ -690,11 +690,10 @@ window.lz = do ->
       style.innerHTML = '.sprite{ position: absolute; pointer-events: none; } .sprite-text{ width: auto; height; auto; white-space: nowrap; } .hidden{ display: none; } method { display: none; } handler { display: none; } setter { display: none; }'
       document.getElementsByTagName('head')[0].appendChild(style)
 
-    # init all views in the DOM recursively
-    initAllElements = (selector = $('view')) ->
+    # init top-level views in the DOM recursively
+    initAllElements = (selector = $('view').not('view view')) ->
       for el in selector
-        initFromElement(el) unless el.$defer or el.$view
-      # console.log 'caches', compileCache
+        initFromElement(el)
 
     # http://stackoverflow.com/questions/1248849/converting-sanitised-html-back-to-displayable-html
     htmlDecode = (input) ->
