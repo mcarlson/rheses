@@ -40,7 +40,7 @@
   <script type="text/javascript" src="lib/jquery-1.9.1.min.js"></script>
   <script type="text/javascript" src="lib/acorn.js"></script>
   <script type="text/javascript" src="lib/coffee-script.js"></script>
-  <script type="text/javascript" src="lib/jsonpath-0-8-0.js"></script>
+  <script type="text/javascript" src="lib/json-path+json-ptr-0.1.3.min.js"></script>
   <script type="text/javascript" src="layout.js"></script>
 </head>
 <body>
@@ -232,7 +232,7 @@
         # console.log('applyData', @data, @classname)
 
         if @datapath
-          re = /^\$([^\.]+)/
+          re = /^\$([^\/]+)/
           match = @datapath.match(re)
           if match and match[1]
             # absolute datapath
@@ -243,18 +243,19 @@
               # console.log('callback', @, data)
               @setAttribute('data', data)
             )
-            @parsedpath = path = @datapath.replace(re, '$')
-            if path == '$'
+            @parsedpath = path = @datapath.replace(re, '')
+            if path == ''
               # console.log('dataset only', dataset, dataset.data)
               data = [dataset]
             else
               # console.log('evaluating path', path, dataset.data)
-              data = jsonPath(dataset.data, path)
+              data = JsonPath.resolve(dataset.data, path)
           else 
             # relative datapath, look for dataset in parent(s)
             parentdata = @_findInParents('data')
             if parentdata?
-              data = jsonPath(parentdata.data, @datapath)
+              # console.log('parsing selector', @datapath)
+              data = JsonPath.resolve(parentdata.data, @datapath)
               # console.log('looking for data', @datapath, parentdata.data, data)
             else
               console.warn('No parent datapath found', @datapath, @)
@@ -357,12 +358,13 @@
       </method>
       <method name="updateData" args="path, data">
         # find the scope and property to be updated
-        re = /\.([^\.]+)$/
+        re = /\/([^\/]+)$/
         property = path.match(re)
         if property and property[1]
           subpath = path.replace(re, '')
 
-          scope = jsonPath(@data, subpath)
+          # console.log('updating data', @data, subpath)
+          scope = JsonPath.resolve(@data, subpath)
           # only handle updating a single field
           return unless scope.length == 1
 
@@ -408,18 +410,18 @@
     </dataset>
     <dataset name="tempdata" url="http://api.openweathermap.org/data/2.5/weather?q=San+Francisco,CA&units=imperial&callback=?"></dataset>
 
-    <replicator datapath="$storedata.store.book[*].author" classname="text"></replicator>
-    <replicator datapath="$tempdata.main.temp" classname="inputtext"></replicator>
+    <replicator datapath="$storedata/store/book[*]/author" classname="text"></replicator>
+    <replicator datapath="$tempdata/main/temp" classname="inputtext"></replicator>
 
     <class name="weather">
       <boundslayout></boundslayout>
       <view>
         <simplelayout></simplelayout>
         <boundslayout></boundslayout>
-        <replicator datapath="weather[0].main" classname="text"></replicator>
-        <replicator datapath="main.temp" classname="text"></replicator>
-        <replicator datapath="wind.speed" classname="text"></replicator>
-        <replicator datapath="wind.deg" classname="text"></replicator>
+        <replicator datapath="../weather[0]/main" classname="text"></replicator>
+        <replicator datapath="../main/temp" classname="text"></replicator>
+        <replicator datapath="../wind/speed" classname="text"></replicator>
+        <replicator datapath="../wind/deg" classname="text"></replicator>
       </view>
     </class>
     <replicator datapath="$tempdata" classname="weather"></replicator>
