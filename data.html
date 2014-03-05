@@ -202,7 +202,17 @@
       </handler>
       <handler name="onchange">
         return unless @replicator
-        @replicator.updateData(@text)
+        # attempt to coerce to the current type if it was a boolean or number (bad idea?)
+        newdata = @text
+        if (typeof @data == 'number')
+          if parseFloat(newdata) + '' == newdata
+            newdata = parseFloat(newdata)
+        else if (typeof @data == 'boolean')
+          if newdata == 'true'
+            newdata = true
+          else if newdata == 'false'
+            newdata = false
+        @replicator.updateData(newdata)
       </handler>
     </class>
 
