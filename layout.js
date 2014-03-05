@@ -253,7 +253,7 @@
     compiler = (function() {
       var cacheKey, compile, compileCache, exports, findBindings, scriptCache, transform;
       cacheKey = "compilecache";
-      if (cacheKey in localStorage) {
+      if (localStorage[cacheKey]) {
         compileCache = JSON.parse(localStorage[cacheKey]);
       } else {
         compileCache = {

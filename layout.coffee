@@ -160,7 +160,7 @@ window.lz = do ->
 
   compiler = do ->
     cacheKey = "compilecache"
-    if cacheKey of localStorage
+    if localStorage[cacheKey]
       compileCache = JSON.parse(localStorage[cacheKey])
       # console.log 'restored', compileCache
     else
