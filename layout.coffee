@@ -27,10 +27,10 @@ window.lz = do ->
     bind: (ev, callback) ->
       # console.log 'binding', ev, callback
       evs   = ev.split(' ')
-      calls = @hasOwnProperty('events') and @events or= {}
+      @events = {} unless @hasOwnProperty('events') and @events
       for name in evs
-        calls[name] or= []
-        calls[name].push(callback)
+        @events[name] or= []
+        @events[name].push(callback)
       this
 
     one: (ev, callback) ->
