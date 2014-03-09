@@ -35,7 +35,7 @@
   })();
 
   window.lz = (function() {
-    var Class, Eventable, Events, Keyboard, Layout, Module, Mouse, Node, SimpleLayout, Sprite, View, compiler, constraintScopes, dom, exports, idle, ignoredAttributes, keyboard, moduleKeywords, mouse, mouseEvents, _initConstraints;
+    var Class, Eventable, Events, Keyboard, Layout, Module, Mouse, Node, Sprite, View, compiler, constraintScopes, dom, exports, idle, ignoredAttributes, keyboard, moduleKeywords, mouse, mouseEvents, _initConstraints;
     Events = {
       bind: function(ev, callback) {
         var evs, name, _base, _i, _len;
@@ -822,7 +822,7 @@
 
     })(Node);
     dom = (function() {
-      var exports, flattenattributes, htmlDecode, initAllElements, initElement, initFromElement, processSpecialTags, specialtags, writeCSS;
+      var exports, findAutoIncludes, flattenattributes, htmlDecode, initAllElements, initElement, initFromElement, processSpecialTags, specialtags, writeCSS;
       flattenattributes = function(namednodemap) {
         var attributes, i, _i, _len;
         attributes = {};
@@ -833,14 +833,40 @@
         return attributes;
       };
       initFromElement = function(el) {
-        var attributes, child, name, parent, _children;
-        initElement(el);
-        for (child in _children) {
-          name = child.name, el = child.el, attributes = child.attributes;
-          parent = new lz[name](el, attributes);
+        return findAutoIncludes(el);
+      };
+      findAutoIncludes = function(parentel) {
+        var el, inlineclasses, loaded, name, requests, url, _i, _len, _ref;
+        loaded = {};
+        inlineclasses = {};
+        requests = [];
+        _ref = $(parentel).find('*');
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          el = _ref[_i];
+          name = el.localName;
+          if (name === 'class') {
+            inlineclasses[el.attributes.name.value] = true;
+          } else if (!(__indexOf.call(specialtags, name) >= 0 || name in inlineclasses || name in lz || name in loaded)) {
+            url = 'classes/' + name + '.lzx';
+            requests.push($.get(url));
+            loaded[name] = true;
+          }
         }
-        _children = [];
-        return _initConstraints();
+        parentel.style.display = 'none';
+        return $.when.apply($, requests).done(function() {
+          var args, xhr, _j, _len1;
+          args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+          if (requests.length === 1) {
+            args = [args];
+          }
+          for (_j = 0, _len1 = args.length; _j < _len1; _j++) {
+            xhr = args[_j];
+            $(parentel).prepend(xhr[0]);
+          }
+          parentel.style.display = 'block';
+          initElement(parentel);
+          return _initConstraints();
+        });
       };
       specialtags = ['handler', 'method', 'attribute', 'setter'];
       initElement = function(el, parent) {
@@ -1143,88 +1169,64 @@
       return Layout;
 
     })(Node);
-    SimpleLayout = (function(_super) {
-      __extends(SimpleLayout, _super);
 
-      function SimpleLayout(el, attributes) {
-        if (attributes == null) {
-          attributes = {};
-        }
-        this.attribute = 'x';
-        this.axis = 'width';
-        this.spacing = 10;
-        this.inset = 10;
-        if (attributes.$types == null) {
-          attributes.$types = {};
-        }
-        attributes.$types.spacing = 'number';
-        attributes.$types.inset = 'number';
-        SimpleLayout.__super__.constructor.call(this, el, attributes);
-      }
-
-      SimpleLayout.prototype.set_attribute = function(attr) {
-        var newaxis, subview, _i, _len, _ref, _ref1;
-        newaxis = (function() {
-          switch (attr) {
-            case 'x':
-              return 'width';
-            case 'y':
-              return 'height';
-          }
-        })();
-        _ref1 = ((_ref = this.parent) != null ? _ref.subviews : void 0) != null;
-        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-          subview = _ref1[_i];
-          subview.unbind(this.axis, this.update).bind(newaxis, this.update);
-        }
-        this.axis = newaxis;
-        this.attribute = attr;
-        return this.update();
-      };
-
-      SimpleLayout.prototype.set_spacing = function(space) {
-        this.spacing = space;
-        return this.update();
-      };
-
-      SimpleLayout.prototype.set_inset = function(i) {
-        this.inset = i;
-        return this.update();
-      };
-
-      SimpleLayout.prototype.added = function(child) {
-        this.listenTo(child, this.axis, this.update);
-        return SimpleLayout.__super__.added.call(this, child);
-      };
-
-      SimpleLayout.prototype.update = function(value, sender) {
-        var pos, skip, subview, _i, _len, _ref;
-        if (this.skip()) {
-          return;
-        }
-        pos = this.inset;
-        if (sender) {
-          skip = true;
-        }
-        _ref = this.parent.subviews;
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          subview = _ref[_i];
-          if (skip && subview !== sender) {
-
-          } else {
-            if (subview[this.attribute] !== pos) {
-              subview.setAttribute(this.attribute, pos);
-            }
-            skip = false;
-          }
-          pos += this.spacing + subview[this.axis];
-        }
-        return pos;
-      };
-
-      return SimpleLayout;
-
-    })(Layout);
+    /*
+    class SimpleLayout extends Layout
+      constructor: (el, attributes = {}) ->
+        @attribute = 'x'
+        @axis = 'width'
+        @spacing = 10
+        @inset = 10
+        attributes.$types ?= {}
+        attributes.$types.spacing = 'number'
+        attributes.$types.inset = 'number'
+        super(el, attributes)
+    
+      set_attribute: (attr) ->
+        newaxis = switch attr
+          when 'x' then 'width' 
+          when 'y' then 'height'
+    
+        for subview in @parent?.subviews?
+          subview.unbind(@axis, @update).bind(newaxis, @update)
+    
+        @axis = newaxis
+    
+        @attribute = attr
+         * console.log('set_attribute', attr, typeof attr, @attribute, @axis, newaxis)
+        @update()
+    
+      set_spacing: (space) ->
+         * console.log('set_spacing', space, typeof space)
+        @spacing = space
+        @update()
+    
+      set_inset: (i) ->
+         * console.log('set_inset', i, typeof i)
+        @inset = i
+        @update()
+    
+      added: (child) ->
+         * console.log 'added', child
+        @listenTo(child, @axis, @update)
+        super(child)
+    
+      update: (value, sender) ->
+         * console.log('skip', @skip, @locked)
+        return if @skip()
+        pos = @inset
+        skip = true if sender
+        for subview in @parent.subviews
+          if (skip and subview != sender)
+             * console.log 'skipping', subview, sender
+          else 
+             * console.log 'updating', subview, @attribute, pos
+            subview.setAttribute(@attribute, pos) unless subview[@attribute] == pos
+            skip = false
+           * console.log 'value', pos, @spacing, @inset, @attribute, @axis, subview[@axis]
+          pos += @spacing + subview[@axis]
+        return pos
+     */
     idle = (function() {
       var doTick, requestAnimationFrame, tickEvents, ticking;
       requestAnimationFrame = window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame;
@@ -1383,7 +1385,6 @@
       mouse: mouse,
       keyboard: keyboard,
       layout: Layout,
-      simplelayout: SimpleLayout,
       initElements: dom.initAllElements,
       writeCSS: dom.writeCSS
     };

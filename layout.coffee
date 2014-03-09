@@ -631,17 +631,36 @@ window.lz = do ->
         attributes[i.name] = i.value
       attributes
 
-    # initialize an element
+    # initialize a top-level view element
     initFromElement = (el) ->
-      initElement(el)
-      for child of _children
-        {name, el, attributes} = child
-        # console.log name, el, attributes
-        parent = new lz[name](el, attributes)
-      _children = []
+      findAutoIncludes(el)
 
-      _initConstraints()
-
+    findAutoIncludes = (parentel) ->
+      loaded = {}
+      inlineclasses = {}
+      requests = []
+      for el in $(parentel).find('*')
+        name = el.localName
+        if name == 'class'
+          # avoid loading inline class declarations
+          inlineclasses[el.attributes.name.value] = true
+        else unless name in specialtags or name of inlineclasses or name of lz or name of loaded
+          url = 'classes/' + name + '.lzx'
+          # console.log 'loading', url
+          requests.push($.get(url))
+          loaded[name] = true 
+          
+      # console.log(requests, loaded, inlineclasses)
+      parentel.style.display = 'none'
+      $.when.apply($, requests).done((args...) ->
+        args = [args] if (requests.length == 1)
+        for xhr in args
+          # console.log 'inserting html', xhr[0] 
+          $(parentel).prepend(xhr[0])
+        parentel.style.display = 'block'
+        initElement(parentel)
+        _initConstraints()
+      )
 
     specialtags = ['handler', 'method', 'attribute', 'setter']
     # recursively init classes based on an existing element
@@ -870,6 +889,7 @@ window.lz = do ->
       # console.log 'set_locked', locked
       @update() if (changed and not locked)
 
+  ###
   class SimpleLayout extends Layout
     constructor: (el, attributes = {}) ->
       @attribute = 'x'
@@ -925,7 +945,7 @@ window.lz = do ->
         # console.log 'value', pos, @spacing, @inset, @attribute, @axis, subview[@axis]
         pos += @spacing + subview[@axis]
       return pos
-
+  ###
 
   idle = do ->
     requestAnimationFrame = window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame# || (delegate) -> setTimeout(delegate, 17);
@@ -1051,7 +1071,7 @@ window.lz = do ->
     mouse: mouse
     keyboard: keyboard
     layout: Layout
-    simplelayout: SimpleLayout
+    # simplelayout: SimpleLayout
     initElements: dom.initAllElements
     writeCSS: dom.writeCSS
 
