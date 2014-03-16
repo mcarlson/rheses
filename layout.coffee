@@ -573,18 +573,18 @@ window.lz = do ->
 
       @sprite = new Sprite(el, @)
 
-      super(el, attributes)
+      super
       # console.log 'new view', el, attributes, @
 
     setAttribute: (name, value, skip) ->
       if not (skip or ignoredAttributes[name] or @[name] == value)
         # console.log 'setting style', name, @[name], value, @
         @sprite.setStyle(name, value)
-      super(name, value)
+      super
 
     set_parent: (parent) ->
       # console.log 'view set_parent', parent, @
-      super(parent)
+      super
 
       # store references subviews
       if parent instanceof View
@@ -609,7 +609,7 @@ window.lz = do ->
 
     destroy: (skipevents) ->
       # console.log 'destroy view', @
-      super(skipevents)
+      super
       @_removeFromParent('subviews') unless skipevents
 
       @sprite.destroy()
@@ -620,7 +620,6 @@ window.lz = do ->
 
     set_class: (classname) ->
       @sprite.set_class(classname)
-
 
 
   dom = do ->
@@ -845,7 +844,7 @@ window.lz = do ->
   class Layout extends Node
     constructor: (el, attributes = {}) ->
       @locked = true
-      super(el, attributes)
+      super
       # listen for new subviews
       @listenTo(@parent, 'subviews', @added)
       @parent.layouts ?= []
@@ -879,7 +878,7 @@ window.lz = do ->
     destroy: (skipevents) ->
       @locked = true
       # console.log 'destroy layout', @
-      super(skipevents)
+      super
       @_removeFromParent('layouts') unless skipevents
 
     set_locked: (locked) ->
@@ -921,12 +920,12 @@ window.lz = do ->
       @docSelector.on(mouseEvents.join(' '), @handle)
 
     bind: (ev, callback) ->
-      super(ev, callback)
+      super
       if @events['mousemove']?.length or @events['x']?.length or @events['y']?.length
         @start()
 
     unbind: (ev, callback) ->
-      super(ev, callback)
+      super
       if @events['mousemove']?.length is 0 and @events['x']?.length is 0 and @events['y']?.length is 0
         @stop()
 

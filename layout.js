@@ -765,18 +765,18 @@
           el = el.sprite;
         }
         this.sprite = new Sprite(el, this);
-        View.__super__.constructor.call(this, el, attributes);
+        View.__super__.constructor.apply(this, arguments);
       }
 
       View.prototype.setAttribute = function(name, value, skip) {
         if (!(skip || ignoredAttributes[name] || this[name] === value)) {
           this.sprite.setStyle(name, value);
         }
-        return View.__super__.setAttribute.call(this, name, value);
+        return View.__super__.setAttribute.apply(this, arguments);
       };
 
       View.prototype.set_parent = function(parent) {
-        View.__super__.set_parent.call(this, parent);
+        View.__super__.set_parent.apply(this, arguments);
         if (parent instanceof View) {
           parent.subviews.push(this);
           parent.sendEvent('subviews', this);
@@ -802,7 +802,7 @@
       };
 
       View.prototype.destroy = function(skipevents) {
-        View.__super__.destroy.call(this, skipevents);
+        View.__super__.destroy.apply(this, arguments);
         if (!skipevents) {
           this._removeFromParent('subviews');
         }
@@ -1108,7 +1108,7 @@
         this.update = __bind(this.update, this);
         this.added = __bind(this.added, this);
         this.locked = true;
-        Layout.__super__.constructor.call(this, el, attributes);
+        Layout.__super__.constructor.apply(this, arguments);
         this.listenTo(this.parent, 'subviews', this.added);
         if ((_base = this.parent).layouts == null) {
           _base.layouts = [];
@@ -1145,7 +1145,7 @@
 
       Layout.prototype.destroy = function(skipevents) {
         this.locked = true;
-        Layout.__super__.destroy.call(this, skipevents);
+        Layout.__super__.destroy.apply(this, arguments);
         if (!skipevents) {
           return this._removeFromParent('layouts');
         }
@@ -1204,7 +1204,7 @@
 
       Mouse.prototype.bind = function(ev, callback) {
         var _ref, _ref1, _ref2;
-        Mouse.__super__.bind.call(this, ev, callback);
+        Mouse.__super__.bind.apply(this, arguments);
         if (((_ref = this.events['mousemove']) != null ? _ref.length : void 0) || ((_ref1 = this.events['x']) != null ? _ref1.length : void 0) || ((_ref2 = this.events['y']) != null ? _ref2.length : void 0)) {
           return this.start();
         }
@@ -1212,7 +1212,7 @@
 
       Mouse.prototype.unbind = function(ev, callback) {
         var _ref, _ref1, _ref2;
-        Mouse.__super__.unbind.call(this, ev, callback);
+        Mouse.__super__.unbind.apply(this, arguments);
         if (((_ref = this.events['mousemove']) != null ? _ref.length : void 0) === 0 && ((_ref1 = this.events['x']) != null ? _ref1.length : void 0) === 0 && ((_ref2 = this.events['y']) != null ? _ref2.length : void 0) === 0) {
           return this.stop();
         }
