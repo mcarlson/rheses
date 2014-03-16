@@ -833,14 +833,20 @@
         return attributes;
       };
       initFromElement = function(el) {
-        return findAutoIncludes(el);
+        el.style.display = 'none';
+        return findAutoIncludes(el, function() {
+          el.style.display = 'block';
+          initElement(el);
+          return _initConstraints();
+        });
       };
-      findAutoIncludes = function(parentel) {
-        var el, inlineclasses, loaded, name, requests, url, _i, _len, _ref;
+      findAutoIncludes = function(parentel, callback) {
+        var el, inlineclasses, jqel, loaded, name, requests, url, _i, _len, _ref;
         loaded = {};
         inlineclasses = {};
         requests = [];
-        _ref = $(parentel).find('*');
+        jqel = $(parentel);
+        _ref = jqel.find('*');
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           el = _ref[_i];
           name = el.localName;
@@ -852,7 +858,6 @@
             loaded[name] = true;
           }
         }
-        parentel.style.display = 'none';
         return $.when.apply($, requests).done(function() {
           var args, xhr, _j, _len1;
           args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
@@ -861,16 +866,14 @@
           }
           for (_j = 0, _len1 = args.length; _j < _len1; _j++) {
             xhr = args[_j];
-            $(parentel).prepend(xhr[0]);
+            jqel.prepend(xhr[0]);
           }
-          parentel.style.display = 'block';
-          initElement(parentel);
-          return _initConstraints();
+          return callback();
         });
       };
       specialtags = ['handler', 'method', 'attribute', 'setter'];
       initElement = function(el, parent) {
-        var attributes, child, children, event, eventname, tagname, _i, _j, _k, _len, _len1, _len2, _ref;
+        var attributes, child, children, event, eventname, tagname, _i, _j, _len, _len1, _ref;
         tagname = el.localName;
         if (!(tagname in lz)) {
           console.warn('could not find class for tag', tagname, el);
@@ -893,6 +896,10 @@
         if (parent != null) {
           attributes.parent = parent;
         }
+        if (tagname !== 'class') {
+          dom.processSpecialTags(el, attributes, attributes.type);
+        }
+        parent = new lz[tagname](el, attributes);
         children = (function() {
           var _j, _len1, _ref, _results;
           _ref = el.childNodes;
@@ -905,18 +912,9 @@
           }
           return _results;
         })();
-        if (tagname === 'class') {
+        if (tagname !== 'class') {
           for (_j = 0, _len1 = children.length; _j < _len1; _j++) {
             child = children[_j];
-            child.$defer = true;
-          }
-        } else {
-          dom.processSpecialTags(el, attributes, attributes.type);
-        }
-        parent = new lz[tagname](el, attributes);
-        if (tagname !== 'class') {
-          for (_k = 0, _len2 = children.length; _k < _len2; _k++) {
-            child = children[_k];
             if (_ref = child.localName, __indexOf.call(specialtags, _ref) < 0) {
               initElement(child, parent);
             }
@@ -1072,10 +1070,8 @@
           if (extend === 'node') {
             instanceel.setAttribute('class', 'hidden');
           }
-          if (!(viewel = (_ref = parent.sprite) != null ? _ref.el : void 0)) {
-            return parent;
-          }
-          if (body) {
+          viewel = (_ref = parent.sprite) != null ? _ref.el : void 0;
+          if (body && viewel) {
             viewel.innerHTML = body;
             children = (function() {
               var _j, _len1, _ref1, _results;
@@ -1091,7 +1087,6 @@
             })();
             for (_j = 0, _len1 = children.length; _j < _len1; _j++) {
               child = children[_j];
-              child.$defer = null;
               dom.initElement(child, parent);
             }
           }
@@ -1169,64 +1164,6 @@
       return Layout;
 
     })(Node);
-
-    /*
-    class SimpleLayout extends Layout
-      constructor: (el, attributes = {}) ->
-        @attribute = 'x'
-        @axis = 'width'
-        @spacing = 10
-        @inset = 10
-        attributes.$types ?= {}
-        attributes.$types.spacing = 'number'
-        attributes.$types.inset = 'number'
-        super(el, attributes)
-    
-      set_attribute: (attr) ->
-        newaxis = switch attr
-          when 'x' then 'width' 
-          when 'y' then 'height'
-    
-        for subview in @parent?.subviews?
-          subview.unbind(@axis, @update).bind(newaxis, @update)
-    
-        @axis = newaxis
-    
-        @attribute = attr
-         * console.log('set_attribute', attr, typeof attr, @attribute, @axis, newaxis)
-        @update()
-    
-      set_spacing: (space) ->
-         * console.log('set_spacing', space, typeof space)
-        @spacing = space
-        @update()
-    
-      set_inset: (i) ->
-         * console.log('set_inset', i, typeof i)
-        @inset = i
-        @update()
-    
-      added: (child) ->
-         * console.log 'added', child
-        @listenTo(child, @axis, @update)
-        super(child)
-    
-      update: (value, sender) ->
-         * console.log('skip', @skip, @locked)
-        return if @skip()
-        pos = @inset
-        skip = true if sender
-        for subview in @parent.subviews
-          if (skip and subview != sender)
-             * console.log 'skipping', subview, sender
-          else 
-             * console.log 'updating', subview, @attribute, pos
-            subview.setAttribute(@attribute, pos) unless subview[@attribute] == pos
-            skip = false
-           * console.log 'value', pos, @spacing, @inset, @attribute, @axis, subview[@axis]
-          pos += @spacing + subview[@axis]
-        return pos
-     */
     idle = (function() {
       var doTick, requestAnimationFrame, tickEvents, ticking;
       requestAnimationFrame = window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame;

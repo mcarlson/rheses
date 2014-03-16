@@ -633,33 +633,37 @@ window.lz = do ->
 
     # initialize a top-level view element
     initFromElement = (el) ->
-      findAutoIncludes(el)
+      el.style.display = 'none'
+      findAutoIncludes(el, () ->
+        el.style.display = 'block'
+        initElement(el)
+        _initConstraints()
+      )
 
-    findAutoIncludes = (parentel) ->
+    findAutoIncludes = (parentel, callback) ->
       loaded = {}
       inlineclasses = {}
       requests = []
-      for el in $(parentel).find('*')
+      jqel = $(parentel)
+      for el in jqel.find('*')
         name = el.localName
         if name == 'class'
-          # avoid loading inline class declarations
+          # find inline class declarations
           inlineclasses[el.attributes.name.value] = true
         else unless name in specialtags or name of inlineclasses or name of lz or name of loaded
+          # avoid loading inline classes, core classes that already exist or classes that have already loaded
           url = 'classes/' + name + '.lzx'
           # console.log 'loading', url
           requests.push($.get(url))
           loaded[name] = true 
           
       # console.log(requests, loaded, inlineclasses)
-      parentel.style.display = 'none'
       $.when.apply($, requests).done((args...) ->
         args = [args] if (requests.length == 1)
         for xhr in args
           # console.log 'inserting html', xhr[0] 
-          $(parentel).prepend(xhr[0])
-        parentel.style.display = 'block'
-        initElement(parentel)
-        _initConstraints()
+          jqel.prepend(xhr[0])
+        callback()
       )
 
     specialtags = ['handler', 'method', 'attribute', 'setter']
@@ -683,16 +687,12 @@ window.lz = do ->
       attributes.parent = parent if parent?
       # console.log 'parent', tagname, attributes, parent
 
-      children = (child for child in el.childNodes when child.nodeType == 1)
-
-      if tagname is 'class'
-        # defer creation of children created elsewhere
-        for child in children
-          child.$defer = true
-      else 
+      unless tagname is 'class'
         dom.processSpecialTags(el, attributes, attributes.type)
 
       parent = new lz[tagname](el, attributes)
+
+      children = (child for child in el.childNodes when child.nodeType == 1)
 
       unless tagname is 'class'
         # create children now
@@ -825,17 +825,17 @@ window.lz = do ->
         parent = new lz[extend](instanceel, attributes)
         # console.log 'created instance', name, extend, parent
 
+        # hide elements that extend node
         instanceel.setAttribute('class', 'hidden') if extend == 'node'
 
-        return parent if not (viewel = parent.sprite?.el)
+        viewel = parent.sprite?.el
 
         # unpack instance 
-        if body
+        if body and viewel
           # console.log 'body', body
           viewel.innerHTML = body
           children = (child for child in viewel.childNodes when child.nodeType == 1)
           for child in children
-            child.$defer = null
             # console.log 'creating class child in parent', child, parent
             dom.initElement(child, parent)
 
@@ -888,64 +888,6 @@ window.lz = do ->
       @sendEvent('locked', locked)
       # console.log 'set_locked', locked
       @update() if (changed and not locked)
-
-  ###
-  class SimpleLayout extends Layout
-    constructor: (el, attributes = {}) ->
-      @attribute = 'x'
-      @axis = 'width'
-      @spacing = 10
-      @inset = 10
-      attributes.$types ?= {}
-      attributes.$types.spacing = 'number'
-      attributes.$types.inset = 'number'
-      super(el, attributes)
-
-    set_attribute: (attr) ->
-      newaxis = switch attr
-        when 'x' then 'width' 
-        when 'y' then 'height'
-
-      for subview in @parent?.subviews?
-        subview.unbind(@axis, @update).bind(newaxis, @update)
-
-      @axis = newaxis
-
-      @attribute = attr
-      # console.log('set_attribute', attr, typeof attr, @attribute, @axis, newaxis)
-      @update()
-
-    set_spacing: (space) ->
-      # console.log('set_spacing', space, typeof space)
-      @spacing = space
-      @update()
-
-    set_inset: (i) ->
-      # console.log('set_inset', i, typeof i)
-      @inset = i
-      @update()
-
-    added: (child) ->
-      # console.log 'added', child
-      @listenTo(child, @axis, @update)
-      super(child)
-
-    update: (value, sender) ->
-      # console.log('skip', @skip, @locked)
-      return if @skip()
-      pos = @inset
-      skip = true if sender
-      for subview in @parent.subviews
-        if (skip and subview != sender)
-          # console.log 'skipping', subview, sender
-        else 
-          # console.log 'updating', subview, @attribute, pos
-          subview.setAttribute(@attribute, pos) unless subview[@attribute] == pos
-          skip = false
-        # console.log 'value', pos, @spacing, @inset, @attribute, @axis, subview[@axis]
-        pos += @spacing + subview[@axis]
-      return pos
-  ###
 
   idle = do ->
     requestAnimationFrame = window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame# || (delegate) -> setTimeout(delegate, 17);
@@ -1071,7 +1013,6 @@ window.lz = do ->
     mouse: mouse
     keyboard: keyboard
     layout: Layout
-    # simplelayout: SimpleLayout
     initElements: dom.initAllElements
     writeCSS: dom.writeCSS
 
