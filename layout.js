@@ -2,9 +2,9 @@
 (function() {
   var hackstyle,
     __slice = [].slice,
-    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   hackstyle = (function() {
@@ -35,7 +35,30 @@
   })();
 
   window.lz = (function() {
-    var Class, Eventable, Events, Keyboard, Layout, Module, Mouse, Node, Sprite, View, compiler, constraintScopes, dom, exports, idle, ignoredAttributes, keyboard, moduleKeywords, mouse, mouseEvents, _initConstraints;
+    var Class, Clickable, Eventable, Events, Keyboard, Layout, Module, Mouse, Node, Sprite, View, compiler, constraintScopes, dom, exports, idle, ignoredAttributes, keyboard, mixOf, moduleKeywords, mouse, mouseEvents, _initConstraints;
+    mixOf = function() {
+      var Mixed, base, i, method, mixin, mixins, name, _i, _ref;
+      base = arguments[0], mixins = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
+      Mixed = (function(_super) {
+        __extends(Mixed, _super);
+
+        function Mixed() {
+          return Mixed.__super__.constructor.apply(this, arguments);
+        }
+
+        return Mixed;
+
+      })(base);
+      for (i = _i = mixins.length - 1; _i >= 0; i = _i += -1) {
+        mixin = mixins[i];
+        _ref = mixin.prototype;
+        for (name in _ref) {
+          method = _ref[name];
+          Mixed.prototype[name] = method;
+        }
+      }
+      return Mixed;
+    };
     Events = {
       bind: function(ev, callback) {
         var evs, name, _base, _i, _len;
@@ -359,14 +382,14 @@
       return constraintScopes = [];
     };
     Node = (function(_super) {
-      var eventCallback, installMethod, matchConstraint;
+      var matchConstraint, _eventCallback, _installMethod;
 
       __extends(Node, _super);
 
       matchConstraint = /\${(.+)}/;
 
       function Node(el, attributes) {
-        var args, callback, constraint, method, methodname, name, reference, script, value, _i, _len, _ref, _ref1, _ref2, _ref3;
+        var args, callback, constraint, method, methodspec, name, reference, script, value, _i, _len, _ref, _ref1, _ref2, _ref3;
         if (attributes == null) {
           attributes = {};
         }
@@ -378,9 +401,9 @@
         }
         if (attributes.$methods) {
           _ref1 = attributes.$methods;
-          for (methodname in _ref1) {
-            method = _ref1[methodname];
-            installMethod(this, methodname, compiler.compile.apply(null, method));
+          for (name in _ref1) {
+            methodspec = _ref1[name];
+            _installMethod(this, name, compiler.compile(methodspec[0], methodspec[1]));
           }
           delete attributes.$methods;
         }
@@ -392,7 +415,7 @@
             if (method) {
               callback = this[method];
             } else {
-              callback = eventCallback(name, script, this, args);
+              callback = _eventCallback(name, script, this, args);
             }
             if (reference != null) {
               this.listenTo(eval(reference), name, callback);
@@ -414,7 +437,7 @@
             this.applyConstraint(name, constraint[1]);
           } else if (name.indexOf('on') === 0) {
             name = name.substr(2);
-            this.bind(name, eventCallback(name, value, this));
+            this.bind(name, _eventCallback(name, value, this));
           } else {
             this.setAttribute(name, value);
           }
@@ -426,10 +449,11 @@
       }
 
       Node.prototype.initConstraints = function() {
-        return _initConstraints();
+        _initConstraints();
+        return this;
       };
 
-      eventCallback = function(name, script, scope, fnargs) {
+      _eventCallback = function(name, script, scope, fnargs) {
         var js;
         if (fnargs == null) {
           fnargs = ['value'];
@@ -446,7 +470,7 @@
         };
       };
 
-      installMethod = function(scope, methodname, method) {
+      _installMethod = function(scope, methodname, method) {
         var meth, supr;
         if (methodname in scope) {
           supr = scope[methodname];
@@ -591,8 +615,6 @@
         this.animate = __bind(this.animate, this);
         if (jqel == null) {
           this.el = document.createElement('div');
-        } else if (jqel instanceof jQuery) {
-          this.el = jqel[0];
         } else if (jqel instanceof HTMLElement) {
           this.el = jqel;
         }
@@ -615,8 +637,6 @@
       Sprite.prototype.set_parent = function(parent) {
         if (parent instanceof Sprite) {
           parent = parent.el;
-        } else if (parent instanceof jQuery) {
-          parent = parent[0];
         }
         return parent.appendChild(this.el);
       };
@@ -725,6 +745,16 @@
       return Sprite;
 
     })();
+    Clickable = (function() {
+      function Clickable() {}
+
+      Clickable.prototype.set_clickable = function(clickable) {
+        return this.sprite.set_clickable(clickable);
+      };
+
+      return Clickable;
+
+    })();
     ignoredAttributes = {
       parent: true,
       id: true,
@@ -793,10 +823,6 @@
         return this.sprite.animate.apply(this, arguments);
       };
 
-      View.prototype.set_clickable = function(clickable) {
-        return this.sprite.set_clickable(clickable);
-      };
-
       View.prototype.set_clip = function(clip) {
         return this.sprite.set_clip(clip);
       };
@@ -820,7 +846,7 @@
 
       return View;
 
-    })(Node);
+    })(mixOf(Node, Clickable));
     dom = (function() {
       var exports, findAutoIncludes, flattenattributes, htmlDecode, initAllElements, initElement, initFromElement, processSpecialTags, specialtags, writeCSS;
       flattenattributes = function(namednodemap) {
@@ -900,19 +926,19 @@
           dom.processSpecialTags(el, attributes, attributes.type);
         }
         parent = new lz[tagname](el, attributes);
-        children = (function() {
-          var _j, _len1, _ref, _results;
-          _ref = el.childNodes;
-          _results = [];
-          for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
-            child = _ref[_j];
-            if (child.nodeType === 1) {
-              _results.push(child);
-            }
-          }
-          return _results;
-        })();
         if (tagname !== 'class') {
+          children = (function() {
+            var _j, _len1, _ref, _results;
+            _ref = el.childNodes;
+            _results = [];
+            for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+              child = _ref[_j];
+              if (child.nodeType === 1) {
+                _results.push(child);
+              }
+            }
+            return _results;
+          })();
           for (_j = 0, _len1 = children.length; _j < _len1; _j++) {
             child = children[_j];
             if (_ref = child.localName, __indexOf.call(specialtags, _ref) < 0) {
@@ -1067,10 +1093,12 @@
             }
           }
           parent = new lz[extend](instanceel, attributes);
-          if (extend === 'node') {
-            instanceel.setAttribute('class', 'hidden');
-          }
           viewel = (_ref = parent.sprite) != null ? _ref.el : void 0;
+          if (instanceel) {
+            if (!viewel) {
+              instanceel.setAttribute('class', 'hidden');
+            }
+          }
           if (body && viewel) {
             viewel.innerHTML = body;
             children = (function() {

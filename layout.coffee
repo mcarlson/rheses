@@ -22,6 +22,14 @@ hackstyle = do ->
 
 
 window.lz = do ->
+  # from http://coffeescriptcookbook.com/chapters/classes_and_objects/mixins
+  mixOf = (base, mixins...) ->
+    class Mixed extends base
+    for mixin, i in mixins by -1
+      for name, method of mixin::
+        Mixed::[name] = method
+    Mixed
+
   # from https://github.com/spine/spine/tree/dev/src
   Events =
     bind: (ev, callback) ->
@@ -263,9 +271,9 @@ window.lz = do ->
 
       if attributes.$methods
         # Install methods
-        for methodname, method of attributes.$methods
-          # console.log 'installing method', methodname, method, @
-          installMethod(@, methodname, compiler.compile.apply(null, method))
+        for name, methodspec of attributes.$methods
+          # console.log 'installing method', name, methodspec, @
+          _installMethod(@, name, compiler.compile(methodspec[0], methodspec[1]))
         delete attributes.$methods
 
       if attributes.$handlers
@@ -277,7 +285,7 @@ window.lz = do ->
             callback = @[method]
             # console.log('using method', method, callback)
           else
-            callback = eventCallback(name, script, @, args)
+            callback = _eventCallback(name, script, @, args)
 
           if reference?
             @listenTo(eval(reference), name, callback)
@@ -297,7 +305,7 @@ window.lz = do ->
         else if name.indexOf('on') == 0
           name = name.substr(2)
           # console.log('binding to event expression', name, value, @)
-          @bind(name, eventCallback(name, value, @))
+          @bind(name, _eventCallback(name, value, @))
         else
           @setAttribute(name, value)
 
@@ -306,12 +314,13 @@ window.lz = do ->
       # console.log 'new node', @, attributes
       @sendEvent('init', @)
 
+    # public API
     initConstraints: ->
       _initConstraints()
-      
+      @
 
     # generate a callback for an event expression in a way that preserves scope, e.g. on_x="console.log(value, this, ...)"
-    eventCallback = (name, script, scope, fnargs=['value']) ->
+    _eventCallback = (name, script, scope, fnargs=['value']) ->
       # console.log 'binding to event expression', name, script, scope, fnargs
       js = compiler.compile(script, fnargs)
       ->
@@ -322,7 +331,7 @@ window.lz = do ->
         # console.log 'event callback', name, args, scope, js
         js.apply(scope, args)
 
-    installMethod = (scope, methodname, method) ->
+    _installMethod = (scope, methodname, method) ->
       if methodname of scope
         # Cheesy override
         supr = scope[methodname]
@@ -440,8 +449,8 @@ window.lz = do ->
       # console.log 'new sprite', jqel, view
       if not jqel?
         @el = document.createElement('div')
-      else if jqel instanceof jQuery
-        @el = jqel[0]
+      # else if jqel instanceof jQuery
+      #   @el = jqel[0]
       else if jqel instanceof HTMLElement
         @el = jqel
       # console.log 'sprite el', @el, @
@@ -467,8 +476,8 @@ window.lz = do ->
     set_parent: (parent) ->
       if parent instanceof Sprite
         parent = parent.el
-      else if parent instanceof jQuery
-        parent = parent[0]
+      # else if parent instanceof jQuery
+      #   parent = parent[0]
 
       # parent = $(parent) unless parent instanceof jQuery
       # parent.append(@jqel)
@@ -553,9 +562,13 @@ window.lz = do ->
       # console.log('setid', @id)
       @el.setAttribute('class', classname)
 
+  class Clickable
+    set_clickable: (clickable) ->
+      @sprite.set_clickable(clickable)
+      # super?(clickable)
 
   ignoredAttributes = {parent: true, id: true, name: true, extends: true, type: true}
-  class View extends Node
+  class View extends mixOf Node, Clickable
     constructor: (el, attributes = {}) ->
       @subviews = []
       types = {x: 'number', y: 'number', width: 'number', height: 'number', clickable: 'boolean', clip: 'boolean'}
@@ -600,9 +613,6 @@ window.lz = do ->
     animate: ->
       # console.log 'animate', arguments, @sprite.animate
       @sprite.animate.apply(this, arguments)
-
-    set_clickable: (clickable) ->
-      @sprite.set_clickable(clickable)
 
     set_clip: (clip) ->
       @sprite.set_clip(clip)
@@ -691,9 +701,8 @@ window.lz = do ->
 
       parent = new lz[tagname](el, attributes)
 
-      children = (child for child in el.childNodes when child.nodeType == 1)
-
       unless tagname is 'class'
+        children = (child for child in el.childNodes when child.nodeType == 1)
         # create children now
         for child in children
           initElement(child, parent) unless child.localName in specialtags
@@ -720,6 +729,7 @@ window.lz = do ->
       e.innerHTML = input;
       e.childNodes[0]?.nodeValue
 
+    # process handlers, methods, setters and attributes 
     processSpecialTags = (el, classattributes, defaulttype) ->
       classattributes.$types ?= {}
       classattributes.$methods ?= {}
@@ -788,13 +798,13 @@ window.lz = do ->
 
       # console.log('compiled class', name, extend, classattributes)
 
-      # cache the old contents
+      # cache the old contents to preserve appearance
       oldbody = el.innerHTML.trim()
 
       for child in processedChildren
         child.parentNode.removeChild(child)
 
-      # serialize the tag's contents
+      # serialize the tag's contents for recreation with processedChildren removed
       body = el.innerHTML.trim()
 
       # restore old contents
@@ -802,7 +812,10 @@ window.lz = do ->
 
       # console.log('new class', name, classattributes)
       console.warn 'overwriting class', name if name of lz
+
+      # class instance constructor
       lz[name] = (instanceel, instanceattributes) ->
+        # override class attributes on the instance
         attributes = clone(classattributes)
         for key, value of instanceattributes
           # console.log 'overriding class attribute', key, value
@@ -810,7 +823,7 @@ window.lz = do ->
             attributes[key] = clone(attributes[key])
             # console.log('overwriting', key, attributes[key], value)
             for propname, val of value
-              # TODO: deal with method overrides here?
+              # TODO: deal with method overrides here? Likely not wanted for instance overrides
               attributes[key][propname] = val
             # console.log 'overwrote class attribute', key, attributes[key], value
           else if key is '$handlers' and key of attributes
@@ -824,12 +837,13 @@ window.lz = do ->
         parent = new lz[extend](instanceel, attributes)
         # console.log 'created instance', name, extend, parent
 
-        # hide elements that extend node
-        instanceel.setAttribute('class', 'hidden') if extend == 'node'
-
         viewel = parent.sprite?.el
 
-        # unpack instance 
+        if instanceel
+          # hide contents of invisible nodes
+          instanceel.setAttribute('class', 'hidden') unless viewel
+
+        # unpack instance children
         if body and viewel
           # console.log 'body', body
           viewel.innerHTML = body
