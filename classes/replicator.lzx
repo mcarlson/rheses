@@ -59,8 +59,10 @@
         for datum in data
           child = new lz[@classname](null, {data: datum, parent: @parent, replicator: @})
           # console.log 'created', datum, @classname, child
-          child.initConstraints()
           @children.push(child)
+
+        # init constraints for all children
+        child.initConstraints() if child
 
         if @parent.layouts
           for layout in @parent.layouts
