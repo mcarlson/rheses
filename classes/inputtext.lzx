@@ -1,0 +1,37 @@
+    <class name="inputtext" type="coffee" clickable="true">
+      <attribute name="multiline" value="false" type="boolean"></attribute>
+      <method name="updateSize">
+        @set(@sprite.measureTextSize(@multiline, @width))
+      </method>
+      <handler name="ondata" args="d">
+        @setAttribute('text', d)
+      </handler>
+      <setter name="text" args="text">
+        # console.log('set_text', text)
+        @sprite.value(text)
+        # @updateSize() if (text != @text)
+      </setter>
+      <handler name="oninit">
+        # el = @sprite.el
+        # Prefer text attribute, fall back to innerHTML
+        text = @text || @sprite.text()
+        # clear innerHTML
+        @sprite.text('')
+        @sprite.createInputtextElement(text, @multiline, @width)
+        @updateSize()
+      </handler>
+      <handler name="onchange">
+        return unless @replicator
+        # attempt to coerce to the current type if it was a boolean or number (bad idea?)
+        newdata = @text
+        if (typeof @data == 'number')
+          if parseFloat(newdata) + '' == newdata
+            newdata = parseFloat(newdata)
+        else if (typeof @data == 'boolean')
+          if newdata == 'true'
+            newdata = true
+          else if newdata == 'false'
+            newdata = false
+        @replicator.updateData(newdata)
+      </handler>
+    </class>

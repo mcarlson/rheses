@@ -1,0 +1,69 @@
+    <class name="replicator" type="coffee" extends="node">
+      <attribute name="data" value="[]" type="expression"></attribute>
+      <attribute name="classname" value="" type="string"></attribute>
+      <attribute name="datapath" value="" type="string"></attribute>
+      <handler name="oninit" method="applyData"></handler>
+      <handler name="onclassname" method="applyData"></handler>
+      <handler name="ondata" method="applyData"></handler>
+      <handler name="ondatapath" method="applyData"></handler>
+      <method name="updateData" args="data">
+        @dataset.updateData(@parsedpath, data);
+      </method>
+      <method name="applyData">
+        return unless @parent
+        # console.log('applyData', @data, @classname)
+
+        if @datapath
+          re = /^\$([^\/]+)/
+          match = @datapath.match(re)
+          if match and match[1]
+            # absolute datapath
+            # console.log('evaluating datapath', @datapath, match[1])
+            @dataset = dataset = lz.datasets[match[1]]
+            # console.log('listening to dataset', dataset)
+            @listenTo(dataset, 'data', (data) =>
+              # console.log('callback', @, data)
+              @setAttribute('data', data)
+            )
+            @parsedpath = path = @datapath.replace(re, '')
+            if path == ''
+              # console.log('dataset only', dataset, dataset.data)
+              data = [dataset]
+            else
+              # console.log('evaluating path', path, dataset.data)
+              data = JsonPath.resolve(dataset.data, path)
+          else 
+            # relative datapath, look for dataset in parent(s)
+            parentdata = @_findInParents('data')
+            if parentdata?
+              # console.log('parsing selector', @datapath)
+              data = JsonPath.resolve(parentdata.data, @datapath)
+              # console.log('looking for data', @datapath, parentdata.data, data)
+            else
+              console.warn('No parent datapath found', @datapath, @)
+        else
+          # no datapath
+          data = @data
+
+        return unless data
+
+        if @parent.layouts
+          for layout in @parent.layouts
+            layout.setAttribute('locked', true)
+
+        if @children
+          for child in @children
+            child.destroy()
+        @children = []
+
+        for datum in data
+          child = new lz[@classname](null, {data: datum, parent: @parent, replicator: @})
+          # console.log 'created', datum, @classname, child
+          child.initConstraints()
+          @children.push(child)
+
+        if @parent.layouts
+          for layout in @parent.layouts
+            layout.setAttribute('locked', false)
+      </method>
+    </class>

@@ -1,0 +1,52 @@
+    <!-- Set the parent's width/height to match the bounds of all its children -->
+    <class name="boundslayout" extends="layout" type="coffee">
+      <attribute name="width" type="number" value="0"></attribute>
+      <attribute name="height" type="number" value="0"></attribute>
+      <handler name="oninit">
+        # console.log('oninit', this)
+      </handler>
+      <handler name="onsubview" args="subview">
+        # console.log('onsubview bound', @update, subview, this)
+        @listenTo(subview, 'x y width height', @update)
+      </handler>
+      <method name="update" args="value, sender, attribute">
+        # console.log('skip', @skip, @locked)
+        return if @skip()
+        @locked = true
+        # TODO: fix to track outliers (and maybe thresholds) and update everything when all outliers go below that threshold
+        if false # and sender? and value? and (@lastlength == @parent.subviews.length)
+          # update based on sender attribute where available
+          if (! attribute or attribute == 'x' or attribute == 'width')
+            width = Math.max(@width, sender.x + sender.width)
+            #if width != @width
+            @setAttribute('width', width) unless @.width == width
+            @parent.setAttribute('width', width) unless @parent.width == width
+
+          if (! attribute or attribute == 'y' or attribute == 'height')
+            height = Math.max(@height, sender.y + sender.height)
+            #if height != @height
+            @setAttribute('height', height) unless @.height == height
+            @parent.setAttribute('height', height unless @parent.height == height)
+
+          # console.log('sender', value, sender, attribute, width, height)
+        else
+          # console.log('brute force update')
+          width = 0
+          height = 0
+          for subview, len in @parent.subviews
+            continue if subview.ignorelayout
+            # console.log 'updating', subview, @attribute, pos
+            width = Math.max(width, subview.x + subview.width)
+            height = Math.max(height, subview.y + subview.height)
+            # return if isNaN(width) or isNaN(height)
+            # console.log 'value', subview, width, height
+
+          @lastlength = len
+
+          @setAttribute('width', width) unless @.width == width
+          @setAttribute('height', height) unless @.height == height
+          @parent.setAttribute('width', width) unless @parent.width == width
+          @parent.setAttribute('height', height) unless @parent.height == height
+        @locked = false
+      </method>
+    </class>

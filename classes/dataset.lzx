@@ -1,0 +1,41 @@
+    <class name="dataset" type="coffee" extends="node">
+      <handler name="oninit">
+        lz.datasets ?= {}
+        lz.datasets[@name] = @
+      </handler>
+      <attribute name="url" type="string" value=""></attribute>
+      <handler name="ontextcontent">
+        if @textcontent
+          @setAttribute('data', JSON.parse(@textcontent))
+          # console.log('data', @name, @data)
+      </handler>
+      <handler name="onurl" method="loadURL"></handler>
+      <method name="loadURL" args="url">
+        # console.log('loading url', url)
+        # assume JSONP
+        $.ajax({
+          url: url,
+          dataType: 'jsonp'
+        }).done((data) =>
+          # console.log('data', url, data)
+          @setAttribute('data', data)
+        );
+      </method>
+      <method name="updateData" args="path, data">
+        # find the scope and property to be updated
+        re = /\/([^\/]+)$/
+        property = path.match(re)
+        if property and property[1]
+          subpath = path.replace(re, '')
+
+          # console.log('updating data', @data, subpath)
+          scope = JsonPath.resolve(@data, subpath)
+          # only handle updating a single field
+          return unless scope.length == 1
+
+          # console.log(data, @data, path, scope[0], property[1], scope[0][property[1]])
+          scope[0][property[1]] = data
+          # TODO: send smaller updates based on path argument
+          @sendEvent('data', @data)
+      </method>
+    </class>
