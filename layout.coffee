@@ -634,7 +634,7 @@ window.lz = do ->
     initFromElement = (el) ->
       el.style.display = 'none'
       findAutoIncludes(el, () ->
-        el.style.display = 'block'
+        el.style.display = null
         initElement(el)
         _initConstraints()
       )
@@ -705,7 +705,7 @@ window.lz = do ->
     writeCSS = ->
       style = document.createElement('style')
       style.type = 'text/css'
-      style.innerHTML = '.sprite{ position: absolute; pointer-events: none; } .sprite-text{ width: auto; height; auto; white-space: nowrap; } .hidden{ display: none; } method { display: none; } handler { display: none; } setter { display: none; }'
+      style.innerHTML = '.sprite{ position: absolute; pointer-events: none; } .sprite-text{ width: auto; height; auto; white-space: nowrap; } .hidden{ display: none; } method { display: none; } handler { display: none; } setter { display: none; } class { display:none } node { display:none }'
       document.getElementsByTagName('head')[0].appendChild(style)
 
     # init top-level views in the DOM recursively

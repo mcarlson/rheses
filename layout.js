@@ -835,7 +835,7 @@
       initFromElement = function(el) {
         el.style.display = 'none';
         return findAutoIncludes(el, function() {
-          el.style.display = 'block';
+          el.style.display = null;
           initElement(el);
           return _initConstraints();
         });
@@ -925,7 +925,7 @@
         var style;
         style = document.createElement('style');
         style.type = 'text/css';
-        style.innerHTML = '.sprite{ position: absolute; pointer-events: none; } .sprite-text{ width: auto; height; auto; white-space: nowrap; } .hidden{ display: none; } method { display: none; } handler { display: none; } setter { display: none; }';
+        style.innerHTML = '.sprite{ position: absolute; pointer-events: none; } .sprite-text{ width: auto; height; auto; white-space: nowrap; } .hidden{ display: none; } method { display: none; } handler { display: none; } setter { display: none; } class { display:none } node { display:none }';
         return document.getElementsByTagName('head')[0].appendChild(style);
       };
       initAllElements = function(selector) {
