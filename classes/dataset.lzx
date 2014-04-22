@@ -12,10 +12,14 @@
       <handler name="onurl" method="loadURL"></handler>
       <method name="loadURL" args="url">
         # console.log('loading url', url)
-        # assume JSONP
+        type = 'json'
+        if (url.indexOf('callback=?') != -1)
+          # assume JSONP if 'callback=?' is in the URL
+          type = 'jsonp'
+
         $.ajax({
-          url: url,
-          dataType: 'jsonp'
+          url: url
+          dataType: type
         }).done((data) =>
           # console.log('data', url, data)
           @setAttribute('data', data)
