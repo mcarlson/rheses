@@ -678,6 +678,10 @@ window.lz = do ->
     specialtags = ['handler', 'method', 'attribute', 'setter']
     # recursively init classes based on an existing element
     initElement = (el, parent) ->
+      # don't init the same element twice
+      return if el.$init
+      el.$init = true
+
       tagname = el.localName
       if not (tagname of lz)
         console.warn 'could not find class for tag', tagname, el

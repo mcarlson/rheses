@@ -900,6 +900,10 @@
       specialtags = ['handler', 'method', 'attribute', 'setter'];
       initElement = function(el, parent) {
         var attributes, child, children, event, eventname, tagname, _i, _j, _len, _len1, _ref;
+        if (el.$init) {
+          return;
+        }
+        el.$init = true;
         tagname = el.localName;
         if (!(tagname in lz)) {
           console.warn('could not find class for tag', tagname, el);
