@@ -675,7 +675,8 @@ window.lz = do ->
         callback()
       )
 
-    specialtags = ['handler', 'method', 'attribute', 'setter']
+    specialtags = ['handler', 'method', 'attribute', 'setter', 'include', 'library']
+    buildtinTags = ['input', 'div']
     # recursively init classes based on an existing element
     initElement = (el, parent) ->
       # don't init the same element twice
@@ -684,7 +685,7 @@ window.lz = do ->
 
       tagname = el.localName
       if not (tagname of lz)
-        console.warn 'could not find class for tag', tagname, el
+        console.warn 'could not find class for tag', tagname, el unless (tagname in buildtinTags)
         return
 
       attributes = flattenattributes(el.attributes)
@@ -698,7 +699,7 @@ window.lz = do ->
 
       parent ?= el.parentNode
       attributes.parent = parent if parent?
-      # console.log 'parent', tagname, attributes, parent
+      # console.log 'parent for tag', tagname, attributes, parent
 
       unless tagname is 'class'
         dom.processSpecialTags(el, attributes, attributes.type)
@@ -709,6 +710,7 @@ window.lz = do ->
         children = (child for child in el.childNodes when child.nodeType == 1)
         # create children now
         for child in children
+          # console.log 'initting class child', child.localName
           initElement(child, parent) unless child.localName in specialtags
 
       return
@@ -798,6 +800,7 @@ window.lz = do ->
       for ignored of ignoredAttributes
         delete classattributes[ignored]
 
+      # collapse children into attributes
       processedChildren = dom.processSpecialTags(el, classattributes, compilertype)
 
       # console.log('compiled class', name, extend, classattributes)
@@ -819,7 +822,7 @@ window.lz = do ->
 
       # class instance constructor
       lz[name] = (instanceel, instanceattributes) ->
-        # override class attributes on the instance
+        # override class attributes with instance attributes
         attributes = clone(classattributes)
         for key, value of instanceattributes
           # console.log 'overriding class attribute', key, value
@@ -839,7 +842,7 @@ window.lz = do ->
 
         # console.log 'creating class instance', name, attributes
         parent = new lz[extend](instanceel, attributes)
-        # console.log 'created instance', name, extend, parent
+        # console.log 'created class instance', name, extend, parent
 
         viewel = parent.sprite?.el
 
@@ -856,6 +859,7 @@ window.lz = do ->
             # console.log 'creating class child in parent', child, parent
             dom.initElement(child, parent)
 
+          # console.log 'done creating class instance', attributes.__classname if children.length
         return parent
 
 

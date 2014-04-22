@@ -848,7 +848,7 @@
 
     })(mixOf(Node, Clickable));
     dom = (function() {
-      var exports, findAutoIncludes, flattenattributes, htmlDecode, initAllElements, initElement, initFromElement, processSpecialTags, specialtags, writeCSS;
+      var buildtinTags, exports, findAutoIncludes, flattenattributes, htmlDecode, initAllElements, initElement, initFromElement, processSpecialTags, specialtags, writeCSS;
       flattenattributes = function(namednodemap) {
         var attributes, i, _i, _len;
         attributes = {};
@@ -897,7 +897,8 @@
           return callback();
         });
       };
-      specialtags = ['handler', 'method', 'attribute', 'setter'];
+      specialtags = ['handler', 'method', 'attribute', 'setter', 'include', 'library'];
+      buildtinTags = ['input', 'div'];
       initElement = function(el, parent) {
         var attributes, child, children, event, eventname, tagname, _i, _j, _len, _len1, _ref;
         if (el.$init) {
@@ -906,7 +907,9 @@
         el.$init = true;
         tagname = el.localName;
         if (!(tagname in lz)) {
-          console.warn('could not find class for tag', tagname, el);
+          if (!(__indexOf.call(buildtinTags, tagname) >= 0)) {
+            console.warn('could not find class for tag', tagname, el);
+          }
           return;
         }
         attributes = flattenattributes(el.attributes);
