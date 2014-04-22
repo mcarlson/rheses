@@ -1059,7 +1059,7 @@
       };
 
       function Class(el, classattributes) {
-        var body, child, compilertype, extend, ignored, name, oldbody, processedChildren, _i, _len;
+        var child, compilertype, extend, ignored, instancebody, name, oldbody, processedChildren, _i, _len;
         if (classattributes == null) {
           classattributes = {};
         }
@@ -1075,7 +1075,7 @@
           child = processedChildren[_i];
           child.parentNode.removeChild(child);
         }
-        body = el.innerHTML.trim();
+        instancebody = el.innerHTML.trim();
         if (oldbody) {
           el.innerHTML = oldbody;
         }
@@ -1106,8 +1106,12 @@
               instanceel.setAttribute('class', 'hidden');
             }
           }
-          if (body && viewel) {
-            viewel.innerHTML = body;
+          if (instancebody && viewel) {
+            if (viewel.innerHTML) {
+              viewel.innerHTML = viewel.innerHTML + instancebody;
+            } else {
+              viewel.innerHTML = instancebody;
+            }
             children = (function() {
               var _j, _len1, _ref1, _results;
               _ref1 = viewel.childNodes;

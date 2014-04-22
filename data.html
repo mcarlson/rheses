@@ -136,8 +136,12 @@
     <replicator datapath="$storedata/store/book[*]/author" classname="text"></replicator>
     <replicator datapath="$tempdata/main/temp" classname="inputtext"></replicator>
 
-    <class name="weather">
+    <class name="boundedview">
       <boundslayout></boundslayout>
+    </class>
+
+    <!-- Test datapath binding through non-bound parents -->
+    <class name="weather" extends="boundedview">
       <view>
         <simplelayout></simplelayout>
         <boundslayout></boundslayout>
@@ -148,6 +152,17 @@
       </view>
     </class>
     <replicator datapath="$tempdata" classname="weather"></replicator>
+
+    <class name="weather2" extends="boundedview">
+      <boundedview>
+        <simplelayout></simplelayout>
+        <replicator datapath="/weather[0]/main" classname="text"></replicator>
+        <replicator datapath="/main/temp" classname="text"></replicator>
+        <replicator datapath="/wind/speed" classname="text"></replicator>
+        <replicator datapath="/wind/deg" classname="text"></replicator>
+      </boundedview>
+    </class>
+    <replicator datapath="$tempdata" classname="weather2"></replicator>
   </view
 
 </body>

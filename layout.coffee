@@ -812,7 +812,7 @@ window.lz = do ->
         child.parentNode.removeChild(child)
 
       # serialize the tag's contents for recreation with processedChildren removed
-      body = el.innerHTML.trim()
+      instancebody = el.innerHTML.trim()
 
       # restore old contents
       el.innerHTML = oldbody if (oldbody)
@@ -851,9 +851,15 @@ window.lz = do ->
           instanceel.setAttribute('class', 'hidden') unless viewel
 
         # unpack instance children
-        if body and viewel
-          # console.log 'body', body
-          viewel.innerHTML = body
+        if instancebody and viewel
+          if viewel.innerHTML
+            # Append class children on instances instead of replacing them
+            viewel.innerHTML = viewel.innerHTML + instancebody
+            # console.log 'instancebody', instancebody, viewel.innerHTML, viewel
+          else
+            # console.log 'normal'
+            viewel.innerHTML = instancebody
+
           children = (child for child in viewel.childNodes when child.nodeType == 1)
           for child in children
             # console.log 'creating class child in parent', child, parent
