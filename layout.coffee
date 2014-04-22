@@ -959,24 +959,64 @@ window.lz = do ->
       tickEvents[key] = callback
 
 
-  # singleton that listens for keyboard and mouse events. Holds data about the most recent left and top mouse coordinates
+  class StartEventable extends Eventable
+    bind: (ev, callback) ->
+      super
+      if @startEventTest()
+        @startEvent()
+
+    unbind: (ev, callback) ->
+      super
+      if not @startEventTest()
+        @stopEvent()
+
+    startEvent: (event) =>
+      return if @eventStarted
+      @eventStarted = true
+      # @tId = setInterval(@sender, 17)
+      # console.log 'start'
+
+    stopEvent: (event) =>
+      return if not @eventStarted
+      @eventStarted = false
+      # clearInterval(@tId)
+      # console.log 'stop'
+      # @docSelector.off("mousemove", @handle).one("mouseover", @startEvent)
+
+
+  class Idle extends StartEventable
+    startEventTest: () ->
+      start = @events['idle']?.length
+      if start
+        # console.log 'startEventTest', start, @sender
+        # @sender()
+
+        return start
+
+    startEvent: (event) =>
+      super
+      idle(1, @sender)
+
+    sender: (time) =>
+      @trigger('idle', time, @)
+      # console.log('sender', time, @eventStarted, idle)
+      setTimeout(() =>
+        idle(1, @sender)
+      ,0)
+
+
+  # singleton that listens for mouse events. Holds data about the most recent left and top mouse coordinates
   mouseEvents = ['click', 'mouseover', 'mouseout', 'mousedown', 'mouseup']
-  class Mouse extends Eventable
+  class Mouse extends StartEventable
     constructor: ->
       @x = 0
       @y = 0
       @docSelector = $(document)
       @docSelector.on(mouseEvents.join(' '), @handle)
+      @docSelector.on("mousemove", @handle).one("mouseout", @stopEvent)
 
-    bind: (ev, callback) ->
-      super
-      if @events['mousemove']?.length or @events['x']?.length or @events['y']?.length
-        @start()
-
-    unbind: (ev, callback) ->
-      super
-      if @events['mousemove']?.length is 0 and @events['x']?.length is 0 and @events['y']?.length is 0
-        @stop()
+    startEventTest: () ->
+      @events['mousemove']?.length or @events['x']?.length or @events['y']?.length
 
     handle: (event) =>
       view = event.target.$view
@@ -985,7 +1025,7 @@ window.lz = do ->
       if view
         view.sendEvent(type, view)
 
-      if @started and type is 'mousemove'
+      if @eventStarted and type is 'mousemove'
         @x = event.pageX
         @y = event.pageY
         idle(0, @sender) 
@@ -997,21 +1037,13 @@ window.lz = do ->
       @sendEvent('x', @x)
       @sendEvent('y', @y)
 
-    start: (event) =>
-      return if @started
+    handleDocEvent: (event) ->
       return if event and event.target != document
-      @started = true
-      # @tId = setInterval(@sender, 17)
-      # console.log 'start'
-      @docSelector.on("mousemove", @handle).one("mouseout", @stop)
+      if @eventStarted
+        @docSelector.on("mousemove", @handle).one("mouseout", @stopEvent)
+      else
+        @docSelector.on("mousemove", @handle).one("mouseout", @startEvent)
 
-    stop: (event) =>
-      return if not @started
-      return if event and event.target != document
-      @started = false
-      # clearInterval(@tId)
-      # console.log 'stop'
-      @docSelector.off("mousemove", @handle).one("mouseover", @start)
 
 
   class Keyboard extends Eventable
@@ -1050,17 +1082,14 @@ window.lz = do ->
       # console.log 'handleKeyboard', type, inputtext, keys, event
 
 
-  mouse = new Mouse()
-  keyboard = new Keyboard()
-
-
   exports = 
     view: View
     class: Class
     node: Node
-    mouse: mouse
-    keyboard: keyboard
+    mouse: new Mouse()
+    keyboard: new Keyboard()
     layout: Layout
+    idle: new Idle()
     initElements: dom.initAllElements
     writeCSS: dom.writeCSS
 

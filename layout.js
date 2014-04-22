@@ -35,7 +35,7 @@
   })();
 
   window.lz = (function() {
-    var Class, Clickable, Eventable, Events, Keyboard, Layout, Module, Mouse, Node, Sprite, View, compiler, constraintScopes, dom, exports, idle, ignoredAttributes, keyboard, mixOf, moduleKeywords, mouse, mouseEvents, _initConstraints;
+    var Class, Clickable, Eventable, Events, Idle, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, View, compiler, constraintScopes, dom, exports, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, _initConstraints;
     mixOf = function() {
       var Mixed, base, i, method, mixin, mixins, name, _i, _ref;
       base = arguments[0], mixins = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
@@ -1261,35 +1261,97 @@
         return tickEvents[key] = callback;
       };
     })();
+    StartEventable = (function(_super) {
+      __extends(StartEventable, _super);
+
+      function StartEventable() {
+        this.stopEvent = __bind(this.stopEvent, this);
+        this.startEvent = __bind(this.startEvent, this);
+        return StartEventable.__super__.constructor.apply(this, arguments);
+      }
+
+      StartEventable.prototype.bind = function(ev, callback) {
+        StartEventable.__super__.bind.apply(this, arguments);
+        if (this.startEventTest()) {
+          return this.startEvent();
+        }
+      };
+
+      StartEventable.prototype.unbind = function(ev, callback) {
+        StartEventable.__super__.unbind.apply(this, arguments);
+        if (!this.startEventTest()) {
+          return this.stopEvent();
+        }
+      };
+
+      StartEventable.prototype.startEvent = function(event) {
+        if (this.eventStarted) {
+          return;
+        }
+        return this.eventStarted = true;
+      };
+
+      StartEventable.prototype.stopEvent = function(event) {
+        if (!this.eventStarted) {
+          return;
+        }
+        return this.eventStarted = false;
+      };
+
+      return StartEventable;
+
+    })(Eventable);
+    Idle = (function(_super) {
+      __extends(Idle, _super);
+
+      function Idle() {
+        this.sender = __bind(this.sender, this);
+        this.startEvent = __bind(this.startEvent, this);
+        return Idle.__super__.constructor.apply(this, arguments);
+      }
+
+      Idle.prototype.startEventTest = function() {
+        var start, _ref;
+        start = (_ref = this.events['idle']) != null ? _ref.length : void 0;
+        if (start) {
+          return start;
+        }
+      };
+
+      Idle.prototype.startEvent = function(event) {
+        Idle.__super__.startEvent.apply(this, arguments);
+        return idle(1, this.sender);
+      };
+
+      Idle.prototype.sender = function(time) {
+        this.trigger('idle', time, this);
+        return setTimeout((function(_this) {
+          return function() {
+            return idle(1, _this.sender);
+          };
+        })(this), 0);
+      };
+
+      return Idle;
+
+    })(StartEventable);
     mouseEvents = ['click', 'mouseover', 'mouseout', 'mousedown', 'mouseup'];
     Mouse = (function(_super) {
       __extends(Mouse, _super);
 
       function Mouse() {
-        this.stop = __bind(this.stop, this);
-        this.start = __bind(this.start, this);
         this.sender = __bind(this.sender, this);
         this.handle = __bind(this.handle, this);
         this.x = 0;
         this.y = 0;
         this.docSelector = $(document);
         this.docSelector.on(mouseEvents.join(' '), this.handle);
+        this.docSelector.on("mousemove", this.handle).one("mouseout", this.stopEvent);
       }
 
-      Mouse.prototype.bind = function(ev, callback) {
+      Mouse.prototype.startEventTest = function() {
         var _ref, _ref1, _ref2;
-        Mouse.__super__.bind.apply(this, arguments);
-        if (((_ref = this.events['mousemove']) != null ? _ref.length : void 0) || ((_ref1 = this.events['x']) != null ? _ref1.length : void 0) || ((_ref2 = this.events['y']) != null ? _ref2.length : void 0)) {
-          return this.start();
-        }
-      };
-
-      Mouse.prototype.unbind = function(ev, callback) {
-        var _ref, _ref1, _ref2;
-        Mouse.__super__.unbind.apply(this, arguments);
-        if (((_ref = this.events['mousemove']) != null ? _ref.length : void 0) === 0 && ((_ref1 = this.events['x']) != null ? _ref1.length : void 0) === 0 && ((_ref2 = this.events['y']) != null ? _ref2.length : void 0) === 0) {
-          return this.stop();
-        }
+        return ((_ref = this.events['mousemove']) != null ? _ref.length : void 0) || ((_ref1 = this.events['x']) != null ? _ref1.length : void 0) || ((_ref2 = this.events['y']) != null ? _ref2.length : void 0);
       };
 
       Mouse.prototype.handle = function(event) {
@@ -1299,7 +1361,7 @@
         if (view) {
           view.sendEvent(type, view);
         }
-        if (this.started && type === 'mousemove') {
+        if (this.eventStarted && type === 'mousemove') {
           this.x = event.pageX;
           this.y = event.pageY;
           return idle(0, this.sender);
@@ -1317,31 +1379,20 @@
         return this.sendEvent('y', this.y);
       };
 
-      Mouse.prototype.start = function(event) {
-        if (this.started) {
-          return;
-        }
+      Mouse.prototype.handleDocEvent = function(event) {
         if (event && event.target !== document) {
           return;
         }
-        this.started = true;
-        return this.docSelector.on("mousemove", this.handle).one("mouseout", this.stop);
-      };
-
-      Mouse.prototype.stop = function(event) {
-        if (!this.started) {
-          return;
+        if (this.eventStarted) {
+          return this.docSelector.on("mousemove", this.handle).one("mouseout", this.stopEvent);
+        } else {
+          return this.docSelector.on("mousemove", this.handle).one("mouseout", this.startEvent);
         }
-        if (event && event.target !== document) {
-          return;
-        }
-        this.started = false;
-        return this.docSelector.off("mousemove", this.handle).one("mouseover", this.start);
       };
 
       return Mouse;
 
-    })(Eventable);
+    })(StartEventable);
     Keyboard = (function(_super) {
       var keyboardEvents, keys;
 
@@ -1387,15 +1438,14 @@
       return Keyboard;
 
     })(Eventable);
-    mouse = new Mouse();
-    keyboard = new Keyboard();
     return exports = {
       view: View,
       "class": Class,
       node: Node,
-      mouse: mouse,
-      keyboard: keyboard,
+      mouse: new Mouse(),
+      keyboard: new Keyboard(),
       layout: Layout,
+      idle: new Idle(),
       initElements: dom.initAllElements,
       writeCSS: dom.writeCSS
     };
