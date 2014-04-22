@@ -848,7 +848,7 @@
 
     })(mixOf(Node, Clickable));
     dom = (function() {
-      var buildtinTags, exports, findAutoIncludes, flattenattributes, htmlDecode, initAllElements, initElement, initFromElement, processSpecialTags, specialtags, writeCSS;
+      var buildtinTags, exports, findAutoIncludes, flattenattributes, htmlDecode, includeRE, initAllElements, initElement, initFromElement, processSpecialTags, specialtags, writeCSS;
       flattenattributes = function(namednodemap) {
         var attributes, i, _i, _len;
         attributes = {};
@@ -866,35 +866,70 @@
           return _initConstraints();
         });
       };
+      includeRE = /<[\/]*library>/gi;
       findAutoIncludes = function(parentel, callback) {
-        var el, inlineclasses, jqel, loaded, name, requests, url, _i, _len, _ref;
+        var includes, inlineclasses, jel, jqel, loaded, requests, requesturls, _i, _len, _ref;
         loaded = {};
         inlineclasses = {};
+        requesturls = [];
         requests = [];
+        includes = [];
         jqel = $(parentel);
-        _ref = jqel.find('*');
+        _ref = jqel.find('include');
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          el = _ref[_i];
-          name = el.localName;
-          if (name === 'class') {
-            inlineclasses[el.attributes.name.value] = true;
-          } else if (!(__indexOf.call(specialtags, name) >= 0 || name in inlineclasses || name in lz || name in loaded)) {
-            url = 'classes/' + name + '.lzx';
-            requests.push($.get(url));
-            loaded[name] = true;
-          }
+          jel = _ref[_i];
+          includes.push($.get(jel.attributes.href.value));
         }
-        return $.when.apply($, requests).done(function() {
-          var args, xhr, _j, _len1;
+        return $.when.apply($, includes).done(function() {
+          var args, el, html, name, prom, url, xhr, _j, _k, _len1, _len2, _ref1;
           args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-          if (requests.length === 1) {
+          if (includes.length === 1) {
             args = [args];
           }
           for (_j = 0, _len1 = args.length; _j < _len1; _j++) {
             xhr = args[_j];
-            jqel.prepend(xhr[0]);
+            html = xhr[0].replace(includeRE, '');
+            jqel.prepend(html);
           }
-          return callback();
+          _ref1 = jqel.find('*');
+          for (_k = 0, _len2 = _ref1.length; _k < _len2; _k++) {
+            el = _ref1[_k];
+            name = el.localName;
+            if (name === 'class') {
+              inlineclasses[el.attributes.name.value] = true;
+            } else if (!(name in lz || name in loaded || __indexOf.call(specialtags, name) >= 0 || name in inlineclasses)) {
+              loaded[name] = true;
+              url = 'classes/' + name + '.lzx';
+              prom = $.get(url);
+              prom.url = url;
+              prom.el = el;
+              requests.push(prom);
+            }
+          }
+          return $.when.apply($, requests).done(function() {
+            var args, _l, _len3;
+            args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+            if (requests.length === 1) {
+              args = [args];
+            }
+            for (_l = 0, _len3 = args.length; _l < _len3; _l++) {
+              xhr = args[_l];
+              jqel.prepend(xhr[0]);
+            }
+            return callback();
+          }).fail(function() {
+            var args, _l, _len3, _results;
+            args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+            if (args.length === 1) {
+              args = [args];
+            }
+            _results = [];
+            for (_l = 0, _len3 = args.length; _l < _len3; _l++) {
+              xhr = args[_l];
+              _results.push(console.error('failed to load', xhr.url, 'for element', xhr.el));
+            }
+            return _results;
+          });
         });
       };
       specialtags = ['handler', 'method', 'attribute', 'setter', 'include', 'library'];

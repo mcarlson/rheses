@@ -649,30 +649,51 @@ window.lz = do ->
         _initConstraints()
       )
 
+    includeRE = /<[\/]*library>/gi
     findAutoIncludes = (parentel, callback) ->
       loaded = {}
       inlineclasses = {}
+      requesturls = []
       requests = []
+      includes = []
       jqel = $(parentel)
-      for el in jqel.find('*')
-        name = el.localName
-        if name == 'class'
-          # find inline class declarations
-          inlineclasses[el.attributes.name.value] = true
-        else unless name in specialtags or name of inlineclasses or name of lz or name of loaded
-          # avoid loading inline classes, core classes that already exist or classes that have already loaded
-          url = 'classes/' + name + '.lzx'
-          # console.log 'loading', url
-          requests.push($.get(url))
-          loaded[name] = true 
-          
-      # console.log(requests, loaded, inlineclasses)
-      $.when.apply($, requests).done((args...) ->
-        args = [args] if (requests.length == 1)
+      for jel in jqel.find('include')
+        includes.push($.get(jel.attributes.href.value))
+
+      $.when.apply($, includes).done((args...) ->
+        args = [args] if (includes.length == 1)
         for xhr in args
-          # console.log 'inserting html', xhr[0] 
-          jqel.prepend(xhr[0])
-        callback()
+          html = xhr[0].replace(includeRE, '')
+          # console.log 'inserting include', html
+          jqel.prepend(html)
+
+        for el in jqel.find('*')
+          name = el.localName
+          if name == 'class'
+            # find inline class declarations
+            inlineclasses[el.attributes.name.value] = true
+          else unless name of lz or name of loaded or name in specialtags or name of inlineclasses
+            loaded[name] = true
+            url = 'classes/' + name + '.lzx'
+            # console.log 'loading', url
+            prom = $.get(url)
+            prom.url = url
+            prom.el = el
+            requests.push(prom)
+   
+        # console.log(requests, loaded, inlineclasses)
+        $.when.apply($, requests).done((args...) ->
+          args = [args] if (requests.length == 1)
+          for xhr in args
+            # console.log 'inserting html', xhr[0] 
+            jqel.prepend(xhr[0])
+          callback()
+        ).fail((args...) ->
+          args = [args] if (args.length == 1)
+          for xhr in args
+            console.error('failed to load', xhr.url, 'for element', xhr.el)
+        )
+
       )
 
     specialtags = ['handler', 'method', 'attribute', 'setter', 'include', 'library']
@@ -853,9 +874,9 @@ window.lz = do ->
         # unpack instance children
         if instancebody and viewel
           if viewel.innerHTML
-            # Append class children on instances instead of replacing them
             viewel.innerHTML = viewel.innerHTML + instancebody
-            # console.log 'instancebody', instancebody, viewel.innerHTML, viewel
+            # console.log 'instancebody', instancebody
+            # console.log viewel.innerHTML, viewel
           else
             # console.log 'normal'
             viewel.innerHTML = instancebody
@@ -1017,7 +1038,7 @@ window.lz = do ->
       
       if inputtext
         inputtext.sendEvent(type, keys)
-        # send text events
+        # send text events for events that could cause text to change
         if (type == 'keydown' or type == 'keyup' or type == 'blur' or type == 'change')
           value = event.target.value
           if (inputtext.text != value)
