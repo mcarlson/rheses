@@ -240,7 +240,7 @@ window.lz = do ->
         # console.log scriptCache
         scriptCache[key] = new Function(args, script)
       catch e
-        console.error('failed to compile', args, script, e)
+        console.error 'failed to compile', e.toString(), args, script 
 
     exports = 
       compile: compile

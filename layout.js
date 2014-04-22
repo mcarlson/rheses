@@ -363,7 +363,7 @@
           return scriptCache[key] = new Function(args, script);
         } catch (_error) {
           e = _error;
-          return console.error('failed to compile', args, script, e);
+          return console.error('failed to compile', e.toString(), args, script);
         }
       };
       return exports = {
