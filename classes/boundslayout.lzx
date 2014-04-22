@@ -26,7 +26,7 @@
             height = Math.max(@height, sender.y + sender.height)
             #if height != @height
             @setAttribute('height', height) unless @.height == height
-            @parent.setAttribute('height', height unless @parent.height == height)
+            @parent.setAttribute('height', height) unless @parent.height == height
 
           # console.log('sender', value, sender, attribute, width, height)
         else
