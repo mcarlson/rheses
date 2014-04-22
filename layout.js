@@ -1197,11 +1197,11 @@
       requestAnimationFrame = window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame;
       ticking = false;
       tickEvents = [];
-      doTick = function() {
+      doTick = function(time) {
         var key;
         for (key in tickEvents) {
           if (tickEvents[key]) {
-            tickEvents[key]();
+            tickEvents[key](time);
             tickEvents[key] = null;
           }
         }

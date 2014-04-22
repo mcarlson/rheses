@@ -907,17 +907,17 @@ window.lz = do ->
     ticking = false
     tickEvents = []
 
-    doTick = ->
+    doTick = (time) ->
       for key of tickEvents
         if tickEvents[key] 
           # console.log('tick', key, tickEvents[key])
-          tickEvents[key]()
+          tickEvents[key](time)
           tickEvents[key] = null
       ticking = false
 
     (key, callback) ->
       # console.log('idle', key, callback)
-      # if (tickEvents[key] !== null) console.log('hit', key)
+      # console.log('hit', key) if (tickEvents[key] != null) 
       if !ticking
         requestAnimationFrame(doTick)
       ticking = true;
