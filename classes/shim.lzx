@@ -1,0 +1,13 @@
+    <class name="shim" extends="view">
+      <attribute name="data" value="null" type="expression"></attribute>
+      <handler name="oninit">
+        var skope = this;
+        this.socket = io.connect();
+        this.socket.on('message', function (msg) {
+          skope.setAttribute('data', JSON.parse(msg.text))
+        });
+      </handler>
+      <method name="send" args="data">
+        this.socket.emit('message', JSON.stringify(data))
+      </hander>
+    </class>
