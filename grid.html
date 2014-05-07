@@ -1,0 +1,40 @@
+<html>
+<head>
+  <title>dr33m</title>
+  <style type="text/css">
+    body {
+      background-color: rgb(46,36,30);
+      background-size: 259px 259px;
+      font-family: 'Helvetica';
+      font-size: 14px;
+    }
+    input {
+      font-family: 'Helvetica';
+      font-size: 14px;
+      margin: 0px;
+      padding: 0px;
+      width: 100px;
+    }
+  </style>
+  <script type="text/javascript" src="lib/jquery-1.9.1.js"></script>
+  <script type="text/javascript" src="lib/acorn.js"></script>
+  <script type="text/javascript" src="lib/coffee-script.js"></script>
+  <script type="text/javascript" src="lib/json-path+json-ptr-0.1.3.min.js"></script>
+  <script type="text/javascript" src="layout.js"></script>
+</head>
+<body>
+  <view id="container" width="${lz.window.width}" height="1000" bgcolor="gray" clip="true">
+
+    <dataset name="genres" url="moviegenres.json"></dataset>
+
+    <class name="colortext" bgcolor="silver" extends="text" height="${16 + (Math.random() * 40)}" transition="all .2s"></class>
+
+    <wraplayout></wraplayout>
+    <replicator datapath="$genres/genres[*]/name" classname="colortext"></replicator>
+
+    <!-- TODO: workaround for autoincludes don't load for class extends="" -->
+    <text display="none">Hello</text>
+  </view>
+
+</body>
+</html>
