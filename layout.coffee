@@ -869,7 +869,11 @@ window.lz = do ->
           else 
             attributes[key] = value
 
-        # console.log 'creating class instance', name, attributes
+        if not (extend of lz)
+          console.warn 'could not find class for tag', extend
+          return
+
+        # console.log 'creating class instance', name, extend, attributes
         parent = new lz[extend](instanceel, attributes)
         # console.log 'created class instance', name, extend, parent
 
@@ -882,9 +886,9 @@ window.lz = do ->
         # unpack instance children
         if instancebody and viewel
           if viewel.innerHTML
-            viewel.innerHTML = viewel.innerHTML + instancebody
-            # console.log 'instancebody', instancebody
-            # console.log viewel.innerHTML, viewel
+            # Append class children on instances instead of replacing them
+            viewel.innerHTML = instancebody + viewel.innerHTML
+            # console.log 'instancebody', instancebody, viewel.innerHTML, viewel
           else
             # console.log 'normal'
             viewel.innerHTML = instancebody
