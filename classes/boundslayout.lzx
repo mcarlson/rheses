@@ -1,18 +1,24 @@
     <!-- Set the parent's width/height to match the bounds of all its children -->
     <class name="boundslayout" extends="layout" type="coffee">
+      <attribute name="ignoreattr" type="string" value=""></attribute>
       <attribute name="width" type="number" value="0"></attribute>
       <attribute name="height" type="number" value="0"></attribute>
       <handler name="oninit">
         # console.log('oninit', this)
       </handler>
       <handler name="onsubview" args="subview">
-        # console.log('onsubview bound', @update, subview, this)
-        @listenTo(subview, 'x y width height', @update)
+        listeners = ""
+        listeners += "width x " unless @ignoreattr == 'width'
+        listeners += "height y " unless @ignoreattr == 'height'
+        # console.log('onsubview bound', listeners, subview, this)
+        @listenTo(subview, listeners, @update)
       </handler>
       <method name="update" args="value, sender, attribute">
         # console.log('skip', @skip, @locked)
         return if @skip()
+        locked = @locked
         @locked = true
+        
         # TODO: fix to track outliers (and maybe thresholds) and update everything when all outliers go below that threshold
         if false # and sender? and value? and (@lastlength == @parent.subviews.length)
           # update based on sender attribute where available
@@ -36,17 +42,17 @@
           for subview, len in @parent.subviews
             continue if subview.ignorelayout
             # console.log 'updating', subview, @attribute, pos
-            width = Math.max(width, subview.x + subview.width)
-            height = Math.max(height, subview.y + subview.height)
+            width = Math.max(width, subview.x + subview.width) unless @ignoreattr == 'width'
+            height = Math.max(height, subview.y + subview.height) unless @ignoreattr == 'height'
             # return if isNaN(width) or isNaN(height)
             # console.log 'value', subview, width, height
 
           @lastlength = len
 
-          @setAttribute('width', width) unless @.width == width
-          @setAttribute('height', height) unless @.height == height
-          @parent.setAttribute('width', width) unless @parent.width == width
-          @parent.setAttribute('height', height) unless @parent.height == height
-        @locked = false
+          @setAttribute('width', width) unless @ignoreattr == 'width' or @width == width
+          @setAttribute('height', height) unless @ignoreattr == 'height' or @height == height
+          @parent.setAttribute('width', width) unless @ignoreattr == 'width' or @parent.width == width
+          @parent.setAttribute('height', height) unless @ignoreattr == 'height' or @parent.height == height
+        @locked = locked
       </method>
     </class>
