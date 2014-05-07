@@ -440,10 +440,14 @@ window.lz = do ->
 
   class Sprite
 #    guid = 0
+    noop = () ->
     stylemap= {x: 'left', y: 'top', bgcolor: 'backgroundColor'}
     fcamelCase = ( all, letter ) ->
       letter.toUpperCase()
     rdashAlpha = /-([\da-z])/gi
+    capabilities =
+      # detect touchhttp://stackoverflow.com/questions/4817029/whats-the-best-way-to-detect-a-touch-screen-device-using-javascript
+      touch: 'ontouchstart' of window || 'onmsgesturechange' of window # deal with ie10
 
     constructor: (jqel, view) ->
       # console.log 'new sprite', jqel, view
@@ -496,6 +500,10 @@ window.lz = do ->
 
     set_clickable: (clickable) ->
       @setStyle('pointer-events', if clickable then 'auto' else 'none')
+
+      if capabilities.touch
+        # ugly hack to make touch events emulate clicks, see http://sitr.us/2011/07/28/how-mobile-safari-emulates-mouse-events.html
+        @el.onclick = noop
 
       # TODO: retrigger the event for the element below for IE and Opera? See http://stackoverflow.com/questions/3680429/click-through-a-div-to-underlying-elements
       # el = $(event.target)
