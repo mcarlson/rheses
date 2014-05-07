@@ -37,6 +37,9 @@
       <method name="update" args="value, sender">
         # console.log('skip', @skip(), @locked)
         return if @skip()
+        locked = @locked
+        @locked = true
+
         pos = @inset
         skip = true if sender
         for subview in @parent.subviews
@@ -49,6 +52,7 @@
             skip = false
           # console.log 'value', pos, @spacing, @inset, @attribute, @axis, subview, subview[@axis]
           pos += @spacing + subview[@axis] 
+        @locked = locked
         return pos
       </method>
     </class>
