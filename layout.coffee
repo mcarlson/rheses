@@ -1057,6 +1057,22 @@ window.lz = do ->
         @docSelector.on("mousemove", @handle).one("mouseout", @startEvent)
 
 
+  class Window extends StartEventable
+    constructor: ->
+      @winSelector = $(window)
+      @winSelector.on('resize', @handle)
+      @handle()
+
+    startEventTest: () ->
+      @events['width']?.length or @events['height']?.length
+
+    handle: (event) =>
+      @width = @winSelector.width()
+      @sendEvent('width', @width)
+      @height = @winSelector.height()
+      @sendEvent('height', @height)
+      # console.log('window resize', event)
+
 
   class Keyboard extends Eventable
     keyboardEvents = ['select', 'keyup', 'keydown', 'change']
@@ -1100,6 +1116,7 @@ window.lz = do ->
     node: Node
     mouse: new Mouse()
     keyboard: new Keyboard()
+    window: new Window()
     layout: Layout
     idle: new Idle()
     initElements: dom.initAllElements
