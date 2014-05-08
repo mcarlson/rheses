@@ -2,6 +2,38 @@
       <attribute name="data" value="[]" type="expression"></attribute>
       <attribute name="classname" value="" type="string"></attribute>
       <attribute name="datapath" value="" type="string"></attribute>
+      <attribute name="sortfield" value="" type="string"></attribute>
+      <attribute name="sortasc" value="true" type="boolean"></attribute>
+      <handler name="onsortfield">
+        # console.log 'onsortfield', @sortfield, @data
+        @buildsortfunc()
+        @applyData()
+      </handler>
+      <handler name="onsortasc">
+        # console.log 'onsortasc', @sortasc, @data
+        @buildsortfunc()
+        @applyData()
+      </handler>
+      <method name="buildsortfunc">
+        if @sortfield
+          sortfield = @sortfield
+          sortasc = @sortasc
+          @sortfunc = (a, b) ->
+            keyA = a[sortfield]
+            keyB = b[sortfield]
+            # Compare the 2 sort fields
+            result = 0
+            if keyA > keyB
+              result = 1
+            else if keyA < keyB
+              result = -1
+
+            # console.log sortfield, sortasc
+            result = -result if (not sortasc)
+            result
+        else
+          @sortfunc = null
+      </method>
       <handler name="oninit" method="applyData"></handler>
       <handler name="onclassname" method="applyData"></handler>
       <handler name="ondata" method="applyData"></handler>
@@ -15,6 +47,8 @@
         unless @classname of lz
           console.warn 'missing class for replicator', @classname, 'skipping replication'
           return
+
+        return if @locked
 
         if @datapath
           re = /^\$([^\/]+)/
@@ -34,21 +68,33 @@
               data = [dataset]
             else
               # console.log('evaluating path', path, dataset.data)
-              data = JsonPath.resolve(dataset.data, path)
+              data = JsonPath.resolve(dataset.data, path, @filterfunction?.bind(@))
           else 
             # relative datapath, look for dataset in parent(s)
             parentdata = @_findInParents('data')
             if parentdata?
-              # console.log('parsing selector', @datapath)
-              data = JsonPath.resolve(parentdata.data, @datapath)
-              # console.log('looking for data', @datapath, parentdata.data, data)
+              if parentdata instanceof lz.node and parentdata.data
+                # console.log 'found parentdata.data', parentdata, parentdata instanceof lz.node
+                parentdata = parentdata.data 
+              # console.log('parsing selector', @datapath, parentdata)
+              data = JsonPath.resolve(parentdata, @datapath, @filterfunction)
+              # console.log('looking for data', @datapath, parentdata, data)
             else
               console.warn('No parent datapath found', @datapath, @)
+          @data = data
         else
           # no datapath
           data = @data
 
-        return unless data
+        return unless @data
+
+        locked = @locked
+        @locked = true
+
+        @data.sort(@sortfunc) if (@sortfunc)
+
+        # we have data, allow it to be hacked on
+        @sendEvent('ondata', @data)
 
         if @parent.layouts
           for layout in @parent.layouts
@@ -59,16 +105,19 @@
             child.destroy()
         @children = []
 
-        for datum in data
+        for datum in @data
+          # console.log 'replicator creating', @classname, 'in', @parent
           child = new lz[@classname](null, {data: datum, parent: @parent, replicator: @})
-          # console.log 'created', datum, @classname, child
+          # console.log 'replicator created', @classname, child, child.data
           @children.push(child)
 
-        # init constraints for all children
+        # init constraints for all children created
         child.initConstraints() if child
 
         if @parent.layouts
           for layout in @parent.layouts
             layout.setAttribute('locked', false)
+
+        @locked = locked        
       </method>
     </class>
