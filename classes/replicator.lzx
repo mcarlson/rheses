@@ -11,7 +11,10 @@
       </method>
       <method name="applyData">
         return unless @parent
-        # console.log('applyData', @data, @classname)
+        # console.log('applyData', @data, @classname, @parent, @children, @, @inited)
+        unless @classname of lz
+          console.warn 'missing class for replicator', @classname, 'skipping replication'
+          return
 
         if @datapath
           re = /^\$([^\/]+)/
