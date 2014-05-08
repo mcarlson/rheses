@@ -35,7 +35,7 @@
   })();
 
   window.lz = (function() {
-    var Class, Clickable, Eventable, Events, Idle, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, View, compiler, constraintScopes, dom, exports, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, _initConstraints;
+    var Class, Clickable, Eventable, Events, Idle, Keyboard, Layout, Mixin, Module, Mouse, Node, Sprite, StartEventable, View, Window, compiler, constraintScopes, dom, exports, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, _initConstraints;
     mixOf = function() {
       var Mixed, base, i, method, mixin, mixins, name, _i, _ref;
       base = arguments[0], mixins = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
@@ -403,7 +403,7 @@
           _ref1 = attributes.$methods;
           for (name in _ref1) {
             methodspec = _ref1[name];
-            _installMethod(this, name, compiler.compile(methodspec[0], methodspec[1]));
+            _installMethod(this, name, compiler.compile(methodspec[0], methodspec[1]), methodspec[2]);
           }
           delete attributes.$methods;
         }
@@ -470,17 +470,18 @@
         };
       };
 
-      _installMethod = function(scope, methodname, method) {
-        var meth, supr;
-        if (methodname in scope) {
+      _installMethod = function(scope, methodname, method, classmethod) {
+        var meth, skope, supr;
+        skope = scope;
+        if (methodname in skope) {
           supr = scope[methodname];
           meth = method;
-          return scope[methodname] = function() {
+          return skope[methodname] = function() {
             supr.apply(scope, arguments);
             return meth.apply(scope, arguments);
           };
         } else {
-          return scope[methodname] = method;
+          return skope[methodname] = method;
         }
       };
 
@@ -596,7 +597,9 @@
 
     })(Eventable);
     Sprite = (function() {
-      var fcamelCase, rdashAlpha, stylemap;
+      var capabilities, fcamelCase, noop, rdashAlpha, stylemap;
+
+      noop = function() {};
 
       stylemap = {
         x: 'left',
@@ -610,11 +613,15 @@
 
       rdashAlpha = /-([\da-z])/gi;
 
+      capabilities = {
+        touch: 'ontouchstart' in window || 'onmsgesturechange' in window
+      };
+
       function Sprite(jqel, view) {
         this.handle = __bind(this.handle, this);
         this.animate = __bind(this.animate, this);
         if (jqel == null) {
-          this.el = document.createElement('div');
+          this.el = document.createElement(view.tagname || 'div');
         } else if (jqel instanceof HTMLElement) {
           this.el = jqel;
         }
@@ -653,7 +660,10 @@
       };
 
       Sprite.prototype.set_clickable = function(clickable) {
-        return this.setStyle('pointer-events', clickable ? 'auto' : 'none');
+        this.setStyle('pointer-events', clickable ? 'auto' : 'none');
+        if (capabilities.touch) {
+          return this.el.onclick = noop;
+        }
       };
 
       Sprite.prototype.destroy = function() {
@@ -755,6 +765,14 @@
       return Clickable;
 
     })();
+    Mixin = (function() {
+      function Mixin(el, attributes) {
+        console.log('Mixin', el, attributes);
+      }
+
+      return Mixin;
+
+    })();
     ignoredAttributes = {
       parent: true,
       id: true,
@@ -777,7 +795,8 @@
           width: 'number',
           height: 'number',
           clickable: 'boolean',
-          clip: 'boolean'
+          clip: 'boolean',
+          visible: 'boolean'
         };
         for (key in types) {
           type = types[key];
@@ -791,6 +810,7 @@
           types[key] = type;
         }
         attributes.$types = types;
+        attributes.visible = true;
         if (el instanceof View) {
           el = el.sprite;
         }
@@ -800,6 +820,9 @@
 
       View.prototype.setAttribute = function(name, value, skip) {
         if (!(skip || ignoredAttributes[name] || this[name] === value)) {
+          if (name.indexOf('webkit-transform') !== -1) {
+            console.log('setting style', name, value, this);
+          }
           this.sprite.setStyle(name, value);
         }
         return View.__super__.setAttribute.apply(this, arguments);
@@ -948,6 +971,7 @@
           return;
         }
         attributes = flattenattributes(el.attributes);
+        attributes.tagname = tagname;
         for (_i = 0, _len = mouseEvents.length; _i < _len; _i++) {
           event = mouseEvents[_i];
           eventname = 'on' + event;
@@ -1015,7 +1039,7 @@
         return (_ref = e.childNodes[0]) != null ? _ref.nodeValue : void 0;
       };
       processSpecialTags = function(el, classattributes, defaulttype) {
-        var args, attributes, child, children, handler, script, type, _i, _len, _ref, _ref1, _ref2, _ref3;
+        var allocation, args, attributes, child, children, handler, script, type, _i, _len, _ref, _ref1, _ref2, _ref3;
         if (classattributes.$types == null) {
           classattributes.$types = {};
         }
@@ -1058,7 +1082,8 @@
               args = ((_ref2 = attributes.args) != null ? _ref2 : '').split();
               script = htmlDecode(child.innerHTML);
               type = attributes.type || defaulttype;
-              classattributes.$methods[attributes.name] = [compiler.transform(script, type), args];
+              allocation = attributes.allocation;
+              classattributes.$methods[attributes.name] = [compiler.transform(script, type), args, allocation];
               break;
             case 'setter':
               args = ((_ref3 = attributes.args) != null ? _ref3 : '').split();
@@ -1134,6 +1159,10 @@
               attributes[key] = value;
             }
           }
+          if (!(extend in lz)) {
+            console.warn('could not find class for tag', extend);
+            return;
+          }
           parent = new lz[extend](instanceel, attributes);
           viewel = (_ref = parent.sprite) != null ? _ref.el : void 0;
           if (instanceel) {
@@ -1143,7 +1172,7 @@
           }
           if (instancebody && viewel) {
             if (viewel.innerHTML) {
-              viewel.innerHTML = viewel.innerHTML + instancebody;
+              viewel.innerHTML = instancebody + viewel.innerHTML;
             } else {
               viewel.innerHTML = instancebody;
             }
@@ -1393,6 +1422,31 @@
       return Mouse;
 
     })(StartEventable);
+    Window = (function(_super) {
+      __extends(Window, _super);
+
+      function Window() {
+        this.handle = __bind(this.handle, this);
+        this.winSelector = $(window);
+        this.winSelector.on('resize', this.handle);
+        this.handle();
+      }
+
+      Window.prototype.startEventTest = function() {
+        var _ref, _ref1;
+        return ((_ref = this.events['width']) != null ? _ref.length : void 0) || ((_ref1 = this.events['height']) != null ? _ref1.length : void 0);
+      };
+
+      Window.prototype.handle = function(event) {
+        this.width = this.winSelector.width();
+        this.sendEvent('width', this.width);
+        this.height = this.winSelector.height();
+        return this.sendEvent('height', this.height);
+      };
+
+      return Window;
+
+    })(StartEventable);
     Keyboard = (function(_super) {
       var keyboardEvents, keys;
 
@@ -1444,6 +1498,7 @@
       node: Node,
       mouse: new Mouse(),
       keyboard: new Keyboard(),
+      window: new Window(),
       layout: Layout,
       idle: new Idle(),
       initElements: dom.initAllElements,
