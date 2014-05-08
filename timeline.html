@@ -35,16 +35,14 @@
       </handler>
     </shim>
 
-    <class name="genreyear" type="coffee" width="14" height="60" opacity=".13">
+    <class name="genreyear" width="14" height="60" opacity=".13">
       <handler name="onmouseover">
-        shim.$view.send(@data)
+        shim.$view.send(this.data)
         cursor.$view.setAttribute('x', this.x)
       </handler>
-      <handler name="ondata" args="data">
-        if data.genres
-          # console.log('genre', data.genres[0])
-          color = '#' + md5(data.genres[0].id + '1').substring(0,6)
-          this.setAttribute('background-color', color);
+      <handler name="oninit">
+        var color = '#' + md5(this.parent.parent.data.name).substring(0,6)
+        this.setAttribute('background-color', color);
       </handler>
     </class>
 
@@ -52,10 +50,15 @@
       <timelayout scale="14" inset="1900"></timelayout>
       <replicator datapath="$topmovies/searchResponse/results[*]/movie[@]" classname="genreyear">
         <handler name="oninit">
+          var genrename = this.parent.parent.data.name;
           this.filterfunction = function(obj, accum, sel) {
-            // console.log('filterfunction', obj, accum, this.parent.parent.data.name)
-            if (obj.genres && obj.genres[0].name === this.parent.parent.data.name)
-              accum.push(obj);
+            // console.log('filterfunction', obj, accum, genrename)
+            if (obj.genres) {
+              obj.genres.forEach(function (genre) {
+              if (genre.name === genrename)
+                accum.push(obj);
+              });
+            }
             return accum;
           }
           this.applyData();
@@ -81,7 +84,7 @@
 
     <class name="thumbtitle" extends="text" multiline="true" width="50" color="silver" font-weight="bold"></class>
 
-    <class name="thumbnail" type="coffee" background-size="cover" transition="all .5s" border-style="solid" border-width="0" border-color="white" width="180" height="240" bgcolor="white" clip="true">
+    <class name="thumbnail" background-size="cover" border-style="solid" border-width="0" border-color="white" width="180" height="240" bgcolor="white" clip="true">
       <handler name="onmouseover">
         this.setAttribute('border-width', 3);
       </handler>
@@ -90,9 +93,9 @@
       </handler>
       <handler name="onclick">
         this.parent.setAttribute('height', 0)
-        console.log('thumbnail', @data, @)
+        // console.log('thumbnail', @data, @)
       </handler>
-      <handler name="ondata" args="data">
+      <handler name="ondata" args="data" type="coffee">
         if data.images
           for image in data.images
             continue if image.width > 120
@@ -150,10 +153,6 @@
     <view>
 
     <view id="cursor" width="14" height="${lz.window.height}" bgcolor="silver" opacity=".4" position="fixed"></view>
-
-
-    <!-- TODO: workaround for autoincludes don't load for class extends="" -->
-    <text display="none">Hello</text>
   </view>
 </body>
 </html>
