@@ -1,0 +1,32 @@
+    <class name="timelayout" extends="layout" type="coffee">
+      <!-- The axis in which this layout operates. One of 'x' or 'y'.  -->
+      <attribute name="axis" value="x" type="string"></attribute>
+      <attribute name="startFieldName" value="releaseYear" type="string"></attribute>
+      <attribute name="scale" value="1" type="number"></attribute>
+      <attribute name="inset" value="0" type="number"></attribute>
+
+      <setter name="axis" args="a" >
+        if @axis != a
+          @axis = a;
+          @sizeaxis = if a == "x" then "width" else "height"
+          @otheraxis = if a == "x" then "y" else "x";
+          @sendEvent('axis', @axis);
+
+          @update()
+        else
+          @sendEvent('axis', @axis);
+      </setter>
+      <method name="update" args="value, sender">
+        # console.log('skip', @skip(), @locked)
+        return if @skip()
+        locked = @locked
+        @locked = true
+        for subview, index in @parent.subviews
+          # console.log 'subview', subview
+          pos = (subview.data?[@startFieldName] - @inset) * @scale
+          subview.setAttribute @axis, pos if subview[@axis] != pos
+
+        @locked = locked
+      </method>
+
+    </class>
