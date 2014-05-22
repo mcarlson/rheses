@@ -389,7 +389,7 @@
       matchConstraint = /\${(.+)}/;
 
       function Node(el, attributes) {
-        var args, callback, constraint, method, methodspec, name, reference, script, value, _i, _len, _ref, _ref1, _ref2, _ref3;
+        var args, callback, constraint, method, methodspec, nam, name, par, reference, script, value, _i, _len, _ref, _ref1, _ref2, _ref3;
         if (attributes == null) {
           attributes = {};
         }
@@ -430,6 +430,14 @@
           }
           delete attributes.$handlers;
         }
+        if (attributes.parent) {
+          par = attributes.parent;
+          delete attributes.parent;
+        }
+        if (attributes.name) {
+          nam = attributes.name;
+          delete attributes.name;
+        }
         for (name in attributes) {
           value = attributes[name];
           constraint = typeof value.match === "function" ? value.match(matchConstraint) : void 0;
@@ -444,6 +452,12 @@
         }
         if (this.constraints) {
           constraintScopes.push(this);
+        }
+        if (par) {
+          this.setAttribute('parent', par);
+        }
+        if (nam) {
+          this.setAttribute('name', nam);
         }
         this.sendEvent('init', this);
       }
@@ -550,8 +564,7 @@
       };
 
       Node.prototype.set_name = function(name) {
-        var _ref;
-        return (_ref = this.parent) != null ? _ref[name] = this : void 0;
+        return this.parent[name] = this;
       };
 
       Node.prototype._removeFromParent = function(name) {

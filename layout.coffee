@@ -297,6 +297,13 @@ window.lz = do ->
             # console.log 'registered for clickable', attributes.clickable
         delete attributes.$handlers
 
+      if attributes.parent
+        par = attributes.parent
+        delete attributes.parent
+      if attributes.name
+        nam = attributes.name
+        delete attributes.name
+
       # Bind to event expressions and set attributes
       for name, value of attributes
         constraint = value.match?(matchConstraint)
@@ -310,6 +317,11 @@ window.lz = do ->
           @setAttribute(name, value)
 
       constraintScopes.push(@) if @constraints
+
+      if par
+        @setAttribute('parent', par)
+      if nam
+        @setAttribute('name', nam)
 
       # console.log 'new node', @, attributes
       @sendEvent('init', @)
@@ -401,14 +413,15 @@ window.lz = do ->
 
     set_name: (name) ->
       # console.log 'set_name', name, this
-      @parent?[name] = @
+      @parent[name] = @
 
     _removeFromParent: (name) ->
-      return if not @parent
+      return unless @parent
       arr = @parent[name]
       index = arr.indexOf(@)
       if (index != -1)
         arr.splice(index, 1)
+        # console.log('_removeFromParent', index, name, arr.length, arr, @)
         @parent.sendEvent(name, arr[index])
       return
 
