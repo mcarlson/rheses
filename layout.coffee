@@ -464,10 +464,13 @@ window.lz = do ->
       # detect touchhttp://stackoverflow.com/questions/4817029/whats-the-best-way-to-detect-a-touch-screen-device-using-javascript
       touch: 'ontouchstart' of window || 'onmsgesturechange' of window # deal with ie10
 
-    constructor: (jqel, view) ->
-      # console.log 'new sprite', jqel, view
+    constructor: (jqel, view, tagname = 'div') ->
+      # console.log 'new sprite', jqel, view, tagname
       if not jqel?
-        @el = document.createElement('div')
+        # console.log 'creating element', tagname
+        @el = document.createElement(tagname)
+        # prevent duplicate initializations
+        @el.$init = true
       # else if jqel instanceof jQuery
       #   @el = jqel[0]
       else if jqel instanceof HTMLElement
@@ -607,7 +610,8 @@ window.lz = do ->
       if (el instanceof View)
         el = el.sprite
 
-      @sprite = new Sprite(el, @)
+      # console.log 'sprite tagname', attributes.$tagname
+      @sprite = new Sprite(el, @, attributes.$tagname)
 
       super
       # console.log 'new view', el, attributes, @
@@ -733,6 +737,8 @@ window.lz = do ->
         return
 
       attributes = flattenattributes(el.attributes)
+
+      attributes.$tagname = tagname
 
       # swallow builtin mouse attributes to allow event delegation, set clickable if an event is found
       for event in mouseEvents
@@ -888,7 +894,11 @@ window.lz = do ->
           console.warn 'could not find class for tag', extend
           return
 
-        # console.log 'creating class instance', name, extend, attributes
+        # tagname would be 'class' in this case, replace with the right one!
+        # also, don't overwrite if it's already set, since we are invoking lz[extend]
+        if attributes.$tagname is 'class' or not attributes.$tagname
+          attributes.$tagname = name
+        # console.log 'creating class instance', name, attributes.$tagname, instanceel, extend, attributes
         parent = new lz[extend](instanceel, attributes)
         # console.log 'created class instance', name, extend, parent
 

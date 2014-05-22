@@ -635,11 +635,15 @@
         touch: 'ontouchstart' in window || 'onmsgesturechange' in window
       };
 
-      function Sprite(jqel, view) {
+      function Sprite(jqel, view, tagname) {
+        if (tagname == null) {
+          tagname = 'div';
+        }
         this.handle = __bind(this.handle, this);
         this.animate = __bind(this.animate, this);
         if (jqel == null) {
-          this.el = document.createElement('div');
+          this.el = document.createElement(tagname);
+          this.el.$init = true;
         } else if (jqel instanceof HTMLElement) {
           this.el = jqel;
         }
@@ -822,7 +826,7 @@
         if (el instanceof View) {
           el = el.sprite;
         }
-        this.sprite = new Sprite(el, this);
+        this.sprite = new Sprite(el, this, attributes.$tagname);
         View.__super__.constructor.apply(this, arguments);
       }
 
@@ -976,6 +980,7 @@
           return;
         }
         attributes = flattenattributes(el.attributes);
+        attributes.$tagname = tagname;
         for (_i = 0, _len = mouseEvents.length; _i < _len; _i++) {
           event = mouseEvents[_i];
           eventname = 'on' + event;
@@ -1165,6 +1170,9 @@
           if (!(extend in lz)) {
             console.warn('could not find class for tag', extend);
             return;
+          }
+          if (attributes.$tagname === 'class' || !attributes.$tagname) {
+            attributes.$tagname = name;
           }
           parent = new lz[extend](instanceel, attributes);
           viewel = (_ref = parent.sprite) != null ? _ref.el : void 0;
