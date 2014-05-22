@@ -1,4 +1,5 @@
     <class name="replicator" type="coffee" extends="node">
+      <attribute name="pooling" value="false" type="boolean"></attribute>
       <attribute name="data" value="[]" type="expression"></attribute>
       <attribute name="classname" value="" type="string"></attribute>
       <attribute name="datapath" value="" type="string"></attribute>
@@ -38,12 +39,23 @@
       <handler name="onclassname" method="applyData"></handler>
       <handler name="ondata" method="applyData"></handler>
       <handler name="ondatapath" method="applyData"></handler>
+      <handler name="ondestroy" method="clear"></handler>
       <method name="updateData" args="data">
         @dataset.updateData(@parsedpath, data);
       </method>
+      <method name="clear">
+        # @parent.setAttribute('display', 'none')
+        if @children
+          for child in @children
+            # console.log 'destroying child', child
+            child.destroy()
+        @children = []
+        # @parent.setAttribute('display', null)
+      </method>
       <method name="applyData">
-        return unless @parent
+        return unless @parent and @classname
         # console.log('applyData', @data, @classname, @parent, @children, @, @inited)
+
         unless @classname of lz
           console.warn 'missing class for replicator', @classname, 'skipping replication'
           return
@@ -93,23 +105,21 @@
 
         @data.sort(@sortfunc) if (@sortfunc)
 
-        # we have data, allow it to be hacked on
-        @sendEvent('ondata', @data)
-
         if @parent.layouts
           for layout in @parent.layouts
             layout.setAttribute('locked', true)
 
-        if @children
-          for child in @children
-            child.destroy()
-        @children = []
-
-        for datum in @data
-          # console.log 'replicator creating', @classname, 'in', @parent
-          child = new lz[@classname](null, {data: datum, parent: @parent, replicator: @})
-          # console.log 'replicator created', @classname, child, child.data
-          @children.push(child)
+        #console.log @data.length
+        if @pooling and @children and @children.length >= @data.length
+          for child, i in @children
+            child.setAttribute('data', @data[i])
+        else
+          @clear()
+          for datum in @data
+            # console.log 'replicator creating', @classname, 'in', @parent
+            child = new lz[@classname](null, {data: datum, parent: @parent, replicator: @})
+            # console.log 'replicator created', @classname, child, child.data
+            @children.push(child)
 
         # init constraints for all children created
         child.initConstraints() if child
