@@ -604,7 +604,9 @@
         _ref1 = this.subnodes;
         for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
           subnode = _ref1[_i];
-          subnode.destroy(true);
+          if (subnode != null) {
+            subnode.destroy(true);
+          }
         }
         if (!skipevents) {
           return this._removeFromParent('subnodes');

@@ -57,6 +57,7 @@ window.lz = do ->
       true
 
     listenTo: (obj, ev, callback) ->
+      # console.log('listenTo', obj, ev, callback, obj.bind)
       obj.bind(ev, callback)
       @listeningTo or= []
       @listeningTo.push {obj: obj, ev: ev, callback: callback}
@@ -278,6 +279,7 @@ window.lz = do ->
 
       if attributes.$handlers
         for {name, script, args, reference, method} in attributes.$handlers
+          # strip off leading 'on'
           name = name.substr(2)
 
           # console.log 'installing handler', name, args, type, script, @
@@ -448,7 +450,7 @@ window.lz = do ->
       # console.log 'destroying', @subnodes, @
       for subnode in @subnodes
         # console.log 'destroying', subnode, @
-        subnode.destroy(true)
+        subnode?.destroy(true)
 
       @_removeFromParent('subnodes') unless skipevents
 
@@ -490,7 +492,7 @@ window.lz = do ->
         name = stylemap[name] 
       else if name.match(rdashAlpha)
         # console.log "replacing #{name}"
-        name = name.replace( rdashAlpha, fcamelCase )
+        name = name.replace(rdashAlpha, fcamelCase)
       # console.log('setStyle', name, value, @el)
       @el.style[name] = value
       # @jqel.css(name, value)
@@ -618,7 +620,7 @@ window.lz = do ->
 
     setAttribute: (name, value, skip) ->
       if not (skip or ignoredAttributes[name] or @[name] == value)
-        # console.log 'setting style', name, @[name], value, @
+        # console.log 'setting style', name, value, @
         @sprite.setStyle(name, value)
       super
 
@@ -1010,15 +1012,12 @@ window.lz = do ->
     startEvent: (event) =>
       return if @eventStarted
       @eventStarted = true
-      # @tId = setInterval(@sender, 17)
       # console.log 'start'
 
     stopEvent: (event) =>
       return if not @eventStarted
       @eventStarted = false
-      # clearInterval(@tId)
       # console.log 'stop'
-      # @docSelector.off("mousemove", @handle).one("mouseover", @startEvent)
 
 
   class Idle extends StartEventable
@@ -1096,7 +1095,7 @@ window.lz = do ->
       @sendEvent('width', @width)
       @height = @winSelector.height()
       @sendEvent('height', @height)
-      # console.log('window resize', event)
+      # console.log('window resize', event, @width, @height)
 
 
   class Keyboard extends Eventable
