@@ -347,9 +347,9 @@ window.lz = do ->
 
     applyConstraint: (property, expression) ->
       @constraints ?= {}
+      # console.log 'adding constraint', property, expression, @
       @constraints[property] = 
         expression: 'return ' + expression #compiler.compile('return ' + expression).bind(@)
-      # console.log 'adding constraint', property, expression, @
         bindings: {}
 
       bindings = @constraints[property].bindings
@@ -357,7 +357,8 @@ window.lz = do ->
       # console.log 'found scopes', scopes
       for scope in scopes
         bindexpression = scope.binding
-        bindings[bindexpression] = scope
+        bindings[bindexpression] ?= []
+        bindings[bindexpression].push(scope)
         # console.log 'applied', scope.property, bindexpression, 'for', @
 
       # console.log 'matched constraint', property, @, expression
@@ -370,12 +371,13 @@ window.lz = do ->
         fn = compiler.compile(expression).bind(@)
         # console.log 'binding constraint', name, expression, @
         constraint = @_constraintCallback(name, fn)
-        for bindexpression, binding of bindings
-          property = binding.property
+        for bindexpression, bindinglist of bindings
           boundref = compiler.compile('return ' + bindexpression).bind(@)()
           boundref ?= boundref.$view
-          # console.log 'binding to', property, 'on', boundref
-          boundref.bind?(property, constraint)
+          for binding in bindinglist
+            property = binding.property
+            # console.log 'binding to', property, 'on', boundref
+            boundref.bind?(property, constraint)
           
         @setAttribute(name, fn())
 

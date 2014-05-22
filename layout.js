@@ -35,7 +35,7 @@
   })();
 
   window.lz = (function() {
-    var Class, Clickable, Eventable, Events, Idle, Keyboard, Layout, Mixin, Module, Mouse, Node, Sprite, StartEventable, View, Window, compiler, constraintScopes, dom, exports, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, _initConstraints;
+    var Class, Clickable, Eventable, Events, Idle, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, View, Window, compiler, constraintScopes, dom, exports, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, _initConstraints;
     mixOf = function() {
       var Mixed, base, i, method, mixin, mixins, name, _i, _ref;
       base = arguments[0], mixins = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
@@ -403,7 +403,7 @@
           _ref1 = attributes.$methods;
           for (name in _ref1) {
             methodspec = _ref1[name];
-            _installMethod(this, name, compiler.compile(methodspec[0], methodspec[1]), methodspec[2]);
+            _installMethod(this, name, compiler.compile(methodspec[0], methodspec[1]));
           }
           delete attributes.$methods;
         }
@@ -470,18 +470,17 @@
         };
       };
 
-      _installMethod = function(scope, methodname, method, classmethod) {
-        var meth, skope, supr;
-        skope = scope;
-        if (methodname in skope) {
+      _installMethod = function(scope, methodname, method) {
+        var meth, supr;
+        if (methodname in scope) {
           supr = scope[methodname];
           meth = method;
-          return skope[methodname] = function() {
+          return scope[methodname] = function() {
             supr.apply(scope, arguments);
             return meth.apply(scope, arguments);
           };
         } else {
-          return skope[methodname] = method;
+          return scope[methodname] = method;
         }
       };
 
@@ -499,12 +498,15 @@
         for (_i = 0, _len = scopes.length; _i < _len; _i++) {
           scope = scopes[_i];
           bindexpression = scope.binding;
-          bindings[bindexpression] = scope;
+          if (bindings[bindexpression] == null) {
+            bindings[bindexpression] = [];
+          }
+          bindings[bindexpression].push(scope);
         }
       };
 
       Node.prototype._bindConstraints = function() {
-        var bindexpression, binding, bindings, boundref, constraint, expression, fn, name, property, _ref;
+        var bindexpression, binding, bindinglist, bindings, boundref, constraint, expression, fn, name, property, _i, _len, _ref;
         _ref = this.constraints;
         for (name in _ref) {
           constraint = _ref[name];
@@ -512,14 +514,17 @@
           fn = compiler.compile(expression).bind(this);
           constraint = this._constraintCallback(name, fn);
           for (bindexpression in bindings) {
-            binding = bindings[bindexpression];
-            property = binding.property;
+            bindinglist = bindings[bindexpression];
             boundref = compiler.compile('return ' + bindexpression).bind(this)();
             if (boundref == null) {
               boundref = boundref.$view;
             }
-            if (typeof boundref.bind === "function") {
-              boundref.bind(property, constraint);
+            for (_i = 0, _len = bindinglist.length; _i < _len; _i++) {
+              binding = bindinglist[_i];
+              property = binding.property;
+              if (typeof boundref.bind === "function") {
+                boundref.bind(property, constraint);
+              }
             }
           }
           this.setAttribute(name, fn());
@@ -621,7 +626,7 @@
         this.handle = __bind(this.handle, this);
         this.animate = __bind(this.animate, this);
         if (jqel == null) {
-          this.el = document.createElement(view.tagname || 'div');
+          this.el = document.createElement('div');
         } else if (jqel instanceof HTMLElement) {
           this.el = jqel;
         }
@@ -765,14 +770,6 @@
       return Clickable;
 
     })();
-    Mixin = (function() {
-      function Mixin(el, attributes) {
-        console.log('Mixin', el, attributes);
-      }
-
-      return Mixin;
-
-    })();
     ignoredAttributes = {
       parent: true,
       id: true,
@@ -795,8 +792,7 @@
           width: 'number',
           height: 'number',
           clickable: 'boolean',
-          clip: 'boolean',
-          visible: 'boolean'
+          clip: 'boolean'
         };
         for (key in types) {
           type = types[key];
@@ -810,7 +806,6 @@
           types[key] = type;
         }
         attributes.$types = types;
-        attributes.visible = true;
         if (el instanceof View) {
           el = el.sprite;
         }
@@ -820,9 +815,6 @@
 
       View.prototype.setAttribute = function(name, value, skip) {
         if (!(skip || ignoredAttributes[name] || this[name] === value)) {
-          if (name.indexOf('webkit-transform') !== -1) {
-            console.log('setting style', name, value, this);
-          }
           this.sprite.setStyle(name, value);
         }
         return View.__super__.setAttribute.apply(this, arguments);
@@ -971,7 +963,6 @@
           return;
         }
         attributes = flattenattributes(el.attributes);
-        attributes.tagname = tagname;
         for (_i = 0, _len = mouseEvents.length; _i < _len; _i++) {
           event = mouseEvents[_i];
           eventname = 'on' + event;
@@ -1039,7 +1030,7 @@
         return (_ref = e.childNodes[0]) != null ? _ref.nodeValue : void 0;
       };
       processSpecialTags = function(el, classattributes, defaulttype) {
-        var allocation, args, attributes, child, children, handler, script, type, _i, _len, _ref, _ref1, _ref2, _ref3;
+        var args, attributes, child, children, handler, script, type, _i, _len, _ref, _ref1, _ref2, _ref3;
         if (classattributes.$types == null) {
           classattributes.$types = {};
         }
@@ -1082,8 +1073,7 @@
               args = ((_ref2 = attributes.args) != null ? _ref2 : '').split();
               script = htmlDecode(child.innerHTML);
               type = attributes.type || defaulttype;
-              allocation = attributes.allocation;
-              classattributes.$methods[attributes.name] = [compiler.transform(script, type), args, allocation];
+              classattributes.$methods[attributes.name] = [compiler.transform(script, type), args];
               break;
             case 'setter':
               args = ((_ref3 = attributes.args) != null ? _ref3 : '').split();
