@@ -232,13 +232,19 @@ window.lz = do ->
     # cache compiled scripts to speed up instantiation
     scriptCache = {}
     # compile a string into a function
-    compile = (script='', args=[]) ->
-      key = script + args.join()
+    compile = (script='', args=[], name='') ->
+      argstring = args.join()
+      key = script + argstring + name
       return scriptCache[key] if key of scriptCache
       # console.log 'compile', args, script
       try 
         # console.log scriptCache
-        scriptCache[key] = new Function(args, script)
+        if name
+          func = new Function("return function #{name}(#{argstring}){#{script}}")()
+        else
+          func = new Function(args, script)
+        #console.log func()
+        scriptCache[key] = func
       catch e
         console.error 'failed to compile', e.toString(), args, script 
 
@@ -273,7 +279,7 @@ window.lz = do ->
         # Install methods
         for name, methodspec of attributes.$methods
           # console.log 'installing method', name, methodspec, @
-          _installMethod(@, name, compiler.compile(methodspec[0], methodspec[1]))
+          _installMethod(@, name, compiler.compile(methodspec[0], methodspec[1], "#{attributes.$tagname}$#{name}"), methodspec[2])
         delete attributes.$methods
 
       if attributes.$handlers
@@ -286,7 +292,7 @@ window.lz = do ->
             callback = @[method]
             # console.log('using method', method, callback)
           else
-            callback = _eventCallback(name, script, @, args)
+            callback = _eventCallback(name, script, @, attributes.$tagname, args)
 
           if reference?
             @listenTo(eval(reference), name, callback)
@@ -313,7 +319,7 @@ window.lz = do ->
         else if name.indexOf('on') == 0
           name = name.substr(2)
           # console.log('binding to event expression', name, value, @)
-          @bind(name, _eventCallback(name, value, @))
+          @bind(name, _eventCallback(name, value, @, attributes.$tagname))
         else
           @setAttribute(name, value)
 
@@ -333,9 +339,9 @@ window.lz = do ->
       @
 
     # generate a callback for an event expression in a way that preserves scope, e.g. on_x="console.log(value, this, ...)"
-    _eventCallback = (name, script, scope, fnargs=['value']) ->
+    _eventCallback = (name, script, scope, tagname='', fnargs=['value']) ->
       # console.log 'binding to event expression', name, script, scope, fnargs
-      js = compiler.compile(script, fnargs)
+      js = compiler.compile(script, fnargs, "#{tagname}$on#{name}")
       ->
         if name of scope
           args = [scope[name]]
@@ -344,7 +350,8 @@ window.lz = do ->
         # console.log 'event callback', name, args, scope, js
         js.apply(scope, args)
 
-    _installMethod = (scope, methodname, method) ->
+    _installMethod = (scope, methodname, method, classmethod) ->
+      # TODO: add class methods when classmethod == 'class'
       if methodname of scope
         # Cheesy override
         supr = scope[methodname]
@@ -594,6 +601,7 @@ window.lz = do ->
       @sprite.set_clickable(clickable)
       # super?(clickable)
 
+  # internal attributes ignored by class declarations and view styles
   ignoredAttributes = {parent: true, id: true, name: true, extends: true, type: true}
   class View extends mixOf Node, Clickable
     constructor: (el, attributes = {}) ->
@@ -815,7 +823,8 @@ window.lz = do ->
             args = (attributes.args ? '').split()
             script = htmlDecode(child.innerHTML)
             type = attributes.type or defaulttype
-            classattributes.$methods[attributes.name] = [compiler.transform(script, type), args]
+            allocation = attributes.allocation
+            classattributes.$methods[attributes.name] = [compiler.transform(script, type), args, allocation]
             # console.log 'added method', attributes.name, script, classattributes
           when 'setter'
             args = (attributes.args ? '').split()

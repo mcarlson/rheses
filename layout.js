@@ -347,20 +347,29 @@
         };
       })();
       scriptCache = {};
-      compile = function(script, args) {
-        var e, key;
+      compile = function(script, args, name) {
+        var argstring, e, func, key;
         if (script == null) {
           script = '';
         }
         if (args == null) {
           args = [];
         }
-        key = script + args.join();
+        if (name == null) {
+          name = '';
+        }
+        argstring = args.join();
+        key = script + argstring + name;
         if (key in scriptCache) {
           return scriptCache[key];
         }
         try {
-          return scriptCache[key] = new Function(args, script);
+          if (name) {
+            func = new Function("return function " + name + "(" + argstring + "){" + script + "}")();
+          } else {
+            func = new Function(args, script);
+          }
+          return scriptCache[key] = func;
         } catch (_error) {
           e = _error;
           return console.error('failed to compile', e.toString(), args, script);
@@ -403,7 +412,7 @@
           _ref1 = attributes.$methods;
           for (name in _ref1) {
             methodspec = _ref1[name];
-            _installMethod(this, name, compiler.compile(methodspec[0], methodspec[1]));
+            _installMethod(this, name, compiler.compile(methodspec[0], methodspec[1], "" + attributes.$tagname + "$" + name), methodspec[2]);
           }
           delete attributes.$methods;
         }
@@ -415,7 +424,7 @@
             if (method) {
               callback = this[method];
             } else {
-              callback = _eventCallback(name, script, this, args);
+              callback = _eventCallback(name, script, this, attributes.$tagname, args);
             }
             if (reference != null) {
               this.listenTo(eval(reference), name, callback);
@@ -445,7 +454,7 @@
             this.applyConstraint(name, constraint[1]);
           } else if (name.indexOf('on') === 0) {
             name = name.substr(2);
-            this.bind(name, _eventCallback(name, value, this));
+            this.bind(name, _eventCallback(name, value, this, attributes.$tagname));
           } else {
             this.setAttribute(name, value);
           }
@@ -467,12 +476,15 @@
         return this;
       };
 
-      _eventCallback = function(name, script, scope, fnargs) {
+      _eventCallback = function(name, script, scope, tagname, fnargs) {
         var js;
+        if (tagname == null) {
+          tagname = '';
+        }
         if (fnargs == null) {
           fnargs = ['value'];
         }
-        js = compiler.compile(script, fnargs);
+        js = compiler.compile(script, fnargs, "" + tagname + "$on" + name);
         return function() {
           var args;
           if (name in scope) {
@@ -484,7 +496,7 @@
         };
       };
 
-      _installMethod = function(scope, methodname, method) {
+      _installMethod = function(scope, methodname, method, classmethod) {
         var meth, supr;
         if (methodname in scope) {
           supr = scope[methodname];
@@ -1050,7 +1062,7 @@
         return (_ref = e.childNodes[0]) != null ? _ref.nodeValue : void 0;
       };
       processSpecialTags = function(el, classattributes, defaulttype) {
-        var args, attributes, child, children, handler, script, type, _i, _len, _ref, _ref1, _ref2, _ref3;
+        var allocation, args, attributes, child, children, handler, script, type, _i, _len, _ref, _ref1, _ref2, _ref3;
         if (classattributes.$types == null) {
           classattributes.$types = {};
         }
@@ -1093,7 +1105,8 @@
               args = ((_ref2 = attributes.args) != null ? _ref2 : '').split();
               script = htmlDecode(child.innerHTML);
               type = attributes.type || defaulttype;
-              classattributes.$methods[attributes.name] = [compiler.transform(script, type), args];
+              allocation = attributes.allocation;
+              classattributes.$methods[attributes.name] = [compiler.transform(script, type), args, allocation];
               break;
             case 'setter':
               args = ((_ref3 = attributes.args) != null ? _ref3 : '').split();
