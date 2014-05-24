@@ -1,0 +1,51 @@
+<html>
+<head>
+  <title>dr33m</title>
+  <style type="text/css">
+    body {
+      background-color: white;
+      font-family: 'Helvetica';
+      font-size: 36px;
+      margin: 0px;
+      padding: 0px;
+      font-size: 14px;
+    }
+    input {
+      font-family: 'Helvetica';
+      font-size: 14px;
+      margin: 0px;
+      padding: 0px;
+      width: 100px;
+    }
+  </style>
+  <script type="text/javascript" src="lib/jquery-1.9.1.js"></script>
+  <script type="text/javascript" src="lib/acorn.js"></script>
+  <script type="text/javascript" src="lib/coffee-script.js"></script>
+  <script type="text/javascript" src="layout.js"></script>
+</head>
+<body>
+  <view>
+    <audioplayer id="audio" url="music/03_Homage Sliders.mp3" fftsize="2048" fftsmoothing="0" playing="true"></audioplayer>
+
+    <simplelayout attribute="y" axis="height" spacing="0"></simplelayout>
+
+    <view bgcolor="${audio.playing ? 'green' : 'gray'}" opacity="${audio.paused ? .8 : 1}" width="${(audio.loadprogress * audio.fftsize * .5)}" height="20">
+      <handler name="onclick">
+        if (! audio.playing || audio.paused) {
+          audio.play();
+        } else {
+          audio.pause();
+        }
+      </handler>
+      <view name="playhead" bgcolor="red" width="${(audio.time / audio.duration) * this.parent.width}" height="20"></view>
+    </view>
+
+    <class name="bar" width="1" bgcolor="red" height="${this.data}"></class>
+
+    <view height="256" opacity="${audio.paused ? .8 : 1}">
+      <simplelayout spacing="0"></simplelayout>
+      <replicator name="foo" classname="bar" data="${audio.fft}" pooling="true"></replicator>
+    </view>
+  </view>
+</body>
+</html>

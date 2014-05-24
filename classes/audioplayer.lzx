@@ -1,0 +1,123 @@
+    <class name="audioplayer">
+      <attribute name="url" value="" type="string"></attribute>
+      <attribute name="loadprogress" value="0" type="number"></attribute>
+      <attribute name="playing" value="false" type="boolean"></attribute>
+      <attribute name="paused" value="false" type="boolean"></attribute>
+      <attribute name="loop" value="false" type="boolean"></attribute>
+      <attribute name="time" value="0" type="number"></attribute>
+      <attribute name="duration" value="0" type="number"></attribute>
+      <attribute name="fftsize" value="0" type="number"></attribute>
+      <attribute name="fftsmoothing" value="0.8" type="number"></attribute>
+      <attribute name="fft" value="[]" type="expression"></attribute>
+      <handler name="onurl" args="url">
+        if (! url) return;
+        var _this = this;
+        function updateProgress(evt) {
+          if (evt.lengthComputable) {  
+            var percentComplete = (evt.loaded / evt.total);  
+            _this.setAttribute('loadprogress', percentComplete);
+          } 
+        }
+
+        this.sendEvent('loading', url);
+        var request = new XMLHttpRequest();
+        request.open('GET', url, true);
+        request.onprogress=updateProgress;
+        request.responseType = 'arraybuffer';
+
+        // Decode asynchronously
+        request.onload = function() {
+          _this.context.decodeAudioData(request.response, function(buffer) {
+            _this.buffer = buffer;
+            _this.sendEvent('loaded', url);
+            if (_this.playing && ! _this.paused) {
+              _this.play();
+            }
+          });
+        }
+        this.buffer = null;
+        request.send();
+      </handler>
+      <handler name="oninit">
+        // Fix up prefixing
+        window.AudioContext = window.AudioContext || window.webkitAudioContext;
+        this.context = new AudioContext();
+        var _this = this;
+        this.context.oncomplete = function() {
+          _this.setAttribute('playing', false);
+        }
+        this.gain = null;
+        this.fftNode = null;
+        this.buffer = null;
+        this.startOffset = 0;
+        this.startTime = 0;
+      </handler>
+      <method name="play">
+        this.setAttribute('playing', true);
+        if (! this.buffer) return;
+
+        // track the time when playback started
+        this.startTime = this.context.currentTime;
+        this.setAttribute('paused', false);
+        // creates a sound source
+        this.source = this.context.createBufferSource(); 
+
+        this.source.loop = this.loop;
+        // tell the source which sound to play
+        this.source.buffer = this.buffer;                    
+        this.setAttribute('duration', this.buffer.duration);
+        // Create a gain node.
+        //this.gain = this.context.createGain();
+        // Create fft     
+        this.fftNode = this.context.createAnalyser();     
+        if (this.fftsize) {
+          this.fftNode.fftSize = this.fftsize;
+          this.fftNode.smoothingTimeConstant = this.fftsmoothing;
+        }
+
+        // Connect the source to the gain node.
+        this.source.connect(this.fftNode);
+        // Connect the gain node to the destination.
+        this.fftNode.connect(this.context.destination);
+        // play the source now
+        if (!this.source.start)
+          this.source.start = source.noteOn;
+        this.source.start(0, this.startOffset % this.duration);                           
+      </method>
+      <method name="stop">
+        if (! this.playing) return;
+        // store state to start playback after load
+        this.setAttribute('playing', false);
+        if (! this.source) return;
+
+        if (!this.source.stop)
+          this.source.stop = source.noteOff;
+        this.source.stop(0);
+        this.startTime = this.startOffset = 0;
+      </method>
+      <method name="pause">
+        if (! this.playing) return;
+        if (! this.source) return;
+        if (!this.source.stop)
+          this.source.stop = source.noteOff;
+        this.source.stop();
+        this.startOffset += (this.context.currentTime - this.startTime);
+        // console.log('this.startOffset', this.startOffset);
+        this.setAttribute('paused', true);
+      </method>
+      <handler name="onidle" reference="lz.idle">
+        if (! (this.fftNode && this.playing && ! this.paused)) return;
+
+        var time = this.context.currentTime - this.startTime + this.startOffset;
+        if (time > this.duration) {
+          this.stop();
+        }
+        this.setAttribute('time', time % this.duration);
+
+        if (this.fftsize) {
+          var data = new Uint8Array(this.fftsize);
+          this.fftNode.getByteFrequencyData(data); 
+          this.setAttribute('fft', data)
+        }
+      </handler>
+    </class>
