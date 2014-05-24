@@ -643,6 +643,7 @@ window.lz = do ->
 
     set_id: (id) ->
       @sprite.set_id(id)
+      window[id] = @
 
     animate: ->
       # console.log 'animate', arguments, @sprite.animate

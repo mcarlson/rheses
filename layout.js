@@ -861,7 +861,8 @@
       };
 
       View.prototype.set_id = function(id) {
-        return this.sprite.set_id(id);
+        this.sprite.set_id(id);
+        return window[id] = this;
       };
 
       View.prototype.animate = function() {
