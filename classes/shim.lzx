@@ -3,9 +3,9 @@
     <class name="shim" extends="view">
       <attribute name="connected" value="false" type="boolean"></attribute>
       <attribute name="connecting" value="false" type="boolean"></attribute>
-      <attribute name="data" value="null" type="expression"></attribute>
       <handler name="oninit">
         var url = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '') + '/';
+        if (! window['Primus']) return;
         this.primus = new Primus(url, {ping: 1000, pong: 1000});
         var _this = this;
         this.primus.on('message', function (msg) {
@@ -24,6 +24,10 @@
       <method name="send" args="type, data">
         var json = JSON.stringify({'type': type || 'data', data: data});
         //console.log('sending', json)
-        this.primus.send('message', json)
+        if (this.connected) {
+          this.primus.send('message', json)
+        } else {
+          this.setAttribute(type, data);
+        }
       </hander>
     </class>
