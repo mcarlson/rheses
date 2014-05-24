@@ -772,7 +772,7 @@ window.lz = do ->
     writeCSS = ->
       style = document.createElement('style')
       style.type = 'text/css'
-      style.innerHTML = '.sprite{ position: absolute; pointer-events: none; } .sprite-text{ width: auto; height; auto; white-space: nowrap; } .hidden{ display: none; } method { display: none; } handler { display: none; } setter { display: none; } class { display:none } node { display:none }'
+      style.innerHTML = '.sprite{ position: absolute; pointer-events: none; padding: 0; margin: 0;} .sprite-text{ width: auto; height; auto; white-space: nowrap;  padding: 0; margin: 0;} .hidden{ display: none; } method { display: none; } handler { display: none; } setter { display: none; } class { display:none } node { display:none }'
       document.getElementsByTagName('head')[0].appendChild(style)
 
     # init top-level views in the DOM recursively
