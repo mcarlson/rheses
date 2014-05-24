@@ -1,13 +1,19 @@
+    <script src="/socket.io/socket.io.js"></script>
+    <!-- TODO: shouldn't extend node for ID lookups -->
     <class name="shim" extends="view">
       <attribute name="data" value="null" type="expression"></attribute>
       <handler name="oninit">
         var skope = this;
         this.socket = io.connect();
         this.socket.on('message', function (msg) {
-          skope.setAttribute('data', JSON.parse(msg.text))
+          var data = JSON.parse(msg.text);
+          skope.setAttribute(data.type, data.data);
         });
       </handler>
-      <method name="send" args="data">
-        this.socket.emit('message', JSON.stringify(data))
+      <method name="send" args="type, data">
+        var json = JSON.stringify({'type': type || 'data', data: data});
+        //
+        //console.log('sending', json)
+        this.socket.emit('message', json)
       </hander>
     </class>
