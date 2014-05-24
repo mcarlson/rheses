@@ -6,6 +6,7 @@
       <attribute name="datapath" value="" type="string"></attribute>
       <attribute name="sortfield" value="" type="string"></attribute>
       <attribute name="sortasc" value="true" type="boolean"></attribute>
+      <attribute name="lazycount" value="Infinity" type="number"></attribute>
       <handler name="onsortfield">
         # console.log 'onsortfield', @sortfield, @data
         @buildsortfunc()
@@ -101,6 +102,15 @@
 
         return unless @data
 
+        if @data.length > @lazycount
+          setTimeout(() =>
+            @doReplication()
+          , 0);
+        else
+          @doReplication()
+      </method>
+      <method name="doReplication">
+        return unless @data
         locked = @locked
         @locked = true
 
