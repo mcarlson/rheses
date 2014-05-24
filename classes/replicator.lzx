@@ -1,3 +1,4 @@
+    <script type="text/javascript" src="lib/json-path+json-ptr-0.1.3.min.js"></script>
     <class name="replicator" type="coffee" extends="node">
       <attribute name="pooling" value="false" type="boolean"></attribute>
       <attribute name="data" value="[]" type="expression"></attribute>
