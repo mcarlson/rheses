@@ -882,7 +882,7 @@
 
     })(mixOf(Node, Clickable));
     dom = (function() {
-      var buildtinTags, exports, findAutoIncludes, flattenattributes, htmlDecode, includeRE, initAllElements, initElement, initFromElement, processSpecialTags, specialtags, writeCSS;
+      var builtinTags, exports, findAutoIncludes, flattenattributes, htmlDecode, includeRE, initAllElements, initElement, initFromElement, processSpecialTags, specialtags, writeCSS;
       flattenattributes = function(namednodemap) {
         var attributes, i, _i, _len;
         attributes = {};
@@ -931,7 +931,7 @@
             name = el.localName;
             if (name === 'class') {
               inlineclasses[el.attributes.name.value] = true;
-            } else if (!(name in lz || name in loaded || __indexOf.call(specialtags, name) >= 0 || name in inlineclasses)) {
+            } else if (!(name in lz || name in loaded || __indexOf.call(specialtags, name) >= 0 || name in inlineclasses || __indexOf.call(builtinTags, name) >= 0)) {
               loaded[name] = true;
               url = 'classes/' + name + '.lzx';
               prom = $.get(url);
@@ -967,7 +967,7 @@
         });
       };
       specialtags = ['handler', 'method', 'attribute', 'setter', 'include', 'library'];
-      buildtinTags = ['input', 'div'];
+      builtinTags = ['input', 'div', 'img'];
       initElement = function(el, parent) {
         var attributes, child, children, event, eventname, tagname, _i, _j, _len, _len1, _ref;
         if (el.$init) {
@@ -976,7 +976,7 @@
         el.$init = true;
         tagname = el.localName;
         if (!(tagname in lz)) {
-          if (!(__indexOf.call(buildtinTags, tagname) >= 0)) {
+          if (__indexOf.call(builtinTags, tagname) < 0) {
             console.warn('could not find class for tag', tagname, el);
           }
           return;

@@ -9,7 +9,6 @@ hackstyle = do ->
     if view[name] != value
     # if (view[name] != value and view?.events?[name])
       # console.log('sending style', name, elem.$view._locked) if sendstyle
-      # view.setAttribute(name, value, true)
       view.setAttribute(name, value, true)
 
     returnval
@@ -399,7 +398,7 @@ window.lz = do ->
 
     # generate a callback for a constraint expression, e.g. x="${this.parent.baz.x + 10}"
     _constraintCallback: (name, fn) ->
-      # console.log('binding to constraint fn', name, fn, @)
+      # console.log('binding to constraint function', name, fn, @)
       () =>
         # console.log 'setting', name, fn(), @
         @setAttribute(name, fn())
@@ -701,7 +700,7 @@ window.lz = do ->
           if name == 'class'
             # find inline class declarations
             inlineclasses[el.attributes.name.value] = true
-          else unless name of lz or name of loaded or name in specialtags or name of inlineclasses
+          else unless name of lz or name of loaded or name in specialtags or name of inlineclasses or name in builtinTags
             loaded[name] = true
             url = 'classes/' + name + '.lzx'
             # console.log 'loading', url
@@ -726,7 +725,8 @@ window.lz = do ->
       )
 
     specialtags = ['handler', 'method', 'attribute', 'setter', 'include', 'library']
-    buildtinTags = ['input', 'div']
+    # tags built into the browser that should be ignored
+    builtinTags = ['input', 'div', 'img']
     # recursively init classes based on an existing element
     initElement = (el, parent) ->
       # don't init the same element twice
@@ -735,7 +735,7 @@ window.lz = do ->
 
       tagname = el.localName
       if not (tagname of lz)
-        console.warn 'could not find class for tag', tagname, el unless (tagname in buildtinTags)
+        console.warn 'could not find class for tag', tagname, el unless tagname in builtinTags
         return
 
       attributes = flattenattributes(el.attributes)
@@ -849,6 +849,7 @@ window.lz = do ->
       name = classattributes.name
       extend = classattributes.extends ?= 'view'
       compilertype = classattributes.type
+      # only class instances should specify these
       for ignored of ignoredAttributes
         delete classattributes[ignored]
 
