@@ -150,7 +150,6 @@ window.lz = do ->
         @[name] = value
 
       @sendEvent(name, value)
-      @
 
     sendEvent: (name, value) ->
       # send event
@@ -385,7 +384,6 @@ window.lz = do ->
       return
 
     _bindConstraints: ->
-      # register constraints last
       for name, constraint of @constraints
         {bindings, expression} = constraint
         fn = compiler.compile(expression).bind(@)
@@ -626,7 +624,7 @@ window.lz = do ->
       # console.log 'new view', el, attributes, @
 
     setAttribute: (name, value, skip) ->
-      if not (skip or ignoredAttributes[name] or @[name] == value)
+      if not (skip or name of ignoredAttributes or @[name] == value)
         # console.log 'setting style', name, value, @
         @sprite.setStyle(name, value)
       super
@@ -682,6 +680,7 @@ window.lz = do ->
       findAutoIncludes(el, () ->
         el.style.display = null
         initElement(el)
+        # register constraints last
         _initConstraints()
       )
 
@@ -693,6 +692,17 @@ window.lz = do ->
       requests = []
       includes = []
       jqel = $(parentel)
+
+      loadLZX = (name, el) ->
+        return if name of lz or name of loaded or name in specialtags or name of inlineclasses or name in builtinTags
+        loaded[name] = true
+        url = 'classes/' + name + '.lzx'
+        # console.log 'loading', url
+        prom = $.get(url)
+        prom.url = url
+        prom.el = el
+        requests.push(prom)
+
       for jel in jqel.find('include')
         includes.push($.get(jel.attributes.href.value))
 
@@ -706,16 +716,11 @@ window.lz = do ->
         for el in jqel.find('*')
           name = el.localName
           if name == 'class'
+            loadLZX(el.attributes.extends.value, el) if el.attributes.extends
             # find inline class declarations
             inlineclasses[el.attributes.name.value] = true
-          else unless name of lz or name of loaded or name in specialtags or name of inlineclasses or name in builtinTags
-            loaded[name] = true
-            url = 'classes/' + name + '.lzx'
-            # console.log 'loading', url
-            prom = $.get(url)
-            prom.url = url
-            prom.el = el
-            requests.push(prom)
+          else 
+            loadLZX(name, el);
    
         # console.log(requests, loaded, inlineclasses)
         $.when.apply($, requests).done((args...) ->
@@ -734,7 +739,7 @@ window.lz = do ->
 
     specialtags = ['handler', 'method', 'attribute', 'setter', 'include', 'library']
     # tags built into the browser that should be ignored
-    builtinTags = ['input', 'div', 'img']
+    builtinTags = ['input', 'div', 'img', 'script']
     # recursively init classes based on an existing element
     initElement = (el, parent) ->
       # don't init the same element twice

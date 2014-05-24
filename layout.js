@@ -250,8 +250,7 @@
         if (this[name] !== value) {
           this[name] = value;
         }
-        this.sendEvent(name, value);
-        return this;
+        return this.sendEvent(name, value);
       };
 
       Eventable.prototype.sendEvent = function(name, value) {
@@ -845,7 +844,7 @@
       }
 
       View.prototype.setAttribute = function(name, value, skip) {
-        if (!(skip || ignoredAttributes[name] || this[name] === value)) {
+        if (!(skip || name in ignoredAttributes || this[name] === value)) {
           this.sprite.setStyle(name, value);
         }
         return View.__super__.setAttribute.apply(this, arguments);
@@ -914,20 +913,32 @@
       };
       includeRE = /<[\/]*library>/gi;
       findAutoIncludes = function(parentel, callback) {
-        var includes, inlineclasses, jel, jqel, loaded, requests, requesturls, _i, _len, _ref;
+        var includes, inlineclasses, jel, jqel, loadLZX, loaded, requests, requesturls, _i, _len, _ref;
         loaded = {};
         inlineclasses = {};
         requesturls = [];
         requests = [];
         includes = [];
         jqel = $(parentel);
+        loadLZX = function(name, el) {
+          var prom, url;
+          if (name in lz || name in loaded || __indexOf.call(specialtags, name) >= 0 || name in inlineclasses || __indexOf.call(builtinTags, name) >= 0) {
+            return;
+          }
+          loaded[name] = true;
+          url = 'classes/' + name + '.lzx';
+          prom = $.get(url);
+          prom.url = url;
+          prom.el = el;
+          return requests.push(prom);
+        };
         _ref = jqel.find('include');
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           jel = _ref[_i];
           includes.push($.get(jel.attributes.href.value));
         }
         return $.when.apply($, includes).done(function() {
-          var args, el, html, name, prom, url, xhr, _j, _k, _len1, _len2, _ref1;
+          var args, el, html, name, xhr, _j, _k, _len1, _len2, _ref1;
           args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
           if (includes.length === 1) {
             args = [args];
@@ -942,14 +953,12 @@
             el = _ref1[_k];
             name = el.localName;
             if (name === 'class') {
+              if (el.attributes["extends"]) {
+                loadLZX(el.attributes["extends"].value, el);
+              }
               inlineclasses[el.attributes.name.value] = true;
-            } else if (!(name in lz || name in loaded || __indexOf.call(specialtags, name) >= 0 || name in inlineclasses || __indexOf.call(builtinTags, name) >= 0)) {
-              loaded[name] = true;
-              url = 'classes/' + name + '.lzx';
-              prom = $.get(url);
-              prom.url = url;
-              prom.el = el;
-              requests.push(prom);
+            } else {
+              loadLZX(name, el);
             }
           }
           return $.when.apply($, requests).done(function() {
@@ -979,7 +988,7 @@
         });
       };
       specialtags = ['handler', 'method', 'attribute', 'setter', 'include', 'library'];
-      builtinTags = ['input', 'div', 'img'];
+      builtinTags = ['input', 'div', 'img', 'script'];
       initElement = function(el, parent) {
         var attributes, child, children, event, eventname, tagname, _i, _j, _len, _len1, _ref;
         if (el.$init) {
