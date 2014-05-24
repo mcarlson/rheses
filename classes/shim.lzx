@@ -1,19 +1,29 @@
-    <script src="/socket.io/socket.io.js"></script>
+    <script src="/primus/primus.io.js"></script>
     <!-- TODO: shouldn't extend node for ID lookups -->
     <class name="shim" extends="view">
+      <attribute name="connected" value="false" type="boolean"></attribute>
+      <attribute name="connecting" value="false" type="boolean"></attribute>
       <attribute name="data" value="null" type="expression"></attribute>
       <handler name="oninit">
-        var skope = this;
-        this.socket = io.connect();
-        this.socket.on('message', function (msg) {
-          var data = JSON.parse(msg.text);
-          skope.setAttribute(data.type, data.data);
+        var url = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '') + '/';
+        this.primus = new Primus(url, {ping: 1000, pong: 1000});
+        var _this = this;
+        this.primus.on('message', function (msg) {
+          // console.log('message', msg)
+          var data = JSON.parse(msg);
+          _this.setAttribute(data.type, data.data);
+        });
+        this.primus.on('open', function open() {
+          _this.setAttribute('connected', true);
+        });
+        this.primus.on('error', function error(err) {
+          _this.setAttribute('connected', false);
+          console.error('primus error', err);
         });
       </handler>
       <method name="send" args="type, data">
         var json = JSON.stringify({'type': type || 'data', data: data});
-        //
         //console.log('sending', json)
-        this.socket.emit('message', json)
+        this.primus.send('message', json)
       </hander>
     </class>
