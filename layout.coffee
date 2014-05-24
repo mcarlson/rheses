@@ -404,9 +404,10 @@ window.lz = do ->
     # generate a callback for a constraint expression, e.g. x="${this.parent.baz.x + 10}"
     _constraintCallback: (name, fn) ->
       # console.log('binding to constraint function', name, fn, @)
-      () =>
-        # console.log 'setting', name, fn(), @
-        @setAttribute(name, fn())
+      return `(function constraintCallback(){`
+      # console.log 'setting', name, fn(), @
+      this.setAttribute(name, fn())
+      `}).bind(this)`
 
     set_parent: (parent) ->
       # console.log 'set_parent', parent, @

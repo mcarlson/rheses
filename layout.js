@@ -557,11 +557,9 @@
       };
 
       Node.prototype._constraintCallback = function(name, fn) {
-        return (function(_this) {
-          return function() {
-            return _this.setAttribute(name, fn());
-          };
-        })(this);
+        return (function constraintCallback(){;
+        this.setAttribute(name, fn());
+        return }).bind(this);
       };
 
       Node.prototype.set_parent = function(parent) {
