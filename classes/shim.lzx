@@ -1,24 +1,23 @@
-    <script src="/primus/primus.io.js"></script>
-    <!-- TODO: shouldn't extend node for ID lookups -->
-    <class name="shim" extends="view">
+    <!-- TODO: shouldn't have to extend view for ID lookups -->
+    <class name="shim" extends="view" scriptincludes="/primus/primus.io.js">
       <attribute name="connected" value="false" type="boolean"></attribute>
-      <attribute name="connecting" value="false" type="boolean"></attribute>
+      <attribute name="pingtime" value="1000" type="number"></attribute>
       <handler name="oninit">
         var url = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '') + '/';
         if (! window['Primus']) return;
-        this.primus = new Primus(url, {ping: 1000, pong: 1000});
+        this.primus = new Primus(url, {ping: this.pingtime, pong: this.pingtime});
         var _this = this;
-        this.primus.on('message', function (msg) {
+        this.primus.on('message', function shim$message(msg) {
           // console.log('message', msg)
           var data = JSON.parse(msg);
           _this.setAttribute(data.type, data.data);
         });
-        this.primus.on('open', function open() {
+        this.primus.on('open', function shim$open() {
           _this.setAttribute('connected', true);
         });
-        this.primus.on('error', function error(err) {
+        this.primus.on('error', function shim$error(err) {
           _this.setAttribute('connected', false);
-          console.error('primus error', err);
+          _this.sendEvent('error', err);
         });
       </handler>
       <method name="send" args="type, data">
