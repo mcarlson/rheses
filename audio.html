@@ -45,11 +45,7 @@
 
     <view bgcolor="${audio.playing ? 'green' : 'gray'}" opacity="${audio.loaded ? 1 : .8}" width="${(audio.loadprogress * audio.fftsize * .5)}" height="20">
       <handler name="onclick">
-        if (! audio.playing || audio.paused) {
-          audio.play();
-        } else {
-          audio.pause();
-        }
+        audio.toggle();
       </handler>
       <view name="playhead" bgcolor="red" width="${(audio.time / audio.duration) * this.parent.width}" height="20"></view>
       <view y="3" x="${this.parent.playhead.width}" width="${this.parent.width - this.x}">

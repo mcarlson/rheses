@@ -87,7 +87,6 @@
         this.source.start(0, this.startOffset % this.duration);                           
       </method>
       <method name="stop">
-        if (! this.playing) return;
         // store state to start playback after load
         this.setAttribute('playing', false);
         if (! this.source) return;
@@ -99,7 +98,7 @@
         this.startTime = this.startOffset = 0;
       </method>
       <method name="pause">
-        if (! this.playing) return;
+        this.setAttribute('paused', true);
         if (! this.source) return;
         if (!this.source.stop)
           this.source.stop = source.noteOff;
@@ -107,6 +106,13 @@
         this.startOffset += (this.context.currentTime - this.startTime);
         // console.log('this.startOffset', this.startOffset);
         this.setAttribute('paused', true);
+      </method>
+      <method name="toggle">
+        if (! this.playing || this.paused) {
+          this.play();
+        } else {
+          this.pause();
+        }
       </method>
       <handler name="onidle" reference="lz.idle">
         if (! (this.fftNode && this.playing && ! this.paused)) return;

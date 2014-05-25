@@ -25,7 +25,11 @@
 </head>
 <body>
   <view>
-    <audioplayer id="audio" url="music/03_Homage Sliders.mp3" fftsize="2048" fftsmoothing="0" playing="true"></audioplayer>
+    <audioplayer id="audio" url="music/03_Homage Sliders.mp3" fftsize="2048" fftsmoothing="0" playing="true">
+      <handler name="onkeydown" args="key" reference="lz.keyboard">
+        if (key.keyCode == 32) this.toggle();
+      </handler>
+    </audioplayer>
 
     <class name="threejsviz" extends="threejs" scriptincludes="http://threejs.org/examples/js/controls/OrbitControls.js">
       <attribute name="data" value="[]" type="expression"></attribute>
@@ -39,7 +43,7 @@
       <method name="createObject" args="i"></method>
     </class>
 
-    <threejsviz width="${lz.window.width}" height="${lz.window.height}" bgcolor="white" data="${audio.fft}" loaded="${audio.loaded}">
+    <threejsviz width="${lz.window.width}" height="${lz.window.height}" bgcolor="white" data="${audio.fft}">
       <method name="initScene" args="scene">
         this.camera.position.x = -420;
         this.camera.position.z = 420;
@@ -76,7 +80,7 @@
       <handler name="onloadprogress" args="progress" reference="audio">
         var target = progress * audio.fftsize * .5
         while (this.objects.length < target) {
-          var object = this.createObject(this.objects.length - 1);
+          this.createObject(this.objects.length - 1);
         }
       </handler>
     </threejsviz>
