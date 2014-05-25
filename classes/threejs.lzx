@@ -3,7 +3,6 @@
         var renderer = this.renderer = new THREE.WebGLRenderer();
         renderer.setClearColor( this.bgcolor );
         renderer.setSize(this.width, this.height);
-        renderer.sortObjects = false;
         renderer.domElement.$view = this;
         this.sprite.el.appendChild(renderer.domElement);
 
@@ -32,4 +31,5 @@
           this.render();
         }
       </method>
+      <method name="initScene" args="scene"></method>
     </class>

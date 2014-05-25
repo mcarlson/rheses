@@ -25,7 +25,7 @@
 </head>
 <body>
   <view>
-    <audioplayer id="audio" url="music/03_Homage Sliders.mp3" fftsize="2048" fftsmoothing="0.1" playing="true"></audioplayer>
+    <audioplayer id="audio" url="music/03_Homage Sliders.mp3" fftsize="2048" fftsmoothing="0" playing="true"></audioplayer>
 
     <class name="threejsviz" extends="threejs" scriptincludes="http://threejs.org/examples/js/controls/OrbitControls.js">
       <attribute name="data" value="[]" type="expression"></attribute>
@@ -34,19 +34,22 @@
         for (var i = 0; i < this.objects.length; i++) {
           this.applyData(this.objects[i], data[i]);
         }
-        this.render()
+        this.render();
       </handler>
-      <method name="applyData" args="object, datum">
-      </method>
+      <method name="applyData" args="object, datum"></method>
+      <method name="createObject" args="i"></method>
     </class>
 
-    <threejsviz width="${lz.window.width}" height="${lz.window.height}" bgcolor="white" data="${audio.fft}">
+    <threejsviz width="${lz.window.width}" height="${lz.window.height}" bgcolor="white" data="${audio.fft}" loaded="${audio.loaded}">
       <method name="initScene" args="scene">
-        this.camera.position.x = -448
-        this.camera.position.z = 417
+        this.camera.position.x = -420;
+        this.camera.position.z = 420;
 
         var controls = new THREE.OrbitControls(this.camera);
-        controls.addEventListener('change', this.render);
+        var _this = this;
+        controls.addEventListener('change', function() {
+          if (! _this.loaded) _this.render();
+        });
 
         var light = new THREE.DirectionalLight( 0xffffff, 2 );
         light.position.set( 1, 1, 1 ).normalize();
@@ -56,24 +59,33 @@
         light.position.set( -1, -1, -1 ).normalize();
         scene.add( light );
 
+        scene.fog = new THREE.FogExp2( 0xffffff, 0.0002);
+      </method>
+      <method name="createObject" args="i">
         var geometry = new THREE.BoxGeometry( 20, 20, 20 );
-
-        for ( var i = 0; i < 2048; i ++ ) {
-          var object = new THREE.Mesh( geometry, new THREE.MeshLambertMaterial( { color: Math.random() * 0xffffff } ) );
-          object.position.x = (i * 22) - 400;
-          this.objects.push(object);
-          scene.add( object );
-        }
+        var material = new THREE.MeshPhongMaterial({ color: 0xff0000, transparent: true });
+        var object = new THREE.Mesh(geometry, material);
+        object.position.x = (i * 20) - 400;
+        object.scale.y = 16;
+        object.scale.z = 16;
+        this.objects.push(object);
+        this.scene.add(object);
+        return object;
       </method>
       <method name="applyData" args="object, datum">
-        if (isNaN(datum)) return;
-        var scale = ((datum / 256) * 16) + 1;
-        object.scale.y = scale;
-        object.scale.z = scale;
+        var scale = datum / 256;
+        object.scale.y = scale * 16;
+        object.scale.z = scale * 16;
+        object.material.opacity = scale;
       </method>
+      <handler name="onloadprogress" args="progress" reference="audio">
+        var target = progress * audio.fftsize * .5
+        while (this.objects.length < target) {
+          var object = this.createObject(this.objects.length - 1);
+        }
+        this.render();
+      </handler>
     </threejsviz>
-
-    <stats></stats>
   </view>
 </body>
 </html>
