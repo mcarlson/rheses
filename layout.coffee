@@ -1,3 +1,4 @@
+`'use strict'`
 hackstyle = do ->
   # hack jQuery to send a style event when CSS changes
   stylemap= {left: 'x', top: 'y', 'background-color': 'bgcolor'}
@@ -166,8 +167,12 @@ window.lz = do ->
 
 
   compiler = do ->
+    usecache = window.location.search.indexOf('nocache') == -1
+    debug = window.location.search.indexOf('debug') > 0
+    strict = window.location.search.indexOf('strict') > 0
+
     cacheKey = "compilecache"
-    if localStorage[cacheKey]
+    if usecache and cacheKey of localStorage
       compileCache = JSON.parse(localStorage[cacheKey])
       # console.log 'restored', compileCache
     else
@@ -175,6 +180,7 @@ window.lz = do ->
         bindings: {}
         script: 
           coffee: {}
+      localStorage[cacheKey] = JSON.stringify(compileCache) 
 
     $(window).on('unload', -> 
       localStorage[cacheKey] = JSON.stringify(compileCache) 
@@ -198,7 +204,7 @@ window.lz = do ->
           return true
 
       (expression) ->
-        return bindingCache[expression] if expression of bindingCache
+        return bindingCache[expression] if usecache and expression of bindingCache
         ast = acorn.parse(expression)
         scopes = []
         acorn.walkDown(ast, propertyBindings)
@@ -212,7 +218,7 @@ window.lz = do ->
       coffeeCache = compileCache.script.coffee
       compilers = 
         coffee: (script) ->
-          if script of coffeeCache
+          if usecache and script of coffeeCache
             # console.log 'cache hit', script
             return coffeeCache[script]
           if not window.CoffeeScript
@@ -238,7 +244,8 @@ window.lz = do ->
       # console.log 'compile', args, script
       try 
         # console.log scriptCache
-        if name
+        if debug and name
+          script = "\"use strict\"\n" + script if strict
           func = new Function("return function #{name}(#{argstring}){#{script}}")()
         else
           func = new Function(args, script)
