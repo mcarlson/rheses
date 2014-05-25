@@ -892,7 +892,7 @@
 
     })(mixOf(Node, Clickable));
     dom = (function() {
-      var builtinTags, exports, findAutoIncludes, flattenattributes, htmlDecode, includeRE, initAllElements, initElement, initFromElement, processSpecialTags, specialtags, writeCSS;
+      var builtinTags, exports, findAutoIncludes, flattenattributes, htmlDecode, includeRE, includedScripts, initAllElements, initElement, initFromElement, processSpecialTags, specialtags, writeCSS;
       flattenattributes = function(namednodemap) {
         var attributes, i, _i, _len;
         attributes = {};
@@ -910,15 +910,27 @@
           return _initConstraints();
         });
       };
+      includedScripts = {};
       includeRE = /<[\/]*library>/gi;
       findAutoIncludes = function(parentel, callback) {
-        var includes, inlineclasses, jel, jqel, loadLZX, loaded, requests, requesturls, _i, _len, _ref;
+        var includes, inlineclasses, jel, jqel, loadLZX, loadScript, loaded, requests, requesturls, _i, _len, _ref;
         loaded = {};
         inlineclasses = {};
         requesturls = [];
         requests = [];
         includes = [];
         jqel = $(parentel);
+        loadScript = function(url) {
+          var script;
+          if (url in includedScripts) {
+            return;
+          }
+          includedScripts[url] = true;
+          script = document.createElement('script');
+          script.type = 'text/javascript';
+          script.src = url;
+          return $('head').append(script);
+        };
         loadLZX = function(name, el) {
           var prom, url;
           if (name in lz || name in loaded || __indexOf.call(specialtags, name) >= 0 || name in inlineclasses || __indexOf.call(builtinTags, name) >= 0) {
@@ -961,7 +973,7 @@
             }
           }
           return $.when.apply($, requests).done(function() {
-            var args, _l, _len3;
+            var args, scriptsloading, _l, _len3, _len4, _m, _ref2;
             args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
             if (requests.length === 1) {
               args = [args];
@@ -970,7 +982,19 @@
               xhr = args[_l];
               jqel.prepend(xhr[0]);
             }
-            return callback();
+            scriptsloading = false;
+            _ref2 = jqel.find('class');
+            for (_m = 0, _len4 = _ref2.length; _m < _len4; _m++) {
+              el = _ref2[_m];
+              if (el.attributes.scriptincludes) {
+                scriptsloading = loadScript(el.attributes.scriptincludes.value);
+              }
+            }
+            if (scriptsloading) {
+              return setTimeout(callback, 0);
+            } else {
+              return callback();
+            }
           }).fail(function() {
             var args, _l, _len3, _results;
             args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
@@ -1387,7 +1411,7 @@
       };
 
       Idle.prototype.sender = function(time) {
-        this.trigger('idle', time, this);
+        this.sendEvent('idle', time);
         return setTimeout((function(_this) {
           return function() {
             return idle(1, _this.sender);

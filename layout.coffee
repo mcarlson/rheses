@@ -398,7 +398,6 @@ window.lz = do ->
             boundref.bind?(property, constraint)
           
         @setAttribute(name, fn())
-
       return
 
     # generate a callback for a constraint expression, e.g. x="${this.parent.baz.x + 10}"
@@ -532,12 +531,12 @@ window.lz = do ->
 
       # TODO: retrigger the event for the element below for IE and Opera? See http://stackoverflow.com/questions/3680429/click-through-a-div-to-underlying-elements
       # el = $(event.target)
-      # el.hide();
-      # $(document.elementFromPoint(event.clientX,event.clientY)).trigger(type);
-      # el.show();
+      # el.hide()
+      # $(document.elementFromPoint(event.clientX,event.clientY)).trigger(type)
+      # el.show()
 
     destroy: ->
-      @el.parentNode.removeChild(@el);
+      @el.parentNode.removeChild(@el)
       @el = @jqel = null
 
     set_clip: (clip) ->
@@ -584,7 +583,7 @@ window.lz = do ->
         @input = @el.getElementsByTagName('input')[0]
         @input.$view = @el.$view
         $(input).on('focus blur', @handle)
-      , 0);
+      , 0)
 
     getAbsolute: () ->
       @jqel ?= $(@el)
@@ -612,7 +611,7 @@ window.lz = do ->
           # console.log 'set default', key, type, @[key]
 
       for key, type of attributes.$types
-        types[key] = type;
+        types[key] = type
       attributes.$types = types
 
       if (el instanceof View)
@@ -686,6 +685,7 @@ window.lz = do ->
         _initConstraints()
       )
 
+    includedScripts = {}
     includeRE = /<[\/]*library>/gi
     findAutoIncludes = (parentel, callback) ->
       loaded = {}
@@ -694,6 +694,14 @@ window.lz = do ->
       requests = []
       includes = []
       jqel = $(parentel)
+
+      loadScript = (url) ->
+        return if url of includedScripts
+        includedScripts[url] = true
+        script = document.createElement('script')
+        script.type = 'text/javascript'
+        script.src = url
+        $('head').append(script)
 
       loadLZX = (name, el) ->
         return if name of lz or name of loaded or name in specialtags or name of inlineclasses or name in builtinTags
@@ -722,7 +730,7 @@ window.lz = do ->
             # find inline class declarations
             inlineclasses[el.attributes.name.value] = true
           else 
-            loadLZX(name, el);
+            loadLZX(name, el)
    
         # console.log(requests, loaded, inlineclasses)
         $.when.apply($, requests).done((args...) ->
@@ -730,7 +738,16 @@ window.lz = do ->
           for xhr in args
             # console.log 'inserting html', xhr[0] 
             jqel.prepend(xhr[0])
-          callback()
+
+          scriptsloading = false
+          for el in jqel.find('class')
+            if el.attributes.scriptincludes
+              scriptsloading = loadScript(el.attributes.scriptincludes.value) 
+
+          if scriptsloading
+            setTimeout(callback, 0)
+          else
+            callback()
         ).fail((args...) ->
           args = [args] if (args.length == 1)
           for xhr in args
@@ -798,8 +815,8 @@ window.lz = do ->
     # http://stackoverflow.com/questions/1248849/converting-sanitised-html-back-to-displayable-html
     htmlDecode = (input) ->
       # return if not input
-      e = document.createElement('div');
-      e.innerHTML = input;
+      e = document.createElement('div')
+      e.innerHTML = input
       e.childNodes[0]?.nodeValue
 
     # process handlers, methods, setters and attributes 
@@ -994,7 +1011,7 @@ window.lz = do ->
       @update() if (changed and not locked)
 
   idle = do ->
-    requestAnimationFrame = window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame# || (delegate) -> setTimeout(delegate, 17);
+    requestAnimationFrame = window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame# || (delegate) -> setTimeout(delegate, 17)
     ticking = false
     tickEvents = []
 
@@ -1011,7 +1028,7 @@ window.lz = do ->
       # console.log('hit', key) if (tickEvents[key] != null) 
       if !ticking
         requestAnimationFrame(doTick)
-      ticking = true;
+      ticking = true
       tickEvents[key] = callback
 
 
@@ -1051,7 +1068,7 @@ window.lz = do ->
       idle(1, @sender)
 
     sender: (time) =>
-      @trigger('idle', time, @)
+      @sendEvent('idle', time)
       # console.log('sender', time, @eventStarted, idle)
       setTimeout(() =>
         idle(1, @sender)
@@ -1144,7 +1161,7 @@ window.lz = do ->
           value = event.target.value
           if (inputtext.text != value)
             inputtext.text = value
-            inputtext.sendEvent('text', value);
+            inputtext.sendEvent('text', value)
 
       # keys.inputtext = inputtext
       @sendEvent(type, keys)
