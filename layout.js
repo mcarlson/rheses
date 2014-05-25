@@ -910,7 +910,9 @@
           return _initConstraints();
         });
       };
-      includedScripts = {};
+      includedScripts = {
+        _counter: 0
+      };
       includeRE = /<[\/]*library>/gi;
       findAutoIncludes = function(parentel, callback) {
         var includes, inlineclasses, jel, jqel, loadLZX, loadScript, loaded, requests, requesturls, _i, _len, _ref;
@@ -920,16 +922,21 @@
         requests = [];
         includes = [];
         jqel = $(parentel);
-        loadScript = function(url) {
+        loadScript = function(url, cb) {
           var script;
           if (url in includedScripts) {
             return;
           }
+          includedScripts._counter++;
           includedScripts[url] = true;
           script = document.createElement('script');
           script.type = 'text/javascript';
-          script.src = url;
-          return $('head').append(script);
+          $('head').append(script);
+          script.onload = function() {
+            includedScripts._counter--;
+            return cb(includedScripts._counter === 0);
+          };
+          return script.src = url;
         };
         loadLZX = function(name, el) {
           var prom, url;
@@ -973,7 +980,7 @@
             }
           }
           return $.when.apply($, requests).done(function() {
-            var args, scriptsloading, _l, _len3, _len4, _m, _ref2;
+            var args, scriptcallback, scriptsloading, _l, _len3, _len4, _m, _ref2;
             args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
             if (requests.length === 1) {
               args = [args];
@@ -983,16 +990,19 @@
               jqel.prepend(xhr[0]);
             }
             scriptsloading = false;
+            scriptcallback = function(done) {
+              if (done) {
+                return callback();
+              }
+            };
             _ref2 = jqel.find('class');
             for (_m = 0, _len4 = _ref2.length; _m < _len4; _m++) {
               el = _ref2[_m];
               if (el.attributes.scriptincludes) {
-                scriptsloading = loadScript(el.attributes.scriptincludes.value);
+                scriptsloading = loadScript(el.attributes.scriptincludes.value, scriptcallback);
               }
             }
-            if (scriptsloading) {
-              return setTimeout(callback, 0);
-            } else {
+            if (!scriptsloading) {
               return callback();
             }
           }).fail(function() {

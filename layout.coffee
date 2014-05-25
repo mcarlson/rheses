@@ -685,7 +685,7 @@ window.lz = do ->
         _initConstraints()
       )
 
-    includedScripts = {}
+    includedScripts = {_counter: 0}
     includeRE = /<[\/]*library>/gi
     findAutoIncludes = (parentel, callback) ->
       loaded = {}
@@ -695,13 +695,19 @@ window.lz = do ->
       includes = []
       jqel = $(parentel)
 
-      loadScript = (url) ->
+      loadScript = (url, cb) ->
         return if url of includedScripts
+        includedScripts._counter++
+        # console.log('loading', url, includedScripts._counter)
         includedScripts[url] = true
         script = document.createElement('script')
         script.type = 'text/javascript'
-        script.src = url
         $('head').append(script)
+        script.onload = () ->
+          includedScripts._counter--
+          # console.log('loaded', url, includedScripts._counter)
+          cb(includedScripts._counter == 0)
+        script.src = url
 
       loadLZX = (name, el) ->
         return if name of lz or name of loaded or name in specialtags or name of inlineclasses or name in builtinTags
@@ -740,13 +746,15 @@ window.lz = do ->
             jqel.prepend(xhr[0])
 
           scriptsloading = false
+          scriptcallback = (done) ->
+            # console.log 'scriptcallback', done
+            callback() if done
+
           for el in jqel.find('class')
             if el.attributes.scriptincludes
-              scriptsloading = loadScript(el.attributes.scriptincludes.value) 
+              scriptsloading = loadScript(el.attributes.scriptincludes.value, scriptcallback)
 
-          if scriptsloading
-            setTimeout(callback, 0)
-          else
+          unless scriptsloading
             callback()
         ).fail((args...) ->
           args = [args] if (args.length == 1)
