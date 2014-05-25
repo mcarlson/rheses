@@ -22,84 +22,56 @@
   <script type="text/javascript" src="lib/acorn.js"></script>
   <script type="text/javascript" src="lib/coffee-script.js"></script>
   <script type="text/javascript" src="layout.js"></script>
-  <script src="http://threejs.org/build/three.min.js"></script>
-  <script src="http://threejs.org/examples/js/controls/OrbitControls.js"></script>
 </head>
 <body>
   <view>
     <audioplayer id="audio" url="music/03_Homage Sliders.mp3" fftsize="2048" fftsmoothing="0.1" playing="true"></audioplayer>
 
-    <class name="audioviz" width="100" height="100">
+    <class name="threejsviz" extends="threejs" scriptincludes="http://threejs.org/examples/js/controls/OrbitControls.js">
       <attribute name="data" value="[]" type="expression"></attribute>
-      <handler name="oninit">
-        this.cubes = [];
+      <attribute name="objects" value="[]" type="expression"></attribute>
+      <handler name="ondata" args="data">
+        for (var i = 0; i < this.objects.length; i++) {
+          this.applyData(this.objects[i], data[i]);
+        }
+        this.render()
+      </handler>
+      <method name="applyData" args="object, datum">
+      </method>
+    </class>
 
-        container = this.sprite.el;
+    <threejsviz width="${lz.window.width}" height="${lz.window.height}" bgcolor="white" data="${audio.fft}">
+      <method name="initScene" args="scene">
+        this.camera.position.x = -448
+        this.camera.position.z = 417
 
-        camera = new THREE.PerspectiveCamera( 70, this.width / this.height, 1, 10000 );
-        camera.position.x = -448
-        camera.position.z = 417
-
-        scene = new THREE.Scene();
+        var controls = new THREE.OrbitControls(this.camera);
+        controls.addEventListener('change', this.render);
 
         var light = new THREE.DirectionalLight( 0xffffff, 2 );
         light.position.set( 1, 1, 1 ).normalize();
         scene.add( light );
 
-        var light = new THREE.DirectionalLight( 0xffffff );
+        light = new THREE.DirectionalLight( 0xffffff );
         light.position.set( -1, -1, -1 ).normalize();
         scene.add( light );
 
         var geometry = new THREE.BoxGeometry( 20, 20, 20 );
 
-        for ( var i = 0; i < 1024; i ++ ) {
+        for ( var i = 0; i < 2048; i ++ ) {
           var object = new THREE.Mesh( geometry, new THREE.MeshLambertMaterial( { color: Math.random() * 0xffffff } ) );
           object.position.x = (i * 22) - 400;
-          this.cubes.push(object);
+          this.objects.push(object);
           scene.add( object );
         }
-
-        renderer = new THREE.WebGLRenderer();
-        renderer.setClearColor( this.bgcolor );
-        renderer.setSize( this.width, this.height);
-        renderer.sortObjects = false;
-        container.appendChild(renderer.domElement);
-
-        controls = new THREE.OrbitControls(camera);
-        controls.addEventListener( 'change', this.render );
-      </handler>
-      <handler name="onidle" reference="lz.idle">
-        this.render();
-      </handler>
-      <method name="render">
-        var scale = 1;
-        if (this.data.length) {
-          for (var i = 0; i < 1024; i++) {
-            scale = (this.data[i] / 16) + 1;
-            if (! isNaN(scale)) {
-              if (scale < 1) scale = 1
-              this.cubes[i].scale.y = scale;
-              this.cubes[i].scale.z = scale;
-            }
-          }
-        }
-
-        renderer.render( scene, camera );
       </method>
-      <handler name="onwidth" method="resize"></handler>
-      <handler name="onheight" method="resize"></handler>
-      <method name="resize">
-        if (camera) {
-          camera.aspect = window.innerWidth / window.innerHeight;
-          camera.updateProjectionMatrix();
-        }
-        if (renderer) {
-          renderer.setSize( this.width, this.height);
-        }
+      <method name="applyData" args="object, datum">
+        if (isNaN(datum)) return;
+        var scale = ((datum / 256) * 16) + 1;
+        object.scale.y = scale;
+        object.scale.z = scale;
       </method>
-    </class>
-
-    <audioviz width="${lz.window.width}" height="${lz.window.height}" bgcolor="white" data="${audio.fft}"></audioviz>
+    </threejsviz>
 
     <stats></stats>
   </view>
