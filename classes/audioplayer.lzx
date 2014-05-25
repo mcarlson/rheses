@@ -1,6 +1,7 @@
     <class name="audioplayer">
       <attribute name="url" value="" type="string"></attribute>
       <attribute name="loadprogress" value="0" type="number"></attribute>
+      <attribute name="loaded" value="false" type="boolean"></attribute>
       <attribute name="playing" value="false" type="boolean"></attribute>
       <attribute name="paused" value="false" type="boolean"></attribute>
       <attribute name="loop" value="false" type="boolean"></attribute>
@@ -21,6 +22,7 @@
 
         this.sendEvent('loading', url);
         var request = new XMLHttpRequest();
+        this.setAttribute('loaded', false);
         request.open('GET', url, true);
         request.onprogress=updateProgress;
         request.responseType = 'arraybuffer';
@@ -29,7 +31,8 @@
         request.onload = function() {
           _this.context.decodeAudioData(request.response, function(buffer) {
             _this.buffer = buffer;
-            _this.sendEvent('loaded', url);
+            _this.setAttribute('duration', buffer.duration);
+            _this.setAttribute('loaded', true);
             if (_this.playing && ! _this.paused) {
               _this.play();
             }
@@ -65,7 +68,6 @@
         this.source.loop = this.loop;
         // tell the source which sound to play
         this.source.buffer = this.buffer;                    
-        this.setAttribute('duration', this.buffer.duration);
         // Create a gain node.
         //this.gain = this.context.createGain();
         // Create fft     
@@ -93,6 +95,7 @@
         if (!this.source.stop)
           this.source.stop = source.noteOff;
         this.source.stop(0);
+        this.setAttribute('time', 0);
         this.startTime = this.startOffset = 0;
       </method>
       <method name="pause">
