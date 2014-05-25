@@ -25,7 +25,11 @@
 </head>
 <body>
   <view>
-    <shim id="bus"></shim>
+    <shim id="bus">
+      <handler name="onerror" args="err">
+        console.log('err', err)
+      </handler>
+    </shim>
 
     <class name="genreyear" width="14" height="60" opacity=".13">
       <handler name="onmouseover">
