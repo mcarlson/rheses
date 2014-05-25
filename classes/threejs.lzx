@@ -1,4 +1,9 @@
     <class name="threejs" width="400" height="300" scriptincludes="http://threejs.org/build/three.min.js">
+      <handler name="onidle" reference="lz.idle">
+        this.renderer.render( this.scene, this.camera );
+      </handler>
+      <handler name="onwidth" method="handleResize"></handler>
+      <handler name="onheight" method="handleResize"></handler>
       <handler name="oninit">
         var renderer = this.renderer = new THREE.WebGLRenderer();
         renderer.setClearColor( this.bgcolor );
@@ -9,18 +14,11 @@
         this.camera = new THREE.PerspectiveCamera( 70, this.width / this.height, 1, 10000 );
         this.scene = new THREE.Scene();
         this.initScene(this.scene);
-        this.render();
       </handler>
-      <method name="render">
-        this.renderer.render( this.scene, this.camera );
-      </method>
       <handler name="onbgcolor" args="color">
         if (! this.renderer) return;
         this.renderer.setClearColor(color);
-        this.render();
       </handler>
-      <handler name="onwidth" method="handleResize"></handler>
-      <handler name="onheight" method="handleResize"></handler>
       <method name="handleResize">
         if (this.camera) {
           this.camera.aspect = this.width / this.height;
@@ -28,7 +26,6 @@
         }
         if (this.renderer) {
           this.renderer.setSize( this.width, this.height);
-          this.render();
         }
       </method>
       <method name="initScene" args="scene"></method>

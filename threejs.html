@@ -34,7 +34,6 @@
         for (var i = 0; i < this.objects.length; i++) {
           this.applyData(this.objects[i], data[i]);
         }
-        this.render();
       </handler>
       <method name="applyData" args="object, datum"></method>
       <method name="createObject" args="i"></method>
@@ -46,10 +45,6 @@
         this.camera.position.z = 420;
 
         var controls = new THREE.OrbitControls(this.camera);
-        var _this = this;
-        controls.addEventListener('change', function() {
-          if (! _this.loaded) _this.render();
-        });
 
         var light = new THREE.DirectionalLight( 0xffffff, 2 );
         light.position.set( 1, 1, 1 ).normalize();
@@ -73,7 +68,7 @@
         return object;
       </method>
       <method name="applyData" args="object, datum">
-        var scale = datum / 256;
+        var scale = (datum / 256) + .0000000001;
         object.scale.y = scale * 16;
         object.scale.z = scale * 16;
         object.material.opacity = scale;
@@ -83,7 +78,6 @@
         while (this.objects.length < target) {
           var object = this.createObject(this.objects.length - 1);
         }
-        this.render();
       </handler>
     </threejsviz>
   </view>
