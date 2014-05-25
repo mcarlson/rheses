@@ -1,4 +1,4 @@
-    <class name="stats" width="80" height="48" scriptincludes="/lib/three.js/examples/js/libs/stats.min.js">
+    <class name="stats" width="80" height="48" scriptincludes="/lib/stats.min.js">
       <handler name="oninit">
         this.container = this.sprite.el;
         this.stats = new Stats();
