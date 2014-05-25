@@ -31,7 +31,7 @@
       </handler>
     </audioplayer>
 
-    <class name="threejsviz" extends="threejs" scriptincludes="http://threejs.org/examples/js/controls/OrbitControls.js">
+    <class name="threejsviz" extends="threejs">
       <attribute name="data" value="[]" type="expression"></attribute>
       <attribute name="objects" value="[]" type="expression"></attribute>
       <handler name="ondata" args="data">
@@ -43,7 +43,7 @@
       <method name="createObject" args="i"></method>
     </class>
 
-    <threejsviz width="${lz.window.width}" height="${lz.window.height}" bgcolor="white" data="${audio.fft}">
+    <threejsviz width="${lz.window.width}" height="${lz.window.height}" bgcolor="white" data="${audio.fft}"  scriptincludes="http://threejs.org/examples/js/controls/OrbitControls.js">
       <method name="initScene" args="scene">
         this.camera.position.x = -420;
         this.camera.position.z = 420;

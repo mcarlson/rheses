@@ -1,4 +1,3 @@
-`'use strict'`
 hackstyle = do ->
   # hack jQuery to send a style event when CSS changes
   stylemap= {left: 'x', top: 'y', 'background-color': 'bgcolor'}
@@ -781,9 +780,9 @@ window.lz = do ->
 
           # find class script includes and load them in lexical order
           scriptsloading = false
-          for el in jqel.find('class')
-            if el.attributes.scriptincludes
-              scriptsloading = loadScript(el.attributes.scriptincludes.value, callback)
+          for el in jqel.find('[scriptincludes]')
+            for url in el.attributes.scriptincludes.value.split(',')
+              scriptsloading = loadScript(url, callback)
 
           # no class script includes found, execute callback immediately
           unless scriptsloading
