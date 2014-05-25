@@ -411,7 +411,7 @@
           _ref1 = attributes.$methods;
           for (name in _ref1) {
             methodspec = _ref1[name];
-            _installMethod(this, name, compiler.compile(methodspec[0], methodspec[1], "" + attributes.$tagname + "$" + name), methodspec[2]);
+            _installMethod(this, name, compiler.compile(methodspec[0], methodspec[1], "" + attributes.$tagname + "$" + name).bind(this), methodspec[2]);
           }
           delete attributes.$methods;
         }

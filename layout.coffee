@@ -278,7 +278,7 @@ window.lz = do ->
         # Install methods
         for name, methodspec of attributes.$methods
           # console.log 'installing method', name, methodspec, @
-          _installMethod(@, name, compiler.compile(methodspec[0], methodspec[1], "#{attributes.$tagname}$#{name}"), methodspec[2])
+          _installMethod(@, name, compiler.compile(methodspec[0], methodspec[1], "#{attributes.$tagname}$#{name}").bind(@), methodspec[2])
         delete attributes.$methods
 
       if attributes.$handlers
