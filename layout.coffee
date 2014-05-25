@@ -685,75 +685,97 @@ window.lz = do ->
         _initConstraints()
       )
 
-    includedScripts = {_counter: 0}
-    includeRE = /<[\/]*library>/gi
     findAutoIncludes = (parentel, callback) ->
-      loaded = {}
-      inlineclasses = {}
-      requesturls = []
-      requests = []
-      includes = []
       jqel = $(parentel)
+      includerequests = []
 
+      includedScripts = {}
+      loadqueue = []
+      scriptloading = false
       loadScript = (url, cb) ->
         return if url of includedScripts
-        includedScripts._counter++
-        # console.log('loading', url, includedScripts._counter)
         includedScripts[url] = true
-        script = document.createElement('script')
-        script.type = 'text/javascript'
-        $('head').append(script)
-        script.onload = () ->
-          includedScripts._counter--
-          # console.log('loaded', url, includedScripts._counter)
-          cb(includedScripts._counter == 0)
-        script.src = url
 
+        if (scriptloading)
+          loadqueue.push(url)
+          return url
+
+        appendScript = (url, cb) ->
+          # console.log('loading script', url)
+          scriptloading = url
+          script = document.createElement('script')
+          script.type = 'text/javascript'
+          $('head').append(script)
+          script.onload = cb
+          script.src = url
+
+        appendcallback = () ->
+          # console.log('loaded script', scriptloading, loadqueue.length, includedScripts[url])
+          scriptloading = false
+          if loadqueue.length == 0
+            # console.log('done, calling callback', cb)
+            cb()
+          else
+            appendScript(loadqueue.shift(), appendcallback)
+
+        appendScript(url, appendcallback)
+
+      inlineclasses = {}
+      lzxrequests = []
+      lzxloaded = {}
       loadLZX = (name, el) ->
-        return if name of lz or name of loaded or name in specialtags or name of inlineclasses or name in builtinTags
-        loaded[name] = true
+        return if name of lz or name of lzxloaded or name in specialtags or name of inlineclasses or name in builtinTags
+        lzxloaded[name] = true
         url = 'classes/' + name + '.lzx'
-        # console.log 'loading', url
+        # console.log 'loading lzx', url
         prom = $.get(url)
         prom.url = url
         prom.el = el
-        requests.push(prom)
+        lzxrequests.push(prom)
 
+      # load includes 
       for jel in jqel.find('include')
-        includes.push($.get(jel.attributes.href.value))
+        includerequests.push($.get(jel.attributes.href.value))
 
-      $.when.apply($, includes).done((args...) ->
-        args = [args] if (includes.length == 1)
+      # wait for all includes to load
+      $.when.apply($, includerequests).done((args...) ->
+        # append includes
+        args = [args] if (includerequests.length == 1)
+
+        includeRE = /<[\/]*library>/gi
         for xhr in args
+          # remove any library tags found
           html = xhr[0].replace(includeRE, '')
           # console.log 'inserting include', html
           jqel.prepend(html)
 
+        # look for class declarations and unloaded classes for tags
         for el in jqel.find('*')
           name = el.localName
           if name == 'class'
+            # load load class extends
             loadLZX(el.attributes.extends.value, el) if el.attributes.extends
-            # find inline class declarations
+            # track incline class declaration so we don't load it again later
             inlineclasses[el.attributes.name.value] = true
           else 
+            # load class instance for tag
             loadLZX(name, el)
    
-        # console.log(requests, loaded, inlineclasses)
-        $.when.apply($, requests).done((args...) ->
-          args = [args] if (requests.length == 1)
+        # console.log(lzxrequests, lzxloaded, inlineclasses)
+        # wait for all lzx files to finish loading
+        $.when.apply($, lzxrequests).done((args...) ->
+          args = [args] if (lzxrequests.length == 1)
           for xhr in args
             # console.log 'inserting html', xhr[0] 
             jqel.prepend(xhr[0])
 
+          # find class script includes and load them in lexical order
           scriptsloading = false
-          scriptcallback = (done) ->
-            # console.log 'scriptcallback', done
-            callback() if done
-
           for el in jqel.find('class')
             if el.attributes.scriptincludes
-              scriptsloading = loadScript(el.attributes.scriptincludes.value, scriptcallback)
+              scriptsloading = loadScript(el.attributes.scriptincludes.value, callback)
 
+          # no class script includes found, execute callback immediately
           unless scriptsloading
             callback()
         ).fail((args...) ->
@@ -761,12 +783,11 @@ window.lz = do ->
           for xhr in args
             console.error('failed to load', xhr.url, 'for element', xhr.el)
         )
-
       )
 
     specialtags = ['handler', 'method', 'attribute', 'setter', 'include', 'library']
     # tags built into the browser that should be ignored
-    builtinTags = ['input', 'div', 'img', 'script']
+    builtinTags = ['input', 'div', 'img', 'script', 'canvas']
     # recursively init classes based on an existing element
     initElement = (el, parent) ->
       # don't init the same element twice

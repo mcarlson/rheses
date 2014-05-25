@@ -892,7 +892,7 @@
 
     })(mixOf(Node, Clickable));
     dom = (function() {
-      var builtinTags, exports, findAutoIncludes, flattenattributes, htmlDecode, includeRE, includedScripts, initAllElements, initElement, initFromElement, processSpecialTags, specialtags, writeCSS;
+      var builtinTags, exports, findAutoIncludes, flattenattributes, htmlDecode, initAllElements, initElement, initFromElement, processSpecialTags, specialtags, writeCSS;
       flattenattributes = function(namednodemap) {
         var attributes, i, _i, _len;
         attributes = {};
@@ -910,57 +910,69 @@
           return _initConstraints();
         });
       };
-      includedScripts = {
-        _counter: 0
-      };
-      includeRE = /<[\/]*library>/gi;
       findAutoIncludes = function(parentel, callback) {
-        var includes, inlineclasses, jel, jqel, loadLZX, loadScript, loaded, requests, requesturls, _i, _len, _ref;
-        loaded = {};
-        inlineclasses = {};
-        requesturls = [];
-        requests = [];
-        includes = [];
+        var includedScripts, includerequests, inlineclasses, jel, jqel, loadLZX, loadScript, loadqueue, lzxloaded, lzxrequests, scriptloading, _i, _len, _ref;
         jqel = $(parentel);
+        includerequests = [];
+        includedScripts = {};
+        loadqueue = [];
+        scriptloading = false;
         loadScript = function(url, cb) {
-          var script;
+          var appendScript, appendcallback;
           if (url in includedScripts) {
             return;
           }
-          includedScripts._counter++;
           includedScripts[url] = true;
-          script = document.createElement('script');
-          script.type = 'text/javascript';
-          $('head').append(script);
-          script.onload = function() {
-            includedScripts._counter--;
-            return cb(includedScripts._counter === 0);
+          if (scriptloading) {
+            loadqueue.push(url);
+            return url;
+          }
+          appendScript = function(url, cb) {
+            var script;
+            scriptloading = url;
+            script = document.createElement('script');
+            script.type = 'text/javascript';
+            $('head').append(script);
+            script.onload = cb;
+            return script.src = url;
           };
-          return script.src = url;
+          appendcallback = function() {
+            scriptloading = false;
+            if (loadqueue.length === 0) {
+              return cb();
+            } else {
+              return appendScript(loadqueue.shift(), appendcallback);
+            }
+          };
+          return appendScript(url, appendcallback);
         };
+        inlineclasses = {};
+        lzxrequests = [];
+        lzxloaded = {};
         loadLZX = function(name, el) {
           var prom, url;
-          if (name in lz || name in loaded || __indexOf.call(specialtags, name) >= 0 || name in inlineclasses || __indexOf.call(builtinTags, name) >= 0) {
+          if (name in lz || name in lzxloaded || __indexOf.call(specialtags, name) >= 0 || name in inlineclasses || __indexOf.call(builtinTags, name) >= 0) {
             return;
           }
-          loaded[name] = true;
+          lzxloaded[name] = true;
           url = 'classes/' + name + '.lzx';
           prom = $.get(url);
           prom.url = url;
           prom.el = el;
-          return requests.push(prom);
+          return lzxrequests.push(prom);
         };
         _ref = jqel.find('include');
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           jel = _ref[_i];
-          includes.push($.get(jel.attributes.href.value));
+          includerequests.push($.get(jel.attributes.href.value));
         }
-        return $.when.apply($, includes).done(function() {
-          var args, el, html, name, xhr, _j, _k, _len1, _len2, _ref1;
+        return $.when.apply($, includerequests).done(function() {
+          var args, el, html, includeRE, name, xhr, _j, _k, _len1, _len2, _ref1;
           args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-          if (includes.length === 1) {
+          if (includerequests.length === 1) {
             args = [args];
           }
+          includeRE = /<[\/]*library>/gi;
           for (_j = 0, _len1 = args.length; _j < _len1; _j++) {
             xhr = args[_j];
             html = xhr[0].replace(includeRE, '');
@@ -979,10 +991,10 @@
               loadLZX(name, el);
             }
           }
-          return $.when.apply($, requests).done(function() {
-            var args, scriptcallback, scriptsloading, _l, _len3, _len4, _m, _ref2;
+          return $.when.apply($, lzxrequests).done(function() {
+            var args, scriptsloading, _l, _len3, _len4, _m, _ref2;
             args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-            if (requests.length === 1) {
+            if (lzxrequests.length === 1) {
               args = [args];
             }
             for (_l = 0, _len3 = args.length; _l < _len3; _l++) {
@@ -990,16 +1002,11 @@
               jqel.prepend(xhr[0]);
             }
             scriptsloading = false;
-            scriptcallback = function(done) {
-              if (done) {
-                return callback();
-              }
-            };
             _ref2 = jqel.find('class');
             for (_m = 0, _len4 = _ref2.length; _m < _len4; _m++) {
               el = _ref2[_m];
               if (el.attributes.scriptincludes) {
-                scriptsloading = loadScript(el.attributes.scriptincludes.value, scriptcallback);
+                scriptsloading = loadScript(el.attributes.scriptincludes.value, callback);
               }
             }
             if (!scriptsloading) {
@@ -1021,7 +1028,7 @@
         });
       };
       specialtags = ['handler', 'method', 'attribute', 'setter', 'include', 'library'];
-      builtinTags = ['input', 'div', 'img', 'script'];
+      builtinTags = ['input', 'div', 'img', 'script', 'canvas'];
       initElement = function(el, parent) {
         var attributes, child, children, event, eventname, tagname, _i, _j, _len, _len1, _ref;
         if (el.$init) {
