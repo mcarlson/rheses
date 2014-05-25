@@ -1,4 +1,4 @@
-    <class name="audioplayer">
+    <class name="audioplayer" extends="node">
       <attribute name="url" value="" type="string"></attribute>
       <attribute name="loadprogress" value="0" type="number"></attribute>
       <attribute name="loaded" value="false" type="boolean"></attribute>

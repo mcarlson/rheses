@@ -428,6 +428,9 @@ window.lz = do ->
       # console.log 'set_name', name, this
       @parent[name] = @
 
+    set_id: (id) ->
+      window[id] = @
+
     _removeFromParent: (name) ->
       return unless @parent
       arr = @parent[name]
@@ -649,8 +652,8 @@ window.lz = do ->
       @sprite.set_parent parent
 
     set_id: (id) ->
+      super
       @sprite.set_id(id)
-      window[id] = @
 
     animate: ->
       # console.log 'animate', arguments, @sprite.animate

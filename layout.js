@@ -584,6 +584,10 @@
         return this.parent[name] = this;
       };
 
+      Node.prototype.set_id = function(id) {
+        return window[id] = this;
+      };
+
       Node.prototype._removeFromParent = function(name) {
         var arr, index;
         if (!this.parent) {
@@ -867,8 +871,8 @@
       };
 
       View.prototype.set_id = function(id) {
-        this.sprite.set_id(id);
-        return window[id] = this;
+        View.__super__.set_id.apply(this, arguments);
+        return this.sprite.set_id(id);
       };
 
       View.prototype.animate = function() {

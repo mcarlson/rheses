@@ -1,5 +1,4 @@
-    <!-- TODO: shouldn't have to extend view for ID lookups -->
-    <class name="shim" extends="view" scriptincludes="/primus/primus.io.js">
+    <class name="shim" extends="node" scriptincludes="/primus/primus.io.js">
       <attribute name="connected" value="false" type="boolean"></attribute>
       <attribute name="pingtime" value="1000" type="number"></attribute>
       <handler name="oninit">
