@@ -1,0 +1,27 @@
+    <class name="touch">
+      <attribute name="x" value="0" type="number"></attribute>
+      <attribute name="y" value="0" type="number"></attribute>
+      <attribute name="touches" value="[]" type="expression"></attribute>
+      <handler name="oninit">
+        var _this = this;
+        handler = function (ev) {
+          //console.log(ev) 
+          if (ev.touches && ev.touches.length) {
+            // make a plain JSON object so it can be serialized
+            var touch = []
+            for (var i = 0; i < ev.touches.length; i++) {
+              var t = ev.touches[i];
+              touch[i] = {x: t.clientX, y: t.clientY};
+            }
+            //console.log('touches', touch);
+            _this.setAttribute('touches', JSON.stringify(touch))
+            // use first finger for coordinate
+            _this.setAttribute('x', ev.touches[0].clientX)
+            _this.setAttribute('y', ev.touches[0].clientY)
+          }
+          return false;
+        }
+        document.addEventListener('touchstart', handler);
+        document.addEventListener('touchmove', handler); 
+      </handler> 
+    </class>
