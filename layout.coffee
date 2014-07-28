@@ -610,7 +610,7 @@ window.lz = do ->
       # super?(clickable)
 
   # internal attributes ignored by class declarations and view styles
-  ignoredAttributes = {parent: true, id: true, name: true, extends: true, type: true}
+  ignoredAttributes = {parent: true, id: true, name: true, extends: true, type: true, scriptincludes: true}
   class View extends mixOf Node, Clickable
     constructor: (el, attributes = {}) ->
       @subviews = []
@@ -717,6 +717,9 @@ window.lz = do ->
           script.type = 'text/javascript'
           $('head').append(script)
           script.onload = cb
+          script.onerror = () ->
+            console.error('failed to load scriptinclude', url)
+            cb()
           script.src = url
 
         appendcallback = () ->

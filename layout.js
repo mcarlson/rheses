@@ -814,7 +814,8 @@
       id: true,
       name: true,
       "extends": true,
-      type: true
+      type: true,
+      scriptincludes: true
     };
     View = (function(_super) {
       __extends(View, _super);
@@ -945,6 +946,10 @@
             script.type = 'text/javascript';
             $('head').append(script);
             script.onload = cb;
+            script.onerror = function() {
+              console.error('failed to load scriptinclude', url);
+              return cb();
+            };
             return script.src = url;
           };
           appendcallback = function() {
