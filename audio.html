@@ -26,7 +26,15 @@
 </head>
 <body>
   <view>
-    <audioplayer id="audio" url="music/03_Homage Sliders.mp3" fftsize="2048" fftsmoothing="0" playing="true"></audioplayer>
+    <shim id="bus"></shim>
+
+    <audioplayer id="audio" url="music/03_Homage Sliders.mp3" fftsize="1024" fftsmoothing="0" playing="true">
+      <handler name="onfft" args="fft">
+        // Deal with JSON.stringify() issues by converting to a regular array
+        var copy = Array.apply([], fft);
+        bus.send('fft', copy);
+      </handler>
+    </audioplayer>
 
     <simplelayout attribute="y" axis="height" spacing="0"></simplelayout>
 
@@ -49,7 +57,8 @@
       </handler>
       <view name="playhead" bgcolor="red" width="${(audio.time / audio.duration) * this.parent.width}" height="20"></view>
       <view y="3" x="${this.parent.playhead.width}" width="${this.parent.width - this.x}">
-        <view width="12" class="fa fa-spin fa-spinner">
+        <simplelayout spacing="2"></simplelayout>
+        <view width="16" class="fa fa-spin fa-spinner">
           <method name="updateState">
             if (audio.loaded) {
               this.setAttribute('class', 'fa fa-play')
@@ -66,12 +75,10 @@
           <handler name="onpaused" method="updateState" reference="audio"></handler>
           <handler name="onplaying" method="updateState" reference="audio"></handler>
         </view>
-        <view x="16">
-          <simplelayout spacing="2"></simplelayout>
-          <timetext y="-1" text="${audio.time}"></timetext>
-          <text y="-1">/</text>
-          <timetext y="-1" text="${audio.duration}"></timetext>
-        </view>
+        <view width="16" class="fa fa-stop" onclick="audio.stop()"></view>
+        <timetext y="-1" text="${audio.time}"></timetext>
+        <text y="-1">/</text>
+        <timetext y="-1" text="${audio.duration}"></timetext>
       </view>
     </view>
 
