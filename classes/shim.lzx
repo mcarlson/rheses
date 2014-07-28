@@ -20,9 +20,9 @@
         });
       </handler>
       <method name="send" args="type, data">
-        var json = JSON.stringify({'type': type || 'data', data: data});
-        //console.log('sending', json)
         if (this.connected) {
+          var json = JSON.stringify({'type': type || 'data', data: data});
+          //console.log('sending', json)
           this.primus.send('message', json)
         } else {
           this.setAttribute(type, data);
