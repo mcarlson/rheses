@@ -1515,8 +1515,7 @@
 
       function Window() {
         this.handle = __bind(this.handle, this);
-        this.winSelector = $(window);
-        this.winSelector.on('resize', this.handle);
+        window.addEventListener('resize', this.handle, false);
         this.handle();
       }
 
@@ -1526,9 +1525,9 @@
       };
 
       Window.prototype.handle = function(event) {
-        this.width = this.winSelector.width();
+        this.width = window.innerWidth;
         this.sendEvent('width', this.width);
-        this.height = this.winSelector.height();
+        this.height = window.innerHeight;
         return this.sendEvent('height', this.height);
       };
 

@@ -300,6 +300,7 @@ window.lz = do ->
             callback = _eventCallback(name, script, @, attributes.$tagname, args)
 
           if reference?
+            # console.log('listening to reference', reference, eval(reference), name, callback)
             @listenTo(eval(reference), name, callback)
           else
             @bind(name, callback)
@@ -1155,17 +1156,16 @@ window.lz = do ->
 
   class Window extends StartEventable
     constructor: ->
-      @winSelector = $(window)
-      @winSelector.on('resize', @handle)
+      window.addEventListener('resize', @handle, false)
       @handle()
 
     startEventTest: () ->
       @events['width']?.length or @events['height']?.length
 
     handle: (event) =>
-      @width = @winSelector.width()
+      @width = window.innerWidth
       @sendEvent('width', @width)
-      @height = @winSelector.height()
+      @height = window.innerHeight
       @sendEvent('height', @height)
       # console.log('window resize', event, @width, @height)
 
