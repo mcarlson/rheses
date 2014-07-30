@@ -77,7 +77,17 @@ window.lz = do ->
         for listeningTo in [@listeningTo, @listeningToOnce]
           continue unless listeningTo
           idx = listeningTo.indexOf(obj)
-          listeningTo.splice(idx, 1) unless idx is -1
+          # console.log('stopListening', idx, obj, listeningTo)
+          if idx > -1
+            listeningTo.splice(idx, 1)
+          else
+            # console.log('looking in array', listeningTo)
+            for val, index in listeningTo
+              # console.log('found', val)
+              if obj == val.obj and ev == val.ev and callback == val.callback
+                # console.log('found match', index)
+                listeningTo.splice(index, 1)
+                break
       else
         for {obj, ev, callback} in @listeningTo
           # console.log 'stopped listening', obj, ev, callback

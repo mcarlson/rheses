@@ -120,7 +120,7 @@
         return this;
       },
       stopListening: function(obj, ev, callback) {
-        var idx, listeningTo, _i, _j, _len, _len1, _ref, _ref1, _ref2, _results;
+        var idx, index, listeningTo, val, _i, _j, _len, _len1, _ref, _ref1, _ref2, _results;
         if (obj) {
           obj.unbind(ev, callback);
           _ref = [this.listeningTo, this.listeningToOnce];
@@ -131,10 +131,23 @@
               continue;
             }
             idx = listeningTo.indexOf(obj);
-            if (idx !== -1) {
+            if (idx > -1) {
               _results.push(listeningTo.splice(idx, 1));
             } else {
-              _results.push(void 0);
+              _results.push((function() {
+                var _j, _len1, _results1;
+                _results1 = [];
+                for (index = _j = 0, _len1 = listeningTo.length; _j < _len1; index = ++_j) {
+                  val = listeningTo[index];
+                  if (obj === val.obj && ev === val.ev && callback === val.callback) {
+                    listeningTo.splice(index, 1);
+                    break;
+                  } else {
+                    _results1.push(void 0);
+                  }
+                }
+                return _results1;
+              })());
             }
           }
           return _results;
