@@ -1272,7 +1272,7 @@
         if (attributes == null) {
           attributes = {};
         }
-        this.skipattributes = ['name', 'parent', 'types', 'applyattributes', 'applied', 'skipattributes', 'stateattributes'];
+        this.skipattributes = ['parent', 'types', 'applyattributes', 'applied', 'skipattributes', 'stateattributes'];
         this.stateattributes = attributes;
         this.applyattributes = {};
         this.applied = false;
@@ -1292,6 +1292,7 @@
         this.installMethods(attributes.$methods, this.parent.$tagname, this, this.parent);
         if (attributes.name) {
           this.setAttribute('name', attributes.name);
+          this.skipattributes.push('name');
         }
         if (attributes.applied) {
           this.bindAttribute('applied', attributes.applied, 'state');

@@ -956,7 +956,7 @@ window.lz = do ->
 
   class State extends Node
     constructor: (el, attributes = {}) ->
-      @skipattributes = ['name', 'parent', 'types', 'applyattributes', 'applied', 'skipattributes', 'stateattributes']
+      @skipattributes = ['parent', 'types', 'applyattributes', 'applied', 'skipattributes', 'stateattributes']
       @stateattributes = attributes
       @applyattributes = {}
       @applied = false
@@ -973,7 +973,6 @@ window.lz = do ->
       for child in processedChildren
         child.parentNode.removeChild(child)
 
-
       # serialize the tag's contents for recreation with processedChildren removed
       instancebody = el.innerHTML.trim()
 
@@ -988,7 +987,9 @@ window.lz = do ->
       # These will be applied to the parent by ONE with learn()
       @installMethods(attributes.$methods, @parent.$tagname, @, @parent)
 
-      @setAttribute('name', attributes.name) if attributes.name
+      if attributes.name
+        @setAttribute('name', attributes.name) 
+        @skipattributes.push('name') 
 
       # handle applied constraint bindings as local to the state
       if attributes.applied
