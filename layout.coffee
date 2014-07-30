@@ -603,7 +603,7 @@ window.lz = do ->
         @input.value
 
     measureTextSize: (multiline, width) ->
-      @el.setAttribute('class', 'sprite sprite-text')
+      @el.setAttribute('class', 'sprite sprite-text noselect')
       if multiline
         @setStyle('width', width)
         @setStyle('whiteSpace', 'normal')
@@ -623,6 +623,8 @@ window.lz = do ->
       input.setAttribute('type', 'text')
       input.setAttribute('value', text)
       input.setAttribute('style', 'border: none; outline: none; background-color:transparent;')
+      input.setAttribute('class', 'noselect')
+      @el.setAttribute('class', 'sprite noselect')
       @el.appendChild(input)
 
       setTimeout(() =>
@@ -883,7 +885,7 @@ window.lz = do ->
     writeCSS = ->
       style = document.createElement('style')
       style.type = 'text/css'
-      style.innerHTML = '.sprite{ position: absolute; pointer-events: none; padding: 0; margin: 0;} .sprite-text{ width: auto; height; auto; white-space: nowrap;  padding: 0; margin: 0;} .hidden{ display: none; } method { display: none; } handler { display: none; } setter { display: none; } class { display:none } node { display:none }'
+      style.innerHTML = '.sprite{ position: absolute; pointer-events: none; padding: 0; margin: 0;} .sprite-text{ width: auto; height; auto; white-space: nowrap;  padding: 0; margin: 0;} .hidden{ display: none; } .noselect{ -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;} method { display: none; } handler { display: none; } setter { display: none; } class { display:none } node { display:none }'
       document.getElementsByTagName('head')[0].appendChild(style)
 
     # init top-level views in the DOM recursively
