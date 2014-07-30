@@ -417,7 +417,7 @@
       matchConstraint = /\${(.+)}/;
 
       function Node(el, attributes) {
-        var args, callback, method, methodspec, nam, name, par, reference, script, value, _i, _len, _ref, _ref1, _ref2, _ref3;
+        var args, method, nam, name, par, reference, script, value, _i, _len, _ref, _ref1, _ref2;
         if (attributes == null) {
           attributes = {};
         }
@@ -428,28 +428,15 @@
           attributes.$textcontent = el.textContent;
         }
         if (attributes.$methods) {
-          _ref1 = attributes.$methods;
-          for (name in _ref1) {
-            methodspec = _ref1[name];
-            _installMethod(this, name, compiler.compile(methodspec[0], methodspec[1], "" + attributes.$tagname + "$" + name).bind(this), methodspec[2]);
-          }
+          this.installMethods(attributes.$methods, attributes.$tagname);
           delete attributes.$methods;
         }
         if (attributes.$handlers) {
-          _ref2 = attributes.$handlers;
-          for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
-            _ref3 = _ref2[_i], name = _ref3.name, script = _ref3.script, args = _ref3.args, reference = _ref3.reference, method = _ref3.method;
+          this.installHandlers(attributes.$handlers, attributes.$tagname);
+          _ref1 = attributes.$handlers;
+          for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+            _ref2 = _ref1[_i], name = _ref2.name, script = _ref2.script, args = _ref2.args, reference = _ref2.reference, method = _ref2.method;
             name = name.substr(2);
-            if (method) {
-              callback = this[method];
-            } else {
-              callback = _eventCallback(name, script, this, attributes.$tagname, args);
-            }
-            if (reference != null) {
-              this.listenTo(eval(reference), name, callback);
-            } else {
-              this.bind(name, callback);
-            }
             if (__indexOf.call(mouseEvents, name) >= 0) {
               if (attributes.clickable !== "false") {
                 attributes.clickable = true;
@@ -470,6 +457,9 @@
           value = attributes[name];
           this.bindAttribute(name, value, attributes.$tagname);
         }
+        if (this.constraints) {
+          constraintScopes.push(this);
+        }
         if (par) {
           this.setAttribute('parent', par);
         }
@@ -479,19 +469,75 @@
         this.sendEvent('init', this);
       }
 
+      Node.prototype.installMethods = function(methods, tagname, scope, callbackscope) {
+        var methodspec, name, _results;
+        if (scope == null) {
+          scope = this;
+        }
+        if (callbackscope == null) {
+          callbackscope = this;
+        }
+        _results = [];
+        for (name in methods) {
+          methodspec = methods[name];
+          _results.push(_installMethod(scope, name, compiler.compile(methodspec[0], methodspec[1], "" + tagname + "$" + name).bind(callbackscope), methodspec[2]));
+        }
+        return _results;
+      };
+
+      Node.prototype.installHandlers = function(handlers, tagname, scope) {
+        var args, handler, method, name, reference, script, _i, _len, _results;
+        if (scope == null) {
+          scope = this;
+        }
+        _results = [];
+        for (_i = 0, _len = handlers.length; _i < _len; _i++) {
+          handler = handlers[_i];
+          name = handler.name, script = handler.script, args = handler.args, reference = handler.reference, method = handler.method;
+          name = name.substr(2);
+          if (method) {
+            handler.callback = scope[method];
+          } else {
+            handler.callback = _eventCallback(name, script, scope, tagname, args);
+          }
+          if (reference != null) {
+            _results.push(scope.listenTo(eval(reference), name, handler.callback));
+          } else {
+            _results.push(scope.bind(name, handler.callback));
+          }
+        }
+        return _results;
+      };
+
+      Node.prototype.removeHandlers = function(handlers, tagname, scope) {
+        var args, handler, method, name, reference, script, _i, _len, _results;
+        if (scope == null) {
+          scope = this;
+        }
+        _results = [];
+        for (_i = 0, _len = handlers.length; _i < _len; _i++) {
+          handler = handlers[_i];
+          name = handler.name, script = handler.script, args = handler.args, reference = handler.reference, method = handler.method;
+          name = name.substr(2);
+          if (reference != null) {
+            _results.push(scope.stopListening(eval(reference), name, handler.callback));
+          } else {
+            _results.push(scope.unbind(name, handler.callback));
+          }
+        }
+        return _results;
+      };
+
       Node.prototype.bindAttribute = function(name, value, tagname) {
         var constraint;
         constraint = typeof value.match === "function" ? value.match(matchConstraint) : void 0;
         if (constraint) {
-          this.applyConstraint(name, constraint[1]);
+          return this.applyConstraint(name, constraint[1]);
         } else if (name.indexOf('on') === 0) {
           name = name.substr(2);
-          this.bind(name, _eventCallback(name, value, this, tagname));
+          return this.bind(name, _eventCallback(name, value, this, tagname));
         } else {
-          this.setAttribute(name, value);
-        }
-        if (this.constraints) {
-          return constraintScopes.push(this);
+          return this.setAttribute(name, value);
         }
       };
 

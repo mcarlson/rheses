@@ -291,33 +291,18 @@ window.lz = do ->
         attributes.$textcontent = el.textContent
 
       if attributes.$methods
-        # Install methods
-        for name, methodspec of attributes.$methods
-          # console.log 'installing method', name, methodspec, @
-          _installMethod(@, name, compiler.compile(methodspec[0], methodspec[1], "#{attributes.$tagname}$#{name}").bind(@), methodspec[2])
+        @installMethods(attributes.$methods, attributes.$tagname)
         delete attributes.$methods
 
       if attributes.$handlers
+        @installHandlers(attributes.$handlers, attributes.$tagname)
+        # do this here for now - ugly though
         for {name, script, args, reference, method} in attributes.$handlers
-          # strip off leading 'on'
           name = name.substr(2)
-
-          # console.log 'installing handler', name, args, type, script, @
-          if method
-            callback = @[method]
-            # console.log('using method', method, callback)
-          else
-            callback = _eventCallback(name, script, @, attributes.$tagname, args)
-
-          if reference?
-            # console.log('listening to reference', reference, eval(reference), name, callback)
-            @listenTo(eval(reference), name, callback)
-          else
-            @bind(name, callback)
-
           if name in mouseEvents
             attributes.clickable = true unless attributes.clickable is "false"
             # console.log 'registered for clickable', attributes.clickable
+
         delete attributes.$handlers
 
       if attributes.parent
@@ -330,6 +315,7 @@ window.lz = do ->
       # Bind to event expressions and set attributes
       for name, value of attributes
         @bindAttribute(name, value, attributes.$tagname)
+      constraintScopes.push(@) if @constraints 
 
       if par
         @setAttribute('parent', par)
@@ -338,6 +324,44 @@ window.lz = do ->
 
       # console.log 'new node', @, attributes
       @sendEvent('init', @)
+
+    installMethods: (methods, tagname, scope=@, callbackscope=@) ->
+      # Install methods
+      for name, methodspec of methods
+        # console.log 'installing method', name, methodspec, @
+        _installMethod(scope, name, compiler.compile(methodspec[0], methodspec[1], "#{tagname}$#{name}").bind(callbackscope), methodspec[2])
+
+    installHandlers: (handlers, tagname, scope=@) ->
+      for handler in handlers
+        {name, script, args, reference, method} = handler
+        # strip off leading 'on'
+        name = name.substr(2)
+
+        # console.log 'installing handler', name, args, script, @
+        if method
+          handler.callback = scope[method]
+          # console.log('using method', method, callback)
+        else
+          handler.callback = _eventCallback(name, script, scope, tagname, args)
+
+        if reference?
+          # console.log('listening to reference', reference, eval(reference), name, callback)
+          scope.listenTo(eval(reference), name, handler.callback)
+        else
+          scope.bind(name, handler.callback)
+
+    removeHandlers: (handlers, tagname, scope=@) ->
+      for handler in handlers
+        {name, script, args, reference, method} = handler
+        # strip off leading 'on'
+        name = name.substr(2)
+
+        # console.log 'removing handler', name, args, script, @
+        if reference?
+          # console.log('stopListening to reference', reference, eval(reference), name, handler.callback)
+          scope.stopListening(eval(reference), name, handler.callback)
+        else
+          scope.unbind(name, handler.callback)
 
     # Bind an attribute to an event expression, handler, or delegate to setAttribute()
     bindAttribute: (name, value, tagname) ->
@@ -350,8 +374,6 @@ window.lz = do ->
         @bind(name, _eventCallback(name, value, @, tagname))
       else
         @setAttribute(name, value)
-
-      constraintScopes.push(@) if @constraints 
 
     # public API
     initConstraints: ->
