@@ -35,7 +35,7 @@
   })();
 
   window.lz = (function() {
-    var Class, Clickable, Eventable, Events, Idle, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, View, Window, compiler, constraintScopes, dom, exports, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, _initConstraints;
+    var Class, Clickable, Eventable, Events, Idle, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, View, Window, compiler, constraintScopes, dom, exports, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, _initConstraints;
     mixOf = function() {
       var Mixed, base, i, method, mixin, mixins, name, _i, _ref;
       base = arguments[0], mixins = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
@@ -453,6 +453,9 @@
           nam = attributes.name;
           delete attributes.name;
         }
+        if (this.attributes == null) {
+          this.attributes = {};
+        }
         for (name in attributes) {
           value = attributes[name];
           constraint = typeof value.match === "function" ? value.match(matchConstraint) : void 0;
@@ -462,6 +465,9 @@
             name = name.substr(2);
             this.bind(name, _eventCallback(name, value, this, attributes.$tagname));
           } else {
+            if (name.charAt(0) !== '$') {
+              this.attributes[name] = value;
+            }
             this.setAttribute(name, value);
           }
         }
@@ -1195,6 +1201,41 @@
         writeCSS: writeCSS
       };
     })();
+    State = (function(_super) {
+      __extends(State, _super);
+
+      function State() {
+        State.__super__.constructor.apply(this, arguments);
+        this.enumfalse(['name', 'parent', 'subnodes', 'types', 'attributes', '$tagname']);
+      }
+
+      State.prototype.apply = function() {
+        var name, value, _ref, _results;
+        this.parent.learn(this);
+        _ref = this.attributes;
+        _results = [];
+        for (name in _ref) {
+          value = _ref[name];
+          _results.push(this.parent.setAttribute(name, this.parent[name]));
+        }
+        return _results;
+      };
+
+      State.prototype.remove = function() {
+        var name, value, _ref, _results;
+        this.parent.forget(this);
+        _ref = this.attributes;
+        _results = [];
+        for (name in _ref) {
+          value = _ref[name];
+          _results.push(this.parent.setAttribute(name, this.parent[name]));
+        }
+        return _results;
+      };
+
+      return State;
+
+    })(Node);
     Class = (function() {
       var clone;
 
@@ -1584,6 +1625,10 @@
       return Keyboard;
 
     })(Eventable);
+    ONE.base_.call(Eventable.prototype);
+    Eventable.prototype.enumfalse(Eventable.prototype.keys());
+    Node.prototype.enumfalse(Node.prototype.keys());
+    View.prototype.enumfalse(View.prototype.keys());
     return exports = {
       view: View,
       "class": Class,
@@ -1593,6 +1638,7 @@
       window: new Window(),
       layout: Layout,
       idle: new Idle(),
+      state: State,
       initElements: dom.initAllElements,
       writeCSS: dom.writeCSS
     };

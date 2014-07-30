@@ -317,6 +317,7 @@ window.lz = do ->
         nam = attributes.name
         delete attributes.name
 
+      @attributes ?= {}
       # Bind to event expressions and set attributes
       for name, value of attributes
         constraint = value.match?(matchConstraint)
@@ -327,6 +328,7 @@ window.lz = do ->
           # console.log('binding to event expression', name, value, @)
           @bind(name, _eventCallback(name, value, @, attributes.$tagname))
         else
+          @attributes[name] = value unless name.charAt(0) == '$'
           @setAttribute(name, value)
 
       constraintScopes.push(@) if @constraints
@@ -913,6 +915,39 @@ window.lz = do ->
       writeCSS: writeCSS
 
 
+  class State extends Node
+    constructor: () ->
+      super
+      # hide properties we don't want applied to the parent
+      @enumfalse(['name', 'parent', 'subnodes', 'types', 'attributes', '$tagname'])
+      
+    apply: () ->
+      # console.log('before learn', @remove)
+      # console.log Object.getOwnPropertyNames(@)
+
+      # WTF? why can I for..in nonenumerables?
+      # for k, val of @
+      #   console.log k, val, @propertyIsEnumerable k
+
+      # console.log('applying', this, @parent, @parent.bgcolor, @parent.setAttribute)
+      @parent.learn @
+      # console.log('after learn', @remove)
+      # Hack to set attributes for now - not needed when using signals
+      for name, value of @attributes
+        # console.log('setAttribute', name, @parent[name])
+        @parent.setAttribute(name, @parent[name])
+      # console.log('applied', this, @parent, @parent.bgcolor, @parent.setAttribute, @parent.__overloads__)
+
+    remove: () ->
+      # console.log('removing', this, @parent, @parent.bgcolor)
+      @parent.forget @
+      # console.log('removed', this, @parent, @parent.bgcolor)
+      # Hack to set attributes for now - not needed when using signals
+      for name, value of @attributes
+        # console.log('setAttribute', name, @parent[name])
+        @parent.setAttribute(name, @parent[name])
+
+
   class Class
     clone = (obj) ->
       newobj = {}
@@ -1209,6 +1244,14 @@ window.lz = do ->
       # console.log 'handleKeyboard', type, inputtext, keys, event
 
 
+  # initialize ONE integration
+  ONE.base_.call(Eventable::)
+  # hide builtin keys 
+  Eventable::enumfalse(Eventable::keys())
+  Node::enumfalse(Node::keys())
+  View::enumfalse(View::keys())
+
+
   exports = 
     view: View
     class: Class
@@ -1218,6 +1261,7 @@ window.lz = do ->
     window: new Window()
     layout: Layout
     idle: new Idle()
+    state: State
     initElements: dom.initAllElements
     writeCSS: dom.writeCSS
 
