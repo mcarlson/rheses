@@ -5,8 +5,8 @@
       </handler>
       <attribute name="url" type="string" value=""></attribute>
       <handler name="ontextcontent">
-        if @textcontent
-          @setAttribute('data', JSON.parse(@textcontent))
+        if @$textcontent
+          @setAttribute('data', JSON.parse(@$textcontent))
           # console.log('data', @name, @data)
       </handler>
       <handler name="onurl" method="loadURL"></handler>

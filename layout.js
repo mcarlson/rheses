@@ -412,7 +412,7 @@
         this.types = (_ref = attributes.$types) != null ? _ref : {};
         delete attributes.$types;
         if (el != null ? el.textContent : void 0) {
-          attributes.textcontent = el.textContent;
+          attributes.$textcontent = el.textContent;
         }
         if (attributes.$methods) {
           _ref1 = attributes.$methods;

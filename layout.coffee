@@ -278,7 +278,7 @@ window.lz = do ->
 
       # store textual content
       if el?.textContent 
-        attributes.textcontent = el.textContent
+        attributes.$textcontent = el.textContent
 
       if attributes.$methods
         # Install methods
