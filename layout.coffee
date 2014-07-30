@@ -797,6 +797,7 @@ window.lz = do ->
         args = [args] if (includerequests.length == 1)
 
         includeRE = /<[\/]*library>/gi
+        initONE = false
         for xhr in args
           # remove any library tags found
           html = xhr[0].replace(includeRE, '')
@@ -807,11 +808,16 @@ window.lz = do ->
         for el in jqel.find('*')
           name = el.localName
           if name == 'class'
-            # load load class extends
-            loadLZX(el.attributes.extends.value, el) if el.attributes.extends
+            if el.attributes.extends
+              extendz = el.attributes.extends.value 
+              # load load class extends
+              loadLZX(extendz, el)
+              initONE = true if extendz = 'state'
             # track incline class declaration so we don't load it again later
             inlineclasses[el.attributes.name.value] = true
-          else 
+          else if name == 'state'
+            initONE = true
+          else
             # load class instance for tag
             loadLZX(name, el)
    
@@ -825,6 +831,18 @@ window.lz = do ->
 
           # find class script includes and load them in lexical order
           scriptsloading = false
+          if (initONE)
+            # initialize ONE integration
+            scriptsloading = loadScript('lib/one_base.js', () ->
+              ONE.base_.call(Eventable::)
+              # hide builtin keys from learn()
+              Eventable::enumfalse(Eventable::keys())
+              Node::enumfalse(Node::keys())
+              View::enumfalse(View::keys())
+              Layout::enumfalse(Layout::keys())
+              callback()
+            )
+
           for el in jqel.find('[scriptincludes]')
             for url in el.attributes.scriptincludes.value.split(',')
               scriptsloading = loadScript(url, callback)
@@ -1017,6 +1035,7 @@ window.lz = do ->
 
       # hide local properties we don't want applied to the parent by learn()
       @enumfalse(@skipattributes)
+      @enumfalse(@keys)
 
     set_applied: (applied) ->
       return unless @parent
@@ -1040,6 +1059,7 @@ window.lz = do ->
       # Hack to set attributes for now - not needed when using signals
       for name of @applyattributes
         val = @parent[name]
+        continue if val == undefined
         # learn/forget will have set the value already. Invert to cache bust setAttribute()
         @parent[name] = !val
         # console.log('bindAttribute', name, val)
@@ -1346,15 +1366,6 @@ window.lz = do ->
       # keys.inputtext = inputtext
       @sendEvent(type, keys)
       # console.log 'handleKeyboard', type, inputtext, keys, event
-
-
-  # initialize ONE integration
-  ONE.base_.call(Eventable::)
-  # hide builtin keys 
-  Eventable::enumfalse(Eventable::keys())
-  Node::enumfalse(Node::keys())
-  View::enumfalse(View::keys())
-  State::enumfalse(State::keys())
 
 
   exports = 

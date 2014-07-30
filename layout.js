@@ -1052,12 +1052,13 @@
           includerequests.push($.get(jel.attributes.href.value));
         }
         return $.when.apply($, includerequests).done(function() {
-          var args, el, html, includeRE, name, xhr, _j, _k, _len1, _len2, _ref1;
+          var args, el, extendz, html, includeRE, initONE, name, xhr, _j, _k, _len1, _len2, _ref1;
           args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
           if (includerequests.length === 1) {
             args = [args];
           }
           includeRE = /<[\/]*library>/gi;
+          initONE = false;
           for (_j = 0, _len1 = args.length; _j < _len1; _j++) {
             xhr = args[_j];
             html = xhr[0].replace(includeRE, '');
@@ -1069,9 +1070,15 @@
             name = el.localName;
             if (name === 'class') {
               if (el.attributes["extends"]) {
-                loadLZX(el.attributes["extends"].value, el);
+                extendz = el.attributes["extends"].value;
+                loadLZX(extendz, el);
+                if (extendz = 'state') {
+                  initONE = true;
+                }
               }
               inlineclasses[el.attributes.name.value] = true;
+            } else if (name === 'state') {
+              initONE = true;
             } else {
               loadLZX(name, el);
             }
@@ -1087,6 +1094,16 @@
               jqel.prepend(xhr[0]);
             }
             scriptsloading = false;
+            if (initONE) {
+              scriptsloading = loadScript('lib/one_base.js', function() {
+                ONE.base_.call(Eventable.prototype);
+                Eventable.prototype.enumfalse(Eventable.prototype.keys());
+                Node.prototype.enumfalse(Node.prototype.keys());
+                View.prototype.enumfalse(View.prototype.keys());
+                Layout.prototype.enumfalse(Layout.prototype.keys());
+                return callback();
+              });
+            }
             _ref2 = jqel.find('[scriptincludes]');
             for (_m = 0, _len4 = _ref2.length; _m < _len4; _m++) {
               el = _ref2[_m];
@@ -1319,6 +1336,7 @@
           this.skipattributes.push('events');
         }
         this.enumfalse(this.skipattributes);
+        this.enumfalse(this.keys);
       }
 
       State.prototype.set_applied = function(applied) {
@@ -1346,6 +1364,9 @@
         _results = [];
         for (name in this.applyattributes) {
           val = this.parent[name];
+          if (val === void 0) {
+            continue;
+          }
           this.parent[name] = !val;
           _results.push(this.parent.bindAttribute(name, val, parentname));
         }
@@ -1756,11 +1777,6 @@
       return Keyboard;
 
     })(Eventable);
-    ONE.base_.call(Eventable.prototype);
-    Eventable.prototype.enumfalse(Eventable.prototype.keys());
-    Node.prototype.enumfalse(Node.prototype.keys());
-    View.prototype.enumfalse(View.prototype.keys());
-    State.prototype.enumfalse(State.prototype.keys());
     return exports = {
       view: View,
       "class": Class,
