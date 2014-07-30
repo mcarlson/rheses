@@ -577,6 +577,7 @@ window.lz = do ->
         @setStyle('whiteSpace', 'normal')
       else
         @setStyle('width', 'auto')
+        @setStyle('height', 'auto')
       {width: @el.clientWidth, height: @el.clientHeight}
 
     handle: (event) =>
