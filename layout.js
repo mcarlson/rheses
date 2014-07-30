@@ -453,9 +453,6 @@
           nam = attributes.name;
           delete attributes.name;
         }
-        if (this.attributes == null) {
-          this.attributes = {};
-        }
         for (name in attributes) {
           value = attributes[name];
           constraint = typeof value.match === "function" ? value.match(matchConstraint) : void 0;
@@ -465,9 +462,6 @@
             name = name.substr(2);
             this.bind(name, _eventCallback(name, value, this, attributes.$tagname));
           } else {
-            if (name.charAt(0) !== '$') {
-              this.attributes[name] = value;
-            }
             this.setAttribute(name, value);
           }
         }
@@ -1203,33 +1197,45 @@
       };
     })();
     State = (function(_super) {
+      var skipattributes;
+
       __extends(State, _super);
 
+      skipattributes = ['name', 'parent', 'subnodes', 'types', 'applyattributes', '$tagname', '$textcontent'];
+
       function State() {
+        this.applyattributes = {};
         State.__super__.constructor.apply(this, arguments);
-        this.enumfalse(['name', 'parent', 'subnodes', 'types', 'attributes', '$tagname']);
+        this.enumfalse(skipattributes);
       }
 
+      State.prototype.setAttribute = function(name, value) {
+        State.__super__.setAttribute.call(this, name, value);
+        if (__indexOf.call(skipattributes, name) < 0) {
+          return this.applyattributes[name] = value;
+        }
+      };
+
       State.prototype.apply = function() {
-        var name, value, _ref, _results;
+        var name, val, _results;
         this.parent.learn(this);
-        _ref = this.attributes;
         _results = [];
-        for (name in _ref) {
-          value = _ref[name];
-          _results.push(this.parent.setAttribute(name, this.parent[name]));
+        for (name in this.applyattributes) {
+          val = this.parent[name];
+          this.parent[name] = !val;
+          _results.push(this.parent.setAttribute(name, val));
         }
         return _results;
       };
 
       State.prototype.remove = function() {
-        var name, value, _ref, _results;
+        var name, val, _results;
         this.parent.forget(this);
-        _ref = this.attributes;
         _results = [];
-        for (name in _ref) {
-          value = _ref[name];
-          _results.push(this.parent.setAttribute(name, this.parent[name]));
+        for (name in this.applyattributes) {
+          val = this.parent[name];
+          this.parent[name] = !val;
+          _results.push(this.parent.setAttribute(name, val));
         }
         return _results;
       };

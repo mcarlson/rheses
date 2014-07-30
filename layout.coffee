@@ -317,7 +317,6 @@ window.lz = do ->
         nam = attributes.name
         delete attributes.name
 
-      @attributes ?= {}
       # Bind to event expressions and set attributes
       for name, value of attributes
         constraint = value.match?(matchConstraint)
@@ -328,7 +327,6 @@ window.lz = do ->
           # console.log('binding to event expression', name, value, @)
           @bind(name, _eventCallback(name, value, @, attributes.$tagname))
         else
-          @attributes[name] = value unless name.charAt(0) == '$'
           @setAttribute(name, value)
 
       constraintScopes.push(@) if @constraints
@@ -917,36 +915,37 @@ window.lz = do ->
 
 
   class State extends Node
+    skipattributes = ['name', 'parent', 'subnodes', 'types', 'applyattributes', '$tagname', '$textcontent']
     constructor: () ->
+      @applyattributes = {}
       super
-      # hide properties we don't want applied to the parent
-      @enumfalse(['name', 'parent', 'subnodes', 'types', 'attributes', '$tagname'])
+      # hide local properties we don't want applied to the parent by learn()
+      @enumfalse(skipattributes)
+
+    setAttribute: (name, value) ->
+      super(name, value)
+      # track attributes manually for now...
+      @applyattributes[name] = value unless name in skipattributes
+      # console.log('state.setAttribute', name, value, @applyattributes)
       
     apply: () ->
-      # console.log('before learn', @remove)
-      # console.log Object.getOwnPropertyNames(@)
-
-      # WTF? why can I for..in nonenumerables?
-      # for k, val of @
-      #   console.log k, val, @propertyIsEnumerable k
-
-      # console.log('applying', this, @parent, @parent.bgcolor, @parent.setAttribute)
+      # console.log('applying', this, @parent)
       @parent.learn @
-      # console.log('after learn', @remove)
       # Hack to set attributes for now - not needed when using signals
-      for name, value of @attributes
-        # console.log('setAttribute', name, @parent[name])
-        @parent.setAttribute(name, @parent[name])
-      # console.log('applied', this, @parent, @parent.bgcolor, @parent.setAttribute, @parent.__overloads__)
+      for name of @applyattributes
+        val = @parent[name]
+        @parent[name] = !val
+        # console.log('setAttribute', name, val)
+        @parent.setAttribute(name, val)
 
     remove: () ->
-      # console.log('removing', this, @parent, @parent.bgcolor)
       @parent.forget @
-      # console.log('removed', this, @parent, @parent.bgcolor)
       # Hack to set attributes for now - not needed when using signals
-      for name, value of @attributes
-        # console.log('setAttribute', name, @parent[name])
-        @parent.setAttribute(name, @parent[name])
+      for name of @applyattributes
+        val = @parent[name]
+        @parent[name] = !val
+        # console.log('setAttribute', name, val)
+        @parent.setAttribute(name, val)
 
 
   class Class
