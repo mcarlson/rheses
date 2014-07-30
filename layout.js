@@ -745,6 +745,7 @@
           this.setStyle('whiteSpace', 'normal');
         } else {
           this.setStyle('width', 'auto');
+          this.setStyle('height', 'auto');
         }
         return {
           width: this.el.clientWidth,
