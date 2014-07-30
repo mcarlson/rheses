@@ -475,6 +475,7 @@ window.lz = do ->
 #    guid = 0
     noop = () ->
     stylemap= {x: 'left', y: 'top', bgcolor: 'backgroundColor'}
+    stylecache= {}
     fcamelCase = ( all, letter ) ->
       letter.toUpperCase()
     rdashAlpha = /-([\da-z])/gi
@@ -503,6 +504,7 @@ window.lz = do ->
       # @jqel = $(@el)
 
     setStyle: (name, value) ->
+      return if stylecache[name] == value
       value ?= ''
       if name of stylemap
         name = stylemap[name] 
@@ -636,7 +638,7 @@ window.lz = do ->
       # console.log 'new view', el, attributes, @
 
     setAttribute: (name, value, skip) ->
-      if not (skip or name of ignoredAttributes or @[name] == value)
+      if not (skip or name of ignoredAttributes)
         # console.log 'setting style', name, value, @
         @sprite.setStyle(name, value)
       super
