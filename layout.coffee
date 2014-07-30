@@ -915,10 +915,13 @@ window.lz = do ->
 
 
   class State extends Node
-    skipattributes = ['name', 'parent', 'subnodes', 'types', 'applyattributes', '$tagname', '$textcontent']
+    skipattributes = ['name', 'parent', 'subnodes', 'types', 'applyattributes', 'applied', '$tagname', '$textcontent']
     constructor: () ->
       @applyattributes = {}
+      @applied = false
       super
+      # prevent warnings if we have a constraint to @applied
+      skipattributes.push('constraints') if @constraints
       # hide local properties we don't want applied to the parent by learn()
       @enumfalse(skipattributes)
 
@@ -927,25 +930,31 @@ window.lz = do ->
       # track attributes manually for now...
       @applyattributes[name] = value unless name in skipattributes
       # console.log('state.setAttribute', name, value, @applyattributes)
+
+    set_applied: (applied) ->
+      return unless @parent
+      return if @applied == applied
+      @applied = applied
+
+      if applied
+        # console.log('applying', this, @parent)
+        @parent.learn @
+      else
+        @parent.forget @
+
+      # Hack to set attributes for now - not needed when using signals
+      for name of @applyattributes
+        val = @parent[name]
+        # learn/forget will have set the value already. Invert to cache bust setAttribute()
+        @parent[name] = !val
+        # console.log('setAttribute', name, val)
+        @parent.setAttribute(name, val)
       
     apply: () ->
-      # console.log('applying', this, @parent)
-      @parent.learn @
-      # Hack to set attributes for now - not needed when using signals
-      for name of @applyattributes
-        val = @parent[name]
-        @parent[name] = !val
-        # console.log('setAttribute', name, val)
-        @parent.setAttribute(name, val)
+      @setAttribute('applied', true) unless @applied
 
     remove: () ->
-      @parent.forget @
-      # Hack to set attributes for now - not needed when using signals
-      for name of @applyattributes
-        val = @parent[name]
-        @parent[name] = !val
-        # console.log('setAttribute', name, val)
-        @parent.setAttribute(name, val)
+      @setAttribute('applied', false) if @applied
 
 
   class Class

@@ -1201,11 +1201,15 @@
 
       __extends(State, _super);
 
-      skipattributes = ['name', 'parent', 'subnodes', 'types', 'applyattributes', '$tagname', '$textcontent'];
+      skipattributes = ['name', 'parent', 'subnodes', 'types', 'applyattributes', 'applied', '$tagname', '$textcontent'];
 
       function State() {
         this.applyattributes = {};
+        this.applied = false;
         State.__super__.constructor.apply(this, arguments);
+        if (this.constraints) {
+          skipattributes.push('constraints');
+        }
         this.enumfalse(skipattributes);
       }
 
@@ -1216,9 +1220,20 @@
         }
       };
 
-      State.prototype.apply = function() {
+      State.prototype.set_applied = function(applied) {
         var name, val, _results;
-        this.parent.learn(this);
+        if (!this.parent) {
+          return;
+        }
+        if (this.applied === applied) {
+          return;
+        }
+        this.applied = applied;
+        if (applied) {
+          this.parent.learn(this);
+        } else {
+          this.parent.forget(this);
+        }
         _results = [];
         for (name in this.applyattributes) {
           val = this.parent[name];
@@ -1228,16 +1243,16 @@
         return _results;
       };
 
-      State.prototype.remove = function() {
-        var name, val, _results;
-        this.parent.forget(this);
-        _results = [];
-        for (name in this.applyattributes) {
-          val = this.parent[name];
-          this.parent[name] = !val;
-          _results.push(this.parent.setAttribute(name, val));
+      State.prototype.apply = function() {
+        if (!this.applied) {
+          return this.setAttribute('applied', true);
         }
-        return _results;
+      };
+
+      State.prototype.remove = function() {
+        if (this.applied) {
+          return this.setAttribute('applied', false);
+        }
       };
 
       return State;
