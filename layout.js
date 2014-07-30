@@ -643,7 +643,7 @@
 
     })(Eventable);
     Sprite = (function() {
-      var capabilities, fcamelCase, noop, rdashAlpha, stylecache, stylemap;
+      var capabilities, fcamelCase, noop, rdashAlpha, stylemap;
 
       noop = function() {};
 
@@ -652,8 +652,6 @@
         y: 'top',
         bgcolor: 'backgroundColor'
       };
-
-      stylecache = {};
 
       fcamelCase = function(all, letter) {
         return letter.toUpperCase();
@@ -682,9 +680,6 @@
       }
 
       Sprite.prototype.setStyle = function(name, value) {
-        if (stylecache[name] === value) {
-          return;
-        }
         if (value == null) {
           value = '';
         }
@@ -866,7 +861,7 @@
       }
 
       View.prototype.setAttribute = function(name, value, skip) {
-        if (!(skip || name in ignoredAttributes)) {
+        if (!(skip || name in ignoredAttributes || this[name] === value)) {
           this.sprite.setStyle(name, value);
         }
         return View.__super__.setAttribute.apply(this, arguments);
