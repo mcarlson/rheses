@@ -607,11 +607,15 @@ window.lz = do ->
     measureTextSize: (multiline, width) ->
       @el.setAttribute('class', 'sprite sprite-text noselect')
       if multiline
+        if @_cachedwidth > -1
+          width = @_cachedwidth
+          @_cachedwidth = -1
         @setStyle('width', width)
         @setStyle('whiteSpace', 'normal')
       else
+        @_cachedwidth = width
         @setStyle('width', 'auto')
-        @setStyle('height', 'auto')
+        @setStyle('whiteSpace', '')
       {width: @el.clientWidth, height: @el.clientHeight}
 
     handle: (event) =>

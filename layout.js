@@ -807,11 +807,16 @@
       Sprite.prototype.measureTextSize = function(multiline, width) {
         this.el.setAttribute('class', 'sprite sprite-text noselect');
         if (multiline) {
+          if (this._cachedwidth > -1) {
+            width = this._cachedwidth;
+            this._cachedwidth = -1;
+          }
           this.setStyle('width', width);
           this.setStyle('whiteSpace', 'normal');
         } else {
+          this._cachedwidth = width;
           this.setStyle('width', 'auto');
-          this.setStyle('height', 'auto');
+          this.setStyle('whiteSpace', '');
         }
         return {
           width: this.el.clientWidth,

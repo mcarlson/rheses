@@ -93,7 +93,7 @@
       </handler>
     </clickresize>
     <text onclick="this.setAttribute('text', 'Hi mum this is a lot wider!')" bgcolor="yellow">Hello</text>
-    <text width="100" multiline="true" bgcolor="orange">This text should wrap at my width</text>
+    <text width="100" multiline="true" bgcolor="orange" onclick="this.setAttribute('multiline', ! this.multiline)">This text should wrap at my width. Click to toggle multiline.</text>
     <text text="${this.parent.inp.text}" bgcolor="red"></text>
     <inputtext bgcolor="green" name="inp" onclick="this.setAttribute('text', 'Yooyoyo')">Text</inputtext>
 
