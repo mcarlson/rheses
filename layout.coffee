@@ -634,7 +634,7 @@ window.lz = do ->
 
     getAbsolute: () ->
       @jqel ?= $(@el)
-      pos = @jqel.position()
+      pos = @jqel.offset()
       {x: pos.left, y: pos.top}
 
     set_class: (classname) ->

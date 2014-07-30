@@ -850,7 +850,7 @@
         if (this.jqel == null) {
           this.jqel = $(this.el);
         }
-        pos = this.jqel.position();
+        pos = this.jqel.offset();
         return {
           x: pos.left,
           y: pos.top
