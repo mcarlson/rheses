@@ -319,17 +319,7 @@ window.lz = do ->
 
       # Bind to event expressions and set attributes
       for name, value of attributes
-        constraint = value.match?(matchConstraint)
-        if constraint
-          @applyConstraint(name, constraint[1])
-        else if name.indexOf('on') == 0
-          name = name.substr(2)
-          # console.log('binding to event expression', name, value, @)
-          @bind(name, _eventCallback(name, value, @, attributes.$tagname))
-        else
-          @setAttribute(name, value)
-
-      constraintScopes.push(@) if @constraints
+        @bindAttribute(name, value, attributes.$tagname)
 
       if par
         @setAttribute('parent', par)
@@ -338,6 +328,20 @@ window.lz = do ->
 
       # console.log 'new node', @, attributes
       @sendEvent('init', @)
+
+    # Bind an attribute to an event expression, handler, or delegate to setAttribute()
+    bindAttribute: (name, value, tagname) ->
+      constraint = value.match?(matchConstraint)
+      if constraint
+        @applyConstraint(name, constraint[1])
+      else if name.indexOf('on') == 0
+        name = name.substr(2)
+        # console.log('binding to event expression', name, value, @)
+        @bind(name, _eventCallback(name, value, @, tagname))
+      else
+        @setAttribute(name, value)
+
+      constraintScopes.push(@) if @constraints 
 
     # public API
     initConstraints: ->
@@ -915,20 +919,20 @@ window.lz = do ->
 
 
   class State extends Node
-    skipattributes = ['name', 'parent', 'subnodes', 'types', 'applyattributes', 'applied', '$tagname', '$textcontent']
     constructor: () ->
+      @skipattributes = ['name', 'parent', 'subnodes', 'types', 'applyattributes', 'applied', '$tagname', '$textcontent', 'skipattributes']
       @applyattributes = {}
       @applied = false
       super
       # prevent warnings if we have a constraint to @applied
-      skipattributes.push('constraints') if @constraints
+      @skipattributes.push('constraints') if @constraints
       # hide local properties we don't want applied to the parent by learn()
-      @enumfalse(skipattributes)
+      @enumfalse(@skipattributes)
 
     setAttribute: (name, value) ->
       super(name, value)
       # track attributes manually for now...
-      @applyattributes[name] = value unless name in skipattributes
+      @applyattributes[name] = value unless name in @skipattributes
       # console.log('state.setAttribute', name, value, @applyattributes)
 
     set_applied: (applied) ->
@@ -942,13 +946,14 @@ window.lz = do ->
       else
         @parent.forget @
 
+      parentname = @parent.$tagname
       # Hack to set attributes for now - not needed when using signals
       for name of @applyattributes
         val = @parent[name]
         # learn/forget will have set the value already. Invert to cache bust setAttribute()
         @parent[name] = !val
         # console.log('setAttribute', name, val)
-        @parent.setAttribute(name, val)
+        @parent.bindAttribute(name, val, parentname)
       
     apply: () ->
       @setAttribute('applied', true) unless @applied

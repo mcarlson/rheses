@@ -404,7 +404,7 @@
       matchConstraint = /\${(.+)}/;
 
       function Node(el, attributes) {
-        var args, callback, constraint, method, methodspec, nam, name, par, reference, script, value, _i, _len, _ref, _ref1, _ref2, _ref3;
+        var args, callback, method, methodspec, nam, name, par, reference, script, value, _i, _len, _ref, _ref1, _ref2, _ref3;
         if (attributes == null) {
           attributes = {};
         }
@@ -455,18 +455,7 @@
         }
         for (name in attributes) {
           value = attributes[name];
-          constraint = typeof value.match === "function" ? value.match(matchConstraint) : void 0;
-          if (constraint) {
-            this.applyConstraint(name, constraint[1]);
-          } else if (name.indexOf('on') === 0) {
-            name = name.substr(2);
-            this.bind(name, _eventCallback(name, value, this, attributes.$tagname));
-          } else {
-            this.setAttribute(name, value);
-          }
-        }
-        if (this.constraints) {
-          constraintScopes.push(this);
+          this.bindAttribute(name, value, attributes.$tagname);
         }
         if (par) {
           this.setAttribute('parent', par);
@@ -476,6 +465,22 @@
         }
         this.sendEvent('init', this);
       }
+
+      Node.prototype.bindAttribute = function(name, value, tagname) {
+        var constraint;
+        constraint = typeof value.match === "function" ? value.match(matchConstraint) : void 0;
+        if (constraint) {
+          this.applyConstraint(name, constraint[1]);
+        } else if (name.indexOf('on') === 0) {
+          name = name.substr(2);
+          this.bind(name, _eventCallback(name, value, this, tagname));
+        } else {
+          this.setAttribute(name, value);
+        }
+        if (this.constraints) {
+          return constraintScopes.push(this);
+        }
+      };
 
       Node.prototype.initConstraints = function() {
         _initConstraints();
@@ -1197,31 +1202,28 @@
       };
     })();
     State = (function(_super) {
-      var skipattributes;
-
       __extends(State, _super);
 
-      skipattributes = ['name', 'parent', 'subnodes', 'types', 'applyattributes', 'applied', '$tagname', '$textcontent'];
-
       function State() {
+        this.skipattributes = ['name', 'parent', 'subnodes', 'types', 'applyattributes', 'applied', '$tagname', '$textcontent', 'skipattributes'];
         this.applyattributes = {};
         this.applied = false;
         State.__super__.constructor.apply(this, arguments);
         if (this.constraints) {
-          skipattributes.push('constraints');
+          this.skipattributes.push('constraints');
         }
-        this.enumfalse(skipattributes);
+        this.enumfalse(this.skipattributes);
       }
 
       State.prototype.setAttribute = function(name, value) {
         State.__super__.setAttribute.call(this, name, value);
-        if (__indexOf.call(skipattributes, name) < 0) {
+        if (__indexOf.call(this.skipattributes, name) < 0) {
           return this.applyattributes[name] = value;
         }
       };
 
       State.prototype.set_applied = function(applied) {
-        var name, val, _results;
+        var name, parentname, val, _results;
         if (!this.parent) {
           return;
         }
@@ -1234,11 +1236,12 @@
         } else {
           this.parent.forget(this);
         }
+        parentname = this.parent.$tagname;
         _results = [];
         for (name in this.applyattributes) {
           val = this.parent[name];
           this.parent[name] = !val;
-          _results.push(this.parent.setAttribute(name, val));
+          _results.push(this.parent.bindAttribute(name, val, parentname));
         }
         return _results;
       };
