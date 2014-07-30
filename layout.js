@@ -557,10 +557,12 @@
         js = compiler.compile(script, fnargs, "" + tagname + "$on" + name);
         return function() {
           var args;
-          if (name in scope) {
+          if (arguments.length) {
+            args = arguments;
+          } else if (name in scope) {
             args = [scope[name]];
           } else {
-            args = arguments;
+            args = [];
           }
           return js.apply(scope, args);
         };

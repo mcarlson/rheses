@@ -385,10 +385,12 @@ window.lz = do ->
       # console.log 'binding to event expression', name, script, scope, fnargs
       js = compiler.compile(script, fnargs, "#{tagname}$on#{name}")
       ->
-        if name of scope
+        if arguments.length
+          args = arguments
+        else if name of scope
           args = [scope[name]]
         else 
-          args = arguments
+          args = []
         # console.log 'event callback', name, args, scope, js
         js.apply(scope, args)
 
