@@ -138,11 +138,47 @@
     <replicator datapath="$storedata/store/book[*]/author" classname="text"></replicator>
     <replicator datapath="$tempdata/main/temp" classname="inputtext"></replicator>
 
-    <view bgcolor="blue" width="100" height="100" onmouseover="this.foo.apply()" onmouseout="this.foo.remove()">
-      <state name="foo" bgcolor="red">
+    <class name="mouseview">
+      <attribute name="mouseisover" value="false" type="boolean"></attribute>
+      <attribute name="mouseisdown" value="false" type="boolean"></attribute>
+      <handler name="onmouseover">
+        this.setAttribute('mouseisover', true)
+      </handler>
+      <handler name="onmouseout">
+        this.setAttribute('mouseisover', false)
+      </handler>
+      <handler name="onmousedown">
+        this.setAttribute('mouseisdown', true)
+      </handler>
+      <handler name="onmouseup">
+        this.setAttribute('mouseisdown', false)
+      </handler>
+    </class>
+
+    <mouseview bgcolor="blue" width="100" height="100" id="dragged">
+      <state name="dragstate" bgcolor="red" applied="${this.parent.mouseisdown}">
         <attribute name="width" value="200" type="number"></attribute>
+        <handler name="onapplied" args="applied">
+          //console.log('onapplied', applied, this)
+          if (applied) {
+            var pos = this.parent.getAbsolute();
+            this.startx = lz.mouse.x - pos.x;
+            this.starty = lz.mouse.y - pos.y;
+            //console.log('startx', pos, lz.mouse.x, lz.mouse.y, this.startx, this.starty)
+          }
+        </handler>
+        <handler name="onx" reference="lz.mouse" args="x">
+          this.updatePos('x', x - this.parent.getAbsolute().x - this.startx)
+        </handler>
+        <handler name="ony" reference="lz.mouse" args="y">
+          this.updatePos('y', y - this.parent.getAbsolute().y - this.starty)
+        </handler>
+        <method name="updatePos" args="name, val">
+          //console.log('updatePos', name, val, this, this.updatePos)
+          this.setAttribute(name, val)
+        </method>
       </state>
-    </view>
+    </mouseview>
 
     <class name="boundedview">
       <boundslayout></boundslayout>

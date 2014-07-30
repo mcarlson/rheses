@@ -1147,11 +1147,11 @@
         if (parent != null) {
           attributes.parent = parent;
         }
-        if (tagname !== 'class') {
+        if (!((tagname === 'class') || (tagname === 'state') || (attributes["extends"] === 'state'))) {
           dom.processSpecialTags(el, attributes, attributes.type);
         }
         parent = new lz[tagname](el, attributes);
-        if (tagname !== 'class') {
+        if (!(tagname === 'class' || (tagname === 'state') || (attributes["extends"] === 'state'))) {
           children = (function() {
             var _j, _len1, _ref, _results;
             _ref = el.childNodes;
@@ -1267,23 +1267,58 @@
     State = (function(_super) {
       __extends(State, _super);
 
-      function State() {
-        this.skipattributes = ['name', 'parent', 'subnodes', 'types', 'applyattributes', 'applied', '$tagname', '$textcontent', 'skipattributes'];
+      function State(el, attributes) {
+        var child, compilertype, handler, instancebody, name, oldbody, processedChildren, value, _i, _j, _len, _len1, _ref, _ref1;
+        if (attributes == null) {
+          attributes = {};
+        }
+        this.skipattributes = ['name', 'parent', 'types', 'applyattributes', 'applied', 'skipattributes', 'stateattributes'];
+        this.stateattributes = attributes;
         this.applyattributes = {};
         this.applied = false;
-        State.__super__.constructor.apply(this, arguments);
+        compilertype = attributes.type;
+        processedChildren = dom.processSpecialTags(el, attributes, compilertype);
+        oldbody = el.innerHTML.trim();
+        for (_i = 0, _len = processedChildren.length; _i < _len; _i++) {
+          child = processedChildren[_i];
+          child.parentNode.removeChild(child);
+        }
+        instancebody = el.innerHTML.trim();
+        if (oldbody) {
+          el.innerHTML = oldbody;
+        }
+        this.types = (_ref = attributes.$types) != null ? _ref : {};
+        this.setAttribute('parent', attributes.parent);
+        this.installMethods(attributes.$methods, this.parent.$tagname, this, this.parent);
+        if (attributes.name) {
+          this.setAttribute('name', attributes.name);
+        }
+        if (attributes.applied) {
+          this.bindAttribute('applied', attributes.applied, 'state');
+        }
+        _ref1 = attributes.$handlers;
+        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+          handler = _ref1[_j];
+          if (handler.name === 'onapplied') {
+            this.installHandlers([handler], 'state', this);
+          }
+        }
+        for (name in attributes) {
+          value = attributes[name];
+          if (!(__indexOf.call(this.skipattributes, name) >= 0 || name.charAt(0) === '$')) {
+            this.applyattributes[name] = value;
+            this.setAttribute(name, value);
+          }
+        }
         if (this.constraints) {
+          this._bindConstraints();
           this.skipattributes.push('constraints');
+        }
+        if (this.events) {
+          this.skipattributes.push('events');
         }
         this.enumfalse(this.skipattributes);
       }
-
-      State.prototype.setAttribute = function(name, value) {
-        State.__super__.setAttribute.call(this, name, value);
-        if (__indexOf.call(this.skipattributes, name) < 0) {
-          return this.applyattributes[name] = value;
-        }
-      };
 
       State.prototype.set_applied = function(applied) {
         var name, parentname, val, _results;
@@ -1294,10 +1329,17 @@
           return;
         }
         this.applied = applied;
+        this.sendEvent('applied', applied);
         if (applied) {
           this.parent.learn(this);
+          if (this.stateattributes.$handlers) {
+            this.parent.installHandlers(this.stateattributes.$handlers, this.parent.$tagname, this.parent);
+          }
         } else {
           this.parent.forget(this);
+          if (this.stateattributes.$handlers) {
+            this.parent.removeHandlers(this.stateattributes.$handlers, this.parent.$tagname, this.parent);
+          }
         }
         parentname = this.parent.$tagname;
         _results = [];
@@ -1717,6 +1759,7 @@
     Eventable.prototype.enumfalse(Eventable.prototype.keys());
     Node.prototype.enumfalse(Node.prototype.keys());
     View.prototype.enumfalse(View.prototype.keys());
+    State.prototype.enumfalse(State.prototype.keys());
     return exports = {
       view: View,
       "class": Class,

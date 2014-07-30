@@ -868,12 +868,12 @@ window.lz = do ->
       attributes.parent = parent if parent?
       # console.log 'parent for tag', tagname, attributes, parent
 
-      unless tagname is 'class'
+      unless (tagname is 'class') or (tagname is 'state') or (attributes.extends is 'state')
         dom.processSpecialTags(el, attributes, attributes.type)
 
       parent = new lz[tagname](el, attributes)
 
-      unless tagname is 'class'
+      unless tagname is 'class' or (tagname is 'state') or (attributes.extends is 'state')
         children = (child for child in el.childNodes when child.nodeType == 1)
         # create children now
         for child in children
@@ -955,32 +955,85 @@ window.lz = do ->
 
 
   class State extends Node
-    constructor: () ->
-      @skipattributes = ['name', 'parent', 'subnodes', 'types', 'applyattributes', 'applied', '$tagname', '$textcontent', 'skipattributes']
+    constructor: (el, attributes = {}) ->
+      @skipattributes = ['name', 'parent', 'types', 'applyattributes', 'applied', 'skipattributes', 'stateattributes']
+      @stateattributes = attributes
       @applyattributes = {}
       @applied = false
-      super
-      # prevent warnings if we have a constraint to @applied
-      @skipattributes.push('constraints') if @constraints
+
+      compilertype = attributes.type
+      # collapse children into attributes
+      processedChildren = dom.processSpecialTags(el, attributes, compilertype)
+
+      # console.log('compiled state', attributes, @)
+
+      # cache the old contents to preserve appearance
+      oldbody = el.innerHTML.trim()
+
+      for child in processedChildren
+        child.parentNode.removeChild(child)
+
+
+      # serialize the tag's contents for recreation with processedChildren removed
+      instancebody = el.innerHTML.trim()
+
+      # restore old contents
+      el.innerHTML = oldbody if (oldbody)
+
+      @types = attributes.$types ? {}
+
+      @setAttribute('parent', attributes.parent)
+
+      # Install methods in the state with the run scope set to the parent
+      # These will be applied to the parent by ONE with learn()
+      @installMethods(attributes.$methods, @parent.$tagname, @, @parent)
+
+      @setAttribute('name', attributes.name) if attributes.name
+
+      # handle applied constraint bindings as local to the state
+      if attributes.applied
+        @bindAttribute('applied', attributes.applied, 'state')
+
+      for handler in attributes.$handlers
+        if handler.name == 'onapplied'
+          # console.log('found onapplied', handler) 
+          @installHandlers([handler], 'state', @)
+
+      for name, value of attributes
+        unless name in @skipattributes or name.charAt(0) == '$'
+          @applyattributes[name] = value 
+          @setAttribute(name, value)
+      # console.log('applyattributes', @applyattributes)
+
+      if @constraints
+        @_bindConstraints()
+        # prevent warnings if we have a constraint to @applied
+        @skipattributes.push('constraints') 
+
+      if @events
+        # prevent warnings for local events
+        @skipattributes.push('events') 
+
       # hide local properties we don't want applied to the parent by learn()
       @enumfalse(@skipattributes)
-
-    setAttribute: (name, value) ->
-      super(name, value)
-      # track attributes manually for now...
-      @applyattributes[name] = value unless name in @skipattributes
-      # console.log('state.setAttribute', name, value, @applyattributes)
 
     set_applied: (applied) ->
       return unless @parent
       return if @applied == applied
       @applied = applied
+      @sendEvent('applied', applied)
 
+      # console.log('set_applied', applied, this, @parent)
       if applied
-        # console.log('applying', this, @parent)
         @parent.learn @
+        if @stateattributes.$handlers
+          # console.log('installing handlers', @stateattributes.$handlers)
+          @parent.installHandlers(@stateattributes.$handlers, @parent.$tagname, @parent)
       else
         @parent.forget @
+        if @stateattributes.$handlers
+          # console.log('removing handlers', @stateattributes.$handlers)
+          @parent.removeHandlers(@stateattributes.$handlers, @parent.$tagname, @parent)
 
       parentname = @parent.$tagname
       # Hack to set attributes for now - not needed when using signals
@@ -988,7 +1041,7 @@ window.lz = do ->
         val = @parent[name]
         # learn/forget will have set the value already. Invert to cache bust setAttribute()
         @parent[name] = !val
-        # console.log('setAttribute', name, val)
+        # console.log('bindAttribute', name, val)
         @parent.bindAttribute(name, val, parentname)
       
     apply: () ->
@@ -1300,6 +1353,7 @@ window.lz = do ->
   Eventable::enumfalse(Eventable::keys())
   Node::enumfalse(Node::keys())
   View::enumfalse(View::keys())
+  State::enumfalse(State::keys())
 
 
   exports = 
