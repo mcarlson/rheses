@@ -6,8 +6,7 @@ running
 
     python -m SimpleHTTPServer
 
-    
-    building
+building
 --------
 
     coffee -j layout.js -mo ./ -cw *.coffee
