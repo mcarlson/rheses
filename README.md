@@ -11,7 +11,7 @@ Once the server is running, visit [http://localhost:8000/data.html]()
 
 building
 --------
-You shouldn't have to do this unless you touch the core coffeescript files.
+You shouldn't have to do this unless you edit the coffeescript core.
 
     coffee -j layout.js -mo ./ -cw *.coffee
 
