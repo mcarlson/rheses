@@ -1,7 +1,12 @@
     <class name="text" type="coffee">
       <attribute name="multiline" value="false" type="boolean"></attribute>
+      <attribute name="measuresize" value="true" type="boolean"></attribute>
+      <handler name="onmultiline" method="updateSize"></handler>
       <method name="updateSize">
-        @set(@sprite.measureTextSize(@multiline, @width))
+        size = @sprite.measureTextSize(@multiline, @width)
+        # console.log('updatesize', size.width, size.height)
+        @setAttribute 'width', size.width, true if @measuresize
+        @setAttribute 'height', size.height, true
       </method>
       <handler name="ondata" args="d">
         @setAttribute('text', d)
