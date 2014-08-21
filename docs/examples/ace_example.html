@@ -1,0 +1,40 @@
+<html>
+<head>
+  <title>ace Example</title>
+  <style type="text/css">
+    body {
+      background-color: rgb(46,36,30);
+      background-image: url(/img/x2/background-r.png);
+      background-size: 259px 259px;
+      font-family: 'Helvetica';
+      font-size: 14px;
+    }
+    @font-face {
+      font-family: 'wildride';
+      src: url('/fonts/WildRide.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
+    .trans {
+      background-color: rgba(255,255,255,.5);
+      width: 80%;
+      height: 80%;
+      display:none;
+    }
+  </style>
+  <script type="text/javascript" src="/lib/jquery-1.9.1.min.js"></script>
+  <script type="text/javascript" src="/lib/acorn.js"></script>
+  <script type="text/javascript" src="/lib/coffee-script.js"></script>
+  <script type="text/javascript" src="/layout.js"></script>
+
+</head>
+<body>
+ <view id="all" width="800" height="600" clip="true">
+
+  <view id="container_ace" background-color="green" width="800" height="600" clip="true">
+    <text x="0" y="0" width="800" height="50" multiline="true" bgcolor="yellow" text="${this.parent.editor1.text}"></text>
+    <ace name="editor1" x="0" y="50" width="800" height="550" text="Embedded text"></ace>
+ </view>
+
+</body>
+</html>
