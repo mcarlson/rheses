@@ -1,4 +1,5 @@
     <class name="dragstate" extends="state">
+      <attribute name="dragaxis" value="both" type="string"></attribute>
       <handler name="onapplied" args="applied">
         //console.log('onapplied', applied, this)
         if (applied) {
@@ -9,10 +10,14 @@
         }
       </handler>
       <handler name="onx" reference="lz.mouse" args="x">
-        this.updatePos('x', x - this.parent.getAbsolute().x - this.startx)
+        if (this.dragaxis == 'both' || this.dragaxis == 'x') {
+          this.updatePos('x', x - this.parent.getAbsolute().x - this.startx)
+        }
       </handler>
       <handler name="ony" reference="lz.mouse" args="y">
-        this.updatePos('y', y - this.parent.getAbsolute().y - this.starty)
+        if (this.dragaxis == 'both' || this.dragaxis == 'y') {
+          this.updatePos('y', y - this.parent.getAbsolute().y - this.starty);
+        }
       </handler>
       <method name="updatePos" args="name, val">
         //console.log('updatePos', name, val, this, this.updatePos)
