@@ -572,6 +572,7 @@ window.lz = do ->
 
     set_clickable: (clickable) ->
       @setStyle('pointer-events', if clickable then 'auto' else 'none')
+      @setStyle('cursor', if clickable then 'pointer' else '')
 
       if capabilities.touch
         # ugly hack to make touch events emulate clicks, see http://sitr.us/2011/07/28/how-mobile-safari-emulates-mouse-events.html
