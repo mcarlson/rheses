@@ -4,7 +4,7 @@
         lz.datasets[@name] = @
       </handler>
       <attribute name="url" type="string" value=""></attribute>
-      <handler name="ontextcontent">
+      <handler name="on$textcontent">
         if @$textcontent
           @setAttribute('data', JSON.parse(@$textcontent))
           # console.log('data', @name, @data)
