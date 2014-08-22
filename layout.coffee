@@ -792,75 +792,84 @@ window.lz = do ->
         prom.el = el
         lzxrequests.push(prom)
 
-      # load includes 
-      for jel in jqel.find('include')
-        includerequests.push($.get(jel.attributes.href.value))
+      loadIncludes = (callback) ->
+        # load includes 
+        for jel in jqel.find('include')
+          includerequests.push($.get(jel.attributes.href.value))
 
-      # wait for all includes to load
-      $.when.apply($, includerequests).done((args...) ->
-        # append includes
-        args = [args] if (includerequests.length == 1)
+        # wait for all includes to load
+        $.when.apply($, includerequests).done((args...) ->
+          # append includes
+          args = [args] if (includerequests.length == 1)
 
-        includeRE = /<[\/]*library>/gi
-        initONE = false
-        for xhr in args
-          # remove any library tags found
-          html = xhr[0].replace(includeRE, '')
-          # console.log 'inserting include', html
-          jqel.prepend(html)
-
-        # look for class declarations and unloaded classes for tags
-        for el in jqel.find('*')
-          name = el.localName
-          if name == 'class'
-            if el.attributes.extends
-              extendz = el.attributes.extends.value 
-              # load load class extends
-              loadLZX(extendz, el)
-              initONE = true if extendz = 'state'
-            # track incline class declaration so we don't load it again later
-            inlineclasses[el.attributes.name.value] = true
-          else if name == 'state'
-            initONE = true
-          else
-            # load class instance for tag
-            loadLZX(name, el)
-   
-        # console.log(lzxrequests, lzxloaded, inlineclasses)
-        # wait for all lzx files to finish loading
-        $.when.apply($, lzxrequests).done((args...) ->
-          args = [args] if (lzxrequests.length == 1)
+          includeRE = /<[\/]*library>/gi
+          initONE = false
           for xhr in args
-            # console.log 'inserting html', xhr[0] 
-            jqel.prepend(xhr[0])
+            # remove any library tags found
+            html = xhr[0].replace(includeRE, '')
+            # console.log 'inserting include', html
+            jqel.prepend(html)
 
-          # find class script includes and load them in lexical order
-          scriptsloading = false
-          if (initONE)
-            # initialize ONE integration
-            scriptsloading = loadScript('lib/one_base.js', () ->
-              ONE.base_.call(Eventable::)
-              # hide builtin keys from learn()
-              Eventable::enumfalse(Eventable::keys())
-              Node::enumfalse(Node::keys())
-              View::enumfalse(View::keys())
-              Layout::enumfalse(Layout::keys())
+          # look for class declarations and unloaded classes for tags
+          for el in jqel.find('*')
+            name = el.localName
+            if name == 'class'
+              if el.attributes.extends
+                extendz = el.attributes.extends.value 
+                # load load class extends
+                loadLZX(extendz, el)
+                initONE = true if extendz = 'state'
+              # track incline class declaration so we don't load it again later
+              inlineclasses[el.attributes.name.value] = true
+            else if name == 'state'
+              initONE = true
+            else
+              # load class instance for tag
+              loadLZX(name, el)
+     
+          # console.log(lzxrequests, lzxloaded, inlineclasses)
+          # wait for all lzx files to finish loading
+          $.when.apply($, lzxrequests).done((args...) ->
+            args = [args] if (lzxrequests.length == 1)
+            for xhr in args
+              # console.log 'inserting html', args, xhr[0] 
+              jqel.prepend(xhr[0])
+
+            # find class script includes and load them in lexical order
+            scriptsloading = false
+            if (initONE)
+              # initialize ONE integration
+              scriptsloading = loadScript('lib/one_base.js', () ->
+                ONE.base_.call(Eventable::)
+                # hide builtin keys from learn()
+                Eventable::enumfalse(Eventable::keys())
+                Node::enumfalse(Node::keys())
+                View::enumfalse(View::keys())
+                Layout::enumfalse(Layout::keys())
+                callback()
+              )
+
+            for el in jqel.find('[scriptincludes]')
+              for url in el.attributes.scriptincludes.value.split(',')
+                scriptsloading = loadScript(url, callback)
+
+            # done loading
+            lzxrequests = []
+
+            # no class script includes found, execute callback immediately
+            unless scriptsloading
               callback()
-            )
-
-          for el in jqel.find('[scriptincludes]')
-            for url in el.attributes.scriptincludes.value.split(',')
-              scriptsloading = loadScript(url, callback)
-
-          # no class script includes found, execute callback immediately
-          unless scriptsloading
-            callback()
-        ).fail((args...) ->
-          args = [args] if (args.length == 1)
-          for xhr in args
-            console.error('failed to load', xhr.url, 'for element', xhr.el)
+          ).fail((args...) ->
+            args = [args] if (args.length == 1)
+            for xhr in args
+              console.error('failed to load', xhr.url, 'for element', xhr.el)
+          )
         )
-      )
+
+      cb = () ->
+        # must do this twice to catch autoinclude autoincludes, see https://github.com/teem2/dreem/issues/6
+        loadIncludes(callback)
+      loadIncludes(cb)
 
     specialtags = ['handler', 'method', 'attribute', 'setter', 'include', 'library']
     # tags built into the browser that should be ignored
