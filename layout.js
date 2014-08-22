@@ -1046,7 +1046,7 @@
             return;
           }
           lzxloaded[name] = true;
-          url = 'classes/' + name + '.lzx';
+          url = '/classes/' + name + '.lzx';
           prom = $.get(url);
           prom.url = url;
           prom.el = el;

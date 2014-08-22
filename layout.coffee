@@ -785,7 +785,7 @@ window.lz = do ->
       loadLZX = (name, el) ->
         return if name of lz or name of lzxloaded or name in specialtags or name of inlineclasses or name in builtinTags
         lzxloaded[name] = true
-        url = 'classes/' + name + '.lzx'
+        url = '/classes/' + name + '.lzx'
         # console.log 'loading lzx', url
         prom = $.get(url)
         prom.url = url
