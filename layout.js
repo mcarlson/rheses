@@ -771,6 +771,7 @@
 
       Sprite.prototype.set_clickable = function(clickable) {
         this.setStyle('pointer-events', clickable ? 'auto' : 'none');
+        this.setStyle('cursor', clickable ? 'pointer' : '');
         if (capabilities.touch) {
           return this.el.onclick = noop;
         }
