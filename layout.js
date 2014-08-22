@@ -287,8 +287,23 @@
 
     })(Module);
     compiler = (function() {
-      var cacheKey, compile, compileCache, debug, exports, findBindings, scriptCache, strict, transform, usecache;
+      var cacheKey, compile, compileCache, debug, exports, findBindings, localStorageWorks, scriptCache, strict, transform, usecache;
+      localStorageWorks = (function() {
+        var e, mod;
+        mod = 'modernizr';
+        try {
+          localStorage.setItem(mod, mod);
+          localStorage.removeItem(mod);
+          return true;
+        } catch (_error) {
+          e = _error;
+          return false;
+        }
+      })();
       usecache = window.location.search.indexOf('nocache') === -1;
+      if (!localStorageWorks) {
+        usecache = false;
+      }
       debug = window.location.search.indexOf('debug') > 0;
       strict = window.location.search.indexOf('strict') > 0;
       cacheKey = "compilecache";
@@ -301,10 +316,14 @@
             coffee: {}
           }
         };
-        localStorage[cacheKey] = JSON.stringify(compileCache);
+        if (usecache) {
+          localStorage[cacheKey] = JSON.stringify(compileCache);
+        }
       }
       $(window).on('unload', function() {
-        return localStorage[cacheKey] = JSON.stringify(compileCache);
+        if (usecache) {
+          return localStorage[cacheKey] = JSON.stringify(compileCache);
+        }
       });
       findBindings = (function() {
         var bindingCache, propertyBindings, scopes;

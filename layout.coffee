@@ -176,7 +176,18 @@ window.lz = do ->
 
 
   compiler = do ->
+    # Fix for iOS throwing exceptions when accessing localStorage in private mode, see http://stackoverflow.com/questions/21159301/quotaexceedederror-dom-exception-22-an-attempt-was-made-to-add-something-to-st
+    localStorageWorks = do ->
+      mod = 'modernizr'
+      try
+        localStorage.setItem(mod, mod)
+        localStorage.removeItem(mod)
+        return true
+      catch e
+        return false
+
     usecache = window.location.search.indexOf('nocache') == -1
+    usecache = false unless localStorageWorks
     debug = window.location.search.indexOf('debug') > 0
     strict = window.location.search.indexOf('strict') > 0
 
@@ -189,10 +200,10 @@ window.lz = do ->
         bindings: {}
         script: 
           coffee: {}
-      localStorage[cacheKey] = JSON.stringify(compileCache) 
+      localStorage[cacheKey] = JSON.stringify(compileCache) if usecache
 
     $(window).on('unload', -> 
-      localStorage[cacheKey] = JSON.stringify(compileCache) 
+      localStorage[cacheKey] = JSON.stringify(compileCache) if usecache
       # console.log 'onunload', localStorage[cacheKey]
     )
 
