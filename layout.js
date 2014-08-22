@@ -1569,7 +1569,7 @@
     })(Node);
     idle = (function() {
       var doTick, requestAnimationFrame, tickEvents, ticking;
-      requestAnimationFrame = window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame;
+      requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame;
       ticking = false;
       tickEvents = [];
       doTick = function(time) {

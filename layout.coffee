@@ -1226,7 +1226,7 @@ window.lz = do ->
       @update() if (changed and not locked)
 
   idle = do ->
-    requestAnimationFrame = window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame# || (delegate) -> setTimeout(delegate, 17)
+    requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame# || (delegate) -> setTimeout(delegate, 17)
     ticking = false
     tickEvents = []
 
