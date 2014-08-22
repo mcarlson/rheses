@@ -1,0 +1,66 @@
+
+<!-- Don't use until lzx syntax highlighter is available via cdn
+    <class name="ace" width="300" height="100" clickable="true" scriptincludes="http://cdnjs.cloudflare.com/ajax/libs/ace/1.1.3/ace.js">
+-->
+
+    <class name="ace" width="300" height="100" clickable="true" scriptincludes="/lib/ace/src-noconflict/ace.js">
+      <handler name="ondata" args="d">
+        this.setAttribute('text', d)
+      </handler>
+      <setter name="text" args="text">
+        if (this.editor && this.editor.getValue() != text) {
+          // console.log('set_text', text)
+          this.editor.setValue(text);
+        }
+      </setter>
+      <handler name="onwidth" method="handleResize"></handler>
+      <handler name="onheight" method="handleResize"></handler>
+
+      <handler name="oninit">
+        // I couldn't get jquery syntax to work so directly modify the DOM.
+        var acediv = document.createElement("DIV");
+        acediv.style.position = "absolute";
+        acediv.style.width = this.width;
+        acediv.style.height = this.height;
+        this.sprite.el.appendChild(acediv);
+
+        // Keep track of original div in this.acediv, and editor in this.editor
+        this.acediv = acediv;
+        this.editor = ace.edit(acediv);
+
+        // Set a default theme and mode
+        this.editor.setTheme("ace/theme/chrome");
+        this.editor.getSession().setMode("ace/mode/lzx");
+
+        // Text changes immediately update this.text
+        this.editor.on("change", this.handleChange);
+
+        // To remove line numbers, enable next line
+        //this.editor.renderer.setShowGutter(false);    
+
+        // Set initial text
+        var text = this.text || this.$textcontent;
+        this.editor.setValue(text);
+        this.text = text;
+    
+        //console.log("editor", this.editor);
+      </handler>
+
+      <handler name="onbgcolor" args="color">
+      </handler>
+
+      <method name="handleChange">
+        this.setAttribute('text', this.editor.getValue());
+        //console.log("handleChange", this.text);
+      </method>
+
+      <method name="handleResize">
+        if (this.editor) {
+          this.acediv.style.width = this.width;
+          this.acediv.style.height = this.height;
+
+          this.editor.resize();
+          //console.log("handleResize");
+        }
+      </method>
+    </class>
