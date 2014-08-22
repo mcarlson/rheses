@@ -1,0 +1,10 @@
+    <class name="stats" width="80" height="48" scriptincludes="http://threejs.org/examples/js/libs/stats.min.js">
+      <handler name="oninit">
+        this.container = this.sprite.el;
+        this.stats = new Stats();
+        this.container.appendChild( this.stats.domElement );
+      </handler>
+      <handler name="onidle" reference="lz.idle">
+        this.stats.update();
+      </handler>
+    </class>

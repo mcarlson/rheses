@@ -1,0 +1,93 @@
+<html>
+<head>
+  <title>dr33m</title>
+  <style type="text/css">
+    body {
+      background-color: white;
+      font-family: 'Helvetica';
+      font-size: 36px;
+      margin: 0px;
+      padding: 0px;
+      font-size: 14px;
+    }
+    input {
+      font-family: 'Helvetica';
+      font-size: 14px;
+      margin: 0px;
+      padding: 0px;
+      width: 100px;
+    }
+  </style>
+  <script type="text/javascript" src="lib/jquery-1.9.1.js"></script>
+  <script type="text/javascript" src="lib/acorn.js"></script>
+  <script type="text/javascript" src="lib/coffee-script.js"></script>
+  <script type="text/javascript" src="layout.js"></script>
+  <link href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+</head>
+<body>
+  <view>
+    <shim id="bus"></shim>
+
+    <audioplayer id="audio" url="music/03_Homage Sliders.mp3" fftsize="1024" fftsmoothing="0" playing="true">
+      <handler name="onfft" args="fft">
+        // Deal with JSON.stringify() issues by converting to a regular array
+        var copy = Array.apply([], fft);
+        bus.send('fft', copy);
+      </handler>
+    </audioplayer>
+
+    <simplelayout attribute="y" axis="height" spacing="0"></simplelayout>
+
+    <class name="timetext" extends="text">
+      <!-- TODO: evaluate setters and overrides -->
+      <setter name="text" args="time" type="coffee">
+        minutes = Math.floor(time / 60)
+        seconds = Math.floor(time) - minutes * 60
+        seconds = '0' + seconds if (seconds < 10)
+        text = minutes + ':' + seconds
+        if (text != @text)
+          @sprite.text(text)
+          @updateSize()
+      </setter>
+    </class>
+
+    <view bgcolor="${audio.playing ? 'green' : 'gray'}" opacity="${audio.loaded ? 1 : .8}" width="${(audio.loadprogress * audio.fftsize * .5)}" height="20">
+      <handler name="onclick">
+        audio.toggle();
+      </handler>
+      <view name="playhead" bgcolor="red" width="${(audio.time / audio.duration) * this.parent.width}" height="20"></view>
+      <view y="3" x="${this.parent.playhead.width}" width="${this.parent.width - this.x}">
+        <simplelayout spacing="2"></simplelayout>
+        <view width="16" class="fa fa-spin fa-spinner">
+          <method name="updateState">
+            if (audio.loaded) {
+              this.setAttribute('class', 'fa fa-play')
+              if (audio.playing && ! audio.paused) {
+                this.setAttribute('class', 'fa fa-pause')
+              } else {
+                this.setAttribute('class', 'fa fa-play')
+              }
+            } else {
+              this.setAttribute('class', 'fa fa-spin fa-spinner')
+            }
+          </method>
+          <handler name="onloaded" method="updateState" reference="audio"></handler>
+          <handler name="onpaused" method="updateState" reference="audio"></handler>
+          <handler name="onplaying" method="updateState" reference="audio"></handler>
+        </view>
+        <view width="16" class="fa fa-stop" onclick="audio.stop()"></view>
+        <timetext y="-1" text="${audio.time}"></timetext>
+        <text y="-1">/</text>
+        <timetext y="-1" text="${audio.duration}"></timetext>
+      </view>
+    </view>
+
+    <class name="bar" width="1" bgcolor="red" height="${this.data}"></class>
+
+    <view height="256">
+      <simplelayout spacing="0"></simplelayout>
+      <replicator name="foo" classname="bar" data="${audio.fft}" pooling="true"></replicator>
+    </view>
+  </view>
+</body>
+</html>

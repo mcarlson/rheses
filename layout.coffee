@@ -9,7 +9,6 @@ hackstyle = do ->
     if view[name] != value
     # if (view[name] != value and view?.events?[name])
       # console.log('sending style', name, elem.$view._locked) if sendstyle
-      # view.setAttribute(name, value, true)
       view.setAttribute(name, value, true)
 
     returnval
@@ -57,6 +56,7 @@ window.lz = do ->
       true
 
     listenTo: (obj, ev, callback) ->
+      # console.log('listenTo', obj, ev, callback, obj.bind)
       obj.bind(ev, callback)
       @listeningTo or= []
       @listeningTo.push {obj: obj, ev: ev, callback: callback}
@@ -77,7 +77,17 @@ window.lz = do ->
         for listeningTo in [@listeningTo, @listeningToOnce]
           continue unless listeningTo
           idx = listeningTo.indexOf(obj)
-          listeningTo.splice(idx, 1) unless idx is -1
+          # console.log('stopListening', idx, obj, listeningTo)
+          if idx > -1
+            listeningTo.splice(idx, 1)
+          else
+            # console.log('looking in array', listeningTo)
+            for val, index in listeningTo
+              # console.log('found', val)
+              if obj == val.obj and ev == val.ev and callback == val.callback
+                # console.log('found match', index)
+                listeningTo.splice(index, 1)
+                break
       else
         for {obj, ev, callback} in @listeningTo
           # console.log 'stopped listening', obj, ev, callback
@@ -150,7 +160,6 @@ window.lz = do ->
         @[name] = value
 
       @sendEvent(name, value)
-      @
 
     sendEvent: (name, value) ->
       # send event
@@ -167,8 +176,12 @@ window.lz = do ->
 
 
   compiler = do ->
+    usecache = window.location.search.indexOf('nocache') == -1
+    debug = window.location.search.indexOf('debug') > 0
+    strict = window.location.search.indexOf('strict') > 0
+
     cacheKey = "compilecache"
-    if localStorage[cacheKey]
+    if usecache and cacheKey of localStorage
       compileCache = JSON.parse(localStorage[cacheKey])
       # console.log 'restored', compileCache
     else
@@ -176,6 +189,7 @@ window.lz = do ->
         bindings: {}
         script: 
           coffee: {}
+      localStorage[cacheKey] = JSON.stringify(compileCache) 
 
     $(window).on('unload', -> 
       localStorage[cacheKey] = JSON.stringify(compileCache) 
@@ -199,7 +213,7 @@ window.lz = do ->
           return true
 
       (expression) ->
-        return bindingCache[expression] if expression of bindingCache
+        return bindingCache[expression] if usecache and expression of bindingCache
         ast = acorn.parse(expression)
         scopes = []
         acorn.walkDown(ast, propertyBindings)
@@ -213,7 +227,7 @@ window.lz = do ->
       coffeeCache = compileCache.script.coffee
       compilers = 
         coffee: (script) ->
-          if script of coffeeCache
+          if usecache and script of coffeeCache
             # console.log 'cache hit', script
             return coffeeCache[script]
           if not window.CoffeeScript
@@ -232,13 +246,20 @@ window.lz = do ->
     # cache compiled scripts to speed up instantiation
     scriptCache = {}
     # compile a string into a function
-    compile = (script='', args=[]) ->
-      key = script + args.join()
+    compile = (script='', args=[], name='') ->
+      argstring = args.join()
+      key = script + argstring + name
       return scriptCache[key] if key of scriptCache
       # console.log 'compile', args, script
       try 
         # console.log scriptCache
-        scriptCache[key] = new Function(args, script)
+        if debug and name
+          script = "\"use strict\"\n" + script if strict
+          func = new Function("return function #{name}(#{argstring}){#{script}}")()
+        else
+          func = new Function(args, script)
+        #console.log func()
+        scriptCache[key] = func
       catch e
         console.error 'failed to compile', e.toString(), args, script 
 
@@ -267,52 +288,92 @@ window.lz = do ->
 
       # store textual content
       if el?.textContent 
-        attributes.textcontent = el.textContent
+        attributes.$textcontent = el.textContent
 
       if attributes.$methods
-        # Install methods
-        for name, methodspec of attributes.$methods
-          # console.log 'installing method', name, methodspec, @
-          _installMethod(@, name, compiler.compile(methodspec[0], methodspec[1]))
+        @installMethods(attributes.$methods, attributes.$tagname)
         delete attributes.$methods
 
       if attributes.$handlers
+        @installHandlers(attributes.$handlers, attributes.$tagname)
+        # do this here for now - ugly though
         for {name, script, args, reference, method} in attributes.$handlers
           name = name.substr(2)
-
-          # console.log 'installing handler', name, args, type, script, @
-          if method
-            callback = @[method]
-            # console.log('using method', method, callback)
-          else
-            callback = _eventCallback(name, script, @, args)
-
-          if reference?
-            @listenTo(eval(reference), name, callback)
-          else
-            @bind(name, callback)
-
           if name in mouseEvents
             attributes.clickable = true unless attributes.clickable is "false"
             # console.log 'registered for clickable', attributes.clickable
+
         delete attributes.$handlers
+
+      if attributes.parent
+        par = attributes.parent
+        delete attributes.parent
+      if attributes.name
+        nam = attributes.name
+        delete attributes.name
 
       # Bind to event expressions and set attributes
       for name, value of attributes
-        constraint = value.match?(matchConstraint)
-        if constraint
-          @applyConstraint(name, constraint[1])
-        else if name.indexOf('on') == 0
-          name = name.substr(2)
-          # console.log('binding to event expression', name, value, @)
-          @bind(name, _eventCallback(name, value, @))
-        else
-          @setAttribute(name, value)
+        @bindAttribute(name, value, attributes.$tagname)
+      constraintScopes.push(@) if @constraints 
 
-      constraintScopes.push(@) if @constraints
+      if par
+        @setAttribute('parent', par)
+      if nam
+        @setAttribute('name', nam)
 
       # console.log 'new node', @, attributes
       @sendEvent('init', @)
+
+    installMethods: (methods, tagname, scope=@, callbackscope=@) ->
+      # Install methods
+      for name, methodspec of methods
+        # console.log 'installing method', name, methodspec, @
+        _installMethod(scope, name, compiler.compile(methodspec[0], methodspec[1], "#{tagname}$#{name}").bind(callbackscope), methodspec[2])
+
+    installHandlers: (handlers, tagname, scope=@) ->
+      for handler in handlers
+        {name, script, args, reference, method} = handler
+        # strip off leading 'on'
+        name = name.substr(2)
+
+        # console.log 'installing handler', name, args, script, @
+        if method
+          handler.callback = scope[method]
+          # console.log('using method', method, callback)
+        else
+          handler.callback = _eventCallback(name, script, scope, tagname, args)
+
+        if reference?
+          # console.log('listening to reference', reference, eval(reference), name, callback)
+          scope.listenTo(eval(reference), name, handler.callback)
+        else
+          scope.bind(name, handler.callback)
+
+    removeHandlers: (handlers, tagname, scope=@) ->
+      for handler in handlers
+        {name, script, args, reference, method} = handler
+        # strip off leading 'on'
+        name = name.substr(2)
+
+        # console.log 'removing handler', name, args, script, @
+        if reference?
+          # console.log('stopListening to reference', reference, eval(reference), name, handler.callback)
+          scope.stopListening(eval(reference), name, handler.callback)
+        else
+          scope.unbind(name, handler.callback)
+
+    # Bind an attribute to an event expression, handler, or delegate to setAttribute()
+    bindAttribute: (name, value, tagname) ->
+      constraint = value.match?(matchConstraint)
+      if constraint
+        @applyConstraint(name, constraint[1])
+      else if name.indexOf('on') == 0
+        name = name.substr(2)
+        # console.log('binding to event expression', name, value, @)
+        @bind(name, _eventCallback(name, value, @, tagname))
+      else
+        @setAttribute(name, value)
 
     # public API
     initConstraints: ->
@@ -320,18 +381,21 @@ window.lz = do ->
       @
 
     # generate a callback for an event expression in a way that preserves scope, e.g. on_x="console.log(value, this, ...)"
-    _eventCallback = (name, script, scope, fnargs=['value']) ->
+    _eventCallback = (name, script, scope, tagname='', fnargs=['value']) ->
       # console.log 'binding to event expression', name, script, scope, fnargs
-      js = compiler.compile(script, fnargs)
+      js = compiler.compile(script, fnargs, "#{tagname}$on#{name}")
       ->
-        if name of scope
+        if arguments.length
+          args = arguments
+        else if name of scope
           args = [scope[name]]
         else 
-          args = arguments
+          args = []
         # console.log 'event callback', name, args, scope, js
         js.apply(scope, args)
 
-    _installMethod = (scope, methodname, method) ->
+    _installMethod = (scope, methodname, method, classmethod) ->
+      # TODO: add class methods when classmethod == 'class'
       if methodname of scope
         # Cheesy override
         supr = scope[methodname]
@@ -347,9 +411,9 @@ window.lz = do ->
 
     applyConstraint: (property, expression) ->
       @constraints ?= {}
+      # console.log 'adding constraint', property, expression, @
       @constraints[property] = 
         expression: 'return ' + expression #compiler.compile('return ' + expression).bind(@)
-      # console.log 'adding constraint', property, expression, @
         bindings: {}
 
       bindings = @constraints[property].bindings
@@ -357,36 +421,37 @@ window.lz = do ->
       # console.log 'found scopes', scopes
       for scope in scopes
         bindexpression = scope.binding
-        bindings[bindexpression] = scope
+        bindings[bindexpression] ?= []
+        bindings[bindexpression].push(scope)
         # console.log 'applied', scope.property, bindexpression, 'for', @
 
       # console.log 'matched constraint', property, @, expression
       return
 
     _bindConstraints: ->
-      # register constraints last
       for name, constraint of @constraints
         {bindings, expression} = constraint
         fn = compiler.compile(expression).bind(@)
         # console.log 'binding constraint', name, expression, @
         constraint = @_constraintCallback(name, fn)
-        for bindexpression, binding of bindings
-          property = binding.property
+        for bindexpression, bindinglist of bindings
           boundref = compiler.compile('return ' + bindexpression).bind(@)()
           boundref ?= boundref.$view
-          # console.log 'binding to', property, 'on', boundref
-          boundref.bind?(property, constraint)
+          for binding in bindinglist
+            property = binding.property
+            # console.log 'binding to', property, 'on', boundref
+            boundref.bind?(property, constraint)
           
         @setAttribute(name, fn())
-
       return
 
     # generate a callback for a constraint expression, e.g. x="${this.parent.baz.x + 10}"
     _constraintCallback: (name, fn) ->
-      # console.log('binding to constraint fn', name, fn, @)
-      () =>
-        # console.log 'setting', name, fn(), @
-        @setAttribute(name, fn())
+      # console.log('binding to constraint function', name, fn, @)
+      return `(function constraintCallback(){`
+      # console.log 'setting', name, fn(), @
+      this.setAttribute(name, fn())
+      `}).bind(this)`
 
     set_parent: (parent) ->
       # console.log 'set_parent', parent, @
@@ -399,14 +464,18 @@ window.lz = do ->
 
     set_name: (name) ->
       # console.log 'set_name', name, this
-      @parent?[name] = @
+      @parent[name] = @
+
+    set_id: (id) ->
+      window[id] = @
 
     _removeFromParent: (name) ->
-      return if not @parent
+      return unless @parent
       arr = @parent[name]
       index = arr.indexOf(@)
       if (index != -1)
         arr.splice(index, 1)
+        # console.log('_removeFromParent', index, name, arr.length, arr, @)
         @parent.sendEvent(name, arr[index])
       return
 
@@ -433,22 +502,29 @@ window.lz = do ->
       # console.log 'destroying', @subnodes, @
       for subnode in @subnodes
         # console.log 'destroying', subnode, @
-        subnode.destroy(true)
+        subnode?.destroy(true)
 
       @_removeFromParent('subnodes') unless skipevents
 
 
   class Sprite
 #    guid = 0
+    noop = () ->
     stylemap= {x: 'left', y: 'top', bgcolor: 'backgroundColor'}
     fcamelCase = ( all, letter ) ->
       letter.toUpperCase()
     rdashAlpha = /-([\da-z])/gi
+    capabilities =
+      # detect touchhttp://stackoverflow.com/questions/4817029/whats-the-best-way-to-detect-a-touch-screen-device-using-javascript
+      touch: 'ontouchstart' of window || 'onmsgesturechange' of window # deal with ie10
 
-    constructor: (jqel, view) ->
-      # console.log 'new sprite', jqel, view
+    constructor: (jqel, view, tagname = 'div') ->
+      # console.log 'new sprite', jqel, view, tagname
       if not jqel?
-        @el = document.createElement('div')
+        # console.log 'creating element', tagname
+        @el = document.createElement(tagname)
+        # prevent duplicate initializations
+        @el.$init = true
       # else if jqel instanceof jQuery
       #   @el = jqel[0]
       else if jqel instanceof HTMLElement
@@ -468,7 +544,7 @@ window.lz = do ->
         name = stylemap[name] 
       else if name.match(rdashAlpha)
         # console.log "replacing #{name}"
-        name = name.replace( rdashAlpha, fcamelCase )
+        name = name.replace(rdashAlpha, fcamelCase)
       # console.log('setStyle', name, value, @el)
       @el.style[name] = value
       # @jqel.css(name, value)
@@ -496,15 +572,20 @@ window.lz = do ->
 
     set_clickable: (clickable) ->
       @setStyle('pointer-events', if clickable then 'auto' else 'none')
+      @setStyle('cursor', if clickable then 'pointer' else '')
+
+      if capabilities.touch
+        # ugly hack to make touch events emulate clicks, see http://sitr.us/2011/07/28/how-mobile-safari-emulates-mouse-events.html
+        @el.onclick = noop
 
       # TODO: retrigger the event for the element below for IE and Opera? See http://stackoverflow.com/questions/3680429/click-through-a-div-to-underlying-elements
       # el = $(event.target)
-      # el.hide();
-      # $(document.elementFromPoint(event.clientX,event.clientY)).trigger(type);
-      # el.show();
+      # el.hide()
+      # $(document.elementFromPoint(event.clientX,event.clientY)).trigger(type)
+      # el.show()
 
     destroy: ->
-      @el.parentNode.removeChild(@el);
+      @el.parentNode.removeChild(@el)
       @el = @jqel = null
 
     set_clip: (clip) ->
@@ -525,12 +606,17 @@ window.lz = do ->
         @input.value
 
     measureTextSize: (multiline, width) ->
-      @el.setAttribute('class', 'sprite sprite-text')
+      @el.setAttribute('class', 'sprite sprite-text noselect')
       if multiline
+        if @_cachedwidth > -1
+          width = @_cachedwidth
+          @_cachedwidth = -1
         @setStyle('width', width)
         @setStyle('whiteSpace', 'normal')
       else
+        @_cachedwidth = width
         @setStyle('width', 'auto')
+        @setStyle('whiteSpace', '')
       {width: @el.clientWidth, height: @el.clientHeight}
 
     handle: (event) =>
@@ -544,6 +630,8 @@ window.lz = do ->
       input.setAttribute('type', 'text')
       input.setAttribute('value', text)
       input.setAttribute('style', 'border: none; outline: none; background-color:transparent;')
+      input.setAttribute('class', 'noselect')
+      @el.setAttribute('class', 'sprite noselect')
       @el.appendChild(input)
 
       setTimeout(() =>
@@ -551,11 +639,11 @@ window.lz = do ->
         @input = @el.getElementsByTagName('input')[0]
         @input.$view = @el.$view
         $(input).on('focus blur', @handle)
-      , 0);
+      , 0)
 
     getAbsolute: () ->
       @jqel ?= $(@el)
-      pos = @jqel.position()
+      pos = @jqel.offset()
       {x: pos.left, y: pos.top}
 
     set_class: (classname) ->
@@ -567,7 +655,8 @@ window.lz = do ->
       @sprite.set_clickable(clickable)
       # super?(clickable)
 
-  ignoredAttributes = {parent: true, id: true, name: true, extends: true, type: true}
+  # internal attributes ignored by class declarations and view styles
+  ignoredAttributes = {parent: true, id: true, name: true, extends: true, type: true, scriptincludes: true}
   class View extends mixOf Node, Clickable
     constructor: (el, attributes = {}) ->
       @subviews = []
@@ -578,20 +667,21 @@ window.lz = do ->
           # console.log 'set default', key, type, @[key]
 
       for key, type of attributes.$types
-        types[key] = type;
+        types[key] = type
       attributes.$types = types
 
       if (el instanceof View)
         el = el.sprite
 
-      @sprite = new Sprite(el, @)
+      # console.log 'sprite tagname', attributes.$tagname
+      @sprite = new Sprite(el, @, attributes.$tagname)
 
       super
       # console.log 'new view', el, attributes, @
 
     setAttribute: (name, value, skip) ->
-      if not (skip or ignoredAttributes[name] or @[name] == value)
-        # console.log 'setting style', name, @[name], value, @
+      if not (skip or name of ignoredAttributes or @[name] == value)
+        # console.log 'setting style', name, value, @
         @sprite.setStyle(name, value)
       super
 
@@ -608,6 +698,7 @@ window.lz = do ->
       @sprite.set_parent parent
 
     set_id: (id) ->
+      super
       @sprite.set_id(id)
 
     animate: ->
@@ -646,58 +737,134 @@ window.lz = do ->
       findAutoIncludes(el, () ->
         el.style.display = null
         initElement(el)
+        # register constraints last
         _initConstraints()
       )
 
-    includeRE = /<[\/]*library>/gi
     findAutoIncludes = (parentel, callback) ->
-      loaded = {}
-      inlineclasses = {}
-      requesturls = []
-      requests = []
-      includes = []
       jqel = $(parentel)
-      for jel in jqel.find('include')
-        includes.push($.get(jel.attributes.href.value))
+      includerequests = []
 
-      $.when.apply($, includes).done((args...) ->
-        args = [args] if (includes.length == 1)
+      includedScripts = {}
+      loadqueue = []
+      scriptloading = false
+      loadScript = (url, cb) ->
+        return if url of includedScripts
+        includedScripts[url] = true
+
+        if (scriptloading)
+          loadqueue.push(url)
+          return url
+
+        appendScript = (url, cb) ->
+          # console.log('loading script', url)
+          scriptloading = url
+          script = document.createElement('script')
+          script.type = 'text/javascript'
+          $('head').append(script)
+          script.onload = cb
+          script.onerror = () ->
+            console.error('failed to load scriptinclude', url)
+            cb()
+          script.src = url
+
+        appendcallback = () ->
+          # console.log('loaded script', scriptloading, loadqueue.length, includedScripts[url])
+          scriptloading = false
+          if loadqueue.length == 0
+            # console.log('done, calling callback', cb)
+            cb()
+          else
+            appendScript(loadqueue.shift(), appendcallback)
+
+        appendScript(url, appendcallback)
+
+      inlineclasses = {}
+      lzxrequests = []
+      lzxloaded = {}
+      loadLZX = (name, el) ->
+        return if name of lz or name of lzxloaded or name in specialtags or name of inlineclasses or name in builtinTags
+        lzxloaded[name] = true
+        url = 'classes/' + name + '.lzx'
+        # console.log 'loading lzx', url
+        prom = $.get(url)
+        prom.url = url
+        prom.el = el
+        lzxrequests.push(prom)
+
+      # load includes 
+      for jel in jqel.find('include')
+        includerequests.push($.get(jel.attributes.href.value))
+
+      # wait for all includes to load
+      $.when.apply($, includerequests).done((args...) ->
+        # append includes
+        args = [args] if (includerequests.length == 1)
+
+        includeRE = /<[\/]*library>/gi
+        initONE = false
         for xhr in args
+          # remove any library tags found
           html = xhr[0].replace(includeRE, '')
           # console.log 'inserting include', html
           jqel.prepend(html)
 
+        # look for class declarations and unloaded classes for tags
         for el in jqel.find('*')
           name = el.localName
           if name == 'class'
-            # find inline class declarations
+            if el.attributes.extends
+              extendz = el.attributes.extends.value 
+              # load load class extends
+              loadLZX(extendz, el)
+              initONE = true if extendz = 'state'
+            # track incline class declaration so we don't load it again later
             inlineclasses[el.attributes.name.value] = true
-          else unless name of lz or name of loaded or name in specialtags or name of inlineclasses
-            loaded[name] = true
-            url = 'classes/' + name + '.lzx'
-            # console.log 'loading', url
-            prom = $.get(url)
-            prom.url = url
-            prom.el = el
-            requests.push(prom)
+          else if name == 'state'
+            initONE = true
+          else
+            # load class instance for tag
+            loadLZX(name, el)
    
-        # console.log(requests, loaded, inlineclasses)
-        $.when.apply($, requests).done((args...) ->
-          args = [args] if (requests.length == 1)
+        # console.log(lzxrequests, lzxloaded, inlineclasses)
+        # wait for all lzx files to finish loading
+        $.when.apply($, lzxrequests).done((args...) ->
+          args = [args] if (lzxrequests.length == 1)
           for xhr in args
             # console.log 'inserting html', xhr[0] 
             jqel.prepend(xhr[0])
-          callback()
+
+          # find class script includes and load them in lexical order
+          scriptsloading = false
+          if (initONE)
+            # initialize ONE integration
+            scriptsloading = loadScript('lib/one_base.js', () ->
+              ONE.base_.call(Eventable::)
+              # hide builtin keys from learn()
+              Eventable::enumfalse(Eventable::keys())
+              Node::enumfalse(Node::keys())
+              View::enumfalse(View::keys())
+              Layout::enumfalse(Layout::keys())
+              callback()
+            )
+
+          for el in jqel.find('[scriptincludes]')
+            for url in el.attributes.scriptincludes.value.split(',')
+              scriptsloading = loadScript(url, callback)
+
+          # no class script includes found, execute callback immediately
+          unless scriptsloading
+            callback()
         ).fail((args...) ->
           args = [args] if (args.length == 1)
           for xhr in args
             console.error('failed to load', xhr.url, 'for element', xhr.el)
         )
-
       )
 
     specialtags = ['handler', 'method', 'attribute', 'setter', 'include', 'library']
-    buildtinTags = ['input', 'div']
+    # tags built into the browser that should be ignored
+    builtinTags = ['input', 'div', 'img', 'script', 'canvas']
     # recursively init classes based on an existing element
     initElement = (el, parent) ->
       # don't init the same element twice
@@ -706,10 +873,12 @@ window.lz = do ->
 
       tagname = el.localName
       if not (tagname of lz)
-        console.warn 'could not find class for tag', tagname, el unless (tagname in buildtinTags)
+        console.warn 'could not find class for tag', tagname, el unless tagname in builtinTags
         return
 
       attributes = flattenattributes(el.attributes)
+
+      attributes.$tagname = tagname
 
       # swallow builtin mouse attributes to allow event delegation, set clickable if an event is found
       for event in mouseEvents
@@ -722,12 +891,12 @@ window.lz = do ->
       attributes.parent = parent if parent?
       # console.log 'parent for tag', tagname, attributes, parent
 
-      unless tagname is 'class'
+      unless (tagname is 'class') or (tagname is 'state') or (attributes.extends is 'state')
         dom.processSpecialTags(el, attributes, attributes.type)
 
       parent = new lz[tagname](el, attributes)
 
-      unless tagname is 'class'
+      unless tagname is 'class' or (tagname is 'state') or (attributes.extends is 'state')
         children = (child for child in el.childNodes when child.nodeType == 1)
         # create children now
         for child in children
@@ -741,7 +910,7 @@ window.lz = do ->
     writeCSS = ->
       style = document.createElement('style')
       style.type = 'text/css'
-      style.innerHTML = '.sprite{ position: absolute; pointer-events: none; } .sprite-text{ width: auto; height; auto; white-space: nowrap; } .hidden{ display: none; } method { display: none; } handler { display: none; } setter { display: none; } class { display:none } node { display:none }'
+      style.innerHTML = '.sprite{ position: absolute; pointer-events: none; padding: 0; margin: 0;} .sprite-text{ width: auto; height; auto; white-space: nowrap;  padding: 0; margin: 0;} .hidden{ display: none; } .noselect{ -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;} method { display: none; } handler { display: none; } setter { display: none; } class { display:none } node { display:none }'
       document.getElementsByTagName('head')[0].appendChild(style)
 
     # init top-level views in the DOM recursively
@@ -752,8 +921,8 @@ window.lz = do ->
     # http://stackoverflow.com/questions/1248849/converting-sanitised-html-back-to-displayable-html
     htmlDecode = (input) ->
       # return if not input
-      e = document.createElement('div');
-      e.innerHTML = input;
+      e = document.createElement('div')
+      e.innerHTML = input
       e.childNodes[0]?.nodeValue
 
     # process handlers, methods, setters and attributes 
@@ -784,7 +953,8 @@ window.lz = do ->
             args = (attributes.args ? '').split()
             script = htmlDecode(child.innerHTML)
             type = attributes.type or defaulttype
-            classattributes.$methods[attributes.name] = [compiler.transform(script, type), args]
+            allocation = attributes.allocation
+            classattributes.$methods[attributes.name] = [compiler.transform(script, type), args, allocation]
             # console.log 'added method', attributes.name, script, classattributes
           when 'setter'
             args = (attributes.args ? '').split()
@@ -807,6 +977,106 @@ window.lz = do ->
       writeCSS: writeCSS
 
 
+  class State extends Node
+    constructor: (el, attributes = {}) ->
+      @skipattributes = ['parent', 'types', 'applyattributes', 'applied', 'skipattributes', 'stateattributes']
+      @stateattributes = attributes
+      @applyattributes = {}
+      @applied = false
+
+      compilertype = attributes.type
+      # collapse children into attributes
+      processedChildren = dom.processSpecialTags(el, attributes, compilertype)
+
+      # console.log('compiled state', attributes, @)
+
+      # cache the old contents to preserve appearance
+      oldbody = el.innerHTML.trim()
+
+      for child in processedChildren
+        child.parentNode.removeChild(child)
+
+      # serialize the tag's contents for recreation with processedChildren removed
+      instancebody = el.innerHTML.trim()
+
+      # restore old contents
+      el.innerHTML = oldbody if (oldbody)
+
+      @types = attributes.$types ? {}
+
+      @setAttribute('parent', attributes.parent)
+
+      # Install methods in the state with the run scope set to the parent
+      # These will be applied to the parent by ONE with learn()
+      @installMethods(attributes.$methods, @parent.$tagname, @, @parent)
+
+      if attributes.name
+        @setAttribute('name', attributes.name) 
+        @skipattributes.push('name') 
+
+      # handle applied constraint bindings as local to the state
+      if attributes.applied
+        @bindAttribute('applied', attributes.applied, 'state')
+
+      for handler in attributes.$handlers
+        if handler.name == 'onapplied'
+          # console.log('found onapplied', handler) 
+          @installHandlers([handler], 'state', @)
+
+      for name, value of attributes
+        unless name in @skipattributes or name.charAt(0) == '$'
+          @applyattributes[name] = value 
+          @setAttribute(name, value)
+      # console.log('applyattributes', @applyattributes)
+
+      if @constraints
+        @_bindConstraints()
+        # prevent warnings if we have a constraint to @applied
+        @skipattributes.push('constraints') 
+
+      if @events
+        # prevent warnings for local events
+        @skipattributes.push('events') 
+
+      # hide local properties we don't want applied to the parent by learn()
+      @enumfalse(@skipattributes)
+      @enumfalse(@keys)
+
+    set_applied: (applied) ->
+      return unless @parent
+      return if @applied == applied
+      @applied = applied
+      @sendEvent('applied', applied)
+
+      # console.log('set_applied', applied, this, @parent)
+      if applied
+        @parent.learn @
+        if @stateattributes.$handlers
+          # console.log('installing handlers', @stateattributes.$handlers)
+          @parent.installHandlers(@stateattributes.$handlers, @parent.$tagname, @parent)
+      else
+        @parent.forget @
+        if @stateattributes.$handlers
+          # console.log('removing handlers', @stateattributes.$handlers)
+          @parent.removeHandlers(@stateattributes.$handlers, @parent.$tagname, @parent)
+
+      parentname = @parent.$tagname
+      # Hack to set attributes for now - not needed when using signals
+      for name of @applyattributes
+        val = @parent[name]
+        continue if val == undefined
+        # learn/forget will have set the value already. Invert to cache bust setAttribute()
+        @parent[name] = !val
+        # console.log('bindAttribute', name, val)
+        @parent.bindAttribute(name, val, parentname)
+      
+    apply: () ->
+      @setAttribute('applied', true) unless @applied
+
+    remove: () ->
+      @setAttribute('applied', false) if @applied
+
+
   class Class
     clone = (obj) ->
       newobj = {}
@@ -818,6 +1088,7 @@ window.lz = do ->
       name = classattributes.name
       extend = classattributes.extends ?= 'view'
       compilertype = classattributes.type
+      # only class instances should specify these
       for ignored of ignoredAttributes
         delete classattributes[ignored]
 
@@ -861,7 +1132,15 @@ window.lz = do ->
           else 
             attributes[key] = value
 
-        # console.log 'creating class instance', name, attributes
+        if not (extend of lz)
+          console.warn 'could not find class for tag', extend
+          return
+
+        # tagname would be 'class' in this case, replace with the right one!
+        # also, don't overwrite if it's already set, since we are invoking lz[extend]
+        if attributes.$tagname is 'class' or not attributes.$tagname
+          attributes.$tagname = name
+        # console.log 'creating class instance', name, attributes.$tagname, instanceel, extend, attributes
         parent = new lz[extend](instanceel, attributes)
         # console.log 'created class instance', name, extend, parent
 
@@ -874,9 +1153,9 @@ window.lz = do ->
         # unpack instance children
         if instancebody and viewel
           if viewel.innerHTML
-            viewel.innerHTML = viewel.innerHTML + instancebody
-            # console.log 'instancebody', instancebody
-            # console.log viewel.innerHTML, viewel
+            # Append class children on instances instead of replacing them
+            viewel.innerHTML = instancebody + viewel.innerHTML
+            # console.log 'instancebody', instancebody, viewel.innerHTML, viewel
           else
             # console.log 'normal'
             viewel.innerHTML = instancebody
@@ -938,7 +1217,7 @@ window.lz = do ->
       @update() if (changed and not locked)
 
   idle = do ->
-    requestAnimationFrame = window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame# || (delegate) -> setTimeout(delegate, 17);
+    requestAnimationFrame = window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame# || (delegate) -> setTimeout(delegate, 17)
     ticking = false
     tickEvents = []
 
@@ -955,7 +1234,7 @@ window.lz = do ->
       # console.log('hit', key) if (tickEvents[key] != null) 
       if !ticking
         requestAnimationFrame(doTick)
-      ticking = true;
+      ticking = true
       tickEvents[key] = callback
 
 
@@ -973,15 +1252,12 @@ window.lz = do ->
     startEvent: (event) =>
       return if @eventStarted
       @eventStarted = true
-      # @tId = setInterval(@sender, 17)
       # console.log 'start'
 
     stopEvent: (event) =>
       return if not @eventStarted
       @eventStarted = false
-      # clearInterval(@tId)
       # console.log 'stop'
-      # @docSelector.off("mousemove", @handle).one("mouseover", @startEvent)
 
 
   class Idle extends StartEventable
@@ -998,7 +1274,7 @@ window.lz = do ->
       idle(1, @sender)
 
     sender: (time) =>
-      @trigger('idle', time, @)
+      @sendEvent('idle', time)
       # console.log('sender', time, @eventStarted, idle)
       setTimeout(() =>
         idle(1, @sender)
@@ -1045,6 +1321,21 @@ window.lz = do ->
         @docSelector.on("mousemove", @handle).one("mouseout", @startEvent)
 
 
+  class Window extends StartEventable
+    constructor: ->
+      window.addEventListener('resize', @handle, false)
+      @handle()
+
+    startEventTest: () ->
+      @events['width']?.length or @events['height']?.length
+
+    handle: (event) =>
+      @width = window.innerWidth
+      @sendEvent('width', @width)
+      @height = window.innerHeight
+      @sendEvent('height', @height)
+      # console.log('window resize', event, @width, @height)
+
 
   class Keyboard extends Eventable
     keyboardEvents = ['select', 'keyup', 'keydown', 'change']
@@ -1075,7 +1366,7 @@ window.lz = do ->
           value = event.target.value
           if (inputtext.text != value)
             inputtext.text = value
-            inputtext.sendEvent('text', value);
+            inputtext.sendEvent('text', value)
 
       # keys.inputtext = inputtext
       @sendEvent(type, keys)
@@ -1088,8 +1379,10 @@ window.lz = do ->
     node: Node
     mouse: new Mouse()
     keyboard: new Keyboard()
+    window: new Window()
     layout: Layout
     idle: new Idle()
+    state: State
     initElements: dom.initAllElements
     writeCSS: dom.writeCSS
 

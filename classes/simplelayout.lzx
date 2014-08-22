@@ -37,18 +37,22 @@
       <method name="update" args="value, sender">
         # console.log('skip', @skip(), @locked)
         return if @skip()
+        locked = @locked
+        @locked = true
+
         pos = @inset
         skip = true if sender
-        for subview in @parent.subviews
+        for subview, index in @parent.subviews
           continue if subview.ignorelayout
           if (skip and subview != sender)
-            # console.log 'skipping', subview, sender
+            # console.log 'skipping', index, subview, sender
           else 
-            # console.log 'updating', subview, @attribute, pos
+            # console.log 'updating', index, subview, @attribute, pos, @parent.subviews
             subview.setAttribute(@attribute, pos) unless subview[@attribute] == pos
             skip = false
           # console.log 'value', pos, @spacing, @inset, @attribute, @axis, subview, subview[@axis]
           pos += @spacing + subview[@axis] 
+        @locked = locked
         return pos
       </method>
     </class>

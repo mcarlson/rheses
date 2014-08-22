@@ -1,0 +1,24 @@
+    <class name="image">
+      <setter name="src" args="src">
+        if (! src) return
+        if (this.src == src) return
+        //console.log('set src', src)
+        this.setAttribute('background-image', 'url("' + src + '")');
+
+        var img = this._img;
+        if (! img) {
+          img = this._img = new Image();
+        }
+
+        img.src = src;
+
+        // send load events 
+        var _this = this;
+        img.onload = function() {
+          _this.sendEvent('load', {width: img.width, height: img.height});
+        }
+        img.onerror = function() {
+          _this.sendEvent('error', img);
+        }
+      </setter>
+    </class>

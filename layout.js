@@ -35,7 +35,7 @@
   })();
 
   window.lz = (function() {
-    var Class, Clickable, Eventable, Events, Idle, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, View, compiler, constraintScopes, dom, exports, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, _initConstraints;
+    var Class, Clickable, Eventable, Events, Idle, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, View, Window, compiler, constraintScopes, dom, exports, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, _initConstraints;
     mixOf = function() {
       var Mixed, base, i, method, mixin, mixins, name, _i, _ref;
       base = arguments[0], mixins = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
@@ -120,7 +120,7 @@
         return this;
       },
       stopListening: function(obj, ev, callback) {
-        var idx, listeningTo, _i, _j, _len, _len1, _ref, _ref1, _ref2, _results;
+        var idx, index, listeningTo, val, _i, _j, _len, _len1, _ref, _ref1, _ref2, _results;
         if (obj) {
           obj.unbind(ev, callback);
           _ref = [this.listeningTo, this.listeningToOnce];
@@ -131,10 +131,23 @@
               continue;
             }
             idx = listeningTo.indexOf(obj);
-            if (idx !== -1) {
+            if (idx > -1) {
               _results.push(listeningTo.splice(idx, 1));
             } else {
-              _results.push(void 0);
+              _results.push((function() {
+                var _j, _len1, _results1;
+                _results1 = [];
+                for (index = _j = 0, _len1 = listeningTo.length; _j < _len1; index = ++_j) {
+                  val = listeningTo[index];
+                  if (obj === val.obj && ev === val.ev && callback === val.callback) {
+                    listeningTo.splice(index, 1);
+                    break;
+                  } else {
+                    _results1.push(void 0);
+                  }
+                }
+                return _results1;
+              })());
             }
           }
           return _results;
@@ -250,8 +263,7 @@
         if (this[name] !== value) {
           this[name] = value;
         }
-        this.sendEvent(name, value);
-        return this;
+        return this.sendEvent(name, value);
       };
 
       Eventable.prototype.sendEvent = function(name, value) {
@@ -275,9 +287,12 @@
 
     })(Module);
     compiler = (function() {
-      var cacheKey, compile, compileCache, exports, findBindings, scriptCache, transform;
+      var cacheKey, compile, compileCache, debug, exports, findBindings, scriptCache, strict, transform, usecache;
+      usecache = window.location.search.indexOf('nocache') === -1;
+      debug = window.location.search.indexOf('debug') > 0;
+      strict = window.location.search.indexOf('strict') > 0;
       cacheKey = "compilecache";
-      if (localStorage[cacheKey]) {
+      if (usecache && cacheKey in localStorage) {
         compileCache = JSON.parse(localStorage[cacheKey]);
       } else {
         compileCache = {
@@ -286,6 +301,7 @@
             coffee: {}
           }
         };
+        localStorage[cacheKey] = JSON.stringify(compileCache);
       }
       $(window).on('unload', function() {
         return localStorage[cacheKey] = JSON.stringify(compileCache);
@@ -308,7 +324,7 @@
         };
         return function(expression) {
           var ast;
-          if (expression in bindingCache) {
+          if (usecache && expression in bindingCache) {
             return bindingCache[expression];
           }
           ast = acorn.parse(expression);
@@ -322,7 +338,7 @@
         coffeeCache = compileCache.script.coffee;
         compilers = {
           coffee: function(script) {
-            if (script in coffeeCache) {
+            if (usecache && script in coffeeCache) {
               return coffeeCache[script];
             }
             if (!window.CoffeeScript) {
@@ -347,20 +363,32 @@
         };
       })();
       scriptCache = {};
-      compile = function(script, args) {
-        var e, key;
+      compile = function(script, args, name) {
+        var argstring, e, func, key;
         if (script == null) {
           script = '';
         }
         if (args == null) {
           args = [];
         }
-        key = script + args.join();
+        if (name == null) {
+          name = '';
+        }
+        argstring = args.join();
+        key = script + argstring + name;
         if (key in scriptCache) {
           return scriptCache[key];
         }
         try {
-          return scriptCache[key] = new Function(args, script);
+          if (debug && name) {
+            if (strict) {
+              script = "\"use strict\"\n" + script;
+            }
+            func = new Function("return function " + name + "(" + argstring + "){" + script + "}")();
+          } else {
+            func = new Function(args, script);
+          }
+          return scriptCache[key] = func;
         } catch (_error) {
           e = _error;
           return console.error('failed to compile', e.toString(), args, script);
@@ -389,7 +417,7 @@
       matchConstraint = /\${(.+)}/;
 
       function Node(el, attributes) {
-        var args, callback, constraint, method, methodspec, name, reference, script, value, _i, _len, _ref, _ref1, _ref2, _ref3;
+        var args, method, nam, name, par, reference, script, value, _i, _len, _ref, _ref1, _ref2;
         if (attributes == null) {
           attributes = {};
         }
@@ -397,31 +425,18 @@
         this.types = (_ref = attributes.$types) != null ? _ref : {};
         delete attributes.$types;
         if (el != null ? el.textContent : void 0) {
-          attributes.textcontent = el.textContent;
+          attributes.$textcontent = el.textContent;
         }
         if (attributes.$methods) {
-          _ref1 = attributes.$methods;
-          for (name in _ref1) {
-            methodspec = _ref1[name];
-            _installMethod(this, name, compiler.compile(methodspec[0], methodspec[1]));
-          }
+          this.installMethods(attributes.$methods, attributes.$tagname);
           delete attributes.$methods;
         }
         if (attributes.$handlers) {
-          _ref2 = attributes.$handlers;
-          for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
-            _ref3 = _ref2[_i], name = _ref3.name, script = _ref3.script, args = _ref3.args, reference = _ref3.reference, method = _ref3.method;
+          this.installHandlers(attributes.$handlers, attributes.$tagname);
+          _ref1 = attributes.$handlers;
+          for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+            _ref2 = _ref1[_i], name = _ref2.name, script = _ref2.script, args = _ref2.args, reference = _ref2.reference, method = _ref2.method;
             name = name.substr(2);
-            if (method) {
-              callback = this[method];
-            } else {
-              callback = _eventCallback(name, script, this, args);
-            }
-            if (reference != null) {
-              this.listenTo(eval(reference), name, callback);
-            } else {
-              this.bind(name, callback);
-            }
             if (__indexOf.call(mouseEvents, name) >= 0) {
               if (attributes.clickable !== "false") {
                 attributes.clickable = true;
@@ -430,47 +445,130 @@
           }
           delete attributes.$handlers;
         }
+        if (attributes.parent) {
+          par = attributes.parent;
+          delete attributes.parent;
+        }
+        if (attributes.name) {
+          nam = attributes.name;
+          delete attributes.name;
+        }
         for (name in attributes) {
           value = attributes[name];
-          constraint = typeof value.match === "function" ? value.match(matchConstraint) : void 0;
-          if (constraint) {
-            this.applyConstraint(name, constraint[1]);
-          } else if (name.indexOf('on') === 0) {
-            name = name.substr(2);
-            this.bind(name, _eventCallback(name, value, this));
-          } else {
-            this.setAttribute(name, value);
-          }
+          this.bindAttribute(name, value, attributes.$tagname);
         }
         if (this.constraints) {
           constraintScopes.push(this);
         }
+        if (par) {
+          this.setAttribute('parent', par);
+        }
+        if (nam) {
+          this.setAttribute('name', nam);
+        }
         this.sendEvent('init', this);
       }
+
+      Node.prototype.installMethods = function(methods, tagname, scope, callbackscope) {
+        var methodspec, name, _results;
+        if (scope == null) {
+          scope = this;
+        }
+        if (callbackscope == null) {
+          callbackscope = this;
+        }
+        _results = [];
+        for (name in methods) {
+          methodspec = methods[name];
+          _results.push(_installMethod(scope, name, compiler.compile(methodspec[0], methodspec[1], "" + tagname + "$" + name).bind(callbackscope), methodspec[2]));
+        }
+        return _results;
+      };
+
+      Node.prototype.installHandlers = function(handlers, tagname, scope) {
+        var args, handler, method, name, reference, script, _i, _len, _results;
+        if (scope == null) {
+          scope = this;
+        }
+        _results = [];
+        for (_i = 0, _len = handlers.length; _i < _len; _i++) {
+          handler = handlers[_i];
+          name = handler.name, script = handler.script, args = handler.args, reference = handler.reference, method = handler.method;
+          name = name.substr(2);
+          if (method) {
+            handler.callback = scope[method];
+          } else {
+            handler.callback = _eventCallback(name, script, scope, tagname, args);
+          }
+          if (reference != null) {
+            _results.push(scope.listenTo(eval(reference), name, handler.callback));
+          } else {
+            _results.push(scope.bind(name, handler.callback));
+          }
+        }
+        return _results;
+      };
+
+      Node.prototype.removeHandlers = function(handlers, tagname, scope) {
+        var args, handler, method, name, reference, script, _i, _len, _results;
+        if (scope == null) {
+          scope = this;
+        }
+        _results = [];
+        for (_i = 0, _len = handlers.length; _i < _len; _i++) {
+          handler = handlers[_i];
+          name = handler.name, script = handler.script, args = handler.args, reference = handler.reference, method = handler.method;
+          name = name.substr(2);
+          if (reference != null) {
+            _results.push(scope.stopListening(eval(reference), name, handler.callback));
+          } else {
+            _results.push(scope.unbind(name, handler.callback));
+          }
+        }
+        return _results;
+      };
+
+      Node.prototype.bindAttribute = function(name, value, tagname) {
+        var constraint;
+        constraint = typeof value.match === "function" ? value.match(matchConstraint) : void 0;
+        if (constraint) {
+          return this.applyConstraint(name, constraint[1]);
+        } else if (name.indexOf('on') === 0) {
+          name = name.substr(2);
+          return this.bind(name, _eventCallback(name, value, this, tagname));
+        } else {
+          return this.setAttribute(name, value);
+        }
+      };
 
       Node.prototype.initConstraints = function() {
         _initConstraints();
         return this;
       };
 
-      _eventCallback = function(name, script, scope, fnargs) {
+      _eventCallback = function(name, script, scope, tagname, fnargs) {
         var js;
+        if (tagname == null) {
+          tagname = '';
+        }
         if (fnargs == null) {
           fnargs = ['value'];
         }
-        js = compiler.compile(script, fnargs);
+        js = compiler.compile(script, fnargs, "" + tagname + "$on" + name);
         return function() {
           var args;
-          if (name in scope) {
+          if (arguments.length) {
+            args = arguments;
+          } else if (name in scope) {
             args = [scope[name]];
           } else {
-            args = arguments;
+            args = [];
           }
           return js.apply(scope, args);
         };
       };
 
-      _installMethod = function(scope, methodname, method) {
+      _installMethod = function(scope, methodname, method, classmethod) {
         var meth, supr;
         if (methodname in scope) {
           supr = scope[methodname];
@@ -498,12 +596,15 @@
         for (_i = 0, _len = scopes.length; _i < _len; _i++) {
           scope = scopes[_i];
           bindexpression = scope.binding;
-          bindings[bindexpression] = scope;
+          if (bindings[bindexpression] == null) {
+            bindings[bindexpression] = [];
+          }
+          bindings[bindexpression].push(scope);
         }
       };
 
       Node.prototype._bindConstraints = function() {
-        var bindexpression, binding, bindings, boundref, constraint, expression, fn, name, property, _ref;
+        var bindexpression, binding, bindinglist, bindings, boundref, constraint, expression, fn, name, property, _i, _len, _ref;
         _ref = this.constraints;
         for (name in _ref) {
           constraint = _ref[name];
@@ -511,14 +612,17 @@
           fn = compiler.compile(expression).bind(this);
           constraint = this._constraintCallback(name, fn);
           for (bindexpression in bindings) {
-            binding = bindings[bindexpression];
-            property = binding.property;
+            bindinglist = bindings[bindexpression];
             boundref = compiler.compile('return ' + bindexpression).bind(this)();
             if (boundref == null) {
               boundref = boundref.$view;
             }
-            if (typeof boundref.bind === "function") {
-              boundref.bind(property, constraint);
+            for (_i = 0, _len = bindinglist.length; _i < _len; _i++) {
+              binding = bindinglist[_i];
+              property = binding.property;
+              if (typeof boundref.bind === "function") {
+                boundref.bind(property, constraint);
+              }
             }
           }
           this.setAttribute(name, fn());
@@ -526,11 +630,9 @@
       };
 
       Node.prototype._constraintCallback = function(name, fn) {
-        return (function(_this) {
-          return function() {
-            return _this.setAttribute(name, fn());
-          };
-        })(this);
+        return (function constraintCallback(){;
+        this.setAttribute(name, fn());
+        return }).bind(this);
       };
 
       Node.prototype.set_parent = function(parent) {
@@ -544,8 +646,11 @@
       };
 
       Node.prototype.set_name = function(name) {
-        var _ref;
-        return (_ref = this.parent) != null ? _ref[name] = this : void 0;
+        return this.parent[name] = this;
+      };
+
+      Node.prototype.set_id = function(id) {
+        return window[id] = this;
       };
 
       Node.prototype._removeFromParent = function(name) {
@@ -585,7 +690,9 @@
         _ref1 = this.subnodes;
         for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
           subnode = _ref1[_i];
-          subnode.destroy(true);
+          if (subnode != null) {
+            subnode.destroy(true);
+          }
         }
         if (!skipevents) {
           return this._removeFromParent('subnodes');
@@ -596,7 +703,9 @@
 
     })(Eventable);
     Sprite = (function() {
-      var fcamelCase, rdashAlpha, stylemap;
+      var capabilities, fcamelCase, noop, rdashAlpha, stylemap;
+
+      noop = function() {};
 
       stylemap = {
         x: 'left',
@@ -610,11 +719,19 @@
 
       rdashAlpha = /-([\da-z])/gi;
 
-      function Sprite(jqel, view) {
+      capabilities = {
+        touch: 'ontouchstart' in window || 'onmsgesturechange' in window
+      };
+
+      function Sprite(jqel, view, tagname) {
+        if (tagname == null) {
+          tagname = 'div';
+        }
         this.handle = __bind(this.handle, this);
         this.animate = __bind(this.animate, this);
         if (jqel == null) {
-          this.el = document.createElement('div');
+          this.el = document.createElement(tagname);
+          this.el.$init = true;
         } else if (jqel instanceof HTMLElement) {
           this.el = jqel;
         }
@@ -653,7 +770,11 @@
       };
 
       Sprite.prototype.set_clickable = function(clickable) {
-        return this.setStyle('pointer-events', clickable ? 'auto' : 'none');
+        this.setStyle('pointer-events', clickable ? 'auto' : 'none');
+        this.setStyle('cursor', clickable ? 'pointer' : '');
+        if (capabilities.touch) {
+          return this.el.onclick = noop;
+        }
       };
 
       Sprite.prototype.destroy = function() {
@@ -685,12 +806,18 @@
       };
 
       Sprite.prototype.measureTextSize = function(multiline, width) {
-        this.el.setAttribute('class', 'sprite sprite-text');
+        this.el.setAttribute('class', 'sprite sprite-text noselect');
         if (multiline) {
+          if (this._cachedwidth > -1) {
+            width = this._cachedwidth;
+            this._cachedwidth = -1;
+          }
           this.setStyle('width', width);
           this.setStyle('whiteSpace', 'normal');
         } else {
+          this._cachedwidth = width;
           this.setStyle('width', 'auto');
+          this.setStyle('whiteSpace', '');
         }
         return {
           width: this.el.clientWidth,
@@ -713,6 +840,8 @@
         input.setAttribute('type', 'text');
         input.setAttribute('value', text);
         input.setAttribute('style', 'border: none; outline: none; background-color:transparent;');
+        input.setAttribute('class', 'noselect');
+        this.el.setAttribute('class', 'sprite noselect');
         this.el.appendChild(input);
         return setTimeout((function(_this) {
           return function() {
@@ -731,7 +860,7 @@
         if (this.jqel == null) {
           this.jqel = $(this.el);
         }
-        pos = this.jqel.position();
+        pos = this.jqel.offset();
         return {
           x: pos.left,
           y: pos.top
@@ -760,7 +889,8 @@
       id: true,
       name: true,
       "extends": true,
-      type: true
+      type: true,
+      scriptincludes: true
     };
     View = (function(_super) {
       __extends(View, _super);
@@ -794,12 +924,12 @@
         if (el instanceof View) {
           el = el.sprite;
         }
-        this.sprite = new Sprite(el, this);
+        this.sprite = new Sprite(el, this, attributes.$tagname);
         View.__super__.constructor.apply(this, arguments);
       }
 
       View.prototype.setAttribute = function(name, value, skip) {
-        if (!(skip || ignoredAttributes[name] || this[name] === value)) {
+        if (!(skip || name in ignoredAttributes || this[name] === value)) {
           this.sprite.setStyle(name, value);
         }
         return View.__super__.setAttribute.apply(this, arguments);
@@ -816,6 +946,7 @@
       };
 
       View.prototype.set_id = function(id) {
+        View.__super__.set_id.apply(this, arguments);
         return this.sprite.set_id(id);
       };
 
@@ -848,7 +979,7 @@
 
     })(mixOf(Node, Clickable));
     dom = (function() {
-      var buildtinTags, exports, findAutoIncludes, flattenattributes, htmlDecode, includeRE, initAllElements, initElement, initFromElement, processSpecialTags, specialtags, writeCSS;
+      var builtinTags, exports, findAutoIncludes, flattenattributes, htmlDecode, initAllElements, initElement, initFromElement, processSpecialTags, specialtags, writeCSS;
       flattenattributes = function(namednodemap) {
         var attributes, i, _i, _len;
         attributes = {};
@@ -866,26 +997,74 @@
           return _initConstraints();
         });
       };
-      includeRE = /<[\/]*library>/gi;
       findAutoIncludes = function(parentel, callback) {
-        var includes, inlineclasses, jel, jqel, loaded, requests, requesturls, _i, _len, _ref;
-        loaded = {};
-        inlineclasses = {};
-        requesturls = [];
-        requests = [];
-        includes = [];
+        var includedScripts, includerequests, inlineclasses, jel, jqel, loadLZX, loadScript, loadqueue, lzxloaded, lzxrequests, scriptloading, _i, _len, _ref;
         jqel = $(parentel);
+        includerequests = [];
+        includedScripts = {};
+        loadqueue = [];
+        scriptloading = false;
+        loadScript = function(url, cb) {
+          var appendScript, appendcallback;
+          if (url in includedScripts) {
+            return;
+          }
+          includedScripts[url] = true;
+          if (scriptloading) {
+            loadqueue.push(url);
+            return url;
+          }
+          appendScript = function(url, cb) {
+            var script;
+            scriptloading = url;
+            script = document.createElement('script');
+            script.type = 'text/javascript';
+            $('head').append(script);
+            script.onload = cb;
+            script.onerror = function() {
+              console.error('failed to load scriptinclude', url);
+              return cb();
+            };
+            return script.src = url;
+          };
+          appendcallback = function() {
+            scriptloading = false;
+            if (loadqueue.length === 0) {
+              return cb();
+            } else {
+              return appendScript(loadqueue.shift(), appendcallback);
+            }
+          };
+          return appendScript(url, appendcallback);
+        };
+        inlineclasses = {};
+        lzxrequests = [];
+        lzxloaded = {};
+        loadLZX = function(name, el) {
+          var prom, url;
+          if (name in lz || name in lzxloaded || __indexOf.call(specialtags, name) >= 0 || name in inlineclasses || __indexOf.call(builtinTags, name) >= 0) {
+            return;
+          }
+          lzxloaded[name] = true;
+          url = 'classes/' + name + '.lzx';
+          prom = $.get(url);
+          prom.url = url;
+          prom.el = el;
+          return lzxrequests.push(prom);
+        };
         _ref = jqel.find('include');
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           jel = _ref[_i];
-          includes.push($.get(jel.attributes.href.value));
+          includerequests.push($.get(jel.attributes.href.value));
         }
-        return $.when.apply($, includes).done(function() {
-          var args, el, html, name, prom, url, xhr, _j, _k, _len1, _len2, _ref1;
+        return $.when.apply($, includerequests).done(function() {
+          var args, el, extendz, html, includeRE, initONE, name, xhr, _j, _k, _len1, _len2, _ref1;
           args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-          if (includes.length === 1) {
+          if (includerequests.length === 1) {
             args = [args];
           }
+          includeRE = /<[\/]*library>/gi;
+          initONE = false;
           for (_j = 0, _len1 = args.length; _j < _len1; _j++) {
             xhr = args[_j];
             html = xhr[0].replace(includeRE, '');
@@ -896,27 +1075,53 @@
             el = _ref1[_k];
             name = el.localName;
             if (name === 'class') {
+              if (el.attributes["extends"]) {
+                extendz = el.attributes["extends"].value;
+                loadLZX(extendz, el);
+                if (extendz = 'state') {
+                  initONE = true;
+                }
+              }
               inlineclasses[el.attributes.name.value] = true;
-            } else if (!(name in lz || name in loaded || __indexOf.call(specialtags, name) >= 0 || name in inlineclasses)) {
-              loaded[name] = true;
-              url = 'classes/' + name + '.lzx';
-              prom = $.get(url);
-              prom.url = url;
-              prom.el = el;
-              requests.push(prom);
+            } else if (name === 'state') {
+              initONE = true;
+            } else {
+              loadLZX(name, el);
             }
           }
-          return $.when.apply($, requests).done(function() {
-            var args, _l, _len3;
+          return $.when.apply($, lzxrequests).done(function() {
+            var args, scriptsloading, url, _l, _len3, _len4, _len5, _m, _n, _ref2, _ref3;
             args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-            if (requests.length === 1) {
+            if (lzxrequests.length === 1) {
               args = [args];
             }
             for (_l = 0, _len3 = args.length; _l < _len3; _l++) {
               xhr = args[_l];
               jqel.prepend(xhr[0]);
             }
-            return callback();
+            scriptsloading = false;
+            if (initONE) {
+              scriptsloading = loadScript('lib/one_base.js', function() {
+                ONE.base_.call(Eventable.prototype);
+                Eventable.prototype.enumfalse(Eventable.prototype.keys());
+                Node.prototype.enumfalse(Node.prototype.keys());
+                View.prototype.enumfalse(View.prototype.keys());
+                Layout.prototype.enumfalse(Layout.prototype.keys());
+                return callback();
+              });
+            }
+            _ref2 = jqel.find('[scriptincludes]');
+            for (_m = 0, _len4 = _ref2.length; _m < _len4; _m++) {
+              el = _ref2[_m];
+              _ref3 = el.attributes.scriptincludes.value.split(',');
+              for (_n = 0, _len5 = _ref3.length; _n < _len5; _n++) {
+                url = _ref3[_n];
+                scriptsloading = loadScript(url, callback);
+              }
+            }
+            if (!scriptsloading) {
+              return callback();
+            }
           }).fail(function() {
             var args, _l, _len3, _results;
             args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
@@ -933,7 +1138,7 @@
         });
       };
       specialtags = ['handler', 'method', 'attribute', 'setter', 'include', 'library'];
-      buildtinTags = ['input', 'div'];
+      builtinTags = ['input', 'div', 'img', 'script', 'canvas'];
       initElement = function(el, parent) {
         var attributes, child, children, event, eventname, tagname, _i, _j, _len, _len1, _ref;
         if (el.$init) {
@@ -942,12 +1147,13 @@
         el.$init = true;
         tagname = el.localName;
         if (!(tagname in lz)) {
-          if (!(__indexOf.call(buildtinTags, tagname) >= 0)) {
+          if (__indexOf.call(builtinTags, tagname) < 0) {
             console.warn('could not find class for tag', tagname, el);
           }
           return;
         }
         attributes = flattenattributes(el.attributes);
+        attributes.$tagname = tagname;
         for (_i = 0, _len = mouseEvents.length; _i < _len; _i++) {
           event = mouseEvents[_i];
           eventname = 'on' + event;
@@ -964,11 +1170,11 @@
         if (parent != null) {
           attributes.parent = parent;
         }
-        if (tagname !== 'class') {
+        if (!((tagname === 'class') || (tagname === 'state') || (attributes["extends"] === 'state'))) {
           dom.processSpecialTags(el, attributes, attributes.type);
         }
         parent = new lz[tagname](el, attributes);
-        if (tagname !== 'class') {
+        if (!(tagname === 'class' || (tagname === 'state') || (attributes["extends"] === 'state'))) {
           children = (function() {
             var _j, _len1, _ref, _results;
             _ref = el.childNodes;
@@ -993,7 +1199,7 @@
         var style;
         style = document.createElement('style');
         style.type = 'text/css';
-        style.innerHTML = '.sprite{ position: absolute; pointer-events: none; } .sprite-text{ width: auto; height; auto; white-space: nowrap; } .hidden{ display: none; } method { display: none; } handler { display: none; } setter { display: none; } class { display:none } node { display:none }';
+        style.innerHTML = '.sprite{ position: absolute; pointer-events: none; padding: 0; margin: 0;} .sprite-text{ width: auto; height; auto; white-space: nowrap;  padding: 0; margin: 0;} .hidden{ display: none; } .noselect{ -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;} method { display: none; } handler { display: none; } setter { display: none; } class { display:none } node { display:none }';
         return document.getElementsByTagName('head')[0].appendChild(style);
       };
       initAllElements = function(selector) {
@@ -1015,7 +1221,7 @@
         return (_ref = e.childNodes[0]) != null ? _ref.nodeValue : void 0;
       };
       processSpecialTags = function(el, classattributes, defaulttype) {
-        var args, attributes, child, children, handler, script, type, _i, _len, _ref, _ref1, _ref2, _ref3;
+        var allocation, args, attributes, child, children, handler, script, type, _i, _len, _ref, _ref1, _ref2, _ref3;
         if (classattributes.$types == null) {
           classattributes.$types = {};
         }
@@ -1058,7 +1264,8 @@
               args = ((_ref2 = attributes.args) != null ? _ref2 : '').split();
               script = htmlDecode(child.innerHTML);
               type = attributes.type || defaulttype;
-              classattributes.$methods[attributes.name] = [compiler.transform(script, type), args];
+              allocation = attributes.allocation;
+              classattributes.$methods[attributes.name] = [compiler.transform(script, type), args, allocation];
               break;
             case 'setter':
               args = ((_ref3 = attributes.args) != null ? _ref3 : '').split();
@@ -1080,6 +1287,113 @@
         writeCSS: writeCSS
       };
     })();
+    State = (function(_super) {
+      __extends(State, _super);
+
+      function State(el, attributes) {
+        var child, compilertype, handler, instancebody, name, oldbody, processedChildren, value, _i, _j, _len, _len1, _ref, _ref1;
+        if (attributes == null) {
+          attributes = {};
+        }
+        this.skipattributes = ['parent', 'types', 'applyattributes', 'applied', 'skipattributes', 'stateattributes'];
+        this.stateattributes = attributes;
+        this.applyattributes = {};
+        this.applied = false;
+        compilertype = attributes.type;
+        processedChildren = dom.processSpecialTags(el, attributes, compilertype);
+        oldbody = el.innerHTML.trim();
+        for (_i = 0, _len = processedChildren.length; _i < _len; _i++) {
+          child = processedChildren[_i];
+          child.parentNode.removeChild(child);
+        }
+        instancebody = el.innerHTML.trim();
+        if (oldbody) {
+          el.innerHTML = oldbody;
+        }
+        this.types = (_ref = attributes.$types) != null ? _ref : {};
+        this.setAttribute('parent', attributes.parent);
+        this.installMethods(attributes.$methods, this.parent.$tagname, this, this.parent);
+        if (attributes.name) {
+          this.setAttribute('name', attributes.name);
+          this.skipattributes.push('name');
+        }
+        if (attributes.applied) {
+          this.bindAttribute('applied', attributes.applied, 'state');
+        }
+        _ref1 = attributes.$handlers;
+        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+          handler = _ref1[_j];
+          if (handler.name === 'onapplied') {
+            this.installHandlers([handler], 'state', this);
+          }
+        }
+        for (name in attributes) {
+          value = attributes[name];
+          if (!(__indexOf.call(this.skipattributes, name) >= 0 || name.charAt(0) === '$')) {
+            this.applyattributes[name] = value;
+            this.setAttribute(name, value);
+          }
+        }
+        if (this.constraints) {
+          this._bindConstraints();
+          this.skipattributes.push('constraints');
+        }
+        if (this.events) {
+          this.skipattributes.push('events');
+        }
+        this.enumfalse(this.skipattributes);
+        this.enumfalse(this.keys);
+      }
+
+      State.prototype.set_applied = function(applied) {
+        var name, parentname, val, _results;
+        if (!this.parent) {
+          return;
+        }
+        if (this.applied === applied) {
+          return;
+        }
+        this.applied = applied;
+        this.sendEvent('applied', applied);
+        if (applied) {
+          this.parent.learn(this);
+          if (this.stateattributes.$handlers) {
+            this.parent.installHandlers(this.stateattributes.$handlers, this.parent.$tagname, this.parent);
+          }
+        } else {
+          this.parent.forget(this);
+          if (this.stateattributes.$handlers) {
+            this.parent.removeHandlers(this.stateattributes.$handlers, this.parent.$tagname, this.parent);
+          }
+        }
+        parentname = this.parent.$tagname;
+        _results = [];
+        for (name in this.applyattributes) {
+          val = this.parent[name];
+          if (val === void 0) {
+            continue;
+          }
+          this.parent[name] = !val;
+          _results.push(this.parent.bindAttribute(name, val, parentname));
+        }
+        return _results;
+      };
+
+      State.prototype.apply = function() {
+        if (!this.applied) {
+          return this.setAttribute('applied', true);
+        }
+      };
+
+      State.prototype.remove = function() {
+        if (this.applied) {
+          return this.setAttribute('applied', false);
+        }
+      };
+
+      return State;
+
+    })(Node);
     Class = (function() {
       var clone;
 
@@ -1134,6 +1448,13 @@
               attributes[key] = value;
             }
           }
+          if (!(extend in lz)) {
+            console.warn('could not find class for tag', extend);
+            return;
+          }
+          if (attributes.$tagname === 'class' || !attributes.$tagname) {
+            attributes.$tagname = name;
+          }
           parent = new lz[extend](instanceel, attributes);
           viewel = (_ref = parent.sprite) != null ? _ref.el : void 0;
           if (instanceel) {
@@ -1143,7 +1464,7 @@
           }
           if (instancebody && viewel) {
             if (viewel.innerHTML) {
-              viewel.innerHTML = viewel.innerHTML + instancebody;
+              viewel.innerHTML = instancebody + viewel.innerHTML;
             } else {
               viewel.innerHTML = instancebody;
             }
@@ -1324,7 +1645,7 @@
       };
 
       Idle.prototype.sender = function(time) {
-        this.trigger('idle', time, this);
+        this.sendEvent('idle', time);
         return setTimeout((function(_this) {
           return function() {
             return idle(1, _this.sender);
@@ -1393,6 +1714,30 @@
       return Mouse;
 
     })(StartEventable);
+    Window = (function(_super) {
+      __extends(Window, _super);
+
+      function Window() {
+        this.handle = __bind(this.handle, this);
+        window.addEventListener('resize', this.handle, false);
+        this.handle();
+      }
+
+      Window.prototype.startEventTest = function() {
+        var _ref, _ref1;
+        return ((_ref = this.events['width']) != null ? _ref.length : void 0) || ((_ref1 = this.events['height']) != null ? _ref1.length : void 0);
+      };
+
+      Window.prototype.handle = function(event) {
+        this.width = window.innerWidth;
+        this.sendEvent('width', this.width);
+        this.height = window.innerHeight;
+        return this.sendEvent('height', this.height);
+      };
+
+      return Window;
+
+    })(StartEventable);
     Keyboard = (function(_super) {
       var keyboardEvents, keys;
 
@@ -1444,8 +1789,10 @@
       node: Node,
       mouse: new Mouse(),
       keyboard: new Keyboard(),
+      window: new Window(),
       layout: Layout,
       idle: new Idle(),
+      state: State,
       initElements: dom.initAllElements,
       writeCSS: dom.writeCSS
     };

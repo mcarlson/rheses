@@ -1,17 +1,67 @@
-    <class name="replicator" type="coffee" extends="node">
+    <class name="replicator" type="coffee" extends="node" scriptincludes="/lib/json-path+json-ptr-0.1.3.min.js">
+      <attribute name="pooling" value="false" type="boolean"></attribute>
       <attribute name="data" value="[]" type="expression"></attribute>
       <attribute name="classname" value="" type="string"></attribute>
       <attribute name="datapath" value="" type="string"></attribute>
+      <attribute name="sortfield" value="" type="string"></attribute>
+      <attribute name="sortasc" value="true" type="boolean"></attribute>
+      <attribute name="lazycount" value="Infinity" type="number"></attribute>
+      <handler name="onsortfield">
+        # console.log 'onsortfield', @sortfield, @data
+        @buildsortfunc()
+        @applyData()
+      </handler>
+      <handler name="onsortasc">
+        # console.log 'onsortasc', @sortasc, @data
+        @buildsortfunc()
+        @applyData()
+      </handler>
+      <method name="buildsortfunc">
+        if @sortfield
+          sortfield = @sortfield
+          sortasc = @sortasc
+          @sortfunc = (a, b) ->
+            keyA = a[sortfield]
+            keyB = b[sortfield]
+            # Compare the 2 sort fields
+            result = 0
+            if keyA > keyB
+              result = 1
+            else if keyA < keyB
+              result = -1
+
+            # console.log sortfield, sortasc
+            result = -result if (not sortasc)
+            result
+        else
+          @sortfunc = null
+      </method>
       <handler name="oninit" method="applyData"></handler>
       <handler name="onclassname" method="applyData"></handler>
       <handler name="ondata" method="applyData"></handler>
       <handler name="ondatapath" method="applyData"></handler>
+      <handler name="ondestroy" method="clear"></handler>
       <method name="updateData" args="data">
         @dataset.updateData(@parsedpath, data);
       </method>
+      <method name="clear">
+        # @parent.setAttribute('display', 'none')
+        if @children
+          for child in @children
+            # console.log 'destroying child', child
+            child.destroy()
+        @children = []
+        # @parent.setAttribute('display', null)
+      </method>
       <method name="applyData">
-        return unless @parent
-        # console.log('applyData', @data, @classname)
+        return unless @parent and @classname
+        # console.log('applyData', @data, @classname, @parent, @children, @, @inited)
+
+        unless @classname of lz
+          console.warn 'missing class for replicator', @classname, 'skipping replication'
+          return
+
+        return if @locked
 
         if @datapath
           re = /^\$([^\/]+)/
@@ -31,41 +81,63 @@
               data = [dataset]
             else
               # console.log('evaluating path', path, dataset.data)
-              data = JsonPath.resolve(dataset.data, path)
+              data = JsonPath.resolve(dataset.data, path, @filterfunction?.bind(@))
           else 
             # relative datapath, look for dataset in parent(s)
             parentdata = @_findInParents('data')
             if parentdata?
-              # console.log('parsing selector', @datapath)
-              data = JsonPath.resolve(parentdata.data, @datapath)
-              # console.log('looking for data', @datapath, parentdata.data, data)
+              if parentdata instanceof lz.node and parentdata.data
+                # console.log 'found parentdata.data', parentdata, parentdata instanceof lz.node
+                parentdata = parentdata.data 
+              # console.log('parsing selector', @datapath, parentdata)
+              data = JsonPath.resolve(parentdata, @datapath, @filterfunction)
+              # console.log('looking for data', @datapath, parentdata, data)
             else
               console.warn('No parent datapath found', @datapath, @)
+          @data = data
         else
           # no datapath
           data = @data
 
-        return unless data
+        return unless @data
+
+        if @data.length > @lazycount
+          setTimeout(() =>
+            @doReplication()
+          , 0);
+        else
+          @doReplication()
+      </method>
+      <method name="doReplication">
+        return unless @data
+        locked = @locked
+        @locked = true
+
+        @data.sort(@sortfunc) if (@sortfunc)
 
         if @parent.layouts
           for layout in @parent.layouts
             layout.setAttribute('locked', true)
 
-        if @children
-          for child in @children
-            child.destroy()
-        @children = []
+        #console.log @data.length
+        if @pooling and @children and @children.length >= @data.length
+          for child, i in @children
+            child.setAttribute('data', @data[i])
+        else
+          @clear()
+          for datum in @data
+            # console.log 'replicator creating', @classname, 'in', @parent
+            child = new lz[@classname](null, {data: datum, parent: @parent, replicator: @})
+            # console.log 'replicator created', @classname, child, child.data
+            @children.push(child)
 
-        for datum in data
-          child = new lz[@classname](null, {data: datum, parent: @parent, replicator: @})
-          # console.log 'created', datum, @classname, child
-          @children.push(child)
-
-        # init constraints for all children
+        # init constraints for all children created
         child.initConstraints() if child
 
         if @parent.layouts
           for layout in @parent.layouts
             layout.setAttribute('locked', false)
+
+        @locked = locked        
       </method>
     </class>

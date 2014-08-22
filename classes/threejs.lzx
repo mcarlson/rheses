@@ -1,0 +1,32 @@
+    <class name="threejs" width="400" height="300" scriptincludes="http://threejs.org/build/three.min.js">
+      <handler name="onidle" reference="lz.idle">
+        this.renderer.render( this.scene, this.camera );
+      </handler>
+      <handler name="onwidth" method="handleResize"></handler>
+      <handler name="onheight" method="handleResize"></handler>
+      <handler name="oninit">
+        var renderer = this.renderer = new THREE.WebGLRenderer();
+        renderer.setClearColor( this.bgcolor );
+        renderer.setSize(this.width, this.height);
+        renderer.domElement.$view = this;
+        this.sprite.el.appendChild(renderer.domElement);
+
+        this.camera = new THREE.PerspectiveCamera( 70, this.width / this.height, 1, 10000 );
+        this.scene = new THREE.Scene();
+        this.initScene(this.scene);
+      </handler>
+      <handler name="onbgcolor" args="color">
+        if (! this.renderer) return;
+        this.renderer.setClearColor(color);
+      </handler>
+      <method name="handleResize">
+        if (this.camera) {
+          this.camera.aspect = this.width / this.height;
+          this.camera.updateProjectionMatrix();
+        }
+        if (this.renderer) {
+          this.renderer.setSize( this.width, this.height);
+        }
+      </method>
+      <method name="initScene" args="scene"></method>
+    </class>

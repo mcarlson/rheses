@@ -1,4 +1,4 @@
-    <class name="inputtext" type="coffee" clickable="true">
+    <class name="inputtext" type="coffee" clickable="true" width="100">
       <attribute name="multiline" value="false" type="boolean"></attribute>
       <method name="updateSize">
         @set(@sprite.measureTextSize(@multiline, @width))
@@ -18,7 +18,6 @@
         # clear innerHTML
         @sprite.text('')
         @sprite.createInputtextElement(text, @multiline, @width)
-        @updateSize()
       </handler>
       <handler name="onchange">
         return unless @replicator

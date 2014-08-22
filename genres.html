@@ -1,0 +1,69 @@
+<html>
+<head>
+  <title>dr33m</title>
+  <style type="text/css">
+    body {
+      background-color: rgb(46,36,30);
+      background-size: 259px 259px;
+      font-family: 'Helvetica';
+      font-size: 14px;
+    }
+    input {
+      font-family: 'Helvetica';
+      font-size: 14px;
+      margin: 0px;
+      padding: 0px;
+      width: 100px;
+    }
+  </style>
+  <script type="text/javascript" src="lib/jquery-1.9.1.js"></script>
+  <script type="text/javascript" src="lib/acorn.js"></script>
+  <script type="text/javascript" src="lib/coffee-script.js"></script>
+  <script type="text/javascript" src="layout.js"></script>
+</head>
+<body>
+  <view id="container">
+    <dataset name="genres" url="moviegenres.json"></dataset>
+
+    <class name="subgenre" x="10" bgcolor="gainsboro" width="300" height="16">
+      <text text="${this.parent.data}"></text>
+    </class>
+
+    <class name="genre" extends="text" x="2" width="300"></class>
+
+    <class name="genrecontainer" bgcolor="grey" transition="all .5s" width="300">
+      <handler name="onmouseover">
+        this.setAttribute('bgcolor', 'silver')
+      </handler>
+      <handler name="onmouseout">
+        this.setAttribute('bgcolor', 'grey')
+      </handler>
+      <handler name="onclick" method="show"></handler>
+
+      <method name="hide">
+        if (this.repl) {
+          this.repl.destroy()
+          this.repl = null
+        }
+      </method>
+      <method name="show">
+        if (! this.repl) {
+          this.repl = new lz.replicator(null, {datapath: "/subgenres[*]/name", classname: "subgenre", parent: this})
+          if (parent.openedgenre) {
+            parent.openedgenre.hide()
+          }
+          parent.openedgenre = this;
+        }
+      </method>
+
+      <boundslayout ignoreattr="width"></boundslayout>
+      <simplelayout attribute="y" axis="height" spacing="0"></simplelayout>
+      <replicator datapath="/name" classname="genre"></replicator>
+    </class>
+
+    <simplelayout attribute="y" axis="height" spacing="1"></simplelayout>
+    <replicator datapath="$genres/genres[*]" classname="genrecontainer"></replicator>
+  </view>
+
+</body>
+</html>

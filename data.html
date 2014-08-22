@@ -6,6 +6,15 @@
       background-color: rgb(46,36,30);
       background-image: url(img/x2/background-r.png);
       background-size: 259px 259px;
+      font-family: 'Helvetica';
+      font-size: 14px;
+    }
+    input {
+      font-family: 'Helvetica';
+      font-size: 14px;
+      margin: 0px;
+      padding: 0px;
+      width: 100px;
     }
     @font-face {
       font-family: 'wildride';
@@ -40,7 +49,6 @@
   <script type="text/javascript" src="lib/jquery-1.9.1.min.js"></script>
   <script type="text/javascript" src="lib/acorn.js"></script>
   <script type="text/javascript" src="lib/coffee-script.js"></script>
-  <script type="text/javascript" src="lib/json-path+json-ptr-0.1.3.min.js"></script>
   <script type="text/javascript" src="layout.js"></script>
 </head>
 <body>
@@ -74,29 +82,20 @@
     <clickresize bgcolor="green"></clickresize>
     <clickresize bgcolor="black"></clickresize>
     <clickresize bgcolor="blue">
+      <simplelayout></simplelayout>
+      <replicator name="repl" classname="clickresize"></replicator>
       <handler name="onclick" type="coffee">
         if (@subviews.length)
           #console.log('destroy', @, @destroy)
           @destroy()
         else
-          lay = new lz.simplelayout(null, {parent: @, locked: true, inset: 15})
-          for i of ([0..1000])
-            #console.log('creating', i)
-            new lz.clickresize(null, {parent: @})
-          lay.setAttribute('locked', false)
+          @repl.setAttribute('data', [0..1000])
       </handler>
     </clickresize>
     <text onclick="this.setAttribute('text', 'Hi mum this is a lot wider!')" bgcolor="yellow">Hello</text>
-    <text width="100" multiline="true" bgcolor="orange">This text should wrap at my width</text>
+    <text width="100" multiline="true" bgcolor="orange" onclick="this.setAttribute('multiline', ! this.multiline)">This text should wrap at my width. Click to toggle multiline.</text>
     <text text="${this.parent.inp.text}" bgcolor="red"></text>
     <inputtext bgcolor="green" name="inp" onclick="this.setAttribute('text', 'Yooyoyo')">Text</inputtext>
-
-    <view width="10" height="10" bgcolor="cyan" x="${lz.mouse.x - this.parent.getAbsolute().x - (this.width * .5)}" y="${lz.mouse.y - this.parent.getAbsolute().y - (this.width * .5)}" clickable="false" ignorelayout="true">
-      <handler name="onclick" reference="lz.mouse">
-        if (this.width !== 100)
-          this.animate({width: 100, height: 100, opacity: .2}, 1000)
-      </handler>
-    </view>
 
     <dataset name="storedata">
     { "store": {
@@ -131,10 +130,34 @@
       }
     }
     </dataset>
-    <dataset name="tempdata" url="http://api.openweathermap.org/data/2.5/weather?q=San+Francisco,CA&units=imperial&callback=?"></dataset>
+    <dataset name="tempdata" url="weather.json"></dataset>
+    <!-- <dataset name="tempdata" url="http://api.openweathermap.org/data/2.5/weather?q=San+Francisco,CA&units=imperial&callback=?"></dataset> -->
 
     <replicator datapath="$storedata/store/book[*]/author" classname="text"></replicator>
     <replicator datapath="$tempdata/main/temp" classname="inputtext"></replicator>
+
+    <class name="mouseview">
+      <attribute name="mouseisover" value="false" type="boolean"></attribute>
+      <attribute name="mouseisdown" value="false" type="boolean"></attribute>
+      <handler name="onmouseover">
+        this.setAttribute('mouseisover', true)
+      </handler>
+      <handler name="onmouseout">
+        this.setAttribute('mouseisover', false)
+      </handler>
+      <handler name="onmousedown">
+        this.setAttribute('mouseisdown', true)
+      </handler>
+      <handler name="onmouseup">
+        this.setAttribute('mouseisdown', false)
+      </handler>
+    </class>
+
+    <mouseview bgcolor="${this.mouseisdown ? 'red' : (this.mouseisover ? 'green' : 'blue')}" width="100" height="100">
+      <dragstate bgcolor="red" applied="${this.parent.mouseisdown}" dragaxis="x">
+        <attribute name="width" value="200" type="number"></attribute>
+      </dragstate>
+    </mouseview>
 
     <class name="boundedview">
       <boundslayout></boundslayout>
@@ -163,7 +186,17 @@
       </boundedview>
     </class>
     <replicator datapath="$tempdata" classname="weather2"></replicator>
-  </view
+
+    <view width="10" height="10" bgcolor="cyan" x="${lz.mouse.x - this.parent.getAbsolute().x - (this.width * .5)}" y="${lz.mouse.y - this.parent.getAbsolute().y - (this.width * .5)}" clickable="false" ignorelayout="true">
+     <!--  <handler name="onx" args="x">
+        console.log('x', lz.mouse.x, this.parent.getAbsolute().x, x)
+      </handler> -->
+      <handler name="onclick" reference="lz.mouse">
+        if (this.width !== 100)
+          this.animate({width: 100, height: 100, opacity: .2}, 1000)
+      </handler>
+    </view>
+  </view>
 
 </body>
 </html>

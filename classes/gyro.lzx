@@ -1,0 +1,27 @@
+    <class name="gyro" scriptincludes="https://raw.githubusercontent.com/tomgco/gyro.js/master/js/gyro.min.js">
+      <attribute name="x" value="0" type="number"></attribute>
+      <attribute name="y" value="0" type="number"></attribute>
+      <attribute name="z" value="0" type="number"></attribute>
+      <attribute name="alpha" value="0" type="number"></attribute>
+      <attribute name="beta" value="0" type="number"></attribute>
+      <attribute name="gamma" value="0" type="number"></attribute>
+      <attribute name="compass" value="0" type="number"></attribute>
+      <attribute name="compassaccuracy" value="0" type="number"></attribute>
+      <handler name="oninit">
+        var _this = this;
+        // TODO: use lzidle to throttle
+        window.addEventListener('devicemotion', function(ev) {
+          var o = ev.accelerationIncludingGravity;
+          for (var key in o) {
+            _this.setAttribute(key, o[key]);
+          }
+        });
+        window.addEventListener('deviceorientation', function(ev) {
+          _this.setAttribute('alpha', ev.alpha);
+          _this.setAttribute('beta', ev.beta);
+          _this.setAttribute('gamma', ev.gamma);
+          _this.setAttribute('compassaccuracy', ev.webkitCompassAccuracy);
+          _this.setAttribute('compass', ev.webkitCompassHeading);
+        }); 
+      </handler>
+    </class>
