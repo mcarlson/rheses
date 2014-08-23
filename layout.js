@@ -824,7 +824,7 @@
         }
       };
 
-      Sprite.prototype.measureTextSize = function(multiline, width) {
+      Sprite.prototype.measureTextSize = function(multiline, width, measuresize) {
         this.el.setAttribute('class', 'sprite sprite-text noselect');
         if (multiline) {
           if (this._cachedwidth > -1) {
@@ -835,7 +835,9 @@
           this.setStyle('whiteSpace', 'normal');
         } else {
           this._cachedwidth = width;
-          this.setStyle('width', 'auto');
+          if (measuresize) {
+            this.setStyle('width', 'auto');
+          }
           this.setStyle('whiteSpace', '');
         }
         return {
