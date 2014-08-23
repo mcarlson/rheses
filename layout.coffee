@@ -290,6 +290,8 @@ window.lz = do ->
 
   class Node extends Eventable
     matchConstraint = /\${(.+)}/
+    # parent must be set before name
+    lateattributes = ['parent', 'name']
 
     constructor: (el, attributes = {}) ->
       @subnodes = []
@@ -316,22 +318,13 @@ window.lz = do ->
 
         delete attributes.$handlers
 
-      if attributes.parent
-        par = attributes.parent
-        delete attributes.parent
-      if attributes.name
-        nam = attributes.name
-        delete attributes.name
-
       # Bind to event expressions and set attributes
       for name, value of attributes
-        @bindAttribute(name, value, attributes.$tagname)
+        @bindAttribute(name, value, attributes.$tagname) unless name in lateattributes
       constraintScopes.push(@) if @constraints 
 
-      if par
-        @setAttribute('parent', par)
-      if nam
-        @setAttribute('name', nam)
+      for name in lateattributes
+        @setAttribute(name, attributes[name]) if attributes[name]
 
       # console.log 'new node', @, attributes
       @sendEvent('init', @)

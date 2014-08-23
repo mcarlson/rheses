@@ -429,14 +429,16 @@
       return constraintScopes = [];
     };
     Node = (function(_super) {
-      var matchConstraint, _eventCallback, _installMethod;
+      var lateattributes, matchConstraint, _eventCallback, _installMethod;
 
       __extends(Node, _super);
 
       matchConstraint = /\${(.+)}/;
 
+      lateattributes = ['parent', 'name'];
+
       function Node(el, attributes) {
-        var args, method, nam, name, par, reference, script, value, _i, _len, _ref, _ref1, _ref2;
+        var args, method, name, reference, script, value, _i, _j, _len, _len1, _ref, _ref1, _ref2;
         if (attributes == null) {
           attributes = {};
         }
@@ -464,26 +466,20 @@
           }
           delete attributes.$handlers;
         }
-        if (attributes.parent) {
-          par = attributes.parent;
-          delete attributes.parent;
-        }
-        if (attributes.name) {
-          nam = attributes.name;
-          delete attributes.name;
-        }
         for (name in attributes) {
           value = attributes[name];
-          this.bindAttribute(name, value, attributes.$tagname);
+          if (__indexOf.call(lateattributes, name) < 0) {
+            this.bindAttribute(name, value, attributes.$tagname);
+          }
         }
         if (this.constraints) {
           constraintScopes.push(this);
         }
-        if (par) {
-          this.setAttribute('parent', par);
-        }
-        if (nam) {
-          this.setAttribute('name', nam);
+        for (_j = 0, _len1 = lateattributes.length; _j < _len1; _j++) {
+          name = lateattributes[_j];
+          if (attributes[name]) {
+            this.setAttribute(name, attributes[name]);
+          }
         }
         this.sendEvent('init', this);
       }
