@@ -481,7 +481,9 @@
             this.setAttribute(name, attributes[name]);
           }
         }
-        this.sendEvent('init', this);
+        if (!attributes.$skiponinit) {
+          this.sendEvent('init', this);
+        }
       }
 
       Node.prototype.installMethods = function(methods, tagname, scope, callbackscope) {
@@ -1480,6 +1482,7 @@
           if (attributes.$tagname === 'class' || !attributes.$tagname) {
             attributes.$tagname = name;
           }
+          attributes.$skiponinit = true;
           parent = new lz[extend](instanceel, attributes);
           viewel = (_ref = parent.sprite) != null ? _ref.el : void 0;
           if (instanceel) {
@@ -1510,6 +1513,7 @@
               dom.initElement(child, parent);
             }
           }
+          parent.sendEvent('init');
           return parent;
         };
       }

@@ -327,7 +327,7 @@ window.lz = do ->
         @setAttribute(name, attributes[name]) if attributes[name]
 
       # console.log 'new node', @, attributes
-      @sendEvent('init', @)
+      @sendEvent('init', @) unless attributes.$skiponinit
 
     installMethods: (methods, tagname, scope=@, callbackscope=@) ->
       # Install methods
@@ -1153,6 +1153,10 @@ window.lz = do ->
         # also, don't overwrite if it's already set, since we are invoking lz[extend]
         if attributes.$tagname is 'class' or not attributes.$tagname
           attributes.$tagname = name
+
+        # skip Node.oninit event
+        attributes.$skiponinit = true
+
         # console.log 'creating class instance', name, attributes.$tagname, instanceel, extend, attributes
         parent = new lz[extend](instanceel, attributes)
         # console.log 'created class instance', name, extend, parent
@@ -1179,6 +1183,8 @@ window.lz = do ->
             dom.initElement(child, parent)
 
           # console.log 'done creating class instance', attributes.__classname if children.length
+
+        parent.sendEvent('init')
         return parent
 
 
