@@ -13,16 +13,14 @@
   <view id="all" width="100%" height="100%" clip="true">
 
     <view name="lesson" width="${this.parent.width/4}" height="${this.parent.height}" bgcolor="#e0e0e0">
-      <text text="click to Execute">
+      <text text="Execute button" bgcolor="green">
         <handler name="onclick">
-          this.setAttribute('text', 'clicked');
-
           prefix = 
 	    ['&lt;view id="all" width="600" height="600" clip="true">'].join('\n');
 
 	  postfix = 
 	    ['&lt;/view>',
-	     '&lt;script>$(function(){console.log("in iframe", this, window.frames[0]);window.frames[0].lz.initElements()});&lt;/script>'].join('\n');
+	     '&lt;script>$(function(){window.frames[0].lz.initElements()});&lt;/script>'].join('\n');
 
           contents = this.parent.parent.editor.text;
 	  fullcontents = prefix + contents + postfix;
@@ -37,10 +35,10 @@
 
     <ace name="editor" x="${this.parent.width/4}" width="${this.parent.width/2}" height="${this.parent.height}" text="" bgcolor="#808080">
       <handler name="onwidth">
-        console.log("ace: ", this.width, this.height);
+        // console.log("ace: ", this.width, this.height);
       </handler>
       <handler name="onheight">
-        console.log("ace: ", this.width, this.height);
+        // console.log("ace: ", this.width, this.height);
       </handler>
     </ace>
 
@@ -53,6 +51,7 @@
       <handler name="oninit">
         var $view = this.parent;
 
+	console.log(this);
         //TODO Ask max how to do this with dataset object.
         // Show description
         $.get("/docs/din10/description_0.txt", function(data) {
@@ -76,7 +75,7 @@
         $this.set({'width':w, 'height':h});
       });
       $(window).trigger('resize');
-      console.log("window size", this.width, this.height);
+      // console.log("window size", this.width, this.height);
     </handler>
 
   </view>
