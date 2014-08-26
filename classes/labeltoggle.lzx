@@ -1,0 +1,7 @@
+    <class name="labeltoggle" type="coffee" extends="labelbutton">
+
+      <handler name="onclick">
+        @setAttribute('selected', !@selected);
+      </handler>
+
+    </class>
