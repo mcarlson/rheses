@@ -5,7 +5,7 @@
       <setter name="contents" args="text">
         if (this.iframe) {
           $(this.iframe).contents().find('body').html(text);
-          console.log("iframe contents", text);
+          // console.log("iframe contents", text);
         }
       </setter>
 
@@ -23,7 +23,7 @@
         iframe.style.height = this.height;
         this.sprite.el.appendChild(iframe);
 
-	console.log("iframe object", iframe);
+	// console.log("iframe object", iframe);
 
         // Keep track of original div in this.iframe
         this.iframe = iframe;
