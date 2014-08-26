@@ -52,14 +52,18 @@
         var $view = this.parent;
 
 	console.log(this);
+
+        var page = 0
+        var lesson = 'din10'
+
         //TODO Ask max how to do this with dataset object.
         // Show description
-        $.get("/docs/din10/description_0.html", function(data) {
+        $.get("/docs/" + lesson + "/description_" + page + ".html", function(data) {
           $view.lesson.description.setAttribute('text', data);
         });
 
         // Show code
-        $.get("/docs/din10/code_0.html", function(data) {
+        $.get("/docs/" + lesson + "/code_" + page + ".html", function(data) {
           $view.editor.setAttribute('text', data);
         });
       </handler>
