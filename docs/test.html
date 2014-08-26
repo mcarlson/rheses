@@ -54,18 +54,17 @@
 	console.log(this);
         //TODO Ask max how to do this with dataset object.
         // Show description
-        $.get("/docs/din10/description_0.txt", function(data) {
+        $.get("/docs/din10/description_0.html", function(data) {
           $view.lesson.description.setAttribute('text', data);
         });
 
         // Show code
-        $.get("/docs/din10/code_0.txt", function(data) {
+        $.get("/docs/din10/code_0.html", function(data) {
           $view.editor.setAttribute('text', data);
         });
       </handler>
     </view>
 
   </view>
-
   </body>
 </html>
