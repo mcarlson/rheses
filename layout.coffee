@@ -788,9 +788,11 @@ window.lz = do ->
       lzxloaded = {}
       loadLZX = (name, el) ->
         return if name of lz or name of lzxloaded or name in specialtags or name of inlineclasses or name in builtinTags
+        # don't autoload elements found inside specialtags, e.g. setter
+        return if el.parentNode.localName in specialtags
         lzxloaded[name] = true
         url = '/classes/' + name + '.lzx'
-        # console.log 'loading lzx', url
+        # console.log 'loading lzx', name, url, el
         prom = $.get(url)
         prom.url = url
         prom.el = el
@@ -823,7 +825,7 @@ window.lz = do ->
                 # load load class extends
                 loadLZX(extendz, el)
                 initONE = true if extendz = 'state'
-              # track incline class declaration so we don't load it again later
+              # track inline class declaration so we don't load it again later
               inlineclasses[el.attributes.name.value] = true
             else if name == 'state'
               initONE = true
@@ -875,7 +877,7 @@ window.lz = do ->
         loadIncludes(callback)
       loadIncludes(cb)
 
-    specialtags = ['handler', 'method', 'attribute', 'setter', 'include', 'library']
+    specialtags = ['handler', 'method', 'attribute', 'setter', 'include']
     # tags built into the browser that should be ignored
     builtinTags = ['input', 'div', 'img', 'script', 'canvas']
     # recursively init classes based on an existing element
@@ -936,7 +938,15 @@ window.lz = do ->
       # return if not input
       e = document.createElement('div')
       e.innerHTML = input
-      e.childNodes[0]?.nodeValue
+      out = ''
+      for child in e.childNodes
+        if child.nodeValue? and child.nodeType == 3
+          out += child.nodeValue 
+          # console.log('child', child.nodeType, child)
+          # console.log('out', out)
+        else
+          return
+      out
 
     # process handlers, methods, setters and attributes 
     processSpecialTags = (el, classattributes, defaulttype) ->
@@ -947,12 +957,16 @@ window.lz = do ->
       for child in children
         attributes = flattenattributes(child.attributes)
         # console.log child, attributes, classattributes
+        name = child.localName
+        args = (attributes.args ? '').split()
+        script = htmlDecode(child.innerHTML)
+        unless script?
+          console.warn 'Invalid', name, child
 
-        switch child.localName
+        type = attributes.type ? defaulttype
+        switch name
           when 'handler'
-            args = (attributes.args ? '').split()
-            script = htmlDecode(child.innerHTML)
-            type = attributes.type ? defaulttype
+            # console.log 'adding handler', attributes.name, script, child.innerHTML, attributes
             handler = 
               name: attributes.name
               script: compiler.transform(script, type)
@@ -963,16 +977,10 @@ window.lz = do ->
             classattributes.$handlers.push(handler)
             # console.log 'added handler', attributes.name, script, attributes
           when 'method'
-            args = (attributes.args ? '').split()
-            script = htmlDecode(child.innerHTML)
-            type = attributes.type or defaulttype
             allocation = attributes.allocation
             classattributes.$methods[attributes.name] = [compiler.transform(script, type), args, allocation]
             # console.log 'added method', attributes.name, script, classattributes
           when 'setter'
-            args = (attributes.args ? '').split()
-            script = htmlDecode(child.innerHTML)
-            type = attributes.type or defaulttype
             classattributes.$methods['set_' + attributes.name] = [compiler.transform(script, type), args]
             # console.log 'added setter', 'set_' + attributes.name, args, classattributes.$methods
           when 'attribute'

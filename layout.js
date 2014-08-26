@@ -1060,8 +1060,11 @@
         lzxrequests = [];
         lzxloaded = {};
         loadLZX = function(name, el) {
-          var prom, url;
+          var prom, url, _ref;
           if (name in lz || name in lzxloaded || __indexOf.call(specialtags, name) >= 0 || name in inlineclasses || __indexOf.call(builtinTags, name) >= 0) {
+            return;
+          }
+          if (_ref = el.parentNode.localName, __indexOf.call(specialtags, _ref) >= 0) {
             return;
           }
           lzxloaded[name] = true;
@@ -1164,7 +1167,7 @@
         };
         return loadIncludes(cb);
       };
-      specialtags = ['handler', 'method', 'attribute', 'setter', 'include', 'library'];
+      specialtags = ['handler', 'method', 'attribute', 'setter', 'include'];
       builtinTags = ['input', 'div', 'img', 'script', 'canvas'];
       initElement = function(el, parent) {
         var attributes, child, children, event, eventname, tagname, _i, _j, _len, _len1, _ref;
@@ -1242,13 +1245,23 @@
         return _results;
       };
       htmlDecode = function(input) {
-        var e, _ref;
+        var child, e, out, _i, _len, _ref;
         e = document.createElement('div');
         e.innerHTML = input;
-        return (_ref = e.childNodes[0]) != null ? _ref.nodeValue : void 0;
+        out = '';
+        _ref = e.childNodes;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          child = _ref[_i];
+          if ((child.nodeValue != null) && child.nodeType === 3) {
+            out += child.nodeValue;
+          } else {
+            return;
+          }
+        }
+        return out;
       };
       processSpecialTags = function(el, classattributes, defaulttype) {
-        var allocation, args, attributes, child, children, handler, script, type, _i, _len, _ref, _ref1, _ref2, _ref3;
+        var allocation, args, attributes, child, children, handler, name, script, type, _i, _len, _ref, _ref1;
         if (classattributes.$types == null) {
           classattributes.$types = {};
         }
@@ -1273,11 +1286,15 @@
         for (_i = 0, _len = children.length; _i < _len; _i++) {
           child = children[_i];
           attributes = flattenattributes(child.attributes);
-          switch (child.localName) {
+          name = child.localName;
+          args = ((_ref = attributes.args) != null ? _ref : '').split();
+          script = htmlDecode(child.innerHTML);
+          if (script == null) {
+            console.warn('Invalid', name, child);
+          }
+          type = (_ref1 = attributes.type) != null ? _ref1 : defaulttype;
+          switch (name) {
             case 'handler':
-              args = ((_ref = attributes.args) != null ? _ref : '').split();
-              script = htmlDecode(child.innerHTML);
-              type = (_ref1 = attributes.type) != null ? _ref1 : defaulttype;
               handler = {
                 name: attributes.name,
                 script: compiler.transform(script, type),
@@ -1288,16 +1305,10 @@
               classattributes.$handlers.push(handler);
               break;
             case 'method':
-              args = ((_ref2 = attributes.args) != null ? _ref2 : '').split();
-              script = htmlDecode(child.innerHTML);
-              type = attributes.type || defaulttype;
               allocation = attributes.allocation;
               classattributes.$methods[attributes.name] = [compiler.transform(script, type), args, allocation];
               break;
             case 'setter':
-              args = ((_ref3 = attributes.args) != null ? _ref3 : '').split();
-              script = htmlDecode(child.innerHTML);
-              type = attributes.type || defaulttype;
               classattributes.$methods['set_' + attributes.name] = [compiler.transform(script, type), args];
               break;
             case 'attribute':
