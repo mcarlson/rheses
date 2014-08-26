@@ -1,3 +1,4 @@
+
 <html lang="en">
 
   <head>
@@ -6,6 +7,17 @@
     <script type="text/javascript" src="/lib/acorn.js"></script>
     <script type="text/javascript" src="/lib/coffee-script.js"></script>
     <script type="text/javascript" src="/layout.js"></script>
+
+    <style type="text/css">
+      html {
+        height: 100%;
+      }
+      body {
+        min-height: 100%;
+      }
+    </style>
+
+
   </head>
 
   <body>
@@ -18,9 +30,10 @@
           prefix = 
 	    ['&lt;view id="all" width="600" height="600" clip="true">'].join('\n');
 
+          // setTimeout added for Firefox
 	  postfix = 
 	    ['&lt;/view>',
-	     '&lt;script>$(function(){window.frames[0].lz.initElements()});&lt;/script>'].join('\n');
+	     '&lt;script>$(function(){setTimeout(function(){window.frames[0].lz.initElements()}, 0);});&lt;/script>'].join('\n');
 
           contents = this.parent.parent.editor.text;
 	  fullcontents = prefix + contents + postfix;
