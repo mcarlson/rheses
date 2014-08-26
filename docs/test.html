@@ -1,0 +1,85 @@
+<html lang="en">
+
+  <head>
+    <title>Dreem in 10</title>
+    <script type="text/javascript" src="/lib/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="/lib/acorn.js"></script>
+    <script type="text/javascript" src="/lib/coffee-script.js"></script>
+    <script type="text/javascript" src="/layout.js"></script>
+  </head>
+
+  <body>
+
+  <view id="all" width="100%" height="100%" clip="true">
+
+    <view name="lesson" width="${this.parent.width/4}" height="${this.parent.height}" bgcolor="#e0e0e0">
+      <text text="click to Execute">
+        <handler name="onclick">
+          this.setAttribute('text', 'clicked');
+
+          prefix = 
+	    ['&lt;view id="all" width="600" height="600" clip="true">'].join('\n');
+
+	  postfix = 
+	    ['&lt;/view>',
+	     '&lt;script>$(function(){console.log("in iframe", this, window.frames[0]);window.frames[0].lz.initElements()});&lt;/script>'].join('\n');
+
+          contents = this.parent.parent.editor.text;
+	  fullcontents = prefix + contents + postfix;
+          fullcontents = fullcontents.replace('&lt;', '<');
+          this.parent.parent.renderFrame.setAttribute('contents', fullcontents);
+        </handler>
+      </text>
+      <text x="0" y="40" name="description" width="${this.parent.width}" height="${this.parent.height-this.y}" bgcolor="#a0a0a0" multiline="true">
+      </text>
+    </view>
+
+
+    <ace name="editor" x="${this.parent.width/4}" width="${this.parent.width/2}" height="${this.parent.height}" text="" bgcolor="#808080">
+      <handler name="onwidth">
+        console.log("ace: ", this.width, this.height);
+      </handler>
+      <handler name="onheight">
+        console.log("ace: ", this.width, this.height);
+      </handler>
+    </ace>
+
+    <dreem_iframe name="renderFrame" x="${this.parent.width*3/4}" width="${this.parent.width/4}" height="${this.parent.height}" bgcolor="#e0e0e0">
+    </dreem_iframe>
+
+
+    <!-- Hack to initialize editor -->
+    <view width="0" height="0">
+      <handler name="oninit">
+        var $view = this.parent;
+
+        //TODO Ask max how to do this with dataset object.
+        // Show description
+        $.get("/docs/din10/description_0.txt", function(data) {
+          $view.lesson.description.setAttribute('text', data);
+        });
+
+        // Show code
+        $.get("/docs/din10/code_0.txt", function(data) {
+          $view.editor.setAttribute('text', data);
+        });
+      </handler>
+    </view>
+
+
+    <handler name="oninit">
+      // Resize top view when jquery fires resize event, and fire it now.
+      var $this = this;
+      $(window).resize(function() {
+        var w = $(window).width();
+        var h = $(window).height();    
+        $this.set({'width':w, 'height':h});
+      });
+      $(window).trigger('resize');
+      console.log("window size", this.width, this.height);
+    </handler>
+
+  </view>
+
+  </body>
+</html>

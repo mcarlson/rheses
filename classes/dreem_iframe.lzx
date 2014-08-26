@@ -1,0 +1,38 @@
+    <class name="dreem_iframe">
+      <handler name="onwidth" method="handleResize"></handler>
+      <handler name="onheight" method="handleResize"></handler>
+
+      <setter name="contents" args="text">
+        if (this.iframe) {
+          $(this.iframe).contents().find('body').html(text);
+          console.log("iframe contents", text);
+        }
+      </setter>
+
+      <handler name="oninit">
+        if (this.width == 0 || this.height == 0)
+          return;
+
+        // I couldn't get jquery syntax to work so directly modify the DOM.
+        var iframe = document.createElement("IFRAME");
+        iframe.src = "/iframe_stub.html"; // "about:blank";
+        iframe.style.position = "absolute";
+        iframe.style.top = 0;
+        iframe.style.left = 0;
+        iframe.style.width = this.width;
+        iframe.style.height = this.height;
+        this.sprite.el.appendChild(iframe);
+
+	console.log("iframe object", iframe);
+
+        // Keep track of original div in this.iframe
+        this.iframe = iframe;
+      </handler>
+
+      <method name="handleResize">
+        if (this.iframe) {
+          this.iframe.style.width = this.width;
+          this.iframe.style.height = this.height;
+        }
+      </method>
+    </class>

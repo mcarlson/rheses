@@ -1,0 +1,1 @@
+This pane shows the description of the code sample. This page is dynamically loaded from a file.
