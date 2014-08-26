@@ -22,7 +22,7 @@
 
   <body>
 
-  <view id="all" width="100%" height="100%" clip="true">
+  <view id="all" width="${lz.window.width}" height="${lz.window.height}" clip="true">
 
     <view name="lesson" width="${this.parent.width/4}" height="${this.parent.height}" bgcolor="#e0e0e0">
       <text text="Execute button" bgcolor="green">
@@ -65,33 +65,23 @@
         var $view = this.parent;
 
 	console.log(this);
+
+        var page = 0
+        var lesson = 'din10'
+
         //TODO Ask max how to do this with dataset object.
         // Show description
-        $.get("/docs/din10/description_0.txt", function(data) {
+        $.get("/docs/" + lesson + "/description_" + page + ".html", function(data) {
           $view.lesson.description.setAttribute('text', data);
         });
 
         // Show code
-        $.get("/docs/din10/code_0.txt", function(data) {
+        $.get("/docs/" + lesson + "/code_" + page + ".html", function(data) {
           $view.editor.setAttribute('text', data);
         });
       </handler>
     </view>
 
-
-    <handler name="oninit">
-      // Resize top view when jquery fires resize event, and fire it now.
-      var $this = this;
-      $(window).resize(function() {
-        var w = $(window).width();
-        var h = $(window).height();    
-        $this.set({'width':w, 'height':h});
-      });
-      $(window).trigger('resize');
-      // console.log("window size", this.width, this.height);
-    </handler>
-
   </view>
-
   </body>
 </html>
