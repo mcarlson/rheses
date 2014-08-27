@@ -438,13 +438,17 @@
       lateattributes = ['parent', 'name'];
 
       function Node(el, attributes) {
-        var args, method, name, reference, script, value, _i, _j, _len, _len1, _ref, _ref1, _ref2;
+        var args, deferbindings, method, name, reference, script, skiponinit, value, _i, _j, _len, _len1, _ref, _ref1, _ref2;
         if (attributes == null) {
           attributes = {};
         }
         this.subnodes = [];
         this.types = (_ref = attributes.$types) != null ? _ref : {};
         delete attributes.$types;
+        skiponinit = attributes.$skiponinit;
+        delete attributes.$skiponinit;
+        deferbindings = attributes.$deferbindings;
+        delete attributes.$deferbindings;
         if (el != null ? el.textContent : void 0) {
           attributes.$textcontent = el.textContent;
         }
@@ -466,6 +470,9 @@
           }
           delete attributes.$handlers;
         }
+        if (!deferbindings) {
+          this._bindHandlers();
+        }
         for (name in attributes) {
           value = attributes[name];
           if (__indexOf.call(lateattributes, name) < 0) {
@@ -481,8 +488,11 @@
             this.setAttribute(name, attributes[name]);
           }
         }
-        if (!attributes.$skiponinit) {
-          this.sendEvent('init', this);
+        if (!skiponinit) {
+          if (!this.inited) {
+            this.inited = true;
+            this.sendEvent('init', this);
+          }
         }
       }
 
@@ -507,6 +517,9 @@
         if (scope == null) {
           scope = this;
         }
+        if (this.handlers == null) {
+          this.handlers = [];
+        }
         _results = [];
         for (_i = 0, _len = handlers.length; _i < _len; _i++) {
           handler = handlers[_i];
@@ -517,11 +530,12 @@
           } else {
             handler.callback = _eventCallback(name, script, scope, tagname, args);
           }
-          if (reference != null) {
-            _results.push(scope.listenTo(eval(reference), name, handler.callback));
-          } else {
-            _results.push(scope.bind(name, handler.callback));
-          }
+          _results.push(this.handlers.push({
+            scope: this,
+            name: name,
+            callback: handler.callback,
+            reference: reference
+          }));
         }
         return _results;
       };
@@ -644,6 +658,22 @@
           }
           this.setAttribute(name, fn());
         }
+      };
+
+      Node.prototype._bindHandlers = function() {
+        var binding, callback, name, reference, refeval, scope, _i, _len, _ref;
+        _ref = this.handlers;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          binding = _ref[_i];
+          scope = binding.scope, name = binding.name, callback = binding.callback, reference = binding.reference;
+          if (reference) {
+            refeval = compiler.compile('return ' + reference).bind(scope)();
+            scope.listenTo(refeval, name, callback);
+          } else {
+            scope.bind(name, callback);
+          }
+        }
+        this.handlers = [];
       };
 
       Node.prototype._constraintCallback = function(name, fn) {
@@ -1170,7 +1200,7 @@
       specialtags = ['handler', 'method', 'attribute', 'setter', 'include'];
       builtinTags = ['a', 'abbr', 'address', 'area', 'article', 'aside', 'audio', 'b', 'base', 'bdi', 'bdo', 'blockquote', 'body', 'br', 'button', 'canvas', 'caption', 'cite', 'code', 'col', 'colgroup', 'command', 'datalist', 'dd', 'del', 'details', 'dfn', 'div', 'dl', 'dt', 'em', 'embed', 'fieldset', 'figcaption', 'figure', 'footer', 'form', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'head', 'header', 'hgroup', 'hr', 'html', 'i', 'iframe', 'img', 'input', 'ins', 'kbd', 'keygen', 'label', 'legend', 'li', 'link', 'map', 'mark', 'menu', 'meta', 'meter', 'nav', 'noscript', 'object', 'ol', 'optgroup', 'option', 'output', 'p', 'param', 'pre', 'progress', 'q', 'rp', 'rt', 'ruby', 's', 'samp', 'script', 'section', 'select', 'small', 'source', 'span', 'strong', 'style', 'sub', 'summary', 'sup', 'table', 'tbody', 'td', 'textarea', 'tfoot', 'th', 'thead', 'time', 'title', 'tr', 'track', 'u', 'ul', 'var', 'video', 'wbr'];
       initElement = function(el, parent) {
-        var attributes, child, children, event, eventname, tagname, _i, _j, _len, _len1, _ref;
+        var attributes, child, children, event, eventname, skiponinit, tagname, _i, _j, _len, _len1, _ref;
         if (el.$init) {
           return;
         }
@@ -1203,6 +1233,18 @@
         if (!((tagname === 'class') || (tagname === 'state') || (attributes["extends"] === 'state'))) {
           dom.processSpecialTags(el, attributes, attributes.type);
         }
+        attributes.$skiponinit = skiponinit = ((function() {
+          var _j, _len1, _ref, _results;
+          _ref = el.childNodes;
+          _results = [];
+          for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+            child = _ref[_j];
+            if (child.nodeType === 1) {
+              _results.push(child);
+            }
+          }
+          return _results;
+        })()).length > 0;
         parent = new lz[tagname](el, attributes);
         if (!(tagname === 'class' || (tagname === 'state') || (attributes["extends"] === 'state'))) {
           children = (function() {
@@ -1221,6 +1263,12 @@
             child = children[_j];
             if (_ref = child.localName, __indexOf.call(specialtags, _ref) < 0) {
               initElement(child, parent);
+            }
+          }
+          if (skiponinit) {
+            if (!parent.inited) {
+              parent.inited = true;
+              parent.sendEvent('init', parent);
             }
           }
         }
@@ -1446,7 +1494,7 @@
       };
 
       function Class(el, classattributes) {
-        var child, compilertype, extend, ignored, instancebody, name, oldbody, processedChildren, _i, _len;
+        var child, compilertype, extend, haschildren, ignored, instancebody, name, oldbody, processedChildren, _i, _len;
         if (classattributes == null) {
           classattributes = {};
         }
@@ -1462,6 +1510,18 @@
           child = processedChildren[_i];
           child.parentNode.removeChild(child);
         }
+        haschildren = ((function() {
+          var _j, _len1, _ref, _results;
+          _ref = el.childNodes;
+          _results = [];
+          for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+            child = _ref[_j];
+            if (child.nodeType === 1) {
+              _results.push(child);
+            }
+          }
+          return _results;
+        })()).length > 0;
         instancebody = el.innerHTML.trim();
         if (oldbody) {
           el.innerHTML = oldbody;
@@ -1494,6 +1554,7 @@
             attributes.$tagname = name;
           }
           attributes.$skiponinit = true;
+          attributes.$deferbindings = haschildren;
           parent = new lz[extend](instanceel, attributes);
           viewel = (_ref = parent.sprite) != null ? _ref.el : void 0;
           if (instanceel) {
@@ -1524,7 +1585,11 @@
               dom.initElement(child, parent);
             }
           }
-          parent.sendEvent('init');
+          parent._bindHandlers();
+          if (!parent.inited) {
+            parent.inited = true;
+            parent.sendEvent('init', parent);
+          }
           return parent;
         };
       }

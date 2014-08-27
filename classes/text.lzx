@@ -3,9 +3,9 @@
       <attribute name="measuresize" value="true" type="boolean"></attribute>
       <handler name="onmultiline" method="updateSize"></handler>
       <method name="updateSize">
-        return unless @_initted
+        return unless @inited
         size = @sprite.measureTextSize(@multiline, @width, @measuresize)
-        # console.log('updatesize', size.width, size.height)
+        # console.log('updateSize', size.width, size.height)
         @setAttribute 'width', size.width, true if @measuresize
         @setAttribute 'height', size.height, true
       </method>
@@ -19,8 +19,7 @@
           @updateSize()
       </setter>
       <handler name="oninit">
-        # console.log('oninit', @)
-        @_initted = true
+        # console.log('oninit', @inited, @)
         @updateSize()
       </handler>
     </class>
