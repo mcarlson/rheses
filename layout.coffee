@@ -870,7 +870,7 @@ window.lz = do ->
             scriptsloading = false
             if (initONE)
               # initialize ONE integration
-              scriptsloading = loadScript('lib/one_base.js', () ->
+              scriptsloading = loadScript('/lib/one_base.js', () ->
                 ONE.base_.call(Eventable::)
                 # hide builtin keys from learn()
                 Eventable::enumfalse(Eventable::keys())
