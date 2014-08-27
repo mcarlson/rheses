@@ -909,7 +909,7 @@ window.lz = do ->
 
       tagname = el.localName
       if not (tagname of lz)
-        console.warn 'could not find class for tag', tagname, el unless tagname in builtinTags
+        console.warn 'could not find class for tag', tagname, el unless tagname in builtinTags or tagname in specialtags
         return
 
       attributes = flattenattributes(el.attributes)

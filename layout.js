@@ -1207,7 +1207,7 @@
         el.$init = true;
         tagname = el.localName;
         if (!(tagname in lz)) {
-          if (__indexOf.call(builtinTags, tagname) < 0) {
+          if (!(__indexOf.call(builtinTags, tagname) >= 0 || __indexOf.call(specialtags, tagname) >= 0)) {
             console.warn('could not find class for tag', tagname, el);
           }
           return;
