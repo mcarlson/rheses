@@ -810,8 +810,17 @@
       };
 
       Sprite.prototype.animate = function() {
+        var name, value, _ref;
         if (this.jqel == null) {
           this.jqel = $(this.el);
+        }
+        _ref = arguments[0];
+        for (name in _ref) {
+          value = _ref[name];
+          if (name in stylemap) {
+            arguments[0][stylemap[name]] = value;
+            delete arguments[0][name];
+          }
         }
         return this.jqel.animate.apply(this.jqel, arguments);
       };

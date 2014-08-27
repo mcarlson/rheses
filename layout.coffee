@@ -592,7 +592,11 @@ window.lz = do ->
 
     animate: =>
       @jqel ?= $(@el)
-      # console.log 'sprite animate', arguments, @jqel
+      for name, value of arguments[0]
+        if name of stylemap
+          arguments[0][stylemap[name]] = value
+          delete arguments[0][name]
+      # console.log 'sprite animate', arguments[0], @jqel
       @jqel.animate.apply(@jqel, arguments)
 
     set_clickable: (clickable) ->
