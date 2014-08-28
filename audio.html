@@ -40,15 +40,12 @@
 
     <class name="timetext" extends="text">
       <!-- TODO: evaluate setters and overrides -->
-      <setter name="text" args="time" type="coffee">
+      <method name="format" args="time" type="coffee">
         minutes = Math.floor(time / 60)
         seconds = Math.floor(time) - minutes * 60
         seconds = '0' + seconds if (seconds < 10)
-        text = minutes + ':' + seconds
-        if (text != @text)
-          @sprite.text(text)
-          @updateSize()
-      </setter>
+        return minutes + ':' + seconds
+      </method>
     </class>
 
     <view bgcolor="${audio.playing ? 'green' : 'gray'}" opacity="${audio.loaded ? 1 : .8}" width="${(audio.loadprogress * audio.fftsize * .5)}" height="20">
