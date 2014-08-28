@@ -114,7 +114,7 @@
     <dataset name="topmovies" url="top_movies.json"></dataset>
 
     <!-- TODO: remove redundant attributes -->
-    <simplelayout attribute="y" axis="height" spacing="1"></simplelayout>
+    <simplelayout axis="y" spacing="1"></simplelayout>
     <view id="thumbnailstrip" width="${lz.window.width}" height="248" bgcolor="silver" clip="true" position="fixed" z-index="100000">
       <handler name="onmovie" args="movie" reference="bus">
         this.setAttribute('data', movie)
@@ -140,7 +140,7 @@
     </view>
 
     <view>
-      <simplelayout attribute="y" axis="height" spacing="1"></simplelayout>
+      <simplelayout axis="y" spacing="1"></simplelayout>
       <replicator datapath="$topmovies/searchResponse/facetCounts[0]/facetCount[*][@]" classname="genre" sortfield="count" sortasc="false" lazycount="0">
         <method name="filterfunction" args="obj, accum, sel">
           // console.log('filterfunction', obj, accum)
