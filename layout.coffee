@@ -143,10 +143,6 @@ window.lz = do ->
 
     setAttribute: (name, value) ->
       # TODO: add support for dynamic constraints
-      # constraint = value.match?(matchConstraint)
-      # if constraint
-      #   @applyConstraint(name, constraint[1])
-      #   return
 
       # coerce value to type
       type = @types[name]
@@ -282,7 +278,7 @@ window.lz = do ->
 
   # a list of constraint scopes gathered at init time
   constraintScopes = []
-  # init constraints
+
   _initConstraints = ->
     for constraint in constraintScopes
       constraint._bindConstraints()
@@ -341,9 +337,10 @@ window.lz = do ->
 
     installMethods: (methods, tagname, scope=@, callbackscope=@) ->
       # Install methods
-      for name, methodspec of methods
-        # console.log 'installing method', name, methodspec, @
-        _installMethod(scope, name, compiler.compile(methodspec[0], methodspec[1], "#{tagname}$#{name}").bind(callbackscope), methodspec[2])
+      for name, methodlist of methods
+        for {method, args, allocation} in methodlist
+          # console.log 'installing method', name, method, args, allocation, @
+          _installMethod(scope, name, compiler.compile(method, args, "#{tagname}$#{name}").bind(callbackscope), allocation)
 
     installHandlers: (handlers, tagname, scope=@) ->
       # store list of handlers for late binding
@@ -375,11 +372,11 @@ window.lz = do ->
         else
           scope.unbind(name, handler.callback)
 
-    # Bind an attribute to an event expression, handler, or delegate to setAttribute()
+    # Bind an attribute to an event expression, handler, or fall back to setAttribute()
     bindAttribute: (name, value, tagname) ->
       constraint = value.match?(matchConstraint)
       if constraint
-        @applyConstraint(name, constraint[1])
+        @_applyConstraint(name, constraint[1])
       else if name.indexOf('on') == 0
         name = name.substr(2)
         # console.log('binding to event expression', name, value, @)
@@ -387,7 +384,7 @@ window.lz = do ->
       else
         @setAttribute(name, value)
 
-    # public API
+    # public API to initialize constraints
     initConstraints: ->
       _initConstraints()
       @
@@ -406,8 +403,8 @@ window.lz = do ->
         # console.log 'event callback', name, args, scope, js
         js.apply(scope, args)
 
-    _installMethod = (scope, methodname, method, classmethod) ->
-      # TODO: add class methods when classmethod == 'class'
+    _installMethod = (scope, methodname, method, allocation) ->
+      # TODO: add class methods when allocation == 'class'
       if methodname of scope
         # Cheesy override
         supr = scope[methodname]
@@ -416,16 +413,17 @@ window.lz = do ->
           # console.log 'applying overridden method', methodname, arguments
           supr.apply(scope, arguments)
           meth.apply(scope, arguments)
-          # console.log('overrode method', methodname, scope, supr, meth)
+        # console.log('overrode method', methodname, scope, supr, meth)
       else
         scope[methodname] = method
       # console.log('installed method', methodname, scope, scope[methodname])
 
-    applyConstraint: (property, expression) ->
+    # applies a constraint, must call 
+    _applyConstraint: (property, expression) ->
       @constraints ?= {}
       # console.log 'adding constraint', property, expression, @
       @constraints[property] = 
-        expression: 'return ' + expression #compiler.compile('return ' + expression).bind(@)
+        expression: expression
         bindings: {}
 
       bindings = @constraints[property].bindings
@@ -440,14 +438,17 @@ window.lz = do ->
       # console.log 'matched constraint', property, @, expression
       return
 
+    _valueLookup: (bindexpression) ->
+      compiler.compile('return ' + bindexpression).bind(@)
+
     _bindConstraints: ->
       for name, constraint of @constraints
         {bindings, expression} = constraint
-        fn = compiler.compile(expression).bind(@)
+        fn = @_valueLookup(expression)
         # console.log 'binding constraint', name, expression, @
         constraint = @_constraintCallback(name, fn)
         for bindexpression, bindinglist of bindings
-          boundref = compiler.compile('return ' + bindexpression).bind(@)()
+          boundref = @_valueLookup(bindexpression)()
           boundref ?= boundref.$view
           for binding in bindinglist
             property = binding.property
@@ -461,7 +462,7 @@ window.lz = do ->
       for binding in @handlers
         {scope, name, callback, reference} = binding
         if reference
-          refeval = compiler.compile('return ' + reference).bind(scope)()
+          refeval = @_valueLookup(reference)()
           # console.log('binding to reference', reference, refeval, name, scope)
           scope.listenTo(refeval, name, callback)
         else
@@ -990,35 +991,37 @@ window.lz = do ->
       for child in children
         attributes = flattenattributes(child.attributes)
         # console.log child, attributes, classattributes
-        name = child.localName
+        tagname = child.localName
         args = (attributes.args ? '').split()
         script = htmlDecode(child.innerHTML)
         unless script?
           console.warn 'Invalid', name, child
 
         type = attributes.type ? defaulttype
-        switch name
+        name = attributes.name
+        switch tagname
           when 'handler'
-            # console.log 'adding handler', attributes.name, script, child.innerHTML, attributes
+            # console.log 'adding handler', name, script, child.innerHTML, attributes
             handler = 
-              name: attributes.name
+              name: name
               script: compiler.transform(script, type)
               args: args
               reference: attributes.reference
               method: attributes.method
 
             classattributes.$handlers.push(handler)
-            # console.log 'added handler', attributes.name, script, attributes
+            # console.log 'added handler', name, script, attributes
           when 'method'
-            allocation = attributes.allocation
-            classattributes.$methods[attributes.name] = [compiler.transform(script, type), args, allocation]
-            # console.log 'added method', attributes.name, script, classattributes
+            classattributes.$methods[name] ?= []
+            classattributes.$methods[name].push({method: compiler.transform(script, type), args: args, allocation: attributes.allocation})
+            # console.log 'added method', name, script, classattributes, classattributes.$methods[name]
           when 'setter'
-            classattributes.$methods['set_' + attributes.name] = [compiler.transform(script, type), args]
-            # console.log 'added setter', 'set_' + attributes.name, args, classattributes.$methods
+            classattributes.$methods['set_' + name] ?= []
+            classattributes.$methods['set_' + name].push({method: compiler.transform(script, type), args: args, allocation: attributes.allocation})
+            # console.log 'added setter', 'set_' + name, args, classattributes.$methods
           when 'attribute'
-            classattributes[attributes.name] = attributes.value
-            classattributes.$types[attributes.name] = attributes.type
+            classattributes[name] = attributes.value
+            classattributes.$types[name] = attributes.type
             # console.log 'added attribute', attributes, classattributes
 
       # console.log('processSpecialTags', classattributes)
@@ -1177,9 +1180,12 @@ window.lz = do ->
             attributes[key] = clone(attributes[key])
             # console.log('overwriting', key, attributes[key], value)
             for propname, val of value
-              # TODO: deal with method overrides here? Likely not wanted for instance overrides
-              attributes[key][propname] = val
-            # console.log 'overwrote class attribute', key, attributes[key], value
+              if key is '$methods' and attributes[key][propname]
+                attributes[key][propname] = attributes[key][propname].concat(val)
+                # console.log('override found for method', propname, attributes[key][propname])
+              else 
+                attributes[key][propname] = val
+              # console.log 'overwrote class attribute', key, attributes[key], value
           else if key is '$handlers' and key of attributes
             # console.log 'concat', attributes[key], value
             attributes[key] = attributes[key].concat(value)
