@@ -3,7 +3,7 @@ hackstyle = do ->
   stylemap= {left: 'x', top: 'y', 'background-color': 'bgcolor'}
   origstyle = $.style
   styletap = (elem, name, value) ->
-    returnval = origstyle.apply(this, arguments)
+    returnval = origstyle.apply(@, arguments)
     name = stylemap[name] or name
     view = elem.$view
     if view[name] != value
@@ -29,8 +29,18 @@ window.lz = do ->
         Mixed::[name] = method
     Mixed
 
-  # from https://github.com/spine/spine/tree/dev/src
+  ###*
+  # @class Events
+  # @private
+  # A lightweight event system used internally.
+  # based on https://github.com/spine/spine/tree/dev/src
+  ###
   Events =
+    ###*
+    # Binds an event to the current scope
+    # @param {String} ev the name of the event
+    # @param {Function} callback called when the event is fired
+    ###
     bind: (ev, callback) ->
       # console.log 'binding', ev, callback
       evs   = ev.split(' ')
@@ -38,39 +48,63 @@ window.lz = do ->
       for name in evs
         @events[name] or= []
         @events[name].push(callback)
-      this
-
+      @
+    ###*
+    # Binds an event to the current scope, automatically unbinds when the event fires
+    # @param {String} ev the name of the event
+    # @param {Function} callback called when the event is fired
+    ###
     one: (ev, callback) ->
       @bind ev, ->
         @unbind(ev, arguments.callee)
-        callback.apply(this, arguments)
-
+        callback.apply(@, arguments)
+      @
+    ###*
+    # Fires an event
+    # @param {String} ev the name of the event to fire
+    ###
     trigger: (args...) ->
       ev = args.shift()
       list = @hasOwnProperty('events') and @events?[ev]
       return unless list
 #      if list then console.log 'trigger', ev, list
       for callback in list
-        if callback.apply(this, args) is false
+        if callback.apply(@, args) is false
           break
-      true
-
+      @
+    ###*
+    # Listens for an event on a specific scope
+    # @param {Object} obj scope to listen for events on
+    # @param {String} ev the name of the event
+    # @param {Function} callback called when the event is fired
+    ###
     listenTo: (obj, ev, callback) ->
       # console.log('listenTo', obj, ev, callback, obj.bind)
       obj.bind(ev, callback)
       @listeningTo or= []
       @listeningTo.push {obj: obj, ev: ev, callback: callback}
-      this
+      @
 
+    ###*
+    # Only listens for an event one time
+    # @param {Object} obj scope to listen for events on
+    # @param {String} ev the name of the event
+    # @param {Function} callback called when the event is fired
+    ###
     listenToOnce: (obj, ev, callback) ->
       listeningToOnce = @listeningToOnce or = []
       listeningToOnce.push obj
       obj.one ev, ->
         idx = listeningToOnce.indexOf(obj)
         listeningToOnce.splice(idx, 1) unless idx is -1
-        callback.apply(this, arguments)
-      this
-
+        callback.apply(@, arguments)
+      @
+    ###*
+    # Stops listening for an event on a given scope
+    # @param {Object} obj scope to listen for events on
+    # @param {String} ev the name of the event
+    # @param {Function} callback called when the event would have been fired
+    ###
     stopListening: (obj, ev, callback) ->
       if obj
         obj.unbind(ev, callback)
@@ -93,11 +127,16 @@ window.lz = do ->
           # console.log 'stopped listening', obj, ev, callback
           obj.unbind(ev, callback)
         @listeningTo = undefined
-
+      @
+    ###*
+    # Stops listening for an event on the current scope
+    # @param {String} ev the name of the event
+    # @param {Function} callback called when the event would have been fired
+    ###
     unbind: (ev, callback) ->
       unless ev
         @events = {}
-        return this
+        return @
       evs  = ev.split(' ')
       for name in evs
         list = @events?[name]
@@ -110,25 +149,37 @@ window.lz = do ->
           list.splice(i, 1)
           @events[name] = list
           break
-      this
+      @
 
-  Events.on = Events.bind
-  Events.off = Events.unbind
-
-
-  # mixins adapted from https://github.com/spine/spine/tree/dev/src
+  ###*
+  # @class Module
+  # @private
+  # Coffeescript mixins adapted from https://github.com/spine/spine/tree/dev/src
+  ###
   moduleKeywords = ['included', 'extended']
   class Module
+    ###*
+    # Includes a mixin in the current scope
+    # @param {Object} obj the object to be mixed in
+    ###
     @include: (obj) ->
       throw new Error('include(obj) requires obj') unless obj
       for key, value of obj when key not in moduleKeywords
         # console.log key, obj, @::
         @::[key] = value
-      obj.included?.call(this, obj)
-      this
+      obj.included?.call(@, obj)
+      @
 
-
+  ###*
+  # @class Eventable
+  # @extends Module
+  # The baseclass used by everything in dreem. Provides events via Eventable, adds higher level event APIs
+  ###
   class Eventable extends Module
+    ###*
+    # @method include
+    # @hide
+    ###
     @include Events
 
     typemappings= 
@@ -141,6 +192,11 @@ window.lz = do ->
           return val
         eval(val)
 
+    ###*
+    # Sets an attribute, calls a setter if there is one, then sends an event with the new value
+    # @param {String} name the name of the attribute to set
+    # @param value the value to set to
+    ###
     setAttribute: (name, value) ->
       # TODO: add support for dynamic constraints
 
@@ -156,7 +212,13 @@ window.lz = do ->
         @[name] = value
 
       @sendEvent(name, value)
+      @
 
+    ###*
+    # Sends an event
+    # @param {String} name the name of the event to send
+    # @param value the value to send with the event
+    ###
     sendEvent: (name, value) ->
       # send event
       if @events?[name]
@@ -165,6 +227,10 @@ window.lz = do ->
         # console.log 'no event named', name, @events, @
       @
 
+    ###*
+    # Calls setAttribute for each name/value pair in the attributes object
+    # @param {Object} attributes An object of name/value pairs to be set
+    ###
     set: (attributes) ->
       for name, value of attributes
         @setAttribute(name, value)
@@ -283,13 +349,31 @@ window.lz = do ->
     for constraint in constraintScopes
       constraint._bindConstraints()
     constraintScopes = []
-
+  ###*
+  # @class lz.node
+  # @extends Eventable
+  # The nonvisual base class for everything in dreem. Handles parent/child relationships
+  ###
   class Node extends Eventable
+    ###*
+    # @cfg {String} name 
+    # Names this node so it can be referred to later
+    ###
+    ###*
+    # @cfg {String} id 
+    # Gives this node a globally referenced ID, which can be looked up in the global window object.
+    # Take care to not override builtin globals, or override your own instances!
+    ###
     matchConstraint = /\${(.+)}/
     # parent must be set before name
     lateattributes = ['parent', 'name']
 
     constructor: (el, attributes = {}) ->
+      ###*
+      # @property {Array} subnodes
+      # @readonly
+      # An array of this node's child nodes
+      ###
       @subnodes = []
       # Install types
       @types = attributes.$types ? {}
@@ -299,6 +383,11 @@ window.lz = do ->
       deferbindings = attributes.$deferbindings
       delete attributes.$deferbindings
 
+      ###
+      # @property {String} $textcontent
+      # @readonly
+      # Contains the textual contents of this node, if any
+      ###
       # store textual content
       if el?.textContent 
         attributes.$textcontent = el.textContent
@@ -310,12 +399,11 @@ window.lz = do ->
       if attributes.$handlers
         @installHandlers(attributes.$handlers, attributes.$tagname)
         # do this here for now - ugly though
-        unless attributes.clickable is "false"
-          for {name, script, args, reference, method} in attributes.$handlers
-            name = name.substr(2)
-            if name in mouseEvents
-              attributes.clickable = true 
-              # console.log 'registered for clickable', attributes.clickable
+        for {name, script, args, reference, method} in attributes.$handlers
+          name = name.substr(2)
+          if name in mouseEvents
+            attributes.clickable = true unless attributes.clickable is "false"
+            # console.log 'registered for clickable', attributes.clickable
 
         delete attributes.$handlers
 
@@ -329,6 +417,16 @@ window.lz = do ->
 
       for name in lateattributes
         @setAttribute(name, attributes[name]) if attributes[name]
+      ###*
+      # @event oninit 
+      # Fired when this node and all its children are completely initialized
+      # @param {lz.node} node The lz.node that fired the event
+      ###
+      ###*
+      # @property {Boolean} inited
+      # @readonly
+      # True when this node and all its children are completely initialized 
+      ###
 
       # console.log 'new node', @, attributes
       unless skiponinit
@@ -414,12 +512,12 @@ window.lz = do ->
           # console.log 'applying overridden method', methodname, arguments
           supr.apply(scope, arguments)
           meth.apply(scope, arguments)
-        # console.log('overrode method', methodname, scope, supr, meth)
+        console.log('overrode method', methodname, scope, supr, meth)
       else
         scope[methodname] = method
       # console.log('installed method', methodname, scope, scope[methodname])
 
-    # applies a constraint, must call 
+    # applies a constraint, must call _initConstraints for constraints to be bound 
     _applyConstraint: (property, expression) ->
       @constraints ?= {}
       # console.log 'adding constraint', property, expression, @
@@ -477,7 +575,7 @@ window.lz = do ->
       # console.log('binding to constraint function', name, fn, @)
       return `(function constraintCallback(){`
       # console.log 'setting', name, fn(), @
-      this.setAttribute(name, fn())
+      @.setAttribute(name, fn())
       `}).bind(this)`
 
     set_parent: (parent) ->
@@ -487,10 +585,15 @@ window.lz = do ->
         # store references to parent and children
         parent[@name] = @ if @name
         parent.subnodes.push(@)
+        ###*
+        # @event onsubnodes 
+        # Fired when this node's subnodes array has changed
+        # @param {lz.node} node The lz.node that fired the event
+        ###
         parent.sendEvent('subnodes', @)
 
     set_name: (name) ->
-      # console.log 'set_name', name, this
+      # console.log 'set_name', name, @
       @parent[name] = @
 
     set_id: (id) ->
@@ -513,9 +616,21 @@ window.lz = do ->
           # console.log 'found in parent', name, p
           return p[name]
         p = p.parent
-
+    ###*
+    # @method destroy
+    # Destroys this node
+    ###
+    ###*
+    # @ignore
+    ###
     destroy: (skipevents) ->
       # console.log 'destroy node', @
+
+      ###*
+      # @event ondestroy 
+      # Fired when this node and all its children are about to be destroyed
+      # @param {lz.node} node The lz.node that fired the event
+      ###
       @sendEvent('destroy', @)
 
       if @listeningTo
@@ -533,7 +648,11 @@ window.lz = do ->
 
       @_removeFromParent('subnodes') unless skipevents
 
-
+  ###*
+  # @class Sprite
+  # @private
+  # Abstracts the underlying visual primitives (HTML currently) from dreem's view system
+  ###
   class Sprite
 #    guid = 0
     noop = () ->
@@ -690,15 +809,98 @@ window.lz = do ->
       # console.log('setid', @id)
       @el.setAttribute('class', classname)
 
-  class Clickable
-    set_clickable: (clickable) ->
-      @sprite.set_clickable(clickable)
-      # super?(clickable)
 
   # internal attributes ignored by class declarations and view styles
   ignoredAttributes = {parent: true, id: true, name: true, extends: true, type: true, scriptincludes: true}
-  class View extends mixOf Node, Clickable
+  ###*
+  # @class lz.view
+  # @extends lz.node
+  # The visual base class for everything in dreem.
+  ###
+  class View extends Node
+    ###*
+    # @cfg {Number} [x="0"]
+    # This view's x position
+    ###
+    ###*
+    # @cfg {Number} [y="0"]
+    # This view's y position
+    ###
+    ###*
+    # @cfg {Number} [width=0]
+    # This view's width
+    ###
+    ###*
+    # @cfg {Number} [height=0]
+    # This view's height
+    ###
+    ###*
+    # @cfg {Boolean} [clickable=false]
+    # If true, this view recieves mouse events. Automatically set to true when an onclick/mouse* event is registered for this view.
+    ###
+    ###*
+    # @cfg {Boolean} [clip=false]
+    # If true, this view clips to its bounds
+    ###
+    ###*
+    # @cfg {Boolean} [visible=true]
+    # If false, this view is invisible
+    ###
+    ###*
+    # @cfg {String} bgcolor
+    # Sets this view's background color
+    ###
+
+    ###*
+    # @event onclick 
+    # Fired when this view is clicked
+    # @param {lz.view} view The lz.view that fired the event
+    ###
+    ###*
+    # @event onmouseover 
+    # Fired when the mouse moves over this view
+    # @param {lz.view} view The lz.view that fired the event
+    ###
+    ###*
+    # @event onmouseout 
+    # Fired when the mouse moves off this view
+    # @param {lz.view} view The lz.view that fired the event
+    ###
+    ###*
+    # @event onmousedown 
+    # Fired when the mouse goes down on this view
+    # @param {lz.view} view The lz.view that fired the event
+    ###
+    ###*
+    # @event onmouseup 
+    # Fired when the mouse goes up on this view
+    # @param {lz.view} view The lz.view that fired the event
+    ###
     constructor: (el, attributes = {}) ->
+      ###*
+      # @property {Array} subviews
+      # @readonly
+      # An array of this views's child views
+      ###
+      ###*
+      # @event onsubviews 
+      # Fired when this views's subviews array has changed
+      # @param {lz.view} view The lz.view that fired the event
+      ###
+      ###*
+      # @property {Array} layouts
+      # @readonly
+      # An array of this views's layouts. Only defined when needed.
+      ###
+      ###*
+      # @event onlayouts 
+      # Fired when this views's layouts array has changed
+      # @param {lz.layout} view The lz.layout that fired the event
+      ###
+      ###*
+      # @property {Boolean} ignorelayout
+      # If true, layouts should ignore this view
+      ###
       @subviews = []
       types = {x: 'number', y: 'number', width: 'number', height: 'number', clickable: 'boolean', clip: 'boolean', visible: 'boolean'}
       for key, type of types
@@ -727,6 +929,10 @@ window.lz = do ->
         @sprite.setStyle(name, value)
       super
 
+    set_clickable: (clickable) ->
+      @sprite.set_clickable(clickable)
+      # super?(clickable)
+
     set_parent: (parent) ->
       # console.log 'view set_parent', parent, @
       super
@@ -743,9 +949,13 @@ window.lz = do ->
       super
       @sprite.set_id(id)
 
+    ###*
+    # Animates this view's attribute(s)
+    # @param {Object} obj A hash of attribute names and values to animate to
+    ###
     animate: ->
       # console.log 'animate', arguments, @sprite.animate
-      @sprite.animate.apply(this, arguments)
+      @sprite.animate.apply(@, arguments)
 
     set_clip: (clip) ->
       @sprite.set_clip(clip)
@@ -1117,7 +1327,7 @@ window.lz = do ->
       @applied = applied
       @sendEvent('applied', applied)
 
-      # console.log('set_applied', applied, this, @parent)
+      # console.log('set_applied', applied, @, @parent)
       if applied
         @parent.learn @
         if @stateattributes.$handlers
@@ -1145,8 +1355,24 @@ window.lz = do ->
     remove: () ->
       @setAttribute('applied', false) if @applied
 
-
+  ###*
+  # @class lz.class
+  # Allows new classes and tags to be created. Classes extend lz.view by default.
+  ###
   class Class
+    ###*
+    # @cfg {String} name (required)
+    # The name of the new class and tag. 
+    # New classes are placed in the global lz object, e.g. lz.classname and are accessible in tag form, e.g. <classname></classname>
+    ###
+    ###*
+    # @cfg {String} [extends=view] 
+    # The name of the class that should be extended.
+    ###
+    ###*
+    # @cfg {String} [type=js] 
+    # The default compiler to use for methods, setters and handlers. Either 'js' or 'coffee'
+    ###
     clone = (obj) ->
       newobj = {}
       for name, val of obj
@@ -1194,7 +1420,7 @@ window.lz = do ->
             for propname, val of value
               if key is '$methods' and attributes[key][propname]
                 attributes[key][propname] = attributes[key][propname].concat(val)
-                # console.log('override found for method', propname, attributes[key][propname])
+                # console.log('method override found for', propname, attributes[key][propname])
               else 
                 attributes[key][propname] = val
               # console.log 'overwrote class attribute', key, attributes[key], value
@@ -1251,40 +1477,61 @@ window.lz = do ->
           parent.sendEvent('init', parent)
         return parent
 
-
+  ###*
+  # @class lz.layout
+  # @extends lz.node
+  # The base class for all layouts. 
+  #
+  # When a new layout is added, it will automatically create and add itself to a layouts array in its parent. In addition, an onlayouts event is fired in the parent when the layouts array changes. This allows the parent to access the layout(s) later.
+  ###
   class Layout extends Node
     constructor: (el, attributes = {}) ->
       @locked = true
       super
       # listen for new subviews
-      @listenTo(@parent, 'subviews', @added)
+      @listenTo(@parent, 'subviews', @_added)
       @parent.layouts ?= []
-      @parent.layouts.push(this)
+      @parent.layouts.push(@)
+      @parent.sendEvent('layouts', @parent.layouts)
 
       # iterate through subviews that already exist
       subviews = @parent.subviews
       if subviews
         for subview in subviews
-          @added(subview)
+          @_added(subview)
       @locked = false
       @update()
       # console.log('layout', attributes, @)
 
-    # called when a new subview is added or removed from the parent view
-    added: (child) =>
+    # called when a new subview is added to the parent view
+    _added: (child) =>
       # console.log 'added layout', child, @
       if child
+        ###*
+        # @event onsubview 
+        # Fired when the layout has a new subview. Used to listen for events on the view that the layout cares about.
+        # @param {lz.view} child The subview that was added
+        ###
         @sendEvent('subview', child) unless child.ignorelayout
       @update(null, child)
 
-    # override to update the position of the parent view's children
-    update: (value, sender) =>
+    # 
+    ###*
+    # @method update
+    # Called when the layout should be updated. Should be overriden to update the position of the subviews
+    # @param value The value received from the node that updated
+    # @param {lz.node} sender The node that updated
+    ###
+    # update: (value, sender) =>
       # console.log 'update layout', sender
       # return if @skip()
     
-    # returns true if the layout should't update 
+    ###*
+    # Determines if a layout should be updated or not, usually called from update
+    # @returns {Boolean} If true, skip updating the layout
+    ###
     skip: ->
-      true if @locked or (not @parent?.subviews) or (@parent.subviews.length == 0) or not @inited
+      true if @locked or (not @inited) or (not @parent?.subviews) or (@parent.subviews.length == 0)
 
     destroy: (skipevents) ->
       @locked = true
@@ -1294,7 +1541,16 @@ window.lz = do ->
 
     set_locked: (locked) ->
       changed = @locked != locked
+      ###*
+      # @property {Boolean} locked
+      # If true, this layout will not update
+      ###
       @locked = locked
+      ###*
+      # @event onlocked 
+      # Fired when the layout is locked
+      # @param {Boolean} locked If true, the layout is locked
+      ###
       @sendEvent('locked', locked)
       # console.log 'set_locked', locked
       @update() if (changed and not locked)
@@ -1342,7 +1598,10 @@ window.lz = do ->
       @eventStarted = false
       # console.log 'stop'
 
-
+  ###*
+  # @class lz.idle
+  # Sends onidle events when the application is active and idle.
+  ###
   class Idle extends StartEventable
     startEventTest: () ->
       start = @events['idle']?.length
@@ -1357,6 +1616,11 @@ window.lz = do ->
       idle(1, @sender)
 
     sender: (time) =>
+      ###*
+      # @event onidle 
+      # Fired when the application is active and idle.
+      # @param {Number} time The number of milliseconds since the application started
+      ###
       @sendEvent('idle', time)
       # console.log('sender', time, @eventStarted, idle)
       setTimeout(() =>

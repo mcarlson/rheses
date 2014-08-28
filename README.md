@@ -15,4 +15,7 @@ This is only required when editing the coffeescript core.
 
     coffee -j layout.js -mo ./ -cw *.coffee
 
+To build the api documentation, install [https://github.com/senchalabs/jsduck]() and run:
+
+    jsduck layout.js --output apidocs
 

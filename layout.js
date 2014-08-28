@@ -35,7 +35,7 @@
   })();
 
   window.lz = (function() {
-    var Class, Clickable, Eventable, Events, Idle, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, View, Window, compiler, constraintScopes, dom, exports, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, _initConstraints;
+    var Class, Eventable, Events, Idle, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, View, Window, compiler, constraintScopes, dom, exports, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, _initConstraints;
     mixOf = function() {
       var Mixed, base, i, method, mixin, mixins, name, _i, _ref;
       base = arguments[0], mixins = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
@@ -59,7 +59,20 @@
       }
       return Mixed;
     };
+
+    /**
+     * @class Events
+     * @private
+     * A lightweight event system used internally.
+     * based on https://github.com/spine/spine/tree/dev/src
+     */
     Events = {
+
+      /**
+       * Binds an event to the current scope
+       * @param {String} ev the name of the event
+       * @param {Function} callback called when the event is fired
+       */
       bind: function(ev, callback) {
         var evs, name, _base, _i, _len;
         evs = ev.split(' ');
@@ -73,12 +86,24 @@
         }
         return this;
       },
+
+      /**
+       * Binds an event to the current scope, automatically unbinds when the event fires
+       * @param {String} ev the name of the event
+       * @param {Function} callback called when the event is fired
+       */
       one: function(ev, callback) {
-        return this.bind(ev, function() {
+        this.bind(ev, function() {
           this.unbind(ev, arguments.callee);
           return callback.apply(this, arguments);
         });
+        return this;
       },
+
+      /**
+       * Fires an event
+       * @param {String} ev the name of the event to fire
+       */
       trigger: function() {
         var args, callback, ev, list, _i, _len, _ref;
         args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
@@ -93,8 +118,15 @@
             break;
           }
         }
-        return true;
+        return this;
       },
+
+      /**
+       * Listens for an event on a specific scope
+       * @param {Object} obj scope to listen for events on
+       * @param {String} ev the name of the event
+       * @param {Function} callback called when the event is fired
+       */
       listenTo: function(obj, ev, callback) {
         obj.bind(ev, callback);
         this.listeningTo || (this.listeningTo = []);
@@ -105,6 +137,13 @@
         });
         return this;
       },
+
+      /**
+       * Only listens for an event one time
+       * @param {Object} obj scope to listen for events on
+       * @param {String} ev the name of the event
+       * @param {Function} callback called when the event is fired
+       */
       listenToOnce: function(obj, ev, callback) {
         var listeningToOnce;
         listeningToOnce = this.listeningToOnce || (this.listeningToOnce = []);
@@ -119,12 +158,18 @@
         });
         return this;
       },
+
+      /**
+       * Stops listening for an event on a given scope
+       * @param {Object} obj scope to listen for events on
+       * @param {String} ev the name of the event
+       * @param {Function} callback called when the event would have been fired
+       */
       stopListening: function(obj, ev, callback) {
-        var idx, index, listeningTo, val, _i, _j, _len, _len1, _ref, _ref1, _ref2, _results;
+        var idx, index, listeningTo, val, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
         if (obj) {
           obj.unbind(ev, callback);
           _ref = [this.listeningTo, this.listeningToOnce];
-          _results = [];
           for (_i = 0, _len = _ref.length; _i < _len; _i++) {
             listeningTo = _ref[_i];
             if (!listeningTo) {
@@ -132,34 +177,33 @@
             }
             idx = listeningTo.indexOf(obj);
             if (idx > -1) {
-              _results.push(listeningTo.splice(idx, 1));
+              listeningTo.splice(idx, 1);
             } else {
-              _results.push((function() {
-                var _j, _len1, _results1;
-                _results1 = [];
-                for (index = _j = 0, _len1 = listeningTo.length; _j < _len1; index = ++_j) {
-                  val = listeningTo[index];
-                  if (obj === val.obj && ev === val.ev && callback === val.callback) {
-                    listeningTo.splice(index, 1);
-                    break;
-                  } else {
-                    _results1.push(void 0);
-                  }
+              for (index = _j = 0, _len1 = listeningTo.length; _j < _len1; index = ++_j) {
+                val = listeningTo[index];
+                if (obj === val.obj && ev === val.ev && callback === val.callback) {
+                  listeningTo.splice(index, 1);
+                  break;
                 }
-                return _results1;
-              })());
+              }
             }
           }
-          return _results;
         } else {
           _ref1 = this.listeningTo;
-          for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-            _ref2 = _ref1[_j], obj = _ref2.obj, ev = _ref2.ev, callback = _ref2.callback;
+          for (_k = 0, _len2 = _ref1.length; _k < _len2; _k++) {
+            _ref2 = _ref1[_k], obj = _ref2.obj, ev = _ref2.ev, callback = _ref2.callback;
             obj.unbind(ev, callback);
           }
-          return this.listeningTo = void 0;
+          this.listeningTo = void 0;
         }
+        return this;
       },
+
+      /**
+       * Stops listening for an event on the current scope
+       * @param {String} ev the name of the event
+       * @param {Function} callback called when the event would have been fired
+       */
       unbind: function(ev, callback) {
         var cb, evs, i, list, name, _i, _j, _len, _len1, _ref;
         if (!ev) {
@@ -191,11 +235,21 @@
         return this;
       }
     };
-    Events.on = Events.bind;
-    Events.off = Events.unbind;
+
+    /**
+     * @class Module
+     * @private
+     * Coffeescript mixins adapted from https://github.com/spine/spine/tree/dev/src
+     */
     moduleKeywords = ['included', 'extended'];
     Module = (function() {
       function Module() {}
+
+
+      /**
+       * Includes a mixin in the current scope
+       * @param {Object} obj the object to be mixed in
+       */
 
       Module.include = function(obj) {
         var key, value, _ref;
@@ -217,7 +271,18 @@
       return Module;
 
     })();
+
+    /**
+     * @class Eventable
+     * @extends Module
+     * The baseclass used by everything in dreem. Provides events via Eventable, adds higher level event APIs
+     */
     Eventable = (function(_super) {
+
+      /**
+       * @method include
+       * @hide
+       */
       var typemappings;
 
       __extends(Eventable, _super);
@@ -251,6 +316,13 @@
         }
       };
 
+
+      /**
+       * Sets an attribute, calls a setter if there is one, then sends an event with the new value
+       * @param {String} name the name of the attribute to set
+       * @param value the value to set to
+       */
+
       Eventable.prototype.setAttribute = function(name, value) {
         var type, _name;
         type = this.types[name];
@@ -263,8 +335,16 @@
         if (this[name] !== value) {
           this[name] = value;
         }
-        return this.sendEvent(name, value);
+        this.sendEvent(name, value);
+        return this;
       };
+
+
+      /**
+       * Sends an event
+       * @param {String} name the name of the event to send
+       * @param value the value to send with the event
+       */
 
       Eventable.prototype.sendEvent = function(name, value) {
         var _ref;
@@ -273,6 +353,12 @@
         }
         return this;
       };
+
+
+      /**
+       * Calls setAttribute for each name/value pair in the attributes object
+       * @param {Object} attributes An object of name/value pairs to be set
+       */
 
       Eventable.prototype.set = function(attributes) {
         var name, value;
@@ -428,7 +514,24 @@
       }
       return constraintScopes = [];
     };
+
+    /**
+     * @class lz.node
+     * @extends Eventable
+     * The nonvisual base class for everything in dreem. Handles parent/child relationships
+     */
     Node = (function(_super) {
+
+      /**
+       * @cfg {String} name 
+       * Names this node so it can be referred to later
+       */
+
+      /**
+       * @cfg {String} id 
+       * Gives this node a globally referenced ID, which can be looked up in the global window object.
+       * Take care to not override builtin globals, or override your own instances!
+       */
       var lateattributes, matchConstraint, _eventCallback, _installMethod;
 
       __extends(Node, _super);
@@ -442,6 +545,12 @@
         if (attributes == null) {
           attributes = {};
         }
+
+        /**
+         * @property {Array} subnodes
+         * @readonly
+         * An array of this node's child nodes
+         */
         this.subnodes = [];
         this.types = (_ref = attributes.$types) != null ? _ref : {};
         delete attributes.$types;
@@ -449,6 +558,12 @@
         delete attributes.$skiponinit;
         deferbindings = attributes.$deferbindings;
         delete attributes.$deferbindings;
+
+        /*
+         * @property {String} $textcontent
+         * @readonly
+         * Contains the textual contents of this node, if any
+         */
         if (el != null ? el.textContent : void 0) {
           attributes.$textcontent = el.textContent;
         }
@@ -458,12 +573,12 @@
         }
         if (attributes.$handlers) {
           this.installHandlers(attributes.$handlers, attributes.$tagname);
-          if (attributes.clickable !== "false") {
-            _ref1 = attributes.$handlers;
-            for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-              _ref2 = _ref1[_i], name = _ref2.name, script = _ref2.script, args = _ref2.args, reference = _ref2.reference, method = _ref2.method;
-              name = name.substr(2);
-              if (__indexOf.call(mouseEvents, name) >= 0) {
+          _ref1 = attributes.$handlers;
+          for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+            _ref2 = _ref1[_i], name = _ref2.name, script = _ref2.script, args = _ref2.args, reference = _ref2.reference, method = _ref2.method;
+            name = name.substr(2);
+            if (__indexOf.call(mouseEvents, name) >= 0) {
+              if (attributes.clickable !== "false") {
                 attributes.clickable = true;
               }
             }
@@ -488,6 +603,18 @@
             this.setAttribute(name, attributes[name]);
           }
         }
+
+        /**
+         * @event oninit 
+         * Fired when this node and all its children are completely initialized
+         * @param {lz.node} node The lz.node that fired the event
+         */
+
+        /**
+         * @property {Boolean} inited
+         * @readonly
+         * True when this node and all its children are completely initialized
+         */
         if (!skiponinit) {
           if (!this.inited) {
             this.inited = true;
@@ -612,10 +739,11 @@
         if (methodname in scope) {
           supr = scope[methodname];
           meth = method;
-          return scope[methodname] = function() {
+          scope[methodname] = function() {
             supr.apply(scope, arguments);
             return meth.apply(scope, arguments);
           };
+          return console.log('overrode method', methodname, scope, supr, meth);
         } else {
           return scope[methodname] = method;
         }
@@ -700,6 +828,12 @@
             parent[this.name] = this;
           }
           parent.subnodes.push(this);
+
+          /**
+           * @event onsubnodes 
+           * Fired when this node's subnodes array has changed
+           * @param {lz.node} node The lz.node that fired the event
+           */
           return parent.sendEvent('subnodes', this);
         }
       };
@@ -736,7 +870,24 @@
         }
       };
 
+
+      /**
+       * @method destroy
+       * Destroys this node
+       */
+
+
+      /**
+       * @ignore
+       */
+
       Node.prototype.destroy = function(skipevents) {
+
+        /**
+         * @event ondestroy 
+         * Fired when this node and all its children are about to be destroyed
+         * @param {lz.node} node The lz.node that fired the event
+         */
         var subnode, _i, _len, _ref, _ref1;
         this.sendEvent('destroy', this);
         if (this.listeningTo) {
@@ -761,6 +912,12 @@
       return Node;
 
     })(Eventable);
+
+    /**
+     * @class Sprite
+     * @private
+     * Abstracts the underlying visual primitives (HTML currently) from dreem's view system
+     */
     Sprite = (function() {
       var capabilities, fcamelCase, noop, rdashAlpha, stylemap, styleval;
 
@@ -958,16 +1115,6 @@
       return Sprite;
 
     })();
-    Clickable = (function() {
-      function Clickable() {}
-
-      Clickable.prototype.set_clickable = function(clickable) {
-        return this.sprite.set_clickable(clickable);
-      };
-
-      return Clickable;
-
-    })();
     ignoredAttributes = {
       parent: true,
       id: true,
@@ -976,14 +1123,132 @@
       type: true,
       scriptincludes: true
     };
+
+    /**
+     * @class lz.view
+     * @extends lz.node
+     * The visual base class for everything in dreem.
+     */
     View = (function(_super) {
       __extends(View, _super);
+
+
+      /**
+       * @cfg {Number} [x="0"]
+       * This view's x position
+       */
+
+
+      /**
+       * @cfg {Number} [y="0"]
+       * This view's y position
+       */
+
+
+      /**
+       * @cfg {Number} [width=0]
+       * This view's width
+       */
+
+
+      /**
+       * @cfg {Number} [height=0]
+       * This view's height
+       */
+
+
+      /**
+       * @cfg {Boolean} [clickable=false]
+       * If true, this view recieves mouse events. Automatically set to true when an onclick/mouse* event is registered for this view.
+       */
+
+
+      /**
+       * @cfg {Boolean} [clip=false]
+       * If true, this view clips to its bounds
+       */
+
+
+      /**
+       * @cfg {Boolean} [visible=true]
+       * If false, this view is invisible
+       */
+
+
+      /**
+       * @cfg {String} bgcolor
+       * Sets this view's background color
+       */
+
+
+      /**
+       * @event onclick 
+       * Fired when this view is clicked
+       * @param {lz.view} view The lz.view that fired the event
+       */
+
+
+      /**
+       * @event onmouseover 
+       * Fired when the mouse moves over this view
+       * @param {lz.view} view The lz.view that fired the event
+       */
+
+
+      /**
+       * @event onmouseout 
+       * Fired when the mouse moves off this view
+       * @param {lz.view} view The lz.view that fired the event
+       */
+
+
+      /**
+       * @event onmousedown 
+       * Fired when the mouse goes down on this view
+       * @param {lz.view} view The lz.view that fired the event
+       */
+
+
+      /**
+       * @event onmouseup 
+       * Fired when the mouse goes up on this view
+       * @param {lz.view} view The lz.view that fired the event
+       */
 
       function View(el, attributes) {
         var key, type, types, _ref;
         if (attributes == null) {
           attributes = {};
         }
+
+        /**
+         * @property {Array} subviews
+         * @readonly
+         * An array of this views's child views
+         */
+
+        /**
+         * @event onsubviews 
+         * Fired when this views's subviews array has changed
+         * @param {lz.view} view The lz.view that fired the event
+         */
+
+        /**
+         * @property {Array} layouts
+         * @readonly
+         * An array of this views's layouts. Only defined when needed.
+         */
+
+        /**
+         * @event onlayouts 
+         * Fired when this views's layouts array has changed
+         * @param {lz.layout} view The lz.layout that fired the event
+         */
+
+        /**
+         * @property {Boolean} ignorelayout
+         * If true, layouts should ignore this view
+         */
         this.subviews = [];
         types = {
           x: 'number',
@@ -1023,6 +1288,10 @@
         return View.__super__.setAttribute.apply(this, arguments);
       };
 
+      View.prototype.set_clickable = function(clickable) {
+        return this.sprite.set_clickable(clickable);
+      };
+
       View.prototype.set_parent = function(parent) {
         View.__super__.set_parent.apply(this, arguments);
         if (parent instanceof View) {
@@ -1037,6 +1306,12 @@
         View.__super__.set_id.apply(this, arguments);
         return this.sprite.set_id(id);
       };
+
+
+      /**
+       * Animates this view's attribute(s)
+       * @param {Object} obj A hash of attribute names and values to animate to
+       */
 
       View.prototype.animate = function() {
         return this.sprite.animate.apply(this, arguments);
@@ -1065,7 +1340,7 @@
 
       return View;
 
-    })(mixOf(Node, Clickable));
+    })(Node);
     dom = (function() {
       var builtinTags, exports, findAutoIncludes, flattenattributes, htmlDecode, initAllElements, initElement, initFromElement, processSpecialTags, specialtags, writeCSS;
       flattenattributes = function(namednodemap) {
@@ -1533,7 +1808,28 @@
       return State;
 
     })(Node);
+
+    /**
+     * @class lz.class
+     * Allows new classes and tags to be created. Classes extend lz.view by default.
+     */
     Class = (function() {
+
+      /**
+       * @cfg {String} name (required)
+       * The name of the new class and tag. 
+       * New classes are placed in the global lz object, e.g. lz.classname and are accessible in tag form, e.g. <classname></classname>
+       */
+
+      /**
+       * @cfg {String} [extends=view] 
+       * The name of the class that should be extended.
+       */
+
+      /**
+       * @cfg {String} [type=js] 
+       * The default compiler to use for methods, setters and handlers. Either 'js' or 'coffee'
+       */
       var clone;
 
       clone = function(obj) {
@@ -1654,6 +1950,14 @@
       return Class;
 
     })();
+
+    /**
+     * @class lz.layout
+     * @extends lz.node
+     * The base class for all layouts. 
+     *
+     * When a new layout is added, it will automatically create and add itself to a layouts array in its parent. In addition, an onlayouts event is fired in the parent when the layouts array changes. This allows the parent to access the layout(s) later.
+     */
     Layout = (function(_super) {
       __extends(Layout, _super);
 
@@ -1662,28 +1966,34 @@
         if (attributes == null) {
           attributes = {};
         }
-        this.update = __bind(this.update, this);
-        this.added = __bind(this.added, this);
+        this._added = __bind(this._added, this);
         this.locked = true;
         Layout.__super__.constructor.apply(this, arguments);
-        this.listenTo(this.parent, 'subviews', this.added);
+        this.listenTo(this.parent, 'subviews', this._added);
         if ((_base = this.parent).layouts == null) {
           _base.layouts = [];
         }
         this.parent.layouts.push(this);
+        this.parent.sendEvent('layouts', this.parent.layouts);
         subviews = this.parent.subviews;
         if (subviews) {
           for (_i = 0, _len = subviews.length; _i < _len; _i++) {
             subview = subviews[_i];
-            this.added(subview);
+            this._added(subview);
           }
         }
         this.locked = false;
         this.update();
       }
 
-      Layout.prototype.added = function(child) {
+      Layout.prototype._added = function(child) {
         if (child) {
+
+          /**
+           * @event onsubview 
+           * Fired when the layout has a new subview. Used to listen for events on the view that the layout cares about.
+           * @param {lz.view} child The subview that was added
+           */
           if (!child.ignorelayout) {
             this.sendEvent('subview', child);
           }
@@ -1691,11 +2001,23 @@
         return this.update(null, child);
       };
 
-      Layout.prototype.update = function(value, sender) {};
+
+      /**
+       * @method update
+       * Called when the layout should be updated. Should be overriden to update the position of the subviews
+       * @param value The value received from the node that updated
+       * @param {lz.node} sender The node that updated
+       */
+
+
+      /**
+       * Determines if a layout should be updated or not, usually called from update
+       * @returns {Boolean} If true, skip updating the layout
+       */
 
       Layout.prototype.skip = function() {
         var _ref;
-        if (this.locked || (!((_ref = this.parent) != null ? _ref.subviews : void 0)) || (this.parent.subviews.length === 0) || !this.inited) {
+        if (this.locked || (!this.inited) || (!((_ref = this.parent) != null ? _ref.subviews : void 0)) || (this.parent.subviews.length === 0)) {
           return true;
         }
       };
@@ -1711,7 +2033,18 @@
       Layout.prototype.set_locked = function(locked) {
         var changed;
         changed = this.locked !== locked;
+
+        /**
+         * @property {Boolean} locked
+         * If true, this layout will not update
+         */
         this.locked = locked;
+
+        /**
+         * @event onlocked 
+         * Fired when the layout is locked
+         * @param {Boolean} locked If true, the layout is locked
+         */
         this.sendEvent('locked', locked);
         if (changed && !locked) {
           return this.update();
@@ -1784,6 +2117,11 @@
       return StartEventable;
 
     })(Eventable);
+
+    /**
+     * @class lz.idle
+     * Sends onidle events when the application is active and idle.
+     */
     Idle = (function(_super) {
       __extends(Idle, _super);
 
@@ -1807,6 +2145,12 @@
       };
 
       Idle.prototype.sender = function(time) {
+
+        /**
+         * @event onidle 
+         * Fired when the application is active and idle.
+         * @param {Number} time The number of milliseconds since the application started
+         */
         this.sendEvent('idle', time);
         return setTimeout((function(_this) {
           return function() {
