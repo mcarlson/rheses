@@ -106,14 +106,26 @@
       });
     </method>
 
-
-    <handler name="oninit">
+    <!-- Render a page using the current hash value -->
+    <method name="renderHash">
       // Page to show comes from the hash attribute. If the page is missing,
       // a default page is shown.
       var page = $(location).attr('hash').replace('#','');
       if (!page) page = 'default';
 
       this.renderPage (page);
+    </method>
+
+    <handler name="oninit">
+      
+      // Show the desired page from the hash value
+      this.renderHash();
+
+      // Listen for onhashchange to change pages
+      var $this = this;
+      $(window).bind('hashchange', function() {
+        $this.renderHash();
+      });
     </handler>
 
   </view>
