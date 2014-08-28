@@ -1,3 +1,9 @@
+   <!--/**
+     * @class lz.simplelayout
+     * @extends lz.layout
+     * A layout that stacks subviews on the x or y axis
+     */-->
+
     <class name="simplelayout" extends="layout" type="coffee">
       <attribute name="attribute" type="string" value="width"></attribute>
       <attribute name="inset" type="number" value="0"></attribute>
