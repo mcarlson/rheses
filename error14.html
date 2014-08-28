@@ -8,7 +8,16 @@
 </head>
 <body>
 <view id="all" width="100%" height="100%" clip="true">
-  <text2 width="100" height="100" text="Hello" bgcolor="green"></text2>
+
+  <class name="text2" clickable="true" width="${this.label.width}" height="${this.label.height}">
+    <text name="label" text="${this.parent.text}">
+  </class>
+
+  <text2 text="Click Me" bgcolor="red">
+    <handler name="onclick">
+      this.setAttribute('bgcolor', (this.bgcolor == 'red') ? 'green' : 'red');
+    </handler>
+  </text2>
 </view>
 </body>
 </html>

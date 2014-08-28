@@ -8,7 +8,13 @@
 </head>
 <body>
 <view id="all" width="100%" height="100%" clip="true">
-  <text2 width="100" height="100" text="Hello" bgcolor="green"></text2>
+
+  <view id="v1" width="50" height="50" bgcolor="#e0e0e0"></view>
+
+  <handler name="oninit">
+    console.log("oninit", this.v1);
+  </handler>
+
 </view>
 </body>
 </html>

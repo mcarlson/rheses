@@ -9,12 +9,13 @@
 <body>
 <view id="all" width="100%" height="100%" clip="true">
   <class name="error12" bgcolor="#808080">
-    <text name="label" text="Hello"></text>
+    <text name="label" text="Hello" onclick="this.setAttribute('text', 'foo')" bgcolor="red"></text>
 
-    <handler name="onwidth" reference="label" method="handleResize"></handler>
-    <handler name="onheight" reference="label" method="handleResize"></handler>
+    <handler name="onwidth" reference="this.label" method="handleResize"></handler>
+    <handler name="onheight" reference="this.label" method="handleResize"></handler>
 
     <method name="handleResize">
+      console.log('handleResize')
       this.set({'width':this.label.width, 'height':this.label.height});
     </method>
   </class>

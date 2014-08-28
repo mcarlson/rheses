@@ -1,118 +1,121 @@
-<!DOCTYPE html>
 
 <html lang="en">
 
   <head>
-    <title>ACE in Action</title>
-    <style type="text/css" media="screen">
-      #lesson {
-        position:absolute;
-        top:0;
-        left:0;
-        width:350px;
-        height:100%;
-        padding:15px;
+    <title>Dreem in 10</title>
+    <script type="text/javascript" src="/lib/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="/lib/acorn.js"></script>
+    <script type="text/javascript" src="/lib/coffee-script.js"></script>
+    <script type="text/javascript" src="/layout.js"></script>
+
+    <style type="text/css">
+      html {
+        height: 100%;
       }
-
-      #lessonText {
-        padding-bottom:15px;
-      }
-
-      #editor {
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        left: 350px;
-        width:400px;
-      }
-
-      iframe {
-        position:absolute;
-        top:0;
-        left:750px;
-        width:500px;
-        height:100%;
-      }
-
-      #renderBtn {
-        position:absolute;
-        top:0;
-        left:1250px;
-      }
-
-      #nextBtn {
-
-      }
-
-      #prevBtn {
-
+      body {
+        min-height: 100%;
       }
     </style>
 
-    <script src="jquery-2.1.1.min.js" type="text/javascript"></script>
+
   </head>
 
   <body>
 
-    <div id="lesson">
-      <h1>Lesson Text</h1>
+  <view id="all" width="${lz.window.width}" height="${lz.window.height}" clip="true">
 
-      <div id="lessonText"></div>
+    <view name="lesson" width="${this.parent.width/4}" height="${this.parent.height}" bgcolor="#e0e0e0">
+      <text text="Execute button" bgcolor="green">
+        <handler name="onclick">
+          prefix = 
+	    ['&lt;view id="all" width="600" height="600" clip="true">'].join('\n');
 
-      <button id="prevBtn">Prev</button>
-      <button id="nextBtn">Next</button>
-    </div>
+          // setTimeout added for Firefox
+	  postfix = 
+	    ['&lt;/view>',
+	     '&lt;script>$(function(){setTimeout(function(){window.frames[0].lz.initElements()}, 0);});&lt;/script>'].join('\n');
 
-    <div id="editor">function foo(items) {
-      var x = "All this is syntax highlighted";
-      return x;
-      }</div>
+          contents = this.parent.parent.editor.text;
+	  fullcontents = prefix + contents + postfix;
+          fullcontents = fullcontents.replace('&lt;', '<');
+          this.parent.parent.renderFrame.setAttribute('contents', fullcontents);
+        </handler>
+      </text>
+      <text x="0" y="40" name="description" width="${this.parent.width}" height="${this.parent.height-this.y}" bgcolor="#a0a0a0" multiline="true">
+      </text>
+    </view>
 
-    <iframe id="renderFrame" src="about:blank"></iframe>
 
-    <button id="renderBtn" onclick="render();">Render</button>
+    <ace name="editor" x="${this.parent.width/4}" width="${this.parent.width/2}" height="${this.parent.height}" text="" bgcolor="#808080">
+      <handler name="onwidth">
+        // console.log("ace: ", this.width, this.height);
+      </handler>
+      <handler name="onheight">
+        // console.log("ace: ", this.width, this.height);
+      </handler>
+    </ace>
 
-    <script src="./ace/ace-builds-master/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
-    <script>
-      var currentLessonNum = 0;
-      var editor = null;
+    <dreem_iframe name="renderFrame" x="${this.parent.width*3/4}" width="${this.parent.width/4}" height="${this.parent.height}" bgcolor="#e0e0e0">
+    </dreem_iframe>
 
-      var lessonSrcs = [];
-      lessonSrcs.push("<html>\n  <head>\n    <title>Lesson 1</title>\n  </head>\n  <body>\n    <h1>Lesson 1</h1>\n  </body>\n</html>");
-      lessonSrcs.push("<html>\n  <head>\n    <title>Lesson 2</title>\n  </head>\n  <body>\n    <h1>Lesson 2</h1>\n  </body>\n</html>");
-      var lessonTexts = ['Lesson 1 text', 'Lesson 2 text'];
+    <!-- Split the file into description and code.
+         The first comment block is the description.
+     -->
+    <method name="showLesson" args="contents">
+      var description = '';
+      var code = contents;
+      var p0 = contents.indexOf('/**');
+      if (p0 >= 0) {
+        var p1 = contents.indexOf('*/', p0);
+        if (p1 >= 0) {
+          description = contents.substr(p0+3, p1-(p0+3));
 
-      function render() {
-        $('#renderFrame').contents().find('html').html(editor.getValue());
-      }
-
-      function move(diff) {
-        currentLessonNum += diff;
-        if (currentLessonNum == lessonSrcs.length) {
-          currentLessonNum = 0;
-        } else if(currentLessonNum < 0) {
-          currentLessonNum = lessonSrcs.length - 1;
+          // The code starts at the first newline after the description
+          code = contents.substr(p1+2);
+          p0 = code.indexOf('\n');
+          if (p0 >= 0)
+            code = code.substr(p0+1);
         }
-
-        $('#lessonText').html(lessonTexts[currentLessonNum]);
-        editor.setValue(lessonSrcs[currentLessonNum]);
       }
 
-      $('document').ready(function() {
+      this.lesson.description.setAttribute('text', description);
+      this.editor.setAttribute('text', code);
+    </method>
 
-        $('#prevBtn').click(function() {
-          move(-1);
-        });
-        $('#nextBtn').click(function() {
-          move(1);
-        });
 
-        editor = ace.edit("editor");
-        editor.setTheme("ace/theme/monokai");
-        editor.getSession().setMode("ace/mode/javascript");
+    <!-- Given the page name, locate the lesson page and display it. If
+         missing, the default page is shown.
+    -->
+    <method name="renderPage" args="page">
+      var $this = this;
 
-        move(0);
+      // Retrieve this page, or use the default if missing
+      var lesson = 'din10';
+      url = "/docs/" + lesson + "/" + page + ".lzx";
+      $.ajax({
+        type: 'GET',
+        url: url,
+        success: function(data) {
+          $this.showLesson(data);
+        },
+        error: function() {
+          $.get("/docs/" + lesson + "/default.lzx", function(data) {
+            $this.showLesson(data);
+          });
+        }
       });
-    </script>
+    </method>
+
+
+    <handler name="oninit">
+      // Page to show comes from the hash attribute. If the page is missing,
+      // a default page is shown.
+      var page = $(location).attr('hash').replace('#','');
+      if (!page) page = 'default';
+
+      this.renderPage (page);
+    </handler>
+
+  </view>
   </body>
 </html>

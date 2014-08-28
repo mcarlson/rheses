@@ -1,0 +1,5 @@
+/** Simple example that shows two text strings. */
+<simplelayout axis="x" spacing="10"></simplelayout>
+<text bgcolor="red" text="Hello"></text>
+<text bgcolor="green" text="Goodbye"></text>
+

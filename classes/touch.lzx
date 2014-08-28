@@ -4,7 +4,7 @@
       <attribute name="touches" value="[]" type="expression"></attribute>
       <handler name="oninit">
         var _this = this;
-        handler = function (ev) {
+        var handler = function (ev) {
           //console.log(ev) 
           if (ev.touches && ev.touches.length) {
             // make a plain JSON object so it can be serialized

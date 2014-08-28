@@ -8,7 +8,18 @@
 </head>
 <body>
 <view id="all" width="100%" height="100%" clip="true">
-  <text2 width="100" height="100" text="Hello" bgcolor="green"></text2>
+
+  <class name="text2" extends="text">
+  </class>
+
+  <class name="text3" extends="text2">
+    <handler name="oninit" args="who">
+      console.log('oninit', who);
+    </handler>
+  </class>
+
+  <text3 text="Hello"></text3>
+
 </view>
 </body>
 </html>

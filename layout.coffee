@@ -298,6 +298,10 @@ window.lz = do ->
       # Install types
       @types = attributes.$types ? {}
       delete attributes.$types
+      skiponinit = attributes.$skiponinit
+      delete attributes.$skiponinit
+      deferbindings = attributes.$deferbindings
+      delete attributes.$deferbindings
 
       # store textual content
       if el?.textContent 
@@ -318,6 +322,9 @@ window.lz = do ->
 
         delete attributes.$handlers
 
+      unless deferbindings
+        @_bindHandlers()
+
       # Bind to event expressions and set attributes
       for name, value of attributes
         @bindAttribute(name, value, attributes.$tagname) unless name in lateattributes
@@ -327,7 +334,10 @@ window.lz = do ->
         @setAttribute(name, attributes[name]) if attributes[name]
 
       # console.log 'new node', @, attributes
-      @sendEvent('init', @) unless attributes.$skiponinit
+      unless skiponinit
+        unless @inited
+          @inited = true
+          @sendEvent('init', @) 
 
     installMethods: (methods, tagname, scope=@, callbackscope=@) ->
       # Install methods
@@ -336,6 +346,8 @@ window.lz = do ->
         _installMethod(scope, name, compiler.compile(methodspec[0], methodspec[1], "#{tagname}$#{name}").bind(callbackscope), methodspec[2])
 
     installHandlers: (handlers, tagname, scope=@) ->
+      # store list of handlers for late binding
+      @handlers ?= []
       for handler in handlers
         {name, script, args, reference, method} = handler
         # strip off leading 'on'
@@ -348,11 +360,7 @@ window.lz = do ->
         else
           handler.callback = _eventCallback(name, script, scope, tagname, args)
 
-        if reference?
-          # console.log('listening to reference', reference, eval(reference), name, callback)
-          scope.listenTo(eval(reference), name, handler.callback)
-        else
-          scope.bind(name, handler.callback)
+        @handlers.push({scope: @, name: name, callback: handler.callback, reference: reference})
 
     removeHandlers: (handlers, tagname, scope=@) ->
       for handler in handlers
@@ -447,6 +455,19 @@ window.lz = do ->
             boundref.bind?(property, constraint)
           
         @setAttribute(name, fn())
+      return
+
+    _bindHandlers: ->
+      for binding in @handlers
+        {scope, name, callback, reference} = binding
+        if reference
+          refeval = compiler.compile('return ' + reference).bind(scope)()
+          # console.log('binding to reference', reference, refeval, name, scope)
+          scope.listenTo(refeval, name, callback)
+        else
+          # console.log('binding to scope', scope, name)
+          scope.bind(name, callback)
+      @handlers = []
       return
 
     # generate a callback for a constraint expression, e.g. x="${this.parent.baz.x + 10}"
@@ -571,7 +592,11 @@ window.lz = do ->
 
     animate: =>
       @jqel ?= $(@el)
-      # console.log 'sprite animate', arguments, @jqel
+      for name, value of arguments[0]
+        if name of stylemap
+          arguments[0][stylemap[name]] = value
+          delete arguments[0][name]
+      # console.log 'sprite animate', arguments[0], @jqel
       @jqel.animate.apply(@jqel, arguments)
 
     set_clickable: (clickable) ->
@@ -845,7 +870,7 @@ window.lz = do ->
             scriptsloading = false
             if (initONE)
               # initialize ONE integration
-              scriptsloading = loadScript('lib/one_base.js', () ->
+              scriptsloading = loadScript('/lib/one_base.js', () ->
                 ONE.base_.call(Eventable::)
                 # hide builtin keys from learn()
                 Eventable::enumfalse(Eventable::keys())
@@ -888,7 +913,7 @@ window.lz = do ->
 
       tagname = el.localName
       if not (tagname of lz)
-        console.warn 'could not find class for tag', tagname, el unless tagname in builtinTags
+        console.warn 'could not find class for tag', tagname, el unless tagname in builtinTags or tagname in specialtags
         return
 
       attributes = flattenattributes(el.attributes)
@@ -909,6 +934,9 @@ window.lz = do ->
       unless (tagname is 'class') or (tagname is 'state') or (attributes.extends is 'state')
         dom.processSpecialTags(el, attributes, attributes.type)
 
+      # Defer oninit if we have children
+      attributes.$skiponinit = skiponinit = (child for child in el.childNodes when child.nodeType == 1).length > 0
+
       parent = new lz[tagname](el, attributes)
 
       unless tagname is 'class' or (tagname is 'state') or (attributes.extends is 'state')
@@ -917,6 +945,11 @@ window.lz = do ->
         for child in children
           # console.log 'initting class child', child.localName
           initElement(child, parent) unless child.localName in specialtags
+
+        if skiponinit
+          unless parent.inited
+            parent.inited = true
+            parent.sendEvent('init', parent) 
 
       return
 
@@ -1123,6 +1156,7 @@ window.lz = do ->
 
       for child in processedChildren
         child.parentNode.removeChild(child)
+      haschildren = (child for child in el.childNodes when child.nodeType == 1).length > 0
 
       # serialize the tag's contents for recreation with processedChildren removed
       instancebody = el.innerHTML.trim()
@@ -1164,6 +1198,8 @@ window.lz = do ->
 
         # skip Node.oninit event
         attributes.$skiponinit = true
+        # defer bindings until after children are created
+        attributes.$deferbindings = haschildren
 
         # console.log 'creating class instance', name, attributes.$tagname, instanceel, extend, attributes
         parent = new lz[extend](instanceel, attributes)
@@ -1190,9 +1226,11 @@ window.lz = do ->
             # console.log 'creating class child in parent', child, parent
             dom.initElement(child, parent)
 
-          # console.log 'done creating class instance', attributes.__classname if children.length
+        parent._bindHandlers()
 
-        parent.sendEvent('init')
+        unless parent.inited
+          parent.inited = true
+          parent.sendEvent('init', parent)
         return parent
 
 
