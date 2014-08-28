@@ -458,12 +458,12 @@
         }
         if (attributes.$handlers) {
           this.installHandlers(attributes.$handlers, attributes.$tagname);
-          _ref1 = attributes.$handlers;
-          for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-            _ref2 = _ref1[_i], name = _ref2.name, script = _ref2.script, args = _ref2.args, reference = _ref2.reference, method = _ref2.method;
-            name = name.substr(2);
-            if (__indexOf.call(mouseEvents, name) >= 0) {
-              if (attributes.clickable !== "false") {
+          if (attributes.clickable !== "false") {
+            _ref1 = attributes.$handlers;
+            for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+              _ref2 = _ref1[_i], name = _ref2.name, script = _ref2.script, args = _ref2.args, reference = _ref2.reference, method = _ref2.method;
+              name = name.substr(2);
+              if (__indexOf.call(mouseEvents, name) >= 0) {
                 attributes.clickable = true;
               }
             }
@@ -762,14 +762,25 @@
 
     })(Eventable);
     Sprite = (function() {
-      var capabilities, fcamelCase, noop, rdashAlpha, stylemap;
+      var capabilities, fcamelCase, noop, rdashAlpha, stylemap, styleval;
 
       noop = function() {};
 
       stylemap = {
         x: 'left',
         y: 'top',
-        bgcolor: 'backgroundColor'
+        bgcolor: 'backgroundColor',
+        visible: 'display'
+      };
+
+      styleval = {
+        display: function(isVisible) {
+          if (isVisible) {
+            return '';
+          } else {
+            return 'none';
+          }
+        }
       };
 
       fcamelCase = function(all, letter) {
@@ -804,6 +815,9 @@
         }
         if (name in stylemap) {
           name = stylemap[name];
+        }
+        if (name in styleval) {
+          value = styleval[name](value);
         } else if (name.match(rdashAlpha)) {
           name = name.replace(rdashAlpha, fcamelCase);
         }
@@ -977,7 +991,8 @@
           width: 'number',
           height: 'number',
           clickable: 'boolean',
-          clip: 'boolean'
+          clip: 'boolean',
+          visible: 'boolean'
         };
         for (key in types) {
           type = types[key];
@@ -991,6 +1006,9 @@
           types[key] = type;
         }
         attributes.$types = types;
+        if (__indexOf.call(attributes, 'visible') < 0) {
+          attributes.visible = true;
+        }
         if (el instanceof View) {
           el = el.sprite;
         }
@@ -1677,7 +1695,7 @@
 
       Layout.prototype.skip = function() {
         var _ref;
-        if (this.locked || (!((_ref = this.parent) != null ? _ref.subviews : void 0)) || (this.parent.subviews.length === 0)) {
+        if (this.locked || (!((_ref = this.parent) != null ? _ref.subviews : void 0)) || (this.parent.subviews.length === 0) || !this.inited) {
           return true;
         }
       };

@@ -310,11 +310,12 @@ window.lz = do ->
       if attributes.$handlers
         @installHandlers(attributes.$handlers, attributes.$tagname)
         # do this here for now - ugly though
-        for {name, script, args, reference, method} in attributes.$handlers
-          name = name.substr(2)
-          if name in mouseEvents
-            attributes.clickable = true unless attributes.clickable is "false"
-            # console.log 'registered for clickable', attributes.clickable
+        unless attributes.clickable is "false"
+          for {name, script, args, reference, method} in attributes.$handlers
+            name = name.substr(2)
+            if name in mouseEvents
+              attributes.clickable = true 
+              # console.log 'registered for clickable', attributes.clickable
 
         delete attributes.$handlers
 
@@ -536,7 +537,14 @@ window.lz = do ->
   class Sprite
 #    guid = 0
     noop = () ->
-    stylemap= {x: 'left', y: 'top', bgcolor: 'backgroundColor'}
+    stylemap = 
+      x: 'left'
+      y: 'top'
+      bgcolor: 'backgroundColor'
+      visible: 'display'
+    styleval =
+      display: (isVisible) ->
+        if isVisible then '' else 'none'
     fcamelCase = ( all, letter ) ->
       letter.toUpperCase()
     rdashAlpha = /-([\da-z])/gi
@@ -568,6 +576,8 @@ window.lz = do ->
       value ?= ''
       if name of stylemap
         name = stylemap[name] 
+      if name of styleval
+        value = styleval[name](value)
       else if name.match(rdashAlpha)
         # console.log "replacing #{name}"
         name = name.replace(rdashAlpha, fcamelCase)
@@ -690,7 +700,7 @@ window.lz = do ->
   class View extends mixOf Node, Clickable
     constructor: (el, attributes = {}) ->
       @subviews = []
-      types = {x: 'number', y: 'number', width: 'number', height: 'number', clickable: 'boolean', clip: 'boolean'}
+      types = {x: 'number', y: 'number', width: 'number', height: 'number', clickable: 'boolean', clip: 'boolean', visible: 'boolean'}
       for key, type of types
         if not (key of attributes)
           @[key] = if type is 'number' then 0 else false
@@ -699,6 +709,8 @@ window.lz = do ->
       for key, type of attributes.$types
         types[key] = type
       attributes.$types = types
+
+      attributes.visible = true unless 'visible' in attributes
 
       if (el instanceof View)
         el = el.sprite
@@ -1272,7 +1284,7 @@ window.lz = do ->
     
     # returns true if the layout should't update 
     skip: ->
-      true if @locked or (not @parent?.subviews) or (@parent.subviews.length == 0)
+      true if @locked or (not @parent?.subviews) or (@parent.subviews.length == 0) or not @inited
 
     destroy: (skipevents) ->
       @locked = true

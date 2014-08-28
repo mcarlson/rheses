@@ -9,6 +9,7 @@
       </handler>
       <handler name="onsubview" args="subview">
         # console.log('onsubview', @axis, @update, subview, this)
+        @listenTo(subview, 'visible', @update)
         @listenTo(subview, @attribute, @update)
       </handler>
       <setter name="spacing" args="spacing">
@@ -40,11 +41,11 @@
         pos = @inset
         skip = true if sender
         for subview, index in @parent.subviews
-          continue if subview.ignorelayout
-          if (skip and subview != sender)
+          continue if subview.ignorelayout or not subview.visible
+          if (skip and subview != sender and not subview.visible)
             # console.log 'skipping', index, subview, sender
           else 
-            # console.log 'updating', index, subview, @axis, pos, @parent.subviews
+            # console.log 'updating', subview.visible, index, subview, @axis, pos, @parent.subviews
             subview.setAttribute(@axis, pos) unless subview[@axis] == pos
             skip = false
           # console.log 'value', pos, @spacing, @inset, @axis, @attribute, subview, subview[@attribute]
