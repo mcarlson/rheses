@@ -1,37 +1,35 @@
     <class name="simplelayout" extends="layout" type="coffee">
-      <attribute name="attribute" type="string" value="x"></attribute>
+      <attribute name="attribute" type="string" value="width"></attribute>
       <attribute name="inset" type="number" value="0"></attribute>
       <attribute name="spacing" type="number" value="15"></attribute>
-      <attribute name="axis" type="string" value="width"></attribute>
-      <handler name="oninit">
-        # console.log('oninit', this)
-      </handler>
+      <attribute name="axis" type="string" value="x"></attribute>
       <handler name="oninset" args="inset">
         # console.log('oninset', inset)
         @update()
       </handler>
       <handler name="onsubview" args="subview">
         # console.log('onsubview', @axis, @update, subview, this)
-        @listenTo(subview, @axis, @update)
+        @listenTo(subview, 'visible', @update)
+        @listenTo(subview, @attribute, @update)
       </handler>
       <setter name="spacing" args="spacing">
         # console.log('spacing setter', spacing, this)
         @update()
       </setter>
-      <setter name="attribute" args="attr">
-        newaxis = switch attr
+      <setter name="axis" args="axis">
+        attribute = switch axis
           when 'x' then 'width' 
           when 'y' then 'height'
 
-        # console.log 'coffee', attr, arguments, @, @parent 
+        # console.log 'coffee', axis, arguments, @, @parent 
         unless @skip() 
           for subview in @parent.subviews
             @stopListening(subview, @axis, @update)
             @listenTo(subview, newaxis, @update)
 
-        @axis = newaxis
+        @attribute = attribute
 
-        # console.log('set_attribute', attr, typeof attr, @attribute, @axis, newaxis)
+        # console.log('set_attribute', axis, typeof axis, @attribute, @axis, attribute)
         @update()
       </setter>
       <method name="update" args="value, sender">
@@ -43,15 +41,15 @@
         pos = @inset
         skip = true if sender
         for subview, index in @parent.subviews
-          continue if subview.ignorelayout
-          if (skip and subview != sender)
+          continue if subview.ignorelayout or not subview.visible
+          if (skip and subview != sender and not subview.visible)
             # console.log 'skipping', index, subview, sender
           else 
-            # console.log 'updating', index, subview, @attribute, pos, @parent.subviews
-            subview.setAttribute(@attribute, pos) unless subview[@attribute] == pos
+            # console.log 'updating', subview.visible, index, subview, @axis, pos, @parent.subviews
+            subview.setAttribute(@axis, pos) unless subview[@axis] == pos
             skip = false
-          # console.log 'value', pos, @spacing, @inset, @attribute, @axis, subview, subview[@axis]
-          pos += @spacing + subview[@axis] 
+          # console.log 'value', pos, @spacing, @inset, @axis, @attribute, subview, subview[@attribute]
+          pos += @spacing + subview[@attribute] 
         @locked = locked
         return pos
       </method>

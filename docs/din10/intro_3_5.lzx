@@ -1,0 +1,4 @@
+/** Page 3. */
+<view width="200" height="200" bgcolor="red">
+  <text text="Hello!"></text>
+</view>

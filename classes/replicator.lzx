@@ -2,7 +2,39 @@
       <attribute name="pooling" value="false" type="boolean"></attribute>
       <attribute name="data" value="[]" type="expression"></attribute>
       <attribute name="classname" value="" type="string"></attribute>
-      <attribute name="datapath" value="" type="string"></attribute>
+      <!-- See https://github.com/flitbit/json-path for the spec on datapath -->
+      <setter name="datapath" args="datapath">
+        return unless datapath
+        # console.log('evaluating datapath', datapath)
+        re = /^\$([^\/]+)/
+        match = datapath.match(re)
+        if match and match[1]
+          # absolute datapath
+          @setAttribute('_dataset', match[1])
+          datapath = datapath.replace(re, '')
+
+        @datapath = datapath
+        @sendEvent('datapath', datapath)
+
+        @parsedpath = JsonPath.parseSelector(datapath)
+        # console.log('evaluated datapath', datapath, @parsedpath)
+      </setter>
+      <!-- TODO: why can't this attribute/setter be named _dataset? -->
+<!--       TODO: attribute value is overwritten by "" later!!!
+      <attribute name="_dataset" value="" type="string"></attribute> -->
+      <setter name="_dataset" args="dataset">
+        return unless dataset
+        @dataset = lz.datasets[dataset]
+        @_dataset = dataset
+
+        # console.log('listening to dataset', dataset, lz.datasets, @dataset, @_dataset)
+        @listenTo(@dataset, 'data', (data) =>
+          # console.log('callback', @, data)
+          @setAttribute('data', data)
+        )
+        @sendEvent('dataset', @dataset)
+      </setter>
+      <!-- TODO: make this a relative datapath -->
       <attribute name="sortfield" value="" type="string"></attribute>
       <attribute name="sortasc" value="true" type="boolean"></attribute>
       <attribute name="lazycount" value="Infinity" type="number"></attribute>
@@ -42,7 +74,9 @@
       <handler name="ondatapath" method="applyData"></handler>
       <handler name="ondestroy" method="clear"></handler>
       <method name="updateData" args="data">
-        @dataset.updateData(@parsedpath, data);
+        # remove dataset declaration
+        re = /^\$([^\/]+)/
+        @dataset.updateData(@datapath.replace(re, ''), data);
       </method>
       <method name="clear">
         # @parent.setAttribute('display', 'none')
@@ -64,33 +98,30 @@
         return if @locked
 
         if @datapath
-          re = /^\$([^\/]+)/
-          match = @datapath.match(re)
-          if match and match[1]
+          if @_dataset
             # absolute datapath
-            # console.log('evaluating datapath', @datapath, match[1])
-            @dataset = dataset = lz.datasets[match[1]]
-            # console.log('listening to dataset', dataset)
-            @listenTo(dataset, 'data', (data) =>
-              # console.log('callback', @, data)
-              @setAttribute('data', data)
-            )
-            @parsedpath = path = @datapath.replace(re, '')
-            if path == ''
-              # console.log('dataset only', dataset, dataset.data)
-              data = [dataset]
+            # console.log 'evaluating absolute datapath', @datapath, @_dataset
+            unless @dataset
+              console.warn 'missing dataset', @_dataset
+              return
+
+            if @datapath == '$' + @_dataset
+              # console.log('dataset only', @datapath, @dataset)
+              # replicate an instance with data attribute set to the dataset
+              data = [@dataset]
             else
-              # console.log('evaluating path', path, dataset.data)
-              data = JsonPath.resolve(dataset.data, path, @filterfunction?.bind(@))
+              # console.log('evaluating absolute selector', @datapath, @dataset.data, @parsedpath)
+              data = JsonPath.executeSelectors(@dataset.data, @parsedpath, @filterfunction?.bind(@))
           else 
-            # relative datapath, look for dataset in parent(s)
+            # relative datapath, look for dataset reference in parents
             parentdata = @_findInParents('data')
             if parentdata?
-              if parentdata instanceof lz.node and parentdata.data
-                # console.log 'found parentdata.data', parentdata, parentdata instanceof lz.node
+              # console.log 'found dataset in parent ', parentdata
+              if parentdata.$tagname is 'dataset' and parentdata.data
+                # console.log 'found parentdata.data', parentdata
                 parentdata = parentdata.data 
-              # console.log('parsing selector', @datapath, parentdata)
-              data = JsonPath.resolve(parentdata, @datapath, @filterfunction)
+              # console.log('executing relative selector', @datapath, @parsedpath, parentdata)
+              data = JsonPath.executeSelectors(parentdata, @parsedpath, @filterfunction?.bind(@))
               # console.log('looking for data', @datapath, parentdata, data)
             else
               console.warn('No parent datapath found', @datapath, @)
@@ -120,9 +151,11 @@
             layout.setAttribute('locked', true)
 
         #console.log @data.length
-        if @pooling and @children and @children.length >= @data.length
+        if @pooling and @children and @children.length == @data.length
           for child, i in @children
-            child.setAttribute('data', @data[i])
+            datum = @data[i]
+            # console.log 'replicator updating', i, child, 'in', datum
+            child.setAttribute('data', datum)
         else
           @clear()
           for datum in @data

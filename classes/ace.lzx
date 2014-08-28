@@ -16,6 +16,13 @@
       <handler name="onwidth" method="handleResize"></handler>
       <handler name="onheight" method="handleResize"></handler>
 
+      <!-- Fire onpause event when there is a pause in entry, msec.
+           Set to 0 to disable. -->
+      <attribute name="pausedelay" type="number" value="500"/>
+      <handler name="onpausedelay">
+        delete this._lastkeytime;
+      </handler>
+
       <handler name="oninit">
         // I couldn't get jquery syntax to work so directly modify the DOM.
         var acediv = document.createElement("DIV");
@@ -52,7 +59,23 @@
       <method name="handleChange">
         this.setAttribute('text', this.editor.getValue());
         //console.log("handleChange", this.text);
+        if (this.pausedelay > 0) {
+          this._lastkeytime = new Date();
+          //console.log("lastkeytime = ", this._lastkeytime);
+        }
       </method>
+
+      <handler name="onidle" reference="lz.idle">
+        if (this._lastkeytime) {
+          var now = new Date();
+          var elapsed = now - this._lastkeytime;
+            if (elapsed > this.pausedelay) {
+            // Editor has been silent. Show onkeypause event
+            delete this._lastkeytime;
+            this.sendEvent('keypause', this);
+          }
+        }
+      </handler>
 
       <method name="handleResize">
         if (this.editor) {

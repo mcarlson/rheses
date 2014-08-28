@@ -15,11 +15,15 @@
       <setter name="text" args="text">
         # console.log('set_text', text)
         if (text != @text)
-          @sprite.text(text)
+          @sprite.text(@format(text))
           @updateSize()
       </setter>
       <handler name="oninit">
         # console.log('oninit', @inited, @)
         @updateSize()
       </handler>
+      <!-- Override to change formatting -->
+      <method name="format" args="string">
+        return string
+      </method>
     </class>

@@ -24,34 +24,51 @@
 
   <view id="all" width="${lz.window.width}" height="${lz.window.height}" clip="true">
 
+    <!-- Until buttons are available -->
+    <class name="buttonhack" extends="text" clickable="true" bgcolor="green">
+    </class>
+
     <view name="lesson" width="${this.parent.width/4}" height="${this.parent.height}" bgcolor="#e0e0e0">
-      <text text="Execute button" bgcolor="green">
+      <simplelayout axis="y" spacing="10"></simplelayout>
+      
+      <buttonhack text="Execute button">
         <handler name="onclick">
-          prefix = 
-	    ['&lt;view id="all" width="600" height="600" clip="true">'].join('\n');
-
-          // setTimeout added for Firefox
-	  postfix = 
-	    ['&lt;/view>',
-	     '&lt;script>$(function(){setTimeout(function(){window.frames[0].lz.initElements()}, 0);});&lt;/script>'].join('\n');
-
-          contents = this.parent.parent.editor.text;
-	  fullcontents = prefix + contents + postfix;
-          fullcontents = fullcontents.replace('&lt;', '<');
-          this.parent.parent.renderFrame.setAttribute('contents', fullcontents);
+          this.parent.parent.execute();
         </handler>
+      </buttonhack>
+
+      <text name="description" width="${this.parent.width}" bgcolor="#e0e0e0" multiline="true">
       </text>
-      <text x="0" y="40" name="description" width="${this.parent.width}" height="${this.parent.height-this.y}" bgcolor="#a0a0a0" multiline="true">
-      </text>
+
+      <view name="lesson_buttons">
+        <simplelayout axis="x" spacing="3"></simplelayout>
+        <buttonhack name="prev" text="Previous Lesson">
+          <handler name="onclick">
+            //topview = this.parent.parent.parent;
+            topview = $('view').not('view view')[0].$view;
+            page = topview.prev_page;
+            if (page) window.location.hash = page;
+          </handler>
+        </buttonhack>
+
+        <buttonhack name="next" text="Next Lesson">
+          <handler name="onclick">
+            //topview = this.parent.parent.parent;
+            topview = $('view').not('view view')[0].$view;
+            page = topview.next_page;
+            if (page) window.location.hash = page;
+          </handler>
+        </buttonhack>
+
+      </view>
     </view>
 
 
     <ace name="editor" x="${this.parent.width/4}" width="${this.parent.width/2}" height="${this.parent.height}" text="" bgcolor="#808080">
-      <handler name="onwidth">
-        // console.log("ace: ", this.width, this.height);
-      </handler>
-      <handler name="onheight">
-        // console.log("ace: ", this.width, this.height);
+      <handler name="onkeypause">
+        // This fires after inactivity.
+        var topview = $('view').not('view view')[0].$view;
+        topview.execute();
       </handler>
     </ace>
 
@@ -61,7 +78,33 @@
     <!-- Split the file into description and code.
          The first comment block is the description.
      -->
-    <method name="showLesson" args="contents">
+    <method name="showLesson" args="contents,page">
+      // Parse the page name to see what buttons to show  (lesson_X_Y)
+      var topview = $('view').not('view view')[0].$view;
+      this.prev_page = null;
+      this.next_page = null;
+      elements = page.split('_', 3);
+      if (elements.length == 3) {
+        page0 = parseInt(elements[1]);
+        page1 = parseInt(elements[2]);
+       
+        viz = false;
+        if (page0 > 1) {
+          elements[1] = page0 - 1;
+          this.prev_page = elements.join('_');
+          viz = true;
+        }
+        topview.lesson.lesson_buttons.prev.setAttribute('visible', viz);
+
+        viz = false;
+        if (page0 < page1) {
+          elements[1] = page0 + 1;
+          this.next_page = elements.join('_');
+          viz = true;
+        }
+        topview.lesson.lesson_buttons.next.setAttribute('visible', viz);
+      }
+
       var description = '';
       var code = contents;
       var p0 = contents.indexOf('/**');
@@ -96,24 +139,50 @@
         type: 'GET',
         url: url,
         success: function(data) {
-          $this.showLesson(data);
+          $this.showLesson(data, page);
         },
         error: function() {
-          $.get("/docs/" + lesson + "/default.lzx", function(data) {
-            $this.showLesson(data);
-          });
+          page = 'intro_1_5.lzx'
+          url = "/docs/" + lesson + "/" + page + ".lzx";
+          $.get(url, function(data) { $this.showLesson(data, page);});
         }
       });
     </method>
 
+    <!-- Execute the text in the editor -->
+    <method name="execute">
+      prefix = '&lt;view id="all" width="600" height="600" clip="true">';
 
-    <handler name="oninit">
+      // setTimeout added for Firefox
+      postfix = 
+       ['&lt;/view>',
+        '&lt;script>$(function(){setTimeout(function(){window.frames[0].lz.initElements()}, 0);});&lt;/script>'].join('\n');
+
+      contents = this.editor.text;
+      fullcontents = prefix + contents + postfix;
+      fullcontents = fullcontents.replace('&lt;', '<');
+      this.renderFrame.setAttribute('contents', fullcontents);
+    </method>
+
+    <!-- Render a page using the current hash value -->
+    <method name="renderHash">
       // Page to show comes from the hash attribute. If the page is missing,
       // a default page is shown.
       var page = $(location).attr('hash').replace('#','');
-      if (!page) page = 'default';
+      if (!page) page = 'intro_1_5';
 
       this.renderPage (page);
+    </method>
+
+    <handler name="oninit">
+      // Show the desired page from the hash value
+      this.renderHash();
+
+      // Listen for onhashchange to change pages
+      var $this = this;
+      $(window).bind('hashchange', function() {
+        $this.renderHash();
+      });
     </handler>
 
   </view>
