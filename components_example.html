@@ -1,40 +1,52 @@
 <html>
 <head>
-  <title>Button Example</title>
-  <script type="text/javascript" src="lib/jquery-1.9.1.min.js"></script>
-  <script type="text/javascript" src="lib/acorn.js"></script>
-  <script type="text/javascript" src="lib/coffee-script.js"></script>
-  <script type="text/javascript" src="layout.js"></script>
+  <title>Components Example</title>
+  <script type="text/javascript" src="/lib/jquery-1.9.1.min.js"></script>
+  <script type="text/javascript" src="/lib/acorn.js"></script>
+  <script type="text/javascript" src="/lib/coffee-script.js"></script>
+  <script type="text/javascript" src="/layout.js"></script>
 
 </head>
 <body>
 
   <view id="all" width="100%" height="100%" clip="true">
 
-    <view name="labeltoggle">
-    <text name="ltlabel" text="Label Toggle:"></text>
-    <labeltoggle name="lt1" x="${this.parent.ltlabel.width+10}" width="100" height="50" text="Fixed Size"></labeltoggle>
-    <labeltoggle name="lt2" x="${this.parent.lt1.x + this.parent.lt1.width+10}" text="Variable"></labeltoggle>
-    <labeltoggle name="lt3" x="${this.parent.lt2.x + this.parent.lt2.width + 10}" text="Long Button Name"></labeltoggle>
+    <simplelayout axis="y" spacing="20"></simplelayout>
+
+
+    <view name="labeltoggle" bgcolor="white">
+      <simplelayout axis="x" spacing="12"></simplelayout>
+      <boundslayout></boundslayout>
+      <text text="Label Toggle:"></text>
+      <labeltoggle name="lt1" width="100" height="50" text="Fixed Size"></labeltoggle>
+      <labeltoggle name="lt2" text="Variable"></labeltoggle>
+      <labeltoggle name="lt3" text="Long Button Name"></labeltoggle>
     </view>
 
-    <view name="labelbutton" y="100">
-    <text name="lblabel" text="Label Button:"></text>
-    <labelbutton name="lb1" x="${this.parent.lblabel.width+10}" width="100" height="50" text="Fixed Size"></labelbutton>
-    <labelbutton name="lb2" x="${this.parent.lb1.x + this.parent.lb1.width+10}" text="Variable"></labelbutton>
-    <labelbutton name="lb3" x="${this.parent.lb2.x + this.parent.lb2.width + 10}" text="Long Button Name"></labelbutton>
+
+    <view name="labelbutton">
+      <simplelayout axis="x" spacing="12"></simplelayout>
+      <boundslayout></boundslayout>
+      <text name="lblabel" text="Label Button:"></text>
+      <labelbutton name="lb1" width="100" height="50" text="Fixed Size"></labelbutton>
+      <labelbutton name="lb2" text="Variable"></labelbutton>
+      <labelbutton name="lb3" text="Long Button Name"></labelbutton>
     </view>
-  <view>
+
 
     <class name="mycheckbutton" extends="checkbutton" defaultcolor="red" selectcolor="green"></class>
 
+
     <view name="checkbutton" y="200">
-    <text name="cblabel" text="Check Button:"></text>
-    <mycheckbutton name="cb1" x="${this.parent.cblabel.width+10}" width="100" height="50" text="Fixed Size"></mycheckbutton>
-    <mycheckbutton name="cb2" x="${this.parent.cb1.x + this.parent.cb1.width+10}" text="Variable"></mycheckbutton>
-    <mycheckbutton name="cb3" x="${this.parent.cb2.x + this.parent.cb2.width + 10}" text="Long Button Name"></mycheckbutton>
+      <simplelayout axis="x" spacing="12"></simplelayout>
+      <boundslayout></boundslayout>
+      <text name="cblabel" text="Check Button:"></text>
+      <mycheckbutton name="cb1" width="100" height="50" text="Fixed Size"></mycheckbutton>
+      <mycheckbutton name="cb2" text="Variable"></mycheckbutton>
+      <mycheckbutton name="cb3" text="Long Button Name"></mycheckbutton>
     </view>
-  <view>
+
+  </view>
 
 </body>
 </html>

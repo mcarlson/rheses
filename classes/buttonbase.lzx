@@ -17,6 +17,8 @@
 
       <!-- visualize: Show the current button state -->
       <method name="visualize">
+        # Hack. Should be @inited
+        return unless @realinited
         return unless @visual
         @visual.setAttribute('bgcolor', if @selected then @selectcolor else @defaultcolor);
       </method>

@@ -1,22 +1,28 @@
     <class name="labelbutton" type="coffee" extends="buttonbase">
 
       <handler name="oninit">
-        return if @_initted
-        @_initted = true
+        #TODO Remove this hack when oninit works
+        $this = @;
+        func = () -> $this.realinit()
+        setTimeout(func, 0)
+      </handler>
 
+      <method name="realinit">
         # visual is the object that makes a visual change when selected
         @visual = @
 
+        @realinited = true
+
         # Detect if the button was supplied with a size
-        if (@width > 0 || @height > 0)
-          @_fixedsize = true
+        @_fixedsize = true if (@width > 0 || @height > 0)
+          
         @handleResize()
 
         @visualize()
-      </handler>
+      </method>
 
       <method name="handleResize">
-        return unless @_initted
+        return unless @realinited  #Hack. Should be @inited
         return if @_resize_lock
 
         if (@label.width > 0 && @label.height > 0)
