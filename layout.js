@@ -534,6 +534,11 @@
        * Gives this node a global ID, which can be looked up in the global window object.
        * Take care to not override builtin globals, or override your own instances!
        */
+
+      /**
+       * @cfg {String} scriptincludes 
+       * A comma separated list of javascript includes to load as dependencies. Useful if you need to ensure a third party library is available.
+       */
       var lateattributes, matchConstraint, _eventCallback, _installMethod;
 
       __extends(Node, _super);
