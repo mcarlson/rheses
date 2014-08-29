@@ -229,6 +229,7 @@ window.lz = do ->
       @
 
     ###*
+    # @ignore
     # Calls setAttribute for each name/value pair in the attributes object
     # @param {Object} attributes An object of name/value pairs to be set
     ###
@@ -355,7 +356,7 @@ window.lz = do ->
   # @extends Eventable
   # The nonvisual base class for everything in dreem. Handles parent/child relationships between tags.
   # 
-  # Nodes can contain methods, handlers, setters, attributes and other node instances.
+  # Nodes can contain methods, handlers, setters, constraints, attributes and other node instances.
   ###
   class Node extends Eventable
     ###*
@@ -820,19 +821,25 @@ window.lz = do ->
   # @extends lz.node
   # The visual base class for everything in dreem. Views extend lz.node to add the ability to set and animate visual attributes, and interact with the mouse.
   #
+  # Views are positioned inside their parent according to their x and y coordinates.
+  # 
+  # Views can contain methods, handlers, setters, constraints, attributes and other view, node or class instances.
+  #
+  # Views can be easily converted to reusable classes/tags by changing their outermost &lt;view> tags to &lt;class> and adding a name attribute.
+  #
   # Views support a number of builtin attributes. Setting attributes that aren't listed explicitly will pass through to the underlying Sprite implementation.
   # 
-  # Views can contain methods, handlers, setters, attributes and other view, node or class instances.
-  #
+  # Views currently integrate with jQuery, so any changes made to their CSS via jQuery will automatically cause them to update.
+  # 
   # Note that dreem apps must be contained inside a top-level &lt;view>&lt;/view> tag.
   ###
   class View extends Node
     ###*
-    # @cfg {Number} [x="0"]
+    # @cfg {Number} [x=0]
     # This view's x position
     ###
     ###*
-    # @cfg {Number} [y="0"]
+    # @cfg {Number} [y=0]
     # This view's y position
     ###
     ###*
@@ -1365,25 +1372,28 @@ window.lz = do ->
     remove: () ->
       @setAttribute('applied', false) if @applied
 
+
   ###*
   # @class lz.class
-  # Allows new tags to be created. Classes can extend any other class, and they extend lz.view by default. 
+  # Allows new tags to be created. Classes only be created with the &lt;class>&lt;/class> tag syntax. 
+  # 
+  # Classes can extend any other class, and they extend lz.view by default. 
   # 
   # Once declared, classes invoked with the declarative syntax, e.g. &lt;classname>&lt;/classname>.
   #
-  # Like views and nodes, classes can contain methods, handlers, setters, attributes and other view, node or class instances.
+  # Like views and nodes, classes can contain methods, handlers, setters, constraints, attributes and other view, node or class instances.
   ###
   class Class
     ###*
     # @cfg {String} name (required)
-    # The name of the new class and tag. 
+    # The name of the new tag. 
     ###
     ###*
-    # @cfg {String} [extends=lz.view] 
-    # The name of the class that should be extended.
+    # @cfg {String} [extends=view] 
+    # The name of a class that should be extended.
     ###
     ###*
-    # @cfg {"js"/"coffee"} [type="js"] 
+    # @cfg {"js"/"coffee"} [type=js] 
     # The default compiler to use for methods, setters and handlers. Either 'js' or 'coffee'
     ###
     clone = (obj) ->
@@ -1869,6 +1879,7 @@ window.lz = do ->
   ###*
   # @class lz
   # Holds builtin and user-created classes and public APIs.
+  # 
   # All classes listed here can be invoked with the declarative syntax, e.g. &lt;node>&lt;/node> or &lt;view>&lt;/view>
   ###
   exports = 
@@ -1892,6 +1903,94 @@ window.lz = do ->
     ###
     writeCSS: dom.writeCSS
 
+  # virtual classes declared for documentation purposes
+  ###*
+  # @class lz.method
+  # Declares a method in a node, view, class or other class instance. Methods can only be created with the &lt;method>&lt;/method> tag syntax. 
+  # 
+  # If a method overrides an existing method, any existing (super) method(s) will be called first automatically.
+  ###
+  ###*
+  # @cfg {String} name (required)
+  # The name of the method.
+  ###
+  ###*
+  # @cfg {String[]} args
+  # A comma separated list of method arguments.
+  ###
+  ###*
+  # @cfg {"js"/"coffee"} type 
+  # The default compiler to use for this method. Inherits from the immediate class if unspecified.
+  ###
+
+  ###*
+  # @class lz.setter
+  # Declares a setter in a node, view, class or other class instance. Setters can only be created with the &lt;setter>&lt;/setter> tag syntax.
+  #
+  # Setters are called when an attribute is set based on their name, and allow the behavior of an attribute changes to be modified.
+  # 
+  # If a setter overrides an existing method, any existing (super) method(s) will be called first automatically.
+  ###
+  ###*
+  # @cfg {String} name (required)
+  # The name of the method.
+  ###
+  ###*
+  # @cfg {String[]} args
+  # A comma separated list of method arguments.
+  ###
+  ###*
+  # @cfg {"js"/"coffee"} type 
+  # The default compiler to use for this method. Inherits from the immediate class if unspecified.
+  ###
+
+  ###*
+  # @class lz.handler
+  # Declares a handler in a node, view, class or other class instance. Handlers can only be created with the &lt;handler>&lt;/handler> tag syntax.
+  #
+  # Handlers are called when an event fires with  new value, if available.
+  ###
+  ###*
+  # @cfg {String} name (required)
+  # The name of the event to listen for, e.g. 'onwidth'.
+  ###
+  ###*
+  # @cfg {String} reference
+  # If set, the handler will listen for an event in another scope.
+  ###
+  ###*
+  # @cfg {String} method
+  # If set, the handler call a local method. Useful when multiple handlers need to do the same thing.
+  ###
+  ###*
+  # @cfg {String[]} args
+  # A comma separated list of method arguments.
+  ###
+  ###*
+  # @cfg {"js"/"coffee"} type 
+  # The default compiler to use for this method. Inherits from the immediate class if unspecified.
+  ###
+
+  ###*
+  # @class lz.attribute
+  # Declares an attribute in a node, view, class or other class instance. Attributes can only be created with the &lt;attribute>&lt;/attribute> tag syntax.
+  # 
+  # Attributes allow classes to declare new variables with a specific type and default value. 
+  #
+  # Attributes automatically send events when their value changes.
+  ###
+  ###*
+  # @cfg {String} name (required)
+  # The name of the attribute
+  ###
+  ###*
+  # @cfg {"string"/"number"/"boolean"/"json"} [type=string] (required)
+  # The type of the attribute. Used to convert from string to an appropriate representation of the type.
+  ###
+  ###*
+  # @cfg {String} value (required)
+  # The initial value for the attribute
+  ###
 
 lz.writeCSS()
 $(window).on('load', -> 
