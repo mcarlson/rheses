@@ -1,5 +1,13 @@
-    <!-- Set the parent's width/height to match the bounds of all its children -->
+   <!--/**
+     * @class lz.boundslayout
+     * @extends lz.layout
+     * Sets the parent view's size to match the bounds of its children.
+     */-->    
     <class name="boundslayout" extends="layout" type="coffee">
+      <!--/**
+        * @cfg {""/"width"/"height"} [ignoreattr=""]
+        * Optionally skip bounds calculations for a specific axis.
+        */-->
       <attribute name="ignoreattr" type="string" value=""></attribute>
       <attribute name="width" type="number" value="0"></attribute>
       <attribute name="height" type="number" value="0"></attribute>
@@ -40,7 +48,7 @@
           width = 0
           height = 0
           for subview, len in @parent.subviews
-            continue if subview.ignorelayout
+            continue if subview.ignorelayout or not subview.visible
             # console.log 'updating', subview, @attribute, pos
             width = Math.max(width, subview.x + subview.width) unless @ignoreattr == 'width'
             height = Math.max(height, subview.y + subview.height) unless @ignoreattr == 'height'
