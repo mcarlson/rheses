@@ -13,7 +13,7 @@ building
 --------
 This is only required when editing the coffeescript core.
 
-    coffee -j layout.js -mo ./ -cw *.coffee
+    coffee -mo ./ -cw *.coffee
 
 To build the api documentation, install [https://github.com/senchalabs/jsduck]() and run:
 

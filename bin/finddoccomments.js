@@ -2,7 +2,7 @@ var fs = require('fs');
 
 var basepath = "./classes/"
 
-var regex = /(\<\!\-\-\/\*\*)([^]*)(\*\/\-\-\>)/gm
+var regex = /\/\*\*([\S\s]*?)\*\//mg
 
 fs.readdir(basepath,function(err,files){
   if(err) throw err;
@@ -13,10 +13,11 @@ fs.readdir(basepath,function(err,files){
     var matches = data.toString().match(regex);
 
     if (matches) {
-    	var match = matches[0];
-    	match =  match.replace('<!--', '');
-    	match = match.replace('-->', '');
-    	console.log(match)
+      matches.forEach(function(match){
+      	match =  match.replace('<!--', '');
+      	match = match.replace('-->', '');
+      	console.log(match)
+      });
     }
   });
 });

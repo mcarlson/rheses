@@ -3,11 +3,22 @@
      * @extends lz.layout
      * A layout that stacks subviews on the x or y axis
      */-->
-
     <class name="simplelayout" extends="layout" type="coffee">
       <attribute name="attribute" type="string" value="width"></attribute>
+      <!--/**
+        * @cfg {Number} [inset=0]
+        * Amount to inset the layout
+        */-->
       <attribute name="inset" type="number" value="0"></attribute>
+      <!--/**
+        * @cfg {Number} [spacing=15]
+        * Amount of spacing between views
+        */-->
       <attribute name="spacing" type="number" value="15"></attribute>
+      <!--/**
+        * @cfg {String} [axis=x]
+        * The axis to stack on, either x or y
+        */-->
       <attribute name="axis" type="string" value="x"></attribute>
       <handler name="oninset" args="inset">
         # console.log('oninset', inset)
