@@ -32,9 +32,9 @@ window.lz = do ->
   ###*
   # @class Events
   # @private
-  # A lightweight event system used internally.
-  # based on https://github.com/spine/spine/tree/dev/src
+  # A lightweight event system, used internally.
   ###
+  # based on https://github.com/spine/spine/tree/dev/src
   Events =
     ###*
     # Binds an event to the current scope
@@ -154,8 +154,9 @@ window.lz = do ->
   ###*
   # @class Module
   # @private
-  # Coffeescript mixins adapted from https://github.com/spine/spine/tree/dev/src
+  # Adds basic mixin support.
   ###
+  # Coffeescript mixins adapted from https://github.com/spine/spine/tree/dev/src
   moduleKeywords = ['included', 'extended']
   class Module
     ###*
@@ -173,7 +174,7 @@ window.lz = do ->
   ###*
   # @class Eventable
   # @extends Module
-  # The baseclass used by everything in dreem. Provides events via Eventable, adds higher level event APIs
+  # The baseclass used by everything in dreem. Adds higher level event APIs.
   ###
   class Eventable extends Module
     ###*
@@ -352,16 +353,18 @@ window.lz = do ->
   ###*
   # @class lz.node
   # @extends Eventable
-  # The nonvisual base class for everything in dreem. Handles parent/child relationships
+  # The nonvisual base class for everything in dreem. Handles parent/child relationships between tags.
+  # 
+  # Nodes can contain methods, handlers, setters, attributes and other node instances.
   ###
   class Node extends Eventable
     ###*
     # @cfg {String} name 
-    # Names this node so it can be referred to later
+    # Names this node in its parent scope so it can be referred to later.
     ###
     ###*
     # @cfg {String} id 
-    # Gives this node a globally referenced ID, which can be looked up in the global window object.
+    # Gives this node a global ID, which can be looked up in the global window object.
     # Take care to not override builtin globals, or override your own instances!
     ###
     matchConstraint = /\${(.+)}/
@@ -370,7 +373,7 @@ window.lz = do ->
 
     constructor: (el, attributes = {}) ->
       ###*
-      # @property {Array} subnodes
+      # @property {lz.node[]} subnodes
       # @readonly
       # An array of this node's child nodes
       ###
@@ -651,7 +654,7 @@ window.lz = do ->
   ###*
   # @class Sprite
   # @private
-  # Abstracts the underlying visual primitives (HTML currently) from dreem's view system
+  # Abstracts the underlying visual primitives (currently HTML) from dreem's view system.
   ###
   class Sprite
 #    guid = 0
@@ -815,7 +818,13 @@ window.lz = do ->
   ###*
   # @class lz.view
   # @extends lz.node
-  # The visual base class for everything in dreem.
+  # The visual base class for everything in dreem. Views extend lz.node to add the ability to set and animate visual attributes, and interact with the mouse.
+  #
+  # Views support a number of builtin attributes. Setting attributes that aren't listed explicitly will pass through to the underlying Sprite implementation.
+  # 
+  # Views can contain methods, handlers, setters, attributes and other view, node or class instances.
+  #
+  # Note that dreem apps must be contained inside a top-level &lt;view>&lt;/view> tag.
   ###
   class View extends Node
     ###*
@@ -878,7 +887,7 @@ window.lz = do ->
     ###
     constructor: (el, attributes = {}) ->
       ###*
-      # @property {Array} subviews
+      # @property {lz.view[]} subviews
       # @readonly
       # An array of this views's child views
       ###
@@ -888,7 +897,7 @@ window.lz = do ->
       # @param {lz.view} view The lz.view that fired the event
       ###
       ###*
-      # @property {Array} layouts
+      # @property {lz.layout[]} layouts
       # @readonly
       # An array of this views's layouts. Only defined when needed.
       ###
@@ -956,6 +965,7 @@ window.lz = do ->
     animate: ->
       # console.log 'animate', arguments, @sprite.animate
       @sprite.animate.apply(@, arguments)
+      @
 
     set_clip: (clip) ->
       @sprite.set_clip(clip)
@@ -1357,20 +1367,23 @@ window.lz = do ->
 
   ###*
   # @class lz.class
-  # Allows new classes and tags to be created. Classes extend lz.view by default.
+  # Allows new tags to be created. Classes can extend any other class, and they extend lz.view by default. 
+  # 
+  # Once declared, classes invoked with the declarative syntax, e.g. &lt;classname>&lt;/classname>.
+  #
+  # Like views and nodes, classes can contain methods, handlers, setters, attributes and other view, node or class instances.
   ###
   class Class
     ###*
     # @cfg {String} name (required)
     # The name of the new class and tag. 
-    # New classes are placed in the global lz object, e.g. lz.classname and are accessible in tag form, e.g. <classname></classname>
     ###
     ###*
-    # @cfg {String} [extends=view] 
+    # @cfg {String} [extends=lz.view] 
     # The name of the class that should be extended.
     ###
     ###*
-    # @cfg {String} [type=js] 
+    # @cfg {"js"/"coffee"} [type="js"] 
     # The default compiler to use for methods, setters and handlers. Either 'js' or 'coffee'
     ###
     clone = (obj) ->
@@ -1518,7 +1531,8 @@ window.lz = do ->
     # 
     ###*
     # @method update
-    # Called when the layout should be updated. Should be overriden to update the position of the subviews
+    # @abstract
+    # Called when the layout should be updated. Must be implemented to update the position of the subviews
     # @param value The value received from the node that updated
     # @param {lz.node} sender The node that updated
     ###
@@ -1600,6 +1614,7 @@ window.lz = do ->
 
   ###*
   # @class lz.idle
+  # @extends Eventable
   # Sends onidle events when the application is active and idle.
   ###
   class Idle extends StartEventable
@@ -1630,7 +1645,38 @@ window.lz = do ->
 
   # singleton that listens for mouse events. Holds data about the most recent left and top mouse coordinates
   mouseEvents = ['click', 'mouseover', 'mouseout', 'mousedown', 'mouseup']
+  ###*
+  # @class lz.mouse
+  # @extends Eventable
+  # Sends mouse events. Often used to listen to onmouseover/x/y events to follow the mouse position.
+  ###
   class Mouse extends StartEventable
+
+    ###*
+    # @event onclick 
+    # Fired when the mouse is clicked
+    # @param {lz.view} view The lz.view that fired the event
+    ###
+    ###*
+    # @event onmouseover 
+    # Fired when the mouse moves over a view
+    # @param {lz.view} view The lz.view that fired the event
+    ###
+    ###*
+    # @event onmouseout 
+    # Fired when the mouse moves off a view
+    # @param {lz.view} view The lz.view that fired the event
+    ###
+    ###*
+    # @event onmousedown 
+    # Fired when the mouse goes down on a view
+    # @param {lz.view} view The lz.view that fired the event
+    ###
+    ###*
+    # @event onmouseup 
+    # Fired when the mouse goes up on a view
+    # @param {lz.view} view The lz.view that fired the event
+    ###
     constructor: ->
       @x = 0
       @y = 0
@@ -1649,15 +1695,40 @@ window.lz = do ->
         view.sendEvent(type, view)
 
       if @eventStarted and type is 'mousemove'
+        ###*
+        # @property {Number} x
+        # @readonly
+        # The x coordinate of the mouse
+        ###
         @x = event.pageX
+        ###*
+        # @property {Number} y
+        # @readonly
+        # The y coordinate of the mouse
+        ###
         @y = event.pageY
         idle(0, @sender) 
       else 
         @sendEvent(type, view)
 
     sender: =>
+      ###*
+      # @event onmousemove 
+      # Fired when the mouse moves
+      # @param {Object} coordinates The x and y coordinates of the mouse
+      ###
       @sendEvent("mousemove", {x: @x, y: @y})
+      ###*
+      # @event onx 
+      # Fired when the mouse moves in the x axis
+      # @param {Number} x The x coordinate of the mouse
+      ###
       @sendEvent('x', @x)
+      ###*
+      # @event ony 
+      # Fired when the mouse moves in the y axis
+      # @param {Number} y The y coordinate of the mouse
+      ###
       @sendEvent('y', @y)
 
     handleDocEvent: (event) ->
@@ -1668,9 +1739,37 @@ window.lz = do ->
         @docSelector.on("mousemove", @handle).one("mouseout", @startEvent)
 
 
+  ###*
+  # @class lz.window
+  # @extends Eventable
+  # Sends window resize events. Often used to dynamically reposition views as the window size changes.
+  ###
   class Window extends StartEventable
     constructor: ->
       window.addEventListener('resize', @handle, false)
+
+      # Handle page visibility change   
+      @visible = true
+      if document.hidden?
+        # Opera 12.10 and Firefox 18 and later support 
+        hidden = "hidden"
+        visibilityChange = "visibilitychange"
+      else if document.mozHidden?
+        hidden = "mozHidden"
+        visibilityChange = "mozvisibilitychange"
+      else if document.msHidden?
+        hidden = "msHidden"
+        visibilityChange = "msvisibilitychange"
+      else if document.webkitHidden?
+        hidden = "webkitHidden"
+        visibilityChange = "webkitvisibilitychange"
+
+      handleVisibilityChange = () =>
+        @visible = document[hidden]
+        console.log('visibilitychange', @visible)
+        @sendEvent('visible', @visible)
+
+      document.addEventListener(visibilityChange, handleVisibilityChange, false)
       @handle()
 
     startEventTest: () ->
@@ -1678,13 +1777,29 @@ window.lz = do ->
 
     handle: (event) =>
       @width = window.innerWidth
+      ###*
+      # @event onwidth 
+      # Fired when the window resizes
+      # @param {Number} width The width of the window
+      ###
       @sendEvent('width', @width)
       @height = window.innerHeight
+      ###*
+      # @event onheight 
+      # Fired when the window resizes
+      # @param {Number} height The height of the window
+      ###
       @sendEvent('height', @height)
       # console.log('window resize', event, @width, @height)
 
 
+  ###*
+  # @class lz.keyboard
+  # @extends Eventable
+  # Sends keyboard events.
+  ###
   class Keyboard extends Eventable
+
     keyboardEvents = ['select', 'keyup', 'keydown', 'change']
 
     keys =
@@ -1698,28 +1813,59 @@ window.lz = do ->
       $(document).on(keyboardEvents.join(' '), @handle)
 
     handle: (event) =>
-      inputtext = event.target.$view
+      target = event.target.$view
       type = event.type
 
-      for key, value of keys
-        # console.log value, key
-        keys[key] = event[key]
+      if type != 'select'
+        for key, value of keys
+          # console.log value, key
+          keys[key] = event[key]
       keys.type = type
       
-      if inputtext
-        inputtext.sendEvent(type, keys)
+      if target
+        target.sendEvent(type, keys)
         # send text events for events that could cause text to change
         if (type == 'keydown' or type == 'keyup' or type == 'blur' or type == 'change')
           value = event.target.value
-          if (inputtext.text != value)
-            inputtext.text = value
-            inputtext.sendEvent('text', value)
+          if (target.text != value)
+            target.text = value
+            target.sendEvent('text', value)
 
-      # keys.inputtext = inputtext
-      @sendEvent(type, keys)
-      # console.log 'handleKeyboard', type, inputtext, keys, event
+      out = if type == 'select' then target else keys
+      ###*
+      # @event onselect 
+      # Fired when text is selected
+      # @param {lz.view} view The view that fired the event
+      ###
+      ###*
+      # @event onchange 
+      # Fired when an inputtext has changed
+      # @param {lz.view} view The view that fired the event
+      ###
+      ###*
+      # @event onkeydown 
+      # Fired when a key goes down
+      # @param {Object} keys An object representing the keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
+      ###
+      ###*
+      # @event onkeyup 
+      # Fired when a key goes up
+      # @param {Object} keys An object representing the keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
+      ###
+      @sendEvent(type, out)
+      ###*
+      # @event onkeys 
+      # Fired when a key is pressed on the keyboard
+      # @param {Object} keys An object representing the keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
+      ###
+      @sendEvent('keys', out) unless type == 'select'
+      # console.log 'handleKeyboard', type, target, out, event
 
-
+  ###*
+  # @class lz
+  # Holds builtin and user-created classes and public APIs.
+  # All classes listed here can be invoked with the declarative syntax, e.g. &lt;node>&lt;/node> or &lt;view>&lt;/view>
+  ###
   exports = 
     view: View
     class: Class
@@ -1730,7 +1876,15 @@ window.lz = do ->
     layout: Layout
     idle: new Idle()
     state: State
+    ###*
+    # @method initElements
+    # Initializes all top-level views found in the document. Called automatically when the page loads, but can be called manually as needed.
+    ###
     initElements: dom.initAllElements
+    ###*
+    # @method writeCSS
+    # Writes generic dreem-specific CSS to the document. Should only be called once.
+    ###
     writeCSS: dom.writeCSS
 
 

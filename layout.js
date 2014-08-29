@@ -63,8 +63,7 @@
     /**
      * @class Events
      * @private
-     * A lightweight event system used internally.
-     * based on https://github.com/spine/spine/tree/dev/src
+     * A lightweight event system, used internally.
      */
     Events = {
 
@@ -239,7 +238,7 @@
     /**
      * @class Module
      * @private
-     * Coffeescript mixins adapted from https://github.com/spine/spine/tree/dev/src
+     * Adds basic mixin support.
      */
     moduleKeywords = ['included', 'extended'];
     Module = (function() {
@@ -275,7 +274,7 @@
     /**
      * @class Eventable
      * @extends Module
-     * The baseclass used by everything in dreem. Provides events via Eventable, adds higher level event APIs
+     * The baseclass used by everything in dreem. Adds higher level event APIs.
      */
     Eventable = (function(_super) {
 
@@ -518,18 +517,20 @@
     /**
      * @class lz.node
      * @extends Eventable
-     * The nonvisual base class for everything in dreem. Handles parent/child relationships
+     * The nonvisual base class for everything in dreem. Handles parent/child relationships between tags.
+     * 
+     * Nodes can contain methods, handlers, setters, attributes and other node instances.
      */
     Node = (function(_super) {
 
       /**
        * @cfg {String} name 
-       * Names this node so it can be referred to later
+       * Names this node in its parent scope so it can be referred to later.
        */
 
       /**
        * @cfg {String} id 
-       * Gives this node a globally referenced ID, which can be looked up in the global window object.
+       * Gives this node a global ID, which can be looked up in the global window object.
        * Take care to not override builtin globals, or override your own instances!
        */
       var lateattributes, matchConstraint, _eventCallback, _installMethod;
@@ -547,7 +548,7 @@
         }
 
         /**
-         * @property {Array} subnodes
+         * @property {lz.node[]} subnodes
          * @readonly
          * An array of this node's child nodes
          */
@@ -916,7 +917,7 @@
     /**
      * @class Sprite
      * @private
-     * Abstracts the underlying visual primitives (HTML currently) from dreem's view system
+     * Abstracts the underlying visual primitives (currently HTML) from dreem's view system.
      */
     Sprite = (function() {
       var capabilities, fcamelCase, noop, rdashAlpha, stylemap, styleval;
@@ -1127,7 +1128,13 @@
     /**
      * @class lz.view
      * @extends lz.node
-     * The visual base class for everything in dreem.
+     * The visual base class for everything in dreem. Views extend lz.node to add the ability to set and animate visual attributes, and interact with the mouse.
+     *
+     * Views support a number of builtin attributes. Setting attributes that aren't listed explicitly will pass through to the underlying Sprite implementation.
+     * 
+     * Views can contain methods, handlers, setters, attributes and other view, node or class instances.
+     *
+     * Note that dreem apps must be contained inside a top-level &lt;view>&lt;/view> tag.
      */
     View = (function(_super) {
       __extends(View, _super);
@@ -1222,7 +1229,7 @@
         }
 
         /**
-         * @property {Array} subviews
+         * @property {lz.view[]} subviews
          * @readonly
          * An array of this views's child views
          */
@@ -1234,7 +1241,7 @@
          */
 
         /**
-         * @property {Array} layouts
+         * @property {lz.layout[]} layouts
          * @readonly
          * An array of this views's layouts. Only defined when needed.
          */
@@ -1314,7 +1321,8 @@
        */
 
       View.prototype.animate = function() {
-        return this.sprite.animate.apply(this, arguments);
+        this.sprite.animate.apply(this, arguments);
+        return this;
       };
 
       View.prototype.set_clip = function(clip) {
@@ -1811,23 +1819,26 @@
 
     /**
      * @class lz.class
-     * Allows new classes and tags to be created. Classes extend lz.view by default.
+     * Allows new tags to be created. Classes can extend any other class, and they extend lz.view by default. 
+     * 
+     * Once declared, classes invoked with the declarative syntax, e.g. &lt;classname>&lt;/classname>.
+     *
+     * Like views and nodes, classes can contain methods, handlers, setters, attributes and other view, node or class instances.
      */
     Class = (function() {
 
       /**
        * @cfg {String} name (required)
-       * The name of the new class and tag. 
-       * New classes are placed in the global lz object, e.g. lz.classname and are accessible in tag form, e.g. <classname></classname>
+       * The name of the new class and tag.
        */
 
       /**
-       * @cfg {String} [extends=view] 
+       * @cfg {String} [extends=lz.view] 
        * The name of the class that should be extended.
        */
 
       /**
-       * @cfg {String} [type=js] 
+       * @cfg {"js"/"coffee"} [type="js"] 
        * The default compiler to use for methods, setters and handlers. Either 'js' or 'coffee'
        */
       var clone;
@@ -2004,7 +2015,8 @@
 
       /**
        * @method update
-       * Called when the layout should be updated. Should be overriden to update the position of the subviews
+       * @abstract
+       * Called when the layout should be updated. Must be implemented to update the position of the subviews
        * @param value The value received from the node that updated
        * @param {lz.node} sender The node that updated
        */
@@ -2120,6 +2132,7 @@
 
     /**
      * @class lz.idle
+     * @extends Eventable
      * Sends onidle events when the application is active and idle.
      */
     Idle = (function(_super) {
@@ -2163,8 +2176,49 @@
 
     })(StartEventable);
     mouseEvents = ['click', 'mouseover', 'mouseout', 'mousedown', 'mouseup'];
+
+    /**
+     * @class lz.mouse
+     * @extends Eventable
+     * Sends mouse events. Often used to listen to onmouseover/x/y events to follow the mouse position.
+     */
     Mouse = (function(_super) {
       __extends(Mouse, _super);
+
+
+      /**
+       * @event onclick 
+       * Fired when the mouse is clicked
+       * @param {lz.view} view The lz.view that fired the event
+       */
+
+
+      /**
+       * @event onmouseover 
+       * Fired when the mouse moves over a view
+       * @param {lz.view} view The lz.view that fired the event
+       */
+
+
+      /**
+       * @event onmouseout 
+       * Fired when the mouse moves off a view
+       * @param {lz.view} view The lz.view that fired the event
+       */
+
+
+      /**
+       * @event onmousedown 
+       * Fired when the mouse goes down on a view
+       * @param {lz.view} view The lz.view that fired the event
+       */
+
+
+      /**
+       * @event onmouseup 
+       * Fired when the mouse goes up on a view
+       * @param {lz.view} view The lz.view that fired the event
+       */
 
       function Mouse() {
         this.sender = __bind(this.sender, this);
@@ -2189,7 +2243,19 @@
           view.sendEvent(type, view);
         }
         if (this.eventStarted && type === 'mousemove') {
+
+          /**
+           * @property {Number} x
+           * @readonly
+           * The x coordinate of the mouse
+           */
           this.x = event.pageX;
+
+          /**
+           * @property {Number} y
+           * @readonly
+           * The y coordinate of the mouse
+           */
           this.y = event.pageY;
           return idle(0, this.sender);
         } else {
@@ -2198,11 +2264,29 @@
       };
 
       Mouse.prototype.sender = function() {
+
+        /**
+         * @event onmousemove 
+         * Fired when the mouse moves
+         * @param {Object} coordinates The x and y coordinates of the mouse
+         */
         this.sendEvent("mousemove", {
           x: this.x,
           y: this.y
         });
+
+        /**
+         * @event onx 
+         * Fired when the mouse moves in the x axis
+         * @param {Number} x The x coordinate of the mouse
+         */
         this.sendEvent('x', this.x);
+
+        /**
+         * @event ony 
+         * Fired when the mouse moves in the y axis
+         * @param {Number} y The y coordinate of the mouse
+         */
         return this.sendEvent('y', this.y);
       };
 
@@ -2220,12 +2304,41 @@
       return Mouse;
 
     })(StartEventable);
+
+    /**
+     * @class lz.window
+     * @extends Eventable
+     * Sends window resize events. Often used to dynamically reposition views as the window size changes.
+     */
     Window = (function(_super) {
       __extends(Window, _super);
 
       function Window() {
         this.handle = __bind(this.handle, this);
+        var handleVisibilityChange, hidden, visibilityChange;
         window.addEventListener('resize', this.handle, false);
+        this.visible = true;
+        if (document.hidden != null) {
+          hidden = "hidden";
+          visibilityChange = "visibilitychange";
+        } else if (document.mozHidden != null) {
+          hidden = "mozHidden";
+          visibilityChange = "mozvisibilitychange";
+        } else if (document.msHidden != null) {
+          hidden = "msHidden";
+          visibilityChange = "msvisibilitychange";
+        } else if (document.webkitHidden != null) {
+          hidden = "webkitHidden";
+          visibilityChange = "webkitvisibilitychange";
+        }
+        handleVisibilityChange = (function(_this) {
+          return function() {
+            _this.visible = document[hidden];
+            console.log('visibilitychange', _this.visible);
+            return _this.sendEvent('visible', _this.visible);
+          };
+        })(this);
+        document.addEventListener(visibilityChange, handleVisibilityChange, false);
         this.handle();
       }
 
@@ -2236,14 +2349,32 @@
 
       Window.prototype.handle = function(event) {
         this.width = window.innerWidth;
+
+        /**
+         * @event onwidth 
+         * Fired when the window resizes
+         * @param {Number} width The width of the window
+         */
         this.sendEvent('width', this.width);
         this.height = window.innerHeight;
+
+        /**
+         * @event onheight 
+         * Fired when the window resizes
+         * @param {Number} height The height of the window
+         */
         return this.sendEvent('height', this.height);
       };
 
       return Window;
 
     })(StartEventable);
+
+    /**
+     * @class lz.keyboard
+     * @extends Eventable
+     * Sends keyboard events.
+     */
     Keyboard = (function(_super) {
       var keyboardEvents, keys;
 
@@ -2265,30 +2396,72 @@
       }
 
       Keyboard.prototype.handle = function(event) {
-        var inputtext, key, type, value;
-        inputtext = event.target.$view;
+        var key, out, target, type, value;
+        target = event.target.$view;
         type = event.type;
-        for (key in keys) {
-          value = keys[key];
-          keys[key] = event[key];
+        if (type !== 'select') {
+          for (key in keys) {
+            value = keys[key];
+            keys[key] = event[key];
+          }
         }
         keys.type = type;
-        if (inputtext) {
-          inputtext.sendEvent(type, keys);
+        if (target) {
+          target.sendEvent(type, keys);
           if (type === 'keydown' || type === 'keyup' || type === 'blur' || type === 'change') {
             value = event.target.value;
-            if (inputtext.text !== value) {
-              inputtext.text = value;
-              inputtext.sendEvent('text', value);
+            if (target.text !== value) {
+              target.text = value;
+              target.sendEvent('text', value);
             }
           }
         }
-        return this.sendEvent(type, keys);
+        out = type === 'select' ? target : keys;
+
+        /**
+         * @event onselect 
+         * Fired when text is selected
+         * @param {lz.view} view The view that fired the event
+         */
+
+        /**
+         * @event onchange 
+         * Fired when an inputtext has changed
+         * @param {lz.view} view The view that fired the event
+         */
+
+        /**
+         * @event onkeydown 
+         * Fired when a key goes down
+         * @param {Object} keys An object representing the keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
+         */
+
+        /**
+         * @event onkeyup 
+         * Fired when a key goes up
+         * @param {Object} keys An object representing the keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
+         */
+        this.sendEvent(type, out);
+
+        /**
+         * @event onkeys 
+         * Fired when a key is pressed on the keyboard
+         * @param {Object} keys An object representing the keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
+         */
+        if (type !== 'select') {
+          return this.sendEvent('keys', out);
+        }
       };
 
       return Keyboard;
 
     })(Eventable);
+
+    /**
+     * @class lz
+     * Holds builtin and user-created classes and public APIs.
+     * All classes listed here can be invoked with the declarative syntax, e.g. &lt;node>&lt;/node> or &lt;view>&lt;/view>
+     */
     return exports = {
       view: View,
       "class": Class,
@@ -2299,7 +2472,17 @@
       layout: Layout,
       idle: new Idle(),
       state: State,
+
+      /**
+       * @method initElements
+       * Initializes all top-level views found in the document. Called automatically when the page loads, but can be called manually as needed.
+       */
       initElements: dom.initAllElements,
+
+      /**
+       * @method writeCSS
+       * Writes generic dreem-specific CSS to the document. Should only be called once.
+       */
       writeCSS: dom.writeCSS
     };
   })();
