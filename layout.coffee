@@ -1767,6 +1767,11 @@ window.lz = do ->
       handleVisibilityChange = () =>
         @visible = document[hidden]
         console.log('visibilitychange', @visible)
+        ###*
+        # @event onvisible 
+        # Fired when the window visibility changes
+        # @param {Boolean} visible True if the window is currently visible
+        ###
         @sendEvent('visible', @visible)
 
       document.addEventListener(visibilityChange, handleVisibilityChange, false)

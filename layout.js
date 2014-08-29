@@ -2335,6 +2335,12 @@
           return function() {
             _this.visible = document[hidden];
             console.log('visibilitychange', _this.visible);
+
+            /**
+             * @event onvisible 
+             * Fired when the window visibility changes
+             * @param {Boolean} visible True if the window is currently visible
+             */
             return _this.sendEvent('visible', _this.visible);
           };
         })(this);
