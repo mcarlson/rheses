@@ -1380,6 +1380,8 @@ window.lz = do ->
   # Classes can extend any other class, and they extend lz.view by default. 
   # 
   # Once declared, classes invoked with the declarative syntax, e.g. &lt;classname>&lt;/classname>.
+  # 
+  # If a class can't be found in the document, dreem will automatically attempt to load it from the classes/* directory.
   #
   # Like views and nodes, classes can contain methods, handlers, setters, constraints, attributes and other view, node or class instances.
   ###
