@@ -1,0 +1,47 @@
+    <class name="buttonbase" type="coffee" clickable="true" clip="true">
+
+      <!-- padding: padding around button -->
+      <attribute name="padding" type="number" value="3"></attribute>
+
+      <!-- defaultcolor: background color of unselected button -->
+      <attribute name="defaultcolor" type="string" value="#808080"></attribute>
+      <handler name="ondefaultcolor" method="visualize"></handler>
+
+      <!-- selectcolor: background color of selected button -->
+      <attribute name="selectcolor" type="string" value="#a0a0a0"></attribute>
+      <handler name="onselectcolor" method="visualize"></handler>
+
+      <!-- selected: button state -->
+      <attribute name="selected" type="boolean" value="false"></attribute>
+      <handler name="onselected" method="visualize"></handler>
+
+      <!-- visualize: Show the current button state -->
+      <method name="visualize">
+        return unless @visual
+        @visual.setAttribute('bgcolor', if @selected then @selectcolor else @defaultcolor);
+      </method>
+
+      <!-- text_x, text_y: Location of button text within button -->
+      <attribute name="textx" type="number" value="0"></attribute>
+      <attribute name="texty" type="number" value="0"></attribute>
+
+      <!-- label: Text label -->
+      <text name="label" type="coffee" x="${this.parent.textx}" y="${this.parent.texty}" text="${this.parent.text}">
+        <!-- Temporary until I figure how to add handlers with references -->
+        <handler name="onwidth" method="handleResize"></handler>
+        <handler name="onheight" method="handleResize"></handler>
+
+        <method name="handleResize">
+          # Force an onwidth event in the parent to resize the button
+          @parent.sendEvent('width', @parent.width)
+        </method>
+      </text>
+
+      <handler name="onwidth" method="handleResize"></handler>
+      <handler name="onheight" method="handleResize"></handler>
+
+      <method name="handleResize">
+        # Custom behavior in subclasses
+      </method>
+
+    </class>

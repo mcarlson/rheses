@@ -1,0 +1,77 @@
+    <class name="checkbutton" type="coffee" extends="buttonbase" bgcolor="#808080">
+
+      <!-- check_x, check_y: Location of check box with button -->
+      <!-- check_w, check_h: Size of check box with button -->
+      <attribute name="checkx" type="number" value="0"></attribute>
+      <attribute name="checky" type="number" value="0"></attribute>
+      <attribute name="checkw" type="number" value="0"></attribute>
+      <attribute name="checkh" type="number" value="0"></attribute>
+
+      <!-- check: Show button state -->
+      <view name="check" x="${this.parent.checkx}" y="${this.parent.checky}" width="${this.parent.checkw}" height="${this.parent.checkh}"></view>
+ 
+      <handler name="oninit">
+        return if @_initted
+        return unless @check   # oninit can fire before children are inited
+        @_initted = true
+
+        # visual is the object that makes a visual change when selected
+        @visual = @check
+
+        # Detect if the button was supplied with a size
+        if (@width > 0 || @height > 0)
+          @_fixedsize = true
+        @handleResize()
+
+        @visualize()
+      </handler>
+
+      <method name="handleResize">
+        return unless @_initted
+        return if @_resize_lock
+
+        @_resize_lock = true
+        if (@label.width > 0 && @label.height > 0)
+          # Checkbox size
+          if @checkw != @label.height || @checkh != check.height
+            settings = 
+              checkw: @label.height
+              checkh: @label.height
+            @set(settings)
+
+          if @_fixedsize
+            #Fixed size button. position text in center of button
+
+            xoffset = (@width + @padding - @label.width - @checkw)/2
+            yoffset = (@height + @padding - @label.height)/2
+
+            settings = 
+              checkx:xoffset
+              checky:yoffset
+            @set(settings)
+
+            settings =
+              #width: @checkw + @label.width
+              #height: @label.height
+              textx: @checkx + @checkw
+              texty: yoffset
+            @set(settings)
+          else
+            #Variable size button. Resize button to text
+            settings =
+              checkx: @padding
+              checky: @padding
+              width: @checkw + @label.width
+              height: @label.height
+              textx: @padding + @checkx + @checkw
+              texty: @padding
+            @set(settings)
+
+        @_resize_lock = false
+      </method>
+
+      <handler name="onclick">
+        @setAttribute('selected', !@selected);
+      </handler>
+
+    </class>
