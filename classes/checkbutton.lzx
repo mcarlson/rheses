@@ -11,9 +11,15 @@
       <view name="check" x="${this.parent.checkx}" y="${this.parent.checky}" width="${this.parent.checkw}" height="${this.parent.checkh}"></view>
  
       <handler name="oninit">
-        return if @_initted
-        return unless @check   # oninit can fire before children are inited
-        @_initted = true
+        #TODO Remove this hack when oninit works
+        $this = @;
+        func = () -> $this.realinit()
+        setTimeout(func, 0)
+      </handler>
+
+      <method name="realinit">
+        @realinited = true
+        # return unless @check   # oninit can fire before children are inited
 
         # visual is the object that makes a visual change when selected
         @visual = @check
@@ -24,10 +30,10 @@
         @handleResize()
 
         @visualize()
-      </handler>
+      </method>
 
       <method name="handleResize">
-        return unless @_initted
+        return unless @realinited  #Hack. Should be @inited
         return if @_resize_lock
 
         @_resize_lock = true
