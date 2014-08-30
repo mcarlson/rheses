@@ -771,11 +771,10 @@
         if (methodname in scope) {
           supr = scope[methodname];
           meth = method;
-          scope[methodname] = function() {
+          return scope[methodname] = function() {
             supr.apply(scope, arguments);
             return meth.apply(scope, arguments);
           };
-          return console.log('overrode method', methodname, scope, supr, meth);
         } else {
           return scope[methodname] = method;
         }
@@ -1589,7 +1588,7 @@
         if (parent != null) {
           attributes.parent = parent;
         }
-        if (!((tagname === 'class') || (tagname === 'state') || (attributes["extends"] === 'state'))) {
+        if (!((tagname === 'class') || (tagname.indexOf('state') > -1) || (attributes["extends"] === 'state'))) {
           dom.processSpecialTags(el, attributes, attributes.type);
         }
         attributes.$skiponinit = skiponinit = ((function() {
@@ -1605,7 +1604,7 @@
           return _results;
         })()).length > 0;
         parent = new lz[tagname](el, attributes);
-        if (!(tagname === 'class' || (tagname === 'state') || (attributes["extends"] === 'state'))) {
+        if (!(tagname === 'class' || (tagname.indexOf('state') > -1) || (attributes["extends"] === 'state'))) {
           children = (function() {
             var _j, _len1, _ref, _results;
             _ref = el.childNodes;
@@ -1746,6 +1745,15 @@
         writeCSS: writeCSS
       };
     })();
+
+    /**
+     * @class lz.state
+     * Allows a group of attributes, methods, handlers and instances to be removed and applied as a group.
+     * 
+     * Like views and nodes, states can contain methods, handlers, setters, constraints, attributes and other view, node or class instances.
+     *
+     * Currently, states must include the string 'state' in their name to work properly.
+     */
     State = (function(_super) {
       __extends(State, _super);
 
@@ -1784,6 +1792,7 @@
           handler = _ref1[_j];
           if (handler.name === 'onapplied') {
             this.installHandlers([handler], 'state', this);
+            this._bindHandlers();
           }
         }
         for (name in attributes) {
@@ -1804,6 +1813,12 @@
         this.enumfalse(this.keys);
       }
 
+
+      /**
+       * @cfg {Boolean} [applied=false]
+       * If true, the state is applied.
+       */
+
       State.prototype.set_applied = function(applied) {
         var name, parentname, val, _results;
         if (!this.parent) {
@@ -1813,11 +1828,11 @@
           return;
         }
         this.applied = applied;
-        this.sendEvent('applied', applied);
         if (applied) {
           this.parent.learn(this);
           if (this.stateattributes.$handlers) {
             this.parent.installHandlers(this.stateattributes.$handlers, this.parent.$tagname, this.parent);
+            this.parent._bindHandlers();
           }
         } else {
           this.parent.forget(this);
@@ -2375,7 +2390,6 @@
         handleVisibilityChange = (function(_this) {
           return function() {
             _this.visible = document[hidden];
-            console.log('visibilitychange', _this.visible);
 
             /**
              * @event onvisible 

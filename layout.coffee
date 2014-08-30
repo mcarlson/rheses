@@ -507,6 +507,7 @@ window.lz = do ->
     bindAttribute: (name, value, tagname) ->
       constraint = value.match?(matchConstraint)
       if constraint
+        # console.log('applying constraint', name, constraint[1])
         @_applyConstraint(name, constraint[1])
       else if name.indexOf('on') == 0
         name = name.substr(2)
@@ -544,7 +545,7 @@ window.lz = do ->
           # console.log 'applying overridden method', methodname, arguments
           supr.apply(scope, arguments)
           meth.apply(scope, arguments)
-        console.log('overrode method', methodname, scope, supr, meth)
+        # console.log('overrode method', methodname, scope, supr, meth)
       else
         scope[methodname] = method
       # console.log('installed method', methodname, scope, scope[methodname])
@@ -1199,7 +1200,7 @@ window.lz = do ->
       attributes.parent = parent if parent?
       # console.log 'parent for tag', tagname, attributes, parent
 
-      unless (tagname is 'class') or (tagname is 'state') or (attributes.extends is 'state')
+      unless (tagname is 'class') or (tagname.indexOf('state') > -1) or (attributes.extends is 'state')
         dom.processSpecialTags(el, attributes, attributes.type)
 
       # Defer oninit if we have children
@@ -1207,7 +1208,7 @@ window.lz = do ->
 
       parent = new lz[tagname](el, attributes)
 
-      unless tagname is 'class' or (tagname is 'state') or (attributes.extends is 'state')
+      unless tagname is 'class' or (tagname.indexOf('state') > -1) or (attributes.extends is 'state')
         children = (child for child in el.childNodes when child.nodeType == 1)
         # create children now
         for child in children
@@ -1300,7 +1301,14 @@ window.lz = do ->
       processSpecialTags: processSpecialTags
       writeCSS: writeCSS
 
-
+  ###*
+  # @class lz.state
+  # Allows a group of attributes, methods, handlers and instances to be removed and applied as a group.
+  # 
+  # Like views and nodes, states can contain methods, handlers, setters, constraints, attributes and other view, node or class instances.
+  #
+  # Currently, states must include the string 'state' in their name to work properly.
+  ###
   class State extends Node
     constructor: (el, attributes = {}) ->
       @skipattributes = ['parent', 'types', 'applyattributes', 'applied', 'skipattributes', 'stateattributes']
@@ -1346,6 +1354,7 @@ window.lz = do ->
         if handler.name == 'onapplied'
           # console.log('found onapplied', handler) 
           @installHandlers([handler], 'state', @)
+          @_bindHandlers()
 
       for name, value of attributes
         unless name in @skipattributes or name.charAt(0) == '$'
@@ -1366,11 +1375,14 @@ window.lz = do ->
       @enumfalse(@skipattributes)
       @enumfalse(@keys)
 
+    ###*
+    # @cfg {Boolean} [applied=false]
+    # If true, the state is applied.
+    ###
     set_applied: (applied) ->
       return unless @parent
       return if @applied == applied
       @applied = applied
-      @sendEvent('applied', applied)
 
       # console.log('set_applied', applied, @, @parent)
       if applied
@@ -1378,6 +1390,7 @@ window.lz = do ->
         if @stateattributes.$handlers
           # console.log('installing handlers', @stateattributes.$handlers)
           @parent.installHandlers(@stateattributes.$handlers, @parent.$tagname, @parent)
+          @parent._bindHandlers()
       else
         @parent.forget @
         if @stateattributes.$handlers
@@ -1806,7 +1819,7 @@ window.lz = do ->
 
       handleVisibilityChange = () =>
         @visible = document[hidden]
-        console.log('visibilitychange', @visible)
+        # console.log('visibilitychange', @visible)
         ###*
         # @event onvisible 
         # Fired when the window visibility changes
