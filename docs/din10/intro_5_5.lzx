@@ -1,6 +1,26 @@
-/** Page 5. */
-<view width="200" height="200" bgcolor="red">
-  <text text="Hello!"></text>
+/** Example 5.
+    Applications can also be written with coffeescript syntax. This shows the 
+    animation example of example 3 using coffeescript syntax. This also
+    demonstrates setting multiple attributes at the same time, using 'set'
+    instead of 'setAttribute'
+ */
+<view type="coffee" width="100" height="100" bgcolor="red">
+  <text name="mytext" text="Hello World!"></text>
+
+  <handler name="oninit">
+    @animate({width:200, height:200})
+  </handler>
+
+  <handler name="onwidth" method="handleResize"></handler>
+  <handler name="onheight" method="handleResize"></handler>
+  <method name="handleResize">
+    return if !@inited
+
+    x = (@width - @mytext.width)/2
+    y = (@height - @mytext.height)/2
+    @mytext.set({x:x, y:y})
+  </method>
+
 </view>
 
 <!-- The MIT License (MIT)
