@@ -19,8 +19,26 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. -->
+
+  <!--/**
+     * @class lz.text
+     * @extends lz.view
+     * Text component that supports single and multi-line text. The text
+     * component can be fixed size, or sized to fit the size of the text.
+     */-->    
     <class name="text" type="coffee">
+      <!--/**
+        * @cfg {Boolean} [multiline=false]
+        * Set to true to show multi-line text.
+        */-->
       <attribute name="multiline" value="false" type="boolean"></attribute>
+
+      <!--/**
+        * @cfg {Boolean} [measuresize=true]
+        * By default, the text component is sized to the size of the text.
+        * By setting measuresize=false, the component size is not modified
+        * when the text changes.
+        */-->
       <attribute name="measuresize" value="true" type="boolean"></attribute>
       <handler name="onmultiline" method="updateSize"></handler>
       <method name="updateSize">
@@ -33,6 +51,10 @@ SOFTWARE. -->
       <handler name="ondata" args="d">
         @setAttribute('text', d)
       </handler>
+      <!--/**
+        * @cfg {String} [text=""]
+        * Component text.
+        */-->
       <setter name="text" args="text">
         # console.log('set_text', text)
         if (text != @text)
@@ -43,7 +65,14 @@ SOFTWARE. -->
         # console.log('oninit', @inited, @)
         @updateSize()
       </handler>
-      <!-- Override to change formatting -->
+
+      <!--/**
+        * @method format
+        * Format the text to be displayed. The default behavior is to 
+        * return the text intact. Override to change formatting.
+        * @param {String} str The current value of the text component.
+        * @return {String} The formated string to display in the component.
+        */-->
       <method name="format" args="string">
         return string
       </method>
