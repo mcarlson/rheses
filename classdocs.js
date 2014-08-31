@@ -136,6 +136,9 @@
      * @extends lz.view
      * Text component that supports single and multi-line text. The text
      * component can be fixed size, or sized to fit the size of the text.
+     *
+     *     @example
+     *     <text text="Hello World!" bgcolor="red"></text>
      */
 /**
         * @cfg {Boolean} [multiline=false]
