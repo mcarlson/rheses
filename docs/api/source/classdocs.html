@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js"><span id='lz-ace'>/**
+</span>     * @class lz.ace
+     * @extends lz.view
+     * Ace editor component.
+     */
+<span id='lz-ace-cfg-text'>/**
+</span>        * @cfg {String} [text=&quot;&quot;]
+        * Initial text for the ace editor.
+        */
+<span id='lz-ace-event-ontext'>/**
+</span>        * @event ontext
+        * Fired when the contents of the ace entry changes
+        * @param {lz.ace} view The lz.ace that fired the event
+        */
+<span id='lz-ace-cfg-pausedelay'>/**
+</span>        * @cfg {Number} [pausedelay=500]
+        * Time (msec) after user entry stops to fire onpausedelay event.
+        * 0 will disable this option.
+        */
+<span id='lz-ace-event-onpausedelay'>/**
+</span>        * @event onpausedelay
+        * Fired when user entries stops for a period of time.
+        * @param {lz.ace} view The lz.ace that fired the event
+        */
+<span id='lz-boundslayout'>/**
+</span>     * @class lz.boundslayout
+     * @extends lz.layout
+     * Sets the parent view&#39;s size to match the bounds of its children.
+     */
+<span id='lz-boundslayout-cfg-ignoreattr'>/**
+</span>        * @cfg {&quot;&quot;/&quot;width&quot;/&quot;height&quot;} [ignoreattr=&quot;&quot;]
+        * Optionally skip bounds calculations for a specific axis.
+        */
+<span id='lz-buttonbase'>/**
+</span>     * @class lz.buttonbase
+     * @extends lz.view
+     * Base class for button components. Buttons share common elements, 
+     * including their ability to be selected, a visual element to display
+     * their state, and a default and selected color.
+     * The visual element is a lz.view that shows the current state of the
+     * button. For example, in a labelbutton the entire button is the visual
+     * element. For a checkbutton, the visual element is a square lz.view
+     * that is inside the button.
+     */
+<span id='lz-buttonbase-cfg-padding'>/**
+</span>        * @cfg {Number} [padding=3]
+        * Amount of padding pixels around the button.
+        */
+<span id='lz-buttonbase-cfg-defaultcolor'>/**
+</span>        * @cfg {String} [defaultcolor=&quot;#808080&quot;]
+        * The default color of the visual button element when not selected.
+        */
+<span id='lz-buttonbase-cfg-selectcolor'>/**
+</span>        * @cfg {String} [selectcolor=&quot;#a0a0a0&quot;]
+        * The selected color of the visual button element when selected.
+        */
+<span id='lz-buttonbase-cfg-selected'>/**
+</span>        * @cfg {Boolean} [selected=false]
+        * The current state of the button.
+        */
+<span id='lz-buttonbase-event-onselected'>/**
+</span>        * @event onselected
+        * Fired when the state of the button changes.
+        * @param {lz.buttonbase} view The lz.buttonbase that fired the event
+        */
+<span id='lz-buttonbase-cfg-text'>/**
+</span>        * @cfg {String} [text=&quot;&quot;]
+        * Button text.
+        */
+<span id='lz-checkbutton'>/**
+</span>     * @class lz.checkbutton
+     * @extends lz.buttonbase
+     * Button class consisting of text and a visual element to show the
+     * current state of the component. The state of the
+     * button changes each time the button is clicked. The select property
+     * holds the current state of the button. The onselected event
+     * is generated when the button is the selected state.
+     */
+<span id='lz-dragstate'>/**
+</span>     * @class lz.dragstate
+     * @extends lz.state
+     * Allows views to be dragged by the mouse.
+     */
+<span id='lz-dragstate-cfg-dragaxis'>/**
+</span>        * @cfg {&quot;x&quot;/&quot;y&quot;/&quot;both&quot;} [dragaxis=&quot;both&quot;]
+        * The axes to drag on.
+        */
+<span id='lz-dreem_iframe'>/**
+</span>     * @class lz.dreem_iframe
+     * @extends lz.view
+     * iframe component for embedding dreem code or html in a dreem application.
+     * The size of the iframe matches the width/height of the view when the
+     * component is created.
+     * The file &#39;/iframe_stub.html&#39; contains the html to load into the iframe,
+     * including the required script elements to run dreem code.
+     */
+<span id='lz-dreem_iframe-cfg-contents'>/**
+</span>        * @cfg {String} [contents=&quot;&quot;]
+        * string to write into the iframe body. This is dreem code, or html
+        * that is written inside the iframe&#39;s body tag.
+        */
+<span id='lz-labelbutton'>/**
+</span>     * @class lz.labelbutton
+     * @extends lz.buttonbase
+     * Button class consisting of text centered in a view. The onclick event
+     * is generated when the button is clicked. The visual state of the 
+     * button changes during onmousedown/onmouseup.
+     */
+<span id='lz-labeltoggle'>/**
+</span>     * @class lz.labeltoggle
+     * @extends lz.labelbutton
+     * Button class consisting of text centered in a view. The state of the
+     * button changes each time the button is clicked. The select property
+     * holds the current state of the button. The onselected event
+     * is generated when the button is the selected state.
+     */
+<span id='lz-simplelayout'>/**
+</span>     * @class lz.simplelayout
+     * @extends lz.layout
+     * A layout that stacks views on the x or y axis.
+     */
+<span id='lz-simplelayout-cfg-inset'>/**
+</span>        * @cfg {Number} [inset=0]
+        * Amount to inset the layout
+        */
+<span id='lz-simplelayout-cfg-spacing'>/**
+</span>        * @cfg {Number} [spacing=15]
+        * Amount of spacing between views
+        */
+<span id='lz-simplelayout-cfg-axis'>/**
+</span>        * @cfg {&quot;x&quot;/&quot;y&quot;} [axis=x]
+        * The axis to stack on
+        */
+<span id='lz-text'>/**
+</span>     * @class lz.text
+     * @extends lz.view
+     * Text component that supports single and multi-line text. The text
+     * component can be fixed size, or sized to fit the size of the text.
+     */
+<span id='lz-text-cfg-multiline'>/**
+</span>        * @cfg {Boolean} [multiline=false]
+        * Set to true to show multi-line text.
+        */
+<span id='lz-text-cfg-measuresize'>/**
+</span>        * @cfg {Boolean} [measuresize=true]
+        * By default, the text component is sized to the size of the text.
+        * By setting measuresize=false, the component size is not modified
+        * when the text changes.
+        */
+<span id='lz-text-cfg-text'>/**
+</span>        * @cfg {String} [text=&quot;&quot;]
+        * Component text.
+        */
+<span id='lz-text-method-format'>/**
+</span>        * @method format
+        * Format the text to be displayed. The default behavior is to 
+        * return the text intact. Override to change formatting.
+        * @param {String} str The current value of the text component.
+        * @return {String} The formated string to display in the component.
+        */
+</pre>
+</body>
+</html>
