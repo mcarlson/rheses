@@ -1,6 +1,9 @@
-/** Page 2. */
-<view width="200" height="200" bgcolor="red">
-  <text text="Hello!"></text>
+/** Example 2.Animate the size of the box. */
+<view width="100" height="100" bgcolor="red">
+  <text text="Hello World!"></text>
+  <handler name="oninit">
+    this.animate({width:200, height:200});
+  </handler>
 </view>
 
 <!-- The MIT License (MIT)

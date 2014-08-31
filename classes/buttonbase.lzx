@@ -19,19 +19,49 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. -->
+
+  <!--/**
+     * @class lz.buttonbase
+     * @extends lz.view
+     * Base class for button components. Buttons share common elements, 
+     * including their ability to be selected, a visual element to display
+     * their state, and a default and selected color.
+     * The visual element is a lz.view that shows the current state of the
+     * button. For example, in a labelbutton the entire button is the visual
+     * element. For a checkbutton, the visual element is a square lz.view
+     * that is inside the button.
+     */-->    
     <class name="buttonbase" type="coffee" clickable="true" clip="true">
 
-      <!-- padding: padding around button -->
+      <!--/**
+        * @cfg {Number} [padding=3]
+        * Amount of padding pixels around the button.
+        */-->
       <attribute name="padding" type="number" value="3"></attribute>
 
-      <!-- defaultcolor: background color of unselected button -->
+      <!--/**
+        * @cfg {String} [defaultcolor="#808080"]
+        * The default color of the visual button element when not selected.
+        */-->
+      <!--/**
+        * @cfg {String} [selectcolor="#a0a0a0"]
+        * The selected color of the visual button element when selected.
+        */-->
       <attribute name="defaultcolor" type="string" value="#808080"></attribute>
       <handler name="ondefaultcolor" method="visualize"></handler>
 
-      <!-- selectcolor: background color of selected button -->
       <attribute name="selectcolor" type="string" value="#a0a0a0"></attribute>
       <handler name="onselectcolor" method="visualize"></handler>
 
+      <!--/**
+        * @cfg {Boolean} [selected=false]
+        * The current state of the button.
+        */-->
+      <!--/**
+        * @event onselected
+        * Fired when the state of the button changes.
+        * @param {lz.buttonbase} view The lz.buttonbase that fired the event
+        */-->
       <!-- selected: button state -->
       <attribute name="selected" type="boolean" value="false"></attribute>
       <handler name="onselected" method="visualize"></handler>
@@ -49,6 +79,10 @@ SOFTWARE. -->
       <attribute name="texty" type="number" value="0"></attribute>
 
       <!-- label: Text label -->
+      <!--/**
+        * @cfg {String} [text=""]
+        * Button text.
+        */-->
       <text name="label" type="coffee" x="${this.parent.textx}" y="${this.parent.texty}" text="${this.parent.text}">
         <!-- Temporary until I figure how to add handlers with references -->
         <handler name="onwidth" method="handleResize"></handler>

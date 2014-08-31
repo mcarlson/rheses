@@ -19,10 +19,26 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. -->
+
+  <!--/**
+     * @class lz.dreem_iframe
+     * @extends lz.view
+     * iframe component for embedding dreem code or html in a dreem application.
+     * The size of the iframe matches the width/height of the view when the
+     * component is created.
+     * The file '/iframe_stub.html' contains the html to load into the iframe,
+     * including the required script elements to run dreem code.
+     */-->    
+
     <class name="dreem_iframe">
       <handler name="onwidth" method="handleResize"></handler>
       <handler name="onheight" method="handleResize"></handler>
 
+      <!--/**
+        * @cfg {String} [contents=""]
+        * string to write into the iframe body. This is dreem code, or html
+        * that is written inside the iframe's body tag.
+        */-->
       <setter name="contents" args="text">
         if (this.iframe) {
           $(this.iframe).contents().find('body').html(text);

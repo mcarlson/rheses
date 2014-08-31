@@ -19,6 +19,16 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. -->
+
+  <!--/**
+     * @class lz.checkbutton
+     * @extends lz.buttonbase
+     * Button class consisting of text and a visual element to show the
+     * current state of the component. The state of the
+     * button changes each time the button is clicked. The select property
+     * holds the current state of the button. The onselected event
+     * is generated when the button is the selected state.
+     */-->    
     <class name="checkbutton" type="coffee" extends="buttonbase" bgcolor="#808080">
 
       <!-- check_x, check_y: Location of check box with button -->
