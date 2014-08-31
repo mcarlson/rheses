@@ -1558,7 +1558,7 @@
       specialtags = ['handler', 'method', 'attribute', 'setter', 'include'];
       builtinTags = ['a', 'abbr', 'address', 'area', 'article', 'aside', 'audio', 'b', 'base', 'bdi', 'bdo', 'blockquote', 'body', 'br', 'button', 'canvas', 'caption', 'cite', 'code', 'col', 'colgroup', 'command', 'datalist', 'dd', 'del', 'details', 'dfn', 'div', 'dl', 'dt', 'em', 'embed', 'fieldset', 'figcaption', 'figure', 'footer', 'form', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'head', 'header', 'hgroup', 'hr', 'html', 'i', 'iframe', 'img', 'input', 'ins', 'kbd', 'keygen', 'label', 'legend', 'li', 'link', 'map', 'mark', 'menu', 'meta', 'meter', 'nav', 'noscript', 'object', 'ol', 'optgroup', 'option', 'output', 'p', 'param', 'pre', 'progress', 'q', 'rp', 'rt', 'ruby', 's', 'samp', 'script', 'section', 'select', 'small', 'source', 'span', 'strong', 'style', 'sub', 'summary', 'sup', 'table', 'tbody', 'td', 'textarea', 'tfoot', 'th', 'thead', 'time', 'title', 'tr', 'track', 'u', 'ul', 'var', 'video', 'wbr'];
       initElement = function(el, parent) {
-        var attributes, child, children, event, eventname, skiponinit, tagname, _i, _j, _len, _len1, _ref;
+        var attributes, child, children, event, eventname, isstate, li, skiponinit, tagname, _i, _j, _len, _len1, _ref;
         if (el.$init) {
           return;
         }
@@ -1588,7 +1588,9 @@
         if (parent != null) {
           attributes.parent = parent;
         }
-        if (!((tagname === 'class') || (tagname.indexOf('state') > -1) || (attributes["extends"] === 'state'))) {
+        li = tagname.lastIndexOf('state');
+        isstate = li > -1 && li === tagname.length - 5;
+        if (!((tagname === 'class') || isstate)) {
           dom.processSpecialTags(el, attributes, attributes.type);
         }
         attributes.$skiponinit = skiponinit = ((function() {
@@ -1604,7 +1606,7 @@
           return _results;
         })()).length > 0;
         parent = new lz[tagname](el, attributes);
-        if (!(tagname === 'class' || (tagname.indexOf('state') > -1) || (attributes["extends"] === 'state'))) {
+        if (!(tagname === 'class' || isstate)) {
           children = (function() {
             var _j, _len1, _ref, _results;
             _ref = el.childNodes;
@@ -1748,11 +1750,12 @@
 
     /**
      * @class lz.state
+     * @extends lz.node
      * Allows a group of attributes, methods, handlers and instances to be removed and applied as a group.
      * 
      * Like views and nodes, states can contain methods, handlers, setters, constraints, attributes and other view, node or class instances.
      *
-     * Currently, states must include the string 'state' in their name to work properly.
+     * Currently, states must end with the string 'state' in their name to work properly.
      */
     State = (function(_super) {
       __extends(State, _super);
@@ -1812,6 +1815,13 @@
         this.enumfalse(this.skipattributes);
         this.enumfalse(this.keys);
       }
+
+
+      /**
+       * @event onapplied 
+       * Fired when the state has been applied or unapplied. Onapplied handlers run in the scope of the state itself, see dragstate for an example.
+       * @param {Boolean} applied If true, the state was applied.
+       */
 
 
       /**

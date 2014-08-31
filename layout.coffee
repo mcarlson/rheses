@@ -1200,7 +1200,9 @@ window.lz = do ->
       attributes.parent = parent if parent?
       # console.log 'parent for tag', tagname, attributes, parent
 
-      unless (tagname is 'class') or (tagname.indexOf('state') > -1) or (attributes.extends is 'state')
+      li = tagname.lastIndexOf('state')
+      isstate = li > -1 && li == tagname.length - 5
+      unless (tagname is 'class') or isstate
         dom.processSpecialTags(el, attributes, attributes.type)
 
       # Defer oninit if we have children
@@ -1208,7 +1210,7 @@ window.lz = do ->
 
       parent = new lz[tagname](el, attributes)
 
-      unless tagname is 'class' or (tagname.indexOf('state') > -1) or (attributes.extends is 'state')
+      unless tagname is 'class' or isstate
         children = (child for child in el.childNodes when child.nodeType == 1)
         # create children now
         for child in children
@@ -1303,11 +1305,12 @@ window.lz = do ->
 
   ###*
   # @class lz.state
+  # @extends lz.node
   # Allows a group of attributes, methods, handlers and instances to be removed and applied as a group.
   # 
   # Like views and nodes, states can contain methods, handlers, setters, constraints, attributes and other view, node or class instances.
   #
-  # Currently, states must include the string 'state' in their name to work properly.
+  # Currently, states must end with the string 'state' in their name to work properly.
   ###
   class State extends Node
     constructor: (el, attributes = {}) ->
@@ -1374,7 +1377,12 @@ window.lz = do ->
       # hide local properties we don't want applied to the parent by learn()
       @enumfalse(@skipattributes)
       @enumfalse(@keys)
-
+ 
+    ###*
+    # @event onapplied 
+    # Fired when the state has been applied or unapplied. Onapplied handlers run in the scope of the state itself, see dragstate for an example.
+    # @param {Boolean} applied If true, the state was applied.
+    ###
     ###*
     # @cfg {Boolean} [applied=false]
     # If true, the state is applied.

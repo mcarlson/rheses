@@ -19,14 +19,24 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. -->
+
+   <!--/**
+     * @class lz.dragstate
+     * @extends lz.state
+     * Allows views to be dragged by the mouse.
+     */-->
     <class name="dragstate" extends="state">
+      <!--/**
+        * @cfg {"x"/"y"/"both"} [dragaxis="both"]
+        * The axes to drag on.
+        */-->
       <attribute name="dragaxis" value="both" type="string"></attribute>
       <handler name="onapplied" args="applied">
         //console.log('onapplied', applied, this)
         if (applied) {
           var pos = this.parent.getAbsolute();
-          this.startx = lz.mouse.x - pos.x;
-          this.starty = lz.mouse.y - pos.y;
+          this.parent.startx = lz.mouse.x - pos.x;
+          this.parent.starty = lz.mouse.y - pos.y;
           //console.log('startx', pos, lz.mouse.x, lz.mouse.y, this.startx, this.starty)
         }
       </handler>
