@@ -24,10 +24,19 @@
 </head>
 <body>
   <view width="${lz.window.width}">
+    <shim id="bus"></shim>
+
     <simplelayout axis="y"></simplelayout>
     <dataset name="genres" url="moviegenres.json"></dataset>
 
-    <class name="highlight" x="30" extends="text"></class>
+    <class name="highlight" x="30" extends="text">
+      <handler name="onclick">
+        console.log('clicked', this.data, this.parent.data)
+        bus.send('genre', this.parent.data)
+      </handler>
+    </class>
+
+    <highlight>A single instance of highlight</highlight>
 
     <class name="genreview">
       <boundslayout></boundslayout>
