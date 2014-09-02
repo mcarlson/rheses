@@ -23,16 +23,18 @@
   <script type="text/javascript" src="layout.js"></script>
 </head>
 <body>
-  <view>
-    <simplelayout axis="y" spacing="0"></simplelayout>
-    <simplelayout axis="x" spacing="0"></simplelayout>
+  <view width="${lz.window.width}">
+    <wraplayout></wraplayout>
+    <!-- <simplelayout axis="x" spacing="0"></simplelayout> -->
     <dataset name="mydata">{"list": [1,"A string",3,4]}</dataset>
+    <dataset name="genres" url="moviegenres.json"></dataset>
 
-    <class name="highlight" extends="text" bgcolor="green"></class>
+    <class name="highlight" extends="text" bgcolor="green" transition="all 1s"></class>
 
     <highlight>More specific text</highlight>
-    <highlight color="red">Hello!</highlight>
-    <replicator classname="highlight" datapath="$mydata/list[*]"></replicator>
+    <!-- <replicator classname="highlight" data="[1,2,3,4]"></replicator> -->
+    <!-- <replicator classname="highlight" datapath="$mydata/list[*]"></replicator> -->
+    <replicator classname="highlight" datapath="$genres/genres[*]/name"></replicator>
     <text color="red">Hello again!</text>
   </view>
 <!-- The MIT License (MIT)
