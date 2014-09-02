@@ -34,6 +34,27 @@ SOFTWARE. -->
       </handler>
 
       <!--/**
+        * @cfg {string} [theme='ace/theme/chrome']
+        * Specify the ace theme to use.
+        */-->
+      <attribute name="theme" type="string" value="ace/theme/chrome"/>
+      <handler name="ontheme">
+        if (this.editor)
+          this.editor.setTheme(this.theme);
+      </handler>
+
+      <!--/**
+        * @cfg {string} [mode='ace/mode/lzx']
+        * Specify the ace mode to use.
+        */-->
+      <attribute name="mode" type="string" value="ace/mode/lzx"/>
+      <handler name="onmode">
+        if (this.editor)
+          this.editor.getSession().setMode(this.mode);
+      </handler>
+
+
+      <!--/**
         * @cfg {String} [text=""]
         * Initial text for the ace editor.
         */-->
@@ -80,8 +101,8 @@ SOFTWARE. -->
         this.editor = ace.edit(acediv);
 
         // Set a default theme and mode
-        this.editor.setTheme("ace/theme/chrome");
-        this.editor.getSession().setMode("ace/mode/lzx");
+        this.editor.setTheme(this.theme);
+        this.editor.getSession().setMode(this.mode);
 
         // Text changes immediately update this.text
         this.editor.on("change", this.handleChange);
