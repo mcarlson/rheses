@@ -43,6 +43,17 @@
         bus.send('y', y)
       </handler>
     </gyro>
+
+    <touch>
+      <handler name="onx" args="x">
+        cursor.setAttribute('x', x)
+        bus.send('tx', x)
+      </handler>
+      <handler name="ony" args="y">
+        cursor.setAttribute('y', y)
+        bus.send('ty', y)
+      </handler>
+    </touch>
   </view>
 </body>
 </html>
