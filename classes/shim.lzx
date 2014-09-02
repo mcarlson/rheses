@@ -35,10 +35,15 @@ SOFTWARE. -->
         * The frequency used to reconnect to the server
         */-->
       <attribute name="pingtime" value="1000" type="number"></attribute>
+      <!--/**
+        * @cfg {Boolean} [websockets=false]
+        * If true, use websockets to connect to the server
+        */-->
+      <attribute name="websockets" value="false" type="boolean"></attribute>
       <handler name="oninit">
         var url = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '') + '/';
         if (! window['Primus']) return;
-        this.primus = new Primus(url, {ping: this.pingtime, pong: this.pingtime});
+        this.primus = new Primus(url, {ping: this.pingtime, pong: this.pingtime, websockets: this.websockets});
         var _this = this;
         this.primus.on('message', function shim$message(msg) {
           // console.log('message', msg)

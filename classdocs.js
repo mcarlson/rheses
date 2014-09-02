@@ -128,6 +128,10 @@
         * The frequency used to reconnect to the server
         */
 /**
+        * @cfg {Boolean} [websockets=false]
+        * If true, use websockets to connect to the server
+        */
+/**
         * @method send
         * Sends some data over the event bus.
         * @param {String} type The type of event to be sent.
