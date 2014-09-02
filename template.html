@@ -24,7 +24,16 @@
 </head>
 <body>
   <view>
+    <simplelayout axis="y" spacing="0"></simplelayout>
+    <simplelayout axis="x" spacing="0"></simplelayout>
+    <dataset name="mydata">{"list": [1,"A string",3,4]}</dataset>
 
+    <class name="highlight" extends="text" bgcolor="green"></class>
+
+    <highlight>More specific text</highlight>
+    <highlight color="red">Hello!</highlight>
+    <replicator classname="highlight" datapath="$mydata/list[*]"></replicator>
+    <text color="red">Hello again!</text>
   </view>
 <!-- The MIT License (MIT)
 
