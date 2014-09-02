@@ -24,18 +24,19 @@
 </head>
 <body>
   <view width="${lz.window.width}">
-    <wraplayout></wraplayout>
-    <!-- <simplelayout axis="x" spacing="0"></simplelayout> -->
-    <dataset name="mydata">{"list": [1,"A string",3,4]}</dataset>
+    <simplelayout axis="y"></simplelayout>
     <dataset name="genres" url="moviegenres.json"></dataset>
 
-    <class name="highlight" extends="text" bgcolor="green" transition="all 1s"></class>
+    <class name="highlight" x="30" extends="text"></class>
 
-    <highlight>More specific text</highlight>
-    <!-- <replicator classname="highlight" data="[1,2,3,4]"></replicator> -->
-    <!-- <replicator classname="highlight" datapath="$mydata/list[*]"></replicator> -->
-    <replicator classname="highlight" datapath="$genres/genres[*]/name"></replicator>
-    <text color="red">Hello again!</text>
+    <class name="genreview">
+      <boundslayout></boundslayout>
+      <simplelayout axis="y"></simplelayout>
+      <replicator classname="text" datapath="/name"></replicator>
+      <replicator classname="highlight" datapath="/subgenres[*]/name"></replicator>
+    </class>
+
+    <replicator classname="genreview" datapath="$genres/genres[*]"></replicator>
   </view>
 <!-- The MIT License (MIT)
 
