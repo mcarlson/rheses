@@ -19,13 +19,31 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. -->
+   <!--/**
+     * @class lz.shim
+     * @extends lz.node
+     * Connects to the shared event bus. When data is sent with a given type, a corresponding event is sent. For example, send('blah', {}) sends data with the 'blah' type, other shims will receive the object via an 'onblah' event.
+     */-->
     <class name="shim" extends="node" scriptincludes="/primus/primus.io.js">
+      <!--/**
+        * @cfg {Boolean} [connected=false] (readonly)
+        * If true, we are connected to the server
+        */-->
       <attribute name="connected" value="false" type="boolean"></attribute>
+      <!--/**
+        * @cfg {Number} [pingtime=1000]
+        * The frequency used to reconnect to the server
+        */-->
       <attribute name="pingtime" value="1000" type="number"></attribute>
+      <!--/**
+        * @cfg {Boolean} [websockets=false]
+        * If true, use websockets to connect to the server
+        */-->
+      <attribute name="websockets" value="false" type="boolean"></attribute>
       <handler name="oninit">
         var url = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '') + '/';
         if (! window['Primus']) return;
-        this.primus = new Primus(url, {ping: this.pingtime, pong: this.pingtime});
+        this.primus = new Primus(url, {ping: this.pingtime, pong: this.pingtime, websockets: this.websockets});
         var _this = this;
         this.primus.on('message', function shim$message(msg) {
           // console.log('message', msg)
@@ -40,6 +58,12 @@ SOFTWARE. -->
           _this.sendEvent('error', err);
         });
       </handler>
+      <!--/**
+        * @method send
+        * Sends some data over the event bus.
+        * @param {String} type The type of event to be sent.
+        * @param {Object} data The data to be sent.
+        */-->
       <method name="send" args="type, data">
         if (this.connected) {
           var json = JSON.stringify({'type': type || 'data', data: data});

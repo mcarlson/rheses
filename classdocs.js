@@ -100,6 +100,43 @@
         * that is written inside the iframe's body tag.
         */
 /**
+     * @class lz.gyro
+     * @extends lz.node
+     * Receives gyroscope and compass data where available. See [https://w3c.github.io/deviceorientation/spec-source-orientation.html#deviceorientation](https://w3c.github.io/deviceorientation/spec-source-orientation.html#deviceorientation) and [https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html](https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html) for details.
+     */
+/**
+        * @cfg {Number} [x=0] (readonly)
+        * The accelerometer x value
+        */
+/**
+        * @cfg {Number} [y=0] (readonly)
+        * The accelerometer y value
+        */
+/**
+        * @cfg {Number} [z=0] (readonly)
+        * The accelerometer z value
+        */
+/**
+        * @cfg {Number} [alpha=0] (readonly)
+        * The gyro alpha value rotating around the z axis
+        */
+/**
+        * @cfg {Number} [beta=0] (readonly)
+        * The gyro beta value rotating around the x axis
+        */
+/**
+        * @cfg {Number} [gamma=0] (readonly)
+        * The gyro gamma value rotating around the y axis
+        */
+/**
+        * @cfg {Number} [compass=0] (readonly)
+        * The compass orientation, see [https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html](https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html) for details.
+        */
+/**
+        * @cfg {Number} [compassaccuracy=0] (readonly)
+        * The compass accuracy, see [https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html](https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html) for details.
+        */
+/**
      * @class lz.labelbutton
      * @extends lz.buttonbase
      * Button class consisting of text centered in a view. The onclick event
@@ -114,6 +151,29 @@
      * holds the current state of the button. The onselected event
      * is generated when the button is the selected state.
      */
+/**
+     * @class lz.shim
+     * @extends lz.node
+     * Connects to the shared event bus. When data is sent with a given type, a corresponding event is sent. For example, send('blah', {}) sends data with the 'blah' type, other shims will receive the object via an 'onblah' event.
+     */
+/**
+        * @cfg {Boolean} [connected=false] (readonly)
+        * If true, we are connected to the server
+        */
+/**
+        * @cfg {Number} [pingtime=1000]
+        * The frequency used to reconnect to the server
+        */
+/**
+        * @cfg {Boolean} [websockets=false]
+        * If true, use websockets to connect to the server
+        */
+/**
+        * @method send
+        * Sends some data over the event bus.
+        * @param {String} type The type of event to be sent.
+        * @param {Object} data The data to be sent.
+        */
 /**
      * @class lz.simplelayout
      * @extends lz.layout
@@ -160,4 +220,21 @@
         * return the text intact. Override to change formatting.
         * @param {String} str The current value of the text component.
         * @return {String} The formated string to display in the component.
+        */
+/**
+     * @class lz.touch
+     * @extends lz.node
+     * Receives touch and multitouch data where available.
+     */
+/**
+        * @cfg {Number} [x=0] (readonly)
+        * The touch x value for the first finger.
+        */
+/**
+        * @cfg {Number} [y=0] (readonly)
+        * The touch y value for the first finger.
+        */
+/**
+        * @cfg {String} touches (readonly)
+        * An array of x/y coordinates for all fingers, where available. See [https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Touch_events](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Touch_events) for more details
         */

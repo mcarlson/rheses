@@ -52,9 +52,9 @@
   hackstyle = (function() {
     var origstyle, stylemap, styletap;
     stylemap = {
-      left: 'x',
-      top: 'y',
-      'background-color': 'bgcolor'
+      left: &#39;x&#39;,
+      top: &#39;y&#39;,
+      &#39;background-color&#39;: &#39;bgcolor&#39;
     };
     origstyle = $.style;
     styletap = function(elem, name, value) {
@@ -116,8 +116,8 @@
        */
       bind: function(ev, callback) {
         var evs, name, _base, _i, _len;
-        evs = ev.split(' ');
-        if (!(this.hasOwnProperty('events') &amp;&amp; this.events)) {
+        evs = ev.split(&#39; &#39;);
+        if (!(this.hasOwnProperty(&#39;events&#39;) &amp;&amp; this.events)) {
           this.events = {};
         }
         for (_i = 0, _len = evs.length; _i &lt; _len; _i++) {
@@ -149,7 +149,7 @@
         var args, callback, ev, list, _i, _len, _ref;
         args = 1 &lt;= arguments.length ? __slice.call(arguments, 0) : [];
         ev = args.shift();
-        list = this.hasOwnProperty('events') &amp;&amp; ((_ref = this.events) != null ? _ref[ev] : void 0);
+        list = this.hasOwnProperty(&#39;events&#39;) &amp;&amp; ((_ref = this.events) != null ? _ref[ev] : void 0);
         if (!list) {
           return;
         }
@@ -251,7 +251,7 @@
           this.events = {};
           return this;
         }
-        evs = ev.split(' ');
+        evs = ev.split(&#39; &#39;);
         for (_i = 0, _len = evs.length; _i &lt; _len; _i++) {
           name = evs[_i];
           list = (_ref = this.events) != null ? _ref[name] : void 0;
@@ -282,7 +282,7 @@
      * @private
      * Adds basic mixin support.
      */
-    moduleKeywords = ['included', 'extended'];
+    moduleKeywords = [&#39;included&#39;, &#39;extended&#39;];
     Module = (function() {
       function Module() {}
 
@@ -295,7 +295,7 @@
       Module.include = function(obj) {
         var key, value, _ref;
         if (!obj) {
-          throw new Error('include(obj) requires obj');
+          throw new Error(&#39;include(obj) requires obj&#39;);
         }
         for (key in obj) {
           value = obj[key];
@@ -337,20 +337,20 @@
       typemappings = {
         number: parseFloat,
         boolean: function(val) {
-          if (typeof val === 'string') {
-            return val === 'true';
+          if (typeof val === &#39;string&#39;) {
+            return val === &#39;true&#39;;
           } else {
             return !!val;
           }
         },
         string: function(val) {
-          return val + '';
+          return val + &#39;&#39;;
         },
         json: function(val) {
           return JSON.parse(val);
         },
         expression: function(val) {
-          if (typeof val !== 'string') {
+          if (typeof val !== &#39;string&#39;) {
             return val;
           }
           return eval(val);
@@ -418,7 +418,7 @@
       var cacheKey, compile, compileCache, debug, exports, findBindings, localStorageWorks, scriptCache, strict, transform, usecache;
       localStorageWorks = (function() {
         var e, mod;
-        mod = 'modernizr';
+        mod = &#39;modernizr&#39;;
         try {
           localStorage.setItem(mod, mod);
           localStorage.removeItem(mod);
@@ -428,16 +428,19 @@
           return false;
         }
       })();
-      usecache = window.location.search.indexOf('nocache') === -1;
+      usecache = window.location.search.indexOf(&#39;nocache&#39;) === -1;
       if (!localStorageWorks) {
         usecache = false;
       }
-      debug = window.location.search.indexOf('debug') &gt; 0;
-      strict = window.location.search.indexOf('strict') &gt; 0;
+      debug = window.location.search.indexOf(&#39;debug&#39;) &gt; 0;
+      strict = window.location.search.indexOf(&#39;strict&#39;) &gt; 0;
       cacheKey = &quot;compilecache&quot;;
       if (usecache &amp;&amp; cacheKey in localStorage) {
         compileCache = JSON.parse(localStorage[cacheKey]);
       } else {
+        if (!usecache) {
+          localStorage.clear;
+        }
         compileCache = {
           bindings: {},
           script: {
@@ -448,7 +451,7 @@
           localStorage[cacheKey] = JSON.stringify(compileCache);
         }
       }
-      $(window).on('unload', function() {
+      $(window).on(&#39;unload&#39;, function() {
         if (usecache) {
           return localStorage[cacheKey] = JSON.stringify(compileCache);
         }
@@ -489,7 +492,7 @@
               return coffeeCache[script];
             }
             if (!window.CoffeeScript) {
-              console.warn('missing coffee-script.js include');
+              console.warn(&#39;missing coffee-script.js include&#39;);
               return;
             }
             if (script) {
@@ -501,7 +504,7 @@
         };
         return function(script, name) {
           if (script == null) {
-            script = '';
+            script = &#39;&#39;;
           }
           if (!(name in compilers)) {
             return script;
@@ -513,13 +516,13 @@
       compile = function(script, args, name) {
         var argstring, e, func, key;
         if (script == null) {
-          script = '';
+          script = &#39;&#39;;
         }
         if (args == null) {
           args = [];
         }
         if (name == null) {
-          name = '';
+          name = &#39;&#39;;
         }
         argstring = args.join();
         key = script + argstring + name;
@@ -538,7 +541,7 @@
           return scriptCache[key] = func;
         } catch (_error) {
           e = _error;
-          return console.error('failed to compile', e.toString(), args, script);
+          return console.error(&#39;failed to compile&#39;, e.toString(), args, script);
         }
       };
       return exports = {
@@ -587,7 +590,7 @@
 
       matchConstraint = /\${(.+)}/;
 
-      lateattributes = ['parent', 'name'];
+      lateattributes = [&#39;parent&#39;, &#39;name&#39;];
 
       function Node(el, attributes) {
         var args, deferbindings, method, name, reference, script, skiponinit, value, _i, _j, _len, _len1, _ref, _ref1, _ref2;
@@ -598,7 +601,7 @@
 <span id='lz-node-property-subnodes'>        /**
 </span>         * @property {lz.node[]} subnodes
          * @readonly
-         * An array of this node's child nodes
+         * An array of this node&#39;s child nodes
          */
         this.subnodes = [];
         this.types = (_ref = attributes.$types) != null ? _ref : {};
@@ -667,7 +670,7 @@
         if (!skiponinit) {
           if (!this.inited) {
             this.inited = true;
-            this.sendEvent('init', this);
+            this.sendEvent(&#39;init&#39;, this);
           }
         }
       }
@@ -748,7 +751,7 @@
         constraint = typeof value.match === &quot;function&quot; ? value.match(matchConstraint) : void 0;
         if (constraint) {
           return this._applyConstraint(name, constraint[1]);
-        } else if (name.indexOf('on') === 0) {
+        } else if (name.indexOf(&#39;on&#39;) === 0) {
           name = name.substr(2);
           return this.bind(name, _eventCallback(name, value, this, tagname));
         } else {
@@ -764,10 +767,10 @@
       _eventCallback = function(name, script, scope, tagname, fnargs) {
         var js;
         if (tagname == null) {
-          tagname = '';
+          tagname = &#39;&#39;;
         }
         if (fnargs == null) {
-          fnargs = ['value'];
+          fnargs = [&#39;value&#39;];
         }
         js = compiler.compile(script, fnargs, &quot;&quot; + tagname + &quot;$on&quot; + name);
         return function() {
@@ -819,7 +822,7 @@
       };
 
       Node.prototype._valueLookup = function(bindexpression) {
-        return compiler.compile('return ' + bindexpression).bind(this);
+        return compiler.compile(&#39;return &#39; + bindexpression).bind(this);
       };
 
       Node.prototype._bindConstraints = function() {
@@ -879,10 +882,10 @@
 
 <span id='lz-node-event-onsubnodes'>          /**
 </span>           * @event onsubnodes 
-           * Fired when this node's subnodes array has changed
+           * Fired when this node&#39;s subnodes array has changed
            * @param {lz.node} node The lz.node that fired the event
            */
-          return parent.sendEvent('subnodes', this);
+          return parent.sendEvent(&#39;subnodes&#39;, this);
         }
       };
 
@@ -937,7 +940,7 @@
          * @param {lz.node} node The lz.node that fired the event
          */
         var subnode, _i, _len, _ref, _ref1;
-        this.sendEvent('destroy', this);
+        this.sendEvent(&#39;destroy&#39;, this);
         if (this.listeningTo) {
           this.stopListening();
         }
@@ -953,7 +956,7 @@
           }
         }
         if (!skipevents) {
-          return this._removeFromParent('subnodes');
+          return this._removeFromParent(&#39;subnodes&#39;);
         }
       };
 
@@ -964,7 +967,7 @@
 <span id='Sprite'>    /**
 </span>     * @class Sprite
      * @private
-     * Abstracts the underlying visual primitives (currently HTML) from dreem's view system.
+     * Abstracts the underlying visual primitives (currently HTML) from dreem&#39;s view system.
      */
     Sprite = (function() {
       var capabilities, fcamelCase, noop, rdashAlpha, stylemap, styleval;
@@ -972,18 +975,18 @@
       noop = function() {};
 
       stylemap = {
-        x: 'left',
-        y: 'top',
-        bgcolor: 'backgroundColor',
-        visible: 'display'
+        x: &#39;left&#39;,
+        y: &#39;top&#39;,
+        bgcolor: &#39;backgroundColor&#39;,
+        visible: &#39;display&#39;
       };
 
       styleval = {
         display: function(isVisible) {
           if (isVisible) {
-            return '';
+            return &#39;&#39;;
           } else {
-            return 'none';
+            return &#39;none&#39;;
           }
         }
       };
@@ -995,12 +998,12 @@
       rdashAlpha = /-([\da-z])/gi;
 
       capabilities = {
-        touch: 'ontouchstart' in window || 'onmsgesturechange' in window
+        touch: &#39;ontouchstart&#39; in window || &#39;onmsgesturechange&#39; in window
       };
 
       function Sprite(jqel, view, tagname) {
         if (tagname == null) {
-          tagname = 'div';
+          tagname = &#39;div&#39;;
         }
         this.handle = __bind(this.handle, this);
         this.animate = __bind(this.animate, this);
@@ -1011,12 +1014,12 @@
           this.el = jqel;
         }
         this.el.$view = view;
-        this.el.setAttribute('class', 'sprite');
+        this.el.setAttribute(&#39;class&#39;, &#39;sprite&#39;);
       }
 
       Sprite.prototype.setStyle = function(name, value) {
         if (value == null) {
-          value = '';
+          value = &#39;&#39;;
         }
         if (name in stylemap) {
           name = stylemap[name];
@@ -1037,7 +1040,7 @@
       };
 
       Sprite.prototype.set_id = function(id) {
-        return this.el.setAttribute('id', id);
+        return this.el.setAttribute(&#39;id&#39;, id);
       };
 
       Sprite.prototype.animate = function() {
@@ -1057,8 +1060,8 @@
       };
 
       Sprite.prototype.set_clickable = function(clickable) {
-        this.setStyle('pointer-events', clickable ? 'auto' : 'none');
-        this.setStyle('cursor', clickable ? 'pointer' : '');
+        this.setStyle(&#39;pointer-events&#39;, clickable ? &#39;auto&#39; : &#39;none&#39;);
+        this.setStyle(&#39;cursor&#39;, clickable ? &#39;pointer&#39; : &#39;&#39;);
         if (capabilities.touch) {
           return this.el.onclick = noop;
         }
@@ -1070,7 +1073,7 @@
       };
 
       Sprite.prototype.set_clip = function(clip) {
-        return this.setStyle('overflow', clip ? 'hidden' : '');
+        return this.setStyle(&#39;overflow&#39;, clip ? &#39;hidden&#39; : &#39;&#39;);
       };
 
       Sprite.prototype.text = function(text) {
@@ -1093,20 +1096,20 @@
       };
 
       Sprite.prototype.measureTextSize = function(multiline, width, measuresize) {
-        this.el.setAttribute('class', 'sprite sprite-text noselect');
+        this.el.setAttribute(&#39;class&#39;, &#39;sprite sprite-text noselect&#39;);
         if (multiline) {
           if (this._cachedwidth &gt; -1) {
             width = this._cachedwidth;
             this._cachedwidth = -1;
           }
-          this.setStyle('width', width);
-          this.setStyle('whiteSpace', 'normal');
+          this.setStyle(&#39;width&#39;, width);
+          this.setStyle(&#39;whiteSpace&#39;, &#39;normal&#39;);
         } else {
           this._cachedwidth = width;
           if (measuresize) {
-            this.setStyle('width', 'auto');
+            this.setStyle(&#39;width&#39;, &#39;auto&#39;);
           }
-          this.setStyle('whiteSpace', '');
+          this.setStyle(&#39;whiteSpace&#39;, &#39;&#39;);
         }
         return {
           width: this.el.clientWidth,
@@ -1125,21 +1128,21 @@
 
       Sprite.prototype.createInputtextElement = function(text, multiline, width) {
         var input;
-        input = document.createElement('input');
-        input.setAttribute('type', 'text');
-        input.setAttribute('value', text);
-        input.setAttribute('style', 'border: none; outline: none; background-color:transparent;');
-        input.setAttribute('class', 'noselect');
-        this.el.setAttribute('class', 'sprite noselect');
+        input = document.createElement(&#39;input&#39;);
+        input.setAttribute(&#39;type&#39;, &#39;text&#39;);
+        input.setAttribute(&#39;value&#39;, text);
+        input.setAttribute(&#39;style&#39;, &#39;border: none; outline: none; background-color:transparent;&#39;);
+        input.setAttribute(&#39;class&#39;, &#39;noselect&#39;);
+        this.el.setAttribute(&#39;class&#39;, &#39;sprite noselect&#39;);
         this.el.appendChild(input);
         return setTimeout((function(_this) {
           return function() {
             if (!_this.el) {
               return;
             }
-            _this.input = _this.el.getElementsByTagName('input')[0];
+            _this.input = _this.el.getElementsByTagName(&#39;input&#39;)[0];
             _this.input.$view = _this.el.$view;
-            return $(input).on('focus blur', _this.handle);
+            return $(input).on(&#39;focus blur&#39;, _this.handle);
           };
         })(this), 0);
       };
@@ -1157,7 +1160,7 @@
       };
 
       Sprite.prototype.set_class = function(classname) {
-        return this.el.setAttribute('class', classname);
+        return this.el.setAttribute(&#39;class&#39;, classname);
       };
 
       return Sprite;
@@ -1183,7 +1186,7 @@
      *
      * Views can be easily converted to reusable classes/tags by changing their outermost &amp;lt;view&gt; tags to &amp;lt;class&gt; and adding a name attribute.
      *
-     * Views support a number of builtin attributes. Setting attributes that aren't listed explicitly will pass through to the underlying Sprite implementation.
+     * Views support a number of builtin attributes. Setting attributes that aren&#39;t listed explicitly will pass through to the underlying Sprite implementation.
      * 
      * Views currently integrate with jQuery, so any changes made to their CSS via jQuery will automatically cause them to update.
      * 
@@ -1195,25 +1198,25 @@
 
 <span id='lz-view-cfg-x'>      /**
 </span>       * @cfg {Number} [x=0]
-       * This view's x position
+       * This view&#39;s x position
        */
 
 
 <span id='lz-view-cfg-y'>      /**
 </span>       * @cfg {Number} [y=0]
-       * This view's y position
+       * This view&#39;s y position
        */
 
 
 <span id='lz-view-cfg-width'>      /**
 </span>       * @cfg {Number} [width=0]
-       * This view's width
+       * This view&#39;s width
        */
 
 
 <span id='lz-view-cfg-height'>      /**
 </span>       * @cfg {Number} [height=0]
-       * This view's height
+       * This view&#39;s height
        */
 
 
@@ -1237,7 +1240,7 @@
 
 <span id='lz-view-cfg-bgcolor'>      /**
 </span>       * @cfg {String} bgcolor
-       * Sets this view's background color
+       * Sets this view&#39;s background color
        */
 
 
@@ -1284,24 +1287,24 @@
 <span id='lz-view-property-subviews'>        /**
 </span>         * @property {lz.view[]} subviews
          * @readonly
-         * An array of this views's child views
+         * An array of this views&#39;s child views
          */
 
 <span id='lz-view-event-onsubviews'>        /**
 </span>         * @event onsubviews 
-         * Fired when this views's subviews array has changed
+         * Fired when this views&#39;s subviews array has changed
          * @param {lz.view} view The lz.view that fired the event
          */
 
 <span id='lz-view-property-layouts'>        /**
 </span>         * @property {lz.layout[]} layouts
          * @readonly
-         * An array of this views's layouts. Only defined when needed.
+         * An array of this views&#39;s layouts. Only defined when needed.
          */
 
 <span id='lz-view-event-onlayouts'>        /**
 </span>         * @event onlayouts 
-         * Fired when this views's layouts array has changed
+         * Fired when this views&#39;s layouts array has changed
          * @param {lz.layout} view The lz.layout that fired the event
          */
 
@@ -1311,18 +1314,18 @@
          */
         this.subviews = [];
         types = {
-          x: 'number',
-          y: 'number',
-          width: 'number',
-          height: 'number',
-          clickable: 'boolean',
-          clip: 'boolean',
-          visible: 'boolean'
+          x: &#39;number&#39;,
+          y: &#39;number&#39;,
+          width: &#39;number&#39;,
+          height: &#39;number&#39;,
+          clickable: &#39;boolean&#39;,
+          clip: &#39;boolean&#39;,
+          visible: &#39;boolean&#39;
         };
         for (key in types) {
           type = types[key];
           if (!(key in attributes)) {
-            this[key] = type === 'number' ? 0 : false;
+            this[key] = type === &#39;number&#39; ? 0 : false;
           }
         }
         _ref = attributes.$types;
@@ -1331,7 +1334,7 @@
           types[key] = type;
         }
         attributes.$types = types;
-        if (__indexOf.call(attributes, 'visible') &lt; 0) {
+        if (__indexOf.call(attributes, &#39;visible&#39;) &lt; 0) {
           attributes.visible = true;
         }
         if (el instanceof View) {
@@ -1356,7 +1359,7 @@
         View.__super__.set_parent.apply(this, arguments);
         if (parent instanceof View) {
           parent.subviews.push(this);
-          parent.sendEvent('subviews', this);
+          parent.sendEvent(&#39;subviews&#39;, this);
           parent = parent.sprite;
         }
         return this.sprite.set_parent(parent);
@@ -1369,7 +1372,7 @@
 
 
 <span id='lz-view-method-animate'>      /**
-</span>       * Animates this view's attribute(s)
+</span>       * Animates this view&#39;s attribute(s)
        * @param {Object} obj A hash of attribute names and values to animate to
        */
 
@@ -1385,7 +1388,7 @@
       View.prototype.destroy = function(skipevents) {
         View.__super__.destroy.apply(this, arguments);
         if (!skipevents) {
-          this._removeFromParent('subviews');
+          this._removeFromParent(&#39;subviews&#39;);
         }
         this.sprite.destroy();
         return this.sprite = null;
@@ -1414,7 +1417,7 @@
         return attributes;
       };
       initFromElement = function(el) {
-        el.style.display = 'none';
+        el.style.display = &#39;none&#39;;
         return findAutoIncludes(el, function() {
           el.style.display = null;
           initElement(el);
@@ -1441,12 +1444,12 @@
           appendScript = function(url, cb) {
             var script;
             scriptloading = url;
-            script = document.createElement('script');
-            script.type = 'text/javascript';
-            $('head').append(script);
+            script = document.createElement(&#39;script&#39;);
+            script.type = &#39;text/javascript&#39;;
+            $(&#39;head&#39;).append(script);
             script.onload = cb;
             script.onerror = function() {
-              console.error('failed to load scriptinclude', url);
+              console.error(&#39;failed to load scriptinclude&#39;, url);
               return cb();
             };
             return script.src = url;
@@ -1473,7 +1476,7 @@
             return;
           }
           lzxloaded[name] = true;
-          url = '/classes/' + name + '.lzx';
+          url = &#39;/classes/&#39; + name + &#39;.lzx&#39;;
           prom = $.get(url);
           prom.url = url;
           prom.el = el;
@@ -1481,7 +1484,7 @@
         };
         loadIncludes = function(callback) {
           var jel, _i, _len, _ref;
-          _ref = jqel.find('include');
+          _ref = jqel.find(&#39;include&#39;);
           for (_i = 0, _len = _ref.length; _i &lt; _len; _i++) {
             jel = _ref[_i];
             includerequests.push($.get(jel.attributes.href.value));
@@ -1496,23 +1499,23 @@
             initONE = false;
             for (_j = 0, _len1 = args.length; _j &lt; _len1; _j++) {
               xhr = args[_j];
-              html = xhr[0].replace(includeRE, '');
+              html = xhr[0].replace(includeRE, &#39;&#39;);
               jqel.prepend(html);
             }
-            _ref1 = jqel.find('*');
+            _ref1 = jqel.find(&#39;*&#39;);
             for (_k = 0, _len2 = _ref1.length; _k &lt; _len2; _k++) {
               el = _ref1[_k];
               name = el.localName;
-              if (name === 'class') {
+              if (name === &#39;class&#39;) {
                 if (el.attributes[&quot;extends&quot;]) {
                   extendz = el.attributes[&quot;extends&quot;].value;
                   loadLZX(extendz, el);
-                  if (extendz = 'state') {
+                  if (extendz = &#39;state&#39;) {
                     initONE = true;
                   }
                 }
                 inlineclasses[el.attributes.name.value] = true;
-              } else if (name === 'state') {
+              } else if (name === &#39;state&#39;) {
                 initONE = true;
               } else {
                 loadLZX(name, el);
@@ -1530,7 +1533,7 @@
               }
               scriptsloading = false;
               if (initONE) {
-                scriptsloading = loadScript('/lib/one_base.js', function() {
+                scriptsloading = loadScript(&#39;/lib/one_base.js&#39;, function() {
                   ONE.base_.call(Eventable.prototype);
                   Eventable.prototype.enumfalse(Eventable.prototype.keys());
                   Node.prototype.enumfalse(Node.prototype.keys());
@@ -1539,10 +1542,10 @@
                   return callback();
                 });
               }
-              _ref2 = jqel.find('[scriptincludes]');
+              _ref2 = jqel.find(&#39;[scriptincludes]&#39;);
               for (_m = 0, _len4 = _ref2.length; _m &lt; _len4; _m++) {
                 el = _ref2[_m];
-                _ref3 = el.attributes.scriptincludes.value.split(',');
+                _ref3 = el.attributes.scriptincludes.value.split(&#39;,&#39;);
                 for (_n = 0, _len5 = _ref3.length; _n &lt; _len5; _n++) {
                   url = _ref3[_n];
                   scriptsloading = loadScript(url, callback);
@@ -1561,7 +1564,7 @@
               _results = [];
               for (_l = 0, _len3 = args.length; _l &lt; _len3; _l++) {
                 xhr = args[_l];
-                _results.push(console.error('failed to load', xhr.url, 'for element', xhr.el));
+                _results.push(console.error(&#39;failed to load&#39;, xhr.url, &#39;for element&#39;, xhr.el));
               }
               return _results;
             });
@@ -1572,8 +1575,8 @@
         };
         return loadIncludes(cb);
       };
-      specialtags = ['handler', 'method', 'attribute', 'setter', 'include'];
-      builtinTags = ['a', 'abbr', 'address', 'area', 'article', 'aside', 'audio', 'b', 'base', 'bdi', 'bdo', 'blockquote', 'body', 'br', 'button', 'canvas', 'caption', 'cite', 'code', 'col', 'colgroup', 'command', 'datalist', 'dd', 'del', 'details', 'dfn', 'div', 'dl', 'dt', 'em', 'embed', 'fieldset', 'figcaption', 'figure', 'footer', 'form', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'head', 'header', 'hgroup', 'hr', 'html', 'i', 'iframe', 'img', 'input', 'ins', 'kbd', 'keygen', 'label', 'legend', 'li', 'link', 'map', 'mark', 'menu', 'meta', 'meter', 'nav', 'noscript', 'object', 'ol', 'optgroup', 'option', 'output', 'p', 'param', 'pre', 'progress', 'q', 'rp', 'rt', 'ruby', 's', 'samp', 'script', 'section', 'select', 'small', 'source', 'span', 'strong', 'style', 'sub', 'summary', 'sup', 'table', 'tbody', 'td', 'textarea', 'tfoot', 'th', 'thead', 'time', 'title', 'tr', 'track', 'u', 'ul', 'var', 'video', 'wbr'];
+      specialtags = [&#39;handler&#39;, &#39;method&#39;, &#39;attribute&#39;, &#39;setter&#39;, &#39;include&#39;];
+      builtinTags = [&#39;a&#39;, &#39;abbr&#39;, &#39;address&#39;, &#39;area&#39;, &#39;article&#39;, &#39;aside&#39;, &#39;audio&#39;, &#39;b&#39;, &#39;base&#39;, &#39;bdi&#39;, &#39;bdo&#39;, &#39;blockquote&#39;, &#39;body&#39;, &#39;br&#39;, &#39;button&#39;, &#39;canvas&#39;, &#39;caption&#39;, &#39;cite&#39;, &#39;code&#39;, &#39;col&#39;, &#39;colgroup&#39;, &#39;command&#39;, &#39;datalist&#39;, &#39;dd&#39;, &#39;del&#39;, &#39;details&#39;, &#39;dfn&#39;, &#39;div&#39;, &#39;dl&#39;, &#39;dt&#39;, &#39;em&#39;, &#39;embed&#39;, &#39;fieldset&#39;, &#39;figcaption&#39;, &#39;figure&#39;, &#39;footer&#39;, &#39;form&#39;, &#39;h1&#39;, &#39;h2&#39;, &#39;h3&#39;, &#39;h4&#39;, &#39;h5&#39;, &#39;h6&#39;, &#39;head&#39;, &#39;header&#39;, &#39;hgroup&#39;, &#39;hr&#39;, &#39;html&#39;, &#39;i&#39;, &#39;iframe&#39;, &#39;img&#39;, &#39;input&#39;, &#39;ins&#39;, &#39;kbd&#39;, &#39;keygen&#39;, &#39;label&#39;, &#39;legend&#39;, &#39;li&#39;, &#39;link&#39;, &#39;map&#39;, &#39;mark&#39;, &#39;menu&#39;, &#39;meta&#39;, &#39;meter&#39;, &#39;nav&#39;, &#39;noscript&#39;, &#39;object&#39;, &#39;ol&#39;, &#39;optgroup&#39;, &#39;option&#39;, &#39;output&#39;, &#39;p&#39;, &#39;param&#39;, &#39;pre&#39;, &#39;progress&#39;, &#39;q&#39;, &#39;rp&#39;, &#39;rt&#39;, &#39;ruby&#39;, &#39;s&#39;, &#39;samp&#39;, &#39;script&#39;, &#39;section&#39;, &#39;select&#39;, &#39;small&#39;, &#39;source&#39;, &#39;span&#39;, &#39;strong&#39;, &#39;style&#39;, &#39;sub&#39;, &#39;summary&#39;, &#39;sup&#39;, &#39;table&#39;, &#39;tbody&#39;, &#39;td&#39;, &#39;textarea&#39;, &#39;tfoot&#39;, &#39;th&#39;, &#39;thead&#39;, &#39;time&#39;, &#39;title&#39;, &#39;tr&#39;, &#39;track&#39;, &#39;u&#39;, &#39;ul&#39;, &#39;var&#39;, &#39;video&#39;, &#39;wbr&#39;];
       initElement = function(el, parent) {
         var attributes, child, children, event, eventname, isstate, li, skiponinit, tagname, _i, _j, _len, _len1, _ref;
         if (el.$init) {
@@ -1583,7 +1586,7 @@
         tagname = el.localName;
         if (!(tagname in lz)) {
           if (!(__indexOf.call(builtinTags, tagname) &gt;= 0 || __indexOf.call(specialtags, tagname) &gt;= 0)) {
-            console.warn('could not find class for tag', tagname, el);
+            console.warn(&#39;could not find class for tag&#39;, tagname, el);
           }
           return;
         }
@@ -1591,7 +1594,7 @@
         attributes.$tagname = tagname;
         for (_i = 0, _len = mouseEvents.length; _i &lt; _len; _i++) {
           event = mouseEvents[_i];
-          eventname = 'on' + event;
+          eventname = &#39;on&#39; + event;
           if (eventname in attributes) {
             if (attributes.clickable !== false) {
               attributes.clickable = true;
@@ -1605,9 +1608,9 @@
         if (parent != null) {
           attributes.parent = parent;
         }
-        li = tagname.lastIndexOf('state');
+        li = tagname.lastIndexOf(&#39;state&#39;);
         isstate = li &gt; -1 &amp;&amp; li === tagname.length - 5;
-        if (!((tagname === 'class') || isstate)) {
+        if (!((tagname === &#39;class&#39;) || isstate)) {
           dom.processSpecialTags(el, attributes, attributes.type);
         }
         attributes.$skiponinit = skiponinit = ((function() {
@@ -1623,7 +1626,7 @@
           return _results;
         })()).length &gt; 0;
         parent = new lz[tagname](el, attributes);
-        if (!(tagname === 'class' || isstate)) {
+        if (!(tagname === &#39;class&#39; || isstate)) {
           children = (function() {
             var _j, _len1, _ref, _results;
             _ref = el.childNodes;
@@ -1645,22 +1648,22 @@
           if (skiponinit) {
             if (!parent.inited) {
               parent.inited = true;
-              parent.sendEvent('init', parent);
+              parent.sendEvent(&#39;init&#39;, parent);
             }
           }
         }
       };
       writeCSS = function() {
         var style;
-        style = document.createElement('style');
-        style.type = 'text/css';
-        style.innerHTML = '.sprite{ position: absolute; pointer-events: none; padding: 0; margin: 0;} .sprite-text{ width: auto; height; auto; white-space: nowrap;  padding: 0; margin: 0;} .hidden{ display: none; } .noselect{ -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;} method { display: none; } handler { display: none; } setter { display: none; } class { display:none } node { display:none }';
-        return document.getElementsByTagName('head')[0].appendChild(style);
+        style = document.createElement(&#39;style&#39;);
+        style.type = &#39;text/css&#39;;
+        style.innerHTML = &#39;.sprite{ position: absolute; pointer-events: none; padding: 0; margin: 0;} .sprite-text{ width: auto; height; auto; white-space: nowrap;  padding: 0; margin: 0;} .hidden{ display: none; } .noselect{ -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;} method { display: none; } handler { display: none; } setter { display: none; } class { display:none } node { display:none }&#39;;
+        return document.getElementsByTagName(&#39;head&#39;)[0].appendChild(style);
       };
       initAllElements = function(selector) {
         var el, _i, _len, _results;
         if (selector == null) {
-          selector = $('view').not('view view');
+          selector = $(&#39;view&#39;).not(&#39;view view&#39;);
         }
         _results = [];
         for (_i = 0, _len = selector.length; _i &lt; _len; _i++) {
@@ -1671,9 +1674,9 @@
       };
       htmlDecode = function(input) {
         var child, e, out, _i, _len, _ref;
-        e = document.createElement('div');
+        e = document.createElement(&#39;div&#39;);
         e.innerHTML = input;
-        out = '';
+        out = &#39;&#39;;
         _ref = e.childNodes;
         for (_i = 0, _len = _ref.length; _i &lt; _len; _i++) {
           child = _ref[_i];
@@ -1712,15 +1715,15 @@
           child = children[_i];
           attributes = flattenattributes(child.attributes);
           tagname = child.localName;
-          args = ((_ref = attributes.args) != null ? _ref : '').split();
+          args = ((_ref = attributes.args) != null ? _ref : &#39;&#39;).split();
           script = htmlDecode(child.innerHTML);
           if (script == null) {
-            console.warn('Invalid', name, child);
+            console.warn(&#39;Invalid&#39;, name, child);
           }
           type = (_ref1 = attributes.type) != null ? _ref1 : defaulttype;
           name = attributes.name;
           switch (tagname) {
-            case 'handler':
+            case &#39;handler&#39;:
               handler = {
                 name: name,
                 script: compiler.transform(script, type),
@@ -1730,7 +1733,7 @@
               };
               classattributes.$handlers.push(handler);
               break;
-            case 'method':
+            case &#39;method&#39;:
               if ((_base = classattributes.$methods)[name] == null) {
                 _base[name] = [];
               }
@@ -1740,17 +1743,17 @@
                 allocation: attributes.allocation
               });
               break;
-            case 'setter':
-              if ((_base1 = classattributes.$methods)[_name = 'set_' + name] == null) {
+            case &#39;setter&#39;:
+              if ((_base1 = classattributes.$methods)[_name = &#39;set_&#39; + name] == null) {
                 _base1[_name] = [];
               }
-              classattributes.$methods['set_' + name].push({
+              classattributes.$methods[&#39;set_&#39; + name].push({
                 method: compiler.transform(script, type),
                 args: args,
                 allocation: attributes.allocation
               });
               break;
-            case 'attribute':
+            case &#39;attribute&#39;:
               classattributes[name] = attributes.value;
               classattributes.$types[name] = attributes.type;
           }
@@ -1772,7 +1775,7 @@
      * 
      * Like views and nodes, states can contain methods, handlers, setters, constraints, attributes and other view, node or class instances.
      *
-     * Currently, states must end with the string 'state' in their name to work properly.
+     * Currently, states must end with the string &#39;state&#39; in their name to work properly.
      */
     State = (function(_super) {
       __extends(State, _super);
@@ -1782,7 +1785,7 @@
         if (attributes == null) {
           attributes = {};
         }
-        this.skipattributes = ['parent', 'types', 'applyattributes', 'applied', 'skipattributes', 'stateattributes'];
+        this.skipattributes = [&#39;parent&#39;, &#39;types&#39;, &#39;applyattributes&#39;, &#39;applied&#39;, &#39;skipattributes&#39;, &#39;stateattributes&#39;];
         this.stateattributes = attributes;
         this.applyattributes = {};
         this.applied = false;
@@ -1798,36 +1801,36 @@
           el.innerHTML = oldbody;
         }
         this.types = (_ref = attributes.$types) != null ? _ref : {};
-        this.setAttribute('parent', attributes.parent);
+        this.setAttribute(&#39;parent&#39;, attributes.parent);
         this.installMethods(attributes.$methods, this.parent.$tagname, this, this.parent);
         if (attributes.name) {
-          this.setAttribute('name', attributes.name);
-          this.skipattributes.push('name');
+          this.setAttribute(&#39;name&#39;, attributes.name);
+          this.skipattributes.push(&#39;name&#39;);
         }
         if (attributes.applied) {
-          this.bindAttribute('applied', attributes.applied, 'state');
+          this.bindAttribute(&#39;applied&#39;, attributes.applied, &#39;state&#39;);
         }
         _ref1 = attributes.$handlers;
         for (_j = 0, _len1 = _ref1.length; _j &lt; _len1; _j++) {
           handler = _ref1[_j];
-          if (handler.name === 'onapplied') {
-            this.installHandlers([handler], 'state', this);
+          if (handler.name === &#39;onapplied&#39;) {
+            this.installHandlers([handler], &#39;state&#39;, this);
             this._bindHandlers();
           }
         }
         for (name in attributes) {
           value = attributes[name];
-          if (!(__indexOf.call(this.skipattributes, name) &gt;= 0 || name.charAt(0) === '$')) {
+          if (!(__indexOf.call(this.skipattributes, name) &gt;= 0 || name.charAt(0) === &#39;$&#39;)) {
             this.applyattributes[name] = value;
             this.setAttribute(name, value);
           }
         }
         if (this.constraints) {
           this._bindConstraints();
-          this.skipattributes.push('constraints');
+          this.skipattributes.push(&#39;constraints&#39;);
         }
         if (this.events) {
-          this.skipattributes.push('events');
+          this.skipattributes.push(&#39;events&#39;);
         }
         this.enumfalse(this.skipattributes);
         this.enumfalse(this.keys);
@@ -1882,13 +1885,13 @@
 
       State.prototype.apply = function() {
         if (!this.applied) {
-          return this.setAttribute('applied', true);
+          return this.setAttribute(&#39;applied&#39;, true);
         }
       };
 
       State.prototype.remove = function() {
         if (this.applied) {
-          return this.setAttribute('applied', false);
+          return this.setAttribute(&#39;applied&#39;, false);
         }
       };
 
@@ -1904,7 +1907,7 @@
      * 
      * Once declared, classes invoked with the declarative syntax, e.g. &amp;lt;classname&gt;&amp;lt;/classname&gt;.
      * 
-     * If a class can't be found in the document, dreem will automatically attempt to load it from the classes/* directory.
+     * If a class can&#39;t be found in the document, dreem will automatically attempt to load it from the classes/* directory.
      *
      * Like views and nodes, classes can contain methods, handlers, setters, constraints, attributes and other view, node or class instances.
      */
@@ -1922,7 +1925,7 @@
 
 <span id='lz-class-cfg-type'>      /**
 </span>       * @cfg {&quot;js&quot;/&quot;coffee&quot;} [type=js] 
-       * The default compiler to use for methods, setters and handlers. Either 'js' or 'coffee'
+       * The default compiler to use for methods, setters and handlers. Either &#39;js&#39; or &#39;coffee&#39;
        */
       var clone;
 
@@ -1942,7 +1945,7 @@
           classattributes = {};
         }
         name = classattributes.name;
-        extend = classattributes[&quot;extends&quot;] != null ? classattributes[&quot;extends&quot;] : classattributes[&quot;extends&quot;] = 'view';
+        extend = classattributes[&quot;extends&quot;] != null ? classattributes[&quot;extends&quot;] : classattributes[&quot;extends&quot;] = &#39;view&#39;;
         compilertype = classattributes.type;
         for (ignored in ignoredAttributes) {
           delete classattributes[ignored];
@@ -1970,34 +1973,34 @@
           el.innerHTML = oldbody;
         }
         if (name in lz) {
-          console.warn('overwriting class', name);
+          console.warn(&#39;overwriting class&#39;, name);
         }
         lz[name] = function(instanceel, instanceattributes) {
           var attributes, children, key, parent, propname, val, value, viewel, _j, _len1, _ref;
           attributes = clone(classattributes);
           for (key in instanceattributes) {
             value = instanceattributes[key];
-            if ((key === '$methods' || key === '$types') &amp;&amp; key in attributes) {
+            if ((key === &#39;$methods&#39; || key === &#39;$types&#39;) &amp;&amp; key in attributes) {
               attributes[key] = clone(attributes[key]);
               for (propname in value) {
                 val = value[propname];
-                if (key === '$methods' &amp;&amp; attributes[key][propname]) {
+                if (key === &#39;$methods&#39; &amp;&amp; attributes[key][propname]) {
                   attributes[key][propname] = attributes[key][propname].concat(val);
                 } else {
                   attributes[key][propname] = val;
                 }
               }
-            } else if (key === '$handlers' &amp;&amp; key in attributes) {
+            } else if (key === &#39;$handlers&#39; &amp;&amp; key in attributes) {
               attributes[key] = attributes[key].concat(value);
             } else {
               attributes[key] = value;
             }
           }
           if (!(extend in lz)) {
-            console.warn('could not find class for tag', extend);
+            console.warn(&#39;could not find class for tag&#39;, extend);
             return;
           }
-          if (attributes.$tagname === 'class' || !attributes.$tagname) {
+          if (attributes.$tagname === &#39;class&#39; || !attributes.$tagname) {
             attributes.$tagname = name;
           }
           attributes.$skiponinit = true;
@@ -2006,7 +2009,7 @@
           viewel = (_ref = parent.sprite) != null ? _ref.el : void 0;
           if (instanceel) {
             if (!viewel) {
-              instanceel.setAttribute('class', 'hidden');
+              instanceel.setAttribute(&#39;class&#39;, &#39;hidden&#39;);
             }
           }
           if (instancebody &amp;&amp; viewel) {
@@ -2035,7 +2038,7 @@
           parent._bindHandlers();
           if (!parent.inited) {
             parent.inited = true;
-            parent.sendEvent('init', parent);
+            parent.sendEvent(&#39;init&#39;, parent);
           }
           return parent;
         };
@@ -2063,12 +2066,12 @@
         this._added = __bind(this._added, this);
         this.locked = true;
         Layout.__super__.constructor.apply(this, arguments);
-        this.listenTo(this.parent, 'subviews', this._added);
+        this.listenTo(this.parent, &#39;subviews&#39;, this._added);
         if ((_base = this.parent).layouts == null) {
           _base.layouts = [];
         }
         this.parent.layouts.push(this);
-        this.parent.sendEvent('layouts', this.parent.layouts);
+        this.parent.sendEvent(&#39;layouts&#39;, this.parent.layouts);
         subviews = this.parent.subviews;
         if (subviews) {
           for (_i = 0, _len = subviews.length; _i &lt; _len; _i++) {
@@ -2089,7 +2092,7 @@
            * @param {lz.view} child The subview that was added
            */
           if (!child.ignorelayout) {
-            this.sendEvent('subview', child);
+            this.sendEvent(&#39;subview&#39;, child);
           }
         }
         return this.update(null, child);
@@ -2121,7 +2124,7 @@
         this.locked = true;
         Layout.__super__.destroy.apply(this, arguments);
         if (!skipevents) {
-          return this._removeFromParent('layouts');
+          return this._removeFromParent(&#39;layouts&#39;);
         }
       };
 
@@ -2140,7 +2143,7 @@
          * Fired when the layout is locked
          * @param {Boolean} locked If true, the layout is locked
          */
-        this.sendEvent('locked', locked);
+        this.sendEvent(&#39;locked&#39;, locked);
         if (changed &amp;&amp; !locked) {
           return this.update();
         }
@@ -2229,7 +2232,7 @@
 
       Idle.prototype.startEventTest = function() {
         var start, _ref;
-        start = (_ref = this.events['idle']) != null ? _ref.length : void 0;
+        start = (_ref = this.events[&#39;idle&#39;]) != null ? _ref.length : void 0;
         if (start) {
           return start;
         }
@@ -2247,7 +2250,7 @@
          * Fired when the application is active and idle.
          * @param {Number} time The number of milliseconds since the application started
          */
-        this.sendEvent('idle', time);
+        this.sendEvent(&#39;idle&#39;, time);
         return setTimeout((function(_this) {
           return function() {
             return idle(1, _this.sender);
@@ -2258,7 +2261,7 @@
       return Idle;
 
     })(StartEventable);
-    mouseEvents = ['click', 'mouseover', 'mouseout', 'mousedown', 'mouseup'];
+    mouseEvents = [&#39;click&#39;, &#39;mouseover&#39;, &#39;mouseout&#39;, &#39;mousedown&#39;, &#39;mouseup&#39;];
 
 <span id='lz-mouse'>    /**
 </span>     * @class lz.mouse
@@ -2309,13 +2312,13 @@
         this.x = 0;
         this.y = 0;
         this.docSelector = $(document);
-        this.docSelector.on(mouseEvents.join(' '), this.handle);
+        this.docSelector.on(mouseEvents.join(&#39; &#39;), this.handle);
         this.docSelector.on(&quot;mousemove&quot;, this.handle).one(&quot;mouseout&quot;, this.stopEvent);
       }
 
       Mouse.prototype.startEventTest = function() {
         var _ref, _ref1, _ref2;
-        return ((_ref = this.events['mousemove']) != null ? _ref.length : void 0) || ((_ref1 = this.events['x']) != null ? _ref1.length : void 0) || ((_ref2 = this.events['y']) != null ? _ref2.length : void 0);
+        return ((_ref = this.events[&#39;mousemove&#39;]) != null ? _ref.length : void 0) || ((_ref1 = this.events[&#39;x&#39;]) != null ? _ref1.length : void 0) || ((_ref2 = this.events[&#39;y&#39;]) != null ? _ref2.length : void 0);
       };
 
       Mouse.prototype.handle = function(event) {
@@ -2325,7 +2328,7 @@
         if (view) {
           view.sendEvent(type, view);
         }
-        if (this.eventStarted &amp;&amp; type === 'mousemove') {
+        if (this.eventStarted &amp;&amp; type === &#39;mousemove&#39;) {
 
 <span id='lz-mouse-property-x'>          /**
 </span>           * @property {Number} x
@@ -2363,14 +2366,14 @@
          * Fired when the mouse moves in the x axis
          * @param {Number} x The x coordinate of the mouse
          */
-        this.sendEvent('x', this.x);
+        this.sendEvent(&#39;x&#39;, this.x);
 
 <span id='lz-mouse-event-ony'>        /**
 </span>         * @event ony 
          * Fired when the mouse moves in the y axis
          * @param {Number} y The y coordinate of the mouse
          */
-        return this.sendEvent('y', this.y);
+        return this.sendEvent(&#39;y&#39;, this.y);
       };
 
       Mouse.prototype.handleDocEvent = function(event) {
@@ -2399,7 +2402,7 @@
       function Window() {
         this.handle = __bind(this.handle, this);
         var handleVisibilityChange, hidden, visibilityChange;
-        window.addEventListener('resize', this.handle, false);
+        window.addEventListener(&#39;resize&#39;, this.handle, false);
         this.visible = true;
         if (document.hidden != null) {
           hidden = &quot;hidden&quot;;
@@ -2423,7 +2426,7 @@
              * Fired when the window visibility changes
              * @param {Boolean} visible True if the window is currently visible
              */
-            return _this.sendEvent('visible', _this.visible);
+            return _this.sendEvent(&#39;visible&#39;, _this.visible);
           };
         })(this);
         document.addEventListener(visibilityChange, handleVisibilityChange, false);
@@ -2432,7 +2435,7 @@
 
       Window.prototype.startEventTest = function() {
         var _ref, _ref1;
-        return ((_ref = this.events['width']) != null ? _ref.length : void 0) || ((_ref1 = this.events['height']) != null ? _ref1.length : void 0);
+        return ((_ref = this.events[&#39;width&#39;]) != null ? _ref.length : void 0) || ((_ref1 = this.events[&#39;height&#39;]) != null ? _ref1.length : void 0);
       };
 
       Window.prototype.handle = function(event) {
@@ -2443,7 +2446,7 @@
          * Fired when the window resizes
          * @param {Number} width The width of the window
          */
-        this.sendEvent('width', this.width);
+        this.sendEvent(&#39;width&#39;, this.width);
         this.height = window.innerHeight;
 
 <span id='lz-window-event-onheight'>        /**
@@ -2451,7 +2454,7 @@
          * Fired when the window resizes
          * @param {Number} height The height of the window
          */
-        return this.sendEvent('height', this.height);
+        return this.sendEvent(&#39;height&#39;, this.height);
       };
 
       return Window;
@@ -2468,7 +2471,7 @@
 
       __extends(Keyboard, _super);
 
-      keyboardEvents = ['select', 'keyup', 'keydown', 'change'];
+      keyboardEvents = [&#39;select&#39;, &#39;keyup&#39;, &#39;keydown&#39;, &#39;change&#39;];
 
       keys = {
         shiftKey: false,
@@ -2480,14 +2483,14 @@
 
       function Keyboard() {
         this.handle = __bind(this.handle, this);
-        $(document).on(keyboardEvents.join(' '), this.handle);
+        $(document).on(keyboardEvents.join(&#39; &#39;), this.handle);
       }
 
       Keyboard.prototype.handle = function(event) {
         var key, out, target, type, value;
         target = event.target.$view;
         type = event.type;
-        if (type !== 'select') {
+        if (type !== &#39;select&#39;) {
           for (key in keys) {
             value = keys[key];
             keys[key] = event[key];
@@ -2496,15 +2499,15 @@
         keys.type = type;
         if (target) {
           target.sendEvent(type, keys);
-          if (type === 'keydown' || type === 'keyup' || type === 'blur' || type === 'change') {
+          if (type === &#39;keydown&#39; || type === &#39;keyup&#39; || type === &#39;blur&#39; || type === &#39;change&#39;) {
             value = event.target.value;
             if (target.text !== value) {
               target.text = value;
-              target.sendEvent('text', value);
+              target.sendEvent(&#39;text&#39;, value);
             }
           }
         }
-        out = type === 'select' ? target : keys;
+        out = type === &#39;select&#39; ? target : keys;
 
 <span id='lz-keyboard-event-onselect'>        /**
 </span>         * @event onselect 
@@ -2536,8 +2539,8 @@
          * Fired when a key is pressed on the keyboard
          * @param {Object} keys An object representing the keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
          */
-        if (type !== 'select') {
-          return this.sendEvent('keys', out);
+        if (type !== &#39;select&#39;) {
+          return this.sendEvent(&#39;keys&#39;, out);
         }
       };
 
@@ -2630,7 +2633,7 @@
 
 <span id='lz-handler-cfg-name'>    /**
 </span>     * @cfg {String} name (required)
-     * The name of the event to listen for, e.g. 'onwidth'.
+     * The name of the event to listen for, e.g. &#39;onwidth&#39;.
      */
 
 <span id='lz-handler-cfg-reference'>    /**
@@ -2680,7 +2683,7 @@
 
   lz.writeCSS();
 
-  $(window).on('load', function() {
+  $(window).on(&#39;load&#39;, function() {
     lz.initElements();
     return hackstyle(true);
   });
