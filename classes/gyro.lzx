@@ -19,14 +19,51 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. -->
-    <class name="gyro" scriptincludes="https://raw.githubusercontent.com/tomgco/gyro.js/master/js/gyro.min.js">
+   <!--/**
+     * @class lz.gyro
+     * @extends lz.node
+     * Receives gyroscope and compass data where available. See [https://w3c.github.io/deviceorientation/spec-source-orientation.html#deviceorientation](https://w3c.github.io/deviceorientation/spec-source-orientation.html#deviceorientation) and [https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html](https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html) for details.
+     */-->
+    <class name="gyro" extends="node">
+      <!--/**
+        * @cfg {Number} [x=0] (readonly)
+        * The accelerometer x value
+        */-->
       <attribute name="x" value="0" type="number"></attribute>
+      <!--/**
+        * @cfg {Number} [y=0] (readonly)
+        * The accelerometer y value
+        */-->
       <attribute name="y" value="0" type="number"></attribute>
+      <!--/**
+        * @cfg {Number} [z=0] (readonly)
+        * The accelerometer z value
+        */-->
       <attribute name="z" value="0" type="number"></attribute>
+      <!--/**
+        * @cfg {Number} [alpha=0] (readonly)
+        * The gyro alpha value rotating around the z axis
+        */-->
       <attribute name="alpha" value="0" type="number"></attribute>
+      <!--/**
+        * @cfg {Number} [beta=0] (readonly)
+        * The gyro beta value rotating around the x axis
+        */-->
       <attribute name="beta" value="0" type="number"></attribute>
+      <!--/**
+        * @cfg {Number} [gamma=0] (readonly)
+        * The gyro gamma value rotating around the y axis
+        */-->
       <attribute name="gamma" value="0" type="number"></attribute>
+      <!--/**
+        * @cfg {Number} [compass=0] (readonly)
+        * The compass orientation, see [https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html](https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html) for details.
+        */-->
       <attribute name="compass" value="0" type="number"></attribute>
+      <!--/**
+        * @cfg {Number} [compassaccuracy=0] (readonly)
+        * The compass accuracy, see [https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html](https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html) for details.
+        */-->
       <attribute name="compassaccuracy" value="0" type="number"></attribute>
       <handler name="oninit">
         var _this = this;

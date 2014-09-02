@@ -100,6 +100,43 @@
         * that is written inside the iframe's body tag.
         */
 /**
+     * @class lz.gyro
+     * @extends lz.node
+     * Receives gyroscope and compass data where available. See [https://w3c.github.io/deviceorientation/spec-source-orientation.html#deviceorientation](https://w3c.github.io/deviceorientation/spec-source-orientation.html#deviceorientation) and [https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html](https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html) for details.
+     */
+/**
+        * @cfg {Number} [x=0] (readonly)
+        * The accelerometer x value
+        */
+/**
+        * @cfg {Number} [y=0] (readonly)
+        * The accelerometer y value
+        */
+/**
+        * @cfg {Number} [z=0] (readonly)
+        * The accelerometer z value
+        */
+/**
+        * @cfg {Number} [alpha=0] (readonly)
+        * The gyro alpha value rotating around the z axis
+        */
+/**
+        * @cfg {Number} [beta=0] (readonly)
+        * The gyro beta value rotating around the x axis
+        */
+/**
+        * @cfg {Number} [gamma=0] (readonly)
+        * The gyro gamma value rotating around the y axis
+        */
+/**
+        * @cfg {Number} [compass=0] (readonly)
+        * The compass orientation, see [https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html](https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html) for details.
+        */
+/**
+        * @cfg {Number} [compassaccuracy=0] (readonly)
+        * The compass accuracy, see [https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html](https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html) for details.
+        */
+/**
      * @class lz.labelbutton
      * @extends lz.buttonbase
      * Button class consisting of text centered in a view. The onclick event
