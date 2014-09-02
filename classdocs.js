@@ -221,3 +221,20 @@
         * @param {String} str The current value of the text component.
         * @return {String} The formated string to display in the component.
         */
+/**
+     * @class lz.touch
+     * @extends lz.node
+     * Receives touch and multitouch data where available.
+     */
+/**
+        * @cfg {Number} [x=0] (readonly)
+        * The touch x value for the first finger.
+        */
+/**
+        * @cfg {Number} [y=0] (readonly)
+        * The touch y value for the first finger.
+        */
+/**
+        * @cfg {String} touches (readonly)
+        * An array of x/y coordinates for all fingers, where available. See [https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Touch_events](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Touch_events) for more details
+        */
