@@ -33,7 +33,17 @@
       <boundslayout></boundslayout>
       <simplelayout axis="y"></simplelayout>
       <replicator classname="text" datapath="/name"></replicator>
-      <replicator classname="highlight" datapath="/subgenres[*]/name"></replicator>
+      <replicator classname="highlight" datapath="/subgenres[*]/name[@]">
+        <method name="filterfunction" args="obj, accum, sel">
+          // console.log('filterfunction', obj, accum)
+          // If the subgenre begins with the letter 'A'
+          if (obj.indexOf('A') === 0) {
+            // Save the lowercase version
+            accum.push(obj.toLowerCase());
+          }
+          return accum
+        </method>
+      </replicator>
     </class>
 
     <replicator classname="genreview" datapath="$genres/genres[*]"></replicator>
