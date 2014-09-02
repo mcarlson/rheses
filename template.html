@@ -60,28 +60,32 @@
     </class>
 
     <replicator classname="genreview" datapath="$genres/genres[*]"></replicator>
-    <view id="cursor" width="100" height="100" bgcolor="cyan">
-      <handler name="onx" reference="bus" args="x">
-        var newx = this.x + x;
-        if (newx > 0 && newx < lz.window.width - this.width) {
-          this.setAttribute('x', newx)
+
+    <view id="cursor" width="100" height="100" bgcolor="cyan" ignorelayout="true" opacity=".5">
+      <method name="clamp" args="val, min, max">
+        if (val > max) {
+          return max;
+        } else if (val < min) {
+          return min;
+        } else {
+          return val;
         }
+      </method>
+      <handler name="onx" reference="bus" args="x">
+        var newx = this.clamp(this.x + x, 0, lz.window.width - this.width);
+        this.setAttribute('x', newx)
       </handler>
       <handler name="ony" reference="bus" args="y">
-        var newy = this.y - y;
-        if (newy > 0 && newy < lz.window.height - this.height) {
-          this.setAttribute('y', newy)
-        }
+        var newy = this.clamp(this.y + y, 0, lz.window.height - this.height);
+       this.setAttribute('y', newy)
       </handler>
       <handler name="ontx" reference="bus" args="x">
-        if (x > 0 && x < lz.window.width - this.width) {
-          this.setAttribute('x', x)
-        }
+        var newx = this.clamp(x, 0, lz.window.width - this.width);
+        this.setAttribute('x', newx)
       </handler>
       <handler name="onty" reference="bus" args="y">
-        if (y > 0 && y < lz.window.height - this.height) {
-          this.setAttribute('y', y)
-        }
+        var newy = this.clamp(y, 0, lz.window.height - this.height);
+        this.setAttribute('y', newy)
       </handler>
     </view>
   </view>
