@@ -37,13 +37,56 @@
     <class name="mycheckbutton" extends="checkbutton" defaultcolor="red" selectcolor="green"></class>
 
 
-    <view name="checkbutton" y="200">
+    <view name="checkbutton">
       <simplelayout axis="x" spacing="12"></simplelayout>
       <boundslayout></boundslayout>
       <text name="cblabel" text="Check Button:"></text>
       <mycheckbutton name="cb1" width="100" height="50" text="Fixed Size"></mycheckbutton>
       <mycheckbutton name="cb2" text="Variable"></mycheckbutton>
       <mycheckbutton name="cb3" text="Long Button Name"></mycheckbutton>
+    </view>
+
+    <!-- Create 3 sliders and store color in attribute -->
+    <class name="rgbslider">
+      <attribute name="color" type="string" value="${'#' + this.tohex(this.rslide.value) + this.tohex(this.gslide.value) + this.tohex(this.bslide.value)}"></attribute>
+      <simplelayout axis="y" spacing="3"></simplelayout>  
+      <boundslayout></boundslayout>
+
+      <!-- Convert floating point value to 2 digit hex string -->
+      <method name="tohex" args="val">
+        val = parseInt(val).toString(16);
+        if (val.length < 2) val = '0' + val;
+        return val;
+      </method>
+
+      <slider name="rslide" width="300" height="15" axis="x" bgcolor="#800000" selectcolor="#ff0000" value="128" maxvalue="255"></slider>
+      <slider name="gslide" width="300" height="15" axis="x" bgcolor="#008000" selectcolor="#00ff00" value="128" maxvalue="255"></slider>
+      <slider name="bslide" width="300" height="15" axis="x" bgcolor="#000080" selectcolor="#0000ff" value="128" maxvalue="255"></slider>
+    </class>
+
+    <!-- Currently necessary to get mouse events to constantly run -->
+    <handler name="onx" reference="lz.mouse" args="x"></handler>
+
+    <view name="slider">
+
+      <simplelayout axis="y" spacing="8"></simplelayout>
+      <text name="sllabel" text="Sliders:"></text>
+
+      <!-- Show x slider with value -->
+      <view>
+        <simplelayout axis="x" spacing="8"></simplelayout>
+        <boundslayout></boundslayout>
+        <slider name="hslide" y="5" width="250" height="10" value="50" bgcolor="#808080"></slider>
+        <text text="${Math.round(this.parent.hslide.value)}" y="${this.parent.hslide.y + (this.parent.hslide.height-this.height)/2}"></text>
+      </view>
+
+      <!-- Show rgb slider with color view -->
+      <view>
+        <simplelayout axis="x" spacing="3"></simplelayout> 
+        <boundslayout></boundslayout>
+        <rgbslider name="rgb" ></rgbslider>
+        <view width="50" height="50" bgcolor="${this.parent.rgb.color}"></view>
+      </view>
     </view>
 
   </view>
