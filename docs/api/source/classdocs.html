@@ -42,7 +42,7 @@
 <span id='lz-boundslayout'>/**
 </span>     * @class lz.boundslayout
      * @extends lz.layout
-     * Sets the parent view's size to match the bounds of its children.
+     * Sets the parent view&#39;s size to match the bounds of its children.
      */
 <span id='lz-boundslayout-cfg-ignoreattr'>/**
 </span>        * @cfg {&quot;&quot;/&quot;width&quot;/&quot;height&quot;} [ignoreattr=&quot;&quot;]
@@ -108,13 +108,13 @@
      * iframe component for embedding dreem code or html in a dreem application.
      * The size of the iframe matches the width/height of the view when the
      * component is created.
-     * The file '/iframe_stub.html' contains the html to load into the iframe,
+     * The file &#39;/iframe_stub.html&#39; contains the html to load into the iframe,
      * including the required script elements to run dreem code.
      */
 <span id='lz-dreem_iframe-cfg-contents'>/**
 </span>        * @cfg {String} [contents=&quot;&quot;]
         * string to write into the iframe body. This is dreem code, or html
-        * that is written inside the iframe's body tag.
+        * that is written inside the iframe&#39;s body tag.
         */
 <span id='lz-labelbutton'>/**
 </span>     * @class lz.labelbutton
@@ -131,6 +131,25 @@
      * holds the current state of the button. The onselected event
      * is generated when the button is the selected state.
      */
+<span id='lz-shim'>/**
+</span>     * @class lz.shim
+     * @extends lz.node
+     * Connects to the shared event bus. When data is sent with a given type, a corresponding event is sent. For example, send(&#39;blah&#39;, {}) sends data with the &#39;blah&#39; type, other shims will receive the object via an &#39;onblah&#39; event.
+     */
+<span id='lz-shim-cfg-connected'>/**
+</span>        * @cfg {Boolean} [connected=false] (readonly)
+        * If true, we are connected to the server
+        */
+<span id='lz-shim-cfg-pingtime'>/**
+</span>        * @cfg {Number} [pingtime=1000]
+        * The frequency used to reconnect to the server
+        */
+<span id='lz-shim-method-send'>/**
+</span>        * @method send
+        * Sends some data over the event bus.
+        * @param {String} type The type of event to be sent.
+        * @param {Object} data The data to be sent.
+        */
 <span id='lz-simplelayout'>/**
 </span>     * @class lz.simplelayout
      * @extends lz.layout

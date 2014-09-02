@@ -115,6 +115,25 @@
      * is generated when the button is the selected state.
      */
 /**
+     * @class lz.shim
+     * @extends lz.node
+     * Connects to the shared event bus. When data is sent with a given type, a corresponding event is sent. For example, send('blah', {}) sends data with the 'blah' type, other shims will receive the object via an 'onblah' event.
+     */
+/**
+        * @cfg {Boolean} [connected=false] (readonly)
+        * If true, we are connected to the server
+        */
+/**
+        * @cfg {Number} [pingtime=1000]
+        * The frequency used to reconnect to the server
+        */
+/**
+        * @method send
+        * Sends some data over the event bus.
+        * @param {String} type The type of event to be sent.
+        * @param {Object} data The data to be sent.
+        */
+/**
      * @class lz.simplelayout
      * @extends lz.layout
      * A layout that stacks views on the x or y axis.
