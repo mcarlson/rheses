@@ -37,8 +37,8 @@ SOFTWARE. -->
             //console.log('touches', touch);
             _this.setAttribute('touches', JSON.stringify(touch))
             // use first finger for coordinate
-            _this.setAttribute('x', ev.touches[0].clientX)
-            _this.setAttribute('y', ev.touches[0].clientY)
+            _this.setAttribute('x', ev.touches[0].pageX)
+            _this.setAttribute('y', ev.touches[0].pageY)
           }
           return false;
         }
