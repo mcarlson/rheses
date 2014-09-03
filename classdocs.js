@@ -163,6 +163,19 @@
              * Fired when there is an error loading the image
              */
 /**
+     * @class lz.inputtext
+     * @extends lz.view
+     * Provides an editable input text field.
+     */
+/**
+        * @cfg {Boolean} [multiline=false]
+        * Set to true to show multi-line text.
+        */
+/**
+        * @cfg {String} text
+        * The text inside this input text field
+        */
+/**
      * @class lz.labelbutton
      * @extends lz.buttonbase
      * Button class consisting of text centered in a view. The onclick event
