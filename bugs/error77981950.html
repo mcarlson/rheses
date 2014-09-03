@@ -8,7 +8,7 @@
 </head>
 <body>
 <view id="container" width="500" height="500" bgcolor="#808080" clip="true">
-  <handler name="onx" reference="dr.mouse" args="x"></handler>
+  <handler event="onx" reference="dr.mouse" args="x"></handler>
 
   <view x="100" y="100" width="20" height="20" bgcolor="red" clickable="true" onmousedown="this.drag.setAttribute('applied', true)" onmouseup="this.drag.setAttribute('applied', false)">
     <dragstate name="drag"></dragstate>
