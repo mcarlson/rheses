@@ -284,6 +284,7 @@ window.lz = do ->
       compileCache = JSON.parse(localStorage[cacheKey])
       # console.log 'restored', compileCache
     else
+      localStorage.clear unless usecache
       compileCache = 
         bindings: {}
         script: 
@@ -826,7 +827,7 @@ window.lz = do ->
       else
         @input.value
 
-    measureTextSize: (multiline, width, measuresize) ->
+    measureTextSize: (multiline, width, resize) ->
       @el.setAttribute('class', 'sprite sprite-text noselect')
       if multiline
         if @_cachedwidth > -1
@@ -836,7 +837,7 @@ window.lz = do ->
         @setStyle('whiteSpace', 'normal')
       else
         @_cachedwidth = width
-        @setStyle('width', 'auto') if measuresize
+        @setStyle('width', 'auto') if resize
         @setStyle('whiteSpace', '')
       {width: @el.clientWidth, height: @el.clientHeight}
 

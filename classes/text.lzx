@@ -37,18 +37,18 @@ SOFTWARE. -->
       <attribute name="multiline" value="false" type="boolean"></attribute>
 
       <!--/**
-        * @cfg {Boolean} [measuresize=true]
+        * @cfg {Boolean} [resize=true]
         * By default, the text component is sized to the size of the text.
-        * By setting measuresize=false, the component size is not modified
+        * By setting resize=false, the component size is not modified
         * when the text changes.
         */-->
-      <attribute name="measuresize" value="true" type="boolean"></attribute>
+      <attribute name="resize" value="true" type="boolean"></attribute>
       <handler name="onmultiline" method="updateSize"></handler>
       <method name="updateSize">
         return unless @inited
-        size = @sprite.measureTextSize(@multiline, @width, @measuresize)
+        size = @sprite.measureTextSize(@multiline, @width, @resize)
         # console.log('updateSize', size.width, size.height)
-        @setAttribute 'width', size.width, true if @measuresize
+        @setAttribute 'width', size.width, true if @resize
         @setAttribute 'height', size.height, true
       </method>
       <handler name="ondata" args="d">

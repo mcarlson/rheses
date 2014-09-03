@@ -421,6 +421,9 @@
       if (usecache && cacheKey in localStorage) {
         compileCache = JSON.parse(localStorage[cacheKey]);
       } else {
+        if (!usecache) {
+          localStorage.clear;
+        }
         compileCache = {
           bindings: {},
           script: {
@@ -1110,7 +1113,7 @@
         }
       };
 
-      Sprite.prototype.measureTextSize = function(multiline, width, measuresize) {
+      Sprite.prototype.measureTextSize = function(multiline, width, resize) {
         this.el.setAttribute('class', 'sprite sprite-text noselect');
         if (multiline) {
           if (this._cachedwidth > -1) {
@@ -1121,7 +1124,7 @@
           this.setStyle('whiteSpace', 'normal');
         } else {
           this._cachedwidth = width;
-          if (measuresize) {
+          if (resize) {
             this.setStyle('width', 'auto');
           }
           this.setStyle('whiteSpace', '');
