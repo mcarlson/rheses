@@ -76,7 +76,7 @@
     };
   })();
 
-  window.lz = (function() {
+  window.dr = (function() {
     var Class, Eventable, Events, Idle, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, View, Window, compiler, constraintScopes, dom, exports, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, _initConstraints;
     mixOf = function() {
       var Mixed, base, i, method, mixin, mixins, name, _i, _ref;
@@ -560,8 +560,8 @@
       return constraintScopes = [];
     };
 
-<span id='lz-node'>    /**
-</span>     * @class lz.node
+<span id='dr-node'>    /**
+</span>     * @class dr.node
      * @extends Eventable
      * The nonvisual base class for everything in dreem. Handles parent/child relationships between tags.
      * 
@@ -569,18 +569,18 @@
      */
     Node = (function(_super) {
 
-<span id='lz-node-cfg-name'>      /**
+<span id='dr-node-cfg-name'>      /**
 </span>       * @cfg {String} name 
        * Names this node in its parent scope so it can be referred to later.
        */
 
-<span id='lz-node-cfg-id'>      /**
+<span id='dr-node-cfg-id'>      /**
 </span>       * @cfg {String} id 
        * Gives this node a global ID, which can be looked up in the global window object.
        * Take care to not override builtin globals, or override your own instances!
        */
 
-<span id='lz-node-cfg-scriptincludes'>      /**
+<span id='dr-node-cfg-scriptincludes'>      /**
 </span>       * @cfg {String} scriptincludes 
        * A comma separated list of URLs to javascript includes required as dependencies. Useful if you need to ensure a third party library is available.
        */
@@ -598,8 +598,8 @@
           attributes = {};
         }
 
-<span id='lz-node-property-subnodes'>        /**
-</span>         * @property {lz.node[]} subnodes
+<span id='dr-node-property-subnodes'>        /**
+</span>         * @property {dr.node[]} subnodes
          * @readonly
          * An array of this node&#39;s child nodes
          */
@@ -656,13 +656,13 @@
           }
         }
 
-<span id='lz-node-event-oninit'>        /**
+<span id='dr-node-event-oninit'>        /**
 </span>         * @event oninit 
          * Fired when this node and all its children are completely initialized
-         * @param {lz.node} node The lz.node that fired the event
+         * @param {dr.node} node The dr.node that fired the event
          */
 
-<span id='lz-node-property-inited'>        /**
+<span id='dr-node-property-inited'>        /**
 </span>         * @property {Boolean} inited
          * @readonly
          * True when this node and all its children are completely initialized
@@ -880,10 +880,10 @@
           }
           parent.subnodes.push(this);
 
-<span id='lz-node-event-onsubnodes'>          /**
+<span id='dr-node-event-onsubnodes'>          /**
 </span>           * @event onsubnodes 
            * Fired when this node&#39;s subnodes array has changed
-           * @param {lz.node} node The lz.node that fired the event
+           * @param {dr.node} node The dr.node that fired the event
            */
           return parent.sendEvent(&#39;subnodes&#39;, this);
         }
@@ -922,7 +922,7 @@
       };
 
 
-<span id='lz-node-method-destroy'>      /**
+<span id='dr-node-method-destroy'>      /**
 </span>       * @method destroy
        * Destroys this node
        */
@@ -934,10 +934,10 @@
 
       Node.prototype.destroy = function(skipevents) {
 
-<span id='lz-node-event-ondestroy'>        /**
+<span id='dr-node-event-ondestroy'>        /**
 </span>         * @event ondestroy 
          * Fired when this node and all its children are about to be destroyed
-         * @param {lz.node} node The lz.node that fired the event
+         * @param {dr.node} node The dr.node that fired the event
          */
         var subnode, _i, _len, _ref, _ref1;
         this.sendEvent(&#39;destroy&#39;, this);
@@ -1209,10 +1209,10 @@
       scriptincludes: true
     };
 
-<span id='lz-view'>    /**
-</span>     * @class lz.view
-     * @extends lz.node
-     * The visual base class for everything in dreem. Views extend lz.node to add the ability to set and animate visual attributes, and interact with the mouse.
+<span id='dr-view'>    /**
+</span>     * @class dr.view
+     * @extends dr.node
+     * The visual base class for everything in dreem. Views extend dr.node to add the ability to set and animate visual attributes, and interact with the mouse.
      *
      * Views are positioned inside their parent according to their x and y coordinates.
      * 
@@ -1230,86 +1230,86 @@
       __extends(View, _super);
 
 
-<span id='lz-view-cfg-x'>      /**
+<span id='dr-view-cfg-x'>      /**
 </span>       * @cfg {Number} [x=0]
        * This view&#39;s x position
        */
 
 
-<span id='lz-view-cfg-y'>      /**
+<span id='dr-view-cfg-y'>      /**
 </span>       * @cfg {Number} [y=0]
        * This view&#39;s y position
        */
 
 
-<span id='lz-view-cfg-width'>      /**
+<span id='dr-view-cfg-width'>      /**
 </span>       * @cfg {Number} [width=0]
        * This view&#39;s width
        */
 
 
-<span id='lz-view-cfg-height'>      /**
+<span id='dr-view-cfg-height'>      /**
 </span>       * @cfg {Number} [height=0]
        * This view&#39;s height
        */
 
 
-<span id='lz-view-cfg-clickable'>      /**
+<span id='dr-view-cfg-clickable'>      /**
 </span>       * @cfg {Boolean} [clickable=false]
        * If true, this view recieves mouse events. Automatically set to true when an onclick/mouse* event is registered for this view.
        */
 
 
-<span id='lz-view-cfg-clip'>      /**
+<span id='dr-view-cfg-clip'>      /**
 </span>       * @cfg {Boolean} [clip=false]
        * If true, this view clips to its bounds
        */
 
 
-<span id='lz-view-cfg-visible'>      /**
+<span id='dr-view-cfg-visible'>      /**
 </span>       * @cfg {Boolean} [visible=true]
        * If false, this view is invisible
        */
 
 
-<span id='lz-view-cfg-bgcolor'>      /**
+<span id='dr-view-cfg-bgcolor'>      /**
 </span>       * @cfg {String} bgcolor
        * Sets this view&#39;s background color
        */
 
 
-<span id='lz-view-event-onclick'>      /**
+<span id='dr-view-event-onclick'>      /**
 </span>       * @event onclick 
        * Fired when this view is clicked
-       * @param {lz.view} view The lz.view that fired the event
+       * @param {dr.view} view The dr.view that fired the event
        */
 
 
-<span id='lz-view-event-onmouseover'>      /**
+<span id='dr-view-event-onmouseover'>      /**
 </span>       * @event onmouseover 
        * Fired when the mouse moves over this view
-       * @param {lz.view} view The lz.view that fired the event
+       * @param {dr.view} view The dr.view that fired the event
        */
 
 
-<span id='lz-view-event-onmouseout'>      /**
+<span id='dr-view-event-onmouseout'>      /**
 </span>       * @event onmouseout 
        * Fired when the mouse moves off this view
-       * @param {lz.view} view The lz.view that fired the event
+       * @param {dr.view} view The dr.view that fired the event
        */
 
 
-<span id='lz-view-event-onmousedown'>      /**
+<span id='dr-view-event-onmousedown'>      /**
 </span>       * @event onmousedown 
        * Fired when the mouse goes down on this view
-       * @param {lz.view} view The lz.view that fired the event
+       * @param {dr.view} view The dr.view that fired the event
        */
 
 
-<span id='lz-view-event-onmouseup'>      /**
+<span id='dr-view-event-onmouseup'>      /**
 </span>       * @event onmouseup 
        * Fired when the mouse goes up on this view
-       * @param {lz.view} view The lz.view that fired the event
+       * @param {dr.view} view The dr.view that fired the event
        */
 
       function View(el, attributes) {
@@ -1318,31 +1318,31 @@
           attributes = {};
         }
 
-<span id='lz-view-property-subviews'>        /**
-</span>         * @property {lz.view[]} subviews
+<span id='dr-view-property-subviews'>        /**
+</span>         * @property {dr.view[]} subviews
          * @readonly
          * An array of this views&#39;s child views
          */
 
-<span id='lz-view-event-onsubviews'>        /**
+<span id='dr-view-event-onsubviews'>        /**
 </span>         * @event onsubviews 
          * Fired when this views&#39;s subviews array has changed
-         * @param {lz.view} view The lz.view that fired the event
+         * @param {dr.view} view The dr.view that fired the event
          */
 
-<span id='lz-view-property-layouts'>        /**
-</span>         * @property {lz.layout[]} layouts
+<span id='dr-view-property-layouts'>        /**
+</span>         * @property {dr.layout[]} layouts
          * @readonly
          * An array of this views&#39;s layouts. Only defined when needed.
          */
 
-<span id='lz-view-event-onlayouts'>        /**
+<span id='dr-view-event-onlayouts'>        /**
 </span>         * @event onlayouts 
          * Fired when this views&#39;s layouts array has changed
-         * @param {lz.layout} view The lz.layout that fired the event
+         * @param {dr.layout} view The dr.layout that fired the event
          */
 
-<span id='lz-view-property-ignorelayout'>        /**
+<span id='dr-view-property-ignorelayout'>        /**
 </span>         * @property {Boolean} ignorelayout
          * If true, layouts should ignore this view
          */
@@ -1405,7 +1405,7 @@
       };
 
 
-<span id='lz-view-method-animate'>      /**
+<span id='dr-view-method-animate'>      /**
 </span>       * Animates this view&#39;s attribute(s)
        * @param {Object} obj A hash of attribute names and values to animate to
        */
@@ -1503,7 +1503,7 @@
         lzxloaded = {};
         loadLZX = function(name, el) {
           var prom, url, _ref;
-          if (name in lz || name in lzxloaded || __indexOf.call(specialtags, name) &gt;= 0 || name in inlineclasses || __indexOf.call(builtinTags, name) &gt;= 0) {
+          if (name in dr || name in lzxloaded || __indexOf.call(specialtags, name) &gt;= 0 || name in inlineclasses || __indexOf.call(builtinTags, name) &gt;= 0) {
             return;
           }
           if (_ref = el.parentNode.localName, __indexOf.call(specialtags, _ref) &gt;= 0) {
@@ -1618,7 +1618,7 @@
         }
         el.$init = true;
         tagname = el.localName;
-        if (!(tagname in lz)) {
+        if (!(tagname in dr)) {
           if (!(__indexOf.call(builtinTags, tagname) &gt;= 0 || __indexOf.call(specialtags, tagname) &gt;= 0)) {
             console.warn(&#39;could not find class for tag&#39;, tagname, el);
           }
@@ -1659,7 +1659,7 @@
           }
           return _results;
         })()).length &gt; 0;
-        parent = new lz[tagname](el, attributes);
+        parent = new dr[tagname](el, attributes);
         if (!(tagname === &#39;class&#39; || isstate)) {
           children = (function() {
             var _j, _len1, _ref, _results;
@@ -1802,9 +1802,9 @@
       };
     })();
 
-<span id='lz-state'>    /**
-</span>     * @class lz.state
-     * @extends lz.node
+<span id='dr-state'>    /**
+</span>     * @class dr.state
+     * @extends dr.node
      * Allows a group of attributes, methods, handlers and instances to be removed and applied as a group.
      * 
      * Like views and nodes, states can contain methods, handlers, setters, constraints, attributes and other view, node or class instances.
@@ -1871,14 +1871,14 @@
       }
 
 
-<span id='lz-state-event-onapplied'>      /**
+<span id='dr-state-event-onapplied'>      /**
 </span>       * @event onapplied 
        * Fired when the state has been applied or unapplied. Onapplied handlers run in the scope of the state itself, see dragstate for an example.
        * @param {Boolean} applied If true, the state was applied.
        */
 
 
-<span id='lz-state-cfg-applied'>      /**
+<span id='dr-state-cfg-applied'>      /**
 </span>       * @cfg {Boolean} [applied=false]
        * If true, the state is applied.
        */
@@ -1933,11 +1933,11 @@
 
     })(Node);
 
-<span id='lz-class'>    /**
-</span>     * @class lz.class
+<span id='dr-class'>    /**
+</span>     * @class dr.class
      * Allows new tags to be created. Classes only be created with the &amp;lt;class&gt;&amp;lt;/class&gt; tag syntax. 
      * 
-     * Classes can extend any other class, and they extend lz.view by default. 
+     * Classes can extend any other class, and they extend dr.view by default. 
      * 
      * Once declared, classes invoked with the declarative syntax, e.g. &amp;lt;classname&gt;&amp;lt;/classname&gt;.
      * 
@@ -1947,17 +1947,17 @@
      */
     Class = (function() {
 
-<span id='lz-class-cfg-name'>      /**
+<span id='dr-class-cfg-name'>      /**
 </span>       * @cfg {String} name (required)
        * The name of the new tag.
        */
 
-<span id='lz-class-cfg-extends'>      /**
+<span id='dr-class-cfg-extends'>      /**
 </span>       * @cfg {String} [extends=view] 
        * The name of a class that should be extended.
        */
 
-<span id='lz-class-cfg-type'>      /**
+<span id='dr-class-cfg-type'>      /**
 </span>       * @cfg {&quot;js&quot;/&quot;coffee&quot;} [type=js] 
        * The default compiler to use for methods, setters and handlers. Either &#39;js&#39; or &#39;coffee&#39;
        */
@@ -2006,10 +2006,10 @@
         if (oldbody) {
           el.innerHTML = oldbody;
         }
-        if (name in lz) {
+        if (name in dr) {
           console.warn(&#39;overwriting class&#39;, name);
         }
-        lz[name] = function(instanceel, instanceattributes) {
+        dr[name] = function(instanceel, instanceattributes) {
           var attributes, children, key, parent, propname, val, value, viewel, _j, _len1, _ref;
           attributes = clone(classattributes);
           for (key in instanceattributes) {
@@ -2030,7 +2030,7 @@
               attributes[key] = value;
             }
           }
-          if (!(extend in lz)) {
+          if (!(extend in dr)) {
             console.warn(&#39;could not find class for tag&#39;, extend);
             return;
           }
@@ -2039,7 +2039,7 @@
           }
           attributes.$skiponinit = true;
           attributes.$deferbindings = haschildren;
-          parent = new lz[extend](instanceel, attributes);
+          parent = new dr[extend](instanceel, attributes);
           viewel = (_ref = parent.sprite) != null ? _ref.el : void 0;
           if (instanceel) {
             if (!viewel) {
@@ -2082,9 +2082,9 @@
 
     })();
 
-<span id='lz-layout'>    /**
-</span>     * @class lz.layout
-     * @extends lz.node
+<span id='dr-layout'>    /**
+</span>     * @class dr.layout
+     * @extends dr.node
      * The base class for all layouts. 
      *
      * When a new layout is added, it will automatically create and add itself to a layouts array in its parent. In addition, an onlayouts event is fired in the parent when the layouts array changes. This allows the parent to access the layout(s) later.
@@ -2120,10 +2120,10 @@
       Layout.prototype._added = function(child) {
         if (child) {
 
-<span id='lz-layout-event-onsubview'>          /**
+<span id='dr-layout-event-onsubview'>          /**
 </span>           * @event onsubview 
            * Fired when the layout has a new subview. Used to listen for events on the view that the layout cares about.
-           * @param {lz.view} child The subview that was added
+           * @param {dr.view} child The subview that was added
            */
           if (!child.ignorelayout) {
             this.sendEvent(&#39;subview&#39;, child);
@@ -2133,16 +2133,16 @@
       };
 
 
-<span id='lz-layout-method-update'>      /**
+<span id='dr-layout-method-update'>      /**
 </span>       * @method update
        * @abstract
        * Called when the layout should be updated. Must be implemented to update the position of the subviews
        * @param value The value received from the node that updated
-       * @param {lz.node} sender The node that updated
+       * @param {dr.node} sender The node that updated
        */
 
 
-<span id='lz-layout-method-skip'>      /**
+<span id='dr-layout-method-skip'>      /**
 </span>       * Determines if a layout should be updated or not, usually called from update
        * @returns {Boolean} If true, skip updating the layout
        */
@@ -2166,13 +2166,13 @@
         var changed;
         changed = this.locked !== locked;
 
-<span id='lz-layout-property-locked'>        /**
+<span id='dr-layout-property-locked'>        /**
 </span>         * @property {Boolean} locked
          * If true, this layout will not update
          */
         this.locked = locked;
 
-<span id='lz-layout-event-onlocked'>        /**
+<span id='dr-layout-event-onlocked'>        /**
 </span>         * @event onlocked 
          * Fired when the layout is locked
          * @param {Boolean} locked If true, the layout is locked
@@ -2250,8 +2250,8 @@
 
     })(Eventable);
 
-<span id='lz-idle'>    /**
-</span>     * @class lz.idle
+<span id='dr-idle'>    /**
+</span>     * @class dr.idle
      * @extends Eventable
      * Sends onidle events when the application is active and idle.
      */
@@ -2279,7 +2279,7 @@
 
       Idle.prototype.sender = function(time) {
 
-<span id='lz-idle-event-onidle'>        /**
+<span id='dr-idle-event-onidle'>        /**
 </span>         * @event onidle 
          * Fired when the application is active and idle.
          * @param {Number} time The number of milliseconds since the application started
@@ -2297,8 +2297,8 @@
     })(StartEventable);
     mouseEvents = [&#39;click&#39;, &#39;mouseover&#39;, &#39;mouseout&#39;, &#39;mousedown&#39;, &#39;mouseup&#39;];
 
-<span id='lz-mouse'>    /**
-</span>     * @class lz.mouse
+<span id='dr-mouse'>    /**
+</span>     * @class dr.mouse
      * @extends Eventable
      * Sends mouse events. Often used to listen to onmouseover/x/y events to follow the mouse position.
      */
@@ -2306,38 +2306,38 @@
       __extends(Mouse, _super);
 
 
-<span id='lz-mouse-event-onclick'>      /**
+<span id='dr-mouse-event-onclick'>      /**
 </span>       * @event onclick 
        * Fired when the mouse is clicked
-       * @param {lz.view} view The lz.view that fired the event
+       * @param {dr.view} view The dr.view that fired the event
        */
 
 
-<span id='lz-mouse-event-onmouseover'>      /**
+<span id='dr-mouse-event-onmouseover'>      /**
 </span>       * @event onmouseover 
        * Fired when the mouse moves over a view
-       * @param {lz.view} view The lz.view that fired the event
+       * @param {dr.view} view The dr.view that fired the event
        */
 
 
-<span id='lz-mouse-event-onmouseout'>      /**
+<span id='dr-mouse-event-onmouseout'>      /**
 </span>       * @event onmouseout 
        * Fired when the mouse moves off a view
-       * @param {lz.view} view The lz.view that fired the event
+       * @param {dr.view} view The dr.view that fired the event
        */
 
 
-<span id='lz-mouse-event-onmousedown'>      /**
+<span id='dr-mouse-event-onmousedown'>      /**
 </span>       * @event onmousedown 
        * Fired when the mouse goes down on a view
-       * @param {lz.view} view The lz.view that fired the event
+       * @param {dr.view} view The dr.view that fired the event
        */
 
 
-<span id='lz-mouse-event-onmouseup'>      /**
+<span id='dr-mouse-event-onmouseup'>      /**
 </span>       * @event onmouseup 
        * Fired when the mouse goes up on a view
-       * @param {lz.view} view The lz.view that fired the event
+       * @param {dr.view} view The dr.view that fired the event
        */
 
       function Mouse() {
@@ -2364,14 +2364,14 @@
         }
         if (this.eventStarted &amp;&amp; type === &#39;mousemove&#39;) {
 
-<span id='lz-mouse-property-x'>          /**
+<span id='dr-mouse-property-x'>          /**
 </span>           * @property {Number} x
            * @readonly
            * The x coordinate of the mouse
            */
           this.x = event.pageX;
 
-<span id='lz-mouse-property-y'>          /**
+<span id='dr-mouse-property-y'>          /**
 </span>           * @property {Number} y
            * @readonly
            * The y coordinate of the mouse
@@ -2385,7 +2385,7 @@
 
       Mouse.prototype.sender = function() {
 
-<span id='lz-mouse-event-onmousemove'>        /**
+<span id='dr-mouse-event-onmousemove'>        /**
 </span>         * @event onmousemove 
          * Fired when the mouse moves
          * @param {Object} coordinates The x and y coordinates of the mouse
@@ -2395,14 +2395,14 @@
           y: this.y
         });
 
-<span id='lz-mouse-event-onx'>        /**
+<span id='dr-mouse-event-onx'>        /**
 </span>         * @event onx 
          * Fired when the mouse moves in the x axis
          * @param {Number} x The x coordinate of the mouse
          */
         this.sendEvent(&#39;x&#39;, this.x);
 
-<span id='lz-mouse-event-ony'>        /**
+<span id='dr-mouse-event-ony'>        /**
 </span>         * @event ony 
          * Fired when the mouse moves in the y axis
          * @param {Number} y The y coordinate of the mouse
@@ -2425,8 +2425,8 @@
 
     })(StartEventable);
 
-<span id='lz-window'>    /**
-</span>     * @class lz.window
+<span id='dr-window'>    /**
+</span>     * @class dr.window
      * @extends Eventable
      * Sends window resize events. Often used to dynamically reposition views as the window size changes.
      */
@@ -2455,7 +2455,7 @@
           return function() {
             _this.visible = document[hidden];
 
-<span id='lz-window-event-onvisible'>            /**
+<span id='dr-window-event-onvisible'>            /**
 </span>             * @event onvisible 
              * Fired when the window visibility changes
              * @param {Boolean} visible True if the window is currently visible
@@ -2475,7 +2475,7 @@
       Window.prototype.handle = function(event) {
         this.width = window.innerWidth;
 
-<span id='lz-window-event-onwidth'>        /**
+<span id='dr-window-event-onwidth'>        /**
 </span>         * @event onwidth 
          * Fired when the window resizes
          * @param {Number} width The width of the window
@@ -2483,7 +2483,7 @@
         this.sendEvent(&#39;width&#39;, this.width);
         this.height = window.innerHeight;
 
-<span id='lz-window-event-onheight'>        /**
+<span id='dr-window-event-onheight'>        /**
 </span>         * @event onheight 
          * Fired when the window resizes
          * @param {Number} height The height of the window
@@ -2495,8 +2495,8 @@
 
     })(StartEventable);
 
-<span id='lz-keyboard'>    /**
-</span>     * @class lz.keyboard
+<span id='dr-keyboard'>    /**
+</span>     * @class dr.keyboard
      * @extends Eventable
      * Sends keyboard events.
      */
@@ -2543,32 +2543,32 @@
         }
         out = type === &#39;select&#39; ? target : keys;
 
-<span id='lz-keyboard-event-onselect'>        /**
+<span id='dr-keyboard-event-onselect'>        /**
 </span>         * @event onselect 
          * Fired when text is selected
-         * @param {lz.view} view The view that fired the event
+         * @param {dr.view} view The view that fired the event
          */
 
-<span id='lz-keyboard-event-onchange'>        /**
+<span id='dr-keyboard-event-onchange'>        /**
 </span>         * @event onchange 
          * Fired when an inputtext has changed
-         * @param {lz.view} view The view that fired the event
+         * @param {dr.view} view The view that fired the event
          */
 
-<span id='lz-keyboard-event-onkeydown'>        /**
+<span id='dr-keyboard-event-onkeydown'>        /**
 </span>         * @event onkeydown 
          * Fired when a key goes down
          * @param {Object} keys An object representing the keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
          */
 
-<span id='lz-keyboard-event-onkeyup'>        /**
+<span id='dr-keyboard-event-onkeyup'>        /**
 </span>         * @event onkeyup 
          * Fired when a key goes up
          * @param {Object} keys An object representing the keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
          */
         this.sendEvent(type, out);
 
-<span id='lz-keyboard-event-onkeys'>        /**
+<span id='dr-keyboard-event-onkeys'>        /**
 </span>         * @event onkeys 
          * Fired when a key is pressed on the keyboard
          * @param {Object} keys An object representing the keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
@@ -2582,8 +2582,8 @@
 
     })(Eventable);
 
-<span id='lz'>    /**
-</span>     * @class lz
+<span id='dr'>    /**
+</span>     * @class dr
      * Holds builtin and user-created classes and public APIs.
      * 
      * All classes listed here can be invoked with the declarative syntax, e.g. &amp;lt;node&gt;&amp;lt;/node&gt; or &amp;lt;view&gt;&amp;lt;/view&gt;
@@ -2599,43 +2599,43 @@
       idle: new Idle(),
       state: State,
 
-<span id='lz-method-initElements'>      /**
+<span id='dr-method-initElements'>      /**
 </span>       * @method initElements
        * Initializes all top-level views found in the document. Called automatically when the page loads, but can be called manually as needed.
        */
       initElements: dom.initAllElements,
 
-<span id='lz-method-writeCSS'>      /**
+<span id='dr-method-writeCSS'>      /**
 </span>       * @method writeCSS
        * Writes generic dreem-specific CSS to the document. Should only be called once.
        */
       writeCSS: dom.writeCSS
     };
 
-<span id='lz-method'>    /**
-</span>     * @class lz.method
+<span id='dr-method'>    /**
+</span>     * @class dr.method
      * Declares a method in a node, view, class or other class instance. Methods can only be created with the &amp;lt;method&gt;&amp;lt;/method&gt; tag syntax. 
      * 
      * If a method overrides an existing method, any existing (super) method(s) will be called first automatically.
      */
 
-<span id='lz-method-cfg-name'>    /**
+<span id='dr-method-cfg-name'>    /**
 </span>     * @cfg {String} name (required)
      * The name of the method.
      */
 
-<span id='lz-method-cfg-args'>    /**
+<span id='dr-method-cfg-args'>    /**
 </span>     * @cfg {String[]} args
      * A comma separated list of method arguments.
      */
 
-<span id='lz-method-cfg-type'>    /**
+<span id='dr-method-cfg-type'>    /**
 </span>     * @cfg {&quot;js&quot;/&quot;coffee&quot;} type 
      * The default compiler to use for this method. Inherits from the immediate class if unspecified.
      */
 
-<span id='lz-setter'>    /**
-</span>     * @class lz.setter
+<span id='dr-setter'>    /**
+</span>     * @class dr.setter
      * Declares a setter in a node, view, class or other class instance. Setters can only be created with the &amp;lt;setter&gt;&amp;lt;/setter&gt; tag syntax.
      *
      * Setters are called when an attribute is set based on their name, and allow the behavior of an attribute changes to be modified.
@@ -2643,55 +2643,55 @@
      * If a setter overrides an existing method, any existing (super) method(s) will be called first automatically.
      */
 
-<span id='lz-setter-cfg-name'>    /**
+<span id='dr-setter-cfg-name'>    /**
 </span>     * @cfg {String} name (required)
      * The name of the method.
      */
 
-<span id='lz-setter-cfg-args'>    /**
+<span id='dr-setter-cfg-args'>    /**
 </span>     * @cfg {String[]} args
      * A comma separated list of method arguments.
      */
 
-<span id='lz-setter-cfg-type'>    /**
+<span id='dr-setter-cfg-type'>    /**
 </span>     * @cfg {&quot;js&quot;/&quot;coffee&quot;} type 
      * The default compiler to use for this method. Inherits from the immediate class if unspecified.
      */
 
-<span id='lz-handler'>    /**
-</span>     * @class lz.handler
+<span id='dr-handler'>    /**
+</span>     * @class dr.handler
      * Declares a handler in a node, view, class or other class instance. Handlers can only be created with the &amp;lt;handler&gt;&amp;lt;/handler&gt; tag syntax.
      *
      * Handlers are called when an event fires with  new value, if available.
      */
 
-<span id='lz-handler-cfg-name'>    /**
+<span id='dr-handler-cfg-name'>    /**
 </span>     * @cfg {String} name (required)
      * The name of the event to listen for, e.g. &#39;onwidth&#39;.
      */
 
-<span id='lz-handler-cfg-reference'>    /**
+<span id='dr-handler-cfg-reference'>    /**
 </span>     * @cfg {String} reference
      * If set, the handler will listen for an event in another scope.
      */
 
-<span id='lz-handler-cfg-method'>    /**
+<span id='dr-handler-cfg-method'>    /**
 </span>     * @cfg {String} method
      * If set, the handler call a local method. Useful when multiple handlers need to do the same thing.
      */
 
-<span id='lz-handler-cfg-args'>    /**
+<span id='dr-handler-cfg-args'>    /**
 </span>     * @cfg {String[]} args
      * A comma separated list of method arguments.
      */
 
-<span id='lz-handler-cfg-type'>    /**
+<span id='dr-handler-cfg-type'>    /**
 </span>     * @cfg {&quot;js&quot;/&quot;coffee&quot;} type 
      * The default compiler to use for this method. Inherits from the immediate class if unspecified.
      */
 
-<span id='lz-attribute'>    /**
-</span>     * @class lz.attribute
+<span id='dr-attribute'>    /**
+</span>     * @class dr.attribute
      * Declares an attribute in a node, view, class or other class instance. Attributes can only be created with the &amp;lt;attribute&gt;&amp;lt;/attribute&gt; tag syntax.
      * 
      * Attributes allow classes to declare new variables with a specific type and default value. 
@@ -2699,26 +2699,26 @@
      * Attributes automatically send events when their value changes.
      */
 
-<span id='lz-attribute-cfg-name'>    /**
+<span id='dr-attribute-cfg-name'>    /**
 </span>     * @cfg {String} name (required)
      * The name of the attribute
      */
 
-<span id='lz-attribute-cfg-type'>    /**
+<span id='dr-attribute-cfg-type'>    /**
 </span>     * @cfg {&quot;string&quot;/&quot;number&quot;/&quot;boolean&quot;/&quot;json&quot;} [type=string] (required)
      * The type of the attribute. Used to convert from string to an appropriate representation of the type.
      */
 
-<span id='lz-attribute-cfg-value'>    /**
+<span id='dr-attribute-cfg-value'>    /**
 </span>     * @cfg {String} value (required)
      * The initial value for the attribute
      */
   })();
 
-  lz.writeCSS();
+  dr.writeCSS();
 
   $(window).on(&#39;load&#39;, function() {
-    lz.initElements();
+    dr.initElements();
     return hackstyle(true);
   });
 

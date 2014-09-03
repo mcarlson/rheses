@@ -26,7 +26,7 @@
 <body>
   <view>
     <audioplayer id="audio" url="music/03_Homage Sliders.mp3" fftsize="2048" fftsmoothing="0" playing="true">
-      <handler name="onkeydown" args="key" reference="lz.keyboard">
+      <handler name="onkeydown" args="key" reference="dr.keyboard">
         if (key.keyCode == 32) this.toggle();
       </handler>
     </audioplayer>
@@ -43,7 +43,7 @@
       <method name="createObject" args="i"></method>
     </class>
 
-    <threejsviz width="${lz.window.width}" height="${lz.window.height}" bgcolor="white" data="${audio.fft}"  scriptincludes="http://threejs.org/examples/js/controls/OrbitControls.js">
+    <threejsviz width="${dr.window.width}" height="${dr.window.height}" bgcolor="white" data="${audio.fft}"  scriptincludes="http://threejs.org/examples/js/controls/OrbitControls.js">
       <method name="initScene" args="scene">
         this.camera.position.x = -420;
         this.camera.position.z = 420;

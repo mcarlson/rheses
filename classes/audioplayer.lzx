@@ -135,7 +135,7 @@ SOFTWARE. -->
           this.pause();
         }
       </method>
-      <handler name="onidle" reference="lz.idle">
+      <handler name="onidle" reference="dr.idle">
         if (! (this.fftNode && this.playing && ! this.paused)) return;
 
         var time = this.context.currentTime - this.startTime + this.startOffset;

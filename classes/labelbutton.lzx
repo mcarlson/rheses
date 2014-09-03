@@ -21,8 +21,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. -->
 
   <!--/**
-     * @class lz.labelbutton
-     * @extends lz.buttonbase
+     * @class dr.labelbutton
+     * @extends dr.buttonbase
      * Button class consisting of text centered in a view. The onclick event
      * is generated when the button is clicked. The visual state of the 
      * button changes during onmousedown/onmouseup.

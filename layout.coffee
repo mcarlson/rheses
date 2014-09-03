@@ -44,7 +44,7 @@ hackstyle = do ->
       $.style = origstyle
 
 
-window.lz = do ->
+window.dr = do ->
   # from http://coffeescriptcookbook.com/chapters/classes_and_objects/mixins
   mixOf = (base, mixins...) ->
     class Mixed extends base
@@ -377,7 +377,7 @@ window.lz = do ->
       constraint._bindConstraints()
     constraintScopes = []
   ###*
-  # @class lz.node
+  # @class dr.node
   # @extends Eventable
   # The nonvisual base class for everything in dreem. Handles parent/child relationships between tags.
   # 
@@ -403,7 +403,7 @@ window.lz = do ->
 
     constructor: (el, attributes = {}) ->
       ###*
-      # @property {lz.node[]} subnodes
+      # @property {dr.node[]} subnodes
       # @readonly
       # An array of this node's child nodes
       ###
@@ -453,7 +453,7 @@ window.lz = do ->
       ###*
       # @event oninit 
       # Fired when this node and all its children are completely initialized
-      # @param {lz.node} node The lz.node that fired the event
+      # @param {dr.node} node The dr.node that fired the event
       ###
       ###*
       # @property {Boolean} inited
@@ -622,7 +622,7 @@ window.lz = do ->
         ###*
         # @event onsubnodes 
         # Fired when this node's subnodes array has changed
-        # @param {lz.node} node The lz.node that fired the event
+        # @param {dr.node} node The dr.node that fired the event
         ###
         parent.sendEvent('subnodes', @)
 
@@ -663,7 +663,7 @@ window.lz = do ->
       ###*
       # @event ondestroy 
       # Fired when this node and all its children are about to be destroyed
-      # @param {lz.node} node The lz.node that fired the event
+      # @param {dr.node} node The dr.node that fired the event
       ###
       @sendEvent('destroy', @)
 
@@ -876,9 +876,9 @@ window.lz = do ->
   # internal attributes ignored by class declarations and view styles
   ignoredAttributes = {parent: true, id: true, name: true, extends: true, type: true, scriptincludes: true}
   ###*
-  # @class lz.view
-  # @extends lz.node
-  # The visual base class for everything in dreem. Views extend lz.node to add the ability to set and animate visual attributes, and interact with the mouse.
+  # @class dr.view
+  # @extends dr.node
+  # The visual base class for everything in dreem. Views extend dr.node to add the ability to set and animate visual attributes, and interact with the mouse.
   #
   # Views are positioned inside their parent according to their x and y coordinates.
   # 
@@ -929,48 +929,48 @@ window.lz = do ->
     ###*
     # @event onclick 
     # Fired when this view is clicked
-    # @param {lz.view} view The lz.view that fired the event
+    # @param {dr.view} view The dr.view that fired the event
     ###
     ###*
     # @event onmouseover 
     # Fired when the mouse moves over this view
-    # @param {lz.view} view The lz.view that fired the event
+    # @param {dr.view} view The dr.view that fired the event
     ###
     ###*
     # @event onmouseout 
     # Fired when the mouse moves off this view
-    # @param {lz.view} view The lz.view that fired the event
+    # @param {dr.view} view The dr.view that fired the event
     ###
     ###*
     # @event onmousedown 
     # Fired when the mouse goes down on this view
-    # @param {lz.view} view The lz.view that fired the event
+    # @param {dr.view} view The dr.view that fired the event
     ###
     ###*
     # @event onmouseup 
     # Fired when the mouse goes up on this view
-    # @param {lz.view} view The lz.view that fired the event
+    # @param {dr.view} view The dr.view that fired the event
     ###
     constructor: (el, attributes = {}) ->
       ###*
-      # @property {lz.view[]} subviews
+      # @property {dr.view[]} subviews
       # @readonly
       # An array of this views's child views
       ###
       ###*
       # @event onsubviews 
       # Fired when this views's subviews array has changed
-      # @param {lz.view} view The lz.view that fired the event
+      # @param {dr.view} view The dr.view that fired the event
       ###
       ###*
-      # @property {lz.layout[]} layouts
+      # @property {dr.layout[]} layouts
       # @readonly
       # An array of this views's layouts. Only defined when needed.
       ###
       ###*
       # @event onlayouts 
       # Fired when this views's layouts array has changed
-      # @param {lz.layout} view The lz.layout that fired the event
+      # @param {dr.layout} view The dr.layout that fired the event
       ###
       ###*
       # @property {Boolean} ignorelayout
@@ -1111,7 +1111,7 @@ window.lz = do ->
       lzxrequests = []
       lzxloaded = {}
       loadLZX = (name, el) ->
-        return if name of lz or name of lzxloaded or name in specialtags or name of inlineclasses or name in builtinTags
+        return if name of dr or name of lzxloaded or name in specialtags or name of inlineclasses or name in builtinTags
         # don't autoload elements found inside specialtags, e.g. setter
         return if el.parentNode.localName in specialtags
         lzxloaded[name] = true
@@ -1211,7 +1211,7 @@ window.lz = do ->
       el.$init = true
 
       tagname = el.localName
-      if not (tagname of lz)
+      if not (tagname of dr)
         console.warn 'could not find class for tag', tagname, el unless tagname in builtinTags or tagname in specialtags
         return
 
@@ -1238,7 +1238,7 @@ window.lz = do ->
       # Defer oninit if we have children
       attributes.$skiponinit = skiponinit = (child for child in el.childNodes when child.nodeType == 1).length > 0
 
-      parent = new lz[tagname](el, attributes)
+      parent = new dr[tagname](el, attributes)
 
       unless tagname is 'class' or isstate
         children = (child for child in el.childNodes when child.nodeType == 1)
@@ -1334,8 +1334,8 @@ window.lz = do ->
       writeCSS: writeCSS
 
   ###*
-  # @class lz.state
-  # @extends lz.node
+  # @class dr.state
+  # @extends dr.node
   # Allows a group of attributes, methods, handlers and instances to be removed and applied as a group.
   # 
   # Like views and nodes, states can contain methods, handlers, setters, constraints, attributes and other view, node or class instances.
@@ -1453,10 +1453,10 @@ window.lz = do ->
 
 
   ###*
-  # @class lz.class
+  # @class dr.class
   # Allows new tags to be created. Classes only be created with the &lt;class>&lt;/class> tag syntax. 
   # 
-  # Classes can extend any other class, and they extend lz.view by default. 
+  # Classes can extend any other class, and they extend dr.view by default. 
   # 
   # Once declared, classes invoked with the declarative syntax, e.g. &lt;classname>&lt;/classname>.
   # 
@@ -1510,10 +1510,10 @@ window.lz = do ->
       el.innerHTML = oldbody if (oldbody)
 
       # console.log('new class', name, classattributes)
-      console.warn 'overwriting class', name if name of lz
+      console.warn 'overwriting class', name if name of dr
 
       # class instance constructor
-      lz[name] = (instanceel, instanceattributes) ->
+      dr[name] = (instanceel, instanceattributes) ->
         # override class attributes with instance attributes
         attributes = clone(classattributes)
         for key, value of instanceattributes
@@ -1535,12 +1535,12 @@ window.lz = do ->
           else 
             attributes[key] = value
 
-        if not (extend of lz)
+        if not (extend of dr)
           console.warn 'could not find class for tag', extend
           return
 
         # tagname would be 'class' in this case, replace with the right one!
-        # also, don't overwrite if it's already set, since we are invoking lz[extend]
+        # also, don't overwrite if it's already set, since we are invoking dr[extend]
         if attributes.$tagname is 'class' or not attributes.$tagname
           attributes.$tagname = name
 
@@ -1550,7 +1550,7 @@ window.lz = do ->
         attributes.$deferbindings = haschildren
 
         # console.log 'creating class instance', name, attributes.$tagname, instanceel, extend, attributes
-        parent = new lz[extend](instanceel, attributes)
+        parent = new dr[extend](instanceel, attributes)
         # console.log 'created class instance', name, extend, parent
 
         viewel = parent.sprite?.el
@@ -1582,8 +1582,8 @@ window.lz = do ->
         return parent
 
   ###*
-  # @class lz.layout
-  # @extends lz.node
+  # @class dr.layout
+  # @extends dr.node
   # The base class for all layouts. 
   #
   # When a new layout is added, it will automatically create and add itself to a layouts array in its parent. In addition, an onlayouts event is fired in the parent when the layouts array changes. This allows the parent to access the layout(s) later.
@@ -1614,7 +1614,7 @@ window.lz = do ->
         ###*
         # @event onsubview 
         # Fired when the layout has a new subview. Used to listen for events on the view that the layout cares about.
-        # @param {lz.view} child The subview that was added
+        # @param {dr.view} child The subview that was added
         ###
         @sendEvent('subview', child) unless child.ignorelayout
       @update(null, child)
@@ -1625,7 +1625,7 @@ window.lz = do ->
     # @abstract
     # Called when the layout should be updated. Must be implemented to update the position of the subviews
     # @param value The value received from the node that updated
-    # @param {lz.node} sender The node that updated
+    # @param {dr.node} sender The node that updated
     ###
     # update: (value, sender) =>
       # console.log 'update layout', sender
@@ -1704,7 +1704,7 @@ window.lz = do ->
       # console.log 'stop'
 
   ###*
-  # @class lz.idle
+  # @class dr.idle
   # @extends Eventable
   # Sends onidle events when the application is active and idle.
   ###
@@ -1737,7 +1737,7 @@ window.lz = do ->
   # singleton that listens for mouse events. Holds data about the most recent left and top mouse coordinates
   mouseEvents = ['click', 'mouseover', 'mouseout', 'mousedown', 'mouseup']
   ###*
-  # @class lz.mouse
+  # @class dr.mouse
   # @extends Eventable
   # Sends mouse events. Often used to listen to onmouseover/x/y events to follow the mouse position.
   ###
@@ -1746,27 +1746,27 @@ window.lz = do ->
     ###*
     # @event onclick 
     # Fired when the mouse is clicked
-    # @param {lz.view} view The lz.view that fired the event
+    # @param {dr.view} view The dr.view that fired the event
     ###
     ###*
     # @event onmouseover 
     # Fired when the mouse moves over a view
-    # @param {lz.view} view The lz.view that fired the event
+    # @param {dr.view} view The dr.view that fired the event
     ###
     ###*
     # @event onmouseout 
     # Fired when the mouse moves off a view
-    # @param {lz.view} view The lz.view that fired the event
+    # @param {dr.view} view The dr.view that fired the event
     ###
     ###*
     # @event onmousedown 
     # Fired when the mouse goes down on a view
-    # @param {lz.view} view The lz.view that fired the event
+    # @param {dr.view} view The dr.view that fired the event
     ###
     ###*
     # @event onmouseup 
     # Fired when the mouse goes up on a view
-    # @param {lz.view} view The lz.view that fired the event
+    # @param {dr.view} view The dr.view that fired the event
     ###
     constructor: ->
       @x = 0
@@ -1831,7 +1831,7 @@ window.lz = do ->
 
 
   ###*
-  # @class lz.window
+  # @class dr.window
   # @extends Eventable
   # Sends window resize events. Often used to dynamically reposition views as the window size changes.
   ###
@@ -1890,7 +1890,7 @@ window.lz = do ->
 
 
   ###*
-  # @class lz.keyboard
+  # @class dr.keyboard
   # @extends Eventable
   # Sends keyboard events.
   ###
@@ -1931,12 +1931,12 @@ window.lz = do ->
       ###*
       # @event onselect 
       # Fired when text is selected
-      # @param {lz.view} view The view that fired the event
+      # @param {dr.view} view The view that fired the event
       ###
       ###*
       # @event onchange 
       # Fired when an inputtext has changed
-      # @param {lz.view} view The view that fired the event
+      # @param {dr.view} view The view that fired the event
       ###
       ###*
       # @event onkeydown 
@@ -1958,7 +1958,7 @@ window.lz = do ->
       # console.log 'handleKeyboard', type, target, out, event
 
   ###*
-  # @class lz
+  # @class dr
   # Holds builtin and user-created classes and public APIs.
   # 
   # All classes listed here can be invoked with the declarative syntax, e.g. &lt;node>&lt;/node> or &lt;view>&lt;/view>
@@ -1986,7 +1986,7 @@ window.lz = do ->
 
   # virtual classes declared for documentation purposes
   ###*
-  # @class lz.method
+  # @class dr.method
   # Declares a method in a node, view, class or other class instance. Methods can only be created with the &lt;method>&lt;/method> tag syntax. 
   # 
   # If a method overrides an existing method, any existing (super) method(s) will be called first automatically.
@@ -2005,7 +2005,7 @@ window.lz = do ->
   ###
 
   ###*
-  # @class lz.setter
+  # @class dr.setter
   # Declares a setter in a node, view, class or other class instance. Setters can only be created with the &lt;setter>&lt;/setter> tag syntax.
   #
   # Setters are called when an attribute is set based on their name, and allow the behavior of an attribute changes to be modified.
@@ -2026,7 +2026,7 @@ window.lz = do ->
   ###
 
   ###*
-  # @class lz.handler
+  # @class dr.handler
   # Declares a handler in a node, view, class or other class instance. Handlers can only be created with the &lt;handler>&lt;/handler> tag syntax.
   #
   # Handlers are called when an event fires with  new value, if available.
@@ -2053,7 +2053,7 @@ window.lz = do ->
   ###
 
   ###*
-  # @class lz.attribute
+  # @class dr.attribute
   # Declares an attribute in a node, view, class or other class instance. Attributes can only be created with the &lt;attribute>&lt;/attribute> tag syntax.
   # 
   # Attributes allow classes to declare new variables with a specific type and default value. 
@@ -2073,9 +2073,9 @@ window.lz = do ->
   # The initial value for the attribute
   ###
 
-lz.writeCSS()
+dr.writeCSS()
 $(window).on('load', -> 
-  lz.initElements() 
+  dr.initElements() 
   # listen for jQuery style changes
   hackstyle(true)
 )

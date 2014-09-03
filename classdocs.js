@@ -1,6 +1,6 @@
 /**
-     * @class lz.ace
-     * @extends lz.view
+     * @class dr.ace
+     * @extends dr.view
      * Ace editor component.
      */
 /**
@@ -18,7 +18,7 @@
 /**
         * @event ontext
         * Fired when the contents of the ace entry changes
-        * @param {lz.ace} view The lz.ace that fired the event
+        * @param {dr.ace} view The dr.ace that fired the event
         */
 /**
         * @cfg {Number} [pausedelay=500]
@@ -28,11 +28,11 @@
 /**
         * @event onpausedelay
         * Fired when user entries stops for a period of time.
-        * @param {lz.ace} view The lz.ace that fired the event
+        * @param {dr.ace} view The dr.ace that fired the event
         */
 /**
-     * @class lz.boundslayout
-     * @extends lz.layout
+     * @class dr.boundslayout
+     * @extends dr.layout
      * Sets the parent view's size to match the bounds of its children.
      */
 /**
@@ -40,14 +40,14 @@
         * Optionally skip bounds calculations for a specific axis.
         */
 /**
-     * @class lz.buttonbase
-     * @extends lz.view
+     * @class dr.buttonbase
+     * @extends dr.view
      * Base class for button components. Buttons share common elements, 
      * including their ability to be selected, a visual element to display
      * their state, and a default and selected color.
-     * The visual element is a lz.view that shows the current state of the
+     * The visual element is a dr.view that shows the current state of the
      * button. For example, in a labelbutton the entire button is the visual
-     * element. For a checkbutton, the visual element is a square lz.view
+     * element. For a checkbutton, the visual element is a square dr.view
      * that is inside the button.
      */
 /**
@@ -69,15 +69,15 @@
 /**
         * @event onselected
         * Fired when the state of the button changes.
-        * @param {lz.buttonbase} view The lz.buttonbase that fired the event
+        * @param {dr.buttonbase} view The dr.buttonbase that fired the event
         */
 /**
         * @cfg {String} [text=""]
         * Button text.
         */
 /**
-     * @class lz.checkbutton
-     * @extends lz.buttonbase
+     * @class dr.checkbutton
+     * @extends dr.buttonbase
      * Button class consisting of text and a visual element to show the
      * current state of the component. The state of the
      * button changes each time the button is clicked. The select property
@@ -85,8 +85,8 @@
      * is generated when the button is the selected state.
      */
 /**
-     * @class lz.dragstate
-     * @extends lz.state
+     * @class dr.dragstate
+     * @extends dr.state
      * Allows views to be dragged by the mouse.
      */
 /**
@@ -94,8 +94,8 @@
         * The axes to drag on.
         */
 /**
-     * @class lz.dreem_iframe
-     * @extends lz.view
+     * @class dr.dreem_iframe
+     * @extends dr.view
      * iframe component for embedding dreem code or html in a dreem application.
      * The size of the iframe matches the width/height of the view when the
      * component is created.
@@ -108,8 +108,8 @@
         * that is written inside the iframe's body tag.
         */
 /**
-     * @class lz.gyro
-     * @extends lz.node
+     * @class dr.gyro
+     * @extends dr.node
      * Receives gyroscope and compass data where available. See [https://w3c.github.io/deviceorientation/spec-source-orientation.html#deviceorientation](https://w3c.github.io/deviceorientation/spec-source-orientation.html#deviceorientation) and [https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html](https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html) for details.
      */
 /**
@@ -145,8 +145,8 @@
         * The compass accuracy, see [https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html](https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html) for details.
         */
 /**
-     * @class lz.image
-     * @extends lz.view
+     * @class dr.image
+     * @extends dr.view
      * Loads an image from a URL.
      */
 /**
@@ -163,8 +163,8 @@
              * Fired when there is an error loading the image
              */
 /**
-     * @class lz.inputtext
-     * @extends lz.view
+     * @class dr.inputtext
+     * @extends dr.view
      * Provides an editable input text field.
      */
 /**
@@ -176,23 +176,23 @@
         * The text inside this input text field
         */
 /**
-     * @class lz.labelbutton
-     * @extends lz.buttonbase
+     * @class dr.labelbutton
+     * @extends dr.buttonbase
      * Button class consisting of text centered in a view. The onclick event
      * is generated when the button is clicked. The visual state of the 
      * button changes during onmousedown/onmouseup.
      */
 /**
-     * @class lz.labeltoggle
-     * @extends lz.labelbutton
+     * @class dr.labeltoggle
+     * @extends dr.labelbutton
      * Button class consisting of text centered in a view. The state of the
      * button changes each time the button is clicked. The select property
      * holds the current state of the button. The onselected event
      * is generated when the button is the selected state.
      */
 /**
-     * @class lz.shim
-     * @extends lz.node
+     * @class dr.shim
+     * @extends dr.node
      * Connects to the shared event bus. When data is sent with a given type, a corresponding event is sent. For example, send('blah', {}) sends data with the 'blah' type, other shims will receive the object via an 'onblah' event.
      */
 /**
@@ -214,8 +214,8 @@
         * @param {Object} data The data to be sent.
         */
 /**
-     * @class lz.simplelayout
-     * @extends lz.layout
+     * @class dr.simplelayout
+     * @extends dr.layout
      * A layout that stacks views on the x or y axis.
      */
 /**
@@ -231,8 +231,8 @@
         * The axis to stack on
         */
 /**
-     * @class lz.slider
-     * @extends lz.view
+     * @class dr.slider
+     * @extends dr.view
      * An input component whose state is changed when the mouse is dragged.
      *
      *     @example
@@ -278,8 +278,8 @@
         * The selected color of the slider.
         */
 /**
-     * @class lz.text
-     * @extends lz.view
+     * @class dr.text
+     * @extends dr.view
      * Text component that supports single and multi-line text. The text
      * component can be fixed size, or sized to fit the size of the text.
      *
@@ -308,8 +308,8 @@
         * @return {String} The formated string to display in the component.
         */
 /**
-     * @class lz.touch
-     * @extends lz.node
+     * @class dr.touch
+     * @extends dr.node
      * Receives touch and multitouch data where available.
      */
 /**

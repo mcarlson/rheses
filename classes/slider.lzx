@@ -21,8 +21,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. -->
 
   <!--/**
-     * @class lz.slider
-     * @extends lz.view
+     * @class dr.slider
+     * @extends dr.view
      * An input component whose state is changed when the mouse is dragged.
      *
      *     @example
@@ -121,7 +121,7 @@ SOFTWARE. -->
 
       <!-- Apply dragstate when the mouse is down on the slider component. -->
       <handler name="onmousedown">
-        @movePosition(if @axis == 'x' then lz.mouse.x else lz.mouse.y)
+        @movePosition(if @axis == 'x' then dr.mouse.x else dr.mouse.y)
         @drag.setAttribute('applied', true);
       </handler>
       <handler name="onmouseup">
@@ -147,10 +147,10 @@ SOFTWARE. -->
       <!-- The @drag.applied can be removed when states are fixed to
            remove global handlers. -->
       <state name="drag" type="coffee">
-        <handler name="onx" reference="lz.mouse" args="x">
+        <handler name="onx" reference="dr.mouse" args="x">
           @movePosition(x) if @drag.applied && @axis == 'x'
         </handler>
-        <handler name="ony" reference="lz.mouse" args="y">
+        <handler name="ony" reference="dr.mouse" args="y">
           @movePosition(y) if @drag.applied && @axis == 'y'
         </handler>
       </state>

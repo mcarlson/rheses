@@ -21,14 +21,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. -->
 
   <!--/**
-     * @class lz.buttonbase
-     * @extends lz.view
+     * @class dr.buttonbase
+     * @extends dr.view
      * Base class for button components. Buttons share common elements, 
      * including their ability to be selected, a visual element to display
      * their state, and a default and selected color.
-     * The visual element is a lz.view that shows the current state of the
+     * The visual element is a dr.view that shows the current state of the
      * button. For example, in a labelbutton the entire button is the visual
-     * element. For a checkbutton, the visual element is a square lz.view
+     * element. For a checkbutton, the visual element is a square dr.view
      * that is inside the button.
      */-->    
     <class name="buttonbase" type="coffee" clickable="true" clip="true">
@@ -60,7 +60,7 @@ SOFTWARE. -->
       <!--/**
         * @event onselected
         * Fired when the state of the button changes.
-        * @param {lz.buttonbase} view The lz.buttonbase that fired the event
+        * @param {dr.buttonbase} view The dr.buttonbase that fired the event
         */-->
       <!-- selected: button state -->
       <attribute name="selected" type="boolean" value="false"></attribute>

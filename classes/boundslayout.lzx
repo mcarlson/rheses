@@ -20,8 +20,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. -->
   <!--/**
-     * @class lz.boundslayout
-     * @extends lz.layout
+     * @class dr.boundslayout
+     * @extends dr.layout
      * Sets the parent view's size to match the bounds of its children.
      */-->    
     <class name="boundslayout" extends="layout" type="coffee">

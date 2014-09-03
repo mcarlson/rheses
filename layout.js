@@ -59,7 +59,7 @@
     };
   })();
 
-  window.lz = (function() {
+  window.dr = (function() {
     var Class, Eventable, Events, Idle, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, View, Window, compiler, constraintScopes, dom, exports, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, _initConstraints;
     mixOf = function() {
       var Mixed, base, i, method, mixin, mixins, name, _i, _ref;
@@ -544,7 +544,7 @@
     };
 
     /**
-     * @class lz.node
+     * @class dr.node
      * @extends Eventable
      * The nonvisual base class for everything in dreem. Handles parent/child relationships between tags.
      * 
@@ -582,7 +582,7 @@
         }
 
         /**
-         * @property {lz.node[]} subnodes
+         * @property {dr.node[]} subnodes
          * @readonly
          * An array of this node's child nodes
          */
@@ -642,7 +642,7 @@
         /**
          * @event oninit 
          * Fired when this node and all its children are completely initialized
-         * @param {lz.node} node The lz.node that fired the event
+         * @param {dr.node} node The dr.node that fired the event
          */
 
         /**
@@ -866,7 +866,7 @@
           /**
            * @event onsubnodes 
            * Fired when this node's subnodes array has changed
-           * @param {lz.node} node The lz.node that fired the event
+           * @param {dr.node} node The dr.node that fired the event
            */
           return parent.sendEvent('subnodes', this);
         }
@@ -920,7 +920,7 @@
         /**
          * @event ondestroy 
          * Fired when this node and all its children are about to be destroyed
-         * @param {lz.node} node The lz.node that fired the event
+         * @param {dr.node} node The dr.node that fired the event
          */
         var subnode, _i, _len, _ref, _ref1;
         this.sendEvent('destroy', this);
@@ -1193,9 +1193,9 @@
     };
 
     /**
-     * @class lz.view
-     * @extends lz.node
-     * The visual base class for everything in dreem. Views extend lz.node to add the ability to set and animate visual attributes, and interact with the mouse.
+     * @class dr.view
+     * @extends dr.node
+     * The visual base class for everything in dreem. Views extend dr.node to add the ability to set and animate visual attributes, and interact with the mouse.
      *
      * Views are positioned inside their parent according to their x and y coordinates.
      * 
@@ -1264,35 +1264,35 @@
       /**
        * @event onclick 
        * Fired when this view is clicked
-       * @param {lz.view} view The lz.view that fired the event
+       * @param {dr.view} view The dr.view that fired the event
        */
 
 
       /**
        * @event onmouseover 
        * Fired when the mouse moves over this view
-       * @param {lz.view} view The lz.view that fired the event
+       * @param {dr.view} view The dr.view that fired the event
        */
 
 
       /**
        * @event onmouseout 
        * Fired when the mouse moves off this view
-       * @param {lz.view} view The lz.view that fired the event
+       * @param {dr.view} view The dr.view that fired the event
        */
 
 
       /**
        * @event onmousedown 
        * Fired when the mouse goes down on this view
-       * @param {lz.view} view The lz.view that fired the event
+       * @param {dr.view} view The dr.view that fired the event
        */
 
 
       /**
        * @event onmouseup 
        * Fired when the mouse goes up on this view
-       * @param {lz.view} view The lz.view that fired the event
+       * @param {dr.view} view The dr.view that fired the event
        */
 
       function View(el, attributes) {
@@ -1302,7 +1302,7 @@
         }
 
         /**
-         * @property {lz.view[]} subviews
+         * @property {dr.view[]} subviews
          * @readonly
          * An array of this views's child views
          */
@@ -1310,11 +1310,11 @@
         /**
          * @event onsubviews 
          * Fired when this views's subviews array has changed
-         * @param {lz.view} view The lz.view that fired the event
+         * @param {dr.view} view The dr.view that fired the event
          */
 
         /**
-         * @property {lz.layout[]} layouts
+         * @property {dr.layout[]} layouts
          * @readonly
          * An array of this views's layouts. Only defined when needed.
          */
@@ -1322,7 +1322,7 @@
         /**
          * @event onlayouts 
          * Fired when this views's layouts array has changed
-         * @param {lz.layout} view The lz.layout that fired the event
+         * @param {dr.layout} view The dr.layout that fired the event
          */
 
         /**
@@ -1486,7 +1486,7 @@
         lzxloaded = {};
         loadLZX = function(name, el) {
           var prom, url, _ref;
-          if (name in lz || name in lzxloaded || __indexOf.call(specialtags, name) >= 0 || name in inlineclasses || __indexOf.call(builtinTags, name) >= 0) {
+          if (name in dr || name in lzxloaded || __indexOf.call(specialtags, name) >= 0 || name in inlineclasses || __indexOf.call(builtinTags, name) >= 0) {
             return;
           }
           if (_ref = el.parentNode.localName, __indexOf.call(specialtags, _ref) >= 0) {
@@ -1601,7 +1601,7 @@
         }
         el.$init = true;
         tagname = el.localName;
-        if (!(tagname in lz)) {
+        if (!(tagname in dr)) {
           if (!(__indexOf.call(builtinTags, tagname) >= 0 || __indexOf.call(specialtags, tagname) >= 0)) {
             console.warn('could not find class for tag', tagname, el);
           }
@@ -1642,7 +1642,7 @@
           }
           return _results;
         })()).length > 0;
-        parent = new lz[tagname](el, attributes);
+        parent = new dr[tagname](el, attributes);
         if (!(tagname === 'class' || isstate)) {
           children = (function() {
             var _j, _len1, _ref, _results;
@@ -1786,8 +1786,8 @@
     })();
 
     /**
-     * @class lz.state
-     * @extends lz.node
+     * @class dr.state
+     * @extends dr.node
      * Allows a group of attributes, methods, handlers and instances to be removed and applied as a group.
      * 
      * Like views and nodes, states can contain methods, handlers, setters, constraints, attributes and other view, node or class instances.
@@ -1917,10 +1917,10 @@
     })(Node);
 
     /**
-     * @class lz.class
+     * @class dr.class
      * Allows new tags to be created. Classes only be created with the &lt;class>&lt;/class> tag syntax. 
      * 
-     * Classes can extend any other class, and they extend lz.view by default. 
+     * Classes can extend any other class, and they extend dr.view by default. 
      * 
      * Once declared, classes invoked with the declarative syntax, e.g. &lt;classname>&lt;/classname>.
      * 
@@ -1989,10 +1989,10 @@
         if (oldbody) {
           el.innerHTML = oldbody;
         }
-        if (name in lz) {
+        if (name in dr) {
           console.warn('overwriting class', name);
         }
-        lz[name] = function(instanceel, instanceattributes) {
+        dr[name] = function(instanceel, instanceattributes) {
           var attributes, children, key, parent, propname, val, value, viewel, _j, _len1, _ref;
           attributes = clone(classattributes);
           for (key in instanceattributes) {
@@ -2013,7 +2013,7 @@
               attributes[key] = value;
             }
           }
-          if (!(extend in lz)) {
+          if (!(extend in dr)) {
             console.warn('could not find class for tag', extend);
             return;
           }
@@ -2022,7 +2022,7 @@
           }
           attributes.$skiponinit = true;
           attributes.$deferbindings = haschildren;
-          parent = new lz[extend](instanceel, attributes);
+          parent = new dr[extend](instanceel, attributes);
           viewel = (_ref = parent.sprite) != null ? _ref.el : void 0;
           if (instanceel) {
             if (!viewel) {
@@ -2066,8 +2066,8 @@
     })();
 
     /**
-     * @class lz.layout
-     * @extends lz.node
+     * @class dr.layout
+     * @extends dr.node
      * The base class for all layouts. 
      *
      * When a new layout is added, it will automatically create and add itself to a layouts array in its parent. In addition, an onlayouts event is fired in the parent when the layouts array changes. This allows the parent to access the layout(s) later.
@@ -2106,7 +2106,7 @@
           /**
            * @event onsubview 
            * Fired when the layout has a new subview. Used to listen for events on the view that the layout cares about.
-           * @param {lz.view} child The subview that was added
+           * @param {dr.view} child The subview that was added
            */
           if (!child.ignorelayout) {
             this.sendEvent('subview', child);
@@ -2121,7 +2121,7 @@
        * @abstract
        * Called when the layout should be updated. Must be implemented to update the position of the subviews
        * @param value The value received from the node that updated
-       * @param {lz.node} sender The node that updated
+       * @param {dr.node} sender The node that updated
        */
 
 
@@ -2234,7 +2234,7 @@
     })(Eventable);
 
     /**
-     * @class lz.idle
+     * @class dr.idle
      * @extends Eventable
      * Sends onidle events when the application is active and idle.
      */
@@ -2281,7 +2281,7 @@
     mouseEvents = ['click', 'mouseover', 'mouseout', 'mousedown', 'mouseup'];
 
     /**
-     * @class lz.mouse
+     * @class dr.mouse
      * @extends Eventable
      * Sends mouse events. Often used to listen to onmouseover/x/y events to follow the mouse position.
      */
@@ -2292,35 +2292,35 @@
       /**
        * @event onclick 
        * Fired when the mouse is clicked
-       * @param {lz.view} view The lz.view that fired the event
+       * @param {dr.view} view The dr.view that fired the event
        */
 
 
       /**
        * @event onmouseover 
        * Fired when the mouse moves over a view
-       * @param {lz.view} view The lz.view that fired the event
+       * @param {dr.view} view The dr.view that fired the event
        */
 
 
       /**
        * @event onmouseout 
        * Fired when the mouse moves off a view
-       * @param {lz.view} view The lz.view that fired the event
+       * @param {dr.view} view The dr.view that fired the event
        */
 
 
       /**
        * @event onmousedown 
        * Fired when the mouse goes down on a view
-       * @param {lz.view} view The lz.view that fired the event
+       * @param {dr.view} view The dr.view that fired the event
        */
 
 
       /**
        * @event onmouseup 
        * Fired when the mouse goes up on a view
-       * @param {lz.view} view The lz.view that fired the event
+       * @param {dr.view} view The dr.view that fired the event
        */
 
       function Mouse() {
@@ -2409,7 +2409,7 @@
     })(StartEventable);
 
     /**
-     * @class lz.window
+     * @class dr.window
      * @extends Eventable
      * Sends window resize events. Often used to dynamically reposition views as the window size changes.
      */
@@ -2479,7 +2479,7 @@
     })(StartEventable);
 
     /**
-     * @class lz.keyboard
+     * @class dr.keyboard
      * @extends Eventable
      * Sends keyboard events.
      */
@@ -2529,13 +2529,13 @@
         /**
          * @event onselect 
          * Fired when text is selected
-         * @param {lz.view} view The view that fired the event
+         * @param {dr.view} view The view that fired the event
          */
 
         /**
          * @event onchange 
          * Fired when an inputtext has changed
-         * @param {lz.view} view The view that fired the event
+         * @param {dr.view} view The view that fired the event
          */
 
         /**
@@ -2566,7 +2566,7 @@
     })(Eventable);
 
     /**
-     * @class lz
+     * @class dr
      * Holds builtin and user-created classes and public APIs.
      * 
      * All classes listed here can be invoked with the declarative syntax, e.g. &lt;node>&lt;/node> or &lt;view>&lt;/view>
@@ -2596,7 +2596,7 @@
     };
 
     /**
-     * @class lz.method
+     * @class dr.method
      * Declares a method in a node, view, class or other class instance. Methods can only be created with the &lt;method>&lt;/method> tag syntax. 
      * 
      * If a method overrides an existing method, any existing (super) method(s) will be called first automatically.
@@ -2618,7 +2618,7 @@
      */
 
     /**
-     * @class lz.setter
+     * @class dr.setter
      * Declares a setter in a node, view, class or other class instance. Setters can only be created with the &lt;setter>&lt;/setter> tag syntax.
      *
      * Setters are called when an attribute is set based on their name, and allow the behavior of an attribute changes to be modified.
@@ -2642,7 +2642,7 @@
      */
 
     /**
-     * @class lz.handler
+     * @class dr.handler
      * Declares a handler in a node, view, class or other class instance. Handlers can only be created with the &lt;handler>&lt;/handler> tag syntax.
      *
      * Handlers are called when an event fires with  new value, if available.
@@ -2674,7 +2674,7 @@
      */
 
     /**
-     * @class lz.attribute
+     * @class dr.attribute
      * Declares an attribute in a node, view, class or other class instance. Attributes can only be created with the &lt;attribute>&lt;/attribute> tag syntax.
      * 
      * Attributes allow classes to declare new variables with a specific type and default value. 
@@ -2698,10 +2698,10 @@
      */
   })();
 
-  lz.writeCSS();
+  dr.writeCSS();
 
   $(window).on('load', function() {
-    lz.initElements();
+    dr.initElements();
     return hackstyle(true);
   });
 

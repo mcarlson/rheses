@@ -78,10 +78,10 @@
           #console.log('destroy', @, @destroy)
           @destroy()
         else
-          lay = new lz.simplelayout(null, {parent: @, locked: true, inset: 15})
+          lay = new dr.simplelayout(null, {parent: @, locked: true, inset: 15})
           for i of ([0..1000])
             #console.log('creating', i)
-            new lz.clickresize(null, {parent: @})
+            new dr.clickresize(null, {parent: @})
           lay.setAttribute('locked', false)
       </handler>
     </clickresize>
@@ -90,8 +90,8 @@
     <text text="${this.parent.inp.text}" bgcolor="red"></text>
     <inputtext bgcolor="green" name="inp" onclick="this.setAttribute('text', 'Yooyoyo')">Text</inputtext>
 
-    <view width="10" height="10" bgcolor="cyan" x="${lz.mouse.x - this.parent.getAbsolute().x - (this.width * .5)}" y="${lz.mouse.y - this.parent.getAbsolute().y - (this.width * .5)}" clickable="false" ignorelayout="true">
-      <handler name="onclick" reference="lz.mouse" args="scope">
+    <view width="10" height="10" bgcolor="cyan" x="${dr.mouse.x - this.parent.getAbsolute().x - (this.width * .5)}" y="${dr.mouse.y - this.parent.getAbsolute().y - (this.width * .5)}" clickable="false" ignorelayout="true">
+      <handler name="onclick" reference="dr.mouse" args="scope">
         if (this.width !== 100)
           this.animate({width: 100, height: 100, opacity: .2}, 1000)
       </handler>

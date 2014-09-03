@@ -25,7 +25,7 @@ SOFTWARE. -->
         this.stats = new Stats();
         this.container.appendChild( this.stats.domElement );
       </handler>
-      <handler name="onidle" reference="lz.idle">
+      <handler name="onidle" reference="dr.idle">
         this.stats.update();
       </handler>
     </class>

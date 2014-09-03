@@ -22,7 +22,7 @@
 
   <body>
 
-  <view id="all" width="${lz.window.width}" height="${lz.window.height}" clip="true">
+  <view id="all" width="${dr.window.width}" height="${dr.window.height}" clip="true">
 
     <view name="lesson" width="${this.parent.width/4}" height="${this.parent.height}" bgcolor="#e0e0e0">
       <simplelayout axis="y" spacing="10"></simplelayout>
@@ -159,7 +159,7 @@
       // setTimeout added for Firefox
       postfix = 
        ['&lt;/view>',
-        '&lt;script>$(function(){setTimeout(function(){window.frames[0].lz.initElements()}, 0);});&lt;/script>'].join('\n');
+        '&lt;script>$(function(){setTimeout(function(){window.frames[0].dr.initElements()}, 0);});&lt;/script>'].join('\n');
 
       contents = this.editor.text;
       fullcontents = prefix + contents + postfix;

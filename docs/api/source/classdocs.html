@@ -15,241 +15,241 @@
   </script>
 </head>
 <body onload="prettyPrint(); highlight();">
-  <pre class="prettyprint lang-js"><span id='lz-ace'>/**
-</span>     * @class lz.ace
-     * @extends lz.view
+  <pre class="prettyprint lang-js"><span id='dr-ace'>/**
+</span>     * @class dr.ace
+     * @extends dr.view
      * Ace editor component.
      */
-<span id='lz-ace-cfg-theme'>/**
+<span id='dr-ace-cfg-theme'>/**
 </span>        * @cfg {string} [theme=&#39;ace/theme/chrome&#39;]
         * Specify the ace theme to use.
         */
-<span id='lz-ace-cfg-mode'>/**
+<span id='dr-ace-cfg-mode'>/**
 </span>        * @cfg {string} [mode=&#39;ace/mode/lzx&#39;]
         * Specify the ace mode to use.
         */
-<span id='lz-ace-cfg-text'>/**
+<span id='dr-ace-cfg-text'>/**
 </span>        * @cfg {String} [text=&quot;&quot;]
         * Initial text for the ace editor.
         */
-<span id='lz-ace-event-ontext'>/**
+<span id='dr-ace-event-ontext'>/**
 </span>        * @event ontext
         * Fired when the contents of the ace entry changes
-        * @param {lz.ace} view The lz.ace that fired the event
+        * @param {dr.ace} view The dr.ace that fired the event
         */
-<span id='lz-ace-cfg-pausedelay'>/**
+<span id='dr-ace-cfg-pausedelay'>/**
 </span>        * @cfg {Number} [pausedelay=500]
         * Time (msec) after user entry stops to fire onpausedelay event.
         * 0 will disable this option.
         */
-<span id='lz-ace-event-onpausedelay'>/**
+<span id='dr-ace-event-onpausedelay'>/**
 </span>        * @event onpausedelay
         * Fired when user entries stops for a period of time.
-        * @param {lz.ace} view The lz.ace that fired the event
+        * @param {dr.ace} view The dr.ace that fired the event
         */
-<span id='lz-boundslayout'>/**
-</span>     * @class lz.boundslayout
-     * @extends lz.layout
+<span id='dr-boundslayout'>/**
+</span>     * @class dr.boundslayout
+     * @extends dr.layout
      * Sets the parent view&#39;s size to match the bounds of its children.
      */
-<span id='lz-boundslayout-cfg-ignoreattr'>/**
+<span id='dr-boundslayout-cfg-ignoreattr'>/**
 </span>        * @cfg {&quot;&quot;/&quot;width&quot;/&quot;height&quot;} [ignoreattr=&quot;&quot;]
         * Optionally skip bounds calculations for a specific axis.
         */
-<span id='lz-buttonbase'>/**
-</span>     * @class lz.buttonbase
-     * @extends lz.view
+<span id='dr-buttonbase'>/**
+</span>     * @class dr.buttonbase
+     * @extends dr.view
      * Base class for button components. Buttons share common elements, 
      * including their ability to be selected, a visual element to display
      * their state, and a default and selected color.
-     * The visual element is a lz.view that shows the current state of the
+     * The visual element is a dr.view that shows the current state of the
      * button. For example, in a labelbutton the entire button is the visual
-     * element. For a checkbutton, the visual element is a square lz.view
+     * element. For a checkbutton, the visual element is a square dr.view
      * that is inside the button.
      */
-<span id='lz-buttonbase-cfg-padding'>/**
+<span id='dr-buttonbase-cfg-padding'>/**
 </span>        * @cfg {Number} [padding=3]
         * Amount of padding pixels around the button.
         */
-<span id='lz-buttonbase-cfg-defaultcolor'>/**
+<span id='dr-buttonbase-cfg-defaultcolor'>/**
 </span>        * @cfg {String} [defaultcolor=&quot;#808080&quot;]
         * The default color of the visual button element when not selected.
         */
-<span id='lz-buttonbase-cfg-selectcolor'>/**
+<span id='dr-buttonbase-cfg-selectcolor'>/**
 </span>        * @cfg {String} [selectcolor=&quot;#a0a0a0&quot;]
         * The selected color of the visual button element when selected.
         */
-<span id='lz-buttonbase-cfg-selected'>/**
+<span id='dr-buttonbase-cfg-selected'>/**
 </span>        * @cfg {Boolean} [selected=false]
         * The current state of the button.
         */
-<span id='lz-buttonbase-event-onselected'>/**
+<span id='dr-buttonbase-event-onselected'>/**
 </span>        * @event onselected
         * Fired when the state of the button changes.
-        * @param {lz.buttonbase} view The lz.buttonbase that fired the event
+        * @param {dr.buttonbase} view The dr.buttonbase that fired the event
         */
-<span id='lz-buttonbase-cfg-text'>/**
+<span id='dr-buttonbase-cfg-text'>/**
 </span>        * @cfg {String} [text=&quot;&quot;]
         * Button text.
         */
-<span id='lz-checkbutton'>/**
-</span>     * @class lz.checkbutton
-     * @extends lz.buttonbase
+<span id='dr-checkbutton'>/**
+</span>     * @class dr.checkbutton
+     * @extends dr.buttonbase
      * Button class consisting of text and a visual element to show the
      * current state of the component. The state of the
      * button changes each time the button is clicked. The select property
      * holds the current state of the button. The onselected event
      * is generated when the button is the selected state.
      */
-<span id='lz-dragstate'>/**
-</span>     * @class lz.dragstate
-     * @extends lz.state
+<span id='dr-dragstate'>/**
+</span>     * @class dr.dragstate
+     * @extends dr.state
      * Allows views to be dragged by the mouse.
      */
-<span id='lz-dragstate-cfg-dragaxis'>/**
+<span id='dr-dragstate-cfg-dragaxis'>/**
 </span>        * @cfg {&quot;x&quot;/&quot;y&quot;/&quot;both&quot;} [dragaxis=&quot;both&quot;]
         * The axes to drag on.
         */
-<span id='lz-dreem_iframe'>/**
-</span>     * @class lz.dreem_iframe
-     * @extends lz.view
+<span id='dr-dreem_iframe'>/**
+</span>     * @class dr.dreem_iframe
+     * @extends dr.view
      * iframe component for embedding dreem code or html in a dreem application.
      * The size of the iframe matches the width/height of the view when the
      * component is created.
      * The file &#39;/iframe_stub.html&#39; contains the html to load into the iframe,
      * including the required script elements to run dreem code.
      */
-<span id='lz-dreem_iframe-cfg-contents'>/**
+<span id='dr-dreem_iframe-cfg-contents'>/**
 </span>        * @cfg {String} [contents=&quot;&quot;]
         * string to write into the iframe body. This is dreem code, or html
         * that is written inside the iframe&#39;s body tag.
         */
-<span id='lz-gyro'>/**
-</span>     * @class lz.gyro
-     * @extends lz.node
+<span id='dr-gyro'>/**
+</span>     * @class dr.gyro
+     * @extends dr.node
      * Receives gyroscope and compass data where available. See [https://w3c.github.io/deviceorientation/spec-source-orientation.html#deviceorientation](https://w3c.github.io/deviceorientation/spec-source-orientation.html#deviceorientation) and [https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html](https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html) for details.
      */
-<span id='lz-gyro-cfg-x'>/**
+<span id='dr-gyro-cfg-x'>/**
 </span>        * @cfg {Number} [x=0] (readonly)
         * The accelerometer x value
         */
-<span id='lz-gyro-cfg-y'>/**
+<span id='dr-gyro-cfg-y'>/**
 </span>        * @cfg {Number} [y=0] (readonly)
         * The accelerometer y value
         */
-<span id='lz-gyro-cfg-z'>/**
+<span id='dr-gyro-cfg-z'>/**
 </span>        * @cfg {Number} [z=0] (readonly)
         * The accelerometer z value
         */
-<span id='lz-gyro-cfg-alpha'>/**
+<span id='dr-gyro-cfg-alpha'>/**
 </span>        * @cfg {Number} [alpha=0] (readonly)
         * The gyro alpha value rotating around the z axis
         */
-<span id='lz-gyro-cfg-beta'>/**
+<span id='dr-gyro-cfg-beta'>/**
 </span>        * @cfg {Number} [beta=0] (readonly)
         * The gyro beta value rotating around the x axis
         */
-<span id='lz-gyro-cfg-gamma'>/**
+<span id='dr-gyro-cfg-gamma'>/**
 </span>        * @cfg {Number} [gamma=0] (readonly)
         * The gyro gamma value rotating around the y axis
         */
-<span id='lz-gyro-cfg-compass'>/**
+<span id='dr-gyro-cfg-compass'>/**
 </span>        * @cfg {Number} [compass=0] (readonly)
         * The compass orientation, see [https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html](https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html) for details.
         */
-<span id='lz-gyro-cfg-compassaccuracy'>/**
+<span id='dr-gyro-cfg-compassaccuracy'>/**
 </span>        * @cfg {Number} [compassaccuracy=0] (readonly)
         * The compass accuracy, see [https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html](https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html) for details.
         */
-<span id='lz-image'>/**
-</span>     * @class lz.image
-     * @extends lz.view
+<span id='dr-image'>/**
+</span>     * @class dr.image
+     * @extends dr.view
      * Loads an image from a URL.
      */
-<span id='lz-image-cfg-src'>/**
+<span id='dr-image-cfg-src'>/**
 </span>        * @cfg {String} src
         * The image URL to load
         */
-<span id='lz-image-event-onload'>/**
+<span id='dr-image-event-onload'>/**
 </span>             * @event onload 
              * Fired when the image is loaded
              * @param {Object} size An object containing the width and height
              */
-<span id='lz-image-event-onerror'>/**
+<span id='dr-image-event-onerror'>/**
 </span>             * @event onerror 
              * Fired when there is an error loading the image
              */
-<span id='lz-inputtext'>/**
-</span>     * @class lz.inputtext
-     * @extends lz.view
+<span id='dr-inputtext'>/**
+</span>     * @class dr.inputtext
+     * @extends dr.view
      * Provides an editable input text field.
      */
-<span id='lz-inputtext-cfg-multiline'>/**
+<span id='dr-inputtext-cfg-multiline'>/**
 </span>        * @cfg {Boolean} [multiline=false]
         * Set to true to show multi-line text.
         */
-<span id='lz-inputtext-cfg-text'>/**
+<span id='dr-inputtext-cfg-text'>/**
 </span>        * @cfg {String} text
         * The text inside this input text field
         */
-<span id='lz-labelbutton'>/**
-</span>     * @class lz.labelbutton
-     * @extends lz.buttonbase
+<span id='dr-labelbutton'>/**
+</span>     * @class dr.labelbutton
+     * @extends dr.buttonbase
      * Button class consisting of text centered in a view. The onclick event
      * is generated when the button is clicked. The visual state of the 
      * button changes during onmousedown/onmouseup.
      */
-<span id='lz-labeltoggle'>/**
-</span>     * @class lz.labeltoggle
-     * @extends lz.labelbutton
+<span id='dr-labeltoggle'>/**
+</span>     * @class dr.labeltoggle
+     * @extends dr.labelbutton
      * Button class consisting of text centered in a view. The state of the
      * button changes each time the button is clicked. The select property
      * holds the current state of the button. The onselected event
      * is generated when the button is the selected state.
      */
-<span id='lz-shim'>/**
-</span>     * @class lz.shim
-     * @extends lz.node
+<span id='dr-shim'>/**
+</span>     * @class dr.shim
+     * @extends dr.node
      * Connects to the shared event bus. When data is sent with a given type, a corresponding event is sent. For example, send(&#39;blah&#39;, {}) sends data with the &#39;blah&#39; type, other shims will receive the object via an &#39;onblah&#39; event.
      */
-<span id='lz-shim-cfg-connected'>/**
+<span id='dr-shim-cfg-connected'>/**
 </span>        * @cfg {Boolean} [connected=false] (readonly)
         * If true, we are connected to the server
         */
-<span id='lz-shim-cfg-pingtime'>/**
+<span id='dr-shim-cfg-pingtime'>/**
 </span>        * @cfg {Number} [pingtime=1000]
         * The frequency used to reconnect to the server
         */
-<span id='lz-shim-cfg-websockets'>/**
+<span id='dr-shim-cfg-websockets'>/**
 </span>        * @cfg {Boolean} [websockets=false]
         * If true, use websockets to connect to the server
         */
-<span id='lz-shim-method-send'>/**
+<span id='dr-shim-method-send'>/**
 </span>        * @method send
         * Sends some data over the event bus.
         * @param {String} type The type of event to be sent.
         * @param {Object} data The data to be sent.
         */
-<span id='lz-simplelayout'>/**
-</span>     * @class lz.simplelayout
-     * @extends lz.layout
+<span id='dr-simplelayout'>/**
+</span>     * @class dr.simplelayout
+     * @extends dr.layout
      * A layout that stacks views on the x or y axis.
      */
-<span id='lz-simplelayout-cfg-inset'>/**
+<span id='dr-simplelayout-cfg-inset'>/**
 </span>        * @cfg {Number} [inset=0]
         * Amount to inset the layout
         */
-<span id='lz-simplelayout-cfg-spacing'>/**
+<span id='dr-simplelayout-cfg-spacing'>/**
 </span>        * @cfg {Number} [spacing=15]
         * Amount of spacing between views
         */
-<span id='lz-simplelayout-cfg-axis'>/**
+<span id='dr-simplelayout-cfg-axis'>/**
 </span>        * @cfg {&quot;x&quot;/&quot;y&quot;} [axis=x]
         * The axis to stack on
         */
-<span id='lz-slider'>/**
-</span>     * @class lz.slider
-     * @extends lz.view
+<span id='dr-slider'>/**
+</span>     * @class dr.slider
+     * @extends dr.view
      * An input component whose state is changed when the mouse is dragged.
      *
      *     @example
@@ -263,81 +263,81 @@
      *     &lt;slider name=&quot;hslide&quot; y=&quot;5&quot; width=&quot;250&quot; height=&quot;10&quot; value=&quot;50&quot; bgcolor=&quot;#808080&quot;&gt;&lt;/slider&gt;
      *     &lt;text text=&quot;${Math.round(this.parent.hslide.value)}&quot; y=&quot;${this.parent.hslide.y + (this.parent.hslide.height-this.height)/2}&quot;&gt;&lt;/text&gt;
      */
-<span id='lz-slider-cfg-minvalue'>/**
+<span id='dr-slider-cfg-minvalue'>/**
 </span>        * @cfg {Number} [minvalue=0]
         * The minimum value of the slider
         */
-<span id='lz-slider-cfg-maxvalue'>/**
+<span id='dr-slider-cfg-maxvalue'>/**
 </span>        * @cfg {Number} [maxvalue=100]
         * The maximum value of the slider
         */
-<span id='lz-slider-cfg-axis'>/**
+<span id='dr-slider-cfg-axis'>/**
 </span>        * @cfg {&quot;x&quot;/&quot;y&quot;} [axis=x]
         * The axis to track on
         */
-<span id='lz-slider-cfg-invert'>/**
+<span id='dr-slider-cfg-invert'>/**
 </span>        * @cfg {Boolean} [invert=false]
         * Set to true to invert the direction of the slider.
         */
-<span id='lz-slider-cfg-value'>/**
+<span id='dr-slider-cfg-value'>/**
 </span>        * @cfg {Number} [value=0]
         * The current value of the slider.
         * Use changeValue() to range check the number and set the value.
         */
-<span id='lz-slider-method-changeValue'>/**
+<span id='dr-slider-method-changeValue'>/**
 </span>        * @method changeValue
         * Given a new value for the slider position, constrain the value
         * between minvalue and maxvalue and then calls setAttribute.
         * @param {Number} v The new value of the component.
         */
-<span id='lz-slider-cfg-selectcolor'>/**
+<span id='dr-slider-cfg-selectcolor'>/**
 </span>        * @cfg {String} [selectcolor=&quot;#a0a0a0&quot;]
         * The selected color of the slider.
         */
-<span id='lz-text'>/**
-</span>     * @class lz.text
-     * @extends lz.view
+<span id='dr-text'>/**
+</span>     * @class dr.text
+     * @extends dr.view
      * Text component that supports single and multi-line text. The text
      * component can be fixed size, or sized to fit the size of the text.
      *
      *     @example
      *     &lt;text text=&quot;Hello World!&quot; bgcolor=&quot;red&quot;&gt;&lt;/text&gt;
      */
-<span id='lz-text-cfg-multiline'>/**
+<span id='dr-text-cfg-multiline'>/**
 </span>        * @cfg {Boolean} [multiline=false]
         * Set to true to show multi-line text.
         */
-<span id='lz-text-cfg-resize'>/**
+<span id='dr-text-cfg-resize'>/**
 </span>        * @cfg {Boolean} [resize=true]
         * By default, the text component is sized to the size of the text.
         * By setting resize=false, the component size is not modified
         * when the text changes.
         */
-<span id='lz-text-cfg-text'>/**
+<span id='dr-text-cfg-text'>/**
 </span>        * @cfg {String} [text=&quot;&quot;]
         * Component text.
         */
-<span id='lz-text-method-format'>/**
+<span id='dr-text-method-format'>/**
 </span>        * @method format
         * Format the text to be displayed. The default behavior is to 
         * return the text intact. Override to change formatting.
         * @param {String} str The current value of the text component.
         * @return {String} The formated string to display in the component.
         */
-<span id='lz-touch'>/**
-</span>     * @class lz.touch
-     * @extends lz.node
+<span id='dr-touch'>/**
+</span>     * @class dr.touch
+     * @extends dr.node
      * Receives touch and multitouch data where available.
      */
-<span id='lz-touch-cfg-x'>/**
+<span id='dr-touch-cfg-x'>/**
 </span>        * @cfg {Number} [x=0] (readonly)
         * The touch x value for the first finger.
         */
-<span id='lz-touch-cfg-y'>/**
+<span id='dr-touch-cfg-y'>/**
 </span>        * @cfg {Number} [y=0] (readonly)
         * The touch y value for the first finger.
         */
-<span id='lz-touch-cfg-touches'>/**
+<span id='dr-touch-cfg-touches'>/**
 </span>        * @cfg {Object[]} touches (readonly)
         * An array of x/y coordinates for all fingers, where available. See [https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Touch_events](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Touch_events) for more details
         */

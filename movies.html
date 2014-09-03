@@ -39,8 +39,8 @@
       <handler name="onclick">
         var url = '/api/search/v2.1/amgvideo/search?entitytype=credit&include=filmography&size=1&query=' + this.data;
         //var url = 'actor.json'
-        //console.log('click', url, lz.datasets)
-        lz.datasets.actor.setAttribute('url', url);
+        //console.log('click', url, dr.datasets)
+        dr.datasets.actor.setAttribute('url', url);
         //console.log('clicked cast member', this.parent, this.replicator)
         this.replicator.clear();
       </handler>
@@ -54,7 +54,7 @@
         this.setAttribute('border-width', 0);
       </handler>
       <handler name="onclick">
-        new lz.replicator(null, {datapath: "/cast[0..4]/name", classname: "castmember", parent: this})
+        new dr.replicator(null, {datapath: "/cast[0..4]/name", classname: "castmember", parent: this})
       </handler>
       <handler name="ondata" args="data">
         if data.images
@@ -80,16 +80,16 @@
     </class>
 
     <simplelayout></simplelayout>
-    <view width="${lz.window.width - this.parent.actors.width - 10}">
-      <handler name="onx" reference="lz.mouse" args="x">
-        //this.setAttribute('width', lz.mouse.x)
+    <view width="${dr.window.width - this.parent.actors.width - 10}">
+      <handler name="onx" reference="dr.mouse" args="x">
+        //this.setAttribute('width', dr.mouse.x)
       </handler>
 
       <wraplayout></wraplayout>
       <replicator datapath="$topmovies/searchResponse/results[*]/movie" classname="thumbnail"></replicator>
     </view>
 
-    <view name="actors" x="${lz.window.width - this.width}" height="${lz.window.height}" bgcolor="white" transition="width .2s" position="fixed">
+    <view name="actors" x="${dr.window.width - this.width}" height="${dr.window.height}" bgcolor="white" transition="width .2s" position="fixed">
       <boundslayout ignoreattr="height"></boundslayout>
       <simplelayout axis="y" spacing="1"></simplelayout>
       <replicator datapath="$actor/searchResponse/results[0..10]/name/filmography[*]/title" classname="text"></replicator>

@@ -48,7 +48,7 @@
       </method>
       <method name="show">
         if (! this.repl) {
-          this.repl = new lz.replicator(null, {datapath: "/subgenres[*]/name", classname: "subgenre", parent: this})
+          this.repl = new dr.replicator(null, {datapath: "/subgenres[*]/name", classname: "subgenre", parent: this})
           if (parent.openedgenre) {
             parent.openedgenre.hide()
           }

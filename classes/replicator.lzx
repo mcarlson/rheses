@@ -45,10 +45,10 @@ SOFTWARE. -->
       <attribute name="_dataset" value="" type="string"></attribute> -->
       <setter name="_dataset" args="dataset">
         return unless dataset
-        @dataset = lz.datasets[dataset]
+        @dataset = dr.datasets[dataset]
         @_dataset = dataset
 
-        # console.log('listening to dataset', dataset, lz.datasets, @dataset, @_dataset)
+        # console.log('listening to dataset', dataset, dr.datasets, @dataset, @_dataset)
         @listenTo(@dataset, 'data', (data) =>
           # console.log('callback', @, data)
           @setAttribute('data', data)
@@ -112,7 +112,7 @@ SOFTWARE. -->
         return unless @parent and @classname
         # console.log('applyData', @data, @classname, @parent, @children, @, @inited)
 
-        unless @classname of lz
+        unless @classname of dr
           console.warn 'missing class for replicator', @classname, 'skipping replication'
           return
 
@@ -181,7 +181,7 @@ SOFTWARE. -->
           @clear()
           for datum in @data
             # console.log 'replicator creating', @classname, 'in', @parent
-            child = new lz[@classname](null, {data: datum, parent: @parent, replicator: @})
+            child = new dr[@classname](null, {data: datum, parent: @parent, replicator: @})
             # console.log 'replicator created', @classname, child, child.data
             @children.push(child)
 

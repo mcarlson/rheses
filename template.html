@@ -21,9 +21,10 @@
   <script type="text/javascript" src="lib/acorn.js"></script>
   <script type="text/javascript" src="lib/coffee-script.js"></script>
   <script type="text/javascript" src="layout.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
-  <view width="${lz.window.width}">
+  <view width="${dr.window.width}">
     <shim id="bus">
       <handler name="onerror" args="error">
         console.error('bus error', error)
@@ -72,19 +73,19 @@
         }
       </method>
       <handler name="onx" reference="bus" args="x">
-        var newx = this.clamp(this.x + x, 0, lz.window.width - this.width);
+        var newx = this.clamp(this.x + x, 0, dr.window.width - this.width);
         this.setAttribute('x', newx)
       </handler>
       <handler name="ony" reference="bus" args="y">
-        var newy = this.clamp(this.y + y, 0, lz.window.height - this.height);
+        var newy = this.clamp(this.y + y, 0, dr.window.height - this.height);
        this.setAttribute('y', newy)
       </handler>
       <handler name="ontx" reference="bus" args="x">
-        var newx = this.clamp(x, 0, lz.window.width - this.width);
+        var newx = this.clamp(x, 0, dr.window.width - this.width);
         this.setAttribute('x', newx)
       </handler>
       <handler name="onty" reference="bus" args="y">
-        var newy = this.clamp(y, 0, lz.window.height - this.height);
+        var newy = this.clamp(y, 0, dr.window.height - this.height);
         this.setAttribute('y', newy)
       </handler>
     </view>

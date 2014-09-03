@@ -21,8 +21,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. -->
 
   <!--/**
-     * @class lz.checkbutton
-     * @extends lz.buttonbase
+     * @class dr.checkbutton
+     * @extends dr.buttonbase
      * Button class consisting of text and a visual element to show the
      * current state of the component. The state of the
      * button changes each time the button is clicked. The select property

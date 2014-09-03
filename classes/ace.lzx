@@ -21,8 +21,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. -->
 
   <!--/**
-     * @class lz.ace
-     * @extends lz.view
+     * @class dr.ace
+     * @extends dr.view
      * Ace editor component.
      */-->    
 <!-- Don't use until lzx syntax highlighter is available via cdn
@@ -61,7 +61,7 @@ SOFTWARE. -->
       <!--/**
         * @event ontext
         * Fired when the contents of the ace entry changes
-        * @param {lz.ace} view The lz.ace that fired the event
+        * @param {dr.ace} view The dr.ace that fired the event
         */-->
       <setter name="text" args="text">
         if (this.editor && this.editor.getValue() != text) {
@@ -81,7 +81,7 @@ SOFTWARE. -->
       <!--/**
         * @event onpausedelay
         * Fired when user entries stops for a period of time.
-        * @param {lz.ace} view The lz.ace that fired the event
+        * @param {dr.ace} view The dr.ace that fired the event
         */-->
       <attribute name="pausedelay" type="number" value="500"/>
       <handler name="onpausedelay">
@@ -130,7 +130,7 @@ SOFTWARE. -->
         }
       </method>
 
-      <handler name="onidle" reference="lz.idle">
+      <handler name="onidle" reference="dr.idle">
         if (this._lastkeytime) {
           var now = new Date();
           var elapsed = now - this._lastkeytime;

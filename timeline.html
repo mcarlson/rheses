@@ -115,7 +115,7 @@
 
     <!-- TODO: remove redundant attributes -->
     <simplelayout axis="y" spacing="1"></simplelayout>
-    <view id="thumbnailstrip" width="${lz.window.width}" height="248" bgcolor="silver" clip="true" position="fixed" z-index="100000">
+    <view id="thumbnailstrip" width="${dr.window.width}" height="248" bgcolor="silver" clip="true" position="fixed" z-index="100000">
       <handler name="onmovie" args="movie" reference="bus">
         this.setAttribute('data', movie)
       </handler>
@@ -151,7 +151,7 @@
       </replicator>
     <view>
 
-    <view id="cursor" width="14" height="${lz.window.height}" bgcolor="silver" opacity=".4" position="fixed"></view>
+    <view id="cursor" width="14" height="${dr.window.height}" bgcolor="silver" opacity=".4" position="fixed"></view>
   </view>
 <!-- The MIT License (MIT)
 

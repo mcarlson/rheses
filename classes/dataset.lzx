@@ -21,8 +21,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. -->
     <class name="dataset" type="coffee" extends="node">
       <handler name="oninit">
-        lz.datasets ?= {}
-        lz.datasets[@name] = @
+        dr.datasets ?= {}
+        dr.datasets[@name] = @
       </handler>
       <attribute name="url" type="string" value=""></attribute>
       <handler name="on$textcontent">

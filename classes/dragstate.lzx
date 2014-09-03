@@ -21,8 +21,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. -->
 
    <!--/**
-     * @class lz.dragstate
-     * @extends lz.state
+     * @class dr.dragstate
+     * @extends dr.state
      * Allows views to be dragged by the mouse.
      */-->
     <class name="dragstate" extends="state">
@@ -35,17 +35,17 @@ SOFTWARE. -->
         //console.log('onapplied', applied, this)
         if (applied) {
           var pos = this.parent.getAbsolute();
-          this.parent.startx = lz.mouse.x - pos.x;
-          this.parent.starty = lz.mouse.y - pos.y;
-          //console.log('startx', pos, lz.mouse.x, lz.mouse.y, this.startx, this.starty)
+          this.parent.startx = dr.mouse.x - pos.x;
+          this.parent.starty = dr.mouse.y - pos.y;
+          //console.log('startx', pos, dr.mouse.x, dr.mouse.y, this.startx, this.starty)
         }
       </handler>
-      <handler name="onx" reference="lz.mouse" args="x">
+      <handler name="onx" reference="dr.mouse" args="x">
         if (this.dragaxis == 'both' || this.dragaxis == 'x') {
           this.updatePos('x', x - this.parent.getAbsolute().x - this.startx)
         }
       </handler>
-      <handler name="ony" reference="lz.mouse" args="y">
+      <handler name="ony" reference="dr.mouse" args="y">
         if (this.dragaxis == 'both' || this.dragaxis == 'y') {
           this.updatePos('y', y - this.parent.getAbsolute().y - this.starty);
         }
