@@ -35,7 +35,7 @@ SOFTWARE. -->
     <class name="inputtext" type="coffee" clickable="true" width="100">
       <attribute name="multiline" value="false" type="boolean"></attribute>
       <method name="updateSize">
-        @set(@sprite.measureTextSize(@multiline, @width))
+        @setAttributes(@sprite.measureTextSize(@multiline, @width))
       </method>
       <handler name="ondata" args="d">
         @setAttribute('text', d)

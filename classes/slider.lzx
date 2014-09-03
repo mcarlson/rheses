@@ -108,14 +108,14 @@ SOFTWARE. -->
           y = 0
           width = w
           height = @height
-          @valueview.set({x:x, y:y, width:width, height:height})
+          @valueview.setAttributes({x:x, y:y, width:width, height:height})
         else
           h = @height * (@value / (@maxvalue-@minvalue))
           x = 0
           y = if @invert then @height-h else 0
           width = @width
           height = h
-          @valueview.set({x:x, y:y, width:width, height:height})
+          @valueview.setAttributes({x:x, y:y, width:width, height:height})
       </method>
 
 

@@ -74,7 +74,7 @@ SOFTWARE. -->
             settings = 
               checkw: @label.height
               checkh: @label.height
-            @set(settings)
+            @setAttributes(settings)
 
           if @_fixedsize
             #Fixed size button. position text in center of button
@@ -85,14 +85,14 @@ SOFTWARE. -->
             settings = 
               checkx:xoffset
               checky:yoffset
-            @set(settings)
+            @setAttributes(settings)
 
             settings =
               #width: @checkw + @label.width
               #height: @label.height
               textx: @checkx + @checkw
               texty: yoffset
-            @set(settings)
+            @setAttributes(settings)
           else
             #Variable size button. Resize button to text
             settings =
@@ -102,7 +102,7 @@ SOFTWARE. -->
               height: @label.height
               textx: @padding + @checkx + @checkw
               texty: @padding
-            @set(settings)
+            @setAttributes(settings)
 
         @_resize_lock = false
       </method>

@@ -59,11 +59,11 @@ SOFTWARE. -->
             #Fixed size button. position text in center of button
             xoffset = (@width + @padding - @label.width)/2
             yoffset = (@height + @padding - @label.height)/2
-            @set(textx:xoffset, texty:yoffset)
+            @setAttributes(textx:xoffset, texty:yoffset)
           else
             #Variable size button. Resize button to text
             @_resize_lock = true
-            @set({width:@label.width, height:@label.height, textx:@padding, texty:@padding})
+            @setAttributes({width:@label.width, height:@label.height, textx:@padding, texty:@padding})
             @_resize_lock = false
       </method>
 

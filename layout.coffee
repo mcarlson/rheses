@@ -253,11 +253,10 @@ window.dr = do ->
       @
 
     ###*
-    # @ignore
     # Calls setAttribute for each name/value pair in the attributes object
     # @param {Object} attributes An object of name/value pairs to be set
     ###
-    set: (attributes) ->
+    setAttributes: (attributes) ->
       for name, value of attributes
         @setAttribute(name, value)
       @

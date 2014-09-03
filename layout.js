@@ -380,12 +380,11 @@
 
 
       /**
-       * @ignore
        * Calls setAttribute for each name/value pair in the attributes object
        * @param {Object} attributes An object of name/value pairs to be set
        */
 
-      Eventable.prototype.set = function(attributes) {
+      Eventable.prototype.setAttributes = function(attributes) {
         var name, value;
         for (name in attributes) {
           value = attributes[name];
