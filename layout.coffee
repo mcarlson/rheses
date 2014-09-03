@@ -439,6 +439,9 @@ window.dr = do ->
 
         delete attributes.$handlers
 
+      unless deferbindings
+        @_bindHandlers()
+
       # Bind to event expressions and set attributes
       for name, value of attributes
         @bindAttribute(name, value, attributes.$tagname) unless name in lateattributes
@@ -446,10 +449,6 @@ window.dr = do ->
 
       for name in lateattributes
         @setAttribute(name, attributes[name]) if attributes[name]
-
-      unless deferbindings
-        @_bindHandlers()
-
       ###*
       # @event oninit 
       # Fired when this node and all its children are completely initialized
@@ -593,6 +592,7 @@ window.dr = do ->
       return
 
     _bindHandlers: ->
+      return unless @handlers
       for binding in @handlers
         {scope, name, ev, callback, reference} = binding
         if reference
