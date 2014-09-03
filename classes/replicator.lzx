@@ -59,12 +59,12 @@ SOFTWARE. -->
       <attribute name="sortfield" value="" type="string"></attribute>
       <attribute name="sortasc" value="true" type="boolean"></attribute>
       <attribute name="lazycount" value="Infinity" type="number"></attribute>
-      <handler name="onsortfield">
+      <handler event="onsortfield">
         # console.log 'onsortfield', @sortfield, @data
         @buildsortfunc()
         @applyData()
       </handler>
-      <handler name="onsortasc">
+      <handler event="onsortasc">
         # console.log 'onsortasc', @sortasc, @data
         @buildsortfunc()
         @applyData()
@@ -89,11 +89,11 @@ SOFTWARE. -->
         else
           @sortfunc = null
       </method>
-      <handler name="oninit" method="applyData"></handler>
-      <handler name="onclassname" method="applyData"></handler>
-      <handler name="ondata" method="applyData"></handler>
-      <handler name="ondatapath" method="applyData"></handler>
-      <handler name="ondestroy" method="clear"></handler>
+      <handler event="oninit" method="applyData"></handler>
+      <handler event="onclassname" method="applyData"></handler>
+      <handler event="ondata" method="applyData"></handler>
+      <handler event="ondatapath" method="applyData"></handler>
+      <handler event="ondestroy" method="clear"></handler>
       <method name="updateData" args="data">
         # remove dataset declaration
         re = /^\$([^\/]+)/
@@ -109,7 +109,7 @@ SOFTWARE. -->
         # @parent.setAttribute('display', null)
       </method>
       <method name="applyData">
-        return unless @parent and @classname
+        return unless @inited and @parent and @classname
         # console.log('applyData', @data, @classname, @parent, @children, @, @inited)
 
         unless @classname of dr

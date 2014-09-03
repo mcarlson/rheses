@@ -53,7 +53,7 @@
       <attribute name="spacing" type="number" value="15"></attribute>
       <attribute name="inset" type="number" value="15"></attribute>
       <attribute name="attribute" type="string" value="x"></attribute>
-      <handler name="onsubview">
+      <handler event="onsubview">
         console.log('onsubview', value, this)
         value.bind('width', function(value, scope, name) {
           console.debug(name, value, scope)

@@ -11,8 +11,8 @@
   <class name="error12" bgcolor="#808080">
     <text name="label" text="Hello" onclick="this.setAttribute('text', 'foo')" bgcolor="red"></text>
 
-    <handler name="onwidth" reference="this.label" method="handleResize"></handler>
-    <handler name="onheight" reference="this.label" method="handleResize"></handler>
+    <handler event="onwidth" reference="this.label" method="handleResize"></handler>
+    <handler event="onheight" reference="this.label" method="handleResize"></handler>
 
     <method name="handleResize">
       console.log('handleResize')

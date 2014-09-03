@@ -10,7 +10,7 @@
 <view id="all" width="100%" height="100%" clip="true">
   <class name="text3" width="${this.label.width}" height="${this.label.height}" bgcolor="#808080">
     <text name="label" text="${this.parent.text}"></text>
-    <handler name="oninit">
+    <handler event="oninit">
       console.log("oninit", this.label);
     </handler>
   </class>

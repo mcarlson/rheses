@@ -31,8 +31,8 @@ SOFTWARE. -->
      */-->    
 
     <class name="dreem_iframe">
-      <handler name="onwidth" method="handleResize"></handler>
-      <handler name="onheight" method="handleResize"></handler>
+      <handler event="onwidth" method="handleResize"></handler>
+      <handler event="onheight" method="handleResize"></handler>
 
       <!--/**
         * @cfg {String} [contents=""]
@@ -46,7 +46,7 @@ SOFTWARE. -->
         }
       </setter>
 
-      <handler name="oninit">
+      <handler event="oninit">
         if (this.width == 0 || this.height == 0)
           return;
 

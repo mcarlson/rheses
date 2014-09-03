@@ -26,17 +26,17 @@
 <body>
   <view>
     <shim id="bus">
-      <handler name="onerror" args="err">
+      <handler event="onerror" args="err">
         console.log('err', err)
       </handler>
     </shim>
 
     <class name="genreyear" width="14" height="60" opacity=".13">
-      <handler name="onmouseover">
+      <handler event="onmouseover">
         bus.send('movie', this.data)
         cursor.setAttribute('x', this.x)
       </handler>
-      <handler name="oninit">
+      <handler event="oninit">
         var color = '#' + md5(this.parent.parent.data.name).substring(0,6)
         this.setAttribute('background-color', color);
       </handler>
@@ -45,7 +45,7 @@
     <class name="genrestrip">
       <timelayout scale="14" inset="1900" startFieldName="releaseYear"></timelayout>
       <replicator datapath="$topmovies/searchResponse/results[*]/movie[@]" lazycount="0" classname="genreyear">
-        <handler name="oninit">
+        <handler event="oninit">
           var genrename = this.parent.parent.data.name;
           // TODO: add states to handle this
           this.filterfunction = function(obj, accum, sel) {
@@ -83,20 +83,20 @@
 
     <class name="thumbnail" extends="image" background-size="cover" border-style="solid" border-width="0" border-color="white" width="180" height="240" bgcolor="white" clip="true">
       <attribute name="title" type="string" value=""></attribute>
-      <handler name="onmouseover">
+      <handler event="onmouseover">
         this.setAttribute('border-width', 3);
       </handler>
-      <handler name="onmouseout">
+      <handler event="onmouseout">
         this.setAttribute('border-width', 0);
       </handler>
-      <handler name="onclick">
+      <handler event="onclick">
         console.log('thumbnail', this.data, this)
       </handler>
-      <handler name="onload" args="img">
+      <handler event="onload" args="img">
         // console.log('image load', img, this.src)
         this.setAttribute('title', '');
       </handler>
-      <handler name="ondata" args="data" type="coffee">
+      <handler event="ondata" args="data" type="coffee">
         if data.images
           for image in data.images
             if image.width > 100 and image.width < 140
@@ -116,10 +116,10 @@
     <!-- TODO: remove redundant attributes -->
     <simplelayout axis="y" spacing="1"></simplelayout>
     <view id="thumbnailstrip" width="${dr.window.width}" height="248" bgcolor="silver" clip="true" position="fixed" z-index="100000">
-      <handler name="onmovie" args="movie" reference="bus">
+      <handler event="onmovie" args="movie" reference="bus">
         this.setAttribute('data', movie)
       </handler>
-      <handler name="ondata" args="data">
+      <handler event="ondata" args="data">
         this.year.setAttribute('text', data.releaseYear)
         // TODO: fix this
         this.repl.applyData();

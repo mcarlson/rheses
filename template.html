@@ -26,7 +26,7 @@
 <body>
   <view width="${dr.window.width}">
     <shim id="bus">
-      <handler name="onerror" args="error">
+      <handler event="onerror" args="error">
         console.error('bus error', error)
       </handler>
     </shim>
@@ -35,7 +35,7 @@
     <dataset name="genres" url="moviegenres.json"></dataset>
 
     <class name="highlight" x="30" extends="text">
-      <handler name="onclick">
+      <handler event="onclick">
         console.log('clicked', this.data, this.parent.data)
         bus.send('genre', this.parent.data)
       </handler>
@@ -72,19 +72,19 @@
           return val;
         }
       </method>
-      <handler name="onx" reference="bus" args="x">
+      <handler event="onx" reference="bus" args="x">
         var newx = this.clamp(this.x + x, 0, dr.window.width - this.width);
         this.setAttribute('x', newx)
       </handler>
-      <handler name="ony" reference="bus" args="y">
+      <handler event="ony" reference="bus" args="y">
         var newy = this.clamp(this.y + y, 0, dr.window.height - this.height);
        this.setAttribute('y', newy)
       </handler>
-      <handler name="ontx" reference="bus" args="x">
+      <handler event="ontx" reference="bus" args="x">
         var newx = this.clamp(x, 0, dr.window.width - this.width);
         this.setAttribute('x', newx)
       </handler>
-      <handler name="onty" reference="bus" args="y">
+      <handler event="onty" reference="bus" args="y">
         var newy = this.clamp(y, 0, dr.window.height - this.height);
         this.setAttribute('y', newy)
       </handler>

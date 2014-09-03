@@ -48,10 +48,10 @@ SOFTWARE. -->
         * The selected color of the visual button element when selected.
         */-->
       <attribute name="defaultcolor" type="string" value="#808080"></attribute>
-      <handler name="ondefaultcolor" method="visualize"></handler>
+      <handler event="ondefaultcolor" method="visualize"></handler>
 
       <attribute name="selectcolor" type="string" value="#a0a0a0"></attribute>
-      <handler name="onselectcolor" method="visualize"></handler>
+      <handler event="onselectcolor" method="visualize"></handler>
 
       <!--/**
         * @cfg {Boolean} [selected=false]
@@ -64,7 +64,7 @@ SOFTWARE. -->
         */-->
       <!-- selected: button state -->
       <attribute name="selected" type="boolean" value="false"></attribute>
-      <handler name="onselected" method="visualize"></handler>
+      <handler event="onselected" method="visualize"></handler>
 
       <!-- visualize: Show the current button state -->
       <method name="visualize">
@@ -85,8 +85,8 @@ SOFTWARE. -->
         */-->
       <text name="label" type="coffee" x="${this.parent.textx}" y="${this.parent.texty}" text="${this.parent.text}">
         <!-- Temporary until I figure how to add handlers with references -->
-        <handler name="onwidth" method="handleResize"></handler>
-        <handler name="onheight" method="handleResize"></handler>
+        <handler event="onwidth" method="handleResize"></handler>
+        <handler event="onheight" method="handleResize"></handler>
 
         <method name="handleResize">
           # Force an onwidth event in the parent to resize the button
@@ -94,8 +94,8 @@ SOFTWARE. -->
         </method>
       </text>
 
-      <handler name="onwidth" method="handleResize"></handler>
-      <handler name="onheight" method="handleResize"></handler>
+      <handler event="onwidth" method="handleResize"></handler>
+      <handler event="onheight" method="handleResize"></handler>
 
       <method name="handleResize">
         # Custom behavior in subclasses

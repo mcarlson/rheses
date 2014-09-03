@@ -29,7 +29,7 @@
     <shim id="bus"></shim>
 
     <audioplayer id="audio" url="music/03_Homage Sliders.mp3" fftsize="1024" fftsmoothing="0" playing="true">
-      <handler name="onfft" args="fft">
+      <handler event="onfft" args="fft">
         // Deal with JSON.stringify() issues by converting to a regular array
         var copy = Array.apply([], fft);
         bus.send('fft', copy);
@@ -49,7 +49,7 @@
     </class>
 
     <view bgcolor="${audio.playing ? 'green' : 'gray'}" opacity="${audio.loaded ? 1 : .8}" width="${(audio.loadprogress * audio.fftsize * .5)}" height="20">
-      <handler name="onclick">
+      <handler event="onclick">
         audio.toggle();
       </handler>
       <view name="playhead" bgcolor="red" width="${(audio.time / audio.duration) * this.parent.width}" height="20"></view>
@@ -68,9 +68,9 @@
               this.setAttribute('class', 'fa fa-spin fa-spinner')
             }
           </method>
-          <handler name="onloaded" method="updateState" reference="audio"></handler>
-          <handler name="onpaused" method="updateState" reference="audio"></handler>
-          <handler name="onplaying" method="updateState" reference="audio"></handler>
+          <handler event="onloaded" method="updateState" reference="audio"></handler>
+          <handler event="onpaused" method="updateState" reference="audio"></handler>
+          <handler event="onplaying" method="updateState" reference="audio"></handler>
         </view>
         <view width="16" class="fa fa-stop" onclick="audio.stop()"></view>
         <timetext y="-1" text="${audio.time}"></timetext>

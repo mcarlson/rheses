@@ -91,7 +91,7 @@ window.dr = do ->
       ev = args.shift()
       list = @hasOwnProperty('events') and @events?[ev]
       return unless list
-#      if list then console.log 'trigger', ev, list
+      # if list then console.log 'trigger', ev, list
       for callback in list
         if callback.apply(@, args) is false
           break
@@ -431,9 +431,9 @@ window.dr = do ->
       if attributes.$handlers
         @installHandlers(attributes.$handlers, attributes.$tagname)
         # do this here for now - ugly though
-        for {name, script, args, reference, method} in attributes.$handlers
-          name = name.substr(2)
-          if name in mouseEvents
+        for {ev, name, script, args, reference, method} in attributes.$handlers
+          ev = ev.substr(2)
+          if ev in mouseEvents
             attributes.clickable = true unless attributes.clickable is "false"
             # console.log 'registered for clickable', attributes.clickable
 
@@ -477,32 +477,32 @@ window.dr = do ->
       # store list of handlers for late binding
       @handlers ?= []
       for handler in handlers
-        {name, script, args, reference, method} = handler
+        {ev, name, script, args, reference, method} = handler
         # strip off leading 'on'
-        name = name.substr(2)
+        ev = ev.substr(2)
 
         # console.log 'installing handler', name, args, script, @
         if method
           handler.callback = scope[method]
-          # console.log('using method', method, callback)
+          # console.log('using method', method, handler.callback)
         else
-          handler.callback = _eventCallback(name, script, scope, tagname, args)
+          handler.callback = _eventCallback(ev, script, scope, tagname, args)
 
-        @handlers.push({scope: @, name: name, callback: handler.callback, reference: reference})
+        @handlers.push({scope: @, ev: ev, name: name, callback: handler.callback, reference: reference})
 
     removeHandlers: (handlers, tagname, scope=@) ->
       for handler in handlers
-        {name, script, args, reference, method} = handler
+        {ev, name, script, args, reference, method} = handler
         # strip off leading 'on'
-        name = name.substr(2)
+        ev = ev.substr(2)
 
-        # console.log 'removing handler', name, args, script, @
+        # console.log 'removing handler', ev, args, script, @
         if reference?
           refeval = @_valueLookup(reference)()
-          # console.log('stopListening to reference', reference, refeval, name, handler.callback)
-          scope.stopListening(refeval, name, handler.callback)
+          # console.log('stopListening to reference', reference, refeval, ev, handler.callback)
+          scope.stopListening(refeval, ev, handler.callback)
         else
-          scope.unbind(name, handler.callback)
+          scope.unbind(ev, handler.callback)
 
     # Bind an attribute to an event expression, handler, or fall back to setAttribute()
     bindAttribute: (name, value, tagname) ->
@@ -592,15 +592,16 @@ window.dr = do ->
       return
 
     _bindHandlers: ->
+      return unless @handlers
       for binding in @handlers
-        {scope, name, callback, reference} = binding
+        {scope, name, ev, callback, reference} = binding
         if reference
           refeval = @_valueLookup(reference)()
-          # console.log('binding to reference', reference, refeval, name, scope)
-          scope.listenTo(refeval, name, callback)
+          # console.log('binding to reference', reference, refeval, ev, scope)
+          scope.listenTo(refeval, ev, callback)
         else
-          # console.log('binding to scope', scope, name)
-          scope.bind(name, callback)
+          # console.log('binding to scope', scope, ev)
+          scope.bind(ev, callback)
       @handlers = []
       return
 
@@ -1304,6 +1305,7 @@ window.dr = do ->
             # console.log 'adding handler', name, script, child.innerHTML, attributes
             handler = 
               name: name
+              ev: attributes.event
               script: compiler.transform(script, type)
               args: args
               reference: attributes.reference

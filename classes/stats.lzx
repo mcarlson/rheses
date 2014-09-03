@@ -20,12 +20,12 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. -->
     <class name="stats" width="80" height="48" scriptincludes="http://threejs.org/examples/js/libs/stats.min.js">
-      <handler name="oninit">
+      <handler event="oninit">
         this.container = this.sprite.el;
         this.stats = new Stats();
         this.container.appendChild( this.stats.domElement );
       </handler>
-      <handler name="onidle" reference="dr.idle">
+      <handler event="onidle" reference="dr.idle">
         this.stats.update();
       </handler>
     </class>

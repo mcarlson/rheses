@@ -20,17 +20,17 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. -->
     <class name="dataset" type="coffee" extends="node">
-      <handler name="oninit">
+      <handler event="oninit">
         dr.datasets ?= {}
         dr.datasets[@name] = @
       </handler>
       <attribute name="url" type="string" value=""></attribute>
-      <handler name="on$textcontent">
+      <handler event="on$textcontent">
         if @$textcontent
           @setAttribute('data', JSON.parse(@$textcontent))
           # console.log('data', @name, @data)
       </handler>
-      <handler name="onurl" method="loadURL"></handler>
+      <handler event="onurl" method="loadURL"></handler>
       <method name="loadURL" args="url">
         # console.log('loading url', url)
         type = 'json'

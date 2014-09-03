@@ -30,7 +30,7 @@ SOFTWARE. -->
      */-->    
     <class name="labeltoggle" type="coffee" extends="labelbutton">
 
-      <handler name="onclick">
+      <handler event="onclick">
         @setAttribute('selected', !@selected);
       </handler>
 

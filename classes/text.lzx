@@ -43,7 +43,7 @@ SOFTWARE. -->
         * when the text changes.
         */-->
       <attribute name="resize" value="true" type="boolean"></attribute>
-      <handler name="onmultiline" method="updateSize"></handler>
+      <handler event="onmultiline" method="updateSize"></handler>
       <method name="updateSize">
         return unless @inited
         size = @sprite.measureTextSize(@multiline, @width, @resize)
@@ -51,7 +51,7 @@ SOFTWARE. -->
         @setAttribute 'width', size.width, true if @resize
         @setAttribute 'height', size.height, true
       </method>
-      <handler name="ondata" args="d">
+      <handler event="ondata" args="d">
         @setAttribute('text', d)
       </handler>
       <!--/**
@@ -64,7 +64,7 @@ SOFTWARE. -->
           @sprite.text(@format(text))
           @updateSize()
       </setter>
-      <handler name="oninit">
+      <handler event="oninit">
         # console.log('oninit', @inited, @)
         @updateSize()
       </handler>

@@ -6,12 +6,12 @@
 <view width="100" height="100" bgcolor="red">
   <text name="mytext" text="Hello World!"></text>
 
-  <handler name="oninit">
+  <handler event="oninit">
     this.animate({width:200, height:200});
   </handler>
 
-  <handler name="onwidth" method="handleResize"></handler>
-  <handler name="onheight" method="handleResize"></handler>
+  <handler event="onwidth" method="handleResize"></handler>
+  <handler event="onheight" method="handleResize"></handler>
   <method name="handleResize">
     if (!this.inited) return;
 

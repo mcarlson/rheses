@@ -575,7 +575,7 @@
       lateattributes = ['parent', 'name'];
 
       function Node(el, attributes) {
-        var args, deferbindings, method, name, reference, script, skiponinit, value, _i, _j, _len, _len1, _ref, _ref1, _ref2;
+        var args, deferbindings, ev, method, name, reference, script, skiponinit, value, _i, _j, _len, _len1, _ref, _ref1, _ref2;
         if (attributes == null) {
           attributes = {};
         }
@@ -609,9 +609,9 @@
           this.installHandlers(attributes.$handlers, attributes.$tagname);
           _ref1 = attributes.$handlers;
           for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-            _ref2 = _ref1[_i], name = _ref2.name, script = _ref2.script, args = _ref2.args, reference = _ref2.reference, method = _ref2.method;
-            name = name.substr(2);
-            if (__indexOf.call(mouseEvents, name) >= 0) {
+            _ref2 = _ref1[_i], ev = _ref2.ev, name = _ref2.name, script = _ref2.script, args = _ref2.args, reference = _ref2.reference, method = _ref2.method;
+            ev = ev.substr(2);
+            if (__indexOf.call(mouseEvents, ev) >= 0) {
               if (attributes.clickable !== "false") {
                 attributes.clickable = true;
               }
@@ -682,7 +682,7 @@
       };
 
       Node.prototype.installHandlers = function(handlers, tagname, scope) {
-        var args, handler, method, name, reference, script, _i, _len, _results;
+        var args, ev, handler, method, name, reference, script, _i, _len, _results;
         if (scope == null) {
           scope = this;
         }
@@ -692,15 +692,16 @@
         _results = [];
         for (_i = 0, _len = handlers.length; _i < _len; _i++) {
           handler = handlers[_i];
-          name = handler.name, script = handler.script, args = handler.args, reference = handler.reference, method = handler.method;
-          name = name.substr(2);
+          ev = handler.ev, name = handler.name, script = handler.script, args = handler.args, reference = handler.reference, method = handler.method;
+          ev = ev.substr(2);
           if (method) {
             handler.callback = scope[method];
           } else {
-            handler.callback = _eventCallback(name, script, scope, tagname, args);
+            handler.callback = _eventCallback(ev, script, scope, tagname, args);
           }
           _results.push(this.handlers.push({
             scope: this,
+            ev: ev,
             name: name,
             callback: handler.callback,
             reference: reference
@@ -710,20 +711,20 @@
       };
 
       Node.prototype.removeHandlers = function(handlers, tagname, scope) {
-        var args, handler, method, name, reference, refeval, script, _i, _len, _results;
+        var args, ev, handler, method, name, reference, refeval, script, _i, _len, _results;
         if (scope == null) {
           scope = this;
         }
         _results = [];
         for (_i = 0, _len = handlers.length; _i < _len; _i++) {
           handler = handlers[_i];
-          name = handler.name, script = handler.script, args = handler.args, reference = handler.reference, method = handler.method;
-          name = name.substr(2);
+          ev = handler.ev, name = handler.name, script = handler.script, args = handler.args, reference = handler.reference, method = handler.method;
+          ev = ev.substr(2);
           if (reference != null) {
             refeval = this._valueLookup(reference)();
-            _results.push(scope.stopListening(refeval, name, handler.callback));
+            _results.push(scope.stopListening(refeval, ev, handler.callback));
           } else {
-            _results.push(scope.unbind(name, handler.callback));
+            _results.push(scope.unbind(ev, handler.callback));
           }
         }
         return _results;
@@ -835,16 +836,19 @@
       };
 
       Node.prototype._bindHandlers = function() {
-        var binding, callback, name, reference, refeval, scope, _i, _len, _ref;
+        var binding, callback, ev, name, reference, refeval, scope, _i, _len, _ref;
+        if (!this.handlers) {
+          return;
+        }
         _ref = this.handlers;
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           binding = _ref[_i];
-          scope = binding.scope, name = binding.name, callback = binding.callback, reference = binding.reference;
+          scope = binding.scope, name = binding.name, ev = binding.ev, callback = binding.callback, reference = binding.reference;
           if (reference) {
             refeval = this._valueLookup(reference)();
-            scope.listenTo(refeval, name, callback);
+            scope.listenTo(refeval, ev, callback);
           } else {
-            scope.bind(name, callback);
+            scope.bind(ev, callback);
           }
         }
         this.handlers = [];
@@ -1743,6 +1747,7 @@
             case 'handler':
               handler = {
                 name: name,
+                ev: attributes.event,
                 script: compiler.transform(script, type),
                 args: args,
                 reference: attributes.reference,

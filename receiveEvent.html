@@ -25,7 +25,7 @@
 <body>
   <view width="1000" height="1000">
     <shim id="bus">
-      <handler name="ongenre" args="genre">
+      <handler event="ongenre" args="genre">
         console.log('do something with', genre)
         genrename.setAttribute('text', genre.name)
       </handler>
@@ -34,22 +34,22 @@
 
     <view id="cursor" width="100" height="100" bgcolor="cyan"></view>
     <gyro id="gyrodata">
-      <handler name="onx" args="x">
+      <handler event="onx" args="x">
         cursor.setAttribute('x', cursor.x + x)
         bus.send('x', x)
       </handler>
-      <handler name="ony" args="y">
+      <handler event="ony" args="y">
         cursor.setAttribute('y', cursor.y - y)
         bus.send('y', y)
       </handler>
     </gyro>
 
     <touch>
-      <handler name="onx" args="x">
+      <handler event="onx" args="x">
         cursor.setAttribute('x', x)
         bus.send('tx', x)
       </handler>
-      <handler name="ony" args="y">
+      <handler event="ony" args="y">
         cursor.setAttribute('y', y)
         bus.send('ty', y)
       </handler>

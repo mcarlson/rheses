@@ -20,12 +20,12 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. -->
     <class name="threejs" width="400" height="300" scriptincludes="http://threejs.org/build/three.min.js">
-      <handler name="onidle" reference="dr.idle">
+      <handler event="onidle" reference="dr.idle">
         this.renderer.render( this.scene, this.camera );
       </handler>
-      <handler name="onwidth" method="handleResize"></handler>
-      <handler name="onheight" method="handleResize"></handler>
-      <handler name="oninit">
+      <handler event="onwidth" method="handleResize"></handler>
+      <handler event="onheight" method="handleResize"></handler>
+      <handler event="oninit">
         var renderer = this.renderer = new THREE.WebGLRenderer();
         renderer.setClearColor( this.bgcolor );
         renderer.setSize(this.width, this.height);
@@ -36,7 +36,7 @@ SOFTWARE. -->
         this.scene = new THREE.Scene();
         this.initScene(this.scene);
       </handler>
-      <handler name="onbgcolor" args="color">
+      <handler event="onbgcolor" args="color">
         if (! this.renderer) return;
         this.renderer.setClearColor(color);
       </handler>

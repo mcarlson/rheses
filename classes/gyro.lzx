@@ -65,7 +65,7 @@ SOFTWARE. -->
         * The compass accuracy, see [https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html](https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html) for details.
         */-->
       <attribute name="compassaccuracy" value="0" type="number"></attribute>
-      <handler name="oninit">
+      <handler event="oninit">
         var _this = this;
         // TODO: use lzidle to throttle
         window.addEventListener('devicemotion', function(ev) {

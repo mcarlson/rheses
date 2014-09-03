@@ -31,7 +31,7 @@ SOFTWARE. -->
       <attribute name="fftsize" value="0" type="number"></attribute>
       <attribute name="fftsmoothing" value="0.8" type="number"></attribute>
       <attribute name="fft" value="[]" type="expression"></attribute>
-      <handler name="onurl" args="url">
+      <handler event="onurl" args="url">
         if (! url) return;
         var _this = this;
         function updateProgress(evt) {
@@ -62,7 +62,7 @@ SOFTWARE. -->
         this.buffer = null;
         request.send();
       </handler>
-      <handler name="oninit">
+      <handler event="oninit">
         // Fix up prefixing
         window.AudioContext = window.AudioContext || window.webkitAudioContext;
         this.context = new AudioContext();
@@ -135,7 +135,7 @@ SOFTWARE. -->
           this.pause();
         }
       </method>
-      <handler name="onidle" reference="dr.idle">
+      <handler event="onidle" reference="dr.idle">
         if (! (this.fftNode && this.playing && ! this.paused)) return;
 
         var time = this.context.currentTime - this.startTime + this.startOffset;

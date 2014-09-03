@@ -30,13 +30,13 @@
     <dataset name="actor"></dataset>
 
     <class name="castmember" extends="text" font-size="60" font-weight="bold" color="white" text-shadow="0px 0px 5px rgba(173, 173, 173, 1)" z-index="10000">
-      <handler name="onmouseover">
+      <handler event="onmouseover">
         this.setAttribute('color', 'pink')
       </handler>
-      <handler name="onmouseout">
+      <handler event="onmouseout">
         this.setAttribute('color', 'white')
       </handler>
-      <handler name="onclick">
+      <handler event="onclick">
         var url = '/api/search/v2.1/amgvideo/search?entitytype=credit&include=filmography&size=1&query=' + this.data;
         //var url = 'actor.json'
         //console.log('click', url, dr.datasets)
@@ -47,16 +47,16 @@
     </class>
 
     <class name="thumbnail" type="coffee" background-size="cover" transition="all .5s" border-style="solid" border-width="0" border-color="white">
-      <handler name="onmouseover">
+      <handler event="onmouseover">
         this.setAttribute('border-width', 3);
       </handler>
-      <handler name="onmouseout">
+      <handler event="onmouseout">
         this.setAttribute('border-width', 0);
       </handler>
-      <handler name="onclick">
+      <handler event="onclick">
         new dr.replicator(null, {datapath: "/cast[0..4]/name", classname: "castmember", parent: this})
       </handler>
-      <handler name="ondata" args="data">
+      <handler event="ondata" args="data">
         if data.images
           for image in data.images
             continue if image.width > 120 or image.width < 0
@@ -81,7 +81,7 @@
 
     <simplelayout></simplelayout>
     <view width="${dr.window.width - this.parent.actors.width - 10}">
-      <handler name="onx" reference="dr.mouse" args="x">
+      <handler event="onx" reference="dr.mouse" args="x">
         //this.setAttribute('width', dr.mouse.x)
       </handler>
 
@@ -98,7 +98,7 @@
     <!-- <dataset name="movies" url="/api/search/v2.1/amgvideo/filterbrowse?entitytype=movie&filter=editorialrating%3E8&filter=releaseyear%3E1500&&include=cast,images&size=1&facet=genre"></dataset> -->
 
     <class name="facet">
-      <handler name="ondata" args="r">
+      <handler event="ondata" args="r">
         console.log('facet data', r);
       </handler>
       <boundslayout></boundslayout>
@@ -109,7 +109,7 @@
 
     <simplelayout axis="y" spacing="1"></simplelayout>
 <!--     <replicator datapath="$movies/searchResponse/facetCounts[0]/facetCount[*]" classname="facet">
-      <handler name="ondata" args="r">
+      <handler event="ondata" args="r">
         console.log('replicator data', r, this, this.parent);
       </handler>
     </replicator> -->

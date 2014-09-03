@@ -26,7 +26,7 @@
 <body>
   <view>
     <audioplayer id="audio" url="music/03_Homage Sliders.mp3" fftsize="2048" fftsmoothing="0" playing="true">
-      <handler name="onkeydown" args="key" reference="dr.keyboard">
+      <handler event="onkeydown" args="key" reference="dr.keyboard">
         if (key.keyCode == 32) this.toggle();
       </handler>
     </audioplayer>
@@ -34,7 +34,7 @@
     <class name="threejsviz" extends="threejs">
       <attribute name="data" value="[]" type="expression"></attribute>
       <attribute name="objects" value="[]" type="expression"></attribute>
-      <handler name="ondata" args="data">
+      <handler event="ondata" args="data">
         for (var i = 0; i < this.objects.length; i++) {
           this.applyData(this.objects[i], data[i]);
         }
@@ -77,7 +77,7 @@
         object.scale.z = scale * 16;
         object.material.opacity = scale;
       </method>
-      <handler name="onloadprogress" args="progress" reference="audio">
+      <handler event="onloadprogress" args="progress" reference="audio">
         var target = progress * audio.fftsize * .5
         while (this.objects.length < target) {
           this.createObject(this.objects.length - 1);

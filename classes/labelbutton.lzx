@@ -29,7 +29,7 @@ SOFTWARE. -->
      */-->    
     <class name="labelbutton" type="coffee" extends="buttonbase">
 
-      <handler name="oninit">
+      <handler event="oninit">
         #TODO Remove this hack when oninit works
         $this = @;
         func = () -> $this.realinit()
@@ -67,11 +67,11 @@ SOFTWARE. -->
             @_resize_lock = false
       </method>
 
-      <handler name="onmousedown">
+      <handler event="onmousedown">
         @visual.setAttribute('bgcolor', @selectcolor)
       </handler>
 
-      <handler name="onmouseup">
+      <handler event="onmouseup">
         @visual.setAttribute('bgcolor', @defaultcolor)
       </handler>
 

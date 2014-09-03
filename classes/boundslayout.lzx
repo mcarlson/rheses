@@ -32,10 +32,10 @@ SOFTWARE. -->
       <attribute name="ignoreattr" type="string" value=""></attribute>
       <attribute name="width" type="number" value="0"></attribute>
       <attribute name="height" type="number" value="0"></attribute>
-      <handler name="oninit">
+      <handler event="oninit">
         # console.log('oninit', this)
       </handler>
-      <handler name="onsubview" args="subview">
+      <handler event="onsubview" args="subview">
         listeners = ""
         listeners += "width x " unless @ignoreattr == 'width'
         listeners += "height y " unless @ignoreattr == 'height'

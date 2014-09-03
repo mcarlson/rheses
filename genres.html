@@ -32,13 +32,13 @@
     <class name="genre" extends="text" x="2" width="300"></class>
 
     <class name="genrecontainer" bgcolor="grey" transition="all .5s" width="300">
-      <handler name="onmouseover">
+      <handler event="onmouseover">
         this.setAttribute('bgcolor', 'silver')
       </handler>
-      <handler name="onmouseout">
+      <handler event="onmouseout">
         this.setAttribute('bgcolor', 'grey')
       </handler>
-      <handler name="onclick" method="show"></handler>
+      <handler event="onclick" method="show"></handler>
 
       <method name="hide">
         if (this.repl) {

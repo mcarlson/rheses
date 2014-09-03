@@ -25,7 +25,7 @@
 <body>
   <view>
     <shim>
-      <handler name="ongenre" args="genre">
+      <handler event="ongenre" args="genre">
         console.log('do something with', genre)
         genrename.setAttribute('text', genre.name)
       </handler>
@@ -45,22 +45,22 @@
     <text id="touchY"></text>
 
     <gyro id="gyrodata">
-        <handler name="onalpha" args="alpha">
+        <handler event="onalpha" args="alpha">
             gyroX.setAttribute('text', 'gyro yaw : ' + parseInt(alpha));
         </handler>
-        <handler name="onbeta" args="beta">
+        <handler event="onbeta" args="beta">
             gyroY.setAttribute('text', 'gyro pitch : ' + parseInt(beta));
         </handler>
-        <handler name="ongamma" args="gamma">
+        <handler event="ongamma" args="gamma">
             gyroZ.setAttribute('text', 'gyro roll : ' + parseInt(gamma));
         </handler>
-        <handler name="onx" args="x">
+        <handler event="onx" args="x">
             accX.setAttribute('text', 'acc x : ' + parseInt(x));
         </handler>
-        <handler name="ony" args="y">
+        <handler event="ony" args="y">
             if(y < 20) accY.setAttribute('text', 'acc y : ' + parseInt(y));
         </handler>
-        <handler name="onz" args="z">
+        <handler event="onz" args="z">
             accZ.setAttribute('text', 'acc z : ' + parseInt(z));
         </handler>
 
@@ -68,11 +68,11 @@
 
     <touch>
 
-        <handler name="onx" args="x">
+        <handler event="onx" args="x">
             touchX.setAttribute('text', 'touch x : ' + parseInt(x));
         </handler>
 
-        <handler name="ony" args="y">
+        <handler event="ony" args="y">
             touchY.setAttribute('text', 'touch y : ' + parseInt(y));
         </handler>
 

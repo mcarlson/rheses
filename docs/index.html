@@ -29,7 +29,7 @@
       
 <!--   Executing is now automatic
       <labelbutton text="Execute button">
-        <handler name="onclick">
+        <handler event="onclick">
           this.parent.parent.execute();
         </handler>
       </labelbutton>
@@ -41,7 +41,7 @@
       <view name="lesson_buttons">
         <simplelayout axis="x" spacing="8"></simplelayout>
         <labelbutton name="prev" text="Previous Lesson" visible="false">
-          <handler name="onclick">
+          <handler event="onclick">
             //topview = this.parent.parent.parent;
             topview = $('view').not('view view')[0].$view;
             page = topview.prev_page;
@@ -50,7 +50,7 @@
         </labelbutton>
 
         <labelbutton name="next" text="Next Lesson" visible="false">
-          <handler name="onclick">
+          <handler event="onclick">
             //topview = this.parent.parent.parent;
             topview = $('view').not('view view')[0].$view;
             page = topview.next_page;
@@ -63,7 +63,7 @@
 
 
     <ace name="editor" x="${this.parent.width/4}" width="${this.parent.width/2}" height="${this.parent.height}" text="" bgcolor="#808080">
-      <handler name="onkeypause">
+      <handler event="onkeypause">
         // This fires after inactivity.
         var topview = $('view').not('view view')[0].$view;
         topview.execute();
@@ -177,7 +177,7 @@
       this.renderPage (page);
     </method>
 
-    <handler name="oninit">
+    <handler event="oninit">
       // Show the desired page from the hash value
       this.renderHash();
 

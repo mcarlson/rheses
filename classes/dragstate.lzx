@@ -31,7 +31,7 @@ SOFTWARE. -->
         * The axes to drag on.
         */-->
       <attribute name="dragaxis" value="both" type="string"></attribute>
-      <handler name="onapplied" args="applied">
+      <handler event="onapplied" args="applied">
         //console.log('onapplied', applied, this)
         if (applied) {
           var pos = this.parent.getAbsolute();
@@ -40,12 +40,12 @@ SOFTWARE. -->
           //console.log('startx', pos, dr.mouse.x, dr.mouse.y, this.startx, this.starty)
         }
       </handler>
-      <handler name="onx" reference="dr.mouse" args="x">
+      <handler event="onx" reference="dr.mouse" args="x">
         if (this.dragaxis == 'both' || this.dragaxis == 'x') {
           this.updatePos('x', x - this.parent.getAbsolute().x - this.startx)
         }
       </handler>
-      <handler name="ony" reference="dr.mouse" args="y">
+      <handler event="ony" reference="dr.mouse" args="y">
         if (this.dragaxis == 'both' || this.dragaxis == 'y') {
           this.updatePos('y', y - this.parent.getAbsolute().y - this.starty);
         }

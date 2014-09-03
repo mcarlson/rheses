@@ -37,7 +37,7 @@ SOFTWARE. -->
       <method name="updateSize">
         @setAttributes(@sprite.measureTextSize(@multiline, @width))
       </method>
-      <handler name="ondata" args="d">
+      <handler event="ondata" args="d">
         @setAttribute('text', d)
       </handler>
       <setter name="text" args="text">
@@ -45,7 +45,7 @@ SOFTWARE. -->
         @sprite.value(text)
         # @updateSize() if (text != @text)
       </setter>
-      <handler name="oninit">
+      <handler event="oninit">
         # el = @sprite.el
         # Prefer text attribute, fall back to innerHTML
         text = @text || @sprite.text()
@@ -53,7 +53,7 @@ SOFTWARE. -->
         @sprite.text('')
         @sprite.createInputtextElement(text, @multiline, @width)
       </handler>
-      <handler name="onchange">
+      <handler event="onchange">
         return unless @replicator
         # attempt to coerce to the current type if it was a boolean or number (bad idea?)
         newdata = @text

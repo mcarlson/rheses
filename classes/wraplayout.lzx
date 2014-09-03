@@ -23,22 +23,22 @@ SOFTWARE. -->
       <attribute name="inset" type="number" value="0"></attribute>
       <attribute name="spacing" type="number" value="15"></attribute>
       <attribute name="axis" type="string" value="width"></attribute>
-      <handler name="oninit">
+      <handler event="oninit">
         # console.log('oninit', this)
         @listenTo(@parent, @axis, @update)
       </handler>
-      <handler name="oninset" args="inset">
+      <handler event="oninset" args="inset">
         # console.log('oninset', inset)
         @update()
       </handler>
-      <handler name="onaxis" args="axis">
+      <handler event="onaxis" args="axis">
         # console.log('onaxis', axis)
         @otheraxis = if axis == 'height' then 'width' else 'height'
         @attr = if axis == 'height' then 'y' else 'x'
         @otherattr = if @attr == 'x' then 'y' else 'x'
         @update()
       </handler>
-      <handler name="onsubview" args="subview">
+      <handler event="onsubview" args="subview">
         # console.log('onsubview', @axis, @update, subview, this)
         @listenTo(subview, @axis, @update)
       </handler>

@@ -41,7 +41,7 @@ SOFTWARE. -->
       <!-- check: Show button state -->
       <view name="check" x="${this.parent.checkx}" y="${this.parent.checky}" width="${this.parent.checkw}" height="${this.parent.checkh}"></view>
  
-      <handler name="oninit">
+      <handler event="oninit">
         #TODO Remove this hack when oninit works
         $this = @;
         func = () -> $this.realinit()
@@ -107,7 +107,7 @@ SOFTWARE. -->
         @_resize_lock = false
       </method>
 
-      <handler name="onclick">
+      <handler event="onclick">
         @setAttribute('selected', !@selected);
       </handler>
 

@@ -29,7 +29,7 @@ SOFTWARE. -->
     <class name="ace" width="300" height="100" clickable="true" scriptincludes="http://cdnjs.cloudflare.com/ajax/libs/ace/1.1.3/ace.js">
 -->
     <class name="ace" width="300" height="100" clickable="true" scriptincludes="/lib/ace/src-noconflict/ace.js">
-      <handler name="ondata" args="d">
+      <handler event="ondata" args="d">
         this.setAttribute('text', d)
       </handler>
 
@@ -38,7 +38,7 @@ SOFTWARE. -->
         * Specify the ace theme to use.
         */-->
       <attribute name="theme" type="string" value="ace/theme/chrome"/>
-      <handler name="ontheme">
+      <handler event="ontheme">
         if (this.editor)
           this.editor.setTheme(this.theme);
       </handler>
@@ -48,7 +48,7 @@ SOFTWARE. -->
         * Specify the ace mode to use.
         */-->
       <attribute name="mode" type="string" value="ace/mode/lzx"/>
-      <handler name="onmode">
+      <handler event="onmode">
         if (this.editor)
           this.editor.getSession().setMode(this.mode);
       </handler>
@@ -70,8 +70,8 @@ SOFTWARE. -->
         }
       </setter>
 
-      <handler name="onwidth" method="handleResize"></handler>
-      <handler name="onheight" method="handleResize"></handler>
+      <handler event="onwidth" method="handleResize"></handler>
+      <handler event="onheight" method="handleResize"></handler>
 
       <!--/**
         * @cfg {Number} [pausedelay=500]
@@ -84,11 +84,11 @@ SOFTWARE. -->
         * @param {dr.ace} view The dr.ace that fired the event
         */-->
       <attribute name="pausedelay" type="number" value="500"/>
-      <handler name="onpausedelay">
+      <handler event="onpausedelay">
         delete this._lastkeytime;
       </handler>
 
-      <handler name="oninit">
+      <handler event="oninit">
         // I couldn't get jquery syntax to work so directly modify the DOM.
         var acediv = document.createElement("DIV");
         acediv.style.position = "absolute";
@@ -118,7 +118,7 @@ SOFTWARE. -->
         //console.log("editor", this.editor);
       </handler>
 
-      <handler name="onbgcolor" args="color">
+      <handler event="onbgcolor" args="color">
       </handler>
 
       <method name="handleChange">
@@ -130,7 +130,7 @@ SOFTWARE. -->
         }
       </method>
 
-      <handler name="onidle" reference="dr.idle">
+      <handler event="onidle" reference="dr.idle">
         if (this._lastkeytime) {
           var now = new Date();
           var elapsed = now - this._lastkeytime;

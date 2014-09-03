@@ -12,10 +12,10 @@
   <simplelayout axis="x" spacing="10"></simplelayout>
   <view name="v1" width="50" height="50" bgcolor="green" clickable="true"></view>
   <view name="v2" width="50" height="50" bgcolor="green" clickable="true">
-    <handler name="onclick" reference="this.parent">
+    <handler event="onclick" reference="this.parent">
       console.log("You clicked v1");
     </handler>
-    <handler name="onclick">
+    <handler event="onclick">
       console.log("You clicked v2");
     </handler>
   </view>

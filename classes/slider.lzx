@@ -67,13 +67,13 @@ SOFTWARE. -->
         * Use changeValue() to range check the number and set the value.
         */-->
       <attribute name="value" type="number" value="0"></attribute>
-      <handler name="onvalue">
+      <handler event="onvalue">
         @visualize()
       </handler>
 
-      <handler name="oninit" method="visualize"></handler>
-      <handler name="onwidth" method="visualize"></handler>
-      <handler name="onheight" method="visualize"></handler>
+      <handler event="oninit" method="visualize"></handler>
+      <handler event="onwidth" method="visualize"></handler>
+      <handler event="onheight" method="visualize"></handler>
 
       <!--/**
         * @method changeValue
@@ -94,7 +94,7 @@ SOFTWARE. -->
         * The selected color of the slider.
         */-->
       <attribute name="selectcolor" type="string" value="#a0a0a0"></attribute>
-      <handler name="onselectcolor" method="visualize"></handler>
+      <handler event="onselectcolor" method="visualize"></handler>
 
 
       <!-- Internal view to show the current slider value -->
@@ -120,11 +120,11 @@ SOFTWARE. -->
 
 
       <!-- Apply dragstate when the mouse is down on the slider component. -->
-      <handler name="onmousedown">
+      <handler event="onmousedown">
         @movePosition(if @axis == 'x' then dr.mouse.x else dr.mouse.y)
         @drag.setAttribute('applied', true);
       </handler>
-      <handler name="onmouseup">
+      <handler event="onmouseup">
         @drag.setAttribute('applied', false);
       </handler>
 
@@ -147,10 +147,10 @@ SOFTWARE. -->
       <!-- The @drag.applied can be removed when states are fixed to
            remove global handlers. -->
       <state name="drag" type="coffee">
-        <handler name="onx" reference="dr.mouse" args="x">
+        <handler event="onx" reference="dr.mouse" args="x">
           @movePosition(x) if @drag.applied && @axis == 'x'
         </handler>
-        <handler name="ony" reference="dr.mouse" args="y">
+        <handler event="ony" reference="dr.mouse" args="y">
           @movePosition(y) if @drag.applied && @axis == 'y'
         </handler>
       </state>
