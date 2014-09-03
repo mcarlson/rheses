@@ -619,9 +619,6 @@
           }
           delete attributes.$handlers;
         }
-        if (!deferbindings) {
-          this._bindHandlers();
-        }
         for (name in attributes) {
           value = attributes[name];
           if (__indexOf.call(lateattributes, name) < 0) {
@@ -636,6 +633,9 @@
           if (attributes[name]) {
             this.setAttribute(name, attributes[name]);
           }
+        }
+        if (!deferbindings) {
+          this._bindHandlers();
         }
 
         /**
@@ -837,9 +837,6 @@
 
       Node.prototype._bindHandlers = function() {
         var binding, callback, ev, name, reference, refeval, scope, _i, _len, _ref;
-        if (!this.handlers) {
-          return;
-        }
         _ref = this.handlers;
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           binding = _ref[_i];
