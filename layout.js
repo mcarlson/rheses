@@ -1041,11 +1041,11 @@
       };
 
       Sprite.prototype.sendMouseEvent = function(type, first) {
-        var simulatedEvent, _ref;
+        var simulatedEvent;
         simulatedEvent = document.createEvent('MouseEvent');
-        simulatedEvent.initMouseEvent(type, true, true, window, 1, first.screenX, first.screenY, first.clientX, first.clientY, false, false, false, false, 0, null);
+        simulatedEvent.initMouseEvent(type, true, true, window, 1, first.pageX, first.pageY, first.clientX, first.clientY, false, false, false, false, 0, null);
         first.target.dispatchEvent(simulatedEvent);
-        if (((_ref = first.target.$view) != null ? _ref.clickable : void 0)) {
+        if (first.target.$view && first.target.$view.$tagname !== 'inputtext') {
           return event.preventDefault();
         }
       };
@@ -1147,7 +1147,6 @@
         input.setAttribute('type', 'text');
         input.setAttribute('value', text);
         input.setAttribute('style', 'border: none; outline: none; background-color:transparent;');
-        input.setAttribute('class', 'noselect');
         this.el.setAttribute('class', 'sprite noselect');
         this.el.appendChild(input);
         return setTimeout((function(_this) {

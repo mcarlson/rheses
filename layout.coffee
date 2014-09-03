@@ -765,11 +765,11 @@ window.lz = do ->
     sendMouseEvent: (type, first) ->
       simulatedEvent = document.createEvent('MouseEvent')
       simulatedEvent.initMouseEvent(type, true, true, window, 1, 
-                                first.screenX, first.screenY, 
+                                first.pageX, first.pageY, 
                                 first.clientX, first.clientY, false, 
                                 false, false, false, 0, null)
       first.target.dispatchEvent(simulatedEvent)
-      if (first.target.$view?.clickable)
+      if first.target.$view and first.target.$view.$tagname isnt 'inputtext'
         event.preventDefault()
 
     lastTouchDown = null
@@ -851,7 +851,7 @@ window.lz = do ->
       input.setAttribute('type', 'text')
       input.setAttribute('value', text)
       input.setAttribute('style', 'border: none; outline: none; background-color:transparent;')
-      input.setAttribute('class', 'noselect')
+      # input.setAttribute('class', 'noselect')
       @el.setAttribute('class', 'sprite noselect')
       @el.appendChild(input)
 
