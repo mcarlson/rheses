@@ -1346,7 +1346,7 @@ window.dr = do ->
   ###
   class State extends Node
     constructor: (el, attributes = {}) ->
-      @skipattributes = ['parent', 'types', 'applyattributes', 'applied', 'skipattributes', 'stateattributes', 'handlers']
+      @skipattributes = ['parent', 'types', 'applyattributes', 'applied', 'skipattributes', 'stateattributes']
       @stateattributes = attributes
       @applyattributes = {}
       @applied = false
@@ -1405,6 +1405,10 @@ window.dr = do ->
       if @events
         # prevent warnings for local events
         @skipattributes.push('events') 
+
+      if @handlers
+        # prevent warnings for local handlers
+        @skipattributes.push('handlers') 
 
       # hide local properties we don't want applied to the parent by learn()
       @enumfalse(@skipattributes)

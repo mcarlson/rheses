@@ -1807,7 +1807,7 @@
         if (attributes == null) {
           attributes = {};
         }
-        this.skipattributes = ['parent', 'types', 'applyattributes', 'applied', 'skipattributes', 'stateattributes', 'handlers'];
+        this.skipattributes = ['parent', 'types', 'applyattributes', 'applied', 'skipattributes', 'stateattributes'];
         this.stateattributes = attributes;
         this.applyattributes = {};
         this.applied = false;
@@ -1853,6 +1853,9 @@
         }
         if (this.events) {
           this.skipattributes.push('events');
+        }
+        if (this.handlers) {
+          this.skipattributes.push('handlers');
         }
         this.enumfalse(this.skipattributes);
         this.enumfalse(this.keys);
