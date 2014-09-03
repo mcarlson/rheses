@@ -1835,7 +1835,7 @@
         _ref1 = attributes.$handlers;
         for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
           handler = _ref1[_j];
-          if (handler.name === 'onapplied') {
+          if (handler.ev === 'onapplied') {
             this.installHandlers([handler], 'state', this);
             this._bindHandlers();
           }

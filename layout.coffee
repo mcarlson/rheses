@@ -1386,7 +1386,7 @@ window.dr = do ->
         @bindAttribute('applied', attributes.applied, 'state')
 
       for handler in attributes.$handlers
-        if handler.name == 'onapplied'
+        if handler.ev == 'onapplied'
           # console.log('found onapplied', handler) 
           @installHandlers([handler], 'state', @)
           @_bindHandlers()
