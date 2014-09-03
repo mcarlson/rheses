@@ -710,7 +710,7 @@
       };
 
       Node.prototype.removeHandlers = function(handlers, tagname, scope) {
-        var args, handler, method, name, reference, script, _i, _len, _results;
+        var args, handler, method, name, reference, refeval, script, _i, _len, _results;
         if (scope == null) {
           scope = this;
         }
@@ -720,7 +720,8 @@
           name = handler.name, script = handler.script, args = handler.args, reference = handler.reference, method = handler.method;
           name = name.substr(2);
           if (reference != null) {
-            _results.push(scope.stopListening(eval(reference), name, handler.callback));
+            refeval = this._valueLookup(reference)();
+            _results.push(scope.stopListening(refeval, name, handler.callback));
           } else {
             _results.push(scope.unbind(name, handler.callback));
           }
@@ -1801,7 +1802,7 @@
         if (attributes == null) {
           attributes = {};
         }
-        this.skipattributes = ['parent', 'types', 'applyattributes', 'applied', 'skipattributes', 'stateattributes'];
+        this.skipattributes = ['parent', 'types', 'applyattributes', 'applied', 'skipattributes', 'stateattributes', 'handlers'];
         this.stateattributes = attributes;
         this.applyattributes = {};
         this.applied = false;

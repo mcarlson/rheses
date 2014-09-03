@@ -498,8 +498,9 @@ window.dr = do ->
 
         # console.log 'removing handler', name, args, script, @
         if reference?
-          # console.log('stopListening to reference', reference, eval(reference), name, handler.callback)
-          scope.stopListening(eval(reference), name, handler.callback)
+          refeval = @_valueLookup(reference)()
+          # console.log('stopListening to reference', reference, refeval, name, handler.callback)
+          scope.stopListening(refeval, name, handler.callback)
         else
           scope.unbind(name, handler.callback)
 
@@ -1343,7 +1344,7 @@ window.dr = do ->
   ###
   class State extends Node
     constructor: (el, attributes = {}) ->
-      @skipattributes = ['parent', 'types', 'applyattributes', 'applied', 'skipattributes', 'stateattributes']
+      @skipattributes = ['parent', 'types', 'applyattributes', 'applied', 'skipattributes', 'stateattributes', 'handlers']
       @stateattributes = attributes
       @applyattributes = {}
       @applied = false
