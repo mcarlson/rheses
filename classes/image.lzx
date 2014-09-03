@@ -19,7 +19,16 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. -->
+    <!--/**
+     * @class lz.image
+     * @extends lz.view
+     * Loads an image from a URL.
+     */-->
     <class name="image">
+      <!--/**
+        * @cfg {String} src
+        * The image URL to load
+        */-->
       <setter name="src" args="src">
         if (! src) return
         if (this.src == src) return
@@ -36,9 +45,18 @@ SOFTWARE. -->
         // send load events 
         var _this = this;
         img.onload = function() {
+            /**
+             * @event onload 
+             * Fired when the image is loaded
+             * @param {Object} size An object containing the width and height
+             */
           _this.sendEvent('load', {width: img.width, height: img.height});
         }
         img.onerror = function() {
+            /**
+             * @event onerror 
+             * Fired when there is an error loading the image
+             */
           _this.sendEvent('error', img);
         }
       </setter>

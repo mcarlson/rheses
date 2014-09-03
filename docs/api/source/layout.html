@@ -970,7 +970,7 @@
      * Abstracts the underlying visual primitives (currently HTML) from dreem&#39;s view system.
      */
     Sprite = (function() {
-      var capabilities, fcamelCase, noop, rdashAlpha, stylemap, styleval;
+      var capabilities, fcamelCase, lastTouchDown, noop, rdashAlpha, stylemap, styleval;
 
       noop = function() {};
 
@@ -1006,6 +1006,7 @@
           tagname = &#39;div&#39;;
         }
         this.handle = __bind(this.handle, this);
+        this.touchHandler = __bind(this.touchHandler, this);
         this.animate = __bind(this.animate, this);
         if (jqel == null) {
           this.el = document.createElement(tagname);
@@ -1059,11 +1060,45 @@
         return this.jqel.animate.apply(this.jqel, arguments);
       };
 
+      Sprite.prototype.sendMouseEvent = function(type, first) {
+        var simulatedEvent;
+        simulatedEvent = document.createEvent(&#39;MouseEvent&#39;);
+        simulatedEvent.initMouseEvent(type, true, true, window, 1, first.pageX, first.pageY, first.clientX, first.clientY, false, false, false, false, 0, null);
+        first.target.dispatchEvent(simulatedEvent);
+        if (first.target.$view &amp;&amp; first.target.$view.$tagname !== &#39;inputtext&#39;) {
+          return event.preventDefault();
+        }
+      };
+
+      lastTouchDown = null;
+
+      Sprite.prototype.touchHandler = function(event) {
+        var first, touches;
+        touches = event.changedTouches;
+        first = touches[0];
+        switch (event.type) {
+          case &#39;touchstart&#39;:
+            this.sendMouseEvent(&#39;mousedown&#39;, first);
+            return lastTouchDown = first.target;
+          case &#39;touchmove&#39;:
+            return this.sendMouseEvent(&#39;mousemove&#39;, first);
+          case &#39;touchend&#39;:
+            this.sendMouseEvent(&#39;mouseup&#39;, first);
+            if (lastTouchDown === first.target) {
+              this.sendMouseEvent(&#39;click&#39;, first);
+              return lastTouchDown = null;
+            }
+        }
+      };
+
       Sprite.prototype.set_clickable = function(clickable) {
         this.setStyle(&#39;pointer-events&#39;, clickable ? &#39;auto&#39; : &#39;none&#39;);
         this.setStyle(&#39;cursor&#39;, clickable ? &#39;pointer&#39; : &#39;&#39;);
         if (capabilities.touch) {
-          return this.el.onclick = noop;
+          document.addEventListener(&#39;touchstart&#39;, this.touchHandler, true);
+          document.addEventListener(&#39;touchmove&#39;, this.touchHandler, true);
+          document.addEventListener(&#39;touchend&#39;, this.touchHandler, true);
+          return document.addEventListener(&#39;touchcancel&#39;, this.touchHandler, true);
         }
       };
 
@@ -1095,7 +1130,7 @@
         }
       };
 
-      Sprite.prototype.measureTextSize = function(multiline, width, measuresize) {
+      Sprite.prototype.measureTextSize = function(multiline, width, resize) {
         this.el.setAttribute(&#39;class&#39;, &#39;sprite sprite-text noselect&#39;);
         if (multiline) {
           if (this._cachedwidth &gt; -1) {
@@ -1106,7 +1141,7 @@
           this.setStyle(&#39;whiteSpace&#39;, &#39;normal&#39;);
         } else {
           this._cachedwidth = width;
-          if (measuresize) {
+          if (resize) {
             this.setStyle(&#39;width&#39;, &#39;auto&#39;);
           }
           this.setStyle(&#39;whiteSpace&#39;, &#39;&#39;);
@@ -1132,7 +1167,6 @@
         input.setAttribute(&#39;type&#39;, &#39;text&#39;);
         input.setAttribute(&#39;value&#39;, text);
         input.setAttribute(&#39;style&#39;, &#39;border: none; outline: none; background-color:transparent;&#39;);
-        input.setAttribute(&#39;class&#39;, &#39;noselect&#39;);
         this.el.setAttribute(&#39;class&#39;, &#39;sprite noselect&#39;);
         this.el.appendChild(input);
         return setTimeout((function(_this) {

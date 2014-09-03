@@ -4,6 +4,14 @@
      * Ace editor component.
      */
 /**
+        * @cfg {string} [theme='ace/theme/chrome']
+        * Specify the ace theme to use.
+        */
+/**
+        * @cfg {string} [mode='ace/mode/lzx']
+        * Specify the ace mode to use.
+        */
+/**
         * @cfg {String} [text=""]
         * Initial text for the ace editor.
         */
@@ -137,6 +145,24 @@
         * The compass accuracy, see [https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html](https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html) for details.
         */
 /**
+     * @class lz.image
+     * @extends lz.view
+     * Loads an image from a URL.
+     */
+/**
+        * @cfg {String} src
+        * The image URL to load
+        */
+/**
+             * @event onload 
+             * Fired when the image is loaded
+             * @param {Object} size An object containing the width and height
+             */
+/**
+             * @event onerror 
+             * Fired when there is an error loading the image
+             */
+/**
      * @class lz.labelbutton
      * @extends lz.buttonbase
      * Button class consisting of text centered in a view. The onclick event
@@ -192,6 +218,53 @@
         * The axis to stack on
         */
 /**
+     * @class lz.slider
+     * @extends lz.view
+     * An input component whose state is changed when the mouse is dragged.
+     *
+     *     @example
+     *
+     *     <slider name="hslide" y="5" width="250" height="10" value="50" bgcolor="#808080"></slider>
+     * Slider with a label:
+     *
+     *     @example
+     *     
+     *     <simplelayout axis="x" spacing="8"></simplelayout>
+     *     <slider name="hslide" y="5" width="250" height="10" value="50" bgcolor="#808080"></slider>
+     *     <text text="${Math.round(this.parent.hslide.value)}" y="${this.parent.hslide.y + (this.parent.hslide.height-this.height)/2}"></text>
+     */
+/**
+        * @cfg {Number} [minvalue=0]
+        * The minimum value of the slider
+        */
+/**
+        * @cfg {Number} [maxvalue=100]
+        * The maximum value of the slider
+        */
+/**
+        * @cfg {"x"/"y"} [axis=x]
+        * The axis to track on
+        */
+/**
+        * @cfg {Boolean} [invert=false]
+        * Set to true to invert the direction of the slider.
+        */
+/**
+        * @cfg {Number} [value=0]
+        * The current value of the slider.
+        * Use changeValue() to range check the number and set the value.
+        */
+/**
+        * @method changeValue
+        * Given a new value for the slider position, constrain the value
+        * between minvalue and maxvalue and then calls setAttribute.
+        * @param {Number} v The new value of the component.
+        */
+/**
+        * @cfg {String} [selectcolor="#a0a0a0"]
+        * The selected color of the slider.
+        */
+/**
      * @class lz.text
      * @extends lz.view
      * Text component that supports single and multi-line text. The text
@@ -205,9 +278,9 @@
         * Set to true to show multi-line text.
         */
 /**
-        * @cfg {Boolean} [measuresize=true]
+        * @cfg {Boolean} [resize=true]
         * By default, the text component is sized to the size of the text.
-        * By setting measuresize=false, the component size is not modified
+        * By setting resize=false, the component size is not modified
         * when the text changes.
         */
 /**
@@ -235,6 +308,6 @@
         * The touch y value for the first finger.
         */
 /**
-        * @cfg {String} touches (readonly)
+        * @cfg {Object[]} touches (readonly)
         * An array of x/y coordinates for all fingers, where available. See [https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Touch_events](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Touch_events) for more details
         */

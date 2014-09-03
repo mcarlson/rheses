@@ -20,6 +20,14 @@
      * @extends lz.view
      * Ace editor component.
      */
+<span id='lz-ace-cfg-theme'>/**
+</span>        * @cfg {string} [theme=&#39;ace/theme/chrome&#39;]
+        * Specify the ace theme to use.
+        */
+<span id='lz-ace-cfg-mode'>/**
+</span>        * @cfg {string} [mode=&#39;ace/mode/lzx&#39;]
+        * Specify the ace mode to use.
+        */
 <span id='lz-ace-cfg-text'>/**
 </span>        * @cfg {String} [text=&quot;&quot;]
         * Initial text for the ace editor.
@@ -153,6 +161,24 @@
 </span>        * @cfg {Number} [compassaccuracy=0] (readonly)
         * The compass accuracy, see [https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html](https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html) for details.
         */
+<span id='lz-image'>/**
+</span>     * @class lz.image
+     * @extends lz.view
+     * Loads an image from a URL.
+     */
+<span id='lz-image-cfg-src'>/**
+</span>        * @cfg {String} src
+        * The image URL to load
+        */
+<span id='lz-image-event-onload'>/**
+</span>             * @event onload 
+             * Fired when the image is loaded
+             * @param {Object} size An object containing the width and height
+             */
+<span id='lz-image-event-onerror'>/**
+</span>             * @event onerror 
+             * Fired when there is an error loading the image
+             */
 <span id='lz-labelbutton'>/**
 </span>     * @class lz.labelbutton
      * @extends lz.buttonbase
@@ -208,6 +234,53 @@
 </span>        * @cfg {&quot;x&quot;/&quot;y&quot;} [axis=x]
         * The axis to stack on
         */
+<span id='lz-slider'>/**
+</span>     * @class lz.slider
+     * @extends lz.view
+     * An input component whose state is changed when the mouse is dragged.
+     *
+     *     @example
+     *
+     *     &lt;slider name=&quot;hslide&quot; y=&quot;5&quot; width=&quot;250&quot; height=&quot;10&quot; value=&quot;50&quot; bgcolor=&quot;#808080&quot;&gt;&lt;/slider&gt;
+     * Slider with a label:
+     *
+     *     @example
+     *     
+     *     &lt;simplelayout axis=&quot;x&quot; spacing=&quot;8&quot;&gt;&lt;/simplelayout&gt;
+     *     &lt;slider name=&quot;hslide&quot; y=&quot;5&quot; width=&quot;250&quot; height=&quot;10&quot; value=&quot;50&quot; bgcolor=&quot;#808080&quot;&gt;&lt;/slider&gt;
+     *     &lt;text text=&quot;${Math.round(this.parent.hslide.value)}&quot; y=&quot;${this.parent.hslide.y + (this.parent.hslide.height-this.height)/2}&quot;&gt;&lt;/text&gt;
+     */
+<span id='lz-slider-cfg-minvalue'>/**
+</span>        * @cfg {Number} [minvalue=0]
+        * The minimum value of the slider
+        */
+<span id='lz-slider-cfg-maxvalue'>/**
+</span>        * @cfg {Number} [maxvalue=100]
+        * The maximum value of the slider
+        */
+<span id='lz-slider-cfg-axis'>/**
+</span>        * @cfg {&quot;x&quot;/&quot;y&quot;} [axis=x]
+        * The axis to track on
+        */
+<span id='lz-slider-cfg-invert'>/**
+</span>        * @cfg {Boolean} [invert=false]
+        * Set to true to invert the direction of the slider.
+        */
+<span id='lz-slider-cfg-value'>/**
+</span>        * @cfg {Number} [value=0]
+        * The current value of the slider.
+        * Use changeValue() to range check the number and set the value.
+        */
+<span id='lz-slider-method-changeValue'>/**
+</span>        * @method changeValue
+        * Given a new value for the slider position, constrain the value
+        * between minvalue and maxvalue and then calls setAttribute.
+        * @param {Number} v The new value of the component.
+        */
+<span id='lz-slider-cfg-selectcolor'>/**
+</span>        * @cfg {String} [selectcolor=&quot;#a0a0a0&quot;]
+        * The selected color of the slider.
+        */
 <span id='lz-text'>/**
 </span>     * @class lz.text
      * @extends lz.view
@@ -221,10 +294,10 @@
 </span>        * @cfg {Boolean} [multiline=false]
         * Set to true to show multi-line text.
         */
-<span id='lz-text-cfg-measuresize'>/**
-</span>        * @cfg {Boolean} [measuresize=true]
+<span id='lz-text-cfg-resize'>/**
+</span>        * @cfg {Boolean} [resize=true]
         * By default, the text component is sized to the size of the text.
-        * By setting measuresize=false, the component size is not modified
+        * By setting resize=false, the component size is not modified
         * when the text changes.
         */
 <span id='lz-text-cfg-text'>/**
@@ -252,7 +325,7 @@
         * The touch y value for the first finger.
         */
 <span id='lz-touch-cfg-touches'>/**
-</span>        * @cfg {String} touches (readonly)
+</span>        * @cfg {Object[]} touches (readonly)
         * An array of x/y coordinates for all fingers, where available. See [https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Touch_events](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Touch_events) for more details
         */
 </pre>
