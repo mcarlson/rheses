@@ -762,13 +762,42 @@ window.lz = do ->
       # console.log 'sprite animate', arguments[0], @jqel
       @jqel.animate.apply(@jqel, arguments)
 
+    sendMouseEvent: (type, first) ->
+      simulatedEvent = document.createEvent('MouseEvent')
+      simulatedEvent.initMouseEvent(type, true, true, window, 1, 
+                                first.screenX, first.screenY, 
+                                first.clientX, first.clientY, false, 
+                                false, false, false, 0, null)
+      first.target.dispatchEvent(simulatedEvent)
+      if (first.target.$view?.clickable)
+        event.preventDefault()
+
+    lastTouchDown = null
+    touchHandler: (event) =>
+      touches = event.changedTouches
+      first = touches[0]
+
+      switch event.type
+        when 'touchstart'
+          @sendMouseEvent('mousedown', first)
+          lastTouchDown = first.target
+        when 'touchmove'
+          @sendMouseEvent('mousemove', first)
+        when 'touchend'
+          @sendMouseEvent('mouseup', first)
+          if (lastTouchDown == first.target)
+            @sendMouseEvent('click', first)
+            lastTouchDown = null
+
     set_clickable: (clickable) ->
       @setStyle('pointer-events', if clickable then 'auto' else 'none')
       @setStyle('cursor', if clickable then 'pointer' else '')
 
       if capabilities.touch
-        # ugly hack to make touch events emulate clicks, see http://sitr.us/2011/07/28/how-mobile-safari-emulates-mouse-events.html
-        @el.onclick = noop
+        document.addEventListener('touchstart', @touchHandler, true)
+        document.addEventListener('touchmove', @touchHandler, true)
+        document.addEventListener('touchend', @touchHandler, true)
+        document.addEventListener('touchcancel', @touchHandler, true)
 
       # TODO: retrigger the event for the element below for IE and Opera? See http://stackoverflow.com/questions/3680429/click-through-a-div-to-underlying-elements
       # el = $(event.target)

@@ -950,7 +950,7 @@
      * Abstracts the underlying visual primitives (currently HTML) from dreem's view system.
      */
     Sprite = (function() {
-      var capabilities, fcamelCase, noop, rdashAlpha, stylemap, styleval;
+      var capabilities, fcamelCase, lastTouchDown, noop, rdashAlpha, stylemap, styleval;
 
       noop = function() {};
 
@@ -986,6 +986,7 @@
           tagname = 'div';
         }
         this.handle = __bind(this.handle, this);
+        this.touchHandler = __bind(this.touchHandler, this);
         this.animate = __bind(this.animate, this);
         if (jqel == null) {
           this.el = document.createElement(tagname);
@@ -1039,11 +1040,45 @@
         return this.jqel.animate.apply(this.jqel, arguments);
       };
 
+      Sprite.prototype.sendMouseEvent = function(type, first) {
+        var simulatedEvent, _ref;
+        simulatedEvent = document.createEvent('MouseEvent');
+        simulatedEvent.initMouseEvent(type, true, true, window, 1, first.screenX, first.screenY, first.clientX, first.clientY, false, false, false, false, 0, null);
+        first.target.dispatchEvent(simulatedEvent);
+        if (((_ref = first.target.$view) != null ? _ref.clickable : void 0)) {
+          return event.preventDefault();
+        }
+      };
+
+      lastTouchDown = null;
+
+      Sprite.prototype.touchHandler = function(event) {
+        var first, touches;
+        touches = event.changedTouches;
+        first = touches[0];
+        switch (event.type) {
+          case 'touchstart':
+            this.sendMouseEvent('mousedown', first);
+            return lastTouchDown = first.target;
+          case 'touchmove':
+            return this.sendMouseEvent('mousemove', first);
+          case 'touchend':
+            this.sendMouseEvent('mouseup', first);
+            if (lastTouchDown === first.target) {
+              this.sendMouseEvent('click', first);
+              return lastTouchDown = null;
+            }
+        }
+      };
+
       Sprite.prototype.set_clickable = function(clickable) {
         this.setStyle('pointer-events', clickable ? 'auto' : 'none');
         this.setStyle('cursor', clickable ? 'pointer' : '');
         if (capabilities.touch) {
-          return this.el.onclick = noop;
+          document.addEventListener('touchstart', this.touchHandler, true);
+          document.addEventListener('touchmove', this.touchHandler, true);
+          document.addEventListener('touchend', this.touchHandler, true);
+          return document.addEventListener('touchcancel', this.touchHandler, true);
         }
       };
 
