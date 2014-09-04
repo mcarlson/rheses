@@ -19,11 +19,32 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. -->
+  <!--/**
+     * @class dr.replicator
+     * @extends dr.node
+     * Handles replication and data binding.
+     */--> 
     <class name="replicator" type="coffee" extends="node" scriptincludes="/lib/json-path+json-ptr-0.1.3.min.js">
+      <!--/**
+        * @cfg {Boolean} [pooling=false]
+        * If true, reuse views when replicating.
+        */-->
       <attribute name="pooling" value="false" type="boolean"></attribute>
+      <!--/**
+        * @cfg {Array} [data=[]]
+        * The list of items to replicate. If replicator.datapath is set, it is converted to a list and stored here.
+        */-->
       <attribute name="data" value="[]" type="expression"></attribute>
+      <!--/**
+        * @cfg {String} classname (required)
+        * The name of the class to be replicated.
+        */-->
       <attribute name="classname" value="" type="string"></attribute>
-      <!-- See https://github.com/flitbit/json-path for the spec on datapath -->
+      <!--/**
+        * @cfg {String} datapath
+        * The name of the datapath expression to be replicated.
+        * See [https://github.com/flitbit/json-path](https://github.com/flitbit/json-path) for details.
+        */-->
       <setter name="datapath" args="datapath">
         return unless datapath
         # console.log('evaluating datapath', datapath)
@@ -56,7 +77,15 @@ SOFTWARE. -->
         @sendEvent('dataset', @dataset)
       </setter>
       <!-- TODO: make this a relative datapath -->
+      <!--/**
+        * @cfg {String} [sortfield=""]
+        * The field in the data to use for sorting. Only sort then this 
+        */-->
       <attribute name="sortfield" value="" type="string"></attribute>
+      <!--/**
+        * @cfg {Boolean} [sortasc=true]
+        * If true, sort ascending.
+        */-->
       <attribute name="sortasc" value="true" type="boolean"></attribute>
       <attribute name="lazycount" value="Infinity" type="number"></attribute>
       <handler event="onsortfield">

@@ -191,6 +191,36 @@
      * is generated when the button is the selected state.
      */
 /**
+     * @class dr.replicator
+     * @extends dr.node
+     * Handles replication and data binding.
+     */
+/**
+        * @cfg {Boolean} [pooling=false]
+        * If true, reuse views when replicating.
+        */
+/**
+        * @cfg {Array} [data=[]]
+        * The list of items to replicate. If replicator.datapath is set, it is converted to a list and stored here.
+        */
+/**
+        * @cfg {String} classname (required)
+        * The name of the class to be replicated.
+        */
+/**
+        * @cfg {String} datapath
+        * The name of the datapath expression to be replicated.
+        * See [https://github.com/flitbit/json-path](https://github.com/flitbit/json-path) for details.
+        */
+/**
+        * @cfg {String} [sortfield=""]
+        * The field in the data to use for sorting. Only sort then this 
+        */
+/**
+        * @cfg {Boolean} [sortasc=true]
+        * If true, sort ascending.
+        */
+/**
      * @class dr.shim
      * @extends dr.node
      * Connects to the shared event bus. When data is sent with a given type, a corresponding event is sent. For example, send('blah', {}) sends data with the 'blah' type, other shims will receive the object via an 'onblah' event.
