@@ -487,7 +487,7 @@ window.dr = do ->
         # strip off leading 'on'
         ev = ev.substr(2)
 
-        # console.log 'installing handler', name, args, script, @
+        # console.log 'installing handler', ev, args, script, @
         if method
           handler.callback = scope[method]
           # console.log('using method', method, handler.callback)
@@ -1214,9 +1214,11 @@ window.dr = do ->
           )
         )
 
-      cb = () ->
-        # must do this twice to catch autoinclude autoincludes, see https://github.com/teem2/dreem/issues/6
+      # must do this thrice to catch autoinclude autoincludes, see https://github.com/teem2/dreem/issues/6 and https://www.pivotaltracker.com/story/show/77941122
+      cb2 = () ->
         loadIncludes(callback)
+      cb = () ->
+        loadIncludes(cb2)
       loadIncludes(cb)
 
     specialtags = ['handler', 'method', 'attribute', 'setter', 'include']

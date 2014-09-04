@@ -1447,7 +1447,7 @@
         });
       };
       findAutoIncludes = function(parentel, callback) {
-        var cb, includedScripts, includerequests, inlineclasses, jqel, loadIncludes, loadLZX, loadScript, loadqueue, lzxloaded, lzxrequests, scriptloading;
+        var cb, cb2, includedScripts, includerequests, inlineclasses, jqel, loadIncludes, loadLZX, loadScript, loadqueue, lzxloaded, lzxrequests, scriptloading;
         jqel = $(parentel);
         includerequests = [];
         includedScripts = {};
@@ -1590,8 +1590,11 @@
             });
           });
         };
-        cb = function() {
+        cb2 = function() {
           return loadIncludes(callback);
+        };
+        cb = function() {
+          return loadIncludes(cb2);
         };
         return loadIncludes(cb);
       };
