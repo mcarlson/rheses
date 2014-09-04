@@ -637,6 +637,9 @@
             this.setAttribute(name, attributes[name]);
           }
         }
+        if (!deferbindings) {
+          this._bindHandlers(true);
+        }
 
         /**
          * @event oninit 
@@ -682,14 +685,16 @@
       };
 
       Node.prototype.installHandlers = function(handlers, tagname, scope) {
-        var args, ev, handler, method, name, reference, script, _i, _len, _results;
+        var args, ev, handler, handlerobj, method, name, reference, script, _i, _len;
         if (scope == null) {
           scope = this;
         }
         if (this.handlers == null) {
           this.handlers = [];
         }
-        _results = [];
+        if (this.latehandlers == null) {
+          this.latehandlers = [];
+        }
         for (_i = 0, _len = handlers.length; _i < _len; _i++) {
           handler = handlers[_i];
           ev = handler.ev, name = handler.name, script = handler.script, args = handler.args, reference = handler.reference, method = handler.method;
@@ -699,15 +704,19 @@
           } else {
             handler.callback = _eventCallback(ev, script, scope, tagname, args);
           }
-          _results.push(this.handlers.push({
+          handlerobj = {
             scope: this,
             ev: ev,
             name: name,
             callback: handler.callback,
             reference: reference
-          }));
+          };
+          if (reference) {
+            this.latehandlers.push(handlerobj);
+          } else {
+            this.handlers.push(handlerobj);
+          }
         }
-        return _results;
       };
 
       Node.prototype.removeHandlers = function(handlers, tagname, scope) {
@@ -835,14 +844,11 @@
         }
       };
 
-      Node.prototype._bindHandlers = function() {
-        var binding, callback, ev, name, reference, refeval, scope, _i, _len, _ref;
-        if (!this.handlers) {
-          return;
-        }
-        _ref = this.handlers;
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          binding = _ref[_i];
+      Node.prototype._bindHandlers = function(isLate) {
+        var binding, bindings, callback, ev, name, reference, refeval, scope, _i, _len;
+        bindings = isLate ? this.latehandlers : this.handlers;
+        for (_i = 0, _len = bindings.length; _i < _len; _i++) {
+          binding = bindings[_i];
           scope = binding.scope, name = binding.name, ev = binding.ev, callback = binding.callback, reference = binding.reference;
           if (reference) {
             refeval = this._valueLookup(reference)();
@@ -851,7 +857,11 @@
             scope.bind(ev, callback);
           }
         }
-        this.handlers = [];
+        if (isLate) {
+          this.latehandlers = [];
+        } else {
+          this.handlers = [];
+        }
       };
 
       Node.prototype._constraintCallback = function(name, fn) {
@@ -1857,6 +1867,9 @@
         if (this.handlers) {
           this.skipattributes.push('handlers');
         }
+        if (this.latehandlers) {
+          this.skipattributes.push('latehandlers');
+        }
         this.enumfalse(this.skipattributes);
         this.enumfalse(this.keys);
       }
@@ -1888,6 +1901,7 @@
           if (this.stateattributes.$handlers) {
             this.parent.installHandlers(this.stateattributes.$handlers, this.parent.$tagname, this.parent);
             this.parent._bindHandlers();
+            this.parent._bindHandlers(true);
           }
         } else {
           this.parent.forget(this);
@@ -2061,6 +2075,7 @@
             }
           }
           parent._bindHandlers();
+          parent._bindHandlers(true);
           if (!parent.inited) {
             parent.inited = true;
             parent.sendEvent('init', parent);

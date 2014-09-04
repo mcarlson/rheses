@@ -449,6 +449,10 @@ window.dr = do ->
 
       for name in lateattributes
         @setAttribute(name, attributes[name]) if attributes[name]
+
+      unless deferbindings
+        @_bindHandlers(true)
+
       ###*
       # @event oninit 
       # Fired when this node and all its children are completely initialized
@@ -476,6 +480,7 @@ window.dr = do ->
     installHandlers: (handlers, tagname, scope=@) ->
       # store list of handlers for late binding
       @handlers ?= []
+      @latehandlers ?= []
       for handler in handlers
         {ev, name, script, args, reference, method} = handler
         # strip off leading 'on'
@@ -488,7 +493,12 @@ window.dr = do ->
         else
           handler.callback = _eventCallback(ev, script, scope, tagname, args)
 
-        @handlers.push({scope: @, ev: ev, name: name, callback: handler.callback, reference: reference})
+        handlerobj = {scope: @, ev: ev, name: name, callback: handler.callback, reference: reference}
+        if reference
+          @latehandlers.push(handlerobj)
+        else
+          @handlers.push(handlerobj)
+      return
 
     removeHandlers: (handlers, tagname, scope=@) ->
       for handler in handlers
@@ -591,9 +601,9 @@ window.dr = do ->
         @setAttribute(name, fn())
       return
 
-    _bindHandlers: ->
-      return unless @handlers
-      for binding in @handlers
+    _bindHandlers: (isLate) ->
+      bindings = if isLate then @latehandlers else @handlers
+      for binding in bindings
         {scope, name, ev, callback, reference} = binding
         if reference
           refeval = @_valueLookup(reference)()
@@ -602,7 +612,10 @@ window.dr = do ->
         else
           # console.log('binding to scope', scope, ev)
           scope.bind(ev, callback)
-      @handlers = []
+      if isLate 
+        @latehandlers = []
+      else 
+        @handlers = []
       return
 
     # generate a callback for a constraint expression, e.g. x="${this.parent.baz.x + 10}"
@@ -651,6 +664,7 @@ window.dr = do ->
           # console.log 'found in parent', name, p
           return p[name]
         p = p.parent
+
     ###*
     # @method destroy
     # Destroys this node
@@ -1410,6 +1424,10 @@ window.dr = do ->
         # prevent warnings for local handlers
         @skipattributes.push('handlers') 
 
+      if @latehandlers
+        # prevent warnings for local handlers
+        @skipattributes.push('latehandlers') 
+
       # hide local properties we don't want applied to the parent by learn()
       @enumfalse(@skipattributes)
       @enumfalse(@keys)
@@ -1435,6 +1453,7 @@ window.dr = do ->
           # console.log('installing handlers', @stateattributes.$handlers)
           @parent.installHandlers(@stateattributes.$handlers, @parent.$tagname, @parent)
           @parent._bindHandlers()
+          @parent._bindHandlers(true)
       else
         @parent.forget @
         if @stateattributes.$handlers
@@ -1581,6 +1600,7 @@ window.dr = do ->
             dom.initElement(child, parent)
 
         parent._bindHandlers()
+        parent._bindHandlers(true)
 
         unless parent.inited
           parent.inited = true
