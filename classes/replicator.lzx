@@ -103,6 +103,7 @@ SOFTWARE. -->
         # console.log('filtering on', regex, _filterexpression)
         @_filterexpressionfunc = (value) ->
           return (value + '').match(_filterexpression) if (value)
+        @doReplication()
       </setter>
       <attribute name="lazycount" value="Infinity" type="number"></attribute>
       <handler event="onsortfield">
@@ -207,7 +208,7 @@ SOFTWARE. -->
           @doReplication()
       </method>
       <method name="doReplication">
-        return unless @data
+        return unless @data and @inited
         locked = @locked
         @locked = true
 
