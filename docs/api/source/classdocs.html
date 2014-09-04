@@ -211,6 +211,12 @@
 </span>     * @class dr.replicator
      * @extends dr.node
      * Handles replication and data binding.
+     *
+     * This example shows how to use a filterexpression regex to filter the results to only numbers:
+     *
+     *     @example
+     *     &lt;simplelayout&gt;&lt;/simplelayout&gt;
+     *     &lt;replicator classname=&quot;text&quot; data=&quot;[&#39;a&#39;,1,&#39;b&#39;,2,&#39;c&#39;,3,4,5]&quot; filterexpression=&quot;\d&quot;&gt;&lt;/replicator&gt;
      */
 <span id='dr-replicator-cfg-pooling'>/**
 </span>        * @cfg {Boolean} [pooling=false]
@@ -236,6 +242,10 @@
 <span id='dr-replicator-cfg-sortasc'>/**
 </span>        * @cfg {Boolean} [sortasc=true]
         * If true, sort ascending.
+        */
+<span id='dr-replicator-cfg-filterexpression'>/**
+</span>        * @cfg {String} [filterexpression=&quot;&quot;]
+        * If defined, results will be filtered against a regex. 
         */
 <span id='dr-shim'>/**
 </span>     * @class dr.shim

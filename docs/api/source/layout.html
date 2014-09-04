@@ -1464,7 +1464,7 @@
         });
       };
       findAutoIncludes = function(parentel, callback) {
-        var cb, includedScripts, includerequests, inlineclasses, jqel, loadIncludes, loadLZX, loadScript, loadqueue, lzxloaded, lzxrequests, scriptloading;
+        var cb, cb2, includedScripts, includerequests, inlineclasses, jqel, loadIncludes, loadLZX, loadScript, loadqueue, lzxloaded, lzxrequests, scriptloading;
         jqel = $(parentel);
         includerequests = [];
         includedScripts = {};
@@ -1556,6 +1556,9 @@
                 inlineclasses[el.attributes.name.value] = true;
               } else if (name === &#39;state&#39;) {
                 initONE = true;
+              } else if (name === &#39;replicator&#39;) {
+                loadLZX(name, el);
+                loadLZX(el.attributes.classname.value, el);
               } else {
                 loadLZX(name, el);
               }
@@ -1607,8 +1610,11 @@
             });
           });
         };
-        cb = function() {
+        cb2 = function() {
           return loadIncludes(callback);
+        };
+        cb = function() {
+          return loadIncludes(cb2);
         };
         return loadIncludes(cb);
       };
