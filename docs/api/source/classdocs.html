@@ -47,6 +47,24 @@
         * Fired when user entries stops for a period of time.
         * @param {dr.ace} view The dr.ace that fired the event
         */
+<span id='dr-bitmap'>/**
+</span>     * @class dr.bitmap
+     * @extends dr.view
+     * Loads an image from a URL.
+     */
+<span id='dr-bitmap-cfg-src'>/**
+</span>        * @cfg {String} src
+        * The bitmap URL to load
+        */
+<span id='dr-bitmap-event-onload'>/**
+</span>             * @event onload 
+             * Fired when the bitmap is loaded
+             * @param {Object} size An object containing the width and height
+             */
+<span id='dr-bitmap-event-onerror'>/**
+</span>             * @event onerror 
+             * Fired when there is an error loading the bitmap
+             */
 <span id='dr-boundslayout'>/**
 </span>     * @class dr.boundslayout
      * @extends dr.layout
@@ -161,24 +179,6 @@
 </span>        * @cfg {Number} [compassaccuracy=0] (readonly)
         * The compass accuracy, see [https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html](https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html) for details.
         */
-<span id='dr-image'>/**
-</span>     * @class dr.image
-     * @extends dr.view
-     * Loads an image from a URL.
-     */
-<span id='dr-image-cfg-src'>/**
-</span>        * @cfg {String} src
-        * The image URL to load
-        */
-<span id='dr-image-event-onload'>/**
-</span>             * @event onload 
-             * Fired when the image is loaded
-             * @param {Object} size An object containing the width and height
-             */
-<span id='dr-image-event-onerror'>/**
-</span>             * @event onerror 
-             * Fired when there is an error loading the image
-             */
 <span id='dr-inputtext'>/**
 </span>     * @class dr.inputtext
      * @extends dr.view

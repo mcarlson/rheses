@@ -31,6 +31,24 @@
         * @param {dr.ace} view The dr.ace that fired the event
         */
 /**
+     * @class dr.bitmap
+     * @extends dr.view
+     * Loads an image from a URL.
+     */
+/**
+        * @cfg {String} src
+        * The bitmap URL to load
+        */
+/**
+             * @event onload 
+             * Fired when the bitmap is loaded
+             * @param {Object} size An object containing the width and height
+             */
+/**
+             * @event onerror 
+             * Fired when there is an error loading the bitmap
+             */
+/**
      * @class dr.boundslayout
      * @extends dr.layout
      * Sets the parent view's size to match the bounds of its children.
@@ -144,24 +162,6 @@
         * @cfg {Number} [compassaccuracy=0] (readonly)
         * The compass accuracy, see [https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html](https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html) for details.
         */
-/**
-     * @class dr.image
-     * @extends dr.view
-     * Loads an image from a URL.
-     */
-/**
-        * @cfg {String} src
-        * The image URL to load
-        */
-/**
-             * @event onload 
-             * Fired when the image is loaded
-             * @param {Object} size An object containing the width and height
-             */
-/**
-             * @event onerror 
-             * Fired when there is an error loading the image
-             */
 /**
      * @class dr.inputtext
      * @extends dr.view
