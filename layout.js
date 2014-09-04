@@ -661,27 +661,20 @@
       }
 
       Node.prototype.installMethods = function(methods, tagname, scope, callbackscope) {
-        var allocation, args, method, methodlist, name, _results;
+        var allocation, args, method, methodlist, name, _i, _len, _ref;
         if (scope == null) {
           scope = this;
         }
         if (callbackscope == null) {
           callbackscope = this;
         }
-        _results = [];
         for (name in methods) {
           methodlist = methods[name];
-          _results.push((function() {
-            var _i, _len, _ref, _results1;
-            _results1 = [];
-            for (_i = 0, _len = methodlist.length; _i < _len; _i++) {
-              _ref = methodlist[_i], method = _ref.method, args = _ref.args, allocation = _ref.allocation;
-              _results1.push(_installMethod(scope, name, compiler.compile(method, args, "" + tagname + "$" + name).bind(callbackscope), allocation));
-            }
-            return _results1;
-          })());
+          for (_i = 0, _len = methodlist.length; _i < _len; _i++) {
+            _ref = methodlist[_i], method = _ref.method, args = _ref.args, allocation = _ref.allocation;
+            _installMethod(scope, name, compiler.compile(method, args, "" + tagname + "$" + name).bind(callbackscope), allocation);
+          }
         }
-        return _results;
       };
 
       Node.prototype.installHandlers = function(handlers, tagname, scope) {
@@ -720,23 +713,21 @@
       };
 
       Node.prototype.removeHandlers = function(handlers, tagname, scope) {
-        var args, ev, handler, method, name, reference, refeval, script, _i, _len, _results;
+        var args, ev, handler, method, name, reference, refeval, script, _i, _len;
         if (scope == null) {
           scope = this;
         }
-        _results = [];
         for (_i = 0, _len = handlers.length; _i < _len; _i++) {
           handler = handlers[_i];
           ev = handler.ev, name = handler.name, script = handler.script, args = handler.args, reference = handler.reference, method = handler.method;
           ev = ev.substr(2);
           if (reference != null) {
             refeval = this._valueLookup(reference)();
-            _results.push(scope.stopListening(refeval, ev, handler.callback));
+            scope.stopListening(refeval, ev, handler.callback);
           } else {
-            _results.push(scope.unbind(ev, handler.callback));
+            scope.unbind(ev, handler.callback);
           }
         }
-        return _results;
       };
 
       Node.prototype.bindAttribute = function(name, value, tagname) {
@@ -1587,17 +1578,15 @@
                 return callback();
               }
             }).fail(function() {
-              var args, _l, _len3, _results;
+              var args, _l, _len3;
               args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
               if (args.length === 1) {
                 args = [args];
               }
-              _results = [];
               for (_l = 0, _len3 = args.length; _l < _len3; _l++) {
                 xhr = args[_l];
-                _results.push(console.error('failed to load', xhr.url, 'for element', xhr.el));
+                console.error('failed to load', xhr.url, 'for element', xhr.el);
               }
-              return _results;
             });
           });
         };
@@ -1692,16 +1681,14 @@
         return document.getElementsByTagName('head')[0].appendChild(style);
       };
       initAllElements = function(selector) {
-        var el, _i, _len, _results;
+        var el, _i, _len;
         if (selector == null) {
           selector = $('view').not('view view');
         }
-        _results = [];
         for (_i = 0, _len = selector.length; _i < _len; _i++) {
           el = selector[_i];
-          _results.push(initFromElement(el));
+          initFromElement(el);
         }
-        return _results;
       };
       htmlDecode = function(input) {
         var child, e, out, _i, _len, _ref;
@@ -1888,7 +1875,7 @@
        */
 
       State.prototype.set_applied = function(applied) {
-        var name, parentname, val, _results;
+        var name, parentname, val;
         if (!this.parent) {
           return;
         }
@@ -1910,16 +1897,14 @@
           }
         }
         parentname = this.parent.$tagname;
-        _results = [];
         for (name in this.applyattributes) {
           val = this.parent[name];
           if (val === void 0) {
             continue;
           }
           this.parent[name] = !val;
-          _results.push(this.parent.bindAttribute(name, val, parentname));
+          this.parent.bindAttribute(name, val, parentname);
         }
-        return _results;
       };
 
       State.prototype.apply = function() {

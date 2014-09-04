@@ -476,6 +476,7 @@ window.dr = do ->
         for {method, args, allocation} in methodlist
           # console.log 'installing method', name, method, args, allocation, @
           _installMethod(scope, name, compiler.compile(method, args, "#{tagname}$#{name}").bind(callbackscope), allocation)
+      return
 
     installHandlers: (handlers, tagname, scope=@) ->
       # store list of handlers for late binding
@@ -513,6 +514,7 @@ window.dr = do ->
           scope.stopListening(refeval, ev, handler.callback)
         else
           scope.unbind(ev, handler.callback)
+      return
 
     # Bind an attribute to an event expression, handler, or fall back to setAttribute()
     bindAttribute: (name, value, tagname) ->
@@ -1208,6 +1210,7 @@ window.dr = do ->
             args = [args] if (args.length == 1)
             for xhr in args
               console.error('failed to load', xhr.url, 'for element', xhr.el)
+            return
           )
         )
 
@@ -1281,6 +1284,7 @@ window.dr = do ->
     initAllElements = (selector = $('view').not('view view')) ->
       for el in selector
         initFromElement(el)
+      return
 
     # http://stackoverflow.com/questions/1248849/converting-sanitised-html-back-to-displayable-html
     htmlDecode = (input) ->
@@ -1469,6 +1473,7 @@ window.dr = do ->
         @parent[name] = !val
         # console.log('bindAttribute', name, val)
         @parent.bindAttribute(name, val, parentname)
+      return
       
     apply: () ->
       @setAttribute('applied', true) unless @applied
