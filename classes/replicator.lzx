@@ -201,6 +201,8 @@ SOFTWARE. -->
 
         return unless @data
 
+        @_origdata = @data
+
         if @data.length > @lazycount
           setTimeout(() =>
             @doReplication()
@@ -209,12 +211,11 @@ SOFTWARE. -->
           @doReplication()
       </method>
       <method name="doReplication">
-        return unless @data and @inited
+        return unless @data and @parent
         locked = @locked
         @locked = true
 
         if @_filterexpressionfunc
-          @_origdata = @data unless @_origdata
           @data = @_origdata.filter(@_filterexpressionfunc)
           # console.log('_filterexpressionfunc', @_filterexpressionfunc, @data, @_origdata)
 
