@@ -675,7 +675,7 @@ window.dr = do ->
     # @ignore
     ###
     destroy: (skipevents) ->
-      # console.log 'destroy node', @
+      console.log 'destroy node', @
 
       ###*
       # @event ondestroy 
@@ -1240,7 +1240,7 @@ window.dr = do ->
         console.warn 'could not find class for tag', tagname, el unless tagname in builtinTags or tagname in specialtags
         return
       else if tagname in builtinTags
-        console.warn 'refusing to create a class that would overwrite the builtin tag', tagname
+        console.warn 'refusing to create a class that would overwrite the builtin tag', tagname unless tagname is 'input'
         return
 
       attributes = flattenattributes(el.attributes)
