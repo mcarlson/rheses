@@ -194,6 +194,13 @@
      * @class dr.replicator
      * @extends dr.node
      * Handles replication and data binding.
+     *
+     * This example shows how to use a filterexpression regex to filter the results to only numbers:
+     *
+     *     @example
+     *     <simplelayout></simplelayout>
+     *     <text onclick="repl.setAttribute('filterexpression', '[^\\d]');">Click to change filter</text>
+     *     <replicator id="repl" classname="text" data="['a',1,'b',2,'c',3,4,5]" filterexpression="\d"></replicator>
      */
 /**
         * @cfg {Boolean} [pooling=false]
@@ -219,6 +226,10 @@
 /**
         * @cfg {Boolean} [sortasc=true]
         * If true, sort ascending.
+        */
+/**
+        * @cfg {String} [filterexpression=""]
+        * If defined, results will be filtered against a regex. 
         */
 /**
      * @class dr.shim

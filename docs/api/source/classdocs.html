@@ -216,7 +216,8 @@
      *
      *     @example
      *     &lt;simplelayout&gt;&lt;/simplelayout&gt;
-     *     &lt;replicator classname=&quot;text&quot; data=&quot;[&#39;a&#39;,1,&#39;b&#39;,2,&#39;c&#39;,3,4,5]&quot; filterexpression=&quot;\d&quot;&gt;&lt;/replicator&gt;
+     *     &lt;text onclick=&quot;repl.setAttribute(&#39;filterexpression&#39;, &#39;[^\\d]&#39;);&quot;&gt;Click to change filter&lt;/text&gt;
+     *     &lt;replicator id=&quot;repl&quot; classname=&quot;text&quot; data=&quot;[&#39;a&#39;,1,&#39;b&#39;,2,&#39;c&#39;,3,4,5]&quot; filterexpression=&quot;\d&quot;&gt;&lt;/replicator&gt;
      */
 <span id='dr-replicator-cfg-pooling'>/**
 </span>        * @cfg {Boolean} [pooling=false]

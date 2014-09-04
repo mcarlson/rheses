@@ -28,7 +28,8 @@ SOFTWARE. -->
      *
      *     @example
      *     <simplelayout></simplelayout>
-     *     <replicator classname="text" data="['a',1,'b',2,'c',3,4,5]" filterexpression="\d"></replicator>
+     *     <text onclick="repl.setAttribute('filterexpression', '[^\\d]');">Click to change filter</text>
+     *     <replicator id="repl" classname="text" data="['a',1,'b',2,'c',3,4,5]" filterexpression="\d"></replicator>
      */--> 
     <class name="replicator" type="coffee" extends="node" scriptincludes="/lib/json-path+json-ptr-0.1.3.min.js">
       <!--/**
@@ -212,9 +213,10 @@ SOFTWARE. -->
         locked = @locked
         @locked = true
 
-        if (@_filterexpressionfunc)
-          # console.log('_filterexpressionfunc', @_filterexpressionfunc)
-          @data = @data.filter(@_filterexpressionfunc)
+        if @_filterexpressionfunc
+          @_origdata = @data unless @_origdata
+          @data = @_origdata.filter(@_filterexpressionfunc)
+          # console.log('_filterexpressionfunc', @_filterexpressionfunc, @data, @_origdata)
 
         @data.sort(@sortfunc) if (@sortfunc)
 
