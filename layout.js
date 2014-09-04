@@ -1539,6 +1539,9 @@
                 inlineclasses[el.attributes.name.value] = true;
               } else if (name === 'state') {
                 initONE = true;
+              } else if (name === 'replicator') {
+                loadLZX(name, el);
+                loadLZX(el.attributes.classname.value, el);
               } else {
                 loadLZX(name, el);
               }

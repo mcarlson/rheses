@@ -1170,6 +1170,11 @@ window.dr = do ->
               inlineclasses[el.attributes.name.value] = true
             else if name == 'state'
               initONE = true
+            else if name == 'replicator'
+              # load class instance for tag
+              loadLZX(name, el)
+              # load classname instance as well
+              loadLZX(el.attributes.classname.value, el)
             else
               # load class instance for tag
               loadLZX(name, el)
