@@ -2659,7 +2659,37 @@
      * @class dr.handler
      * Declares a handler in a node, view, class or other class instance. Handlers can only be created with the &lt;handler>&lt;/handler> tag syntax.
      *
-     * Handlers are called when an event fires with  new value, if available.
+     * Handlers are called when an event fires with new value, if available.
+     *
+     * Here is a simple handler that listens for an onx event in the local scope. The handler runs when x changes:
+     *
+     *     @example
+     *     <handler event="onx">
+     *       // do something now that x has changed
+     *     </handler>
+     *
+     * When a handler uses the args attribute, it can recieve the value that changed:
+     *
+     *     @example
+     *     <handler event="onx" args="x">
+     *       console.log('received x', x);
+     *     </handler>
+     *
+     * It's also possible to listen for events on another scope. This handler listens for onidle events on dr.idle instead of the local scope:
+     *
+     *     @example
+     *     <handler event="onidle" args="time" reference="dr.idle">
+     *       console.log('received time from dr.idle.onidle', time);
+     *     </handler>
+     *
+     * Sometimes it's nice to use a single method to respond to multiple events:
+     *
+     *     @example
+     *     <handler event="onx" method="handlePosition"></handler>
+     *     <handler event="ony" method="handlePosition"></handler>
+     *     <method name="handlePosition">
+     *       // do something now that x or y have changed
+     *     </method>
      */
 
     /**
