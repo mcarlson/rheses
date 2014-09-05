@@ -1236,6 +1236,8 @@ window.dr = do ->
       el.$init = true
 
       tagname = el.localName
+      return if tagname in specialtags
+      
       if not tagname of dr
         console.warn 'could not find class for tag', tagname, el unless tagname in builtinTags or tagname in specialtags
         return
@@ -1259,8 +1261,10 @@ window.dr = do ->
       # console.log 'parent for tag', tagname, attributes, parent
 
       li = tagname.lastIndexOf('state')
-      isstate = li > -1 && li == tagname.length - 5
-      unless (tagname is 'class') or isstate
+      isState = li > -1 && li == tagname.length - 5
+      isClass = tagname is 'class'
+
+      unless isClass or isState
         dom.processSpecialTags(el, attributes, attributes.type)
 
       # Defer oninit if we have children
@@ -1268,7 +1272,7 @@ window.dr = do ->
 
       parent = new dr[tagname](el, attributes)
 
-      unless tagname is 'class' or isstate
+      unless isClass or isState
         children = (child for child in el.childNodes when child.nodeType == 1)
         # create children now
         for child in children

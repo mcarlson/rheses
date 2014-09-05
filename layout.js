@@ -1605,12 +1605,15 @@
       specialtags = ['handler', 'method', 'attribute', 'setter', 'include'];
       builtinTags = ['a', 'abbr', 'address', 'area', 'article', 'aside', 'audio', 'b', 'base', 'bdi', 'bdo', 'blockquote', 'body', 'br', 'button', 'canvas', 'caption', 'cite', 'code', 'col', 'colgroup', 'command', 'datalist', 'dd', 'del', 'details', 'dfn', 'div', 'dl', 'dt', 'em', 'embed', 'fieldset', 'figcaption', 'figure', 'footer', 'form', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'head', 'header', 'hgroup', 'hr', 'html', 'i', 'iframe', 'img', 'image', 'input', 'ins', 'kbd', 'keygen', 'label', 'legend', 'li', 'link', 'map', 'mark', 'menu', 'meta', 'meter', 'nav', 'noscript', 'object', 'ol', 'optgroup', 'option', 'output', 'p', 'param', 'pre', 'progress', 'q', 'rp', 'rt', 'ruby', 's', 'samp', 'script', 'section', 'select', 'small', 'source', 'span', 'strong', 'style', 'sub', 'summary', 'sup', 'table', 'tbody', 'td', 'textarea', 'tfoot', 'th', 'thead', 'time', 'title', 'tr', 'track', 'u', 'ul', 'var', 'video', 'wbr'];
       initElement = function(el, parent) {
-        var attributes, child, children, event, eventname, isstate, li, skiponinit, tagname, _i, _j, _len, _len1, _ref;
+        var attributes, child, children, event, eventname, isClass, isState, li, skiponinit, tagname, _i, _j, _len, _len1, _ref;
         if (el.$init) {
           return;
         }
         el.$init = true;
         tagname = el.localName;
+        if (__indexOf.call(specialtags, tagname) >= 0) {
+          return;
+        }
         if (!tagname in dr) {
           if (!(__indexOf.call(builtinTags, tagname) >= 0 || __indexOf.call(specialtags, tagname) >= 0)) {
             console.warn('could not find class for tag', tagname, el);
@@ -1641,8 +1644,9 @@
           attributes.parent = parent;
         }
         li = tagname.lastIndexOf('state');
-        isstate = li > -1 && li === tagname.length - 5;
-        if (!((tagname === 'class') || isstate)) {
+        isState = li > -1 && li === tagname.length - 5;
+        isClass = tagname === 'class';
+        if (!(isClass || isState)) {
           dom.processSpecialTags(el, attributes, attributes.type);
         }
         attributes.$skiponinit = skiponinit = ((function() {
@@ -1658,7 +1662,7 @@
           return _results;
         })()).length > 0;
         parent = new dr[tagname](el, attributes);
-        if (!(tagname === 'class' || isstate)) {
+        if (!(isClass || isState)) {
           children = (function() {
             var _j, _len1, _ref, _results;
             _ref = el.childNodes;
