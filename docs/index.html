@@ -137,7 +137,7 @@
 
       // Retrieve this page, or use the default if missing
       var lesson = 'din10';
-      url = "/docs/" + lesson + "/" + page + ".lzx";
+      url = "/docs/" + lesson + "/" + page + ".dre";
       $.ajax({
         type: 'GET',
         url: url,
@@ -145,8 +145,8 @@
           $this.showLesson(data, page);
         },
         error: function() {
-          page = 'intro_1_5.lzx'
-          url = "/docs/" + lesson + "/" + page + ".lzx";
+          page = 'intro_1_5.dre'
+          url = "/docs/" + lesson + "/" + page + ".dre";
           $.get(url, function(data) { $this.showLesson(data, page);});
         }
       });

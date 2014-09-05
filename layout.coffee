@@ -1125,19 +1125,19 @@ window.dr = do ->
         appendScript(url, appendcallback)
 
       inlineclasses = {}
-      lzxrequests = []
-      lzxloaded = {}
+      filerequests = []
+      fileloaded = {}
       loadLZX = (name, el) ->
-        return if name of dr or name of lzxloaded or name in specialtags or name of inlineclasses or name in builtinTags
+        return if name of dr or name of fileloaded or name in specialtags or name of inlineclasses or name in builtinTags
         # don't autoload elements found inside specialtags, e.g. setter
         return if el.parentNode.localName in specialtags
-        lzxloaded[name] = true
-        url = '/classes/' + name + '.lzx'
-        # console.log 'loading lzx', name, url, el
+        fileloaded[name] = true
+        url = '/classes/' + name + '.dre'
+        # console.log 'loading dre', name, url, el
         prom = $.get(url)
         prom.url = url
         prom.el = el
-        lzxrequests.push(prom)
+        filerequests.push(prom)
 
       loadIncludes = (callback) ->
         # load includes 
@@ -1179,10 +1179,10 @@ window.dr = do ->
               # load class instance for tag
               loadLZX(name, el)
      
-          # console.log(lzxrequests, lzxloaded, inlineclasses)
-          # wait for all lzx files to finish loading
-          $.when.apply($, lzxrequests).done((args...) ->
-            args = [args] if (lzxrequests.length == 1)
+          # console.log(filerequests, fileloaded, inlineclasses)
+          # wait for all dre files to finish loading
+          $.when.apply($, filerequests).done((args...) ->
+            args = [args] if (filerequests.length == 1)
             for xhr in args
               # console.log 'inserting html', args, xhr[0] 
               jqel.prepend(xhr[0])
@@ -1206,7 +1206,7 @@ window.dr = do ->
                 scriptsloading = loadScript(url, callback)
 
             # done loading
-            lzxrequests = []
+            filerequests = []
 
             # no class script includes found, execute callback immediately
             unless scriptsloading

@@ -1465,7 +1465,7 @@
         });
       };
       findAutoIncludes = function(parentel, callback) {
-        var cb, cb2, includedScripts, includerequests, inlineclasses, jqel, loadIncludes, loadLZX, loadScript, loadqueue, lzxloaded, lzxrequests, scriptloading;
+        var cb, cb2, fileloaded, filerequests, includedScripts, includerequests, inlineclasses, jqel, loadIncludes, loadLZX, loadScript, loadqueue, scriptloading;
         jqel = $(parentel);
         includerequests = [];
         includedScripts = {};
@@ -1505,22 +1505,22 @@
           return appendScript(url, appendcallback);
         };
         inlineclasses = {};
-        lzxrequests = [];
-        lzxloaded = {};
+        filerequests = [];
+        fileloaded = {};
         loadLZX = function(name, el) {
           var prom, url, _ref;
-          if (name in dr || name in lzxloaded || __indexOf.call(specialtags, name) &gt;= 0 || name in inlineclasses || __indexOf.call(builtinTags, name) &gt;= 0) {
+          if (name in dr || name in fileloaded || __indexOf.call(specialtags, name) &gt;= 0 || name in inlineclasses || __indexOf.call(builtinTags, name) &gt;= 0) {
             return;
           }
           if (_ref = el.parentNode.localName, __indexOf.call(specialtags, _ref) &gt;= 0) {
             return;
           }
-          lzxloaded[name] = true;
-          url = &#39;/classes/&#39; + name + &#39;.lzx&#39;;
+          fileloaded[name] = true;
+          url = &#39;/classes/&#39; + name + &#39;.dre&#39;;
           prom = $.get(url);
           prom.url = url;
           prom.el = el;
-          return lzxrequests.push(prom);
+          return filerequests.push(prom);
         };
         loadIncludes = function(callback) {
           var jel, _i, _len, _ref;
@@ -1564,10 +1564,10 @@
                 loadLZX(name, el);
               }
             }
-            return $.when.apply($, lzxrequests).done(function() {
+            return $.when.apply($, filerequests).done(function() {
               var args, scriptsloading, url, _l, _len3, _len4, _len5, _m, _n, _ref2, _ref3;
               args = 1 &lt;= arguments.length ? __slice.call(arguments, 0) : [];
-              if (lzxrequests.length === 1) {
+              if (filerequests.length === 1) {
                 args = [args];
               }
               for (_l = 0, _len3 = args.length; _l &lt; _len3; _l++) {
@@ -1594,7 +1594,7 @@
                   scriptsloading = loadScript(url, callback);
                 }
               }
-              lzxrequests = [];
+              filerequests = [];
               if (!scriptsloading) {
                 return callback();
               }
@@ -1622,12 +1622,15 @@
       specialtags = [&#39;handler&#39;, &#39;method&#39;, &#39;attribute&#39;, &#39;setter&#39;, &#39;include&#39;];
       builtinTags = [&#39;a&#39;, &#39;abbr&#39;, &#39;address&#39;, &#39;area&#39;, &#39;article&#39;, &#39;aside&#39;, &#39;audio&#39;, &#39;b&#39;, &#39;base&#39;, &#39;bdi&#39;, &#39;bdo&#39;, &#39;blockquote&#39;, &#39;body&#39;, &#39;br&#39;, &#39;button&#39;, &#39;canvas&#39;, &#39;caption&#39;, &#39;cite&#39;, &#39;code&#39;, &#39;col&#39;, &#39;colgroup&#39;, &#39;command&#39;, &#39;datalist&#39;, &#39;dd&#39;, &#39;del&#39;, &#39;details&#39;, &#39;dfn&#39;, &#39;div&#39;, &#39;dl&#39;, &#39;dt&#39;, &#39;em&#39;, &#39;embed&#39;, &#39;fieldset&#39;, &#39;figcaption&#39;, &#39;figure&#39;, &#39;footer&#39;, &#39;form&#39;, &#39;h1&#39;, &#39;h2&#39;, &#39;h3&#39;, &#39;h4&#39;, &#39;h5&#39;, &#39;h6&#39;, &#39;head&#39;, &#39;header&#39;, &#39;hgroup&#39;, &#39;hr&#39;, &#39;html&#39;, &#39;i&#39;, &#39;iframe&#39;, &#39;img&#39;, &#39;image&#39;, &#39;input&#39;, &#39;ins&#39;, &#39;kbd&#39;, &#39;keygen&#39;, &#39;label&#39;, &#39;legend&#39;, &#39;li&#39;, &#39;link&#39;, &#39;map&#39;, &#39;mark&#39;, &#39;menu&#39;, &#39;meta&#39;, &#39;meter&#39;, &#39;nav&#39;, &#39;noscript&#39;, &#39;object&#39;, &#39;ol&#39;, &#39;optgroup&#39;, &#39;option&#39;, &#39;output&#39;, &#39;p&#39;, &#39;param&#39;, &#39;pre&#39;, &#39;progress&#39;, &#39;q&#39;, &#39;rp&#39;, &#39;rt&#39;, &#39;ruby&#39;, &#39;s&#39;, &#39;samp&#39;, &#39;script&#39;, &#39;section&#39;, &#39;select&#39;, &#39;small&#39;, &#39;source&#39;, &#39;span&#39;, &#39;strong&#39;, &#39;style&#39;, &#39;sub&#39;, &#39;summary&#39;, &#39;sup&#39;, &#39;table&#39;, &#39;tbody&#39;, &#39;td&#39;, &#39;textarea&#39;, &#39;tfoot&#39;, &#39;th&#39;, &#39;thead&#39;, &#39;time&#39;, &#39;title&#39;, &#39;tr&#39;, &#39;track&#39;, &#39;u&#39;, &#39;ul&#39;, &#39;var&#39;, &#39;video&#39;, &#39;wbr&#39;];
       initElement = function(el, parent) {
-        var attributes, child, children, event, eventname, isstate, li, skiponinit, tagname, _i, _j, _len, _len1, _ref;
+        var attributes, child, children, event, eventname, isClass, isState, li, skiponinit, tagname, _i, _j, _len, _len1, _ref;
         if (el.$init) {
           return;
         }
         el.$init = true;
         tagname = el.localName;
+        if (__indexOf.call(specialtags, tagname) &gt;= 0) {
+          return;
+        }
         if (!tagname in dr) {
           if (!(__indexOf.call(builtinTags, tagname) &gt;= 0 || __indexOf.call(specialtags, tagname) &gt;= 0)) {
             console.warn(&#39;could not find class for tag&#39;, tagname, el);
@@ -1658,8 +1661,9 @@
           attributes.parent = parent;
         }
         li = tagname.lastIndexOf(&#39;state&#39;);
-        isstate = li &gt; -1 &amp;&amp; li === tagname.length - 5;
-        if (!((tagname === &#39;class&#39;) || isstate)) {
+        isState = li &gt; -1 &amp;&amp; li === tagname.length - 5;
+        isClass = tagname === &#39;class&#39;;
+        if (!(isClass || isState)) {
           dom.processSpecialTags(el, attributes, attributes.type);
         }
         attributes.$skiponinit = skiponinit = ((function() {
@@ -1675,7 +1679,7 @@
           return _results;
         })()).length &gt; 0;
         parent = new dr[tagname](el, attributes);
-        if (!(tagname === &#39;class&#39; || isstate)) {
+        if (!(isClass || isState)) {
           children = (function() {
             var _j, _len1, _ref, _results;
             _ref = el.childNodes;

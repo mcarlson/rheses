@@ -1448,7 +1448,7 @@
         });
       };
       findAutoIncludes = function(parentel, callback) {
-        var cb, cb2, includedScripts, includerequests, inlineclasses, jqel, loadIncludes, loadLZX, loadScript, loadqueue, lzxloaded, lzxrequests, scriptloading;
+        var cb, cb2, fileloaded, filerequests, includedScripts, includerequests, inlineclasses, jqel, loadIncludes, loadLZX, loadScript, loadqueue, scriptloading;
         jqel = $(parentel);
         includerequests = [];
         includedScripts = {};
@@ -1488,22 +1488,22 @@
           return appendScript(url, appendcallback);
         };
         inlineclasses = {};
-        lzxrequests = [];
-        lzxloaded = {};
+        filerequests = [];
+        fileloaded = {};
         loadLZX = function(name, el) {
           var prom, url, _ref;
-          if (name in dr || name in lzxloaded || __indexOf.call(specialtags, name) >= 0 || name in inlineclasses || __indexOf.call(builtinTags, name) >= 0) {
+          if (name in dr || name in fileloaded || __indexOf.call(specialtags, name) >= 0 || name in inlineclasses || __indexOf.call(builtinTags, name) >= 0) {
             return;
           }
           if (_ref = el.parentNode.localName, __indexOf.call(specialtags, _ref) >= 0) {
             return;
           }
-          lzxloaded[name] = true;
-          url = '/classes/' + name + '.lzx';
+          fileloaded[name] = true;
+          url = '/classes/' + name + '.dre';
           prom = $.get(url);
           prom.url = url;
           prom.el = el;
-          return lzxrequests.push(prom);
+          return filerequests.push(prom);
         };
         loadIncludes = function(callback) {
           var jel, _i, _len, _ref;
@@ -1547,10 +1547,10 @@
                 loadLZX(name, el);
               }
             }
-            return $.when.apply($, lzxrequests).done(function() {
+            return $.when.apply($, filerequests).done(function() {
               var args, scriptsloading, url, _l, _len3, _len4, _len5, _m, _n, _ref2, _ref3;
               args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-              if (lzxrequests.length === 1) {
+              if (filerequests.length === 1) {
                 args = [args];
               }
               for (_l = 0, _len3 = args.length; _l < _len3; _l++) {
@@ -1577,7 +1577,7 @@
                   scriptsloading = loadScript(url, callback);
                 }
               }
-              lzxrequests = [];
+              filerequests = [];
               if (!scriptsloading) {
                 return callback();
               }
