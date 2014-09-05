@@ -2347,6 +2347,13 @@
        * @param {dr.view} view The dr.view that fired the event
        */
 
+
+      /**
+       * @event onmouseupoutside 
+       * Fired when the mouse goes up outside a view
+       * @param {dr.view} view The dr.view that originally sent an onmousedown event
+       */
+
       function Mouse() {
         this.sender = __bind(this.sender, this);
         this.handle = __bind(this.handle, this);
@@ -2367,6 +2374,18 @@
         view = event.target.$view;
         type = event.type;
         if (view) {
+          if (type === 'mousedown') {
+            this._lastMouseDown = view;
+          }
+        }
+        if (type === 'mouseup' && this._lastMouseDown && this._lastMouseDown !== view) {
+          this.sendEvent('mouseup', this._lastMouseDown);
+          this._lastMouseDown.sendEvent('mouseup', this._lastMouseDown);
+          this.sendEvent('mouseupoutside', this._lastMouseDown);
+          this._lastMouseDown.sendEvent('mouseupoutside', this._lastMouseDown);
+          this._lastMouseDown = null;
+          return;
+        } else if (view) {
           view.sendEvent(type, view);
         }
         if (this.eventStarted && type === 'mousemove') {

@@ -1813,6 +1813,11 @@ window.dr = do ->
     # Fired when the mouse goes up on a view
     # @param {dr.view} view The dr.view that fired the event
     ###
+    ###*
+    # @event onmouseupoutside 
+    # Fired when the mouse goes up outside a view
+    # @param {dr.view} view The dr.view that originally sent an onmousedown event
+    ###
     constructor: ->
       @x = 0
       @y = 0
@@ -1828,6 +1833,17 @@ window.dr = do ->
       type = event.type
       # console.log 'event', type, view
       if view
+        if type is 'mousedown'
+          @_lastMouseDown = view
+      if type is 'mouseup' and @_lastMouseDown and @_lastMouseDown != view
+        # send onmouseup and onmouseupoutside to the view that the mouse originally went down
+        @sendEvent('mouseup', @_lastMouseDown)
+        @_lastMouseDown.sendEvent('mouseup', @_lastMouseDown) 
+        @sendEvent('mouseupoutside', @_lastMouseDown)
+        @_lastMouseDown.sendEvent('mouseupoutside', @_lastMouseDown) 
+        @_lastMouseDown = null
+        return
+      else if view 
         view.sendEvent(type, view)
 
       if @eventStarted and type is 'mousemove'
