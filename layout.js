@@ -2347,13 +2347,6 @@
        * @param {dr.view} view The dr.view that fired the event
        */
 
-
-      /**
-       * @event onmouseupoutside 
-       * Fired when the mouse goes up outside a view
-       * @param {dr.view} view The dr.view that originally sent an onmousedown event
-       */
-
       function Mouse() {
         this.sender = __bind(this.sender, this);
         this.handle = __bind(this.handle, this);

@@ -1813,11 +1813,6 @@ window.dr = do ->
     # Fired when the mouse goes up on a view
     # @param {dr.view} view The dr.view that fired the event
     ###
-    ###*
-    # @event onmouseupoutside 
-    # Fired when the mouse goes up outside a view
-    # @param {dr.view} view The dr.view that originally sent an onmousedown event
-    ###
     constructor: ->
       @x = 0
       @y = 0
