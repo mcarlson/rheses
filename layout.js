@@ -921,14 +921,13 @@
        */
 
       Node.prototype.destroy = function(skipevents) {
-        var subnode, _i, _len, _ref, _ref1;
-        console.log('destroy node', this);
 
         /**
          * @event ondestroy 
          * Fired when this node and all its children are about to be destroyed
          * @param {dr.node} node The dr.node that fired the event
          */
+        var subnode, _i, _len, _ref, _ref1;
         this.sendEvent('destroy', this);
         if (this.listeningTo) {
           this.stopListening();

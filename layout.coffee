@@ -675,7 +675,7 @@ window.dr = do ->
     # @ignore
     ###
     destroy: (skipevents) ->
-      console.log 'destroy node', @
+      # console.log 'destroy node', @
 
       ###*
       # @event ondestroy 
