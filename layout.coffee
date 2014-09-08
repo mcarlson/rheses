@@ -1086,6 +1086,14 @@ window.dr = do ->
         _initConstraints()
       )
 
+    showWarnings = (data) ->
+      out = data.join('\n')
+      pre = document.createElement('pre')
+      pre.setAttribute('style', 'font-size: 14px; background-color: pink; margin: 0;');
+      pre.innerText = out
+      document.body.insertBefore(pre, document.body.firstChild);
+      console.error out
+
     findAutoIncludes = (parentel, callback) ->
       jqel = $(parentel)
       includerequests = []
@@ -1219,9 +1227,24 @@ window.dr = do ->
           )
         )
 
+      parser = ->
+        url = '/validate/'
+        # data = '<html>' + document.getElementsByTagName('html')[0].innerHTML + '</html>'
+        # console.log(url, data)
+        prom = $.ajax({
+          # type: 'POST'
+          url: url, 
+          data: {url: window.location.pathname},
+          # processData: false
+          success: (data) ->
+            showWarnings(data) if (data.length)
+        })
+        callback()
+
       # must do this thrice to catch autoinclude autoincludes, see https://github.com/teem2/dreem/issues/6 and https://www.pivotaltracker.com/story/show/77941122
       cb2 = () ->
-        loadIncludes(callback)
+        # console.log 'loading dre', name, url, el
+        loadIncludes(parser)
       cb = () ->
         loadIncludes(cb2)
       loadIncludes(cb)

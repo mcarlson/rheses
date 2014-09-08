@@ -1428,7 +1428,7 @@
 
     })(Node);
     dom = (function() {
-      var builtinTags, exports, findAutoIncludes, flattenattributes, htmlDecode, initAllElements, initElement, initFromElement, processSpecialTags, specialtags, writeCSS;
+      var builtinTags, exports, findAutoIncludes, flattenattributes, htmlDecode, initAllElements, initElement, initFromElement, processSpecialTags, showWarnings, specialtags, writeCSS;
       flattenattributes = function(namednodemap) {
         var attributes, i, _i, _len;
         attributes = {};
@@ -1446,8 +1446,17 @@
           return _initConstraints();
         });
       };
+      showWarnings = function(data) {
+        var out, pre;
+        out = data.join('\n');
+        pre = document.createElement('pre');
+        pre.setAttribute('style', 'font-size: 14px; background-color: pink; margin: 0;');
+        pre.innerText = out;
+        document.body.insertBefore(pre, document.body.firstChild);
+        return console.error(out);
+      };
       findAutoIncludes = function(parentel, callback) {
-        var cb, cb2, fileloaded, filerequests, includedScripts, includerequests, inlineclasses, jqel, loadIncludes, loadLZX, loadScript, loadqueue, scriptloading;
+        var cb, cb2, fileloaded, filerequests, includedScripts, includerequests, inlineclasses, jqel, loadIncludes, loadLZX, loadScript, loadqueue, parser, scriptloading;
         jqel = $(parentel);
         includerequests = [];
         includedScripts = {};
@@ -1593,8 +1602,24 @@
             });
           });
         };
+        parser = function() {
+          var prom, url;
+          url = '/validate/';
+          prom = $.ajax({
+            url: url,
+            data: {
+              url: window.location.pathname
+            },
+            success: function(data) {
+              if (data.length) {
+                return showWarnings(data);
+              }
+            }
+          });
+          return callback();
+        };
         cb2 = function() {
-          return loadIncludes(callback);
+          return loadIncludes(parser);
         };
         cb = function() {
           return loadIncludes(cb2);
