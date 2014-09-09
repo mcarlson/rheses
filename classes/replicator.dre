@@ -215,7 +215,7 @@ SOFTWARE. -->
         locked = @locked
         @locked = true
 
-        if @_filterexpressionfunc
+        if @filterexpression and @_filterexpressionfunc
           @data = @_origdata.filter(@_filterexpressionfunc)
           # console.log('_filterexpressionfunc', @_filterexpressionfunc, @data, @_origdata)
 
