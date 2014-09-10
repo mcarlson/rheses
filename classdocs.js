@@ -364,6 +364,37 @@
      *     </dataset>
      *     <simplelayout></simplelayout>
      *     <replicator classname="text" datapath="$bikeshop/bicycle[0,3,2]/color"></replicator>
+     *
+     * Sometimes it's necessary to have complete control and flexibility over filtering and transforming results. Adding a [@] operator to the end of your datapath causes {@link #filterfunction filterfunction} to be called for each result. This example shows bike colors for bikes with a price greater than 20, in reverse order:
+     *
+     *     @example
+     *     <dataset name="bikeshop">
+     *      {
+     *        "bicycle": [
+     *          {
+     *           "color": "red",
+     *           "price": 19.95
+     *          },
+     *          {
+     *           "color": "green",
+     *           "price": 29.95
+     *          },
+     *          {
+     *           "color": "blue",
+     *           "price": 59.95
+     *          }
+     *        ]
+     *      }
+     *     </dataset>
+     *     <simplelayout></simplelayout>
+     *     <replicator classname="text" datapath="$bikeshop/bicycle[*][@]">
+     *       <method name="filterfunction" args="obj, accum">
+     *         // add the color to the beginning of the results if the price is greater than 20
+     *         if (obj.price > 20)
+     *           accum.unshift(obj.color);
+     *         return accum
+     *       </method>
+     *     </replicator>
      */
 /**
         * @cfg {Boolean} [pooling=false]
@@ -393,6 +424,14 @@
 /**
         * @cfg {String} [filterexpression=""]
         * If defined, data will be filtered against a [regular expression](https://developer.mozilla.org/en/docs/Web/JavaScript/Guide/Regular_Expressions). 
+        */
+/**
+        * @method filterfunction
+        * @abstract
+        * Called to filter data.
+        * @param obj An individual item to be processed.
+        * @param {Object[]} accum The array of items that have been accumulated. To keep a processed item, it must be added to the accum array.
+        * @returns {Object[]} The accum array. Must be returned otherwise results will be lost.
         */
 /**
      * @class dr.shim

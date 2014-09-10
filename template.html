@@ -89,6 +89,33 @@
         this.setAttribute('y', newy)
       </handler>
     </view>
+
+    <dataset name="bikeshop">
+ {
+   "bicycle": [
+     {
+      "color": "red",
+      "price": 19.95
+     },
+     {
+      "color": "green",
+      "price": 29.95
+     },
+     {
+      "color": "blue",
+      "price": 59.95
+     }
+   ]
+ }
+</dataset>
+<replicator classname="text" datapath="$bikeshop/bicycle[*][@]">
+  <method name="filterfunction" args="obj, accum">
+    // add the color to the beginning of the results if the price is greater than 20
+    if (obj.price > 20)
+      accum.unshift(obj.color);
+    return accum
+  </method>
+</replicator>
   </view>
 <!-- The MIT License (MIT)
 
