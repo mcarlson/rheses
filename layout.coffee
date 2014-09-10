@@ -1314,7 +1314,7 @@ window.dr = do ->
     writeCSS = ->
       style = document.createElement('style')
       style.type = 'text/css'
-      style.innerHTML = '.sprite{ position: absolute; pointer-events: none; padding: 0; margin: 0;} .sprite-text{ width: auto; height; auto; white-space: nowrap;  padding: 0; margin: 0;} .hidden{ display: none; } .noselect{ -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;} method { display: none; } handler { display: none; } setter { display: none; } class { display:none } node { display:none }'
+      style.innerHTML = '.sprite{ position: absolute; pointer-events: none; padding: 0; margin: 0;} .sprite-text{ width: auto; height; auto; white-space: nowrap;  padding: 0; margin: 0;} .hidden{ display: none; } .noselect{ -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;} method { display: none; } handler { display: none; } setter { display: none; } class { display:none } node { display:none } dataset { display:none }'
       document.getElementsByTagName('head')[0].appendChild(style)
 
     # init top-level views in the DOM recursively
@@ -1864,19 +1864,20 @@ window.dr = do ->
       else if view 
         view.sendEvent(type, view)
 
+      ###*
+      # @property {Number} x
+      # @readonly
+      # The x coordinate of the mouse
+      ###
+      @x = event.pageX
+      ###*
+      # @property {Number} y
+      # @readonly
+      # The y coordinate of the mouse
+      ###
+      @y = event.pageY
+
       if @eventStarted and type is 'mousemove'
-        ###*
-        # @property {Number} x
-        # @readonly
-        # The x coordinate of the mouse
-        ###
-        @x = event.pageX
-        ###*
-        # @property {Number} y
-        # @readonly
-        # The y coordinate of the mouse
-        ###
-        @y = event.pageY
         idle(0, @sender) 
       else 
         @sendEvent(type, view)
