@@ -25,18 +25,56 @@ SOFTWARE. -->
      * Datasets hold onto a set of JSON data, either inline or loaded from a URL.
      * They are used with lz.replicator for data binding.
      *
-     * This example shows how to create a dataset with inline data, and use a replicator to show a value inside. The same data could be loaded from a URL. Inline datasets are useful for prototyping when your backend datasource isn't ready yet:
+     * This example shows how to create a dataset with inline JSON data, and use a replicator to show values inside. Inline datasets are useful for prototyping, especially when your backend server isn't ready yet:
      *
      *     @example
-     *     <dataset name="bikeshop">
+     *     <dataset name="example">
      *      {
-     *        "bicycle": {
-     *          "color": "red",
-     *          "price": 19.95
+     *        "store": {
+     *          "book": [
+     *            {
+     *              "category": "reference",
+     *              "author": "Nigel Rees",
+     *              "title": "Sayings of the Century",
+     *              "price": 8.95
+     *            },
+     *            {
+     *              "category": "fiction",
+     *              "author": "Evelyn Waugh",
+     *              "title": "Sword of Honour",
+     *              "price": 12.99
+     *            },
+     *            {
+     *              "category": "fiction",
+     *              "author": "Herman Melville",
+     *              "title": "Moby Dick",
+     *              "isbn": "0-553-21311-3",
+     *              "price": 8.99
+     *            },
+     *            {
+     *              "category": "fiction",
+     *              "author": "J. R. R. Tolkien",
+     *              "title": "The Lord of the Rings",
+     *              "isbn": "0-395-19395-8",
+     *              "price": 22.99
+     *            }
+     *          ],
+     *          "bicycle": {
+     *            "color": "red",
+     *            "price": 19.95
+     *          }
      *        }
      *      }
      *     </dataset>
-     *     <replicator classname="text" datapath="$bikeshop/bicycle/color"></replicator>
+     *     <simplelayout></simplelayout>
+     *     <replicator classname="text" datapath="$example/store/book[*]/title"></replicator>
+     *
+     * Data can be loaded from a URL when your backend server is ready, or reloaded to show changes over time:
+     *
+     *     @example
+     *     <dataset name="example" url="/example.json"></dataset>
+     *     <simplelayout></simplelayout>
+     *     <replicator classname="text" datapath="$example/store/book[*]/title"></replicator>
      */-->
     <class name="dataset" type="coffee" extends="node">
       <!--/**
