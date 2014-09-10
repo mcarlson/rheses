@@ -56,7 +56,6 @@ SOFTWARE. -->
       </setter>
       <!--/**
         * @cfg {Boolean} playing 
-        * @readonly
         * If true, the audio is playing.
         */-->
       <attribute name="playing" value="false" type="boolean"></attribute>
@@ -165,7 +164,6 @@ SOFTWARE. -->
         this.startTime = this.context.currentTime;
         // creates a sound source
         this.source = this.context.createBufferSource(); 
-
         this.source.loop = this.loop;
         // tell the source which sound to play
         this.source.buffer = this.buffer;                    

@@ -38,7 +38,7 @@
      * This example shows how to load and play an mp3 audio file from the server:
      *
      *     @example
-     *     <audioplayer id="audio" url="/music/03_Homage Sliders.mp3" playing="true"></audioplayer>
+     *     <audioplayer url="music/03_Homage Sliders.mp3" playing="true"></audioplayer>
      */
 /**
         * @cfg {String} url
@@ -56,17 +56,14 @@
         */
 /**
         * @cfg {Boolean} playing 
-        * @readonly
         * If true, the audio is playing.
         */
 /**
         * @cfg {Boolean} paused 
-        * @readonly
         * If true, the audio is paused.
         */
 /**
         * @cfg {Boolean} loop 
-        * @readonly
         * If true, the audio will play continuously.
         */
 /**
