@@ -19,17 +19,79 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. -->
+   <!--/**
+     * @class dr.audioplayer
+     * @extends dr.node
+     * audioplayer wraps the web audio APIs to provide a declarative interface to play audio.
+     *
+     * This example shows how to load and play an mp3 audio file from the server:
+     *
+     *     @example
+     *     <audioplayer id="audio" url="/music/03_Homage Sliders.mp3" playing="true"></audioplayer>
+     */-->
     <class name="audioplayer" extends="node">
+      <!--/**
+        * @cfg {String} url
+        * The URL to an audio file to play
+        */-->
       <attribute name="url" value="" type="string"></attribute>
+      <!--/**
+        * @cfg {Number} loadprogress 
+        * @readonly
+        * A Number between 0 and 1 representing load progress
+        */-->
       <attribute name="loadprogress" value="0" type="number"></attribute>
+      <!--/**
+        * @cfg {Boolean} loaded 
+        * @readonly
+        * If true, the audio is done loading
+        */-->
       <attribute name="loaded" value="false" type="boolean"></attribute>
+      <!--/**
+        * @cfg {Boolean} playing 
+        * @readonly
+        * If true, the audio is playing.
+        */-->
       <attribute name="playing" value="false" type="boolean"></attribute>
+      <!--/**
+        * @cfg {Boolean} paused 
+        * @readonly
+        * If true, the audio is paused.
+        */-->
       <attribute name="paused" value="false" type="boolean"></attribute>
+      <!--/**
+        * @cfg {Boolean} loop 
+        * @readonly
+        * If true, the audio will play continuously.
+        */-->
       <attribute name="loop" value="false" type="boolean"></attribute>
+      <!--/**
+        * @cfg {Number} time 
+        * @readonly
+        * The number of seconds the file has played, with 0 being the start.
+        */-->
       <attribute name="time" value="0" type="number"></attribute>
+      <!--/**
+        * @cfg {Number} duration 
+        * @readonly
+        * The duration in seconds.
+        */-->
       <attribute name="duration" value="0" type="number"></attribute>
-      <attribute name="fftsize" value="0" type="number"></attribute>
+      <!--/**
+        * @cfg {Number} fftsize 
+        * The number of fft frames to use when setting {@link #fft fft}. Must be a non-zero power of two in the range 32 to 2048.
+        */-->
+      <attribute name="fftsize" value="2048" type="number"></attribute>
+      <!--/**
+        * @cfg {Number} [fftsmoothing=0.8]
+        * The amount of smoothing to apply to the FFT analysis. A value from 0 -> 1 where 0 represents no time averaging with the last FFT analysis frame.
+        */-->
       <attribute name="fftsmoothing" value="0.8" type="number"></attribute>
+      <!--/**
+        * @cfg {Number[]} fft
+        * @readonly
+        * An array of numbers representing the FFT analysis of the audio as it's playing.
+        */-->
       <attribute name="fft" value="[]" type="expression"></attribute>
       <handler event="onurl" args="url">
         if (! url) return;
@@ -142,7 +204,9 @@ SOFTWARE. -->
         if (time > this.duration) {
           this.stop();
         }
-        this.setAttribute('time', time % this.duration);
+        // bypass the setter
+        this.time = time % this.duration;
+        this.sendEvent('time', time);
 
         if (this.fftsize) {
           var data = new Uint8Array(this.fftsize);

@@ -2422,21 +2422,21 @@
         } else if (view) {
           view.sendEvent(type, view);
         }
+
+<span id='dr-mouse-property-x'>        /**
+</span>         * @property {Number} x
+         * @readonly
+         * The x coordinate of the mouse
+         */
+        this.x = event.pageX;
+
+<span id='dr-mouse-property-y'>        /**
+</span>         * @property {Number} y
+         * @readonly
+         * The y coordinate of the mouse
+         */
+        this.y = event.pageY;
         if (this.eventStarted &amp;&amp; type === &#39;mousemove&#39;) {
-
-<span id='dr-mouse-property-x'>          /**
-</span>           * @property {Number} x
-           * @readonly
-           * The x coordinate of the mouse
-           */
-          this.x = event.pageX;
-
-<span id='dr-mouse-property-y'>          /**
-</span>           * @property {Number} y
-           * @readonly
-           * The y coordinate of the mouse
-           */
-          this.y = event.pageY;
           return idle(0, this.sender);
         } else {
           return this.sendEvent(type, view);

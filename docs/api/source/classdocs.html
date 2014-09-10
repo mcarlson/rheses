@@ -47,6 +47,68 @@
         * Fired when user entries stops for a period of time.
         * @param {dr.ace} view The dr.ace that fired the event
         */
+<span id='dr-audioplayer'>/**
+</span>     * @class dr.audioplayer
+     * @extends dr.node
+     * audioplayer wraps the web audio APIs to provide a declarative interface to play audio.
+     *
+     * This example shows how to load and play an mp3 audio file from the server:
+     *
+     *     @example
+     *     &lt;audioplayer id=&quot;audio&quot; url=&quot;/music/03_Homage Sliders.mp3&quot; playing=&quot;true&quot;&gt;&lt;/audioplayer&gt;
+     */
+<span id='dr-audioplayer-cfg-url'>/**
+</span>        * @cfg {String} url
+        * The URL to an audio file to play
+        */
+<span id='dr-audioplayer-cfg-loadprogress'>/**
+</span>        * @cfg {Number} loadprogress 
+        * @readonly
+        * A Number between 0 and 1 representing load progress
+        */
+<span id='dr-audioplayer-cfg-loaded'>/**
+</span>        * @cfg {Boolean} loaded 
+        * @readonly
+        * If true, the audio is done loading
+        */
+<span id='dr-audioplayer-cfg-playing'>/**
+</span>        * @cfg {Boolean} playing 
+        * @readonly
+        * If true, the audio is playing.
+        */
+<span id='dr-audioplayer-cfg-paused'>/**
+</span>        * @cfg {Boolean} paused 
+        * @readonly
+        * If true, the audio is paused.
+        */
+<span id='dr-audioplayer-cfg-loop'>/**
+</span>        * @cfg {Boolean} loop 
+        * @readonly
+        * If true, the audio will play continuously.
+        */
+<span id='dr-audioplayer-cfg-time'>/**
+</span>        * @cfg {Number} time 
+        * @readonly
+        * The number of seconds the file has played, with 0 being the start.
+        */
+<span id='dr-audioplayer-cfg-duration'>/**
+</span>        * @cfg {Number} duration 
+        * @readonly
+        * The duration in seconds.
+        */
+<span id='dr-audioplayer-cfg-fftsize'>/**
+</span>        * @cfg {Number} fftsize 
+        * The number of fft frames to use when setting {@link #fft fft}. Must be a non-zero power of two in the range 32 to 2048.
+        */
+<span id='dr-audioplayer-cfg-fftsmoothing'>/**
+</span>        * @cfg {Number} [fftsmoothing=0.8]
+        * The amount of smoothing to apply to the FFT analysis. A value from 0 -&gt; 1 where 0 represents no time averaging with the last FFT analysis frame.
+        */
+<span id='dr-audioplayer-cfg-fft'>/**
+</span>        * @cfg {Number[]} fft
+        * @readonly
+        * An array of numbers representing the FFT analysis of the audio as it&#39;s playing.
+        */
 <span id='dr-bitmap'>/**
 </span>     * @class dr.bitmap
      * @extends dr.view

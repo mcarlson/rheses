@@ -31,6 +31,68 @@
         * @param {dr.ace} view The dr.ace that fired the event
         */
 /**
+     * @class dr.audioplayer
+     * @extends dr.node
+     * audioplayer wraps the web audio APIs to provide a declarative interface to play audio.
+     *
+     * This example shows how to load and play an mp3 audio file from the server:
+     *
+     *     @example
+     *     <audioplayer id="audio" url="/music/03_Homage Sliders.mp3" playing="true"></audioplayer>
+     */
+/**
+        * @cfg {String} url
+        * The URL to an audio file to play
+        */
+/**
+        * @cfg {Number} loadprogress 
+        * @readonly
+        * A Number between 0 and 1 representing load progress
+        */
+/**
+        * @cfg {Boolean} loaded 
+        * @readonly
+        * If true, the audio is done loading
+        */
+/**
+        * @cfg {Boolean} playing 
+        * @readonly
+        * If true, the audio is playing.
+        */
+/**
+        * @cfg {Boolean} paused 
+        * @readonly
+        * If true, the audio is paused.
+        */
+/**
+        * @cfg {Boolean} loop 
+        * @readonly
+        * If true, the audio will play continuously.
+        */
+/**
+        * @cfg {Number} time 
+        * @readonly
+        * The number of seconds the file has played, with 0 being the start.
+        */
+/**
+        * @cfg {Number} duration 
+        * @readonly
+        * The duration in seconds.
+        */
+/**
+        * @cfg {Number} fftsize 
+        * The number of fft frames to use when setting {@link #fft fft}. Must be a non-zero power of two in the range 32 to 2048.
+        */
+/**
+        * @cfg {Number} [fftsmoothing=0.8]
+        * The amount of smoothing to apply to the FFT analysis. A value from 0 -> 1 where 0 represents no time averaging with the last FFT analysis frame.
+        */
+/**
+        * @cfg {Number[]} fft
+        * @readonly
+        * An array of numbers representing the FFT analysis of the audio as it's playing.
+        */
+/**
      * @class dr.bitmap
      * @extends dr.view
      * Loads an image from a URL.
