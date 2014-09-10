@@ -27,7 +27,7 @@
   <view>
     <audioplayer id="audio" url="music/03_Homage Sliders.mp3" fftsize="2048" fftsmoothing="0" playing="true">
       <handler event="onkeydown" args="key" reference="dr.keyboard">
-        if (key.keyCode == 32) this.toggle();
+        if (key.keyCode == 32) this.setAttribute('playing', ! this.playing);
       </handler>
     </audioplayer>
 

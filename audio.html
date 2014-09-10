@@ -49,13 +49,17 @@
     </class>
 
     <view bgcolor="${audio.playing ? 'green' : 'gray'}" opacity="${audio.loaded ? 1 : .8}" width="${(audio.loadprogress * audio.fftsize * .5)}" height="20">
-      <handler event="onclick">
-        audio.toggle();
-      </handler>
       <view name="playhead" bgcolor="red" width="${(audio.time / audio.duration) * this.parent.width}" height="20"></view>
       <view y="3" x="${this.parent.playhead.width}" width="${this.parent.width - this.x}">
         <simplelayout spacing="2"></simplelayout>
         <view width="16" class="fa fa-spin fa-spinner">
+          <handler event="onclick">
+            if (audio.playing) {
+              audio.setAttribute('paused', ! audio.paused);
+            } else {
+              audio.setAttribute('playing', true);
+            }
+          </handler>
           <method name="updateState">
             if (audio.loaded) {
               this.setAttribute('class', 'fa fa-play')
@@ -72,7 +76,7 @@
           <handler event="onpaused" method="updateState" reference="audio"></handler>
           <handler event="onplaying" method="updateState" reference="audio"></handler>
         </view>
-        <view width="16" class="fa fa-stop" onclick="audio.stop()"></view>
+        <view width="16" class="fa fa-stop" onclick="audio.setAttribute('playing', false);"></view>
         <timetext y="-1" text="${audio.time}"></timetext>
         <text y="-1">/</text>
         <timetext y="-1" text="${audio.duration}"></timetext>

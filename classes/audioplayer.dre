@@ -27,7 +27,7 @@ SOFTWARE. -->
      * This example shows how to load and play an mp3 audio file from the server:
      *
      *     @example
-     *     <audioplayer id="audio" url="/music/03_Homage Sliders.mp3" playing="true"></audioplayer>
+     *     <audioplayer url="music/03_Homage Sliders.mp3" playing="true"></audioplayer>
      */-->
     <class name="audioplayer" extends="node">
       <!--/**
@@ -47,24 +47,47 @@ SOFTWARE. -->
         * If true, the audio is done loading
         */-->
       <attribute name="loaded" value="false" type="boolean"></attribute>
+      <setter name="loaded" args="loaded">
+        if (loaded) {
+          if (this.playing && ! this.paused) {
+            this.setAttribute('playing', true);
+          }
+        }
+      </setter>
       <!--/**
         * @cfg {Boolean} playing 
         * @readonly
         * If true, the audio is playing.
         */-->
       <attribute name="playing" value="false" type="boolean"></attribute>
+      <setter name="playing" args="playing">
+        if (playing) {
+          this.play()
+        } else {
+          this.stop()
+        }
+      </setter>
       <!--/**
         * @cfg {Boolean} paused 
-        * @readonly
         * If true, the audio is paused.
         */-->
       <attribute name="paused" value="false" type="boolean"></attribute>
+      <setter name="paused" args="paused">
+        if (paused) {
+          this.pause()
+        } else {
+          this.setAttribute('playing', true)
+        }
+      </setter>
       <!--/**
         * @cfg {Boolean} loop 
-        * @readonly
         * If true, the audio will play continuously.
         */-->
       <attribute name="loop" value="false" type="boolean"></attribute>
+      <setter name="loop" args="loop">
+        if (this.source)
+          this.source.loop = loop;
+      </setter>
       <!--/**
         * @cfg {Number} time 
         * @readonly
@@ -81,7 +104,7 @@ SOFTWARE. -->
         * @cfg {Number} fftsize 
         * The number of fft frames to use when setting {@link #fft fft}. Must be a non-zero power of two in the range 32 to 2048.
         */-->
-      <attribute name="fftsize" value="2048" type="number"></attribute>
+      <attribute name="fftsize" value="0" type="number"></attribute>
       <!--/**
         * @cfg {Number} [fftsmoothing=0.8]
         * The amount of smoothing to apply to the FFT analysis. A value from 0 -> 1 where 0 represents no time averaging with the last FFT analysis frame.
@@ -116,9 +139,6 @@ SOFTWARE. -->
             _this.buffer = buffer;
             _this.setAttribute('duration', buffer.duration);
             _this.setAttribute('loaded', true);
-            if (_this.playing && ! _this.paused) {
-              _this.play();
-            }
           });
         }
         this.buffer = null;
@@ -139,12 +159,10 @@ SOFTWARE. -->
         this.startTime = 0;
       </handler>
       <method name="play">
-        this.setAttribute('playing', true);
         if (! this.buffer) return;
 
         // track the time when playback started
         this.startTime = this.context.currentTime;
-        this.setAttribute('paused', false);
         // creates a sound source
         this.source = this.context.createBufferSource(); 
 
@@ -170,32 +188,20 @@ SOFTWARE. -->
         this.source.start(0, this.startOffset % this.duration);                           
       </method>
       <method name="stop">
-        // store state to start playback after load
-        this.setAttribute('playing', false);
         if (! this.source) return;
-
         if (!this.source.stop)
           this.source.stop = source.noteOff;
         this.source.stop(0);
         this.setAttribute('time', 0);
         this.startTime = this.startOffset = 0;
+        this.paused = false;
       </method>
       <method name="pause">
-        this.setAttribute('paused', true);
         if (! this.source) return;
         if (!this.source.stop)
           this.source.stop = source.noteOff;
         this.source.stop();
         this.startOffset += (this.context.currentTime - this.startTime);
-        // console.log('this.startOffset', this.startOffset);
-        this.setAttribute('paused', true);
-      </method>
-      <method name="toggle">
-        if (! this.playing || this.paused) {
-          this.play();
-        } else {
-          this.pause();
-        }
       </method>
       <handler event="onidle" reference="dr.idle">
         if (! (this.fftNode && this.playing && ! this.paused)) return;
