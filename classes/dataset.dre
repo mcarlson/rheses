@@ -53,7 +53,7 @@ SOFTWARE. -->
         */-->
       <attribute name="url" type="string" value=""></attribute>
       <handler event="on$textcontent">
-        if @$textcontent
+        if @$textcontent?.trim()
           @setAttribute('data', JSON.parse(@$textcontent))
           # console.log('data', @name, @data)
       </handler>
