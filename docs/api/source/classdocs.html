@@ -119,6 +119,71 @@
      * holds the current state of the button. The onselected event
      * is generated when the button is the selected state.
      */
+<span id='dr-dataset'>/**
+</span>     * @class dr.dataset
+     * @extends dr.node
+     * Datasets hold onto a set of JSON data, either inline or loaded from a URL.
+     * They are used with lz.replicator for data binding.
+     *
+     * This example shows how to create a dataset with inline JSON data, and use a replicator to show values inside. Inline datasets are useful for prototyping, especially when your backend server isn&#39;t ready yet:
+     *
+     *     @example
+     *     &lt;dataset name=&quot;example&quot;&gt;
+     *      {
+     *        &quot;store&quot;: {
+     *          &quot;book&quot;: [
+     *            {
+     *              &quot;category&quot;: &quot;reference&quot;,
+     *              &quot;author&quot;: &quot;Nigel Rees&quot;,
+     *              &quot;title&quot;: &quot;Sayings of the Century&quot;,
+     *              &quot;price&quot;: 8.95
+     *            },
+     *            {
+     *              &quot;category&quot;: &quot;fiction&quot;,
+     *              &quot;author&quot;: &quot;Evelyn Waugh&quot;,
+     *              &quot;title&quot;: &quot;Sword of Honour&quot;,
+     *              &quot;price&quot;: 12.99
+     *            },
+     *            {
+     *              &quot;category&quot;: &quot;fiction&quot;,
+     *              &quot;author&quot;: &quot;Herman Melville&quot;,
+     *              &quot;title&quot;: &quot;Moby Dick&quot;,
+     *              &quot;isbn&quot;: &quot;0-553-21311-3&quot;,
+     *              &quot;price&quot;: 8.99
+     *            },
+     *            {
+     *              &quot;category&quot;: &quot;fiction&quot;,
+     *              &quot;author&quot;: &quot;J. R. R. Tolkien&quot;,
+     *              &quot;title&quot;: &quot;The Lord of the Rings&quot;,
+     *              &quot;isbn&quot;: &quot;0-395-19395-8&quot;,
+     *              &quot;price&quot;: 22.99
+     *            }
+     *          ],
+     *          &quot;bicycle&quot;: {
+     *            &quot;color&quot;: &quot;red&quot;,
+     *            &quot;price&quot;: 19.95
+     *          }
+     *        }
+     *      }
+     *     &lt;/dataset&gt;
+     *     &lt;simplelayout&gt;&lt;/simplelayout&gt;
+     *     &lt;replicator classname=&quot;text&quot; datapath=&quot;$example/store/book[*]/title&quot;&gt;&lt;/replicator&gt;
+     *
+     * Data can be loaded from a URL when your backend server is ready, or reloaded to show changes over time:
+     *
+     *     @example
+     *     &lt;dataset name=&quot;example&quot; url=&quot;/example.json&quot;&gt;&lt;/dataset&gt;
+     *     &lt;simplelayout&gt;&lt;/simplelayout&gt;
+     *     &lt;replicator classname=&quot;text&quot; datapath=&quot;$example/store/book[*]/title&quot;&gt;&lt;/replicator&gt;
+     */
+<span id='dr-dataset-cfg-name'>/**
+</span>        * @cfg {String} name (required)
+        * The name of the dataset
+        */
+<span id='dr-dataset-cfg-url'>/**
+</span>        * @cfg {String} url
+        * The url to load JSON data from.
+        */
 <span id='dr-dragstate'>/**
 </span>     * @class dr.dragstate
      * @extends dr.state
@@ -212,12 +277,110 @@
      * @extends dr.node
      * Handles replication and data binding.
      *
-     * This example shows how to use a filterexpression regex to filter the results to only numbers:
+     * This example shows the replicator to creating four text instances, each corresponding to an item in the data attribute:
+     *
+     *     @example
+     *     &lt;simplelayout&gt;&lt;/simplelayout&gt;
+     *     &lt;replicator classname=&quot;text&quot; data=&quot;[1,2,3,4]&quot;&gt;&lt;/replicator&gt;
+     *
+     * Changing the data attribute to a new array causes the replicator to create a new text for each item:
+     *
+     *     @example
+     *     &lt;simplelayout&gt;&lt;/simplelayout&gt;
+     *     &lt;text onclick=&quot;repl.setAttribute(&#39;data&#39;, [5,6,7,8]);&quot;&gt;Click to change data&lt;/text&gt;
+     *     &lt;replicator id=&quot;repl&quot; classname=&quot;text&quot; data=&quot;[1,2,3,4]&quot;&gt;&lt;/replicator&gt;
+     *
+     * This example uses a {@link #filterexpression filterexpression} to filter the data to only numbers. Clicking changes {@link #filterexpression filterexpression} to show only non-numbers in the data:
      *
      *     @example
      *     &lt;simplelayout&gt;&lt;/simplelayout&gt;
      *     &lt;text onclick=&quot;repl.setAttribute(&#39;filterexpression&#39;, &#39;[^\\d]&#39;);&quot;&gt;Click to change filter&lt;/text&gt;
      *     &lt;replicator id=&quot;repl&quot; classname=&quot;text&quot; data=&quot;[&#39;a&#39;,1,&#39;b&#39;,2,&#39;c&#39;,3,4,5]&quot; filterexpression=&quot;\d&quot;&gt;&lt;/replicator&gt;
+     *
+     * Replicators can be used to look up {@link #datapath datapath} expressions to values in JSON data in a dr.dataset. This example looks up the color of the bicycle in the dr.dataset named bikeshop:
+     *
+     *     @example
+     *     &lt;dataset name=&quot;bikeshop&quot;&gt;
+     *      {
+     *        &quot;bicycle&quot;: {
+     *          &quot;color&quot;: &quot;red&quot;,
+     *          &quot;price&quot;: 19.95
+     *        }
+     *      }
+     *     &lt;/dataset&gt;
+     *     &lt;replicator classname=&quot;text&quot; datapath=&quot;$bikeshop/bicycle/color&quot;&gt;&lt;/replicator&gt;
+     *
+     * Matching one or more items will cause the replicator to create multiple copies:
+     *
+     *     @example
+     *     &lt;dataset name=&quot;bikeshop&quot;&gt;
+     *      {
+     *        &quot;bicycle&quot;: [
+     *          {
+     *           &quot;color&quot;: &quot;red&quot;,
+     *           &quot;price&quot;: 19.95
+     *          },
+     *          {
+     *           &quot;color&quot;: &quot;green&quot;,
+     *           &quot;price&quot;: 29.95
+     *          },
+     *          {
+     *           &quot;color&quot;: &quot;blue&quot;,
+     *           &quot;price&quot;: 59.95
+     *          }
+     *        ]
+     *      }
+     *     &lt;/dataset&gt;
+     *     &lt;simplelayout&gt;&lt;/simplelayout&gt;
+     *     &lt;replicator classname=&quot;text&quot; datapath=&quot;$bikeshop/bicycle[*]/color&quot;&gt;&lt;/replicator&gt;
+     *
+     * It&#39;s possible to select a single item on from the array using an array index. This selects the second item:
+     *
+     *     @example
+     *     &lt;dataset name=&quot;bikeshop&quot;&gt;
+     *      {
+     *        &quot;bicycle&quot;: [
+     *          {
+     *           &quot;color&quot;: &quot;red&quot;,
+     *           &quot;price&quot;: 19.95
+     *          },
+     *          {
+     *           &quot;color&quot;: &quot;green&quot;,
+     *           &quot;price&quot;: 29.95
+     *          },
+     *          {
+     *           &quot;color&quot;: &quot;blue&quot;,
+     *           &quot;price&quot;: 59.95
+     *          }
+     *        ]
+     *      }
+     *     &lt;/dataset&gt;
+     *     &lt;simplelayout&gt;&lt;/simplelayout&gt;
+     *     &lt;replicator classname=&quot;text&quot; datapath=&quot;$bikeshop/bicycle[1]/color&quot;&gt;&lt;/replicator&gt;
+     *
+     * It&#39;s also possible to replicate a range of items in the array with the [start,end,stepsize] operator. This replicates every other item:
+     *
+     *     @example
+     *     &lt;dataset name=&quot;bikeshop&quot;&gt;
+     *      {
+     *        &quot;bicycle&quot;: [
+     *          {
+     *           &quot;color&quot;: &quot;red&quot;,
+     *           &quot;price&quot;: 19.95
+     *          },
+     *          {
+     *           &quot;color&quot;: &quot;green&quot;,
+     *           &quot;price&quot;: 29.95
+     *          },
+     *          {
+     *           &quot;color&quot;: &quot;blue&quot;,
+     *           &quot;price&quot;: 59.95
+     *          }
+     *        ]
+     *      }
+     *     &lt;/dataset&gt;
+     *     &lt;simplelayout&gt;&lt;/simplelayout&gt;
+     *     &lt;replicator classname=&quot;text&quot; datapath=&quot;$bikeshop/bicycle[0,3,2]/color&quot;&gt;&lt;/replicator&gt;
      */
 <span id='dr-replicator-cfg-pooling'>/**
 </span>        * @cfg {Boolean} [pooling=false]
@@ -225,7 +388,7 @@
         */
 <span id='dr-replicator-cfg-data'>/**
 </span>        * @cfg {Array} [data=[]]
-        * The list of items to replicate. If replicator.datapath is set, it is converted to a list and stored here.
+        * The list of items to replicate. If {@link #datapath datapath} is set, it is converted to an array and stored here.
         */
 <span id='dr-replicator-cfg-classname'>/**
 </span>        * @cfg {String} classname (required)
@@ -233,7 +396,7 @@
         */
 <span id='dr-replicator-cfg-datapath'>/**
 </span>        * @cfg {String} datapath
-        * The name of the datapath expression to be replicated.
+        * The datapath expression to be replicated.
         * See [https://github.com/flitbit/json-path](https://github.com/flitbit/json-path) for details.
         */
 <span id='dr-replicator-cfg-sortfield'>/**
@@ -246,7 +409,7 @@
         */
 <span id='dr-replicator-cfg-filterexpression'>/**
 </span>        * @cfg {String} [filterexpression=&quot;&quot;]
-        * If defined, results will be filtered against a regex. 
+        * If defined, data will be filtered against a [regular expression](https://developer.mozilla.org/en/docs/Web/JavaScript/Guide/Regular_Expressions). 
         */
 <span id='dr-shim'>/**
 </span>     * @class dr.shim
