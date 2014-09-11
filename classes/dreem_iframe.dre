@@ -25,52 +25,114 @@ SOFTWARE. -->
      * @extends dr.view
      * iframe component for embedding dreem code or html in a dreem application.
      * The size of the iframe matches the width/height of the view when the
-     * component is created.
-     * The file '/iframe_stub.html' contains the html to load into the iframe,
-     * including the required script elements to run dreem code.
+     * component is created. The iframe component can show a web page by
+     * using the src attribute, or to show dynamic content using the
+     * contents attribute.
+     *
+     * This example shows how to display a web page in an iframe. The 
+     * contents of the iframe are not editable:
+     *
+     *     @example
+     *     <dreem_iframe src="http://en.wikipedia.org/wiki/San_Francisco" width="400" height="150"></dreem_iframe>
+     *
+     * To make the web page clickable, and to add scrolling:
+     *
+     *     @example
+     *     <dreem_iframe src="http://en.wikipedia.org/wiki/San_Francisco" width="400" height="150" scrolling="true" clickable="true"></dreem_iframe>
+     *
+     * The content of the iframe can also be dynamically generated, including
+     * adding Dreem code:
+     *
+     *     @example
+     *     <dreem_iframe width="300" height="150" contents="Hello"></dreem_iframe>
+     *
      */-->    
 
-    <class name="dreem_iframe">
+    <class name="dreem_iframe" type="coffee">
       <handler event="onwidth" method="handleResize"></handler>
       <handler event="onheight" method="handleResize"></handler>
 
       <!--/**
-        * @cfg {String} [contents=""]
-        * string to write into the iframe body. This is dreem code, or html
-        * that is written inside the iframe's body tag.
+        * @cfg {String} [src="/iframe_stub.html"]
+        * url to load inside the iframe. By default, a file is loaded that has
+        * an empty body but includes the libraries needed to support Dreem code.
         */-->
-      <setter name="contents" args="text">
-        if (this.iframe) {
-          $(this.iframe).contents().find('body').html(text);
-          // console.log("iframe contents", text);
-        }
-      </setter>
+      <attribute name="src" value="/iframe_stub.html" type="string"></attribute>
+      <handler event="onsrc" method="updateFrame"></handler>
 
-      <handler event="oninit">
-        if (this.width == 0 || this.height == 0)
-          return;
+      <!--/**
+        * @cfg {Boolean} [scrolling="false"]
+        * Controls scrollbar display in the iframe.
+        */-->
+      <attribute name="scrolling" value="false" type="boolean"></attribute>
+      <handler event="onscrolling" method="updateFrame"></handler>
 
-        // I couldn't get jquery syntax to work so directly modify the DOM.
-        var iframe = document.createElement("IFRAME");
-        iframe.src = "/iframe_stub.html"; // "about:blank";
-        iframe.scrolling = "no";
-        iframe.style.position = "absolute";
-        iframe.style.top = 0;
-        iframe.style.left = 0;
-        iframe.style.width = this.width;
-        iframe.style.height = this.height;
-        this.sprite.el.appendChild(iframe);
-
-	// console.log("iframe object", iframe);
-
-        // Keep track of original div in this.iframe
-        this.iframe = iframe;
+      <!--/**
+        * @cfg {String} [contents=""]
+        * string to write into the iframe body. This is dreem/html code
+        * that is written inside the iframe's body tag. If you want to display
+        * static web pages, specify the src attribute, but do not use contents.
+        */-->
+      <attribute name="contents" value="" type="string"></attribute>
+      <handler event="oncontents">
+        if @contents
+          # use new_contents flag so iframe is only touched when necessary.
+          @new_contents = true
+          @updateFrame()
       </handler>
 
+      <handler event="oninit">
+        return if (@width == 0 || @height == 0)
+
+        @createFrame()
+      </handler>
+
+      <method name="createFrame">
+        @sprite.el.removeChild(@iframe) if @iframe
+        @iframe = document.createElement("IFRAME")
+
+        # Static attributes
+        @iframe.seamless = 'seamless'
+        @iframe.style.position = 'absolute'
+        @iframe.style.top = 0
+        @iframe.style.left = 0
+
+        # Dynamic attributes
+        @updateFrame()
+
+        # Show the iframe
+        @sprite.el.appendChild(@iframe)
+      </method>
+
+      <method name="updateFrame">
+        return if (@width == 0 || @height == 0 || !@iframe)
+
+        @iframe.src = @src unless @iframe.src == @src
+
+        if @new_contents
+          # Don't set the contents until the iframe is loaded
+          contents = @contents
+          obj = $(@iframe)
+          obj.on 'load', ->
+            #console.log('onload event fired', contents)
+            obj.contents().find('body').html(contents)
+          delete @new_contents
+
+        @iframe.style.width = @width unless @iframe.style.width == @width
+        @iframe.style.height = @height unless @iframe.style.height == @height
+
+        overflow = if @scrolling then 'auto' else 'hidden'
+        scrolling = if @scrolling then 'auto' else 'no'
+
+        @iframe.style.overflow = overflow unless @iframe.style.overflow == overflow
+        @iframe.scrolling = scrolling unless @iframe.scrolling == scrolling
+
+        @sprite.el.appendChild(@iframe)
+      </method>
+
       <method name="handleResize">
-        if (this.iframe) {
-          this.iframe.style.width = this.width;
-          this.iframe.style.height = this.height;
-        }
+        if (@iframe)
+          @iframe.style.width = @width;
+          @iframe.style.height = @height;
       </method>
     </class>
