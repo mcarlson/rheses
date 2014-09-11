@@ -2161,11 +2161,58 @@ window.dr = do ->
 
   ###*
   # @class dr.attribute
-  # Declares an attribute in a node, view, class or other class instance. Attributes can only be created with the &lt;attribute>&lt;/attribute> tag syntax.
+  # Adds a variable to a node, view, class or other class instance. Attributes can only be created with the &lt;attribute>&lt;/attribute> tag syntax.
   # 
   # Attributes allow classes to declare new variables with a specific type and default value. 
   #
   # Attributes automatically send events when their value changes.
+  #
+  # Here we create a new class with a custom attribute representing a person's mood, along with two instances. One instance has the default mood of 'happy', the other sets the mood attribute to 'sad'. Note there's nothing visible in this example yet:
+  #
+  #     @example
+  #     <class name="person">
+  #       <attribute name="mood" type="string" value="happy"></attribute>
+  #     </class>
+  #
+  #     <person></person>
+  #     <person mood="sad"></person>
+  #
+  # Let's had a handler to make our color change with the mood. Whenever the mood attribute changes, the color changes with it:
+  #
+  #     @example
+  #     <class name="person" width="100" height="100">
+  #       <attribute name="mood" type="string" value="happy"></attribute>
+  #       <handler event="onmood" args="mood">
+  #         var color = 'orange';
+  #         if (mood !== 'happy') {
+  #           color = 'blue'
+  #         }
+  #         this.setAttribute('bgcolor', color);
+  #       </handler>
+  #     </class>
+  # 
+  #     <simplelayout></simplelayout>
+  #     <person></person>
+  #     <person mood="sad"></person>
+  #
+  # You can add as many attributes as you like to a class. Here, we add a numeric attribute for size, which changes the height and width attributes via a constraint:
+  #
+  #     @example
+  #     <class name="person" width="${this.size}" height="${this.size}">
+  #       <attribute name="mood" type="string" value="happy"></attribute>
+  #       <handler event="onmood" args="mood">
+  #         var color = 'orange';
+  #         if (mood !== 'happy') {
+  #           color = 'blue'
+  #         }
+  #         this.setAttribute('bgcolor', color);
+  #       </handler>
+  #       <attribute name="size" type="number" value="20"></attribute>
+  #     </class>
+  # 
+  #     <simplelayout></simplelayout>
+  #     <person></person>
+  #     <person mood="sad" size="50"></person>
   ###
   ###*
   # @cfg {String} name (required)
@@ -2173,7 +2220,7 @@ window.dr = do ->
   ###
   ###*
   # @cfg {"string"/"number"/"boolean"/"json"} [type=string] (required)
-  # The type of the attribute. Used to convert from string to an appropriate representation of the type.
+  # The type of the attribute. Used to convert from a string to an appropriate representation of the type.
   ###
   ###*
   # @cfg {String} value (required)

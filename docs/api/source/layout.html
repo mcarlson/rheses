@@ -2780,11 +2780,58 @@
 
 <span id='dr-attribute'>    /**
 </span>     * @class dr.attribute
-     * Declares an attribute in a node, view, class or other class instance. Attributes can only be created with the &amp;lt;attribute&gt;&amp;lt;/attribute&gt; tag syntax.
+     * Adds a variable to a node, view, class or other class instance. Attributes can only be created with the &amp;lt;attribute&gt;&amp;lt;/attribute&gt; tag syntax.
      * 
      * Attributes allow classes to declare new variables with a specific type and default value. 
      *
      * Attributes automatically send events when their value changes.
+     *
+     * Here we create a new class with a custom attribute representing a person&#39;s mood, along with two instances. One instance has the default mood of &#39;happy&#39;, the other sets the mood attribute to &#39;sad&#39;. Note there&#39;s nothing visible in this example yet:
+     *
+     *     @example
+     *     &lt;class name=&quot;person&quot;&gt;
+     *       &lt;attribute name=&quot;mood&quot; type=&quot;string&quot; value=&quot;happy&quot;&gt;&lt;/attribute&gt;
+     *     &lt;/class&gt;
+     *
+     *     &lt;person&gt;&lt;/person&gt;
+     *     &lt;person mood=&quot;sad&quot;&gt;&lt;/person&gt;
+     *
+     * Let&#39;s had a handler to make our color change with the mood. Whenever the mood attribute changes, the color changes with it:
+     *
+     *     @example
+     *     &lt;class name=&quot;person&quot; width=&quot;100&quot; height=&quot;100&quot;&gt;
+     *       &lt;attribute name=&quot;mood&quot; type=&quot;string&quot; value=&quot;happy&quot;&gt;&lt;/attribute&gt;
+     *       &lt;handler event=&quot;onmood&quot; args=&quot;mood&quot;&gt;
+     *         var color = &#39;orange&#39;;
+     *         if (mood !== &#39;happy&#39;) {
+     *           color = &#39;blue&#39;
+     *         }
+     *         this.setAttribute(&#39;bgcolor&#39;, color);
+     *       &lt;/handler&gt;
+     *     &lt;/class&gt;
+     * 
+     *     &lt;simplelayout&gt;&lt;/simplelayout&gt;
+     *     &lt;person&gt;&lt;/person&gt;
+     *     &lt;person mood=&quot;sad&quot;&gt;&lt;/person&gt;
+     *
+     * You can add as many attributes as you like to a class. Here, we add a numeric attribute for size, which changes the height and width attributes via a constraint:
+     *
+     *     @example
+     *     &lt;class name=&quot;person&quot; width=&quot;${this.size}&quot; height=&quot;${this.size}&quot;&gt;
+     *       &lt;attribute name=&quot;mood&quot; type=&quot;string&quot; value=&quot;happy&quot;&gt;&lt;/attribute&gt;
+     *       &lt;handler event=&quot;onmood&quot; args=&quot;mood&quot;&gt;
+     *         var color = &#39;orange&#39;;
+     *         if (mood !== &#39;happy&#39;) {
+     *           color = &#39;blue&#39;
+     *         }
+     *         this.setAttribute(&#39;bgcolor&#39;, color);
+     *       &lt;/handler&gt;
+     *       &lt;attribute name=&quot;size&quot; type=&quot;number&quot; value=&quot;20&quot;&gt;&lt;/attribute&gt;
+     *     &lt;/class&gt;
+     * 
+     *     &lt;simplelayout&gt;&lt;/simplelayout&gt;
+     *     &lt;person&gt;&lt;/person&gt;
+     *     &lt;person mood=&quot;sad&quot; size=&quot;50&quot;&gt;&lt;/person&gt;
      */
 
 <span id='dr-attribute-cfg-name'>    /**
@@ -2794,7 +2841,7 @@
 
 <span id='dr-attribute-cfg-type'>    /**
 </span>     * @cfg {&quot;string&quot;/&quot;number&quot;/&quot;boolean&quot;/&quot;json&quot;} [type=string] (required)
-     * The type of the attribute. Used to convert from string to an appropriate representation of the type.
+     * The type of the attribute. Used to convert from a string to an appropriate representation of the type.
      */
 
 <span id='dr-attribute-cfg-value'>    /**
