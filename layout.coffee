@@ -232,10 +232,7 @@ window.dr = do ->
         value = typemappings[type](value)
 
       @["set_#{name}"]?(value)
-      if @[name] != value
-        # console.log 'setAttribute', name, value
-        @[name] = value
-
+      @[name] = value
       @sendEvent(name, value)
       @
 

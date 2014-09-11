@@ -356,9 +356,7 @@
         if (typeof this[_name = "set_" + name] === "function") {
           this[_name](value);
         }
-        if (this[name] !== value) {
-          this[name] = value;
-        }
+        this[name] = value;
         this.sendEvent(name, value);
         return this;
       };
