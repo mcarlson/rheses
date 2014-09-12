@@ -257,14 +257,42 @@
      * @extends dr.view
      * iframe component for embedding dreem code or html in a dreem application.
      * The size of the iframe matches the width/height of the view when the
-     * component is created.
-     * The file &#39;/iframe_stub.html&#39; contains the html to load into the iframe,
-     * including the required script elements to run dreem code.
+     * component is created. The iframe component can show a web page by
+     * using the src attribute, or to show dynamic content using the
+     * contents attribute.
+     *
+     * This example shows how to display a web page in an iframe. The 
+     * contents of the iframe are not editable:
+     *
+     *     @example
+     *     &lt;dreem_iframe src=&quot;http://en.wikipedia.org/wiki/San_Francisco&quot; width=&quot;400&quot; height=&quot;150&quot;&gt;&lt;/dreem_iframe&gt;
+     *
+     * To make the web page clickable, and to add scrolling:
+     *
+     *     @example
+     *     &lt;dreem_iframe src=&quot;http://en.wikipedia.org/wiki/San_Francisco&quot; width=&quot;400&quot; height=&quot;150&quot; scrolling=&quot;true&quot; clickable=&quot;true&quot;&gt;&lt;/dreem_iframe&gt;
+     *
+     * The content of the iframe can also be dynamically generated, including
+     * adding Dreem code:
+     *
+     *     @example
+     *     &lt;dreem_iframe width=&quot;300&quot; height=&quot;150&quot; contents=&quot;Hello&quot;&gt;&lt;/dreem_iframe&gt;
+     *
      */
+<span id='dr-dreem_iframe-cfg-src'>/**
+</span>        * @cfg {String} [src=&quot;/iframe_stub.html&quot;]
+        * url to load inside the iframe. By default, a file is loaded that has
+        * an empty body but includes the libraries needed to support Dreem code.
+        */
+<span id='dr-dreem_iframe-cfg-scrolling'>/**
+</span>        * @cfg {Boolean} [scrolling=&quot;false&quot;]
+        * Controls scrollbar display in the iframe.
+        */
 <span id='dr-dreem_iframe-cfg-contents'>/**
 </span>        * @cfg {String} [contents=&quot;&quot;]
-        * string to write into the iframe body. This is dreem code, or html
-        * that is written inside the iframe&#39;s body tag.
+        * string to write into the iframe body. This is dreem/html code
+        * that is written inside the iframe&#39;s body tag. If you want to display
+        * static web pages, specify the src attribute, but do not use contents.
         */
 <span id='dr-gyro'>/**
 </span>     * @class dr.gyro
