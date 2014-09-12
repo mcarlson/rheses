@@ -564,9 +564,16 @@
        * @cfg {String} scriptincludes 
        * A comma separated list of URLs to javascript includes required as dependencies. Useful if you need to ensure a third party library is available.
        */
+
+      /**
+       * @cfg {String} scriptincludeserror 
+       * An error to show if scriptincludes fail to load
+       */
       var lateattributes, matchConstraint, _eventCallback, _installMethod;
 
       __extends(Node, _super);
+
+      matchConstraint = /\${(.+)}/;
 
       matchConstraint = /\${(.+)}/;
 
@@ -1460,25 +1467,28 @@
         includedScripts = {};
         loadqueue = [];
         scriptloading = false;
-        loadScript = function(url, cb) {
+        loadScript = function(url, cb, error) {
           var appendScript, appendcallback;
           if (url in includedScripts) {
             return;
           }
           includedScripts[url] = true;
           if (scriptloading) {
-            loadqueue.push(url);
+            loadqueue.push(url, error);
             return url;
           }
-          appendScript = function(url, cb) {
+          appendScript = function(url, cb, error) {
             var script;
+            if (error == null) {
+              error = 'failed to load scriptinclude ' + url;
+            }
             scriptloading = url;
             script = document.createElement('script');
             script.type = 'text/javascript';
             $('head').append(script);
             script.onload = cb;
             script.onerror = function() {
-              console.error('failed to load scriptinclude', url);
+              console.error(error);
               return cb();
             };
             return script.src = url;
@@ -1488,10 +1498,10 @@
             if (loadqueue.length === 0) {
               return cb();
             } else {
-              return appendScript(loadqueue.shift(), appendcallback);
+              return appendScript(loadqueue.shift(), appendcallback, loadqueue.shift());
             }
           };
-          return appendScript(url, appendcallback);
+          return appendScript(url, appendcallback, error);
         };
         inlineclasses = {};
         filerequests = [];
@@ -1554,7 +1564,7 @@
               }
             }
             return $.when.apply($, filerequests).done(function() {
-              var args, scriptsloading, url, _l, _len3, _len4, _len5, _m, _n, _ref2, _ref3;
+              var args, scriptsloading, url, _l, _len3, _len4, _len5, _m, _n, _ref2, _ref3, _ref4;
               args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
               if (filerequests.length === 1) {
                 args = [args];
@@ -1580,7 +1590,7 @@
                 _ref3 = el.attributes.scriptincludes.value.split(',');
                 for (_n = 0, _len5 = _ref3.length; _n < _len5; _n++) {
                   url = _ref3[_n];
-                  scriptsloading = loadScript(url, callback);
+                  scriptsloading = loadScript(url, callback, (_ref4 = el.attributes.scriptincludeserror) != null ? _ref4.value.toString() : void 0);
                 }
               }
               filerequests = [];

@@ -24,7 +24,7 @@ SOFTWARE. -->
      * @extends dr.node
      * Connects to the shared event bus. When data is sent with a given type, a corresponding event is sent. For example, send('blah', {}) sends data with the 'blah' type, other shims will receive the object via an 'onblah' event.
      */-->
-    <class name="shim" extends="node" scriptincludes="/primus/primus.io.js">
+    <class name="shim" extends="node" scriptincludes="/primus/primus.io.js" scriptincludeserror="In order to use dr.shim, you need to be running the Teem server">
       <!--/**
         * @cfg {Boolean} [connected=false] (readonly)
         * If true, we are connected to the server

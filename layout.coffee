@@ -393,6 +393,11 @@ window.dr = do ->
     # @cfg {String} scriptincludes 
     # A comma separated list of URLs to javascript includes required as dependencies. Useful if you need to ensure a third party library is available.
     ###
+    ###*
+    # @cfg {String} scriptincludeserror 
+    # An error to show if scriptincludes fail to load
+    ###
+    matchConstraint = /\${(.+)}/
     matchConstraint = /\${(.+)}/
     # parent must be set before name
     lateattributes = ['parent', 'name']
@@ -1098,15 +1103,15 @@ window.dr = do ->
       includedScripts = {}
       loadqueue = []
       scriptloading = false
-      loadScript = (url, cb) ->
+      loadScript = (url, cb, error) ->
         return if url of includedScripts
         includedScripts[url] = true
 
         if (scriptloading)
-          loadqueue.push(url)
+          loadqueue.push(url, error)
           return url
 
-        appendScript = (url, cb) ->
+        appendScript = (url, cb, error='failed to load scriptinclude ' + url) ->
           # console.log('loading script', url)
           scriptloading = url
           script = document.createElement('script')
@@ -1114,7 +1119,7 @@ window.dr = do ->
           $('head').append(script)
           script.onload = cb
           script.onerror = () ->
-            console.error('failed to load scriptinclude', url)
+            console.error(error)
             cb()
           script.src = url
 
@@ -1125,9 +1130,9 @@ window.dr = do ->
             # console.log('done, calling callback', cb)
             cb()
           else
-            appendScript(loadqueue.shift(), appendcallback)
+            appendScript(loadqueue.shift(), appendcallback, loadqueue.shift())
 
-        appendScript(url, appendcallback)
+        appendScript(url, appendcallback, error)
 
       inlineclasses = {}
       filerequests = []
@@ -1208,7 +1213,7 @@ window.dr = do ->
 
             for el in jqel.find('[scriptincludes]')
               for url in el.attributes.scriptincludes.value.split(',')
-                scriptsloading = loadScript(url, callback)
+                scriptsloading = loadScript(url, callback, el.attributes.scriptincludeserror?.value.toString())
 
             # done loading
             filerequests = []

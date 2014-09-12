@@ -581,9 +581,16 @@
 </span>       * @cfg {String} scriptincludes 
        * A comma separated list of URLs to javascript includes required as dependencies. Useful if you need to ensure a third party library is available.
        */
+
+<span id='dr-node-cfg-scriptincludeserror'>      /**
+</span>       * @cfg {String} scriptincludeserror 
+       * An error to show if scriptincludes fail to load
+       */
       var lateattributes, matchConstraint, _eventCallback, _installMethod;
 
       __extends(Node, _super);
+
+      matchConstraint = /\${(.+)}/;
 
       matchConstraint = /\${(.+)}/;
 
@@ -1465,7 +1472,7 @@
         var out, pre;
         out = data.join(&#39;\n&#39;);
         pre = document.createElement(&#39;pre&#39;);
-        pre.setAttribute(&#39;style&#39;, &#39;font-size: 14px; background-color: pink; margin: 0;&#39;);
+        pre.setAttribute(&#39;class&#39;, &#39;warnings&#39;);
         pre.innerText = out;
         document.body.insertBefore(pre, document.body.firstChild);
         return console.error(out);
@@ -1477,25 +1484,28 @@
         includedScripts = {};
         loadqueue = [];
         scriptloading = false;
-        loadScript = function(url, cb) {
+        loadScript = function(url, cb, error) {
           var appendScript, appendcallback;
           if (url in includedScripts) {
             return;
           }
           includedScripts[url] = true;
           if (scriptloading) {
-            loadqueue.push(url);
+            loadqueue.push(url, error);
             return url;
           }
-          appendScript = function(url, cb) {
+          appendScript = function(url, cb, error) {
             var script;
+            if (error == null) {
+              error = &#39;failed to load scriptinclude &#39; + url;
+            }
             scriptloading = url;
             script = document.createElement(&#39;script&#39;);
             script.type = &#39;text/javascript&#39;;
             $(&#39;head&#39;).append(script);
             script.onload = cb;
             script.onerror = function() {
-              console.error(&#39;failed to load scriptinclude&#39;, url);
+              console.error(error);
               return cb();
             };
             return script.src = url;
@@ -1505,10 +1515,10 @@
             if (loadqueue.length === 0) {
               return cb();
             } else {
-              return appendScript(loadqueue.shift(), appendcallback);
+              return appendScript(loadqueue.shift(), appendcallback, loadqueue.shift());
             }
           };
-          return appendScript(url, appendcallback);
+          return appendScript(url, appendcallback, error);
         };
         inlineclasses = {};
         filerequests = [];
@@ -1571,7 +1581,7 @@
               }
             }
             return $.when.apply($, filerequests).done(function() {
-              var args, scriptsloading, url, _l, _len3, _len4, _len5, _m, _n, _ref2, _ref3;
+              var args, scriptsloading, url, _l, _len3, _len4, _len5, _m, _n, _ref2, _ref3, _ref4;
               args = 1 &lt;= arguments.length ? __slice.call(arguments, 0) : [];
               if (filerequests.length === 1) {
                 args = [args];
@@ -1597,7 +1607,7 @@
                 _ref3 = el.attributes.scriptincludes.value.split(&#39;,&#39;);
                 for (_n = 0, _len5 = _ref3.length; _n &lt; _len5; _n++) {
                   url = _ref3[_n];
-                  scriptsloading = loadScript(url, callback);
+                  scriptsloading = loadScript(url, callback, (_ref4 = el.attributes.scriptincludeserror) != null ? _ref4.value.toString() : void 0);
                 }
               }
               filerequests = [];
@@ -1732,7 +1742,7 @@
         var style;
         style = document.createElement(&#39;style&#39;);
         style.type = &#39;text/css&#39;;
-        style.innerHTML = &#39;.sprite{ position: absolute; pointer-events: none; padding: 0; margin: 0;} .sprite-text{ width: auto; height; auto; white-space: nowrap;  padding: 0; margin: 0;} .hidden{ display: none; } .noselect{ -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;} method { display: none; } handler { display: none; } setter { display: none; } class { display:none } node { display:none } dataset { display:none }&#39;;
+        style.innerHTML = &#39;.sprite{ position: absolute; pointer-events: none; padding: 0; margin: 0;} .sprite-text{ width: auto; height; auto; white-space: nowrap;  padding: 0; margin: 0;} .hidden{ display: none; } .noselect{ -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;} method { display: none; } handler { display: none; } setter { display: none; } class { display:none } node { display:none } dataset { display:none } .warnings {font-size: 14px; background-color: pink; margin: 0;}&#39;;
         return document.getElementsByTagName(&#39;head&#39;)[0].appendChild(style);
       };
       initAllElements = function(selector) {
