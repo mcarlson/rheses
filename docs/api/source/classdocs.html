@@ -21,11 +21,11 @@
      * Ace editor component.
      */
 <span id='dr-ace-cfg-theme'>/**
-</span>        * @cfg {string} [theme=&#39;ace/theme/chrome&#39;]
+</span>        * @cfg {string} [theme='ace/theme/chrome']
         * Specify the ace theme to use.
         */
 <span id='dr-ace-cfg-mode'>/**
-</span>        * @cfg {string} [mode=&#39;ace/mode/lzx&#39;]
+</span>        * @cfg {string} [mode='ace/mode/lzx']
         * Specify the ace mode to use.
         */
 <span id='dr-ace-cfg-text'>/**
@@ -104,7 +104,7 @@
 <span id='dr-audioplayer-cfg-fft'>/**
 </span>        * @cfg {Number[]} fft
         * @readonly
-        * An array of numbers representing the FFT analysis of the audio as it&#39;s playing.
+        * An array of numbers representing the FFT analysis of the audio as it's playing.
         */
 <span id='dr-bitmap'>/**
 </span>     * @class dr.bitmap
@@ -127,7 +127,7 @@
 <span id='dr-boundslayout'>/**
 </span>     * @class dr.boundslayout
      * @extends dr.layout
-     * Sets the parent view&#39;s size to match the bounds of its children.
+     * Sets the parent view's size to match the bounds of its children.
      */
 <span id='dr-boundslayout-cfg-ignoreattr'>/**
 </span>        * @cfg {&quot;&quot;/&quot;width&quot;/&quot;height&quot;} [ignoreattr=&quot;&quot;]
@@ -184,7 +184,7 @@
      * Datasets hold onto a set of JSON data, either inline or loaded from a URL.
      * They are used with lz.replicator for data binding.
      *
-     * This example shows how to create a dataset with inline JSON data, and use a replicator to show values inside. Inline datasets are useful for prototyping, especially when your backend server isn&#39;t ready yet:
+     * This example shows how to create a dataset with inline JSON data, and use a replicator to show values inside. Inline datasets are useful for prototyping, especially when your backend server isn't ready yet:
      *
      *     @example
      *     &lt;dataset name=&quot;example&quot;&gt;
@@ -258,19 +258,31 @@
      * iframe component for embedding dreem code or html in a dreem application.
      * The size of the iframe matches the width/height of the view when the
      * component is created. The iframe component can show a web page by
+<<<<<<< HEAD
      * using the src attribute, or to show dynamic content using the
+=======
+     * using the url attribute, or to show dynamic content using the
+>>>>>>> e0940a312c04fa6e24bf8fb7e8981027e2b389de
      * contents attribute.
      *
      * This example shows how to display a web page in an iframe. The 
      * contents of the iframe are not editable:
      *
      *     @example
+<<<<<<< HEAD
      *     &lt;dreem_iframe src=&quot;http://en.wikipedia.org/wiki/San_Francisco&quot; width=&quot;400&quot; height=&quot;150&quot;&gt;&lt;/dreem_iframe&gt;
+=======
+     *     &lt;dreem_iframe url=&quot;http://en.wikipedia.org/wiki/San_Francisco&quot; width=&quot;400&quot; height=&quot;150&quot;&gt;&lt;/dreem_iframe&gt;
+>>>>>>> e0940a312c04fa6e24bf8fb7e8981027e2b389de
      *
      * To make the web page clickable, and to add scrolling:
      *
      *     @example
+<<<<<<< HEAD
      *     &lt;dreem_iframe src=&quot;http://en.wikipedia.org/wiki/San_Francisco&quot; width=&quot;400&quot; height=&quot;150&quot; scrolling=&quot;true&quot; clickable=&quot;true&quot;&gt;&lt;/dreem_iframe&gt;
+=======
+     *     &lt;dreem_iframe url=&quot;http://en.wikipedia.org/wiki/San_Francisco&quot; width=&quot;400&quot; height=&quot;150&quot; scrolling=&quot;true&quot; clickable=&quot;true&quot;&gt;&lt;/dreem_iframe&gt;
+>>>>>>> e0940a312c04fa6e24bf8fb7e8981027e2b389de
      *
      * The content of the iframe can also be dynamically generated, including
      * adding Dreem code:
@@ -278,6 +290,7 @@
      *     @example
      *     &lt;dreem_iframe width=&quot;300&quot; height=&quot;150&quot; contents=&quot;Hello&quot;&gt;&lt;/dreem_iframe&gt;
      *
+<<<<<<< HEAD
      */
 <span id='dr-dreem_iframe-cfg-src'>/**
 </span>        * @cfg {String} [src=&quot;/iframe_stub.html&quot;]
@@ -674,3 +687,401 @@
 </pre>
 </body>
 </html>
+=======
+     */
+<span id='dr-dreem_iframe-cfg-url'>/**
+</span>        * @cfg {String} [url=&quot;/iframe_stub.html&quot;]
+        * url to load inside the iframe. By default, a file is loaded that has
+        * an empty body but includes the libraries needed to support Dreem code.
+        */
+<span id='dr-dreem_iframe-cfg-scrolling'>/**
+</span>        * @cfg {Boolean} [scrolling=&quot;false&quot;]
+        * Controls scrollbar display in the iframe.
+        */
+<span id='dr-dreem_iframe-cfg-contents'>/**
+</span>        * @cfg {String} [contents=&quot;&quot;]
+        * string to write into the iframe body. This is dreem/html code
+        * that is written inside the iframe's body tag. If you want to display
+        * static web pages, specify the url attribute, but do not use contents.
+        */
+<span id='dr-gyro'>/**
+</span>     * @class dr.gyro
+     * @extends dr.node
+     * Receives gyroscope and compass data where available. See [https://w3c.github.io/deviceorientation/spec-source-orientation.html#deviceorientation](https://w3c.github.io/deviceorientation/spec-source-orientation.html#deviceorientation) and [https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html](https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html) for details.
+     */
+<span id='dr-gyro-cfg-x'>/**
+</span>        * @cfg {Number} [x=0] (readonly)
+        * The accelerometer x value
+        */
+<span id='dr-gyro-cfg-y'>/**
+</span>        * @cfg {Number} [y=0] (readonly)
+        * The accelerometer y value
+        */
+<span id='dr-gyro-cfg-z'>/**
+</span>        * @cfg {Number} [z=0] (readonly)
+        * The accelerometer z value
+        */
+<span id='dr-gyro-cfg-alpha'>/**
+</span>        * @cfg {Number} [alpha=0] (readonly)
+        * The gyro alpha value rotating around the z axis
+        */
+<span id='dr-gyro-cfg-beta'>/**
+</span>        * @cfg {Number} [beta=0] (readonly)
+        * The gyro beta value rotating around the x axis
+        */
+<span id='dr-gyro-cfg-gamma'>/**
+</span>        * @cfg {Number} [gamma=0] (readonly)
+        * The gyro gamma value rotating around the y axis
+        */
+<span id='dr-gyro-cfg-compass'>/**
+</span>        * @cfg {Number} [compass=0] (readonly)
+        * The compass orientation, see [https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html](https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html) for details.
+        */
+<span id='dr-gyro-cfg-compassaccuracy'>/**
+</span>        * @cfg {Number} [compassaccuracy=0] (readonly)
+        * The compass accuracy, see [https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html](https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html) for details.
+        */
+<span id='dr-inputtext'>/**
+</span>     * @class dr.inputtext
+     * @extends dr.view
+     * Provides an editable input text field.
+     */
+<span id='dr-inputtext-cfg-multiline'>/**
+</span>        * @cfg {Boolean} [multiline=false]
+        * Set to true to show multi-line text.
+        */
+<span id='dr-inputtext-cfg-text'>/**
+</span>        * @cfg {String} text
+        * The text inside this input text field
+        */
+<span id='dr-labelbutton'>/**
+</span>     * @class dr.labelbutton
+     * @extends dr.buttonbase
+     * Button class consisting of text centered in a view. The onclick event
+     * is generated when the button is clicked. The visual state of the 
+     * button changes during onmousedown/onmouseup.
+     */
+<span id='dr-labeltoggle'>/**
+</span>     * @class dr.labeltoggle
+     * @extends dr.labelbutton
+     * Button class consisting of text centered in a view. The state of the
+     * button changes each time the button is clicked. The select property
+     * holds the current state of the button. The onselected event
+     * is generated when the button is the selected state.
+     */
+<span id='dr-replicator'>/**
+</span>     * @class dr.replicator
+     * @extends dr.node
+     * Handles replication and data binding.
+     *
+     * This example shows the replicator to creating four text instances, each corresponding to an item in the data attribute:
+     *
+     *     @example
+     *     &lt;simplelayout&gt;&lt;/simplelayout&gt;
+     *     &lt;replicator classname=&quot;text&quot; data=&quot;[1,2,3,4]&quot;&gt;&lt;/replicator&gt;
+     *
+     * Changing the data attribute to a new array causes the replicator to create a new text for each item:
+     *
+     *     @example
+     *     &lt;simplelayout&gt;&lt;/simplelayout&gt;
+     *     &lt;text onclick=&quot;repl.setAttribute('data', [5,6,7,8]);&quot;&gt;Click to change data&lt;/text&gt;
+     *     &lt;replicator id=&quot;repl&quot; classname=&quot;text&quot; data=&quot;[1,2,3,4]&quot;&gt;&lt;/replicator&gt;
+     *
+     * This example uses a {@link #filterexpression filterexpression} to filter the data to only numbers. Clicking changes {@link #filterexpression filterexpression} to show only non-numbers in the data:
+     *
+     *     @example
+     *     &lt;simplelayout&gt;&lt;/simplelayout&gt;
+     *     &lt;text onclick=&quot;repl.setAttribute('filterexpression', '[^\\d]');&quot;&gt;Click to change filter&lt;/text&gt;
+     *     &lt;replicator id=&quot;repl&quot; classname=&quot;text&quot; data=&quot;['a',1,'b',2,'c',3,4,5]&quot; filterexpression=&quot;\d&quot;&gt;&lt;/replicator&gt;
+     *
+     * Replicators can be used to look up {@link #datapath datapath} expressions to values in JSON data in a dr.dataset. This example looks up the color of the bicycle in the dr.dataset named bikeshop:
+     *
+     *     @example
+     *     &lt;dataset name=&quot;bikeshop&quot;&gt;
+     *      {
+     *        &quot;bicycle&quot;: {
+     *          &quot;color&quot;: &quot;red&quot;,
+     *          &quot;price&quot;: 19.95
+     *        }
+     *      }
+     *     &lt;/dataset&gt;
+     *     &lt;replicator classname=&quot;text&quot; datapath=&quot;$bikeshop/bicycle/color&quot;&gt;&lt;/replicator&gt;
+     *
+     * Matching one or more items will cause the replicator to create multiple copies:
+     *
+     *     @example
+     *     &lt;dataset name=&quot;bikeshop&quot;&gt;
+     *      {
+     *        &quot;bicycle&quot;: [
+     *          {
+     *           &quot;color&quot;: &quot;red&quot;,
+     *           &quot;price&quot;: 19.95
+     *          },
+     *          {
+     *           &quot;color&quot;: &quot;green&quot;,
+     *           &quot;price&quot;: 29.95
+     *          },
+     *          {
+     *           &quot;color&quot;: &quot;blue&quot;,
+     *           &quot;price&quot;: 59.95
+     *          }
+     *        ]
+     *      }
+     *     &lt;/dataset&gt;
+     *     &lt;simplelayout&gt;&lt;/simplelayout&gt;
+     *     &lt;replicator classname=&quot;text&quot; datapath=&quot;$bikeshop/bicycle[*]/color&quot;&gt;&lt;/replicator&gt;
+     *
+     * It's possible to select a single item on from the array using an array index. This selects the second item:
+     *
+     *     @example
+     *     &lt;dataset name=&quot;bikeshop&quot;&gt;
+     *      {
+     *        &quot;bicycle&quot;: [
+     *          {
+     *           &quot;color&quot;: &quot;red&quot;,
+     *           &quot;price&quot;: 19.95
+     *          },
+     *          {
+     *           &quot;color&quot;: &quot;green&quot;,
+     *           &quot;price&quot;: 29.95
+     *          },
+     *          {
+     *           &quot;color&quot;: &quot;blue&quot;,
+     *           &quot;price&quot;: 59.95
+     *          }
+     *        ]
+     *      }
+     *     &lt;/dataset&gt;
+     *     &lt;simplelayout&gt;&lt;/simplelayout&gt;
+     *     &lt;replicator classname=&quot;text&quot; datapath=&quot;$bikeshop/bicycle[1]/color&quot;&gt;&lt;/replicator&gt;
+     *
+     * It's also possible to replicate a range of items in the array with the [start,end,stepsize] operator. This replicates every other item:
+     *
+     *     @example
+     *     &lt;dataset name=&quot;bikeshop&quot;&gt;
+     *      {
+     *        &quot;bicycle&quot;: [
+     *          {
+     *           &quot;color&quot;: &quot;red&quot;,
+     *           &quot;price&quot;: 19.95
+     *          },
+     *          {
+     *           &quot;color&quot;: &quot;green&quot;,
+     *           &quot;price&quot;: 29.95
+     *          },
+     *          {
+     *           &quot;color&quot;: &quot;blue&quot;,
+     *           &quot;price&quot;: 59.95
+     *          }
+     *        ]
+     *      }
+     *     &lt;/dataset&gt;
+     *     &lt;simplelayout&gt;&lt;/simplelayout&gt;
+     *     &lt;replicator classname=&quot;text&quot; datapath=&quot;$bikeshop/bicycle[0,3,2]/color&quot;&gt;&lt;/replicator&gt;
+     *
+     * Sometimes it's necessary to have complete control and flexibility over filtering and transforming results. Adding a [@] operator to the end of your datapath causes {@link #filterfunction filterfunction} to be called for each result. This example shows bike colors for bikes with a price greater than 20, in reverse order:
+     *
+     *     @example
+     *     &lt;dataset name=&quot;bikeshop&quot;&gt;
+     *      {
+     *        &quot;bicycle&quot;: [
+     *          {
+     *           &quot;color&quot;: &quot;red&quot;,
+     *           &quot;price&quot;: 19.95
+     *          },
+     *          {
+     *           &quot;color&quot;: &quot;green&quot;,
+     *           &quot;price&quot;: 29.95
+     *          },
+     *          {
+     *           &quot;color&quot;: &quot;blue&quot;,
+     *           &quot;price&quot;: 59.95
+     *          }
+     *        ]
+     *      }
+     *     &lt;/dataset&gt;
+     *     &lt;simplelayout&gt;&lt;/simplelayout&gt;
+     *     &lt;replicator classname=&quot;text&quot; datapath=&quot;$bikeshop/bicycle[*][@]&quot;&gt;
+     *       &lt;method name=&quot;filterfunction&quot; args=&quot;obj, accum&quot;&gt;
+     *         // add the color to the beginning of the results if the price is greater than 20
+     *         if (obj.price &gt; 20)
+     *           accum.unshift(obj.color);
+     *         return accum
+     *       &lt;/method&gt;
+     *     &lt;/replicator&gt;
+     */
+<span id='dr-replicator-cfg-pooling'>/**
+</span>        * @cfg {Boolean} [pooling=false]
+        * If true, reuse views when replicating.
+        */
+<span id='dr-replicator-cfg-data'>/**
+</span>        * @cfg {Array} [data=[]]
+        * The list of items to replicate. If {@link #datapath datapath} is set, it is converted to an array and stored here.
+        */
+<span id='dr-replicator-cfg-classname'>/**
+</span>        * @cfg {String} classname (required)
+        * The name of the class to be replicated.
+        */
+<span id='dr-replicator-cfg-datapath'>/**
+</span>        * @cfg {String} datapath
+        * The datapath expression to be replicated.
+        * See [https://github.com/flitbit/json-path](https://github.com/flitbit/json-path) for details.
+        */
+<span id='dr-replicator-cfg-sortfield'>/**
+</span>        * @cfg {String} [sortfield=&quot;&quot;]
+        * The field in the data to use for sorting. Only sort then this 
+        */
+<span id='dr-replicator-cfg-sortasc'>/**
+</span>        * @cfg {Boolean} [sortasc=true]
+        * If true, sort ascending.
+        */
+<span id='dr-replicator-cfg-filterexpression'>/**
+</span>        * @cfg {String} [filterexpression=&quot;&quot;]
+        * If defined, data will be filtered against a [regular expression](https://developer.mozilla.org/en/docs/Web/JavaScript/Guide/Regular_Expressions). 
+        */
+<span id='dr-replicator-method-filterfunction'>/**
+</span>        * @method filterfunction
+        * @abstract
+        * Called to filter data.
+        * @param obj An individual item to be processed.
+        * @param {Object[]} accum The array of items that have been accumulated. To keep a processed item, it must be added to the accum array.
+        * @returns {Object[]} The accum array. Must be returned otherwise results will be lost.
+        */
+<span id='dr-shim'>/**
+</span>     * @class dr.shim
+     * @extends dr.node
+     * Connects to the shared event bus. When data is sent with a given type, a corresponding event is sent. For example, send('blah', {}) sends data with the 'blah' type, other shims will receive the object via an 'onblah' event.
+     */
+<span id='dr-shim-cfg-connected'>/**
+</span>        * @cfg {Boolean} [connected=false] (readonly)
+        * If true, we are connected to the server
+        */
+<span id='dr-shim-cfg-pingtime'>/**
+</span>        * @cfg {Number} [pingtime=1000]
+        * The frequency used to reconnect to the server
+        */
+<span id='dr-shim-cfg-websockets'>/**
+</span>        * @cfg {Boolean} [websockets=false]
+        * If true, use websockets to connect to the server
+        */
+<span id='dr-shim-method-send'>/**
+</span>        * @method send
+        * Sends some data over the event bus.
+        * @param {String} type The type of event to be sent.
+        * @param {Object} data The data to be sent.
+        */
+<span id='dr-simplelayout'>/**
+</span>     * @class dr.simplelayout
+     * @extends dr.layout
+     * A layout that stacks views on the x or y axis.
+     */
+<span id='dr-simplelayout-cfg-inset'>/**
+</span>        * @cfg {Number} [inset=0]
+        * Amount to inset the layout
+        */
+<span id='dr-simplelayout-cfg-spacing'>/**
+</span>        * @cfg {Number} [spacing=15]
+        * Amount of spacing between views
+        */
+<span id='dr-simplelayout-cfg-axis'>/**
+</span>        * @cfg {&quot;x&quot;/&quot;y&quot;} [axis=x]
+        * The axis to stack on
+        */
+<span id='dr-slider'>/**
+</span>     * @class dr.slider
+     * @extends dr.view
+     * An input component whose state is changed when the mouse is dragged.
+     *
+     *     @example
+     *
+     *     &lt;slider name=&quot;hslide&quot; y=&quot;5&quot; width=&quot;250&quot; height=&quot;10&quot; value=&quot;50&quot; bgcolor=&quot;#808080&quot;&gt;&lt;/slider&gt;
+     * Slider with a label:
+     *
+     *     @example
+     *     
+     *     &lt;simplelayout axis=&quot;x&quot; spacing=&quot;8&quot;&gt;&lt;/simplelayout&gt;
+     *     &lt;slider name=&quot;hslide&quot; y=&quot;5&quot; width=&quot;250&quot; height=&quot;10&quot; value=&quot;50&quot; bgcolor=&quot;#808080&quot;&gt;&lt;/slider&gt;
+     *     &lt;text text=&quot;${Math.round(this.parent.hslide.value)}&quot; y=&quot;${this.parent.hslide.y + (this.parent.hslide.height-this.height)/2}&quot;&gt;&lt;/text&gt;
+     */
+<span id='dr-slider-cfg-minvalue'>/**
+</span>        * @cfg {Number} [minvalue=0]
+        * The minimum value of the slider
+        */
+<span id='dr-slider-cfg-maxvalue'>/**
+</span>        * @cfg {Number} [maxvalue=100]
+        * The maximum value of the slider
+        */
+<span id='dr-slider-cfg-axis'>/**
+</span>        * @cfg {&quot;x&quot;/&quot;y&quot;} [axis=x]
+        * The axis to track on
+        */
+<span id='dr-slider-cfg-invert'>/**
+</span>        * @cfg {Boolean} [invert=false]
+        * Set to true to invert the direction of the slider.
+        */
+<span id='dr-slider-cfg-value'>/**
+</span>        * @cfg {Number} [value=0]
+        * The current value of the slider.
+        * Use changeValue() to range check the number and set the value.
+        */
+<span id='dr-slider-method-changeValue'>/**
+</span>        * @method changeValue
+        * Given a new value for the slider position, constrain the value
+        * between minvalue and maxvalue and then calls setAttribute.
+        * @param {Number} v The new value of the component.
+        */
+<span id='dr-slider-cfg-selectcolor'>/**
+</span>        * @cfg {String} [selectcolor=&quot;#a0a0a0&quot;]
+        * The selected color of the slider.
+        */
+<span id='dr-text'>/**
+</span>     * @class dr.text
+     * @extends dr.view
+     * Text component that supports single and multi-line text. The text
+     * component can be fixed size, or sized to fit the size of the text.
+     *
+     *     @example
+     *     &lt;text text=&quot;Hello World!&quot; bgcolor=&quot;red&quot;&gt;&lt;/text&gt;
+     */
+<span id='dr-text-cfg-multiline'>/**
+</span>        * @cfg {Boolean} [multiline=false]
+        * Set to true to show multi-line text.
+        */
+<span id='dr-text-cfg-resize'>/**
+</span>        * @cfg {Boolean} [resize=true]
+        * By default, the text component is sized to the size of the text.
+        * By setting resize=false, the component size is not modified
+        * when the text changes.
+        */
+<span id='dr-text-cfg-text'>/**
+</span>        * @cfg {String} [text=&quot;&quot;]
+        * Component text.
+        */
+<span id='dr-text-method-format'>/**
+</span>        * @method format
+        * Format the text to be displayed. The default behavior is to 
+        * return the text intact. Override to change formatting.
+        * @param {String} str The current value of the text component.
+        * @return {String} The formated string to display in the component.
+        */
+<span id='dr-touch'>/**
+</span>     * @class dr.touch
+     * @extends dr.node
+     * Receives touch and multitouch data where available.
+     */
+<span id='dr-touch-cfg-x'>/**
+</span>        * @cfg {Number} [x=0] (readonly)
+        * The touch x value for the first finger.
+        */
+<span id='dr-touch-cfg-y'>/**
+</span>        * @cfg {Number} [y=0] (readonly)
+        * The touch y value for the first finger.
+        */
+<span id='dr-touch-cfg-touches'>/**
+</span>        * @cfg {Object[]} touches (readonly)
+        * An array of x/y coordinates for all fingers, where available. See [https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Touch_events](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Touch_events) for more details
+        */
+</pre>
+</body>
+</html>
+>>>>>>> e0940a312c04fa6e24bf8fb7e8981027e2b389de
