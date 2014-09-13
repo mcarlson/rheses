@@ -159,6 +159,8 @@ SOFTWARE. -->
      *         return accum
      *       </method>
      *     </replicator>
+     *
+     * See [https://github.com/flitbit/json-path](https://github.com/flitbit/json-path) for more details.
      */--> 
     <class name="replicator" type="coffee" extends="node" scriptincludes="/lib/json-path+json-ptr-0.1.3.min.js">
       <!--/**
@@ -208,7 +210,8 @@ SOFTWARE. -->
         # console.log('listening to dataset', dataset, dr.datasets, @dataset, @_dataset)
         @listenTo(@dataset, 'data', (data) =>
           # console.log('callback', @, data)
-          @setAttribute('data', data)
+          @data = data
+          @applyData()
         )
         @sendEvent('dataset', @dataset)
       </setter>
@@ -357,6 +360,7 @@ SOFTWARE. -->
           # console.log('_filterexpressionfunc', @_filterexpressionfunc, @data, @_origdata)
 
         @data.sort(@sortfunc) if (@sortfunc)
+        @sendEvent('data', @data) if @data.length
 
         if @parent.layouts
           for layout in @parent.layouts
