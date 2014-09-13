@@ -12,7 +12,7 @@ Once the server is running, visit [http://localhost:8000/data.html]()
 installing the sublime plugin
 -----------------------------
 
-For Sublime Text 2, use preferences -> browse packages, back out a folder and copy the file from /tools/Dreem.sublime-package
+For Sublime Text, use the preferences -> browse packages menu, back out a folder and browse to 'Installed Packages', then copy /tools/Dreem.sublime-package there.
 
 building
 --------
@@ -21,11 +21,8 @@ This is only required when editing the coffeescript core.
     coffee -mo ./ -cw *.coffee
 
 To build the api documentation, install [https://github.com/senchalabs/jsduck]() and run:
-
-    rm -rf docs/api/
-    node ./bin/finddoccomments.js > classdocs.js
-    jsduck layout.js classdocs.js --output=docs/api/ --eg-iframe=jsduck_iframe.html --title="Dreem API documentation" --footer="Copyright (c) 2014 Teem2 LLC"
-
+	./bin/builddocs
+		
 <!-- The MIT License (MIT)
 
 Copyright ( c ) 2014 Teem2 LLC
