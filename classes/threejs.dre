@@ -33,31 +33,51 @@ SOFTWARE. -->
       <handler event="onidle" reference="dr.idle">
         this.renderer.render( this.scene, this.camera );
       </handler>
+
       <handler event="onwidth" method="handleResize"></handler>
       <handler event="onheight" method="handleResize"></handler>
+      <attribute name="scene"  value="null" type="expression"></attribute>
       <handler event="oninit">
+        
         var renderer = this.renderer = new THREE.WebGLRenderer();
+        
         renderer.setClearColor( this.bgcolor );
         renderer.setSize(this.width, this.height);
         renderer.domElement.$view = this;
+        
         this.sprite.el.appendChild(renderer.domElement);
 
-        this.camera = new THREE.PerspectiveCamera( 70, this.width / this.height, 1, 10000 );
-        this.scene = new THREE.Scene();
-        this.initScene(this.scene);
+        this.camera = new THREE.PerspectiveCamera( 70 , this.width / this.height , 1 , 10000 );
+        this.setAttribute('scene', new THREE.Scene());
+        
+        this.initScene( this.scene );
+      
       </handler>
+      
       <handler event="onbgcolor" args="color">
+        
         if (! this.renderer) return;
-        this.renderer.setClearColor(color);
+        this.renderer.setClearColor( color );
+      
       </handler>
+      
       <method name="handleResize">
+
         if (this.camera) {
+          
           this.camera.aspect = this.width / this.height;
           this.camera.updateProjectionMatrix();
+        
         }
+
         if (this.renderer) {
-          this.renderer.setSize( this.width, this.height);
+          
+          this.renderer.setSize( this.width, this.height );
+        
         }
+
       </method>
+
+      <method name="update" args="scene, camera"></method>
       <method name="initScene" args="scene"></method>
     </class>
