@@ -28,12 +28,12 @@
     <shim id="bus"></shim>
     <node>
       <gyro>
-        <method event="setAttribute" args="name, val">
+        <method name="setAttribute" args="name, val">
           if (bus) bus.send(name.toString(), val.toString());
         </method>
       </gyro>
       <touch>
-        <method event="setAttribute" args="name, val">
+        <method name="setAttribute" args="name, val">
           if (bus) bus.send(name.toString(), val.toString());
         </method>
       </touch>
