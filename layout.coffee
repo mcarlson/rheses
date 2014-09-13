@@ -1303,10 +1303,16 @@ window.dr = do ->
           # console.log 'initting class child', child.localName
           initElement(child, parent) unless child.localName in specialtags
 
-        if skiponinit
-          unless parent.inited
-            parent.inited = true
-            parent.sendEvent('init', parent) 
+        doinit = ->
+          parent.inited = true
+          parent.sendEvent('init', parent)
+          return
+
+        if skiponinit and not parent.inited
+          if (children.length)
+            idle(0, doinit)
+          else 
+            doinit()
 
       return
 
