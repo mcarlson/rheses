@@ -22,11 +22,13 @@ SOFTWARE. -->
     <class name="threejs" width="400" height="300" scriptincludes="http://threejs.org/build/three.min.js">
       <attribute name="cameranear" value="0" type="number"></attribute>
       <setter name="cameranear" args="cameranear">
+        if (! this.camera) return;
         this.camera.near = cameranear;
         this.camera.updateProjectionMatrix();
       </setter>
-      <attribute name="camerafar" value="0" type="number"></attribute>
+      <attribute name="camerafar" value="100000" type="number"></attribute>
       <setter name="camerafar" args="camerafar">
+        if (! this.camera) return;
         this.camera.far = camerafar;
         this.camera.updateProjectionMatrix();
       </setter>
@@ -36,7 +38,7 @@ SOFTWARE. -->
 
       <handler event="onwidth" method="handleResize"></handler>
       <handler event="onheight" method="handleResize"></handler>
-      <attribute name="scene"  value="null" type="expression"></attribute>
+
       <handler event="oninit">
         
         var renderer = this.renderer = new THREE.WebGLRenderer();
@@ -47,11 +49,10 @@ SOFTWARE. -->
         
         this.sprite.el.appendChild(renderer.domElement);
 
-        this.camera = new THREE.PerspectiveCamera( 70 , this.width / this.height , 1 , 10000 );
-        this.setAttribute('scene', new THREE.Scene());
-        
-        this.initScene( this.scene );
-      
+        this.camera = new THREE.PerspectiveCamera( 70, this.width / this.height, this.cameranear, this.camerafar );
+        this.scene = new THREE.Scene();
+        this.initScene(this.scene);
+
       </handler>
       
       <handler event="onbgcolor" args="color">
