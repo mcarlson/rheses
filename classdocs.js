@@ -347,7 +347,7 @@
      * @extends dr.node
      * Logs all attribute setting behavior
      *
-     * This example shows how to log all setAttribute() calls for a replicator:
+     * This example shows how to log all setAttribute() calls for a replicator to console.log():
      *
      *     @example
      *     <dataset name="topmovies" url="/top_movies.json"></dataset>
