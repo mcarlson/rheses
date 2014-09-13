@@ -9,6 +9,11 @@ A web server is currently required to serve LZX autoincludes, as it satisfies th
 
 Once the server is running, visit [http://localhost:8000/data.html]()
 
+installing the sublime plugin
+-----------------------------
+
+For Sublime Text 2, use preferences -> browse packages, back out a folder and copy the file from /tools/Dreem.sublime-package
+
 building
 --------
 This is only required when editing the coffeescript core.
