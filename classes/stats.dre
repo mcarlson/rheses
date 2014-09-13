@@ -19,7 +19,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. -->
-    <class name="stats" width="80" height="48" scriptincludes="http://threejs.org/examples/js/libs/stats.min.js">
+    <class name="stats" width="80" height="48" z-index="999999" scriptincludes="http://threejs.org/examples/js/libs/stats.min.js">
       <handler event="oninit">
         this.container = this.sprite.el;
         this.stats = new Stats();
