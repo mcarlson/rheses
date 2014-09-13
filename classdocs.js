@@ -343,6 +343,17 @@
      * is generated when the button is the selected state.
      */
 /**
+     * @class dr.logger
+     * @extends dr.node
+     * Logs all attribute setting behavior
+     *
+     * This example shows how to log all setAttribute() calls for a replicator:
+     *
+     *     @example
+     *     <dataset name="topmovies" url="/top_movies.json"></dataset>
+     *     <replicator datapath="$topmovies/searchResponse/results[*]/movie[take(/releaseYear,/duration,/rating)]" classname="logger"></replicator>
+     */
+/**
      * @class dr.replicator
      * @extends dr.node
      * Handles replication and data binding.
@@ -482,6 +493,8 @@
      *         return accum
      *       </method>
      *     </replicator>
+     *
+     * See [https://github.com/flitbit/json-path](https://github.com/flitbit/json-path) for more details.
      */
 /**
         * @cfg {Boolean} [pooling=false]
@@ -607,6 +620,16 @@
         * @cfg {String} [selectcolor="#a0a0a0"]
         * The selected color of the slider.
         */
+/**
+     * @class dr.stats
+     * @extends dr.view
+     * wraps the three.js stats control which shows framerate over time
+     *
+     * This example shows how use the stats control to monitor framerate:
+     *
+     *     @example
+     *     <stats></stats>
+     */
 /**
      * @class dr.text
      * @extends dr.view
