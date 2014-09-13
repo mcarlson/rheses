@@ -20,6 +20,16 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. -->
     <class name="threejs" width="400" height="300" scriptincludes="http://threejs.org/build/three.min.js">
+      <attribute name="cameranear" value="0" type="number"></attribute>
+      <setter name="cameranear" args="cameranear">
+        this.camera.near = cameranear;
+        this.camera.updateProjectionMatrix();
+      </setter>
+      <attribute name="camerafar" value="0" type="number"></attribute>
+      <setter name="camerafar" args="camerafar">
+        this.camera.far = camerafar;
+        this.camera.updateProjectionMatrix();
+      </setter>
       <handler event="onidle" reference="dr.idle">
         this.renderer.render( this.scene, this.camera );
       </handler>
