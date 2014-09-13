@@ -1588,7 +1588,7 @@
                 _ref3 = el.attributes.scriptincludes.value.split(',');
                 for (_n = 0, _len5 = _ref3.length; _n < _len5; _n++) {
                   url = _ref3[_n];
-                  scriptsloading = loadScript(url, callback, (_ref4 = el.attributes.scriptincludeserror) != null ? _ref4.value.toString() : void 0);
+                  scriptsloading = loadScript(url.trim(), callback, (_ref4 = el.attributes.scriptincludeserror) != null ? _ref4.value.toString() : void 0);
                 }
               }
               filerequests = [];

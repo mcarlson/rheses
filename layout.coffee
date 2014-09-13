@@ -1212,7 +1212,7 @@ window.dr = do ->
 
             for el in jqel.find('[scriptincludes]')
               for url in el.attributes.scriptincludes.value.split(',')
-                scriptsloading = loadScript(url, callback, el.attributes.scriptincludeserror?.value.toString())
+                scriptsloading = loadScript(url.trim(), callback, el.attributes.scriptincludeserror?.value.toString())
 
             # done loading
             filerequests = []
