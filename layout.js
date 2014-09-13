@@ -575,8 +575,6 @@
 
       matchConstraint = /\${(.+)}/;
 
-      matchConstraint = /\${(.+)}/;
-
       lateattributes = ['parent', 'name'];
 
       function Node(el, attributes) {
@@ -2665,7 +2663,7 @@
 
     /**
      * @class dr.method
-     * Declares a method in a node, view, class or other class instance. Methods can only be created with the &lt;method>&lt;/method> tag syntax. 
+     * Declares a member function in a node, view, class or other class instance. Methods can only be created with the &lt;method>&lt;/method> tag syntax. 
      * 
      * If a method overrides an existing method, any existing (super) method(s) will be called first automatically.
      */
@@ -2682,16 +2680,16 @@
 
     /**
      * @cfg {"js"/"coffee"} type 
-     * The default compiler to use for this method. Inherits from the immediate class if unspecified.
+     * The compiler to use for this method. Inherits from the immediate class if unspecified.
      */
 
     /**
      * @class dr.setter
      * Declares a setter in a node, view, class or other class instance. Setters can only be created with the &lt;setter>&lt;/setter> tag syntax.
      *
-     * Setters are called when an attribute is set based on their name, and allow the behavior of an attribute changes to be modified.
+     * Setters allow the default behavior of attribute changes to be changed.
      * 
-     * If a setter overrides an existing method, any existing (super) method(s) will be called first automatically.
+     * Like dr.method, if a setter overrides an existing setter any existing (super) setter(s) will be called first automatically.
      */
 
     /**
@@ -2706,7 +2704,7 @@
 
     /**
      * @cfg {"js"/"coffee"} type 
-     * The default compiler to use for this method. Inherits from the immediate class if unspecified.
+     * The compiler to use for this method. Inherits from the immediate class if unspecified.
      */
 
     /**
@@ -2768,7 +2766,7 @@
 
     /**
      * @cfg {"js"/"coffee"} type 
-     * The default compiler to use for this method. Inherits from the immediate class if unspecified.
+     * The compiler to use for this method. Inherits from the immediate class if unspecified.
      */
 
     /**

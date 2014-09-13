@@ -17,6 +17,7 @@ This is only required when editing the coffeescript core.
 
 To build the api documentation, install [https://github.com/senchalabs/jsduck]() and run:
 
+    rm -rf docs/api/
     node ./bin/finddoccomments.js > classdocs.js
     jsduck layout.js classdocs.js --output=docs/api/ --eg-iframe=jsduck_iframe.html --title="Dreem API documentation" --footer="Copyright (c) 2014 Teem2 LLC"
 
