@@ -5,16 +5,8 @@
     body {
       background-color: white;
       font-family: 'Helvetica';
-      font-size: 40px;
       margin: 0px;
       padding: 0px;
-    }
-    input {
-      font-family: 'Helvetica';
-      font-size: 14px;
-      margin: 0px;
-      padding: 0px;
-      width: 100px;
     }
   </style>
   <script type="text/javascript" src="/lib/jquery-1.9.1.js"></script>
@@ -24,17 +16,39 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
 </head>
 <body>
+  <script>
+    // prevent dragging the background
+    document.body.addEventListener('touchmove', function(event) {
+        event.preventDefault();
+    }, false);
+ 
+    window.onresize = function() {
+      $(document.body).width(window.innerWidth).height(window.innerHeight);
+    }
+ 
+    $(function() {
+      window.onresize();
+    });
+  </script>
   <view>
-    <shim id="bus"></shim>
+    <shim id="bus" websocket="true"></shim>
     <node>
       <gyro>
         <method name="setAttribute" args="name, val">
-          if (bus) bus.send(name.toString(), val.toString());
+          if (! bus) return;
+          if (this['_' + name] !== val) {
+            this['_' + name] = val;
+            bus.send(name.toString(), val.toString());
+          }
         </method>
       </gyro>
       <touch>
         <method name="setAttribute" args="name, val">
-          if (bus) bus.send(name.toString(), val.toString());
+          if (! bus) return;
+          if (this[name] !== val) {
+            this['_' + name] = val;
+            bus.send(name.toString(), val.toString());
+          }
         </method>
       </touch>
     </node>
