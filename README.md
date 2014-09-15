@@ -1,13 +1,21 @@
 dreem
 ======
 
-running
---------
-A web server is currently required to serve LZX autoincludes, as it satisfies the same-origin policy. Any simple web server will do, here's a one liner that works in most cases:
+getting started with dreem
+--------------------------
+It is quick and easy to get started writing your dreem application. After cloning the project, you will need to serve the dreem files through a web server to satisfy the browser's same-origin policy. SimpleHTTPServer is a quick and easy option to get started. From within the dreem root directory just run:
 
     python -m SimpleHTTPServer
+    
+This will turn that directory into a webserver and allow you to run any of the example files on localhost, such as [http://localhost:8000/data.html]()
 
-Once the server is running, visit [http://localhost:8000/data.html]()
+That's all you need to do to get set up to build a dreem application. There are many sample files in the root directory that you can reference to get familiar with the language. You will also want to build the API documentation to run on your machine as it is currently not hosted anywhere on the web. This is a simple process, and instructions are included below.
+
+You can put your dreem files right in the root dreem directory or a subdirectory to get started. However, if you want to keep your files in source control its helpful to keep them separate from the dreem git repo. You can easily do so by creating a softlink in the dreem directory that points to a separate directory located elsewhere in your machine. For example, if your dreem installation is located at ~/dev/dreem, and you want to keep your dreem application in ~/dev/mydreemapp, then within ~/dev/dreem run:
+
+    ln -s ~/dev/mydreemapp ./mydreemapp
+    
+Now you can access your files at http://localhost:8000/mydreemapp/
 
 installing the sublime plugin
 -----------------------------
@@ -19,8 +27,19 @@ building
 This is only required when editing the coffeescript core.
 
     coffee -mo ./ -cw *.coffee
+    
+building the documentation
+--------------------------
 
-To build the api documentation, install [https://github.com/senchalabs/jsduck]() and run:
+The API docs are built with [https://github.com/senchalabs/jsduck](). Install jsduck as a ruby gem using bundler by running
+
+    gem install bundler
+    bundle install
+    
+If you are using rvm or similar your gems will be installed in a gemset called 'dreem'.
+
+With jsduck installed run:
+
 	./bin/builddocs
 		
 <!-- The MIT License (MIT)
