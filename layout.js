@@ -1431,7 +1431,7 @@
 
     })(Node);
     dom = (function() {
-      var builtinTags, exports, findAutoIncludes, flattenattributes, htmlDecode, initAllElements, initElement, initFromElement, processSpecialTags, showWarnings, specialtags, writeCSS;
+      var builtinTags, checkRequiredAttributes, exports, findAutoIncludes, flattenattributes, htmlDecode, initAllElements, initElement, initFromElement, processSpecialTags, requiredAttributes, showWarnings, specialtags, warnings, writeCSS;
       flattenattributes = function(namednodemap) {
         var attributes, i, _i, _len;
         attributes = {};
@@ -1449,8 +1449,10 @@
           return _initConstraints();
         });
       };
+      warnings = [];
       showWarnings = function(data) {
         var out, pre;
+        warnings = warnings.concat(data);
         out = data.join('\n');
         pre = document.createElement('pre');
         pre.setAttribute('class', 'warnings');
@@ -1634,8 +1636,48 @@
       };
       specialtags = ['handler', 'method', 'attribute', 'setter', 'include'];
       builtinTags = ['a', 'abbr', 'address', 'area', 'article', 'aside', 'audio', 'b', 'base', 'bdi', 'bdo', 'blockquote', 'body', 'br', 'button', 'canvas', 'caption', 'cite', 'code', 'col', 'colgroup', 'command', 'datalist', 'dd', 'del', 'details', 'dfn', 'div', 'dl', 'dt', 'em', 'embed', 'fieldset', 'figcaption', 'figure', 'footer', 'form', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'head', 'header', 'hgroup', 'hr', 'html', 'i', 'iframe', 'img', 'image', 'input', 'ins', 'kbd', 'keygen', 'label', 'legend', 'li', 'link', 'map', 'mark', 'menu', 'meta', 'meter', 'nav', 'noscript', 'object', 'ol', 'optgroup', 'option', 'output', 'p', 'param', 'pre', 'progress', 'q', 'rp', 'rt', 'ruby', 's', 'samp', 'script', 'section', 'select', 'small', 'source', 'span', 'strong', 'style', 'sub', 'summary', 'sup', 'table', 'tbody', 'td', 'textarea', 'tfoot', 'th', 'thead', 'time', 'title', 'tr', 'track', 'u', 'ul', 'var', 'video', 'wbr'];
+      requiredAttributes = {
+        "class": {
+          "name": 1
+        },
+        "method": {
+          "name": 1
+        },
+        "setter": {
+          "name": 1
+        },
+        "handler": {
+          "event": 1
+        },
+        "attribute": {
+          "name": 1,
+          "type": 1,
+          "value": 1
+        },
+        "dataset": {
+          "name": 1
+        },
+        "replicator": {
+          "classname": 1
+        }
+      };
+      checkRequiredAttributes = function(tagname, attributes, tag, parenttag) {
+        var attrname, error;
+        if (tagname in requiredAttributes) {
+          for (attrname in requiredAttributes[tagname]) {
+            if (!(attrname in attributes)) {
+              error = "" + tagname + "." + attrname + " must be defined on " + tag.outerHTML;
+              if (parenttag) {
+                error = error + (" inside " + parenttag.outerHTML);
+              }
+              showWarnings([error]);
+            }
+          }
+        }
+        return error;
+      };
       initElement = function(el, parent) {
-        var attributes, child, children, event, eventname, isClass, isState, li, skiponinit, tagname, _i, _j, _len, _len1, _ref;
+        var attributes, child, children, doinit, event, eventname, isClass, isState, li, skiponinit, tagname, _i, _j, _len, _len1, _ref;
         if (el.$init) {
           return;
         }
@@ -1656,6 +1698,7 @@
           return;
         }
         attributes = flattenattributes(el.attributes);
+        checkRequiredAttributes(tagname, attributes, el);
         attributes.$tagname = tagname;
         for (_i = 0, _len = mouseEvents.length; _i < _len; _i++) {
           event = mouseEvents[_i];
@@ -1711,10 +1754,15 @@
               initElement(child, parent);
             }
           }
-          if (skiponinit) {
-            if (!parent.inited) {
-              parent.inited = true;
-              parent.sendEvent('init', parent);
+          doinit = function() {
+            parent.inited = true;
+            parent.sendEvent('init', parent);
+          };
+          if (skiponinit && !parent.inited) {
+            if (children.length) {
+              idle(0, doinit);
+            } else {
+              doinit();
             }
           }
         }
@@ -1786,6 +1834,7 @@
           }
           type = (_ref1 = attributes.type) != null ? _ref1 : defaulttype;
           name = attributes.name;
+          checkRequiredAttributes(tagname, attributes, child, el);
           switch (tagname) {
             case 'handler':
               handler = {
@@ -2745,7 +2794,7 @@
      */
 
     /**
-     * @cfg {String} name (required)
+     * @cfg {String} event (required)
      * The name of the event to listen for, e.g. 'onwidth'.
      */
 

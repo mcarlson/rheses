@@ -1,27 +1,5 @@
-<html>
-<head>
-  <title>rhes.es</title>
-  <script type="text/javascript" src="/lib/jquery-1.9.1.min.js"></script>
-  <script type="text/javascript" src="/lib/acorn.js"></script>
-  <script type="text/javascript" src="/lib/coffee-script.js"></script>
-  <script type="text/javascript" src="/layout.js"></script>
-</head>
-<body>
-<view id="all" width="100%" height="100%" clip="true">
-
-  <simplelayout axis="x" spacing="10"></simplelayout>
-  <view name="v1" width="50" height="50" bgcolor="green" clickable="true"></view>
-  <view name="v2" width="50" height="50" bgcolor="green" clickable="true">
-    <handler event="onclick" reference="this.parent">
-      console.log("You clicked v1");
-    </handler>
-    <handler event="onclick">
-      console.log("You clicked v2");
-    </handler>
-  </view>
-
-</view>  
-<!-- The MIT License (MIT)
+/*
+The MIT License (MIT)
 
 Copyright ( c ) 2014 Teem2 LLC
 
@@ -41,6 +19,37 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE. -->
-</body>
-</html>
+SOFTWARE.
+*/
+
+var fs = require('fs');
+var jpath = require('json-path');
+
+var basepath = "./docs/api/"
+
+var regex = /{(.*)}/g
+
+fs.readdir(basepath, function(err, files) {
+    if (err) throw err;
+    files.forEach(function(file) {
+        if (file.indexOf('data-') !== 0) return;
+        // console.log(basepath + file)
+        var filecontents = fs.readFileSync(basepath + file, {
+            encoding: 'utf-8'
+        });
+        var matches = filecontents.toString().match(regex);
+        var data = JSON.parse(matches[0]);
+
+        var res = jpath.executeSelectors(data, jpath.parseSelector("/data/search[*]"));
+        var out = {}
+        res.forEach(function(d, i) {
+            if (!d.meta.required)
+                return;
+            classAndName = d.fullName.substring(3).split('.')
+            if (! out[classAndName[0]]) 
+              out[classAndName[0]] = {};
+            out[classAndName[0]][classAndName[1]] = 1;
+        })
+        console.log(JSON.stringify(out));
+    });
+});

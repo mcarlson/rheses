@@ -1087,7 +1087,9 @@ window.dr = do ->
         _initConstraints()
       )
 
+    warnings = []
     showWarnings = (data) ->
+      warnings = warnings.concat(data)
       out = data.join('\n')
       pre = document.createElement('pre')
       pre.setAttribute('class', 'warnings');
@@ -1253,6 +1255,21 @@ window.dr = do ->
     specialtags = ['handler', 'method', 'attribute', 'setter', 'include']
     # tags built into the browser that should be ignored, from http://www.w3.org/TR/html-markup/elements.html
     builtinTags = ['a', 'abbr', 'address', 'area', 'article', 'aside', 'audio', 'b', 'base', 'bdi', 'bdo', 'blockquote', 'body', 'br', 'button', 'canvas', 'caption', 'cite', 'code', 'col', 'colgroup', 'command', 'datalist', 'dd', 'del', 'details', 'dfn', 'div', 'dl', 'dt', 'em', 'embed', 'fieldset', 'figcaption', 'figure', 'footer', 'form', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'head', 'header', 'hgroup', 'hr', 'html', 'i', 'iframe', 'img', 'image', 'input', 'ins', 'kbd', 'keygen', 'label', 'legend', 'li', 'link', 'map', 'mark', 'menu', 'meta', 'meter', 'nav', 'noscript', 'object', 'ol', 'optgroup', 'option', 'output', 'p', 'param', 'pre', 'progress', 'q', 'rp', 'rt', 'ruby', 's', 'samp', 'script', 'section', 'select', 'small', 'source', 'span', 'strong', 'style', 'sub', 'summary', 'sup', 'table', 'tbody', 'td', 'textarea', 'tfoot', 'th', 'thead', 'time', 'title', 'tr', 'track', 'u', 'ul', 'var', 'video', 'wbr']
+    # found by running './bin/builddocs' followed by 'node ./bin/findrequired.js'
+    requiredAttributes = {"class":{"name":1},"method":{"name":1},"setter":{"name":1},"handler":{"event":1},"attribute":{"name":1,"type":1,"value":1},"dataset":{"name":1},"replicator":{"classname":1}}
+
+    checkRequiredAttributes = (tagname, attributes, tag, parenttag) ->
+      if tagname of requiredAttributes
+        # console.log('requiredAttributes', tagname)
+        for attrname of requiredAttributes[tagname]
+          # console.log('checking attribute', tagname, attrname)
+          unless attrname of attributes
+            error = "#{tagname}.#{attrname} must be defined on #{tag.outerHTML}"
+            error = error + " inside #{parenttag.outerHTML}" if parenttag
+            showWarnings([error])
+            # throw new Error(error)
+      error
+
     # recursively init classes based on an existing element
     initElement = (el, parent) ->
       # don't init the same element twice
@@ -1270,6 +1287,8 @@ window.dr = do ->
         return
 
       attributes = flattenattributes(el.attributes)
+
+      checkRequiredAttributes(tagname, attributes, el)
 
       attributes.$tagname = tagname
 
@@ -1303,10 +1322,16 @@ window.dr = do ->
           # console.log 'initting class child', child.localName
           initElement(child, parent) unless child.localName in specialtags
 
-        if skiponinit
-          unless parent.inited
-            parent.inited = true
-            parent.sendEvent('init', parent) 
+        doinit = ->
+          parent.inited = true
+          parent.sendEvent('init', parent)
+          return
+
+        if skiponinit and not parent.inited
+          if (children.length)
+            idle(0, doinit)
+          else 
+            doinit()
 
       return
 
@@ -1356,6 +1381,9 @@ window.dr = do ->
 
         type = attributes.type ? defaulttype
         name = attributes.name
+
+        checkRequiredAttributes(tagname, attributes, child, el)
+
         switch tagname
           when 'handler'
             # console.log 'adding handler', name, script, child.innerHTML, attributes
@@ -2143,7 +2171,7 @@ window.dr = do ->
   #     </method>
   ###
   ###*
-  # @cfg {String} name (required)
+  # @cfg {String} event (required)
   # The name of the event to listen for, e.g. 'onwidth'.
   ###
   ###*
