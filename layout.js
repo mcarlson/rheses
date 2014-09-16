@@ -2230,11 +2230,7 @@
     })(Node);
     idle = (function() {
       var doTick, requestAnimationFrame, tickEvents, ticking;
-      requestAnimationFrame = (function() {
-        return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function(callback, element) {
-          return window.setTimeout(callback, 1000 / 60);
-        };
-      })();
+      requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame;
       ticking = false;
       tickEvents = [];
       doTick = function(time) {
@@ -2754,7 +2750,7 @@
      */
 
     /**
-     * @cfg {String} name (required)
+     * @cfg {String} event (required)
      * The name of the event to listen for, e.g. 'onwidth'.
      */
 

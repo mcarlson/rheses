@@ -2149,7 +2149,7 @@ window.dr = do ->
   #     </method>
   ###
   ###*
-  # @cfg {String} name (required)
+  # @cfg {String} event (required)
   # The name of the event to listen for, e.g. 'onwidth'.
   ###
   ###*
