@@ -1766,7 +1766,16 @@ window.dr = do ->
       @update() if (changed and not locked)
 
   idle = do ->
-    requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame# || (delegate) -> setTimeout(delegate, 17)
+    requestAnimationFrame = (()->
+      return  window.requestAnimationFrame       or
+              window.webkitRequestAnimationFrame or
+              window.mozRequestAnimationFrame    or
+              window.oRequestAnimationFrame      or
+              window.msRequestAnimationFrame     or
+              (callback, element) ->
+                window.setTimeout(callback, 1000 / 60);
+    )();
+
     ticking = false
     tickEvents = []
 

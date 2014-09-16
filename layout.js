@@ -2289,7 +2289,11 @@
     })(Node);
     idle = (function() {
       var doTick, requestAnimationFrame, tickEvents, ticking;
-      requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame;
+      requestAnimationFrame = (function() {
+        return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function(callback, element) {
+          return window.setTimeout(callback, 1000 / 60);
+        };
+      })();
       ticking = false;
       tickEvents = [];
       doTick = function(time) {
