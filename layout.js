@@ -46,7 +46,7 @@
       name = stylemap[name] || name;
       view = elem.$view;
       if (view[name] !== value) {
-        view.setAttribute(name, value, true);
+        view.setAttribute(name, value, false, true);
       }
       return returnval;
     };
@@ -307,7 +307,7 @@
        * @method include
        * @hide
        */
-      var typemappings;
+      var eventlock, typemappings;
 
       __extends(Eventable, _super);
 
@@ -340,6 +340,10 @@
         }
       };
 
+      eventlock = {
+        c: 0
+      };
+
 
       /**
        * Sets an attribute, calls a setter if there is one, then sends an event with the new value
@@ -347,7 +351,7 @@
        * @param value the value to set to
        */
 
-      Eventable.prototype.setAttribute = function(name, value) {
+      Eventable.prototype.setAttribute = function(name, value, skipevents) {
         var type, _name;
         type = this.types[name];
         if (type) {
@@ -357,7 +361,15 @@
           this[_name](value);
         }
         this[name] = value;
-        this.sendEvent(name, value);
+        if (!skipevents) {
+          if (!eventlock[name]) {
+            eventlock[name] = this;
+          }
+          this.sendEvent(name, value);
+          eventlock = {
+            c: 0
+          };
+        }
         return this;
       };
 
@@ -370,6 +382,9 @@
 
       Eventable.prototype.sendEvent = function(name, value) {
         var _ref;
+        if (eventlock[name] === this && eventlock.c++ > 0) {
+          return this;
+        }
         if ((_ref = this.events) != null ? _ref[name] : void 0) {
           this.trigger(name, value, this);
         }
@@ -1369,8 +1384,8 @@
         View.__super__.constructor.apply(this, arguments);
       }
 
-      View.prototype.setAttribute = function(name, value, skip) {
-        if (!(skip || name in ignoredAttributes || this[name] === value)) {
+      View.prototype.setAttribute = function(name, value, skipevents, skipstyle) {
+        if (!(skipstyle || name in ignoredAttributes || this[name] === value)) {
           this.sprite.setStyle(name, value);
         }
         return View.__super__.setAttribute.apply(this, arguments);
