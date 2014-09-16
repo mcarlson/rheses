@@ -236,8 +236,8 @@ window.dr = do ->
 
       @["set_#{name}"]?(value)
       @[name] = value
-      unless skipevents
-        eventlock[name] = @ unless eventlock[name]
+      unless eventlock[name] == @
+        eventlock[name] = @
         @sendEvent(name, value)
         eventlock = {c: 0}
       @
@@ -249,7 +249,8 @@ window.dr = do ->
     ###
     sendEvent: (name, value) ->
       # don't send more than once if the lock is this object/name 
-      return @ if eventlock[name] == @ && eventlock.c++ > 0
+      if eventlock[name] == @
+        return @ if eventlock.c++ > 1
       # send event
       if @events?[name]
         @trigger(name, value, @) 

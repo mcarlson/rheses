@@ -361,10 +361,8 @@
           this[_name](value);
         }
         this[name] = value;
-        if (!skipevents) {
-          if (!eventlock[name]) {
-            eventlock[name] = this;
-          }
+        if (eventlock[name] !== this) {
+          eventlock[name] = this;
           this.sendEvent(name, value);
           eventlock = {
             c: 0
@@ -382,8 +380,10 @@
 
       Eventable.prototype.sendEvent = function(name, value) {
         var _ref;
-        if (eventlock[name] === this && eventlock.c++ > 0) {
-          return this;
+        if (eventlock[name] === this) {
+          if (eventlock.c++ > 1) {
+            return this;
+          }
         }
         if ((_ref = this.events) != null ? _ref[name] : void 0) {
           this.trigger(name, value, this);
