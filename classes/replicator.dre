@@ -177,7 +177,7 @@ SOFTWARE. -->
         * @cfg {String} classname (required)
         * The name of the class to be replicated.
         */-->
-      <attribute name="classname" value="" type="string"></attribute>
+      <attribute name="classname" value="node" type="string"></attribute>
       <!--/**
         * @cfg {String} datapath
         * The datapath expression to be replicated.
@@ -353,10 +353,6 @@ SOFTWARE. -->
       <method name="doReplication">
         return unless @data and @parent
 
-        if @classname == 'node'
-          @sendEvent('data', @data) if @data.length
-          return 
-          
         locked = @locked
         @locked = true
 
@@ -366,6 +362,11 @@ SOFTWARE. -->
 
         @data.sort(@sortfunc) if (@sortfunc)
         @sendEvent('data', @data) if @data.length
+
+        if @classname == 'node'
+          # bail out before actually replicating
+          @locked = locked
+          return 
 
         if @parent.layouts
           for layout in @parent.layouts
