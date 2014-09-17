@@ -1555,7 +1555,7 @@
               args = [args];
             }
             includeRE = /<[\/]*library>/gi;
-            initONE = false;
+            initONE = true;
             for (_j = 0, _len1 = args.length; _j < _len1; _j++) {
               xhr = args[_j];
               html = xhr[0].replace(includeRE, '');
@@ -1569,9 +1569,6 @@
                 if (el.attributes["extends"]) {
                   extendz = el.attributes["extends"].value;
                   loadLZX(extendz, el);
-                  if (extendz = 'state') {
-                    initONE = true;
-                  }
                 }
                 inlineclasses[el.attributes.name.value] = true;
               } else if (name === 'state') {

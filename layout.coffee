@@ -1172,7 +1172,7 @@ window.dr = do ->
           args = [args] if (includerequests.length == 1)
 
           includeRE = /<[\/]*library>/gi
-          initONE = false
+          initONE = true
           for xhr in args
             # remove any library tags found
             html = xhr[0].replace(includeRE, '')
@@ -1187,7 +1187,7 @@ window.dr = do ->
                 extendz = el.attributes.extends.value 
                 # load load class extends
                 loadLZX(extendz, el)
-                initONE = true if extendz = 'state'
+                # initONE = true if extendz = 'state'
               # track inline class declaration so we don't load it again later
               inlineclasses[el.attributes.name.value] = true
             else if name == 'state'
