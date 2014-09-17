@@ -353,7 +353,10 @@ SOFTWARE. -->
       <method name="doReplication">
         return unless @data and @parent
 
-        return if @classname == 'node'
+        if @classname == 'node'
+          @sendEvent('data', @data) if @data.length
+          return 
+          
         locked = @locked
         @locked = true
 
