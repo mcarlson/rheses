@@ -624,6 +624,7 @@ window.dr = do ->
         else
           # console.log('binding to scope', scope, ev)
           scope.bind(ev, callback)
+          scope.sendEvent(ev, scope[ev]) if scope[ev]
       if isLate 
         @latehandlers = []
       else 

@@ -864,6 +864,9 @@
             scope.listenTo(refeval, ev, callback);
           } else {
             scope.bind(ev, callback);
+            if (scope[ev]) {
+              scope.sendEvent(ev, scope[ev]);
+            }
           }
         }
         if (isLate) {
