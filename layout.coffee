@@ -33,7 +33,7 @@ hackstyle = do ->
     if view[name] != value
     # if (view[name] != value and view?.events?[name])
       # console.log('sending style', name, elem.$view._locked) if sendstyle
-      view.setAttribute(name, value, false, true)
+      view.setAttribute(name, value, true)
 
     returnval
 
@@ -217,7 +217,7 @@ window.dr = do ->
           return val
         eval(val)
 
-    # store the 
+    # Tracks events sent by setAttribute() to prevent recursion
     eventlock = {c: 0}
 
     ###*
@@ -225,7 +225,7 @@ window.dr = do ->
     # @param {String} name the name of the attribute to set
     # @param value the value to set to
     ###
-    setAttribute: (name, value, skipevents) ->
+    setAttribute: (name, value) ->
       # TODO: add support for dynamic constraints
 
       # coerce value to type
@@ -248,9 +248,10 @@ window.dr = do ->
     # @param value the value to send with the event
     ###
     sendEvent: (name, value) ->
-      # don't send more than once if the lock is this object/name 
       if eventlock[name] == @
+        # don't send events more than once per setAttribute() for a given object/name 
         return @ if eventlock.c++ > 1
+
       # send event
       if @events?[name]
         @trigger(name, value, @) 
@@ -1026,7 +1027,7 @@ window.dr = do ->
       super
       # console.log 'new view', el, attributes, @
 
-    setAttribute: (name, value, skipevents, skipstyle) ->
+    setAttribute: (name, value, skipstyle) ->
       if not (skipstyle or name of ignoredAttributes or @[name] == value)
         # console.log 'setting style', name, value, @
         @sprite.setStyle(name, value)

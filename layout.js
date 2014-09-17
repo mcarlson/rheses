@@ -46,7 +46,7 @@
       name = stylemap[name] || name;
       view = elem.$view;
       if (view[name] !== value) {
-        view.setAttribute(name, value, false, true);
+        view.setAttribute(name, value, true);
       }
       return returnval;
     };
@@ -351,7 +351,7 @@
        * @param value the value to set to
        */
 
-      Eventable.prototype.setAttribute = function(name, value, skipevents) {
+      Eventable.prototype.setAttribute = function(name, value) {
         var type, _name;
         type = this.types[name];
         if (type) {
@@ -1387,7 +1387,7 @@
         View.__super__.constructor.apply(this, arguments);
       }
 
-      View.prototype.setAttribute = function(name, value, skipevents, skipstyle) {
+      View.prototype.setAttribute = function(name, value, skipstyle) {
         if (!(skipstyle || name in ignoredAttributes || this[name] === value)) {
           this.sprite.setStyle(name, value);
         }
