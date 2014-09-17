@@ -25,6 +25,11 @@ For Sublime Text, use the preferences -> browse packages menu, back out a folder
 building
 --------
 This is only required when editing the coffeescript core.
+Make sure coffescript is installed
+
+    npm install -g coffee-script
+ 
+And run
 
     coffee -mo ./ -cw *.coffee
     
