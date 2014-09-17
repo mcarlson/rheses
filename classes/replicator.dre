@@ -352,6 +352,8 @@ SOFTWARE. -->
       </method>
       <method name="doReplication">
         return unless @data and @parent
+
+        return if @classname == 'node'
         locked = @locked
         @locked = true
 
