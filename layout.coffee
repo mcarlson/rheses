@@ -2202,6 +2202,7 @@ window.dr = do ->
   # Setters allow the default behavior of attribute changes to be changed.
   # 
   # Like dr.method, if a setter overrides an existing setter any existing (super) setter(s) will be called first automatically.
+  # @ignore
   ###
   ###*
   # @cfg {String} name (required)
