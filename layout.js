@@ -750,7 +750,9 @@
 
       Node.prototype.bindAttribute = function(name, value, tagname) {
         var constraint;
-        constraint = typeof value.match === "function" ? value.match(matchConstraint) : void 0;
+        if (value) {
+          constraint = typeof value.match === "function" ? value.match(matchConstraint) : void 0;
+        }
         if (constraint) {
           return this._applyConstraint(name, constraint[1]);
         } else if (name.indexOf('on') === 0) {

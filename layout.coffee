@@ -529,7 +529,7 @@ window.dr = do ->
 
     # Bind an attribute to an event expression, handler, or fall back to setAttribute()
     bindAttribute: (name, value, tagname) ->
-      constraint = value.match?(matchConstraint)
+      constraint = value.match?(matchConstraint) if value
       if constraint
         # console.log('applying constraint', name, constraint[1])
         @_applyConstraint(name, constraint[1])
