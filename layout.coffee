@@ -2124,66 +2124,61 @@ window.dr = do ->
   # 
   # If a method overrides an existing method, any existing (super) method(s) will be called first automatically.
   #
-  # Here we define a class square with one method changeColor. When the button is clicked the method is called.
+  # Let's define a method called changeColor in a view that sets the background color to pink.
   #
   #     @example
-  #     <class name="square" bgcolor="lightgrey" width="100" height="100">
+  #
+  #     <view id="square" width="100" height="100">
   #       <method name="changeColor">
-  #         this.setAttribute('bgcolor', '#f2d5ff');
+  #         this.setAttribute('bgcolor', 'pink');
+  #       </method>
+  #     </view>
+  #
+  #     <handler event="oninit">
+  #       square.changeColor();
+  #     </handler>
+  #
+  # Here we define the changeColor method in a class called square. We create an instance of the class and call the method on the intance.
+  #
+  #     @example
+  #     <class name="square" width="100" height="100">
+  #       <method name="changeColor">
+  #         this.setAttribute('bgcolor', 'pink');
   #       </method>
   #     </class>
-
-  #     <simplelayout axis="y"></simplelayout>
-  #     <square name="square1"></square>
-
-  #     <labelbutton text="Change Color">
-  #       <handler event="onclick">
-  #         this.parent.square1.changeColor();
-  #       </handler>
-  #     </labelbutton>
+  #
+  #     <square id="square1"></square>
+  #
+  #     <handler event="oninit">
+  #       square1.changeColor();
+  #     </handler>
   #
   # Now we'll subclass the square class with a bluesquare class, and override the changeColor method to color the square blue. We also add an inner square who's color is set in the changeColor method of the square superclass. Notice that the color of this square is set when the method is called on the subclass.
   #
   #     @example
-  #     <class name="square" bgcolor="lightgrey" width="100" height="100">
-  #       <view name="inner" bgcolor="white" width="25" height="25"></view>
+  #     <class name="square" width="100" height="100">
+  #       <view name="inner" width="25" height="25"></view>
   #       <method name="changeColor">
-  #         this.inner.setAttribute('bgcolor', '#d2ffc8');
-  #         this.setAttribute('bgcolor', '#f2d5ff');
+  #         this.inner.setAttribute('bgcolor', 'green');
+  #         this.setAttribute('bgcolor', 'pink');
   #       </method>
   #     </class>
   #
   #     <class name="bluesquare" extends="square">
   #       <method name="changeColor">
-  #         this.setAttribute('bgcolor', '#d4e2ff');
+  #         this.setAttribute('bgcolor', 'blue');
   #       </method>
   #     </class>
   #
   #     <simplelayout axis="x"></simplelayout>
-  #     <square name="square1"></square>
-  #     <bluesquare name="square2"></bluesquare>
   #
-  #     <labelbutton text="Change Color">
-  #       <handler event="onclick">
-  #         this.parent.square1.changeColor();
-  #         this.parent.square2.changeColor();
-  #       </handler>
-  #     </labelbutton>
+  #     <square id="square1"></square>
+  #     <bluesquare id="square2"></bluesquare>
   #
-  # You can add methods to any node. Here we add the changeColor method to a view instance.
-  #
-  #     @example
-  #     <view width="100%" height="100%">
-  #       <method name="changeColor">
-  #         this.setAttribute('bgcolor', '#f2d5ff');
-  #       </method>
-  #
-  #       <labelbutton text="Change Color">
-  #         <handler event="onclick">
-  #           this.parent.changeColor();
-  #         </handler>
-  #       </labelbutton>
-  #     </view>
+  #     <handler event="oninit">
+  #       square1.changeColor();
+  #       square2.changeColor();
+  #     </handler>
   #
   ###
   ###*
