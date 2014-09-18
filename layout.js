@@ -60,7 +60,7 @@
   })();
 
   window.dr = (function() {
-    var Class, Eventable, Events, Idle, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, View, Window, compiler, constraintScopes, dom, exports, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, _initConstraints;
+    var Class, Eventable, Events, Idle, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, View, Window, compiler, constraintScopes, dom, exports, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, showWarnings, warnings, _initConstraints;
     mixOf = function() {
       var Mixed, base, i, method, mixin, mixins, name, _i, _ref;
       base = arguments[0], mixins = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
@@ -840,6 +840,10 @@
           for (bindexpression in bindings) {
             bindinglist = bindings[bindexpression];
             boundref = this._valueLookup(bindexpression)();
+            if (!boundref) {
+              showWarnings(["Could not bind constraint " + bindexpression]);
+              continue;
+            }
             if (boundref == null) {
               boundref = boundref.$view;
             }
@@ -1450,8 +1454,19 @@
       return View;
 
     })(Node);
+    warnings = [];
+    showWarnings = function(data) {
+      var out, pre;
+      warnings = warnings.concat(data);
+      out = data.join('\n');
+      pre = document.createElement('pre');
+      pre.setAttribute('class', 'warnings');
+      pre.innerText = out;
+      document.body.insertBefore(pre, document.body.firstChild);
+      return console.error(out);
+    };
     dom = (function() {
-      var builtinTags, checkRequiredAttributes, exports, findAutoIncludes, flattenattributes, htmlDecode, initAllElements, initElement, initFromElement, processSpecialTags, requiredAttributes, showWarnings, specialtags, warnings, writeCSS;
+      var builtinTags, checkRequiredAttributes, exports, findAutoIncludes, flattenattributes, htmlDecode, initAllElements, initElement, initFromElement, processSpecialTags, requiredAttributes, specialtags, writeCSS;
       flattenattributes = function(namednodemap) {
         var attributes, i, _i, _len;
         attributes = {};
@@ -1468,17 +1483,6 @@
           initElement(el);
           return _initConstraints();
         });
-      };
-      warnings = [];
-      showWarnings = function(data) {
-        var out, pre;
-        warnings = warnings.concat(data);
-        out = data.join('\n');
-        pre = document.createElement('pre');
-        pre.setAttribute('class', 'warnings');
-        pre.innerText = out;
-        document.body.insertBefore(pre, document.body.firstChild);
-        return console.error(out);
       };
       findAutoIncludes = function(parentel, callback) {
         var cb, cb2, fileloaded, filerequests, includedScripts, includerequests, inlineclasses, jqel, loadIncludes, loadLZX, loadScript, loadqueue, parser, scriptloading;

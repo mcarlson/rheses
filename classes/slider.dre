@@ -103,14 +103,14 @@ SOFTWARE. -->
       <!-- visualize: Show the current value -->
       <method name="visualize">
         if (@axis == 'x')
-          w = @width * (@value / (@maxvalue-@minvalue))
+          w = @width * ((@value - @minvalue) / (@maxvalue-@minvalue))
           x = if @invert then @width-w else 0
           y = 0
           width = w
           height = @height
           @valueview.setAttributes({x:x, y:y, width:width, height:height})
         else
-          h = @height * (@value / (@maxvalue-@minvalue))
+          h = @height * ((@value - @minvalue) / (@maxvalue-@minvalue))
           x = 0
           y = if @invert then @height-h else 0
           width = @width
@@ -136,12 +136,12 @@ SOFTWARE. -->
           if (@width > 0)
             val = (p - @getAbsolute().x) / @width * spread;
             val = @maxvalue - val if @invert
-            @changeValue(val);
+            @changeValue(val + @minvalue);
         else
           if (@height > 0)
             val = (p - @getAbsolute().y) / @height * spread;
             val = @maxvalue - val if @invert
-            @changeValue(val);
+            @changeValue(val + @minvalue);
       </method>
 
       <!-- The @drag.applied can be removed when states are fixed to

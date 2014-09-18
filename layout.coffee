@@ -605,6 +605,9 @@ window.dr = do ->
         constraint = @_constraintCallback(name, fn)
         for bindexpression, bindinglist of bindings
           boundref = @_valueLookup(bindexpression)()
+          if not boundref
+            showWarnings(["Could not bind constraint #{bindexpression}"]) 
+            continue
           boundref ?= boundref.$view
           for binding in bindinglist
             property = binding.property
@@ -1080,6 +1083,17 @@ window.dr = do ->
       @sprite.set_class(classname)
 
 
+  warnings = []
+  showWarnings = (data) ->
+    warnings = warnings.concat(data)
+    out = data.join('\n')
+    pre = document.createElement('pre')
+    pre.setAttribute('class', 'warnings');
+    pre.innerText = out
+    document.body.insertBefore(pre, document.body.firstChild);
+    console.error out
+
+
   dom = do ->
     # flatten element.attributes to a hash
     flattenattributes = (namednodemap)  ->
@@ -1097,16 +1111,6 @@ window.dr = do ->
         # register constraints last
         _initConstraints()
       )
-
-    warnings = []
-    showWarnings = (data) ->
-      warnings = warnings.concat(data)
-      out = data.join('\n')
-      pre = document.createElement('pre')
-      pre.setAttribute('class', 'warnings');
-      pre.innerText = out
-      document.body.insertBefore(pre, document.body.firstChild);
-      console.error out
 
     findAutoIncludes = (parentel, callback) ->
       jqel = $(parentel)
