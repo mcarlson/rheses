@@ -1555,7 +1555,7 @@
               args = [args];
             }
             includeRE = /<[\/]*library>/gi;
-            initONE = false;
+            initONE = true;
             for (_j = 0, _len1 = args.length; _j < _len1; _j++) {
               xhr = args[_j];
               html = xhr[0].replace(includeRE, '');
@@ -1569,9 +1569,6 @@
                 if (el.attributes["extends"]) {
                   extendz = el.attributes["extends"].value;
                   loadLZX(extendz, el);
-                  if (extendz = 'state') {
-                    initONE = true;
-                  }
                 }
                 inlineclasses[el.attributes.name.value] = true;
               } else if (name === 'state') {
@@ -2736,9 +2733,71 @@
 
     /**
      * @class dr.method
-     * Declares a member function in a node, view, class or other class instance. Methods can only be created with the &lt;method>&lt;/method> tag syntax. 
+     * Declares a member function in a node, view, class or other class instance. Methods can only be created with the &lt;method>&lt;/method> tag syntax.
      * 
      * If a method overrides an existing method, any existing (super) method(s) will be called first automatically.
+     *
+     * Here we define a class square with one method changeColor. When the button is clicked the method is called.
+     *
+     *     @example
+     *     <class name="square" bgcolor="lightgrey" width="100" height="100">
+     *       <method name="changeColor">
+     *         this.setAttribute('bgcolor', '#f2d5ff');
+     *       </method>
+     *     </class>
+    
+     *     <simplelayout axis="y"></simplelayout>
+     *     <square name="square1"></square>
+    
+     *     <labelbutton text="Change Color">
+     *       <handler event="onclick">
+     *         this.parent.square1.changeColor();
+     *       </handler>
+     *     </labelbutton>
+     *
+     * Now we'll subclass the square class with a bluesquare class, and override the changeColor method to color the square blue. We also add an inner square who's color is set in the changeColor method of the square superclass. Notice that the color of this square is set when the method is called on the subclass.
+     *
+     *     @example
+     *     <class name="square" bgcolor="lightgrey" width="100" height="100">
+     *       <view name="inner" bgcolor="white" width="25" height="25"></view>
+     *       <method name="changeColor">
+     *         this.inner.setAttribute('bgcolor', '#d2ffc8');
+     *         this.setAttribute('bgcolor', '#f2d5ff');
+     *       </method>
+     *     </class>
+     *
+     *     <class name="bluesquare" extends="square">
+     *       <method name="changeColor">
+     *         this.setAttribute('bgcolor', '#d4e2ff');
+     *       </method>
+     *     </class>
+     *
+     *     <simplelayout axis="x"></simplelayout>
+     *     <square name="square1"></square>
+     *     <bluesquare name="square2"></bluesquare>
+     *
+     *     <labelbutton text="Change Color">
+     *       <handler event="onclick">
+     *         this.parent.square1.changeColor();
+     *         this.parent.square2.changeColor();
+     *       </handler>
+     *     </labelbutton>
+     *
+     * You can add methods to any node. Here we add the changeColor method to a view instance.
+     *
+     *     @example
+     *     <view width="100%" height="100%">
+     *       <method name="changeColor">
+     *         this.setAttribute('bgcolor', '#f2d5ff');
+     *       </method>
+     *
+     *       <labelbutton text="Change Color">
+     *         <handler event="onclick">
+     *           this.parent.changeColor();
+     *         </handler>
+     *       </labelbutton>
+     *     </view>
+     *
      */
 
     /**
@@ -2763,6 +2822,7 @@
      * Setters allow the default behavior of attribute changes to be changed.
      * 
      * Like dr.method, if a setter overrides an existing setter any existing (super) setter(s) will be called first automatically.
+     * @ignore
      */
 
     /**

@@ -324,7 +324,7 @@
 </span>       * @method include
        * @hide
        */
-      var typemappings;
+      var eventlock, typemappings;
 
       __extends(Eventable, _super);
 
@@ -357,6 +357,10 @@
         }
       };
 
+      eventlock = {
+        c: 0
+      };
+
 
 <span id='Eventable-method-setAttribute'>      /**
 </span>       * Sets an attribute, calls a setter if there is one, then sends an event with the new value
@@ -374,7 +378,13 @@
           this[_name](value);
         }
         this[name] = value;
-        this.sendEvent(name, value);
+        if (eventlock[name] !== this) {
+          eventlock[name] = this;
+          this.sendEvent(name, value);
+          eventlock = {
+            c: 0
+          };
+        }
         return this;
       };
 
@@ -387,6 +397,11 @@
 
       Eventable.prototype.sendEvent = function(name, value) {
         var _ref;
+        if (eventlock[name] === this) {
+          if (eventlock.c++ &gt; 1) {
+            return this;
+          }
+        }
         if ((_ref = this.events) != null ? _ref[name] : void 0) {
           this.trigger(name, value, this);
         }
@@ -752,7 +767,9 @@
 
       Node.prototype.bindAttribute = function(name, value, tagname) {
         var constraint;
-        constraint = typeof value.match === &quot;function&quot; ? value.match(matchConstraint) : void 0;
+        if (value) {
+          constraint = typeof value.match === &quot;function&quot; ? value.match(matchConstraint) : void 0;
+        }
         if (constraint) {
           return this._applyConstraint(name, constraint[1]);
         } else if (name.indexOf(&#39;on&#39;) === 0) {
@@ -866,6 +883,9 @@
             scope.listenTo(refeval, ev, callback);
           } else {
             scope.bind(ev, callback);
+            if (scope[ev]) {
+              scope.sendEvent(ev, scope[ev]);
+            }
           }
         }
         if (isLate) {
@@ -1386,8 +1406,8 @@
         View.__super__.constructor.apply(this, arguments);
       }
 
-      View.prototype.setAttribute = function(name, value, skip) {
-        if (!(skip || name in ignoredAttributes || this[name] === value)) {
+      View.prototype.setAttribute = function(name, value, skipstyle) {
+        if (!(skipstyle || name in ignoredAttributes || this[name] === value)) {
           this.sprite.setStyle(name, value);
         }
         return View.__super__.setAttribute.apply(this, arguments);
@@ -1448,7 +1468,7 @@
 
     })(Node);
     dom = (function() {
-      var builtinTags, exports, findAutoIncludes, flattenattributes, htmlDecode, initAllElements, initElement, initFromElement, processSpecialTags, showWarnings, specialtags, writeCSS;
+      var builtinTags, checkRequiredAttributes, exports, findAutoIncludes, flattenattributes, htmlDecode, initAllElements, initElement, initFromElement, processSpecialTags, requiredAttributes, showWarnings, specialtags, warnings, writeCSS;
       flattenattributes = function(namednodemap) {
         var attributes, i, _i, _len;
         attributes = {};
@@ -1466,8 +1486,10 @@
           return _initConstraints();
         });
       };
+      warnings = [];
       showWarnings = function(data) {
         var out, pre;
+        warnings = warnings.concat(data);
         out = data.join(&#39;\n&#39;);
         pre = document.createElement(&#39;pre&#39;);
         pre.setAttribute(&#39;class&#39;, &#39;warnings&#39;);
@@ -1550,7 +1572,7 @@
               args = [args];
             }
             includeRE = /&lt;[\/]*library&gt;/gi;
-            initONE = false;
+            initONE = true;
             for (_j = 0, _len1 = args.length; _j &lt; _len1; _j++) {
               xhr = args[_j];
               html = xhr[0].replace(includeRE, &#39;&#39;);
@@ -1564,9 +1586,6 @@
                 if (el.attributes[&quot;extends&quot;]) {
                   extendz = el.attributes[&quot;extends&quot;].value;
                   loadLZX(extendz, el);
-                  if (extendz = &#39;state&#39;) {
-                    initONE = true;
-                  }
                 }
                 inlineclasses[el.attributes.name.value] = true;
               } else if (name === &#39;state&#39;) {
@@ -1651,6 +1670,46 @@
       };
       specialtags = [&#39;handler&#39;, &#39;method&#39;, &#39;attribute&#39;, &#39;setter&#39;, &#39;include&#39;];
       builtinTags = [&#39;a&#39;, &#39;abbr&#39;, &#39;address&#39;, &#39;area&#39;, &#39;article&#39;, &#39;aside&#39;, &#39;audio&#39;, &#39;b&#39;, &#39;base&#39;, &#39;bdi&#39;, &#39;bdo&#39;, &#39;blockquote&#39;, &#39;body&#39;, &#39;br&#39;, &#39;button&#39;, &#39;canvas&#39;, &#39;caption&#39;, &#39;cite&#39;, &#39;code&#39;, &#39;col&#39;, &#39;colgroup&#39;, &#39;command&#39;, &#39;datalist&#39;, &#39;dd&#39;, &#39;del&#39;, &#39;details&#39;, &#39;dfn&#39;, &#39;div&#39;, &#39;dl&#39;, &#39;dt&#39;, &#39;em&#39;, &#39;embed&#39;, &#39;fieldset&#39;, &#39;figcaption&#39;, &#39;figure&#39;, &#39;footer&#39;, &#39;form&#39;, &#39;h1&#39;, &#39;h2&#39;, &#39;h3&#39;, &#39;h4&#39;, &#39;h5&#39;, &#39;h6&#39;, &#39;head&#39;, &#39;header&#39;, &#39;hgroup&#39;, &#39;hr&#39;, &#39;html&#39;, &#39;i&#39;, &#39;iframe&#39;, &#39;img&#39;, &#39;image&#39;, &#39;input&#39;, &#39;ins&#39;, &#39;kbd&#39;, &#39;keygen&#39;, &#39;label&#39;, &#39;legend&#39;, &#39;li&#39;, &#39;link&#39;, &#39;map&#39;, &#39;mark&#39;, &#39;menu&#39;, &#39;meta&#39;, &#39;meter&#39;, &#39;nav&#39;, &#39;noscript&#39;, &#39;object&#39;, &#39;ol&#39;, &#39;optgroup&#39;, &#39;option&#39;, &#39;output&#39;, &#39;p&#39;, &#39;param&#39;, &#39;pre&#39;, &#39;progress&#39;, &#39;q&#39;, &#39;rp&#39;, &#39;rt&#39;, &#39;ruby&#39;, &#39;s&#39;, &#39;samp&#39;, &#39;script&#39;, &#39;section&#39;, &#39;select&#39;, &#39;small&#39;, &#39;source&#39;, &#39;span&#39;, &#39;strong&#39;, &#39;style&#39;, &#39;sub&#39;, &#39;summary&#39;, &#39;sup&#39;, &#39;table&#39;, &#39;tbody&#39;, &#39;td&#39;, &#39;textarea&#39;, &#39;tfoot&#39;, &#39;th&#39;, &#39;thead&#39;, &#39;time&#39;, &#39;title&#39;, &#39;tr&#39;, &#39;track&#39;, &#39;u&#39;, &#39;ul&#39;, &#39;var&#39;, &#39;video&#39;, &#39;wbr&#39;];
+      requiredAttributes = {
+        &quot;class&quot;: {
+          &quot;name&quot;: 1
+        },
+        &quot;method&quot;: {
+          &quot;name&quot;: 1
+        },
+        &quot;setter&quot;: {
+          &quot;name&quot;: 1
+        },
+        &quot;handler&quot;: {
+          &quot;event&quot;: 1
+        },
+        &quot;attribute&quot;: {
+          &quot;name&quot;: 1,
+          &quot;type&quot;: 1,
+          &quot;value&quot;: 1
+        },
+        &quot;dataset&quot;: {
+          &quot;name&quot;: 1
+        },
+        &quot;replicator&quot;: {
+          &quot;classname&quot;: 1
+        }
+      };
+      checkRequiredAttributes = function(tagname, attributes, tag, parenttag) {
+        var attrname, error;
+        if (tagname in requiredAttributes) {
+          for (attrname in requiredAttributes[tagname]) {
+            if (!(attrname in attributes)) {
+              error = &quot;&quot; + tagname + &quot;.&quot; + attrname + &quot; must be defined on &quot; + tag.outerHTML;
+              if (parenttag) {
+                error = error + (&quot; inside &quot; + parenttag.outerHTML);
+              }
+              showWarnings([error]);
+            }
+          }
+        }
+        return error;
+      };
       initElement = function(el, parent) {
         var attributes, child, children, doinit, event, eventname, isClass, isState, li, skiponinit, tagname, _i, _j, _len, _len1, _ref;
         if (el.$init) {
@@ -1673,6 +1732,7 @@
           return;
         }
         attributes = flattenattributes(el.attributes);
+        checkRequiredAttributes(tagname, attributes, el);
         attributes.$tagname = tagname;
         for (_i = 0, _len = mouseEvents.length; _i &lt; _len; _i++) {
           event = mouseEvents[_i];
@@ -1808,6 +1868,7 @@
           }
           type = (_ref1 = attributes.type) != null ? _ref1 : defaulttype;
           name = attributes.name;
+          checkRequiredAttributes(tagname, attributes, child, el);
           switch (tagname) {
             case &#39;handler&#39;:
               handler = {
@@ -2247,7 +2308,11 @@
     })(Node);
     idle = (function() {
       var doTick, requestAnimationFrame, tickEvents, ticking;
-      requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame;
+      requestAnimationFrame = (function() {
+        return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function(callback, element) {
+          return window.setTimeout(callback, 1000 / 60);
+        };
+      })();
       ticking = false;
       tickEvents = [];
       doTick = function(time) {
@@ -2685,9 +2750,71 @@
 
 <span id='dr-method'>    /**
 </span>     * @class dr.method
-     * Declares a member function in a node, view, class or other class instance. Methods can only be created with the &amp;lt;method&gt;&amp;lt;/method&gt; tag syntax. 
+     * Declares a member function in a node, view, class or other class instance. Methods can only be created with the &amp;lt;method&gt;&amp;lt;/method&gt; tag syntax.
      * 
      * If a method overrides an existing method, any existing (super) method(s) will be called first automatically.
+     *
+     * Here we define a class square with one method changeColor. When the button is clicked the method is called.
+     *
+     *     @example
+     *     &lt;class name=&quot;square&quot; bgcolor=&quot;lightgrey&quot; width=&quot;100&quot; height=&quot;100&quot;&gt;
+     *       &lt;method name=&quot;changeColor&quot;&gt;
+     *         this.setAttribute(&#39;bgcolor&#39;, &#39;#f2d5ff&#39;);
+     *       &lt;/method&gt;
+     *     &lt;/class&gt;
+    
+     *     &lt;simplelayout axis=&quot;y&quot;&gt;&lt;/simplelayout&gt;
+     *     &lt;square name=&quot;square1&quot;&gt;&lt;/square&gt;
+    
+     *     &lt;labelbutton text=&quot;Change Color&quot;&gt;
+     *       &lt;handler event=&quot;onclick&quot;&gt;
+     *         this.parent.square1.changeColor();
+     *       &lt;/handler&gt;
+     *     &lt;/labelbutton&gt;
+     *
+     * Now we&#39;ll subclass the square class with a bluesquare class, and override the changeColor method to color the square blue. We also add an inner square who&#39;s color is set in the changeColor method of the square superclass. Notice that the color of this square is set when the method is called on the subclass.
+     *
+     *     @example
+     *     &lt;class name=&quot;square&quot; bgcolor=&quot;lightgrey&quot; width=&quot;100&quot; height=&quot;100&quot;&gt;
+     *       &lt;view name=&quot;inner&quot; bgcolor=&quot;white&quot; width=&quot;25&quot; height=&quot;25&quot;&gt;&lt;/view&gt;
+     *       &lt;method name=&quot;changeColor&quot;&gt;
+     *         this.inner.setAttribute(&#39;bgcolor&#39;, &#39;#d2ffc8&#39;);
+     *         this.setAttribute(&#39;bgcolor&#39;, &#39;#f2d5ff&#39;);
+     *       &lt;/method&gt;
+     *     &lt;/class&gt;
+     *
+     *     &lt;class name=&quot;bluesquare&quot; extends=&quot;square&quot;&gt;
+     *       &lt;method name=&quot;changeColor&quot;&gt;
+     *         this.setAttribute(&#39;bgcolor&#39;, &#39;#d4e2ff&#39;);
+     *       &lt;/method&gt;
+     *     &lt;/class&gt;
+     *
+     *     &lt;simplelayout axis=&quot;x&quot;&gt;&lt;/simplelayout&gt;
+     *     &lt;square name=&quot;square1&quot;&gt;&lt;/square&gt;
+     *     &lt;bluesquare name=&quot;square2&quot;&gt;&lt;/bluesquare&gt;
+     *
+     *     &lt;labelbutton text=&quot;Change Color&quot;&gt;
+     *       &lt;handler event=&quot;onclick&quot;&gt;
+     *         this.parent.square1.changeColor();
+     *         this.parent.square2.changeColor();
+     *       &lt;/handler&gt;
+     *     &lt;/labelbutton&gt;
+     *
+     * You can add methods to any node. Here we add the changeColor method to a view instance.
+     *
+     *     @example
+     *     &lt;view width=&quot;100%&quot; height=&quot;100%&quot;&gt;
+     *       &lt;method name=&quot;changeColor&quot;&gt;
+     *         this.setAttribute(&#39;bgcolor&#39;, &#39;#f2d5ff&#39;);
+     *       &lt;/method&gt;
+     *
+     *       &lt;labelbutton text=&quot;Change Color&quot;&gt;
+     *         &lt;handler event=&quot;onclick&quot;&gt;
+     *           this.parent.changeColor();
+     *         &lt;/handler&gt;
+     *       &lt;/labelbutton&gt;
+     *     &lt;/view&gt;
+     *
      */
 
 <span id='dr-method-cfg-name'>    /**
@@ -2712,6 +2839,7 @@
      * Setters allow the default behavior of attribute changes to be changed.
      * 
      * Like dr.method, if a setter overrides an existing setter any existing (super) setter(s) will be called first automatically.
+     * @ignore
      */
 
 <span id='dr-setter-cfg-name'>    /**
