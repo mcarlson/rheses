@@ -388,6 +388,36 @@ window.dr = do ->
   # The nonvisual base class for everything in dreem. Handles parent/child relationships between tags.
   # 
   # Nodes can contain methods, handlers, setters, constraints, attributes and other node instances.
+  #
+  # Here we define a data node that contains movie data.
+  #
+  #     @example
+  #     <node id="data">
+  #       <node>
+  #         <attribute name="title" type="string" value="Bill and Teds Excellent Adventure"></attribute>
+  #         <attribute name="type" type="string" value="movie"></attribute>
+  #         <attribute name="year" type="string" value="1989"></attribute>
+  #         <attribute name="length" type="number" value="89"></attribute>
+  #       </node>
+  #       <node>
+  #         <attribute name="title" type="string" value="Waynes World"></attribute>
+  #         <attribute name="type" type="string" value="movie"></attribute>
+  #         <attribute name="year" type="string" value="1992"></attribute>
+  #         <attribute name="length" type="number" value="94"></attribute>
+  #       </node>
+  #     </node>
+  #
+  # This node defines a set of math helper methods. The node provides a tidy container for these related utility functions.
+  #
+  #     @example
+  #     <node id="utils">
+  #       <method name="add" args="a,b">
+  #         return a+b;
+  #       </method>
+  #       <method name="subtract" args="a,b">
+  #         return a-b;
+  #       </method>
+  #     </node>
   ###
   class Node extends Eventable
     ###*

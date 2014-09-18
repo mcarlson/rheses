@@ -578,6 +578,36 @@
      * The nonvisual base class for everything in dreem. Handles parent/child relationships between tags.
      * 
      * Nodes can contain methods, handlers, setters, constraints, attributes and other node instances.
+     *
+     * Here we define a data node that contains movie data.
+     *
+     *     @example
+     *     &lt;node id=&quot;data&quot;&gt;
+     *       &lt;node&gt;
+     *         &lt;attribute name=&quot;title&quot; type=&quot;string&quot; value=&quot;Bill and Teds Excellent Adventure&quot;&gt;&lt;/attribute&gt;
+     *         &lt;attribute name=&quot;type&quot; type=&quot;string&quot; value=&quot;movie&quot;&gt;&lt;/attribute&gt;
+     *         &lt;attribute name=&quot;year&quot; type=&quot;string&quot; value=&quot;1989&quot;&gt;&lt;/attribute&gt;
+     *         &lt;attribute name=&quot;length&quot; type=&quot;number&quot; value=&quot;89&quot;&gt;&lt;/attribute&gt;
+     *       &lt;/node&gt;
+     *       &lt;node&gt;
+     *         &lt;attribute name=&quot;title&quot; type=&quot;string&quot; value=&quot;Waynes World&quot;&gt;&lt;/attribute&gt;
+     *         &lt;attribute name=&quot;type&quot; type=&quot;string&quot; value=&quot;movie&quot;&gt;&lt;/attribute&gt;
+     *         &lt;attribute name=&quot;year&quot; type=&quot;string&quot; value=&quot;1992&quot;&gt;&lt;/attribute&gt;
+     *         &lt;attribute name=&quot;length&quot; type=&quot;number&quot; value=&quot;94&quot;&gt;&lt;/attribute&gt;
+     *       &lt;/node&gt;
+     *     &lt;/node&gt;
+     *
+     * This node defines a set of math helper methods. The node provides a tidy container for these related utility functions.
+     *
+     *     @example
+     *     &lt;node id=&quot;utils&quot;&gt;
+     *       &lt;method name=&quot;add&quot; args=&quot;a,b&quot;&gt;
+     *         return a+b;
+     *       &lt;/method&gt;
+     *       &lt;method name=&quot;subtract&quot; args=&quot;a,b&quot;&gt;
+     *         return a-b;
+     *       &lt;/method&gt;
+     *     &lt;/node&gt;
      */
     Node = (function(_super) {
 
