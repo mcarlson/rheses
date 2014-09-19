@@ -111,6 +111,30 @@
      * @class dr.boundslayout
      * @extends dr.layout
      * Sets the parent view's size to match the bounds of its children.
+     *
+     * Here is a view that contains three sub views that are positioned with a simplelayout. The parent view has a grey background color. Notice that the subviews are visible because they overflow the parent view, but the parent view itself takes up no space.
+     *
+     *     @example
+     *     <view bgcolor="darkgrey">
+     *       <simplelayout axis="y"></simplelayout>
+     *
+     *       <view width="100" height="25" bgcolor="lightpink" opacity=".3"></view>
+     *       <view width="100" height="25" bgcolor="plum" opacity=".3"></view>
+     *       <view width="100" height="25" bgcolor="lightblue" opacity=".3"></view>
+     *     </view>
+     *
+     * Now we'll add a boundlayout to the parent view. Notice that now the parent view does take up space, and you can see it through the semi-transparent subviews.
+     *
+     *     @example
+     *     <view bgcolor="darkgrey">
+     *       <boundslayout></boundslayout>
+     *
+     *       <simplelayout axis="y"></simplelayout>
+     *
+     *       <view width="100" height="25" bgcolor="lightpink" opacity=".3"></view>
+     *       <view width="100" height="25" bgcolor="plum" opacity=".3"></view>
+     *       <view width="100" height="25" bgcolor="lightblue" opacity=".3"></view>
+     *     </view>
      */
 /**
         * @cfg {""/"width"/"height"} [ignoreattr=""]
