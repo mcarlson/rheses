@@ -1288,7 +1288,7 @@
      * 
      * Note that dreem apps must be contained inside a top-level &amp;lt;view&gt;&amp;lt;/view&gt; tag.
      *
-     * Here a pink view contains a smaller blue view that is offset 10 pixels from the top and 10 from the left.
+     * The following example shows a pink view that contains a smaller blue view offset 10 pixels from the top and 10 from the left.
      *
      *     @example
      *     &lt;view width=&quot;200&quot; height=&quot;100&quot; bgcolor=&quot;lightpink&quot;&gt;
@@ -1297,7 +1297,7 @@
      *
      *     &lt;/view&gt;
      *
-     * In this example the blue view is wider than its parent pink view, and extends beyond the parents bounds.
+     * Here the blue view is wider than its parent pink view, and extends beyond the parents bounds.
      *
      *     @example
      *     &lt;view width=&quot;200&quot; height=&quot;100&quot; bgcolor=&quot;lightpink&quot;&gt;
@@ -1306,7 +1306,7 @@
      *
      *     &lt;/view&gt;
      *
-     * Here we have the same wide child view, but we set the &#39;clip&#39; attribute on the parent view to true, causing the overflowing child view to be clipped at its parent&#39;s boundary.
+     * Now we set the &#39;clip&#39; attribute on the parent view to true, causing the overflowing child view to be clipped at its parent&#39;s boundary.
      *
      *     @example
      *     &lt;view width=&quot;200&quot; height=&quot;100&quot; bgcolor=&quot;lightpink&quot; clip=&#39;true&#39;&gt;
@@ -1321,6 +1321,17 @@
      *     &lt;view width=&quot;200&quot; height=&quot;100&quot; bgcolor=&quot;lightpink&quot;&gt;
      *
      *       &lt;view width=&quot;250&quot; height=&quot;50&quot; x=&quot;10&quot; y=&quot;10&quot; bgcolor=&quot;lightblue&quot; opacity=&quot;.5&quot;&gt;&lt;/view&gt;
+     *
+     *     &lt;/view&gt;
+     *
+     * It is convenient to constrain a view&#39;s size and position to attributes of its parent view. Here we&#39;ll position the inner view so that its inset by 10 pixels in its parent.
+     *
+     *     @example
+     *     &lt;view width=&quot;200&quot; height=&quot;100&quot; bgcolor=&quot;lightpink&quot;&gt;
+     *
+     *       &lt;view width=&quot;${this.parent.width-this.inset*2}&quot; height=&quot;${this.parent.height-this.inset*2}&quot; x=&quot;${this.inset}&quot; y=&quot;${this.inset}&quot; bgcolor=&quot;lightblue&quot;&gt;
+     *         &lt;attribute name=&quot;inset&quot; type=&quot;number&quot; value=&quot;10&quot;&gt;&lt;/attribute&gt;
+     *       &lt;/view&gt;
      *
      *     &lt;/view&gt;
      */

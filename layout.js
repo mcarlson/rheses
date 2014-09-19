@@ -1271,7 +1271,7 @@
      * 
      * Note that dreem apps must be contained inside a top-level &lt;view>&lt;/view> tag.
      *
-     * Here a pink view contains a smaller blue view that is offset 10 pixels from the top and 10 from the left.
+     * The following example shows a pink view that contains a smaller blue view offset 10 pixels from the top and 10 from the left.
      *
      *     @example
      *     <view width="200" height="100" bgcolor="lightpink">
@@ -1280,7 +1280,7 @@
      *
      *     </view>
      *
-     * In this example the blue view is wider than its parent pink view, and extends beyond the parents bounds.
+     * Here the blue view is wider than its parent pink view, and extends beyond the parents bounds.
      *
      *     @example
      *     <view width="200" height="100" bgcolor="lightpink">
@@ -1289,7 +1289,7 @@
      *
      *     </view>
      *
-     * Here we have the same wide child view, but we set the 'clip' attribute on the parent view to true, causing the overflowing child view to be clipped at its parent's boundary.
+     * Now we set the 'clip' attribute on the parent view to true, causing the overflowing child view to be clipped at its parent's boundary.
      *
      *     @example
      *     <view width="200" height="100" bgcolor="lightpink" clip='true'>
@@ -1304,6 +1304,17 @@
      *     <view width="200" height="100" bgcolor="lightpink">
      *
      *       <view width="250" height="50" x="10" y="10" bgcolor="lightblue" opacity=".5"></view>
+     *
+     *     </view>
+     *
+     * It is convenient to constrain a view's size and position to attributes of its parent view. Here we'll position the inner view so that its inset by 10 pixels in its parent.
+     *
+     *     @example
+     *     <view width="200" height="100" bgcolor="lightpink">
+     *
+     *       <view width="${this.parent.width-this.inset*2}" height="${this.parent.height-this.inset*2}" x="${this.inset}" y="${this.inset}" bgcolor="lightblue">
+     *         <attribute name="inset" type="number" value="10"></attribute>
+     *       </view>
      *
      *     </view>
      */
