@@ -23,6 +23,14 @@ SOFTWARE. -->
      * @class dr.simplelayout
      * @extends dr.layout
      * A layout that stacks views on the x or y axis.
+     *
+     *
+     *     @example
+     *     <simplelayout axis="y"></simplelayout>
+     *
+     *     <view width="100" height="25" bgcolor="lightpink"></view>
+     *     <view width="100" height="25" bgcolor="plum"></view>
+     *     <view width="100" height="25" bgcolor="lightblue"></view>
      */-->
     <class name="simplelayout" extends="layout" type="coffee">
       <attribute name="attribute" type="string" value="width"></attribute>

@@ -560,6 +560,14 @@
      * @class dr.simplelayout
      * @extends dr.layout
      * A layout that stacks views on the x or y axis.
+     *
+     *
+     *     @example
+     *     <simplelayout axis="y"></simplelayout>
+     *
+     *     <view width="100" height="25" bgcolor="lightpink"></view>
+     *     <view width="100" height="25" bgcolor="plum"></view>
+     *     <view width="100" height="25" bgcolor="lightblue"></view>
      */
 /**
         * @cfg {Number} [inset=0]
