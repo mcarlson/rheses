@@ -1287,6 +1287,42 @@
      * Views currently integrate with jQuery, so any changes made to their CSS via jQuery will automatically cause them to update.
      * 
      * Note that dreem apps must be contained inside a top-level &amp;lt;view&gt;&amp;lt;/view&gt; tag.
+     *
+     * Here a pink view contains a smaller blue view that is offset 10 pixels from the top and 10 from the left.
+     *
+     *     @example
+     *     &lt;view width=&quot;200&quot; height=&quot;100&quot; bgcolor=&quot;lightpink&quot;&gt;
+     *
+     *       &lt;view width=&quot;50&quot; height=&quot;50&quot; x=&quot;10&quot; y=&quot;10&quot; bgcolor=&quot;lightblue&quot;&gt;&lt;/view&gt;
+     *
+     *     &lt;/view&gt;
+     *
+     * In this example the blue view is wider than its parent pink view, and extends beyond the parents bounds.
+     *
+     *     @example
+     *     &lt;view width=&quot;200&quot; height=&quot;100&quot; bgcolor=&quot;lightpink&quot;&gt;
+     *
+     *       &lt;view width=&quot;250&quot; height=&quot;50&quot; x=&quot;10&quot; y=&quot;10&quot; bgcolor=&quot;lightblue&quot;&gt;&lt;/view&gt;
+     *
+     *     &lt;/view&gt;
+     *
+     * Here we have the same wide child view, but we set the &#39;clip&#39; attribute on the parent view to true, causing the overflowing child view to be clipped at its parent&#39;s boundary.
+     *
+     *     @example
+     *     &lt;view width=&quot;200&quot; height=&quot;100&quot; bgcolor=&quot;lightpink&quot; clip=&#39;true&#39;&gt;
+     *
+     *       &lt;view width=&quot;250&quot; height=&quot;50&quot; x=&quot;10&quot; y=&quot;10&quot; bgcolor=&quot;lightblue&quot;&gt;&lt;/view&gt;
+     *
+     *     &lt;/view&gt;
+     *
+     * Here we demonstrate how unsupported attributes are passed to the underlying sprite system. We make the child view semi-transparent by setting opacity. Although this is not in the list of supported attributes it is still applied.
+     *
+     *     @example
+     *     &lt;view width=&quot;200&quot; height=&quot;100&quot; bgcolor=&quot;lightpink&quot;&gt;
+     *
+     *       &lt;view width=&quot;250&quot; height=&quot;50&quot; x=&quot;10&quot; y=&quot;10&quot; bgcolor=&quot;lightblue&quot; opacity=&quot;.5&quot;&gt;&lt;/view&gt;
+     *
+     *     &lt;/view&gt;
      */
     View = (function(_super) {
       __extends(View, _super);

@@ -1270,6 +1270,42 @@
      * Views currently integrate with jQuery, so any changes made to their CSS via jQuery will automatically cause them to update.
      * 
      * Note that dreem apps must be contained inside a top-level &lt;view>&lt;/view> tag.
+     *
+     * Here a pink view contains a smaller blue view that is offset 10 pixels from the top and 10 from the left.
+     *
+     *     @example
+     *     <view width="200" height="100" bgcolor="lightpink">
+     *
+     *       <view width="50" height="50" x="10" y="10" bgcolor="lightblue"></view>
+     *
+     *     </view>
+     *
+     * In this example the blue view is wider than its parent pink view, and extends beyond the parents bounds.
+     *
+     *     @example
+     *     <view width="200" height="100" bgcolor="lightpink">
+     *
+     *       <view width="250" height="50" x="10" y="10" bgcolor="lightblue"></view>
+     *
+     *     </view>
+     *
+     * Here we have the same wide child view, but we set the 'clip' attribute on the parent view to true, causing the overflowing child view to be clipped at its parent's boundary.
+     *
+     *     @example
+     *     <view width="200" height="100" bgcolor="lightpink" clip='true'>
+     *
+     *       <view width="250" height="50" x="10" y="10" bgcolor="lightblue"></view>
+     *
+     *     </view>
+     *
+     * Here we demonstrate how unsupported attributes are passed to the underlying sprite system. We make the child view semi-transparent by setting opacity. Although this is not in the list of supported attributes it is still applied.
+     *
+     *     @example
+     *     <view width="200" height="100" bgcolor="lightpink">
+     *
+     *       <view width="250" height="50" x="10" y="10" bgcolor="lightblue" opacity=".5"></view>
+     *
+     *     </view>
      */
     View = (function(_super) {
       __extends(View, _super);
