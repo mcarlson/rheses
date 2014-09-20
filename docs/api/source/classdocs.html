@@ -400,6 +400,22 @@
 </span>     * @class dr.inputtext
      * @extends dr.view
      * Provides an editable input text field.
+     *
+     *     @example
+     *     &lt;simplelayout axis=&quot;y&quot;&gt;&lt;/simplelayout&gt;
+     *
+     *     &lt;text text=&quot;Enter your name&quot;&gt;&lt;/text&gt;
+     *
+     *     &lt;inputtext id=&quot;nameinput&quot; bgcolor=&quot;white&quot; border=&quot;1px solid lightgrey&quot; width=&quot;200&quot;&gt;&lt;/inputtext&gt;
+     *
+     *     &lt;labelbutton text=&quot;submit&quot;&gt;
+     *       &lt;handler event=&quot;onclick&quot;&gt;
+     *         welcome.setAttribute(&#39;text&#39;, &#39;Welcome &#39; + nameinput.text);
+     *       &lt;/handler&gt;
+     *     &lt;/labelbutton&gt;
+     *
+     *     &lt;text id=&quot;welcome&quot;&gt;&lt;/text&gt;
+     *
      */
 <span id='dr-inputtext-cfg-multiline'>/**
 </span>        * @cfg {Boolean} [multiline=false]

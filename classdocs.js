@@ -383,6 +383,22 @@
      * @class dr.inputtext
      * @extends dr.view
      * Provides an editable input text field.
+     *
+     *     @example
+     *     <simplelayout axis="y"></simplelayout>
+     *
+     *     <text text="Enter your name"></text>
+     *
+     *     <inputtext id="nameinput" bgcolor="white" border="1px solid lightgrey" width="200"></inputtext>
+     *
+     *     <labelbutton text="submit">
+     *       <handler event="onclick">
+     *         welcome.setAttribute('text', 'Welcome ' + nameinput.text);
+     *       </handler>
+     *     </labelbutton>
+     *
+     *     <text id="welcome"></text>
+     *
      */
 /**
         * @cfg {Boolean} [multiline=false]
