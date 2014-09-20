@@ -296,6 +296,22 @@
 </span>     * @class dr.dragstate
      * @extends dr.state
      * Allows views to be dragged by the mouse.
+     *
+     * Here is a view that contains a dragstate. The dragstate is applied when the mouse is down in the view, and then removed when the mouse is up. You can modify the attributes of the draggable view by setting them inside the dragstate, like we do here with bgcolor.
+     *
+     *     @example
+     *     &lt;view width=&quot;100&quot; height=&quot;100&quot; bgcolor=&quot;plum&quot;&gt;
+     *       &lt;attribute name=&quot;mouseIsDown&quot; type=&quot;boolean&quot; value=&quot;false&quot;&gt;&lt;/attribute&gt;
+     *       &lt;handler event=&quot;onmousedown&quot;&gt;
+     *         this.setAttribute(&#39;mouseIsDown&#39;, true);
+     *       &lt;/handler&gt;
+     *       &lt;handler event=&quot;onmouseup&quot;&gt;
+     *         this.setAttribute(&#39;mouseIsDown&#39;, false);
+     *       &lt;/handler&gt;
+     *       &lt;dragstate applied=&quot;${this.parent.mouseIsDown}&quot;&gt;
+     *         &lt;attribute name=&quot;bgcolor&quot; type=&quot;string&quot; value=&quot;purple&quot;&gt;&lt;/attribute&gt;
+     *       &lt;/dragstate&gt;
+     *     &lt;/view&gt;
      */
 <span id='dr-dragstate-cfg-dragaxis'>/**
 </span>        * @cfg {&quot;x&quot;/&quot;y&quot;/&quot;both&quot;} [dragaxis=&quot;both&quot;]
