@@ -201,6 +201,31 @@
      * button changes each time the button is clicked. The select property
      * holds the current state of the button. The onselected event
      * is generated when the button is the selected state.
+     *
+     *     @example
+     *     &lt;simplelayout axis=&quot;y&quot;&gt;&lt;/simplelayout&gt;
+     *
+     *     &lt;checkbutton text=&quot;pink&quot; selectcolor=&quot;pink&quot; defaultcolor=&quot;lightgrey&quot; bgcolor=&quot;white&quot;&gt;&lt;/checkbutton&gt;
+     *     &lt;checkbutton text=&quot;blue&quot; selectcolor=&quot;lightblue&quot; defaultcolor=&quot;lightgrey&quot; bgcolor=&quot;white&quot;&gt;&lt;/checkbutton&gt;
+     *     &lt;checkbutton text=&quot;green&quot; selectcolor=&quot;lightgreen&quot; defaultcolor=&quot;lightgrey&quot; bgcolor=&quot;white&quot;&gt;&lt;/checkbutton&gt;
+     *
+     * Here we listen for the onselected event on a checkbox and print the value that is passed to the handler.
+     *
+     *     @example
+     *     &lt;simplelayout axis=&quot;y&quot;&gt;&lt;/simplelayout&gt;
+     *
+     *     &lt;checkbutton text=&quot;green&quot; selectcolor=&quot;lightgreen&quot; defaultcolor=&quot;lightgrey&quot; bgcolor=&quot;white&quot;&gt;
+     *       &lt;handler event=&quot;onselected&quot; args=&quot;value&quot;&gt;
+     *         displayselected.setAttribute(&#39;text&#39;, value);
+     *       &lt;/handler&gt;
+     *     &lt;/checkbutton&gt;
+     *
+     *     &lt;view&gt;
+     *       &lt;simplelayout axis=&quot;x&quot;&gt;&lt;/simplelayout&gt;
+     *       &lt;text text=&quot;Selected:&quot;&gt;&lt;/text&gt;
+     *       &lt;text id=&quot;displayselected&quot;&gt;&lt;/text&gt;
+     *     &lt;/view&gt;
+     *
      */
 <span id='dr-dataset'>/**
 </span>     * @class dr.dataset
