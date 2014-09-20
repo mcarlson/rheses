@@ -414,6 +414,17 @@
      * Button class consisting of text centered in a view. The onclick event
      * is generated when the button is clicked. The visual state of the 
      * button changes during onmousedown/onmouseup.
+     *
+     *     @example
+     *     <simplelayout axis="y"></simplelayout>
+     *
+     *     <labelbutton text="click me" defaultcolor="plum" selectcolor="orchid">
+     *       <handler event="onclick">
+     *         hello.setAttribute('text', 'Hello Universe!');
+     *       </handler>
+     *     </labelbutton>
+     *
+     *     <text id="hello"></text>
      */
 /**
      * @class dr.labeltoggle
