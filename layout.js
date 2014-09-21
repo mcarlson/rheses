@@ -2442,6 +2442,15 @@
      * @class dr.idle
      * @extends Eventable
      * Sends onidle events when the application is active and idle.
+     *
+     *     @example
+     *     <handler event="onidle" reference="dr.idle" args="idleStatus">
+     *       milis.setAttribute('text', idleStatus);
+     *     </handler>
+     *
+     *     <simplelayout axis="x"></simplelayout>
+     *     <text text="Miliseconds since app started: "></text>
+     *     <text id="milis"></text>
      */
     Idle = (function(_super) {
       __extends(Idle, _super);
