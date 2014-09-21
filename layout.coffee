@@ -2053,6 +2053,17 @@ window.dr = do ->
   # @class dr.window
   # @extends Eventable
   # Sends window resize events. Often used to dynamically reposition views as the window size changes.
+  #
+  #     @example
+  #     <handler event="onwidth" reference="dr.window" args="newWidth">
+  #       //adjust views
+  #     </handler>
+  #
+  #     <handler event="onheight" reference="dr.window" args="newHeight">
+  #       //adjust views
+  #     </handler>
+  #
+  #
   ###
   class Window extends StartEventable
     constructor: ->

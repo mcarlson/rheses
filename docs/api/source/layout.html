@@ -2655,6 +2655,17 @@
 </span>     * @class dr.window
      * @extends Eventable
      * Sends window resize events. Often used to dynamically reposition views as the window size changes.
+     *
+     *     @example
+     *     &lt;handler event=&quot;onwidth&quot; reference=&quot;dr.window&quot; args=&quot;newWidth&quot;&gt;
+     *       //adjust views
+     *     &lt;/handler&gt;
+     *
+     *     &lt;handler event=&quot;onheight&quot; reference=&quot;dr.window&quot; args=&quot;newHeight&quot;&gt;
+     *       //adjust views
+     *     &lt;/handler&gt;
+     *
+     *
      */
     Window = (function(_super) {
       __extends(Window, _super);
