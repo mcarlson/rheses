@@ -1947,6 +1947,21 @@ window.dr = do ->
   # @class dr.mouse
   # @extends Eventable
   # Sends mouse events. Often used to listen to onmouseover/x/y events to follow the mouse position.
+  #
+  # Here we attach events handlers to the onx and ony events of dr.mouse, and set the x,y coordinates of a square view so it follows the mouse.
+  #
+  #     @example
+  #     <view id="mousetracker" width="20" height="20" bgcolor="MediumTurquoise"></view>
+  #
+  #     <handler event="onx" args="x" reference="dr.mouse">
+  #       mousetracker.setAttribute('x', x);
+  #     </handler>
+  #
+  #     <handler event="ony" args="y" reference="dr.mouse">
+  #       mousetracker.setAttribute('y', y);
+  #     </handler>
+  #
+  #
   ###
   class Mouse extends StartEventable
 

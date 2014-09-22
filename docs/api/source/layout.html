@@ -2515,6 +2515,21 @@
 </span>     * @class dr.mouse
      * @extends Eventable
      * Sends mouse events. Often used to listen to onmouseover/x/y events to follow the mouse position.
+     *
+     * Here we attach events handlers to the onx and ony events of dr.mouse, and set the x,y coordinates of a square view so it follows the mouse.
+     *
+     *     @example
+     *     &lt;view id=&quot;mousetracker&quot; width=&quot;20&quot; height=&quot;20&quot; bgcolor=&quot;MediumTurquoise&quot;&gt;&lt;/view&gt;
+     *
+     *     &lt;handler event=&quot;onx&quot; args=&quot;x&quot; reference=&quot;dr.mouse&quot;&gt;
+     *       mousetracker.setAttribute(&#39;x&#39;, x);
+     *     &lt;/handler&gt;
+     *
+     *     &lt;handler event=&quot;ony&quot; args=&quot;y&quot; reference=&quot;dr.mouse&quot;&gt;
+     *       mousetracker.setAttribute(&#39;y&#39;, y);
+     *     &lt;/handler&gt;
+     *
+     *
      */
     Mouse = (function(_super) {
       __extends(Mouse, _super);
