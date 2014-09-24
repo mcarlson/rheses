@@ -2,6 +2,11 @@
      * @class dr.ace
      * @extends dr.view
      * Ace editor component.
+     *
+     *      @example
+     *      <ace id="editor"
+     *        width="500"
+     *         text='&lt;view width="100%" height="100%" bgcolor="thistle"&gt;&lt;/view&gt;'></ace>
      */
 /**
         * @cfg {string} [theme='ace/theme/chrome']
