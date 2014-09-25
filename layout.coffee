@@ -1651,6 +1651,41 @@ window.dr = do ->
   # If a class can't be found in the document, dreem will automatically attempt to load it from the classes/* directory.
   #
   # Like views and nodes, classes can contain methods, handlers, setters, constraints, attributes and other view, node or class instances.
+  #
+  # Here is a class called 'tile' that extends dr.view. It sets the bgcolor, width, and height attributes. An instance of tile is created using declarative syntax.
+  #
+  #     @example
+  #     <class name="tile" extends="view" bgcolor="thistle" width="100" height="100"></class>
+  #
+  #     <tile></tile>
+  #
+  # Now we'll extend the tile class with a class called 'labeltile', which contains a label inside of the box. We'll declare one each of tile and labeltile, and position them with a simplelayout.
+  #
+  #     @example
+  #     <class name="tile" extends="view" bgcolor="thistle" width="100" height="100"></class>
+  #
+  #     <class name="labeltile" extends="tile">
+  #       <text text="Tile"></text>
+  #     </class>
+  #
+  #     <simplelayout axis="x"></simplelayout>
+  #     <tile></tile>
+  #     <labeltile></labeltile>
+  #
+  # Attributes that are declared inside of a class definition can be set when the instance is declared. Here we bind the label text to the value of an attribute called label.
+  #
+  #     @example
+  #     <class name="tile" extends="view" bgcolor="thistle" width="100" height="100"></class>
+  #
+  #     <class name="labeltile" extends="tile">
+  #       <attribute name="label" type="string" value=""></attribute>
+  #       <text text="${this.parent.label}"></text>
+  #     </class>
+  #
+  #     <simplelayout axis="x"></simplelayout>
+  #     <tile></tile>
+  #     <labeltile label="The Tile"></labeltile>
+  #
   ###
   class Class
     ###*

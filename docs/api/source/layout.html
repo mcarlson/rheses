@@ -2144,6 +2144,41 @@
      * If a class can&#39;t be found in the document, dreem will automatically attempt to load it from the classes/* directory.
      *
      * Like views and nodes, classes can contain methods, handlers, setters, constraints, attributes and other view, node or class instances.
+     *
+     * Here is a class called &#39;tile&#39; that extends dr.view. It sets the bgcolor, width, and height attributes. An instance of tile is created using declarative syntax.
+     *
+     *     @example
+     *     &lt;class name=&quot;tile&quot; extends=&quot;view&quot; bgcolor=&quot;thistle&quot; width=&quot;100&quot; height=&quot;100&quot;&gt;&lt;/class&gt;
+     *
+     *     &lt;tile&gt;&lt;/tile&gt;
+     *
+     * Now we&#39;ll extend the tile class with a class called &#39;labeltile&#39;, which contains a label inside of the box. We&#39;ll declare one each of tile and labeltile, and position them with a simplelayout.
+     *
+     *     @example
+     *     &lt;class name=&quot;tile&quot; extends=&quot;view&quot; bgcolor=&quot;thistle&quot; width=&quot;100&quot; height=&quot;100&quot;&gt;&lt;/class&gt;
+     *
+     *     &lt;class name=&quot;labeltile&quot; extends=&quot;tile&quot;&gt;
+     *       &lt;text text=&quot;Tile&quot;&gt;&lt;/text&gt;
+     *     &lt;/class&gt;
+     *
+     *     &lt;simplelayout axis=&quot;x&quot;&gt;&lt;/simplelayout&gt;
+     *     &lt;tile&gt;&lt;/tile&gt;
+     *     &lt;labeltile&gt;&lt;/labeltile&gt;
+     *
+     * Attributes that are declared inside of a class definition can be set when the instance is declared. Here we bind the label text to the value of an attribute called label.
+     *
+     *     @example
+     *     &lt;class name=&quot;tile&quot; extends=&quot;view&quot; bgcolor=&quot;thistle&quot; width=&quot;100&quot; height=&quot;100&quot;&gt;&lt;/class&gt;
+     *
+     *     &lt;class name=&quot;labeltile&quot; extends=&quot;tile&quot;&gt;
+     *       &lt;attribute name=&quot;label&quot; type=&quot;string&quot; value=&quot;&quot;&gt;&lt;/attribute&gt;
+     *       &lt;text text=&quot;${this.parent.label}&quot;&gt;&lt;/text&gt;
+     *     &lt;/class&gt;
+     *
+     *     &lt;simplelayout axis=&quot;x&quot;&gt;&lt;/simplelayout&gt;
+     *     &lt;tile&gt;&lt;/tile&gt;
+     *     &lt;labeltile label=&quot;The Tile&quot;&gt;&lt;/labeltile&gt;
+     *
      */
     Class = (function() {
 
