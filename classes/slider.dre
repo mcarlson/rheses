@@ -127,6 +127,10 @@ SOFTWARE. -->
       <handler event="onmouseup">
         @drag.setAttribute('applied', false);
       </handler>
+      <handler event="onmouseupoutside">
+        #console.log("onmouseupoutside");
+        @drag.setAttribute('applied', false);
+      </handler>
 
 
       <!-- Move the slider in response to a change in position -->
