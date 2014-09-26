@@ -98,6 +98,9 @@
      * @class dr.bitmap
      * @extends dr.view
      * Loads an image from a URL.
+     *
+     *     @example
+     *     <bitmap src="../api-examples-resources/shasta.jpg" width="230" height="161"></bitmap>
      */
 /**
         * @cfg {String} src
