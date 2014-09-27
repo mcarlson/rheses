@@ -1303,19 +1303,19 @@
      *
      *     </view>
      *
-     * Here the blue view is wider than its parent pink view, and extends beyond the parents bounds.
+     * Here the blue view is wider than its parent pink view, and because the clip attribute of the parent is set to false it extends beyond the parents bounds.
      *
      *     @example
-     *     <view width="200" height="100" bgcolor="lightpink">
+     *     <view width="200" height="100" bgcolor="lightpink" clip="false">
      *
      *       <view width="250" height="50" x="10" y="10" bgcolor="lightblue"></view>
      *
      *     </view>
      *
-     * Now we set the 'clip' attribute on the parent view to true, causing the overflowing child view to be clipped at its parent's boundary.
+     * Now we set the clip attribute on the parent view to true, causing the overflowing child view to be clipped at its parent's boundary.
      *
      *     @example
-     *     <view width="200" height="100" bgcolor="lightpink" clip='true'>
+     *     <view width="200" height="100" bgcolor="lightpink" clip="true">
      *
      *       <view width="250" height="50" x="10" y="10" bgcolor="lightblue"></view>
      *
