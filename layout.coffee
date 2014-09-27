@@ -418,6 +418,29 @@ window.dr = do ->
   #         return a-b;
   #       </method>
   #     </node>
+  #
+  # You can also create a sub-class of node to contain non visual functionality. Here is an example of an inches to metric conversion class that is instantiated with the inches value and can convert it to either cm or m.
+  #
+  #     @example
+  #
+  #     <class name="inchesconverter" extends="node">
+  #       <attribute name="inchesval" type="number" value="0"></attribute>
+  #
+  #       <method name="centimetersval">
+  #         return this.inchesval*2.54;
+  #       </method>
+  #
+  #       <method name="metersval">
+  #         return (this.inchesval*2.54)/100;
+  #       </method>
+  #     </class>
+  #
+  #     <inchesconverter id="conv" inchesval="2"></inchesconverter>
+  #
+  #     <simplelayout axis="y"></simplelayout>
+  #     <text text="${conv.inchesval + ' inches'}"></text>
+  #     <text text="${conv.centimetersval() + ' cm'}"></text>
+  #     <text text="${conv.metersval() + ' m'}"></text>
   ###
   class Node extends Eventable
     ###*

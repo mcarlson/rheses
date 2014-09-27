@@ -608,6 +608,29 @@
      *         return a-b;
      *       &lt;/method&gt;
      *     &lt;/node&gt;
+     *
+     * You can also create a sub-class of node to contain non visual functionality. Here is an example of an inches to metric conversion class that is instantiated with the inches value and can convert it to either cm or m.
+     *
+     *     @example
+     *
+     *     &lt;class name=&quot;inchesconverter&quot; extends=&quot;node&quot;&gt;
+     *       &lt;attribute name=&quot;inchesval&quot; type=&quot;number&quot; value=&quot;0&quot;&gt;&lt;/attribute&gt;
+     *
+     *       &lt;method name=&quot;centimetersval&quot;&gt;
+     *         return this.inchesval*2.54;
+     *       &lt;/method&gt;
+     *
+     *       &lt;method name=&quot;metersval&quot;&gt;
+     *         return (this.inchesval*2.54)/100;
+     *       &lt;/method&gt;
+     *     &lt;/class&gt;
+     *
+     *     &lt;inchesconverter id=&quot;conv&quot; inchesval=&quot;2&quot;&gt;&lt;/inchesconverter&gt;
+     *
+     *     &lt;simplelayout axis=&quot;y&quot;&gt;&lt;/simplelayout&gt;
+     *     &lt;text text=&quot;${conv.inchesval + &#39; inches&#39;}&quot;&gt;&lt;/text&gt;
+     *     &lt;text text=&quot;${conv.centimetersval() + &#39; cm&#39;}&quot;&gt;&lt;/text&gt;
+     *     &lt;text text=&quot;${conv.metersval() + &#39; m&#39;}&quot;&gt;&lt;/text&gt;
      */
     Node = (function(_super) {
 
