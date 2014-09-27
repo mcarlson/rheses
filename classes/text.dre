@@ -65,6 +65,23 @@ SOFTWARE. -->
      *
      *     <text text="${this.parent.initials()}" color="hotpink"></text>
      *
+     * You can override the format method to provide custom formatting for text elements. Here is a subclass of text, timetext, with the format method overridden to convert the text given in seconds into a formatted string.
+     *
+     *     @example
+     *     <class name="timetext" extends="text">
+     *       <method name="format" args="seconds">
+     *         var minutes = Math.floor(seconds / 60);
+     *         var seconds = Math.floor(seconds) - minutes * 60;
+     *         if (seconds < 10) {
+     *           seconds = '0' + seconds;
+     *         }
+     *         return minutes + ':' + seconds;
+     *       </method>
+     *     </class>
+     *
+     *     <timetext text="240"></timetext>
+     *
+     *
      */-->    
     <class name="text" type="coffee">
       <!--/**

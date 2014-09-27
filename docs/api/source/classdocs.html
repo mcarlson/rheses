@@ -800,6 +800,23 @@
      *
      *     &lt;text text=&quot;${this.parent.initials()}&quot; color=&quot;hotpink&quot;&gt;&lt;/text&gt;
      *
+     * You can override the format method to provide custom formatting for text elements. Here is a subclass of text, timetext, with the format method overridden to convert the text given in seconds into a formatted string.
+     *
+     *     @example
+     *     &lt;class name=&quot;timetext&quot; extends=&quot;text&quot;&gt;
+     *       &lt;method name=&quot;format&quot; args=&quot;seconds&quot;&gt;
+     *         var minutes = Math.floor(seconds / 60);
+     *         var seconds = Math.floor(seconds) - minutes * 60;
+     *         if (seconds &lt; 10) {
+     *           seconds = &#39;0&#39; + seconds;
+     *         }
+     *         return minutes + &#39;:&#39; + seconds;
+     *       &lt;/method&gt;
+     *     &lt;/class&gt;
+     *
+     *     &lt;timetext text=&quot;240&quot;&gt;&lt;/timetext&gt;
+     *
+     *
      */
 <span id='dr-text-cfg-multiline'>/**
 </span>        * @cfg {Boolean} [multiline=false]
