@@ -303,6 +303,22 @@
      *         <attribute name="bgcolor" type="string" value="purple"></attribute>
      *       </dragstate>
      *     </view>
+     *
+     * To constrain the motion of the element to either the x or y axis set the dragaxis property. Here the same purple square can only move horizontally.
+     *
+     *     @example
+     *     <view width="100" height="100" bgcolor="plum">
+     *       <attribute name="mouseIsDown" type="boolean" value="false"></attribute>
+     *       <handler event="onmousedown">
+     *         this.setAttribute('mouseIsDown', true);
+     *       </handler>
+     *       <handler event="onmouseup">
+     *         this.setAttribute('mouseIsDown', false);
+     *       </handler>
+     *       <dragstate applied="${this.parent.mouseIsDown}" dragaxis="x">
+     *         <attribute name="bgcolor" type="string" value="purple"></attribute>
+     *       </dragstate>
+     *     </view>
      */
 /**
         * @cfg {"x"/"y"/"both"} [dragaxis="both"]
