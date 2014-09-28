@@ -1849,7 +1849,6 @@ window.dr = do ->
   #       <view width="50" height="50" bgcolor="lightblue" opacity=".3"></view>
   #
   #       <handler event="onlayouts" args="layouts">
-  #         console.log('onlayouts', layouts);
   #         output.setAttribute('text', output.text||'' + "New layout added: " + layouts[layouts.length-1].$tagname + "\n");
   #       </handler>
   #     </view>
