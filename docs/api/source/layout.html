@@ -2871,6 +2871,22 @@
 </span>     * @class dr.keyboard
      * @extends Eventable
      * Sends keyboard events.
+     *
+     * You might want to track specific keyboard events when text is being entered into an input box. In this example we listen for the enter key and display the value.
+     *
+     *     @example
+     *     &lt;simplelayout axis=&quot;y&quot; spacing=&quot;25&quot;&gt;&lt;/simplelayout&gt;
+     *     &lt;inputtext id=&quot;nameinput&quot; bgcolor=&quot;lightgrey&quot;&gt;&lt;/inputtext&gt;
+     *     &lt;text id=&quot;keycode&quot; text=&quot;Key Code:&quot;&gt;&lt;/text&gt;
+     *     &lt;text id=&quot;entered&quot;&gt;&lt;/text&gt;
+     *
+     *     &lt;handler event=&quot;onkeyup&quot; args=&quot;keys&quot; reference=&quot;dr.keyboard&quot;&gt;
+     *       keycode.setAttribute(&#39;text&#39;, &#39;Key Code: &#39; + keys.keyCode);
+     *       if (keys.keyCode == 13) {
+     *         entered.setAttribute(&#39;text&#39;, &#39;You entered: &#39; + nameinput.text);
+     *         nameinput.setAttribute(&#39;text&#39;, &#39;&#39;);
+     *       }
+     *     &lt;/handler&gt;
      */
     Keyboard = (function(_super) {
       var keyboardEvents, keys;

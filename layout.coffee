@@ -2258,6 +2258,22 @@ window.dr = do ->
   # @class dr.keyboard
   # @extends Eventable
   # Sends keyboard events.
+  #
+  # You might want to track specific keyboard events when text is being entered into an input box. In this example we listen for the enter key and display the value.
+  #
+  #     @example
+  #     <simplelayout axis="y" spacing="25"></simplelayout>
+  #     <inputtext id="nameinput" bgcolor="lightgrey"></inputtext>
+  #     <text id="keycode" text="Key Code:"></text>
+  #     <text id="entered"></text>
+  #
+  #     <handler event="onkeyup" args="keys" reference="dr.keyboard">
+  #       keycode.setAttribute('text', 'Key Code: ' + keys.keyCode);
+  #       if (keys.keyCode == 13) {
+  #         entered.setAttribute('text', 'You entered: ' + nameinput.text);
+  #         nameinput.setAttribute('text', '');
+  #       }
+  #     </handler>
   ###
   class Keyboard extends Eventable
 
