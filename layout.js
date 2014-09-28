@@ -2330,6 +2330,68 @@
      * The base class for all layouts. 
      *
      * When a new layout is added, it will automatically create and add itself to a layouts array in its parent. In addition, an onlayouts event is fired in the parent when the layouts array changes. This allows the parent to access the layout(s) later.
+     *
+     * Here is a view that contains both a simplelayout and a boundslayout.
+     *
+     *     @example
+     *     <simplelayout axis="y"></simplelayout>
+     *     <view bgcolor="oldlace">
+     *       <boundslayout></boundslayout>
+     *
+     *       <simplelayout axis="x"></simplelayout>
+     *
+     *       <view width="50" height="50" bgcolor="lightpink" opacity=".3"></view>
+     *       <view width="50" height="50" bgcolor="plum" opacity=".3"></view>
+     *       <view width="50" height="50" bgcolor="lightblue" opacity=".3"></view>
+     *
+     *       <handler event="onlayouts" args="layouts">
+     *         console.log('onlayouts', layouts);
+     *         output.setAttribute('text', output.text||'' + "New layout added: " + layouts[layouts.length-1].$tagname + "\n");
+     *       </handler>
+     *     </view>
+     *
+     *     <text id="output" multiline="true" width="300"></text>
+     *
+     * Here we create diagonlayout, a subclass of layout that lays out the subviews in a diagonal formation. The update method sets the positions of the subview, and the onsubview handler attaches event listeners to the subviews as they are added so update is called if their dimensions or visibility are updated.
+     *
+     *     @example
+     *     <class name="diagonlayout" extends="layout">
+     *       <handler event="onsubview" args="subview">
+     *         this.listenTo(subview, 'visible', this.update);
+     *         this.listenTo(subview, 'width', this.update);
+     *         this.listenTo(subview, 'height', this.update);
+     *       </handler>
+     *       <method name="update" args="value, sender">
+     *         var posX = 0;
+     *         var posY = 0;
+     *         for (var i=0, l = this.parent.subviews.length; i < l; i++) {
+     *           var subview = this.parent.subviews[i];
+     *           if (subview.ignorelayout || !subview.visible) {
+     *             continue;
+     *           }
+     *
+     *           subview.setAttribute('x', posX);
+     *           subview.setAttribute('y', posY);
+     *
+     *           posX += subview.width;
+     *           posY += subview.height;
+     *         }
+     *       </method>
+     *     </class>
+     *
+     *     <diagonlayout></diagonlayout>
+     *     <view id="v1" width="50" height="50" bgcolor="Aqua"></view>
+     *     <view id="v2" width="50" height="50" bgcolor="HotPink"></view>
+     *     <view id="v3" width="50" height="50" bgcolor="MediumPurple"></view>
+     *
+     *     <labelbutton text="click me">
+     *       <handler event="onclick">
+     *         v1.setAttribute('width', 100);
+     *         v2.setAttribute('height', 150);
+     *       </handler>
+     *     </labelbutton>
+     *
+     *
      */
     Layout = (function(_super) {
       __extends(Layout, _super);

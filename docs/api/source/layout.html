@@ -2347,6 +2347,68 @@
      * The base class for all layouts. 
      *
      * When a new layout is added, it will automatically create and add itself to a layouts array in its parent. In addition, an onlayouts event is fired in the parent when the layouts array changes. This allows the parent to access the layout(s) later.
+     *
+     * Here is a view that contains both a simplelayout and a boundslayout.
+     *
+     *     @example
+     *     &lt;simplelayout axis=&quot;y&quot;&gt;&lt;/simplelayout&gt;
+     *     &lt;view bgcolor=&quot;oldlace&quot;&gt;
+     *       &lt;boundslayout&gt;&lt;/boundslayout&gt;
+     *
+     *       &lt;simplelayout axis=&quot;x&quot;&gt;&lt;/simplelayout&gt;
+     *
+     *       &lt;view width=&quot;50&quot; height=&quot;50&quot; bgcolor=&quot;lightpink&quot; opacity=&quot;.3&quot;&gt;&lt;/view&gt;
+     *       &lt;view width=&quot;50&quot; height=&quot;50&quot; bgcolor=&quot;plum&quot; opacity=&quot;.3&quot;&gt;&lt;/view&gt;
+     *       &lt;view width=&quot;50&quot; height=&quot;50&quot; bgcolor=&quot;lightblue&quot; opacity=&quot;.3&quot;&gt;&lt;/view&gt;
+     *
+     *       &lt;handler event=&quot;onlayouts&quot; args=&quot;layouts&quot;&gt;
+     *         console.log(&#39;onlayouts&#39;, layouts);
+     *         output.setAttribute(&#39;text&#39;, output.text||&#39;&#39; + &quot;New layout added: &quot; + layouts[layouts.length-1].$tagname + &quot;\n&quot;);
+     *       &lt;/handler&gt;
+     *     &lt;/view&gt;
+     *
+     *     &lt;text id=&quot;output&quot; multiline=&quot;true&quot; width=&quot;300&quot;&gt;&lt;/text&gt;
+     *
+     * Here we create diagonlayout, a subclass of layout that lays out the subviews in a diagonal formation. The update method sets the positions of the subview, and the onsubview handler attaches event listeners to the subviews as they are added so update is called if their dimensions or visibility are updated.
+     *
+     *     @example
+     *     &lt;class name=&quot;diagonlayout&quot; extends=&quot;layout&quot;&gt;
+     *       &lt;handler event=&quot;onsubview&quot; args=&quot;subview&quot;&gt;
+     *         this.listenTo(subview, &#39;visible&#39;, this.update);
+     *         this.listenTo(subview, &#39;width&#39;, this.update);
+     *         this.listenTo(subview, &#39;height&#39;, this.update);
+     *       &lt;/handler&gt;
+     *       &lt;method name=&quot;update&quot; args=&quot;value, sender&quot;&gt;
+     *         var posX = 0;
+     *         var posY = 0;
+     *         for (var i=0, l = this.parent.subviews.length; i &lt; l; i++) {
+     *           var subview = this.parent.subviews[i];
+     *           if (subview.ignorelayout || !subview.visible) {
+     *             continue;
+     *           }
+     *
+     *           subview.setAttribute(&#39;x&#39;, posX);
+     *           subview.setAttribute(&#39;y&#39;, posY);
+     *
+     *           posX += subview.width;
+     *           posY += subview.height;
+     *         }
+     *       &lt;/method&gt;
+     *     &lt;/class&gt;
+     *
+     *     &lt;diagonlayout&gt;&lt;/diagonlayout&gt;
+     *     &lt;view id=&quot;v1&quot; width=&quot;50&quot; height=&quot;50&quot; bgcolor=&quot;Aqua&quot;&gt;&lt;/view&gt;
+     *     &lt;view id=&quot;v2&quot; width=&quot;50&quot; height=&quot;50&quot; bgcolor=&quot;HotPink&quot;&gt;&lt;/view&gt;
+     *     &lt;view id=&quot;v3&quot; width=&quot;50&quot; height=&quot;50&quot; bgcolor=&quot;MediumPurple&quot;&gt;&lt;/view&gt;
+     *
+     *     &lt;labelbutton text=&quot;click me&quot;&gt;
+     *       &lt;handler event=&quot;onclick&quot;&gt;
+     *         v1.setAttribute(&#39;width&#39;, 100);
+     *         v2.setAttribute(&#39;height&#39;, 150);
+     *       &lt;/handler&gt;
+     *     &lt;/labelbutton&gt;
+     *
+     *
      */
     Layout = (function(_super) {
       __extends(Layout, _super);
