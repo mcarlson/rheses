@@ -2028,6 +2028,21 @@
      * Like views and nodes, states can contain methods, handlers, setters, constraints, attributes and other view, node or class instances.
      *
      * Currently, states must end with the string &#39;state&#39; in their name to work properly.
+     *
+     *     @example
+     *     &lt;simplelayout axis=&quot;y&quot;&gt;&lt;/simplelayout&gt;
+     *     &lt;view id=&quot;square&quot; width=&quot;100&quot; height=&quot;100&quot; bgcolor=&quot;lightgrey&quot;&gt;
+     *       &lt;attribute name=&quot;ispink&quot; type=&quot;boolean&quot; value=&quot;false&quot;&gt;&lt;/attribute&gt;
+     *       &lt;state name=&quot;pinkstate&quot; applied=&quot;${this.parent.ispink}&quot;&gt;
+     *         &lt;attribute name=&quot;bgcolor&quot; value=&quot;pink&quot; type=&quot;string&quot;&gt;&lt;/attribute&gt;
+     *       &lt;/state&gt;
+     *     &lt;/view&gt;
+     *     &lt;labelbutton text=&quot;pinkify!&quot;&gt;
+     *       &lt;handler event=&quot;onclick&quot;&gt;
+     *         square.setAttribute(&#39;ispink&#39;, true);
+     *       &lt;/handler&gt;
+     *     &lt;/labelbutton&gt;
+     *
      */
     State = (function(_super) {
       __extends(State, _super);

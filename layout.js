@@ -2011,6 +2011,21 @@
      * Like views and nodes, states can contain methods, handlers, setters, constraints, attributes and other view, node or class instances.
      *
      * Currently, states must end with the string 'state' in their name to work properly.
+     *
+     *     @example
+     *     <simplelayout axis="y"></simplelayout>
+     *     <view id="square" width="100" height="100" bgcolor="lightgrey">
+     *       <attribute name="ispink" type="boolean" value="false"></attribute>
+     *       <state name="pinkstate" applied="${this.parent.ispink}">
+     *         <attribute name="bgcolor" value="pink" type="string"></attribute>
+     *       </state>
+     *     </view>
+     *     <labelbutton text="pinkify!">
+     *       <handler event="onclick">
+     *         square.setAttribute('ispink', true);
+     *       </handler>
+     *     </labelbutton>
+     *
      */
     State = (function(_super) {
       __extends(State, _super);
