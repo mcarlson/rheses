@@ -46,6 +46,13 @@ If you are using rvm or similar your gems will be installed in a gemset called '
 With jsduck installed run:
 
 	./bin/builddocs
+
+running smoke tests
+--------------------------
+
+The smoke tests docs are run with [http://phantomjs.org/](), so you'll need to install it. Next, run:
+
+	phantomjs ./bin/phantomrunner.js
 		
 <!-- The MIT License (MIT)
 
