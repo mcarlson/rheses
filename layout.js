@@ -355,6 +355,10 @@
         var type, _name;
         type = this.types[name];
         if (type) {
+          if (!typemappings[type]) {
+            console.warn('invalid type "' + type + '" for attribute', name);
+            return;
+          }
           value = typemappings[type](value);
         }
         if (typeof this[_name = "set_" + name] === "function") {

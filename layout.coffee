@@ -231,7 +231,11 @@ window.dr = do ->
       # coerce value to type
       type = @types[name]
       if type# and type of typemappings
-        # console.log 'type', name, type, value, typemappings[type], @
+        unless (typemappings[type])
+          console.warn('invalid type "' + type + '" for attribute', name)
+          return
+
+      # console.log 'type', name, type, value, typemappings[type], @
         value = typemappings[type](value)
 
       @["set_#{name}"]?(value)
