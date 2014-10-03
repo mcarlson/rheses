@@ -25,19 +25,33 @@ for(var i = 0; i < list.length; i++){
 
 
 var page = require('webpage').create();
+
 var runTest = function (file, callback) {
+	var tId;
+	var updateTimer = function(ms) {
+	    if (tId) clearTimeout(tId)
+ 	    tId = setTimeout(callback, ms);
+	}
+    page.onInitialized = function () {
+        // this is executed 'after the web page is created but before a URL is loaded.
+        // The callback may be used to change global objects.' ... according to the docs
+        page.evaluate(function () {
+            window.addEventListener('dreeminit', function (e) { console.log('~~DONE~~') }, false);
+        });
+		page.injectJs('./lib/es5-shim.min.js');
+    };
 	page.onResourceError = function(resourceError) {
-	  console.log('RESOURCE ERROR: ' + resourceError.errorString + ', URL: ' + resourceError.url + ', File: ' + file);
+	    console.log('RESOURCE ERROR: ' + resourceError.errorString + ', URL: ' + resourceError.url + ', File: ' + file);
+	    updateTimer();
 	};
 	page.onConsoleMessage = function(msg, lineNum, sourceId) {
-	  console.log('CONSOLE: ' + msg);
+	  	if (msg === '~~DONE~~') {
+		    updateTimer(15);
+		    return;
+	  	}
+	  	console.log('CONSOLE: ' + msg);
 	};
-	page.open('http://127.0.0.1:8080/bugs/' + file + '?nocache&debug', function(status) {
-	  // patch missing es5 method, in particular function.bind, see https://github.com/ariya/phantomjs/issues/10522
-	  page.injectJs('./lib/es5-shim.min.js');
-	  // TODO: listen for callback for when dreem is ready
-	  setTimeout(callback, 0);
-	});
+	page.open('http://127.0.0.1:8080/bugs/' + file + '?nocache&debug');
 }
 
 var loadNext = function() {

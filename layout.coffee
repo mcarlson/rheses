@@ -272,24 +272,29 @@ window.dr = do ->
         @setAttribute(name, value)
       @
 
-
-  compiler = do ->
-    # Fix for iOS throwing exceptions when accessing localStorage in private mode, see http://stackoverflow.com/questions/21159301/quotaexceedederror-dom-exception-22-an-attempt-was-made-to-add-something-to-st
-    localStorageWorks = do ->
-      mod = 'modernizr'
+  capabilities = {
+    localStorage: do ->
+      mod = 'dr'
       try
         localStorage.setItem(mod, mod)
         localStorage.removeItem(mod)
         return true
       catch e
         return false
+    # detect touchhttp://stackoverflow.com/questions/4817029/whats-the-best-way-to-detect-a-touch-screen-device-using-javascript
+    touch: 'ontouchstart' of window || 'onmsgesturechange' of window # deal with ie10
+  }
 
-    usecache = window.location.search.indexOf('nocache') == -1
-    usecache = false unless localStorageWorks
-    debug = window.location.search.indexOf('debug') > 0
-    strict = window.location.search.indexOf('strict') > 0
+  compiler = do ->
+    querystring = window.location.search
+    usecache = querystring.indexOf('nocache') > 0
+    debug = querystring.indexOf('debug') > 0
+    strict = querystring.indexOf('strict') > 0
+    
+    # Fix for iOS throwing exceptions when accessing localStorage in private mode, see http://stackoverflow.com/questions/21159301/quotaexceedederror-dom-exception-22-an-attempt-was-made-to-add-something-to-st
+    usecache = false unless capabilities.localStorage
 
-    cacheKey = "compilecache"
+    cacheKey = "dreemcache"
     if usecache and cacheKey of localStorage
       compileCache = JSON.parse(localStorage[cacheKey])
       # console.log 'restored', compileCache
@@ -360,7 +365,7 @@ window.dr = do ->
       argstring = args.join()
       key = script + argstring + name
       return scriptCache[key] if key of scriptCache
-      # console.log 'compile', args, script
+      # console.log 'compiling', args, script
       try 
         # console.log scriptCache
         if debug and name
@@ -368,7 +373,7 @@ window.dr = do ->
           func = new Function("return function #{name}(#{argstring}){#{script}}")()
         else
           func = new Function(args, script)
-        #console.log func()
+        # console.log 'compiled', func
         scriptCache[key] = func
       catch e
         console.error 'failed to compile', e.toString(), args, script 
@@ -539,6 +544,7 @@ window.dr = do ->
           @sendEvent('init', @) 
 
     installMethods: (methods, tagname, scope=@, callbackscope=@) ->
+      # console.log('installing methods', methods, tagname, scope, callbackscope)
       # Install methods
       for name, methodlist of methods
         for {method, args, allocation} in methodlist
@@ -790,9 +796,6 @@ window.dr = do ->
     fcamelCase = ( all, letter ) ->
       letter.toUpperCase()
     rdashAlpha = /-([\da-z])/gi
-    capabilities =
-      # detect touchhttp://stackoverflow.com/questions/4817029/whats-the-best-way-to-detect-a-touch-screen-device-using-javascript
-      touch: 'ontouchstart' of window || 'onmsgesturechange' of window # deal with ie10
 
     constructor: (jqel, view, tagname = 'div') ->
       # console.log 'new sprite', jqel, view, tagname
@@ -1206,6 +1209,12 @@ window.dr = do ->
         attributes[i.name] = i.value
       attributes
 
+    sendInit = () ->
+      # Create the event.
+      event = document.createEvent('Event');
+      event.initEvent('dreeminit', true, true);
+      window.dispatchEvent(event);
+
     # initialize a top-level view element
     initFromElement = (el) ->
       el.style.display = 'none'
@@ -1214,6 +1223,7 @@ window.dr = do ->
         initElement(el)
         # register constraints last
         _initConstraints()
+        sendInit()
       )
 
     findAutoIncludes = (parentel, callback) ->
