@@ -36,6 +36,7 @@ SOFTWARE. -->
         if (! src) return
         if (this.src == src) return
         this.setAttribute('background-image', 'url("' + src + '")');
+        this.setAttribute('background-size', 'cover');
 
         var img = this._img;
         if (! img) {
