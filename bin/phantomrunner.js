@@ -46,12 +46,12 @@ var runTest = function (file, callback) {
 	};
 	page.onConsoleMessage = function(msg, lineNum, sourceId) {
 	  	if (msg === '~~DONE~~') {
-		    updateTimer(15);
+		    updateTimer(20);
 		    return;
 	  	}
 	  	console.log('CONSOLE: ' + msg);
 	};
-	page.open('http://127.0.0.1:8080/bugs/' + file + '?nocache&debug');
+	page.open('http://127.0.0.1:8080/bugs/' + file);
 }
 
 var loadNext = function() {

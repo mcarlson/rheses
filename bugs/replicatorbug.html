@@ -1,16 +1,16 @@
 <html>
 <head>
   <title>rhes.es</title>
-  <script type="text/javascript" src="lib/jquery-1.9.1.min.js"></script>
-  <script type="text/javascript" src="lib/acorn.js"></script>
-  <script type="text/javascript" src="lib/coffee-script.js"></script>
-  <script type="text/javascript" src="layout.js"></script>
+  <script type="text/javascript" src="/lib/jquery-1.9.1.min.js"></script>
+  <script type="text/javascript" src="/lib/acorn.js"></script>
+  <script type="text/javascript" src="/lib/coffee-script.js"></script>
+  <script type="text/javascript" src="/layout.js"></script>
 </head>
 <body>
   <view id="container">
     <text></text>
 
-    <dataset name="tempdata" url="weather.json"></dataset>
+    <dataset name="tempdata" url="/weather.json"></dataset>
 
     <class name="replclass">
       <replicator datapath="$tempdata/weather[0]/main" classname="text"></replicator>

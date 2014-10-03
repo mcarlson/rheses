@@ -4,6 +4,7 @@
   <script type="text/javascript" src="/lib/jquery-1.9.1.min.js"></script>
   <script type="text/javascript" src="/lib/acorn.js"></script>
   <script type="text/javascript" src="/lib/coffee-script.js"></script>
+  <script type="text/javascript" src="/lib/assert.js"></script>
   <script type="text/javascript" src="/layout.js"></script>
 </head>
 <body>
@@ -13,7 +14,8 @@
     <attribute name="address" type="string" value="test"></attribute>
 
     <handler event="onaddress" args="testarg">
-      console.log('changed address', testarg);
+      // console.log('changed address', testarg);
+      assert.equal(testarg, '555-1212');
       this.nameval.setAttribute('text', testarg);
     </handler>
 

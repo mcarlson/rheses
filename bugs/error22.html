@@ -1,10 +1,11 @@
 <html>
 <head>
   <title>rhes.es</title>
-  <script type="text/javascript" src="lib/jquery-1.9.1.min.js"></script>
-  <script type="text/javascript" src="lib/acorn.js"></script>
-  <script type="text/javascript" src="lib/coffee-script.js"></script>
-  <script type="text/javascript" src="layout.js"></script>
+  <script type="text/javascript" src="/lib/jquery-1.9.1.min.js"></script>
+  <script type="text/javascript" src="/lib/acorn.js"></script>
+  <script type="text/javascript" src="/lib/coffee-script.js"></script>
+  <script type="text/javascript" src="/lib/assert.js"></script>
+  <script type="text/javascript" src="/layout.js"></script>
 </head>
 <body>
 <view id="all" width="100%" height="100%" clip="true">
@@ -15,9 +16,12 @@
   <view name="check" x="${this.parent.checkx}" y="${this.parent.checky}" width="50" height="50" bgcolor="red"></view>
 
   <handler event="oninit">
+    assert.equal(this.check.x, 50);
+    assert.equal(this.check.y, 50);
+    return;
+    
     // displays 'undefined undefined'
     console.log(this.check.x, this.check.y);
-
     // This works. displays '50 50'
     $this = this;
     setTimeout(function(){console.log($this.check.x, $this.check.y)}, 0);
