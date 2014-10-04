@@ -30,7 +30,7 @@ SOFTWARE. -->
      *        width="500"
      *         text='&lt;view width="100%" height="100%" bgcolor="thistle"&gt;&lt;/view&gt;'></ace>
      */-->    
-<!-- Don't use until lzx syntax highlighter is available via cdn
+<!-- Don't use until dr syntax highlighter is available via cdn
     <class name="ace" width="300" height="100" clickable="true" scriptincludes="http://cdnjs.cloudflare.com/ajax/libs/ace/1.1.3/ace.js">
 -->
     <class name="ace" width="300" height="100" clickable="true" scriptincludes="/lib/ace/src-noconflict/ace.js">
@@ -49,10 +49,10 @@ SOFTWARE. -->
       </handler>
 
       <!--/**
-        * @cfg {string} [mode='ace/mode/lzx']
+        * @cfg {string} [mode='ace/mode/dr']
         * Specify the ace mode to use.
         */-->
-      <attribute name="mode" type="string" value="ace/mode/lzx"/>
+      <attribute name="mode" type="string" value="ace/mode/dr"/>
       <handler event="onmode">
         if (this.editor)
           this.editor.getSession().setMode(this.mode);
