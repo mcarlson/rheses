@@ -348,8 +348,11 @@ window.dr = do ->
           if not window.CoffeeScript
             console.warn 'missing coffee-script.js include'
             return
+          try 
           # console.log 'compiling coffee-script', script
-          coffeeCache[script] = CoffeeScript.compile(script, bare: true) if script
+            coffeeCache[script] = CoffeeScript.compile(script, bare: true) if script
+          catch error
+            showWarnings(["error #{error} compiling script\r\n#{script}"])
           # console.log 'compiled coffee-script', script
           # console.log coffeeCache
           # return coffeeCache[script]
