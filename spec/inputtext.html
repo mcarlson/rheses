@@ -1,0 +1,46 @@
+
+<html lang="en">
+
+<head>
+  <title>Method Examples</title>
+  <script type="text/javascript" src="/lib/jquery-1.9.1.min.js"></script>
+  <script type="text/javascript" src="/lib/acorn.js"></script>
+  <script type="text/javascript" src="/lib/coffee-script.js"></script>
+  <script type="text/javascript" src="/layout.js"></script>
+
+  <style type="text/css">
+    html {
+      height: 100%;
+    }
+    body {
+      min-height: 100%;
+    }
+  </style>
+</head>
+
+<body>
+<!--<view width="100%" height="100%" clip="true">-->
+<!--<simplelayout axis="y"></simplelayout>-->
+<!--<inputtext id="nameinput" bgcolor="white" border="1px solid lightgrey" width="200"></inputtext>-->
+<!--<text text="test"></text>-->
+<!--</view>-->
+
+<view width="100%" height="100%" clip="true">
+
+  <simplelayout axis="y"></simplelayout>
+
+  <text text="Enter your name"></text>
+
+  <inputtext id="nameinput" bgcolor="white" border="1px solid lightgrey" width="200"></inputtext>
+
+  <labelbutton text="submit">
+    <handler event="onclick">
+      welcome.setAttribute('text', 'Welcome ' + nameinput.text);
+    </handler>
+  </labelbutton>
+
+  <text id="welcome"></text>
+</view>
+
+</body>
+</html>
