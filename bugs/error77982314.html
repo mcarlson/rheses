@@ -4,6 +4,7 @@
   <script type="text/javascript" src="/lib/jquery-1.9.1.min.js"></script>
   <script type="text/javascript" src="/lib/acorn.js"></script>
   <script type="text/javascript" src="/lib/coffee-script.js"></script>
+  <script type="text/javascript" src="/lib/assert.js"></script>
   <script type="text/javascript" src="/layout.js"></script>
 </head>
 <body>
@@ -15,7 +16,11 @@
     </handler>
   </class>
 
-  <error13></error13>
+  <error13>
+    <handler event="oninit">
+      assert.equal(this.width, 21);
+    </handler>
+  </error13>
 
   <!-- This doesn't work because the sprite is not changed -->
   <class name="error13a" bgcolor="#808080" width="20" height="20">
@@ -43,8 +48,18 @@
     </handler>
   </class>
 
-  <error13a></error13a>
-  <error13b x="200"></error13b>
+  <error13a>
+    <handler event="oninit">
+      assert.equal(this.width, 70);
+      assert.equal(this.height, 70);
+    </handler>
+  </error13a>
+  <error13b x="200">
+    <handler event="oninit">
+      assert.equal(this.width, 70);
+      assert.equal(this.height, 70);
+    </handler>
+  </error13b>
 </view>
 <!-- The MIT License (MIT)
 
