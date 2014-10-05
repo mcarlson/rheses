@@ -1239,12 +1239,19 @@
         return view.sendEvent(event.type, view);
       };
 
-      Sprite.prototype.createInputtextElement = function(text, multiline, width) {
-        var input;
+      Sprite.prototype.createInputtextElement = function(text, multiline, width, height) {
+        var input, style;
         input = document.createElement('input');
         input.setAttribute('type', 'text');
         input.setAttribute('value', text);
-        input.setAttribute('style', 'border: none; outline: none; background-color:transparent;');
+        style = 'border: none; outline: none; background-color:transparent;';
+        if (width) {
+          style += 'width:' + width + 'px;';
+        }
+        if (height) {
+          style += 'height:' + height + 'px;';
+        }
+        input.setAttribute('style', style);
         this.el.setAttribute('class', 'sprite noselect');
         this.el.appendChild(input);
         return setTimeout((function(_this) {
