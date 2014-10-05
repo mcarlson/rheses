@@ -15,5 +15,24 @@ require 'capybara/webkit'
 
 Capybara.app_host = 'http://127.0.0.1:8080'
 
-#the standard wait mechanism doesn't work with dreem - tries to run the spec before the DOM elements have been created
-Capybara.default_wait_time = 10
+#Capybara.default_wait_time = 10
+
+# call with: "wait_for_javascript_event 'dreemInited'" if needed
+#def wait_for_javascript_event event_name
+#  selenium_bridge.setScriptTimeout(Capybara.default_wait_time * 1000)
+#
+#  puts "waiting for event #{event_name}"
+#  selenium_driver.execute_async_script(
+#      "var callback = arguments[arguments.length - 1];
+#    if (window.DREEM_INITED) callback();
+#    else window.addEventListener('dreeminit', function (e) { setTimeout(callback, 1); alert(window.DREEM_INITED); return true; }, false);"
+#  )
+#end
+#
+#def selenium_driver
+#  page.driver.browser
+#end
+#
+#def selenium_bridge
+#  selenium_driver.send(:bridge)
+#end

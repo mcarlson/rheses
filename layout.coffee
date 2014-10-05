@@ -1226,6 +1226,7 @@ window.dr = do ->
         initElement(el)
         # register constraints last
         _initConstraints()
+        window.DREEM_INITED = true;
         sendInit()
       )
 
