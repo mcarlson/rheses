@@ -4,6 +4,7 @@ describe 'checkbutton', :type => :feature, :js => true do
 
   before :each do
     visit '/spec/features/checkbutton.html'
+    wait_for_javascript_event 'dreemInited'
   end
 
   it 'box color and selected value change when clicked' do
