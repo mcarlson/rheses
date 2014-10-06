@@ -13,7 +13,7 @@
         * Specify the ace theme to use.
         */
 /**
-        * @cfg {string} [mode='ace/mode/lzx']
+        * @cfg {string} [mode='ace/mode/dr']
         * Specify the ace mode to use.
         */
 /**
