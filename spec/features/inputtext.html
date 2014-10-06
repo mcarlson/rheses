@@ -25,15 +25,27 @@
 
   <text text="Enter your name"></text>
 
-  <inputtext id="nameinput" bgcolor="white" border="1px solid lightgrey" width="200"></inputtext>
+  <inputtext id="nameinput" bgcolor="white" border="1px solid lightgrey" width="200" height="30"></inputtext>
 
-  <labelbutton text="submit">
+  <labelbutton id="submitbtn" text="submit">
     <handler event="onclick">
       welcome.setAttribute('text', 'Welcome ' + nameinput.text);
     </handler>
   </labelbutton>
 
   <text id="welcome"></text>
+
+  <labelbutton id="widthbtn" text="widthify">
+    <handler event="onclick">
+      nameinput.setAttribute('width', 300);
+    </handler>
+  </labelbutton>
+
+  <labelbutton id="heightbtn" text="heightify">
+    <handler event="onclick">
+      nameinput.setAttribute('height', 50);
+    </handler>
+  </labelbutton>
 </view>
 
 </body>

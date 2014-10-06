@@ -942,11 +942,17 @@ window.dr = do ->
       # console.log 'event', event.type, view
       view.sendEvent(event.type, view)
 
-    createInputtextElement: (text, multiline, width) ->
+    createInputtextElement: (text, multiline, width, height) ->
       input = document.createElement('input')
       input.setAttribute('type', 'text')
       input.setAttribute('value', text)
-      input.setAttribute('style', 'border: none; outline: none; background-color:transparent;')
+      style = 'border: none; outline: none; background-color:transparent;';
+      if width
+        style +=  'width:' + width + 'px;'
+      if height
+        style +=  'height:' + height + 'px;'
+      input.setAttribute('style', style)
+
       # input.setAttribute('class', 'noselect')
       @el.setAttribute('class', 'sprite noselect')
       @el.appendChild(input)
