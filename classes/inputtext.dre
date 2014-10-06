@@ -67,7 +67,8 @@ SOFTWARE. -->
         text = @text || @sprite.text()
         # clear innerHTML
         @sprite.text('')
-        @sprite.createInputtextElement(text, @multiline, @width)
+        @sprite.createInputtextElement(text, @multiline, @width, @height)
+        @inputElem = @sprite.el.getElementsByTagName('input')[0]
       </handler>
       <handler event="onchange">
         return unless @replicator
@@ -82,5 +83,13 @@ SOFTWARE. -->
           else if newdata == 'false'
             newdata = false
         @replicator.updateData(newdata)
+      </handler>
+      <handler event="onwidth" args="w">
+        return unless @inputElem
+        $(@inputElem).css('width', w);
+      </handler>
+      <handler event="onheight" args="h">
+        return unless @inputElem
+        $(@inputElem).css('height', h);
       </handler>
     </class>
