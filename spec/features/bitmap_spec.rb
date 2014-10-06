@@ -4,6 +4,7 @@ describe 'bitmap', :type => :feature, :js => true do
 
   before :each do
     visit '/spec/features/bitmap.html'
+    wait_for_javascript_event 'dreemInited'
   end
 
   it 'sets the background-url to the src of the bitmap' do

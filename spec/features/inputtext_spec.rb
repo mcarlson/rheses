@@ -4,6 +4,7 @@ describe 'inputtext', :type => :feature, :js => true do
 
   before :each do
     visit '/spec/features/inputtext.html'
+    wait_for_javascript_event 'dreemInited'
   end
 
   it 'can take user input and output the value' do

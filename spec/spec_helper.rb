@@ -21,7 +21,7 @@ Capybara.app_host = 'http://127.0.0.1:8080'
 def wait_for_javascript_event event_name
   selenium_bridge.setScriptTimeout(Capybara.default_wait_time * 1000)
 
-  puts "waiting for event #{event_name}"
+  #puts "waiting for event #{event_name}"
   selenium_driver.execute_async_script(
       "var callback = arguments[arguments.length - 1];
     if (window.DREEM_INITED) callback();

@@ -4,6 +4,7 @@ describe 'boundslayout', :type => :feature, :js => true do
 
   before :each do
     visit '/spec/features/boundslayout.html'
+    wait_for_javascript_event 'dreemInited'
   end
 
   it 'sets the height and width of the parent container to be as big the containing views' do
