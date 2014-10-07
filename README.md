@@ -53,6 +53,19 @@ running smoke tests
 The smoke tests docs are run with [http://phantomjs.org/](), so you'll need to install it. Next, run:
 
 	phantomjs ./bin/phantomrunner.js
+    
+running the component tests
+--------------------------
+
+The components are tested with rspec and capybara. You will need to install the required gems to run them. If you haven't already:
+
+    gem install bundler
+    bundle install
+    
+Now to run the specs run
+
+    rspec
+    
 		
 <!-- The MIT License (MIT)
 

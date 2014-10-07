@@ -77,7 +77,7 @@
   })();
 
   window.dr = (function() {
-    var Class, Eventable, Events, Idle, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, View, Window, compiler, constraintScopes, dom, exports, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, showWarnings, warnings, _initConstraints;
+    var Class, Eventable, Events, Idle, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, View, Window, capabilities, compiler, constraintScopes, dom, exports, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, showWarnings, warnings, _initConstraints;
     mixOf = function() {
       var Mixed, base, i, method, mixin, mixins, name, _i, _ref;
       base = arguments[0], mixins = 2 &lt;= arguments.length ? __slice.call(arguments, 1) : [];
@@ -430,11 +430,10 @@
       return Eventable;
 
     })(Module);
-    compiler = (function() {
-      var cacheKey, compile, compileCache, debug, exports, findBindings, localStorageWorks, scriptCache, strict, transform, usecache;
-      localStorageWorks = (function() {
+    capabilities = {
+      localStorage: (function() {
         var e, mod;
-        mod = &#39;modernizr&#39;;
+        mod = &#39;dr&#39;;
         try {
           localStorage.setItem(mod, mod);
           localStorage.removeItem(mod);
@@ -443,14 +442,19 @@
           e = _error;
           return false;
         }
-      })();
-      usecache = window.location.search.indexOf(&#39;nocache&#39;) === -1;
-      if (!localStorageWorks) {
+      })(),
+      touch: &#39;ontouchstart&#39; in window || &#39;onmsgesturechange&#39; in window
+    };
+    compiler = (function() {
+      var cacheKey, compile, compileCache, debug, exports, findBindings, querystring, scriptCache, strict, transform, usecache;
+      querystring = window.location.search;
+      usecache = querystring.indexOf(&#39;nocache&#39;) &gt; 0;
+      debug = querystring.indexOf(&#39;debug&#39;) &gt; 0;
+      strict = querystring.indexOf(&#39;strict&#39;) &gt; 0;
+      if (!capabilities.localStorage) {
         usecache = false;
       }
-      debug = window.location.search.indexOf(&#39;debug&#39;) &gt; 0;
-      strict = window.location.search.indexOf(&#39;strict&#39;) &gt; 0;
-      cacheKey = &quot;compilecache&quot;;
+      cacheKey = &quot;dreemcache&quot;;
       if (usecache &amp;&amp; cacheKey in localStorage) {
         compileCache = JSON.parse(localStorage[cacheKey]);
       } else {
@@ -504,6 +508,7 @@
         coffeeCache = compileCache.script.coffee;
         compilers = {
           coffee: function(script) {
+            var error;
             if (usecache &amp;&amp; script in coffeeCache) {
               return coffeeCache[script];
             }
@@ -511,10 +516,15 @@
               console.warn(&#39;missing coffee-script.js include&#39;);
               return;
             }
-            if (script) {
-              return coffeeCache[script] = CoffeeScript.compile(script, {
-                bare: true
-              });
+            try {
+              if (script) {
+                return coffeeCache[script] = CoffeeScript.compile(script, {
+                  bare: true
+                });
+              }
+            } catch (_error) {
+              error = _error;
+              return showWarnings([&quot;error &quot; + error + &quot; compiling script\r\n&quot; + script]);
             }
           }
         };
@@ -1059,7 +1069,7 @@
      * Abstracts the underlying visual primitives (currently HTML) from dreem&#39;s view system.
      */
     Sprite = (function() {
-      var capabilities, fcamelCase, lastTouchDown, noop, rdashAlpha, stylemap, styleval;
+      var fcamelCase, lastTouchDown, noop, rdashAlpha, stylemap, styleval;
 
       noop = function() {};
 
@@ -1085,10 +1095,6 @@
       };
 
       rdashAlpha = /-([\da-z])/gi;
-
-      capabilities = {
-        touch: &#39;ontouchstart&#39; in window || &#39;onmsgesturechange&#39; in window
-      };
 
       function Sprite(jqel, view, tagname) {
         if (tagname == null) {
@@ -1250,12 +1256,19 @@
         return view.sendEvent(event.type, view);
       };
 
-      Sprite.prototype.createInputtextElement = function(text, multiline, width) {
-        var input;
+      Sprite.prototype.createInputtextElement = function(text, multiline, width, height) {
+        var input, style;
         input = document.createElement(&#39;input&#39;);
         input.setAttribute(&#39;type&#39;, &#39;text&#39;);
         input.setAttribute(&#39;value&#39;, text);
-        input.setAttribute(&#39;style&#39;, &#39;border: none; outline: none; background-color:transparent;&#39;);
+        style = &#39;border: none; outline: none; background-color:transparent;&#39;;
+        if (width) {
+          style += &#39;width:&#39; + width + &#39;px;&#39;;
+        }
+        if (height) {
+          style += &#39;height:&#39; + height + &#39;px;&#39;;
+        }
+        input.setAttribute(&#39;style&#39;, style);
         this.el.setAttribute(&#39;class&#39;, &#39;sprite noselect&#39;);
         this.el.appendChild(input);
         return setTimeout((function(_this) {
@@ -1587,7 +1600,7 @@
       return console.error(out);
     };
     dom = (function() {
-      var builtinTags, checkRequiredAttributes, exports, findAutoIncludes, flattenattributes, htmlDecode, initAllElements, initElement, initFromElement, processSpecialTags, requiredAttributes, specialtags, writeCSS;
+      var builtinTags, checkRequiredAttributes, exports, findAutoIncludes, flattenattributes, htmlDecode, initAllElements, initElement, initFromElement, processSpecialTags, requiredAttributes, sendInit, specialtags, writeCSS;
       flattenattributes = function(namednodemap) {
         var attributes, i, _i, _len;
         attributes = {};
@@ -1597,12 +1610,20 @@
         }
         return attributes;
       };
+      sendInit = function() {
+        var event;
+        event = document.createEvent(&#39;Event&#39;);
+        event.initEvent(&#39;dreeminit&#39;, true, true);
+        return window.dispatchEvent(event);
+      };
       initFromElement = function(el) {
         el.style.display = &#39;none&#39;;
         return findAutoIncludes(el, function() {
           el.style.display = null;
           initElement(el);
-          return _initConstraints();
+          _initConstraints();
+          window.DREEM_INITED = true;
+          return sendInit();
         });
       };
       findAutoIncludes = function(parentel, callback) {
