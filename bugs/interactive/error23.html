@@ -8,20 +8,19 @@
 </head>
 <body>
 <view id="all" width="100%" height="100%" clip="true">
-  <class name="error12" bgcolor="#808080">
-    <text name="label" text="Hello" onclick="this.setAttribute('text', 'foo')" bgcolor="red"></text>
 
-    <handler event="onwidth" reference="this.label" method="handleResize"></handler>
-    <handler event="onheight" reference="this.label" method="handleResize"></handler>
+  <simplelayout axis="x" spacing="10"></simplelayout>
+  <view name="v1" width="50" height="50" bgcolor="green" clickable="true"></view>
+  <view name="v2" width="50" height="50" bgcolor="green" clickable="true">
+    <handler event="onclick" reference="this.parent.v1">
+      console.log("You clicked v1");
+    </handler>
+    <handler event="onclick">
+      console.log("You clicked v2");
+    </handler>
+  </view>
 
-    <method name="handleResize">
-      console.log('handleResize')
-      this.setAttributes({'width':this.label.width, 'height':this.label.height});
-    </method>
-  </class>
-
-  <error12></error12>
-</view>
+</view>  
 <!-- The MIT License (MIT)
 
 Copyright ( c ) 2014 Teem2 LLC

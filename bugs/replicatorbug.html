@@ -4,6 +4,7 @@
   <script type="text/javascript" src="/lib/jquery-1.9.1.min.js"></script>
   <script type="text/javascript" src="/lib/acorn.js"></script>
   <script type="text/javascript" src="/lib/coffee-script.js"></script>
+  <script type="text/javascript" src="/lib/assert.js"></script>
   <script type="text/javascript" src="/layout.js"></script>
 </head>
 <body>
@@ -16,7 +17,7 @@
       <replicator datapath="$tempdata/weather[0]/main" classname="text"></replicator>
     </class>
 
-    <replclass onsubviews="if (this.subviews.length > 1) console.warn('should have only 1 subview', this)"></replclass>
+    <replclass onsubviews="assert.equal(this.subviews.length, 1)"></replclass>
   </view>
 <!-- The MIT License (MIT)
 

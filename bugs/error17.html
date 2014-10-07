@@ -4,6 +4,7 @@
   <script type="text/javascript" src="/lib/jquery-1.9.1.min.js"></script>
   <script type="text/javascript" src="/lib/acorn.js"></script>
   <script type="text/javascript" src="/lib/coffee-script.js"></script>
+  <script type="text/javascript" src="/lib/assert.js"></script>
   <script type="text/javascript" src="/layout.js"></script>
 </head>
 <body>
@@ -14,11 +15,15 @@
 
   <class name="text3" extends="text2">
     <handler event="oninit" args="who">
-      console.log('oninit', who);
+      assert.equal(who.$tagname, 'text3')
     </handler>
   </class>
 
-  <text3 text="Hello"></text3>
+  <text3 text="Hello">
+    <handler event="oninit" args="who">
+      assert.equal(who.text, 'Hello')
+    </handler>
+  </text3>
 
 </view>
 <!-- The MIT License (MIT)

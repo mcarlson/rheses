@@ -4,6 +4,7 @@
   <script type="text/javascript" src="/lib/jquery-1.9.1.min.js"></script>
   <script type="text/javascript" src="/lib/acorn.js"></script>
   <script type="text/javascript" src="/lib/coffee-script.js"></script>
+  <script type="text/javascript" src="/lib/assert.js"></script>
   <script type="text/javascript" src="/layout.js"></script>
 </head>
 <body>
@@ -16,6 +17,10 @@
 
   <handler event="oninit">
     // displays 'undefined undefined'
+    assert.equal(this.check.x, 50);
+    assert.equal(this.check.y, 50);
+    return;
+    
     console.log(this.check.x, this.check.y, this.check, this);
 
     // This works. displays '50 50'
