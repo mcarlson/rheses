@@ -1907,7 +1907,7 @@
           };
           if (skiponinit && !parent.inited) {
             if (children.length) {
-              idle(0, doinit);
+              setTimeout(doinit, 0);
             } else {
               doinit();
             }

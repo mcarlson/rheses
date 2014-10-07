@@ -1462,13 +1462,15 @@ window.dr = do ->
           initElement(child, parent) unless child.localName in specialtags
 
         doinit = ->
+          # console.log('doinit', parent)
           parent.inited = true
           parent.sendEvent('init', parent)
           return
 
         if skiponinit and not parent.inited
           if (children.length)
-            idle(0, doinit)
+            # console.log('skiponinit', children.length)
+            setTimeout(doinit, 0)
           else 
             doinit()
 
