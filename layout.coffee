@@ -1329,6 +1329,10 @@ window.dr = do ->
             for xhr in args
               # console.log 'inserting html', args, xhr[0] 
               jqel.prepend(xhr[0])
+              jqel.contents().each(() ->
+                if(this.nodeType == 8)
+                  $(this).remove()
+              )
 
             # find class script includes and load them in lexical order
             scriptsloading = false
@@ -1445,7 +1449,10 @@ window.dr = do ->
       # Defer oninit if we have children
       attributes.$skiponinit = skiponinit = (child for child in el.childNodes when child.nodeType == 1).length > 0
 
-      parent = new dr[tagname](el, attributes)
+      if typeof dr[tagname] is 'function'
+        parent = new dr[tagname](el, attributes)
+      else
+        showWarnings(["Unrecognized class #{tagname} #{el.outerHTML}"])
 
       unless isClass or isState
         children = (child for child in el.childNodes when child.nodeType == 1)
@@ -1488,11 +1495,12 @@ window.dr = do ->
       e.innerHTML = input
       out = ''
       for child in e.childNodes
-        if child.nodeValue? and child.nodeType == 3
+        if child.nodeValue? and (child.nodeType == 3 or child.nodeType == 8)
           out += child.nodeValue 
           # console.log('child', child.nodeType, child)
           # console.log('out', out)
         else
+          # console.log('invalid child', child, child.nodeType, child.nodeValue)
           return
       out
 
@@ -1509,7 +1517,7 @@ window.dr = do ->
         args = (attributes.args ? '').split()
         script = htmlDecode(child.innerHTML)
         unless script?
-          console.warn 'Invalid', name, child
+          console.warn 'Invalid tag', name, child
 
         type = attributes.type ? defaulttype
         name = attributes.name

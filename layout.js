@@ -491,6 +491,7 @@
         coffeeCache = compileCache.script.coffee;
         compilers = {
           coffee: function(script) {
+            var error;
             if (usecache && script in coffeeCache) {
               return coffeeCache[script];
             }
@@ -498,10 +499,15 @@
               console.warn('missing coffee-script.js include');
               return;
             }
-            if (script) {
-              return coffeeCache[script] = CoffeeScript.compile(script, {
-                bare: true
-              });
+            try {
+              if (script) {
+                return coffeeCache[script] = CoffeeScript.compile(script, {
+                  bare: true
+                });
+              }
+            } catch (_error) {
+              error = _error;
+              return showWarnings(["error " + error + " compiling script\r\n" + script]);
             }
           }
         };
@@ -1704,6 +1710,11 @@
               for (_l = 0, _len3 = args.length; _l < _len3; _l++) {
                 xhr = args[_l];
                 jqel.prepend(xhr[0]);
+                jqel.contents().each(function() {
+                  if (this.nodeType === 8) {
+                    return $(this).remove();
+                  }
+                });
               }
               scriptsloading = false;
               if (initONE) {
@@ -1866,7 +1877,11 @@
           }
           return _results;
         })()).length > 0;
-        parent = new dr[tagname](el, attributes);
+        if (typeof dr[tagname] === 'function') {
+          parent = new dr[tagname](el, attributes);
+        } else {
+          showWarnings(["Unrecognized class " + tagname + " " + el.outerHTML]);
+        }
         if (!(isClass || isState)) {
           children = (function() {
             var _j, _len1, _ref, _results;
@@ -1924,7 +1939,7 @@
         _ref = e.childNodes;
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           child = _ref[_i];
-          if ((child.nodeValue != null) && child.nodeType === 3) {
+          if ((child.nodeValue != null) && (child.nodeType === 3 || child.nodeType === 8)) {
             out += child.nodeValue;
           } else {
             return;
@@ -1962,7 +1977,7 @@
           args = ((_ref = attributes.args) != null ? _ref : '').split();
           script = htmlDecode(child.innerHTML);
           if (script == null) {
-            console.warn('Invalid', name, child);
+            console.warn('Invalid tag', name, child);
           }
           type = (_ref1 = attributes.type) != null ? _ref1 : defaulttype;
           name = attributes.name;
