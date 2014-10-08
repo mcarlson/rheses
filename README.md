@@ -53,6 +53,10 @@ running smoke tests
 The smoke tests docs are run with [http://phantomjs.org/](), so you'll need to install it. Next, run:
 
 	phantomjs ./bin/phantomrunner.js
+
+If you get RESOURCE ERROR messages, try specifying a different timeout argument. The smaller the number, the faster the tests will run:
+    
+    phantomjs ./bin/phantomrunner.js 100
     
 running the component tests
 --------------------------
