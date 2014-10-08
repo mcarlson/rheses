@@ -1582,7 +1582,19 @@
       return console.error(out);
     };
     dom = (function() {
-      var builtinTags, checkRequiredAttributes, exports, findAutoIncludes, flattenattributes, htmlDecode, initAllElements, initElement, initFromElement, processSpecialTags, requiredAttributes, sendInit, specialtags, writeCSS;
+      var builtinTags, checkRequiredAttributes, exports, findAutoIncludes, flattenattributes, getChildren, htmlDecode, initAllElements, initElement, initFromElement, processSpecialTags, requiredAttributes, sendInit, specialtags, writeCSS;
+      getChildren = function(el) {
+        var child, _i, _len, _ref, _ref1, _results;
+        _ref = el.childNodes;
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          child = _ref[_i];
+          if (child.nodeType === 1 && (_ref1 = child.localName, __indexOf.call(specialtags, _ref1) >= 0)) {
+            _results.push(child);
+          }
+        }
+        return _results;
+      };
       flattenattributes = function(namednodemap) {
         var attributes, i, _i, _len;
         attributes = {};
@@ -1829,7 +1841,7 @@
         return error;
       };
       initElement = function(el, parent) {
-        var attributes, child, children, doinit, event, eventname, isClass, isState, li, skiponinit, tagname, _i, _j, _len, _len1, _ref;
+        var attributes, checkChildren, child, children, event, eventname, isClass, isState, li, skiponinit, tagname, _i, _j, _len, _len1;
         if (el.$init) {
           return;
         }
@@ -1839,7 +1851,7 @@
           return;
         }
         if (!tagname in dr) {
-          if (!(__indexOf.call(builtinTags, tagname) >= 0 || __indexOf.call(specialtags, tagname) >= 0)) {
+          if (__indexOf.call(builtinTags, tagname) < 0) {
             console.warn('could not find class for tag', tagname, el);
           }
           return;
@@ -1874,22 +1886,12 @@
         if (!(isClass || isState)) {
           dom.processSpecialTags(el, attributes, attributes.type);
         }
-        attributes.$skiponinit = skiponinit = ((function() {
-          var _j, _len1, _ref, _results;
-          _ref = el.childNodes;
-          _results = [];
-          for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
-            child = _ref[_j];
-            if (child.nodeType === 1) {
-              _results.push(child);
-            }
-          }
-          return _results;
-        })()).length > 0;
+        attributes.$skiponinit = skiponinit = getChildren(el).length > 0;
         if (typeof dr[tagname] === 'function') {
           parent = new dr[tagname](el, attributes);
         } else {
           showWarnings(["Unrecognized class " + tagname + " " + el.outerHTML]);
+          return;
         }
         if (!(isClass || isState)) {
           children = (function() {
@@ -1906,19 +1908,26 @@
           })();
           for (_j = 0, _len1 = children.length; _j < _len1; _j++) {
             child = children[_j];
-            if (_ref = child.localName, __indexOf.call(specialtags, _ref) < 0) {
-              initElement(child, parent);
-            }
+            initElement(child, parent);
           }
-          doinit = function() {
-            parent.inited = true;
-            parent.sendEvent('init', parent);
-          };
           if (skiponinit && !parent.inited) {
             if (children.length) {
-              setTimeout(doinit, 0);
+              checkChildren = function() {
+                var _k, _len2;
+                for (_k = 0, _len2 = children.length; _k < _len2; _k++) {
+                  child = children[_k];
+                  if (!child.inited && child.localName === !'class') {
+                    setTimeout(checkChildren, 0);
+                    return;
+                  }
+                }
+                parent.inited = true;
+                parent.sendEvent('init', parent);
+              };
+              setTimeout(checkChildren, 0);
             } else {
-              doinit();
+              parent.inited = true;
+              parent.sendEvent('init', parent);
             }
           }
         }
@@ -1967,18 +1976,7 @@
         if (classattributes.$handlers == null) {
           classattributes.$handlers = [];
         }
-        children = (function() {
-          var _i, _len, _ref, _ref1, _results;
-          _ref = el.childNodes;
-          _results = [];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            child = _ref[_i];
-            if (child.nodeType === 1 && (_ref1 = child.localName, __indexOf.call(specialtags, _ref1) >= 0)) {
-              _results.push(child);
-            }
-          }
-          return _results;
-        })();
+        children = getChildren(el);
         for (_i = 0, _len = children.length; _i < _len; _i++) {
           child = children[_i];
           attributes = flattenattributes(child.attributes);
@@ -2301,7 +2299,7 @@
           console.warn('overwriting class', name);
         }
         dr[name] = function(instanceel, instanceattributes) {
-          var attributes, children, key, parent, propname, val, value, viewel, _j, _len1, _ref;
+          var attributes, checkChildren, children, key, parent, propname, sendInit, val, value, viewel, _j, _len1, _ref;
           attributes = clone(classattributes);
           for (key in instanceattributes) {
             value = instanceattributes[key];
@@ -2360,11 +2358,30 @@
               dom.initElement(child, parent);
             }
           }
-          parent._bindHandlers();
-          parent._bindHandlers(true);
-          if (!parent.inited) {
+          sendInit = function() {
+            if (parent.inited) {
+              return;
+            }
+            parent._bindHandlers();
+            parent._bindHandlers(true);
             parent.inited = true;
-            parent.sendEvent('init', parent);
+            return parent.sendEvent('init', parent);
+          };
+          if (children != null ? children.length : void 0) {
+            checkChildren = function() {
+              var _k, _len2;
+              for (_k = 0, _len2 = children.length; _k < _len2; _k++) {
+                child = children[_k];
+                if (!child.inited && child.localName === !'class') {
+                  setTimeout(checkChildren, 10);
+                  return;
+                }
+              }
+              return sendInit();
+            };
+            setTimeout(checkChildren, 0);
+          } else {
+            sendInit();
           }
           return parent;
         };

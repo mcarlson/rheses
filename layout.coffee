@@ -1212,6 +1212,9 @@ window.dr = do ->
 
 
   dom = do ->
+    getChildren = (el) -> 
+      child for child in el.childNodes when child.nodeType == 1 and child.localName in specialtags
+
     # flatten element.attributes to a hash
     flattenattributes = (namednodemap)  ->
       attributes = {}
@@ -1425,7 +1428,7 @@ window.dr = do ->
       return if tagname in specialtags
       
       if not tagname of dr
-        console.warn 'could not find class for tag', tagname, el unless tagname in builtinTags or tagname in specialtags
+        console.warn 'could not find class for tag', tagname, el unless tagname in builtinTags
         return
       else if tagname in builtinTags
         console.warn 'refusing to create a class that would overwrite the builtin tag', tagname unless tagname is 'input'
@@ -1456,32 +1459,39 @@ window.dr = do ->
         dom.processSpecialTags(el, attributes, attributes.type)
 
       # Defer oninit if we have children
-      attributes.$skiponinit = skiponinit = (child for child in el.childNodes when child.nodeType == 1).length > 0
+      attributes.$skiponinit = skiponinit = getChildren(el).length > 0
 
       if typeof dr[tagname] is 'function'
         parent = new dr[tagname](el, attributes)
       else
         showWarnings(["Unrecognized class #{tagname} #{el.outerHTML}"])
+        return
 
       unless isClass or isState
         children = (child for child in el.childNodes when child.nodeType == 1)
         # create children now
         for child in children
           # console.log 'initting class child', child.localName
-          initElement(child, parent) unless child.localName in specialtags
-
-        doinit = ->
-          # console.log('doinit', parent)
-          parent.inited = true
-          parent.sendEvent('init', parent)
-          return
+          initElement(child, parent)
 
         if skiponinit and not parent.inited
+          # console.log('skiponinit', parent, parent.subnodes.length)
           if (children.length)
-            # console.log('skiponinit', children.length)
-            setTimeout(doinit, 0)
-          else 
-            doinit()
+            checkChildren = ->
+              for child in children
+                if not child.inited and child.localName is not 'class'
+                  # console.log 'child not initted', child, parent
+                  setTimeout(checkChildren, 0)
+                  return
+              # console.log('doinit', parent)
+              parent.inited = true
+              parent.sendEvent('init', parent)
+              return
+            setTimeout(checkChildren, 0)
+          else
+            # console.log 'class init', parent
+            parent.inited = true
+            parent.sendEvent('init', parent)
 
       return
 
@@ -1520,7 +1530,7 @@ window.dr = do ->
       classattributes.$types ?= {}
       classattributes.$methods ?= {}
       classattributes.$handlers ?= []
-      children = (child for child in el.childNodes when child.nodeType == 1 and child.localName in specialtags)
+      children = getChildren(el)
       for child in children
         attributes = flattenattributes(child.attributes)
         # console.log child, attributes, classattributes
@@ -1871,12 +1881,27 @@ window.dr = do ->
             # console.log 'creating class child in parent', child, parent
             dom.initElement(child, parent)
 
-        parent._bindHandlers()
-        parent._bindHandlers(true)
-
-        unless parent.inited
+        sendInit = () ->
+          return if parent.inited
+          parent._bindHandlers()
+          parent._bindHandlers(true)
           parent.inited = true
           parent.sendEvent('init', parent)
+
+        if children?.length
+          # console.log 'delaying init', parent, children
+          checkChildren = ->
+            for child in children
+              if not child.inited and child.localName is not 'class'
+                # console.log 'child not initted', child, parent
+                setTimeout(checkChildren, 10)
+                return
+            # console.log('class doinit', parent)
+            sendInit()
+          setTimeout(checkChildren, 0)
+        else
+          # console.log 'class init', parent
+          sendInit()
         return parent
 
   ###*
