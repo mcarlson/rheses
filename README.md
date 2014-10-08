@@ -66,6 +66,32 @@ Now to run the specs run
 
     rspec
     
+If you see an error like:
+
+    Gem::Ext::BuildError: ERROR: Failed to build gem native extension.
+
+        ruby extconf.rb
+    Command 'qmake -spec macx-g++ ' not available
+
+    Makefile not found
+
+    Gem files will remain installed in /Users/maxcarlson/.rvm/gems/ruby-2.0.0-p481@dreem/gems/capybara-webkit-1.3.0 for inspection.
+    Results logged to /Users/maxcarlson/.rvm/gems/ruby-2.0.0-p481@dreem/extensions/x86_64-darwin-13/2.0.0-static/capybara-webkit-1.3.0/gem_make.out
+
+    An error occurred while installing capybara-webkit (1.3.0), and Bundler cannot continue.
+    Make sure that `gem install capybara-webkit -v '1.3.0'` succeeds before bundling.
+
+Per [http://stackoverflow.com/questions/11354656/error-error-error-installing-capybara-webkit]() if you are in Ubuntu:
+
+    sudo apt-get install qt4-dev-tools libqt4-dev libqt4-core libqt4-gui
+
+If you are on Mac
+
+    brew install qt
+
+Then run this again:
+
+    bundle install    
 		
 <!-- The MIT License (MIT)
 
