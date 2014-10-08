@@ -285,10 +285,10 @@ window.dr = do ->
     touch: 'ontouchstart' of window || 'onmsgesturechange' of window # deal with ie10
   }
 
+  querystring = window.location.search
+  debug = querystring.indexOf('debug') > 0
   compiler = do ->
-    querystring = window.location.search
-    usecache = querystring.indexOf('nocache') > 0
-    debug = querystring.indexOf('debug') > 0
+    nocache = querystring.indexOf('nocache') > 0
     strict = querystring.indexOf('strict') > 0
     
     # Fix for iOS throwing exceptions when accessing localStorage in private mode, see http://stackoverflow.com/questions/21159301/quotaexceedederror-dom-exception-22-an-attempt-was-made-to-add-something-to-st
@@ -1337,10 +1337,11 @@ window.dr = do ->
             for xhr in args
               # console.log 'inserting html', args, xhr[0] 
               jqel.prepend(xhr[0])
-              jqel.contents().each(() ->
-                if(this.nodeType == 8)
-                  $(this).remove()
-              )
+              if debug
+                jqel.contents().each(() ->
+                  if(this.nodeType == 8)
+                    $(this).remove()
+                )
 
             # find class script includes and load them in lexical order
             scriptsloading = false

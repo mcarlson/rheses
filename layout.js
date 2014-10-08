@@ -60,7 +60,7 @@
   })();
 
   window.dr = (function() {
-    var Class, Eventable, Events, Idle, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, View, Window, capabilities, compiler, constraintScopes, dom, exports, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, showWarnings, warnings, _initConstraints;
+    var Class, Eventable, Events, Idle, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, View, Window, capabilities, compiler, constraintScopes, debug, dom, exports, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, querystring, showWarnings, warnings, _initConstraints;
     mixOf = function() {
       var Mixed, base, i, method, mixin, mixins, name, _i, _ref;
       base = arguments[0], mixins = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
@@ -428,11 +428,11 @@
       })(),
       touch: 'ontouchstart' in window || 'onmsgesturechange' in window
     };
+    querystring = window.location.search;
+    debug = querystring.indexOf('debug') > 0;
     compiler = (function() {
-      var cacheData, cacheKey, compile, compileCache, debug, exports, findBindings, querystring, scriptCache, strict, transform, usecache;
-      querystring = window.location.search;
-      usecache = querystring.indexOf('nocache') > 0;
-      debug = querystring.indexOf('debug') > 0;
+      var cacheData, cacheKey, compile, compileCache, exports, findBindings, nocache, scriptCache, strict, transform, usecache;
+      nocache = querystring.indexOf('nocache') > 0;
       strict = querystring.indexOf('strict') > 0;
       if (!nocache) {
         usecache = capabilities.localStorage;
@@ -1717,11 +1717,13 @@
               for (_l = 0, _len3 = args.length; _l < _len3; _l++) {
                 xhr = args[_l];
                 jqel.prepend(xhr[0]);
-                jqel.contents().each(function() {
-                  if (this.nodeType === 8) {
-                    return $(this).remove();
-                  }
-                });
+                if (debug) {
+                  jqel.contents().each(function() {
+                    if (this.nodeType === 8) {
+                      return $(this).remove();
+                    }
+                  });
+                }
               }
               scriptsloading = false;
               if (initONE) {
