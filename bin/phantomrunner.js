@@ -10,6 +10,10 @@ for(var i = 0; i < list.length; i++){
   }       
 }
 
+var expected = fs.read('./bin/expected.txt')
+console.log(expected)
+out = []
+
 var page = require('webpage').create();
 
 var runTest = function (file, callback) {
@@ -43,10 +47,10 @@ var runTest = function (file, callback) {
   };
   page.onConsoleMessage = function(msg, lineNum, sourceId) {
     if (msg === '~~DONE~~') {
-      updateTimer(20);
+      updateTimer(40);
       return;
     }
-    console.log('CONSOLE: ' + msg);
+    out.push(msg)
   };
   page.open('http://127.0.0.1:8080/bugs/' + file);
 }
@@ -58,7 +62,13 @@ var loadNext = function() {
     // console.log('loading file: ' + file)
     runTest(file, loadNext);
   } else {
-    phantom.exit();
+    var output = out.join('\n')
+    if (expected !== output) {
+      console.log('ERROR: unexpected output', expected, output);
+      phantom.exit(1);
+    } else {
+      phantom.exit();
+    }
   }
 }
 
