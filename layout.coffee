@@ -292,21 +292,22 @@ window.dr = do ->
     strict = querystring.indexOf('strict') > 0
     
     # Fix for iOS throwing exceptions when accessing localStorage in private mode, see http://stackoverflow.com/questions/21159301/quotaexceedederror-dom-exception-22-an-attempt-was-made-to-add-something-to-st
-    usecache = false unless capabilities.localStorage
+    usecache = capabilities.localStorage unless nocache
 
     cacheKey = "dreemcache"
-    if usecache and cacheKey of localStorage
-      compileCache = JSON.parse(localStorage[cacheKey])
-      # console.log 'restored', compileCache
+    cacheData = localStorage.getItem(cacheKey)
+    if usecache and cacheData and cacheData.length < 5000000
+      compileCache = JSON.parse(cacheData)
+      # console.log 'restored', compileCache, cacheData.length
     else
-      localStorage.clear unless usecache
+      localStorage.clear()
       compileCache = 
         bindings: {}
         script: 
           coffee: {}
       localStorage[cacheKey] = JSON.stringify(compileCache) if usecache
 
-    $(window).on('unload', -> 
+    window.addEventListener('unload', () ->
       localStorage[cacheKey] = JSON.stringify(compileCache) if usecache
       # console.log 'onunload', localStorage[cacheKey]
     )

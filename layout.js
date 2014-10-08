@@ -429,21 +429,20 @@
       touch: 'ontouchstart' in window || 'onmsgesturechange' in window
     };
     compiler = (function() {
-      var cacheKey, compile, compileCache, debug, exports, findBindings, querystring, scriptCache, strict, transform, usecache;
+      var cacheData, cacheKey, compile, compileCache, debug, exports, findBindings, querystring, scriptCache, strict, transform, usecache;
       querystring = window.location.search;
       usecache = querystring.indexOf('nocache') > 0;
       debug = querystring.indexOf('debug') > 0;
       strict = querystring.indexOf('strict') > 0;
-      if (!capabilities.localStorage) {
-        usecache = false;
+      if (!nocache) {
+        usecache = capabilities.localStorage;
       }
       cacheKey = "dreemcache";
-      if (usecache && cacheKey in localStorage) {
-        compileCache = JSON.parse(localStorage[cacheKey]);
+      cacheData = localStorage.getItem(cacheKey);
+      if (usecache && cacheData && cacheData.length < 5000000) {
+        compileCache = JSON.parse(cacheData);
       } else {
-        if (!usecache) {
-          localStorage.clear;
-        }
+        localStorage.clear();
         compileCache = {
           bindings: {},
           script: {
@@ -454,7 +453,7 @@
           localStorage[cacheKey] = JSON.stringify(compileCache);
         }
       }
-      $(window).on('unload', function() {
+      window.addEventListener('unload', function() {
         if (usecache) {
           return localStorage[cacheKey] = JSON.stringify(compileCache);
         }
