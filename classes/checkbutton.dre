@@ -97,7 +97,7 @@ SOFTWARE. -->
         @_resize_lock = true
         if (@label.width > 0 && @label.height > 0)
           # Checkbox size
-          if @checkw != @label.height || @checkh != check.height
+          if @checkw != @label.height || @checkh != @check.height
             settings = 
               checkw: @label.height
               checkh: @label.height
