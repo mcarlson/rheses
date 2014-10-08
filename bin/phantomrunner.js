@@ -11,7 +11,6 @@ for(var i = 0; i < list.length; i++){
 }
 
 var expected = fs.read('./bin/expected.txt')
-console.log(expected)
 out = []
 
 var page = require('webpage').create();
@@ -59,7 +58,7 @@ var loadNext = function() {
   var file = files.pop();
   if (file) {
     // console.log('')
-    // console.log('loading file: ' + file)
+    console.log('loading file: ' + file)
     runTest(file, loadNext);
   } else {
     var output = out.join('\n')
