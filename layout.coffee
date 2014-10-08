@@ -231,7 +231,11 @@ window.dr = do ->
       # coerce value to type
       type = @types[name]
       if type# and type of typemappings
-        # console.log 'type', name, type, value, typemappings[type], @
+        unless (typemappings[type])
+          console.warn('invalid type "' + type + '" for attribute', name)
+          return
+
+      # console.log 'type', name, type, value, typemappings[type], @
         value = typemappings[type](value)
 
       @["set_#{name}"]?(value)
@@ -268,36 +272,42 @@ window.dr = do ->
         @setAttribute(name, value)
       @
 
-
-  compiler = do ->
-    # Fix for iOS throwing exceptions when accessing localStorage in private mode, see http://stackoverflow.com/questions/21159301/quotaexceedederror-dom-exception-22-an-attempt-was-made-to-add-something-to-st
-    localStorageWorks = do ->
-      mod = 'modernizr'
+  capabilities = {
+    localStorage: do ->
+      mod = 'dr'
       try
         localStorage.setItem(mod, mod)
         localStorage.removeItem(mod)
         return true
       catch e
         return false
+    # detect touchhttp://stackoverflow.com/questions/4817029/whats-the-best-way-to-detect-a-touch-screen-device-using-javascript
+    touch: 'ontouchstart' of window || 'onmsgesturechange' of window # deal with ie10
+  }
 
-    usecache = window.location.search.indexOf('nocache') == -1
-    usecache = false unless localStorageWorks
-    debug = window.location.search.indexOf('debug') > 0
-    strict = window.location.search.indexOf('strict') > 0
+  querystring = window.location.search
+  debug = querystring.indexOf('debug') > 0
+  compiler = do ->
+    nocache = querystring.indexOf('nocache') > 0
+    strict = querystring.indexOf('strict') > 0
+    
+    # Fix for iOS throwing exceptions when accessing localStorage in private mode, see http://stackoverflow.com/questions/21159301/quotaexceedederror-dom-exception-22-an-attempt-was-made-to-add-something-to-st
+    usecache = capabilities.localStorage unless nocache
 
-    cacheKey = "compilecache"
-    if usecache and cacheKey of localStorage
-      compileCache = JSON.parse(localStorage[cacheKey])
-      # console.log 'restored', compileCache
+    cacheKey = "dreemcache"
+    cacheData = localStorage.getItem(cacheKey)
+    if usecache and cacheData and cacheData.length < 5000000
+      compileCache = JSON.parse(cacheData)
+      # console.log 'restored', compileCache, cacheData.length
     else
-      localStorage.clear unless usecache
+      localStorage.clear()
       compileCache = 
         bindings: {}
         script: 
           coffee: {}
       localStorage[cacheKey] = JSON.stringify(compileCache) if usecache
 
-    $(window).on('unload', -> 
+    window.addEventListener('unload', () ->
       localStorage[cacheKey] = JSON.stringify(compileCache) if usecache
       # console.log 'onunload', localStorage[cacheKey]
     )
@@ -339,8 +349,11 @@ window.dr = do ->
           if not window.CoffeeScript
             console.warn 'missing coffee-script.js include'
             return
+          try 
           # console.log 'compiling coffee-script', script
-          coffeeCache[script] = CoffeeScript.compile(script, bare: true) if script
+            coffeeCache[script] = CoffeeScript.compile(script, bare: true) if script
+          catch error
+            showWarnings(["error #{error} compiling script\r\n#{script}"])
           # console.log 'compiled coffee-script', script
           # console.log coffeeCache
           # return coffeeCache[script]
@@ -356,7 +369,7 @@ window.dr = do ->
       argstring = args.join()
       key = script + argstring + name
       return scriptCache[key] if key of scriptCache
-      # console.log 'compile', args, script
+      # console.log 'compiling', args, script
       try 
         # console.log scriptCache
         if debug and name
@@ -364,7 +377,7 @@ window.dr = do ->
           func = new Function("return function #{name}(#{argstring}){#{script}}")()
         else
           func = new Function(args, script)
-        #console.log func()
+        # console.log 'compiled', func
         scriptCache[key] = func
       catch e
         console.error 'failed to compile', e.toString(), args, script 
@@ -388,6 +401,59 @@ window.dr = do ->
   # The nonvisual base class for everything in dreem. Handles parent/child relationships between tags.
   # 
   # Nodes can contain methods, handlers, setters, constraints, attributes and other node instances.
+  #
+  # Here we define a data node that contains movie data.
+  #
+  #     @example
+  #     <node id="data">
+  #       <node>
+  #         <attribute name="title" type="string" value="Bill and Teds Excellent Adventure"></attribute>
+  #         <attribute name="type" type="string" value="movie"></attribute>
+  #         <attribute name="year" type="string" value="1989"></attribute>
+  #         <attribute name="length" type="number" value="89"></attribute>
+  #       </node>
+  #       <node>
+  #         <attribute name="title" type="string" value="Waynes World"></attribute>
+  #         <attribute name="type" type="string" value="movie"></attribute>
+  #         <attribute name="year" type="string" value="1992"></attribute>
+  #         <attribute name="length" type="number" value="94"></attribute>
+  #       </node>
+  #     </node>
+  #
+  # This node defines a set of math helper methods. The node provides a tidy container for these related utility functions.
+  #
+  #     @example
+  #     <node id="utils">
+  #       <method name="add" args="a,b">
+  #         return a+b;
+  #       </method>
+  #       <method name="subtract" args="a,b">
+  #         return a-b;
+  #       </method>
+  #     </node>
+  #
+  # You can also create a sub-class of node to contain non visual functionality. Here is an example of an inches to metric conversion class that is instantiated with the inches value and can convert it to either cm or m.
+  #
+  #     @example
+  #
+  #     <class name="inchesconverter" extends="node">
+  #       <attribute name="inchesval" type="number" value="0"></attribute>
+  #
+  #       <method name="centimetersval">
+  #         return this.inchesval*2.54;
+  #       </method>
+  #
+  #       <method name="metersval">
+  #         return (this.inchesval*2.54)/100;
+  #       </method>
+  #     </class>
+  #
+  #     <inchesconverter id="conv" inchesval="2"></inchesconverter>
+  #
+  #     <simplelayout axis="y"></simplelayout>
+  #     <text text="${conv.inchesval + ' inches'}"></text>
+  #     <text text="${conv.centimetersval() + ' cm'}"></text>
+  #     <text text="${conv.metersval() + ' m'}"></text>
   ###
   class Node extends Eventable
     ###*
@@ -482,6 +548,7 @@ window.dr = do ->
           @sendEvent('init', @) 
 
     installMethods: (methods, tagname, scope=@, callbackscope=@) ->
+      # console.log('installing methods', methods, tagname, scope, callbackscope)
       # Install methods
       for name, methodlist of methods
         for {method, args, allocation} in methodlist
@@ -733,9 +800,6 @@ window.dr = do ->
     fcamelCase = ( all, letter ) ->
       letter.toUpperCase()
     rdashAlpha = /-([\da-z])/gi
-    capabilities =
-      # detect touchhttp://stackoverflow.com/questions/4817029/whats-the-best-way-to-detect-a-touch-screen-device-using-javascript
-      touch: 'ontouchstart' of window || 'onmsgesturechange' of window # deal with ie10
 
     constructor: (jqel, view, tagname = 'div') ->
       # console.log 'new sprite', jqel, view, tagname
@@ -879,11 +943,17 @@ window.dr = do ->
       # console.log 'event', event.type, view
       view.sendEvent(event.type, view)
 
-    createInputtextElement: (text, multiline, width) ->
+    createInputtextElement: (text, multiline, width, height) ->
       input = document.createElement('input')
       input.setAttribute('type', 'text')
       input.setAttribute('value', text)
-      input.setAttribute('style', 'border: none; outline: none; background-color:transparent;')
+      style = 'border: none; outline: none; background-color:transparent;';
+      if width
+        style +=  'width:' + width + 'px;'
+      if height
+        style +=  'height:' + height + 'px;'
+      input.setAttribute('style', style)
+
       # input.setAttribute('class', 'noselect')
       @el.setAttribute('class', 'sprite noselect')
       @el.appendChild(input)
@@ -923,6 +993,53 @@ window.dr = do ->
   # Views currently integrate with jQuery, so any changes made to their CSS via jQuery will automatically cause them to update.
   # 
   # Note that dreem apps must be contained inside a top-level &lt;view>&lt;/view> tag.
+  #
+  # The following example shows a pink view that contains a smaller blue view offset 10 pixels from the top and 10 from the left.
+  #
+  #     @example
+  #     <view width="200" height="100" bgcolor="lightpink">
+  #
+  #       <view width="50" height="50" x="10" y="10" bgcolor="lightblue"></view>
+  #
+  #     </view>
+  #
+  # Here the blue view is wider than its parent pink view, and because the clip attribute of the parent is set to false it extends beyond the parents bounds.
+  #
+  #     @example
+  #     <view width="200" height="100" bgcolor="lightpink" clip="false">
+  #
+  #       <view width="250" height="50" x="10" y="10" bgcolor="lightblue"></view>
+  #
+  #     </view>
+  #
+  # Now we set the clip attribute on the parent view to true, causing the overflowing child view to be clipped at its parent's boundary.
+  #
+  #     @example
+  #     <view width="200" height="100" bgcolor="lightpink" clip="true">
+  #
+  #       <view width="250" height="50" x="10" y="10" bgcolor="lightblue"></view>
+  #
+  #     </view>
+  #
+  # Here we demonstrate how unsupported attributes are passed to the underlying sprite system. We make the child view semi-transparent by setting opacity. Although this is not in the list of supported attributes it is still applied.
+  #
+  #     @example
+  #     <view width="200" height="100" bgcolor="lightpink">
+  #
+  #       <view width="250" height="50" x="10" y="10" bgcolor="lightblue" opacity=".5"></view>
+  #
+  #     </view>
+  #
+  # It is convenient to constrain a view's size and position to attributes of its parent view. Here we'll position the inner view so that its inset by 10 pixels in its parent.
+  #
+  #     @example
+  #     <view width="200" height="100" bgcolor="lightpink">
+  #
+  #       <view width="${this.parent.width-this.inset*2}" height="${this.parent.height-this.inset*2}" x="${this.inset}" y="${this.inset}" bgcolor="lightblue">
+  #         <attribute name="inset" type="number" value="10"></attribute>
+  #       </view>
+  #
+  #     </view>
   ###
   class View extends Node
     ###*
@@ -1095,12 +1212,21 @@ window.dr = do ->
 
 
   dom = do ->
+    getChildren = (el) -> 
+      child for child in el.childNodes when child.nodeType == 1 and child.localName in specialtags
+
     # flatten element.attributes to a hash
     flattenattributes = (namednodemap)  ->
       attributes = {}
       for i in namednodemap
         attributes[i.name] = i.value
       attributes
+
+    sendInit = () ->
+      # Create the event.
+      event = document.createEvent('Event');
+      event.initEvent('dreeminit', true, true);
+      window.dispatchEvent(event);
 
     # initialize a top-level view element
     initFromElement = (el) ->
@@ -1110,6 +1236,8 @@ window.dr = do ->
         initElement(el)
         # register constraints last
         _initConstraints()
+        window.DREEM_INITED = true;
+        sendInit()
       )
 
     findAutoIncludes = (parentel, callback) ->
@@ -1212,6 +1340,11 @@ window.dr = do ->
             for xhr in args
               # console.log 'inserting html', args, xhr[0] 
               jqel.prepend(xhr[0])
+              if debug
+                jqel.contents().each(() ->
+                  if(this.nodeType == 8)
+                    $(this).remove()
+                )
 
             # find class script includes and load them in lexical order
             scriptsloading = false
@@ -1295,7 +1428,7 @@ window.dr = do ->
       return if tagname in specialtags
       
       if not tagname of dr
-        console.warn 'could not find class for tag', tagname, el unless tagname in builtinTags or tagname in specialtags
+        console.warn 'could not find class for tag', tagname, el unless tagname in builtinTags
         return
       else if tagname in builtinTags
         console.warn 'refusing to create a class that would overwrite the builtin tag', tagname unless tagname is 'input'
@@ -1326,27 +1459,39 @@ window.dr = do ->
         dom.processSpecialTags(el, attributes, attributes.type)
 
       # Defer oninit if we have children
-      attributes.$skiponinit = skiponinit = (child for child in el.childNodes when child.nodeType == 1).length > 0
+      attributes.$skiponinit = skiponinit = getChildren(el).length > 0
 
-      parent = new dr[tagname](el, attributes)
+      if typeof dr[tagname] is 'function'
+        parent = new dr[tagname](el, attributes)
+      else
+        showWarnings(["Unrecognized class #{tagname} #{el.outerHTML}"])
+        return
 
       unless isClass or isState
         children = (child for child in el.childNodes when child.nodeType == 1)
         # create children now
         for child in children
           # console.log 'initting class child', child.localName
-          initElement(child, parent) unless child.localName in specialtags
-
-        doinit = ->
-          parent.inited = true
-          parent.sendEvent('init', parent)
-          return
+          initElement(child, parent)
 
         if skiponinit and not parent.inited
+          # console.log('skiponinit', parent, parent.subnodes.length)
           if (children.length)
-            idle(0, doinit)
-          else 
-            doinit()
+            checkChildren = ->
+              for child in children
+                if not child.inited and child.localName is not 'class'
+                  # console.log 'child not initted', child, parent
+                  setTimeout(checkChildren, 0)
+                  return
+              # console.log('doinit', parent)
+              parent.inited = true
+              parent.sendEvent('init', parent)
+              return
+            setTimeout(checkChildren, 0)
+          else
+            # console.log 'class init', parent
+            parent.inited = true
+            parent.sendEvent('init', parent)
 
       return
 
@@ -1371,11 +1516,12 @@ window.dr = do ->
       e.innerHTML = input
       out = ''
       for child in e.childNodes
-        if child.nodeValue? and child.nodeType == 3
+        if child.nodeValue? and (child.nodeType == 3 or child.nodeType == 8)
           out += child.nodeValue 
           # console.log('child', child.nodeType, child)
           # console.log('out', out)
         else
+          # console.log('invalid child', child, child.nodeType, child.nodeValue)
           return
       out
 
@@ -1384,7 +1530,7 @@ window.dr = do ->
       classattributes.$types ?= {}
       classattributes.$methods ?= {}
       classattributes.$handlers ?= []
-      children = (child for child in el.childNodes when child.nodeType == 1 and child.localName in specialtags)
+      children = getChildren(el)
       for child in children
         attributes = flattenattributes(child.attributes)
         # console.log child, attributes, classattributes
@@ -1392,7 +1538,7 @@ window.dr = do ->
         args = (attributes.args ? '').split()
         script = htmlDecode(child.innerHTML)
         unless script?
-          console.warn 'Invalid', name, child
+          console.warn 'Invalid tag', name, child
 
         type = attributes.type ? defaulttype
         name = attributes.name
@@ -1442,6 +1588,21 @@ window.dr = do ->
   # Like views and nodes, states can contain methods, handlers, setters, constraints, attributes and other view, node or class instances.
   #
   # Currently, states must end with the string 'state' in their name to work properly.
+  #
+  #     @example
+  #     <simplelayout axis="y"></simplelayout>
+  #     <view id="square" width="100" height="100" bgcolor="lightgrey">
+  #       <attribute name="ispink" type="boolean" value="false"></attribute>
+  #       <state name="pinkstate" applied="${this.parent.ispink}">
+  #         <attribute name="bgcolor" value="pink" type="string"></attribute>
+  #       </state>
+  #     </view>
+  #     <labelbutton text="pinkify!">
+  #       <handler event="onclick">
+  #         square.setAttribute('ispink', true);
+  #       </handler>
+  #     </labelbutton>
+  #
   ###
   class State extends Node
     constructor: (el, attributes = {}) ->
@@ -1574,6 +1735,41 @@ window.dr = do ->
   # If a class can't be found in the document, dreem will automatically attempt to load it from the classes/* directory.
   #
   # Like views and nodes, classes can contain methods, handlers, setters, constraints, attributes and other view, node or class instances.
+  #
+  # Here is a class called 'tile' that extends dr.view. It sets the bgcolor, width, and height attributes. An instance of tile is created using declarative syntax.
+  #
+  #     @example
+  #     <class name="tile" extends="view" bgcolor="thistle" width="100" height="100"></class>
+  #
+  #     <tile></tile>
+  #
+  # Now we'll extend the tile class with a class called 'labeltile', which contains a label inside of the box. We'll declare one each of tile and labeltile, and position them with a simplelayout.
+  #
+  #     @example
+  #     <class name="tile" extends="view" bgcolor="thistle" width="100" height="100"></class>
+  #
+  #     <class name="labeltile" extends="tile">
+  #       <text text="Tile"></text>
+  #     </class>
+  #
+  #     <simplelayout axis="x"></simplelayout>
+  #     <tile></tile>
+  #     <labeltile></labeltile>
+  #
+  # Attributes that are declared inside of a class definition can be set when the instance is declared. Here we bind the label text to the value of an attribute called label.
+  #
+  #     @example
+  #     <class name="tile" extends="view" bgcolor="thistle" width="100" height="100"></class>
+  #
+  #     <class name="labeltile" extends="tile">
+  #       <attribute name="label" type="string" value=""></attribute>
+  #       <text text="${this.parent.label}"></text>
+  #     </class>
+  #
+  #     <simplelayout axis="x"></simplelayout>
+  #     <tile></tile>
+  #     <labeltile label="The Tile"></labeltile>
+  #
   ###
   class Class
     ###*
@@ -1685,12 +1881,27 @@ window.dr = do ->
             # console.log 'creating class child in parent', child, parent
             dom.initElement(child, parent)
 
-        parent._bindHandlers()
-        parent._bindHandlers(true)
-
-        unless parent.inited
+        sendInit = () ->
+          return if parent.inited
+          parent._bindHandlers()
+          parent._bindHandlers(true)
           parent.inited = true
           parent.sendEvent('init', parent)
+
+        if children?.length
+          # console.log 'delaying init', parent, children
+          checkChildren = ->
+            for child in children
+              if not child.inited and child.localName is not 'class'
+                # console.log 'child not initted', child, parent
+                setTimeout(checkChildren, 10)
+                return
+            # console.log('class doinit', parent)
+            sendInit()
+          setTimeout(checkChildren, 0)
+        else
+          # console.log 'class init', parent
+          sendInit()
         return parent
 
   ###*
@@ -1699,6 +1910,67 @@ window.dr = do ->
   # The base class for all layouts. 
   #
   # When a new layout is added, it will automatically create and add itself to a layouts array in its parent. In addition, an onlayouts event is fired in the parent when the layouts array changes. This allows the parent to access the layout(s) later.
+  #
+  # Here is a view that contains both a simplelayout and a boundslayout.
+  #
+  #     @example
+  #     <simplelayout axis="y"></simplelayout>
+  #     <view bgcolor="oldlace">
+  #       <boundslayout></boundslayout>
+  #
+  #       <simplelayout axis="x"></simplelayout>
+  #
+  #       <view width="50" height="50" bgcolor="lightpink" opacity=".3"></view>
+  #       <view width="50" height="50" bgcolor="plum" opacity=".3"></view>
+  #       <view width="50" height="50" bgcolor="lightblue" opacity=".3"></view>
+  #
+  #       <handler event="onlayouts" args="layouts">
+  #         output.setAttribute('text', output.text||'' + "New layout added: " + layouts[layouts.length-1].$tagname + "\n");
+  #       </handler>
+  #     </view>
+  #
+  #     <text id="output" multiline="true" width="300"></text>
+  #
+  # Here we create diagonlayout, a subclass of layout that lays out the subviews in a diagonal formation. The update method sets the positions of the subview, and the onsubview handler attaches event listeners to the subviews as they are added so update is called if their dimensions or visibility are updated.
+  #
+  #     @example
+  #     <class name="diagonlayout" extends="layout">
+  #       <handler event="onsubview" args="subview">
+  #         this.listenTo(subview, 'visible', this.update);
+  #         this.listenTo(subview, 'width', this.update);
+  #         this.listenTo(subview, 'height', this.update);
+  #       </handler>
+  #       <method name="update" args="value, sender">
+  #         var posX = 0;
+  #         var posY = 0;
+  #         for (var i=0, l = this.parent.subviews.length; i < l; i++) {
+  #           var subview = this.parent.subviews[i];
+  #           if (subview.ignorelayout || !subview.visible) {
+  #             continue;
+  #           }
+  #
+  #           subview.setAttribute('x', posX);
+  #           subview.setAttribute('y', posY);
+  #
+  #           posX += subview.width;
+  #           posY += subview.height;
+  #         }
+  #       </method>
+  #     </class>
+  #
+  #     <diagonlayout></diagonlayout>
+  #     <view id="v1" width="50" height="50" bgcolor="Aqua"></view>
+  #     <view id="v2" width="50" height="50" bgcolor="HotPink"></view>
+  #     <view id="v3" width="50" height="50" bgcolor="MediumPurple"></view>
+  #
+  #     <labelbutton text="click me">
+  #       <handler event="onclick">
+  #         v1.setAttribute('width', 100);
+  #         v2.setAttribute('height', 150);
+  #       </handler>
+  #     </labelbutton>
+  #
+  #
   ###
   class Layout extends Node
     constructor: (el, attributes = {}) ->
@@ -1828,6 +2100,15 @@ window.dr = do ->
   # @class dr.idle
   # @extends Eventable
   # Sends onidle events when the application is active and idle.
+  #
+  #     @example
+  #     <handler event="onidle" reference="dr.idle" args="idleStatus">
+  #       milis.setAttribute('text', idleStatus);
+  #     </handler>
+  #
+  #     <simplelayout axis="x"></simplelayout>
+  #     <text text="Miliseconds since app started: "></text>
+  #     <text id="milis"></text>
   ###
   class Idle extends StartEventable
     startEventTest: () ->
@@ -1861,6 +2142,21 @@ window.dr = do ->
   # @class dr.mouse
   # @extends Eventable
   # Sends mouse events. Often used to listen to onmouseover/x/y events to follow the mouse position.
+  #
+  # Here we attach events handlers to the onx and ony events of dr.mouse, and set the x,y coordinates of a square view so it follows the mouse.
+  #
+  #     @example
+  #     <view id="mousetracker" width="20" height="20" bgcolor="MediumTurquoise"></view>
+  #
+  #     <handler event="onx" args="x" reference="dr.mouse">
+  #       mousetracker.setAttribute('x', x);
+  #     </handler>
+  #
+  #     <handler event="ony" args="y" reference="dr.mouse">
+  #       mousetracker.setAttribute('y', y);
+  #     </handler>
+  #
+  #
   ###
   class Mouse extends StartEventable
 
@@ -1967,6 +2263,17 @@ window.dr = do ->
   # @class dr.window
   # @extends Eventable
   # Sends window resize events. Often used to dynamically reposition views as the window size changes.
+  #
+  #     @example
+  #     <handler event="onwidth" reference="dr.window" args="newWidth">
+  #       //adjust views
+  #     </handler>
+  #
+  #     <handler event="onheight" reference="dr.window" args="newHeight">
+  #       //adjust views
+  #     </handler>
+  #
+  #
   ###
   class Window extends StartEventable
     constructor: ->
@@ -2026,6 +2333,22 @@ window.dr = do ->
   # @class dr.keyboard
   # @extends Eventable
   # Sends keyboard events.
+  #
+  # You might want to track specific keyboard events when text is being entered into an input box. In this example we listen for the enter key and display the value.
+  #
+  #     @example
+  #     <simplelayout axis="y" spacing="25"></simplelayout>
+  #     <inputtext id="nameinput" bgcolor="lightgrey"></inputtext>
+  #     <text id="keycode" text="Key Code:"></text>
+  #     <text id="entered"></text>
+  #
+  #     <handler event="onkeyup" args="keys" reference="dr.keyboard">
+  #       keycode.setAttribute('text', 'Key Code: ' + keys.keyCode);
+  #       if (keys.keyCode == 13) {
+  #         entered.setAttribute('text', 'You entered: ' + nameinput.text);
+  #         nameinput.setAttribute('text', '');
+  #       }
+  #     </handler>
   ###
   class Keyboard extends Eventable
 
@@ -2124,66 +2447,61 @@ window.dr = do ->
   # 
   # If a method overrides an existing method, any existing (super) method(s) will be called first automatically.
   #
-  # Here we define a class square with one method changeColor. When the button is clicked the method is called.
+  # Let's define a method called changeColor in a view that sets the background color to pink.
   #
   #     @example
-  #     <class name="square" bgcolor="lightgrey" width="100" height="100">
+  #
+  #     <view id="square" width="100" height="100">
   #       <method name="changeColor">
-  #         this.setAttribute('bgcolor', '#f2d5ff');
+  #         this.setAttribute('bgcolor', 'pink');
+  #       </method>
+  #     </view>
+  #
+  #     <handler event="oninit">
+  #       square.changeColor();
+  #     </handler>
+  #
+  # Here we define the changeColor method in a class called square. We create an instance of the class and call the method on the intance.
+  #
+  #     @example
+  #     <class name="square" width="100" height="100">
+  #       <method name="changeColor">
+  #         this.setAttribute('bgcolor', 'pink');
   #       </method>
   #     </class>
-
-  #     <simplelayout axis="y"></simplelayout>
-  #     <square name="square1"></square>
-
-  #     <labelbutton text="Change Color">
-  #       <handler event="onclick">
-  #         this.parent.square1.changeColor();
-  #       </handler>
-  #     </labelbutton>
+  #
+  #     <square id="square1"></square>
+  #
+  #     <handler event="oninit">
+  #       square1.changeColor();
+  #     </handler>
   #
   # Now we'll subclass the square class with a bluesquare class, and override the changeColor method to color the square blue. We also add an inner square who's color is set in the changeColor method of the square superclass. Notice that the color of this square is set when the method is called on the subclass.
   #
   #     @example
-  #     <class name="square" bgcolor="lightgrey" width="100" height="100">
-  #       <view name="inner" bgcolor="white" width="25" height="25"></view>
+  #     <class name="square" width="100" height="100">
+  #       <view name="inner" width="25" height="25"></view>
   #       <method name="changeColor">
-  #         this.inner.setAttribute('bgcolor', '#d2ffc8');
-  #         this.setAttribute('bgcolor', '#f2d5ff');
+  #         this.inner.setAttribute('bgcolor', 'green');
+  #         this.setAttribute('bgcolor', 'pink');
   #       </method>
   #     </class>
   #
   #     <class name="bluesquare" extends="square">
   #       <method name="changeColor">
-  #         this.setAttribute('bgcolor', '#d4e2ff');
+  #         this.setAttribute('bgcolor', 'blue');
   #       </method>
   #     </class>
   #
   #     <simplelayout axis="x"></simplelayout>
-  #     <square name="square1"></square>
-  #     <bluesquare name="square2"></bluesquare>
   #
-  #     <labelbutton text="Change Color">
-  #       <handler event="onclick">
-  #         this.parent.square1.changeColor();
-  #         this.parent.square2.changeColor();
-  #       </handler>
-  #     </labelbutton>
+  #     <square id="square1"></square>
+  #     <bluesquare id="square2"></bluesquare>
   #
-  # You can add methods to any node. Here we add the changeColor method to a view instance.
-  #
-  #     @example
-  #     <view width="100%" height="100%">
-  #       <method name="changeColor">
-  #         this.setAttribute('bgcolor', '#f2d5ff');
-  #       </method>
-  #
-  #       <labelbutton text="Change Color">
-  #         <handler event="onclick">
-  #           this.parent.changeColor();
-  #         </handler>
-  #       </labelbutton>
-  #     </view>
+  #     <handler event="oninit">
+  #       square1.changeColor();
+  #       square2.changeColor();
+  #     </handler>
   #
   ###
   ###*

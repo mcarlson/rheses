@@ -2,13 +2,18 @@
      * @class dr.ace
      * @extends dr.view
      * Ace editor component.
+     *
+     *      @example
+     *      <ace id="editor"
+     *        width="500"
+     *         text='&lt;view width="100%" height="100%" bgcolor="thistle"&gt;&lt;/view&gt;'></ace>
      */
 /**
         * @cfg {string} [theme='ace/theme/chrome']
         * Specify the ace theme to use.
         */
 /**
-        * @cfg {string} [mode='ace/mode/lzx']
+        * @cfg {string} [mode='ace/mode/dr']
         * Specify the ace mode to use.
         */
 /**
@@ -93,6 +98,9 @@
      * @class dr.bitmap
      * @extends dr.view
      * Loads an image from a URL.
+     *
+     *     @example
+     *     <bitmap src="../api-examples-resources/shasta.jpg" width="230" height="161"></bitmap>
      */
 /**
         * @cfg {String} src
@@ -111,6 +119,30 @@
      * @class dr.boundslayout
      * @extends dr.layout
      * Sets the parent view's size to match the bounds of its children.
+     *
+     * Here is a view that contains three sub views that are positioned with a simplelayout. The parent view has a grey background color. Notice that the subviews are visible because they overflow the parent view, but the parent view itself takes up no space.
+     *
+     *     @example
+     *     <view bgcolor="darkgrey">
+     *       <simplelayout axis="y"></simplelayout>
+     *
+     *       <view width="100" height="25" bgcolor="lightpink" opacity=".3"></view>
+     *       <view width="100" height="25" bgcolor="plum" opacity=".3"></view>
+     *       <view width="100" height="25" bgcolor="lightblue" opacity=".3"></view>
+     *     </view>
+     *
+     * Now we'll add a boundlayout to the parent view. Notice that now the parent view does take up space, and you can see it through the semi-transparent subviews.
+     *
+     *     @example
+     *     <view bgcolor="darkgrey">
+     *       <boundslayout></boundslayout>
+     *
+     *       <simplelayout axis="y"></simplelayout>
+     *
+     *       <view width="100" height="25" bgcolor="lightpink" opacity=".3"></view>
+     *       <view width="100" height="25" bgcolor="plum" opacity=".3"></view>
+     *       <view width="100" height="25" bgcolor="lightblue" opacity=".3"></view>
+     *     </view>
      */
 /**
         * @cfg {""/"width"/"height"} [ignoreattr=""]
@@ -160,151 +192,32 @@
      * button changes each time the button is clicked. The select property
      * holds the current state of the button. The onselected event
      * is generated when the button is the selected state.
+     *
+     *     @example
+     *     <simplelayout axis="y"></simplelayout>
+     *
+     *     <checkbutton text="pink" selectcolor="pink" defaultcolor="lightgrey" bgcolor="white"></checkbutton>
+     *     <checkbutton text="blue" selectcolor="lightblue" defaultcolor="lightgrey" bgcolor="white"></checkbutton>
+     *     <checkbutton text="green" selectcolor="lightgreen" defaultcolor="lightgrey" bgcolor="white"></checkbutton>
+     *
+     * Here we listen for the onselected event on a checkbox and print the value that is passed to the handler.
+     *
+     *     @example
+     *     <simplelayout axis="y"></simplelayout>
+     *
+     *     <checkbutton text="green" selectcolor="lightgreen" defaultcolor="lightgrey" bgcolor="white">
+     *       <handler event="onselected" args="value">
+     *         displayselected.setAttribute('text', value);
+     *       </handler>
+     *     </checkbutton>
+     *
+     *     <view>
+     *       <simplelayout axis="x"></simplelayout>
+     *       <text text="Selected:"></text>
+     *       <text id="displayselected"></text>
+     *     </view>
+     *
      */
-/**
-     * @class dr.datapath
-     * @extends dr.node
-     * Handles datapath evaluation, filtering and sorting.
-     *
-     * Datapaths can be used to look up {@link #datapath datapath} expressions to values in JSON data in a dr.dataset. This example looks up the color of the bicycle in the dr.dataset named bikeshop:
-     *
-     *     @example
-     *     <dataset name="bikeshop">
-     *      {
-     *        "bicycle": {
-     *          "color": "red",
-     *          "price": 19.95
-     *        }
-     *      }
-     *     </dataset>
-     *     <datapath datapath="$bikeshop/bicycle/color" ondata="console.log('data', this.data)"></datapath>
-     *
-     * Matching more multiple bicycles:
-     *
-     *     @example
-     *     <dataset name="bikeshop">
-     *      {
-     *        "bicycle": [
-     *          {
-     *           "color": "red",
-     *           "price": 19.95
-     *          },
-     *          {
-     *           "color": "green",
-     *           "price": 29.95
-     *          },
-     *          {
-     *           "color": "blue",
-     *           "price": 59.95
-     *          }
-     *        ]
-     *      }
-     *     </dataset>
-     *     <datapath datapath="$bikeshop/bicycle[*]/color" ondata="console.log('data', this.data)"></datapath>
-     *
-     * It's possible to select a single item on from the array using an array index. This selects the second item:
-     *
-     *     @example
-     *     <dataset name="bikeshop">
-     *      {
-     *        "bicycle": [
-     *          {
-     *           "color": "red",
-     *           "price": 19.95
-     *          },
-     *          {
-     *           "color": "green",
-     *           "price": 29.95
-     *          },
-     *          {
-     *           "color": "blue",
-     *           "price": 59.95
-     *          }
-     *        ]
-     *      }
-     *     </dataset>
-     *     <datapath classname="text" datapath="$bikeshop/bicycle[1]/color" ondata="console.log('data', this.data)"></datapath>
-     *
-     * It's also possible to replicate a range of items in the array with the [start,end,stepsize] operator. This replicates every other item:
-     *
-     *     @example
-     *     <dataset name="bikeshop">
-     *      {
-     *        "bicycle": [
-     *          {
-     *           "color": "red",
-     *           "price": 19.95
-     *          },
-     *          {
-     *           "color": "green",
-     *           "price": 29.95
-     *          },
-     *          {
-     *           "color": "blue",
-     *           "price": 59.95
-     *          }
-     *        ]
-     *      }
-     *     </dataset>
-     *     <datapath classname="text" datapath="$bikeshop/bicycle[0,3,2]/color" ondata="console.log('data', this.data)"></datapath>
-     *
-     * Sometimes it's necessary to have complete control and flexibility over filtering and transforming results. Adding a [@] operator to the end of your datapath causes {@link #filterfunction filterfunction} to be called for each result. This example shows bike colors for bikes with a price greater than 20, in reverse order:
-     *
-     *     @example
-     *     <dataset name="bikeshop">
-     *      {
-     *        "bicycle": [
-     *          {
-     *           "color": "red",
-     *           "price": 19.95
-     *          },
-     *          {
-     *           "color": "green",
-     *           "price": 29.95
-     *          },
-     *          {
-     *           "color": "blue",
-     *           "price": 59.95
-     *          }
-     *        ]
-     *      }
-     *     </dataset>
-     *     <datapath classname="text" datapath="$bikeshop/bicycle[*][@]" ondata="console.log('data', this.data)">
-     *       <method name="filterfunction" args="obj, accum">
-     *         // add the color to the beginning of the results if the price is greater than 20
-     *         if (obj.price > 20)
-     *           accum.unshift(obj.color);
-     *         return accum
-     *       </method>
-     *     </datapath>
-     *
-     * See [https://github.com/flitbit/json-path](https://github.com/flitbit/json-path) for more details on datapath expressions.
-     */
-/**
-        * @cfg {Array} [data=[]]
-        * The list of results, updated when {@link #datapath datapath} is set.
-        */
-/**
-        * @cfg {String} datapath
-        * The datapath expression to be replicated.
-        * See [https://github.com/flitbit/json-path](https://github.com/flitbit/json-path) for details.
-        */
-/**
-        * @cfg {String} [sortfield=""]
-        * The field in the data to use for sorting. Only sort then this 
-        */
-/**
-        * @cfg {Boolean} [sortasc=true]
-        * If true, sort ascending.
-        */
-/**
-        * @method filterfunction
-        * @abstract
-        * Called to filter data.
-        * @param obj An individual item to be processed.
-        * @param {Object[]} accum The array of items that have been accumulated. To keep a processed item, it must be added to the accum array.
-        * @returns {Object[]} The accum array. Must be returned otherwise results will be lost.
-        */
 /**
      * @class dr.dataset
      * @extends dr.node
@@ -374,6 +287,38 @@
      * @class dr.dragstate
      * @extends dr.state
      * Allows views to be dragged by the mouse.
+     *
+     * Here is a view that contains a dragstate. The dragstate is applied when the mouse is down in the view, and then removed when the mouse is up. You can modify the attributes of the draggable view by setting them inside the dragstate, like we do here with bgcolor.
+     *
+     *     @example
+     *     <view width="100" height="100" bgcolor="plum">
+     *       <attribute name="mouseIsDown" type="boolean" value="false"></attribute>
+     *       <handler event="onmousedown">
+     *         this.setAttribute('mouseIsDown', true);
+     *       </handler>
+     *       <handler event="onmouseup">
+     *         this.setAttribute('mouseIsDown', false);
+     *       </handler>
+     *       <dragstate applied="${this.parent.mouseIsDown}">
+     *         <attribute name="bgcolor" type="string" value="purple"></attribute>
+     *       </dragstate>
+     *     </view>
+     *
+     * To constrain the motion of the element to either the x or y axis set the dragaxis property. Here the same purple square can only move horizontally.
+     *
+     *     @example
+     *     <view width="100" height="100" bgcolor="plum">
+     *       <attribute name="mouseIsDown" type="boolean" value="false"></attribute>
+     *       <handler event="onmousedown">
+     *         this.setAttribute('mouseIsDown', true);
+     *       </handler>
+     *       <handler event="onmouseup">
+     *         this.setAttribute('mouseIsDown', false);
+     *       </handler>
+     *       <dragstate applied="${this.parent.mouseIsDown}" dragaxis="x">
+     *         <attribute name="bgcolor" type="string" value="purple"></attribute>
+     *       </dragstate>
+     *     </view>
      */
 /**
         * @cfg {"x"/"y"/"both"} [dragaxis="both"]
@@ -462,6 +407,22 @@
      * @class dr.inputtext
      * @extends dr.view
      * Provides an editable input text field.
+     *
+     *     @example
+     *     <simplelayout axis="y"></simplelayout>
+     *
+     *     <text text="Enter your name"></text>
+     *
+     *     <inputtext id="nameinput" bgcolor="white" border="1px solid lightgrey" width="200"></inputtext>
+     *
+     *     <labelbutton text="submit">
+     *       <handler event="onclick">
+     *         welcome.setAttribute('text', 'Welcome ' + nameinput.text);
+     *       </handler>
+     *     </labelbutton>
+     *
+     *     <text id="welcome"></text>
+     *
      */
 /**
         * @cfg {Boolean} [multiline=false]
@@ -477,6 +438,17 @@
      * Button class consisting of text centered in a view. The onclick event
      * is generated when the button is clicked. The visual state of the 
      * button changes during onmousedown/onmouseup.
+     *
+     *     @example
+     *     <simplelayout axis="y"></simplelayout>
+     *
+     *     <labelbutton text="click me" defaultcolor="plum" selectcolor="orchid">
+     *       <handler event="onclick">
+     *         hello.setAttribute('text', 'Hello Universe!');
+     *       </handler>
+     *     </labelbutton>
+     *
+     *     <text id="hello"></text>
      */
 /**
      * @class dr.labeltoggle
@@ -704,6 +676,14 @@
      * @class dr.simplelayout
      * @extends dr.layout
      * A layout that stacks views on the x or y axis.
+     *
+     *
+     *     @example
+     *     <simplelayout axis="y"></simplelayout>
+     *
+     *     <view width="100" height="25" bgcolor="lightpink"></view>
+     *     <view width="100" height="25" bgcolor="plum"></view>
+     *     <view width="100" height="25" bgcolor="lightblue"></view>
      */
 /**
         * @cfg {Number} [inset=0]
@@ -782,6 +762,60 @@
      *
      *     @example
      *     <text text="Hello World!" bgcolor="red"></text>
+     *
+     * Here is a multiline text
+     *
+     *     @example
+     *     <text multiline="true" text="Lorem ipsum dolor sit amet, consectetur adipiscing elit"></text>
+     *
+     * You might want to set the value of a text element based on the value of other attributes via a constraint. Here we set the value by concatenating three attributes together.
+     *
+     *     @example
+     *     <attribute name="firstName" type="string" value="Lumpy"></attribute>
+     *     <attribute name="middleName" type="string" value="Space"></attribute>
+     *     <attribute name="lastName" type="string" value="Princess"></attribute>
+     *
+     *     <text text="${this.parent.firstName + ' ' + this.parent.middleName + ' ' + this.parent.lastName}" color="hotpink"></text>
+     *
+     * Constraints can contain more complex JavaScript code
+     *
+     *     @example
+     *     <attribute name="firstName" type="string" value="Lumpy"></attribute>
+     *     <attribute name="middleName" type="string" value="Space"></attribute>
+     *     <attribute name="lastName" type="string" value="Princess"></attribute>
+     *
+     *     <text text="${this.parent.firstName.charAt(0) + ' ' + this.parent.middleName.charAt(0) + ' ' + this.parent.lastName.charAt(0)}" color="hotpink"></text>
+     *
+     * We can simplify this by using a method to return the concatenation and constraining the text value to the return value of the method
+     *
+     *     @example
+     *     <attribute name="firstName" type="string" value="Lumpy"></attribute>
+     *     <attribute name="middleName" type="string" value="Space"></attribute>
+     *     <attribute name="lastName" type="string" value="Princess"></attribute>
+     *
+     *     <method name="initials">
+     *       return this.firstName.charAt(0) + ' ' + this.middleName.charAt(0) + ' ' + this.lastName.charAt(0);
+     *     </method>
+     *
+     *     <text text="${this.parent.initials()}" color="hotpink"></text>
+     *
+     * You can override the format method to provide custom formatting for text elements. Here is a subclass of text, timetext, with the format method overridden to convert the text given in seconds into a formatted string.
+     *
+     *     @example
+     *     <class name="timetext" extends="text">
+     *       <method name="format" args="seconds">
+     *         var minutes = Math.floor(seconds / 60);
+     *         var seconds = Math.floor(seconds) - minutes * 60;
+     *         if (seconds < 10) {
+     *           seconds = '0' + seconds;
+     *         }
+     *         return minutes + ':' + seconds;
+     *       </method>
+     *     </class>
+     *
+     *     <timetext text="240"></timetext>
+     *
+     *
      */
 /**
         * @cfg {Boolean} [multiline=false]

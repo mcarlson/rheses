@@ -28,7 +28,32 @@ SOFTWARE. -->
      * button changes each time the button is clicked. The select property
      * holds the current state of the button. The onselected event
      * is generated when the button is the selected state.
-     */-->    
+     *
+     *     @example
+     *     <simplelayout axis="y"></simplelayout>
+     *
+     *     <checkbutton text="pink" selectcolor="pink" defaultcolor="lightgrey" bgcolor="white"></checkbutton>
+     *     <checkbutton text="blue" selectcolor="lightblue" defaultcolor="lightgrey" bgcolor="white"></checkbutton>
+     *     <checkbutton text="green" selectcolor="lightgreen" defaultcolor="lightgrey" bgcolor="white"></checkbutton>
+     *
+     * Here we listen for the onselected event on a checkbox and print the value that is passed to the handler.
+     *
+     *     @example
+     *     <simplelayout axis="y"></simplelayout>
+     *
+     *     <checkbutton text="green" selectcolor="lightgreen" defaultcolor="lightgrey" bgcolor="white">
+     *       <handler event="onselected" args="value">
+     *         displayselected.setAttribute('text', value);
+     *       </handler>
+     *     </checkbutton>
+     *
+     *     <view>
+     *       <simplelayout axis="x"></simplelayout>
+     *       <text text="Selected:"></text>
+     *       <text id="displayselected"></text>
+     *     </view>
+     *
+     */-->
     <class name="checkbutton" type="coffee" extends="buttonbase" bgcolor="#808080">
 
       <!-- check_x, check_y: Location of check box with button -->
@@ -37,6 +62,8 @@ SOFTWARE. -->
       <attribute name="checky" type="number" value="0"></attribute>
       <attribute name="checkw" type="number" value="0"></attribute>
       <attribute name="checkh" type="number" value="0"></attribute>
+      <attribute name="bgcolor" type="string" value="transparent"></attribute>
+      <attribute name="innerspacing" type="number" value="3"></attribute>
 
       <!-- check: Show button state -->
       <view name="check" x="${this.parent.checkx}" y="${this.parent.checky}" width="${this.parent.checkw}" height="${this.parent.checkh}"></view>
@@ -90,7 +117,7 @@ SOFTWARE. -->
             settings =
               #width: @checkw + @label.width
               #height: @label.height
-              textx: @checkx + @checkw
+              textx: @checkx + @checkw + @innerspacing
               texty: yoffset
             @setAttributes(settings)
           else
@@ -98,9 +125,9 @@ SOFTWARE. -->
             settings =
               checkx: @padding
               checky: @padding
-              width: @checkw + @label.width
+              width: @checkw + @label.width + @innerspacing
               height: @label.height
-              textx: @padding + @checkx + @checkw
+              textx: @padding + @checkx + @checkw + @innerspacing
               texty: @padding
             @setAttributes(settings)
 

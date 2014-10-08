@@ -23,6 +23,22 @@ SOFTWARE. -->
      * @class dr.inputtext
      * @extends dr.view
      * Provides an editable input text field.
+     *
+     *     @example
+     *     <simplelayout axis="y"></simplelayout>
+     *
+     *     <text text="Enter your name"></text>
+     *
+     *     <inputtext id="nameinput" bgcolor="white" border="1px solid lightgrey" width="200"></inputtext>
+     *
+     *     <labelbutton text="submit">
+     *       <handler event="onclick">
+     *         welcome.setAttribute('text', 'Welcome ' + nameinput.text);
+     *       </handler>
+     *     </labelbutton>
+     *
+     *     <text id="welcome"></text>
+     *
      */-->
       <!--/**
         * @cfg {Boolean} [multiline=false]
@@ -51,7 +67,8 @@ SOFTWARE. -->
         text = @text || @sprite.text()
         # clear innerHTML
         @sprite.text('')
-        @sprite.createInputtextElement(text, @multiline, @width)
+        @sprite.createInputtextElement(text, @multiline, @width, @height)
+        @inputElem = @sprite.el.getElementsByTagName('input')[0]
       </handler>
       <handler event="onchange">
         return unless @replicator
@@ -66,5 +83,13 @@ SOFTWARE. -->
           else if newdata == 'false'
             newdata = false
         @replicator.updateData(newdata)
+      </handler>
+      <handler event="onwidth" args="w">
+        return unless @inputElem
+        $(@inputElem).css('width', w);
+      </handler>
+      <handler event="onheight" args="h">
+        return unless @inputElem
+        $(@inputElem).css('height', h);
       </handler>
     </class>

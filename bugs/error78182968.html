@@ -20,11 +20,16 @@
   <script type="text/javascript" src="/lib/jquery-1.9.1.js"></script>
   <script type="text/javascript" src="/lib/acorn.js"></script>
   <script type="text/javascript" src="/lib/coffee-script.js"></script>
+  <script type="text/javascript" src="/lib/assert.js"></script>
   <script type="text/javascript" src="/layout.js"></script>
 </head>
 <body>
     <view>
         <bitmap id="koala" x="100" y="200" width="200" height="200" src="./shoarma.jpg"></bitmap>
+        <handler event="oninit">
+          assert.equal(koala.sprite.el.style.left, '100px');
+          assert.equal(koala.sprite.el.style.top, '200px');
+        </handler>
     </view>
 <!-- The MIT License (MIT)
 
