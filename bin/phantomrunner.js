@@ -1,7 +1,7 @@
 var fs = require('fs');
 
 var timeout = 60;
-var path = "./bugs/";
+var path = "/smoke/";
 
 var system = require('system');
 var args = system.args;
@@ -9,7 +9,7 @@ if (args[1]) {
   timeout = parseInt(args[1]);
 }
 
-var list = fs.list(path);
+var list = fs.list("." + path);
 var files = [];
 for(var i = 0; i < list.length; i++){
   var file = list[i]
@@ -61,7 +61,7 @@ var runTest = function (file, callback) {
     out.push(msg)
     console.log(msg)
   };
-  page.open('http://127.0.0.1:8080/bugs/' + file);
+  page.open('http://127.0.0.1:8080' + path + file);
 }
 
 var loadNext = function() {
