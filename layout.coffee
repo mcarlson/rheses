@@ -232,7 +232,7 @@ window.dr = do ->
       type = @types[name]
       if type# and type of typemappings
         unless (typemappings[type])
-          console.warn('invalid type "' + type + '" for attribute', name)
+          showWarnings ["Invalid type '#{type}' for attribute '#{name}', must be one of: #{Object.keys(typemappings).join(', ')}"]
           return
 
       # console.log 'type', name, type, value, typemappings[type], @

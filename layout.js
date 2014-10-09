@@ -356,7 +356,7 @@
         type = this.types[name];
         if (type) {
           if (!typemappings[type]) {
-            console.warn('invalid type "' + type + '" for attribute', name);
+            showWarnings(["Invalid type '" + type + "' for attribute '" + name + "', must be one of: " + (Object.keys(typemappings).join(', '))]);
             return;
           }
           value = typemappings[type](value);
