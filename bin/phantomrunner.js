@@ -26,6 +26,7 @@ var page = require('webpage').create();
 var runTest = function (file, callback) {
   var tId;
   var updateTimer = function(ms) {
+    ms = ms || timeout
     if (tId) clearTimeout(tId) 
     tId = setTimeout(callback, ms);
   }
