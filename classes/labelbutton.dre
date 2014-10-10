@@ -74,7 +74,7 @@ SOFTWARE. -->
           else
             #Variable size button. Resize button to text
             @_resize_lock = true
-            @setAttributes({width:@label.width, height:@label.height, textx:@padding, texty:@padding})
+            @setAttributes({width:@label.width + @padding*2, height:@label.height + @padding*2, textx:@padding, texty:@padding})
             @_resize_lock = false
       </method>
 

@@ -125,8 +125,8 @@ SOFTWARE. -->
             settings =
               checkx: @padding
               checky: @padding
-              width: @checkw + @label.width + @innerspacing
-              height: @label.height
+              width: @checkw + @label.width + @innerspacing + @padding*2
+              height: @label.height + @padding*2
               textx: @padding + @checkx + @checkw + @innerspacing
               texty: @padding
             @setAttributes(settings)
