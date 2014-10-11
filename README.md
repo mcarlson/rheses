@@ -96,6 +96,8 @@ If you are on Mac
 Then run this again:
 
     bundle install    
+
+Windows users: capybara-webkit can only install on a 32-bit version of Windows. See [https://github.com/thoughtbot/capybara-webkit#windows-support]()
 		
 <!-- The MIT License (MIT)
 
