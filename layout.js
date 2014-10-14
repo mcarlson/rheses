@@ -1841,7 +1841,7 @@
         return error;
       };
       initElement = function(el, parent) {
-        var attributes, checkChildren, child, children, event, eventname, isClass, isState, li, skiponinit, tagname, _i, _j, _len, _len1;
+        var attr, attributes, checkChildren, child, children, event, eventname, isClass, isState, li, skiponinit, tagname, _i, _j, _len, _len1;
         if (el.$init) {
           return;
         }
@@ -1872,6 +1872,11 @@
               attributes.clickable = true;
             }
             el.removeAttribute(eventname);
+          }
+        }
+        for (attr in attributes) {
+          if (attr.indexOf('on') === 0) {
+            el.removeAttribute(attr);
           }
         }
         if (parent == null) {

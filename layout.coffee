@@ -1447,6 +1447,11 @@ window.dr = do ->
           attributes.clickable = true unless attributes.clickable == false
           el.removeAttribute(eventname)
 
+      # swallow event handler attributes to allow event delegation, e.g. <inputtext onchange="..."></inputtext>
+      for attr of attributes
+        if attr.indexOf('on') == 0
+          el.removeAttribute(attr)
+
       parent ?= el.parentNode
       attributes.parent = parent if parent?
       # console.log 'parent for tag', tagname, attributes, parent
