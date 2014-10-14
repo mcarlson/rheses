@@ -373,7 +373,7 @@
         type = this.types[name];
         if (type) {
           if (!typemappings[type]) {
-            console.warn(&#39;invalid type &quot;&#39; + type + &#39;&quot; for attribute&#39;, name);
+            showWarnings([&quot;Invalid type &#39;&quot; + type + &quot;&#39; for attribute &#39;&quot; + name + &quot;&#39;, must be one of: &quot; + (Object.keys(typemappings).join(&#39;, &#39;))]);
             return;
           }
           value = typemappings[type](value);
@@ -1858,7 +1858,7 @@
         return error;
       };
       initElement = function(el, parent) {
-        var attributes, checkChildren, child, children, event, eventname, isClass, isState, li, skiponinit, tagname, _i, _j, _len, _len1;
+        var attr, attributes, checkChildren, child, children, event, eventname, isClass, isState, li, skiponinit, tagname, _i, _j, _len, _len1;
         if (el.$init) {
           return;
         }
@@ -1889,6 +1889,11 @@
               attributes.clickable = true;
             }
             el.removeAttribute(eventname);
+          }
+        }
+        for (attr in attributes) {
+          if (attr.indexOf(&#39;on&#39;) === 0) {
+            el.removeAttribute(attr);
           }
         }
         if (parent == null) {
