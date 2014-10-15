@@ -1,2 +1,4 @@
-
-*.map
+.idea
+**/.idea
+apidocs/
+layout.js.map

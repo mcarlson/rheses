@@ -1,0 +1,141 @@
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+
+  <!--/**
+     * @class dr.checkbutton
+     * @extends dr.buttonbase
+     * Button class consisting of text and a visual element to show the
+     * current state of the component. The state of the
+     * button changes each time the button is clicked. The select property
+     * holds the current state of the button. The onselected event
+     * is generated when the button is the selected state.
+     *
+     *     @example
+     *     <simplelayout axis="y"></simplelayout>
+     *
+     *     <checkbutton text="pink" selectcolor="pink" defaultcolor="lightgrey" bgcolor="white"></checkbutton>
+     *     <checkbutton text="blue" selectcolor="lightblue" defaultcolor="lightgrey" bgcolor="white"></checkbutton>
+     *     <checkbutton text="green" selectcolor="lightgreen" defaultcolor="lightgrey" bgcolor="white"></checkbutton>
+     *
+     * Here we listen for the onselected event on a checkbox and print the value that is passed to the handler.
+     *
+     *     @example
+     *     <simplelayout axis="y"></simplelayout>
+     *
+     *     <checkbutton text="green" selectcolor="lightgreen" defaultcolor="lightgrey" bgcolor="white">
+     *       <handler event="onselected" args="value">
+     *         displayselected.setAttribute('text', value);
+     *       </handler>
+     *     </checkbutton>
+     *
+     *     <view>
+     *       <simplelayout axis="x"></simplelayout>
+     *       <text text="Selected:"></text>
+     *       <text id="displayselected"></text>
+     *     </view>
+     *
+     */-->
+    <class name="checkbutton" type="coffee" extends="buttonbase" bgcolor="#808080">
+
+      <!-- check_x, check_y: Location of check box with button -->
+      <!-- check_w, check_h: Size of check box with button -->
+      <attribute name="checkx" type="number" value="0"></attribute>
+      <attribute name="checky" type="number" value="0"></attribute>
+      <attribute name="checkw" type="number" value="0"></attribute>
+      <attribute name="checkh" type="number" value="0"></attribute>
+      <attribute name="bgcolor" type="string" value="transparent"></attribute>
+      <attribute name="innerspacing" type="number" value="3"></attribute>
+
+      <!-- check: Show button state -->
+      <view name="check" x="${this.parent.checkx}" y="${this.parent.checky}" width="${this.parent.checkw}" height="${this.parent.checkh}"></view>
+ 
+      <handler event="oninit">
+        #TODO Remove this hack when oninit works
+        $this = @;
+        func = () -> $this.realinit()
+        setTimeout(func, 0)
+      </handler>
+
+      <method name="realinit">
+        @realinited = true
+        # return unless @check   # oninit can fire before children are inited
+
+        # visual is the object that makes a visual change when selected
+        @visual = @check
+
+        # Detect if the button was supplied with a size
+        if (@width > 0 || @height > 0)
+          @_fixedsize = true
+        @handleResize()
+
+        @visualize()
+      </method>
+
+      <method name="handleResize">
+        return unless @realinited  #Hack. Should be @inited
+        return if @_resize_lock
+
+        @_resize_lock = true
+        if (@label.width > 0 && @label.height > 0)
+          # Checkbox size
+          if @checkw != @label.height || @checkh != @check.height
+            settings = 
+              checkw: @label.height
+              checkh: @label.height
+            @setAttributes(settings)
+
+          if @_fixedsize
+            #Fixed size button. position text in center of button
+
+            xoffset = (@width + @padding - @label.width - @checkw)/2
+            yoffset = (@height + @padding - @label.height)/2
+
+            settings = 
+              checkx:xoffset
+              checky:yoffset
+            @setAttributes(settings)
+
+            settings =
+              #width: @checkw + @label.width
+              #height: @label.height
+              textx: @checkx + @checkw + @innerspacing
+              texty: yoffset
+            @setAttributes(settings)
+          else
+            #Variable size button. Resize button to text
+            settings =
+              checkx: @padding
+              checky: @padding
+              width: @checkw + @label.width + @innerspacing + @padding*2
+              height: @label.height + @padding*2
+              textx: @padding + @checkx + @checkw + @innerspacing
+              texty: @padding
+            @setAttributes(settings)
+
+        @_resize_lock = false
+      </method>
+
+      <handler event="onclick">
+        @setAttribute('selected', !@selected);
+      </handler>
+
+    </class>

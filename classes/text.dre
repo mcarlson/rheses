@@ -1,0 +1,136 @@
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+
+  <!--/**
+     * @class dr.text
+     * @extends dr.view
+     * Text component that supports single and multi-line text. The text
+     * component can be fixed size, or sized to fit the size of the text.
+     *
+     *     @example
+     *     <text text="Hello World!" bgcolor="red"></text>
+     *
+     * Here is a multiline text
+     *
+     *     @example
+     *     <text multiline="true" text="Lorem ipsum dolor sit amet, consectetur adipiscing elit"></text>
+     *
+     * You might want to set the value of a text element based on the value of other attributes via a constraint. Here we set the value by concatenating three attributes together.
+     *
+     *     @example
+     *     <attribute name="firstName" type="string" value="Lumpy"></attribute>
+     *     <attribute name="middleName" type="string" value="Space"></attribute>
+     *     <attribute name="lastName" type="string" value="Princess"></attribute>
+     *
+     *     <text text="${this.parent.firstName + ' ' + this.parent.middleName + ' ' + this.parent.lastName}" color="hotpink"></text>
+     *
+     * Constraints can contain more complex JavaScript code
+     *
+     *     @example
+     *     <attribute name="firstName" type="string" value="Lumpy"></attribute>
+     *     <attribute name="middleName" type="string" value="Space"></attribute>
+     *     <attribute name="lastName" type="string" value="Princess"></attribute>
+     *
+     *     <text text="${this.parent.firstName.charAt(0) + ' ' + this.parent.middleName.charAt(0) + ' ' + this.parent.lastName.charAt(0)}" color="hotpink"></text>
+     *
+     * We can simplify this by using a method to return the concatenation and constraining the text value to the return value of the method
+     *
+     *     @example
+     *     <attribute name="firstName" type="string" value="Lumpy"></attribute>
+     *     <attribute name="middleName" type="string" value="Space"></attribute>
+     *     <attribute name="lastName" type="string" value="Princess"></attribute>
+     *
+     *     <method name="initials">
+     *       return this.firstName.charAt(0) + ' ' + this.middleName.charAt(0) + ' ' + this.lastName.charAt(0);
+     *     </method>
+     *
+     *     <text text="${this.parent.initials()}" color="hotpink"></text>
+     *
+     * You can override the format method to provide custom formatting for text elements. Here is a subclass of text, timetext, with the format method overridden to convert the text given in seconds into a formatted string.
+     *
+     *     @example
+     *     <class name="timetext" extends="text">
+     *       <method name="format" args="seconds">
+     *         var minutes = Math.floor(seconds / 60);
+     *         var seconds = Math.floor(seconds) - minutes * 60;
+     *         if (seconds < 10) {
+     *           seconds = '0' + seconds;
+     *         }
+     *         return minutes + ':' + seconds;
+     *       </method>
+     *     </class>
+     *
+     *     <timetext text="240"></timetext>
+     *
+     *
+     */-->    
+    <class name="text" type="coffee">
+      <!--/**
+        * @cfg {Boolean} [multiline=false]
+        * Set to true to show multi-line text.
+        */-->
+      <attribute name="multiline" value="false" type="boolean"></attribute>
+
+      <!--/**
+        * @cfg {Boolean} [resize=true]
+        * By default, the text component is sized to the size of the text.
+        * By setting resize=false, the component size is not modified
+        * when the text changes.
+        */-->
+      <attribute name="resize" value="true" type="boolean"></attribute>
+      <handler event="onmultiline" method="updateSize"></handler>
+      <method name="updateSize">
+        return unless @inited
+        size = @sprite.measureTextSize(@multiline, @width, @resize)
+        # console.log('updateSize', size.width, size.height)
+        @setAttribute 'width', size.width, true if @resize
+        @setAttribute 'height', size.height, true
+      </method>
+      <handler event="ondata" args="d">
+        @setAttribute('text', d)
+      </handler>
+      <!--/**
+        * @cfg {String} [text=""]
+        * Component text.
+        */-->
+      <setter name="text" args="text">
+        # console.log('set_text', text)
+        if (text != @text)
+          @sprite.text(@format(text))
+          @updateSize()
+      </setter>
+      <handler event="oninit">
+        # console.log('oninit', @inited, @)
+        @updateSize()
+      </handler>
+
+      <!--/**
+        * @method format
+        * Format the text to be displayed. The default behavior is to 
+        * return the text intact. Override to change formatting.
+        * @param {String} str The current value of the text component.
+        * @return {String} The formated string to display in the component.
+        */-->
+      <method name="format" args="string">
+        return string
+      </method>
+    </class>

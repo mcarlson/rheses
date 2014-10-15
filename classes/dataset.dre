@@ -1,0 +1,131 @@
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+   <!--/**
+     * @class dr.dataset
+     * @extends dr.node
+     * Datasets hold onto a set of JSON data, either inline or loaded from a URL.
+     * They are used with lz.replicator for data binding.
+     *
+     * This example shows how to create a dataset with inline JSON data, and use a replicator to show values inside. Inline datasets are useful for prototyping, especially when your backend server isn't ready yet:
+     *
+     *     @example
+     *     <dataset name="example">
+     *      {
+     *        "store": {
+     *          "book": [
+     *            {
+     *              "category": "reference",
+     *              "author": "Nigel Rees",
+     *              "title": "Sayings of the Century",
+     *              "price": 8.95
+     *            },
+     *            {
+     *              "category": "fiction",
+     *              "author": "Evelyn Waugh",
+     *              "title": "Sword of Honour",
+     *              "price": 12.99
+     *            },
+     *            {
+     *              "category": "fiction",
+     *              "author": "Herman Melville",
+     *              "title": "Moby Dick",
+     *              "isbn": "0-553-21311-3",
+     *              "price": 8.99
+     *            },
+     *            {
+     *              "category": "fiction",
+     *              "author": "J. R. R. Tolkien",
+     *              "title": "The Lord of the Rings",
+     *              "isbn": "0-395-19395-8",
+     *              "price": 22.99
+     *            }
+     *          ],
+     *          "bicycle": {
+     *            "color": "red",
+     *            "price": 19.95
+     *          }
+     *        }
+     *      }
+     *     </dataset>
+     *     <simplelayout></simplelayout>
+     *     <replicator classname="text" datapath="$example/store/book[*]/title"></replicator>
+     *
+     * Data can be loaded from a URL when your backend server is ready, or reloaded to show changes over time:
+     *
+     *     @example
+     *     <dataset name="example" url="/example.json"></dataset>
+     *     <simplelayout></simplelayout>
+     *     <replicator classname="text" datapath="$example/store/book[*]/title"></replicator>
+     */-->
+    <class name="dataset" type="coffee" extends="node">
+      <!--/**
+        * @cfg {String} name (required)
+        * The name of the dataset
+        */-->
+      <handler event="oninit">
+        dr.datasets ?= {}
+        dr.datasets[@name] = @
+      </handler>
+      <!--/**
+        * @cfg {String} url
+        * The url to load JSON data from.
+        */-->
+      <attribute name="url" type="string" value=""></attribute>
+      <handler event="on$textcontent">
+        if @$textcontent?.trim()
+          @setAttribute('data', JSON.parse(@$textcontent))
+          # console.log('data', @name, @data)
+      </handler>
+      <handler event="onurl" method="loadURL"></handler>
+      <method name="loadURL" args="url">
+        # console.log('loading url', url)
+        type = 'json'
+        if (url.indexOf('callback=?') != -1)
+          # assume JSONP if 'callback=?' is in the URL
+          type = 'jsonp'
+
+        $.ajax({
+          url: url
+          dataType: type
+        }).done((data) =>
+          # console.log('data', url, data)
+          @setAttribute('data', data)
+        );
+      </method>
+      <method name="updateData" args="path, data">
+        # find the scope and property to be updated
+        re = /\/([^\/]+)$/
+        property = path.match(re)
+        if property and property[1]
+          subpath = path.replace(re, '')
+
+          # console.log('updating data', @data, subpath)
+          scope = JsonPath.resolve(@data, subpath)
+          # only handle updating a single field
+          return unless scope.length == 1
+
+          # console.log(data, @data, path, scope[0], property[1], scope[0][property[1]])
+          scope[0][property[1]] = data
+          # TODO: send smaller updates based on path argument
+          @sendEvent('data', @data)
+      </method>
+    </class>

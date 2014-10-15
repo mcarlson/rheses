@@ -1,0 +1,65 @@
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+    <class name="threejs" width="400" height="300" scriptincludes="http://threejs.org/build/three.min.js">
+      <attribute name="cameranear" value="1" type="number"></attribute>
+      <setter name="cameranear" args="cameranear">
+        if (! this.camera) return;
+        this.camera.near = cameranear;
+        this.camera.updateProjectionMatrix();
+      </setter>
+      <attribute name="camerafar" value="100000" type="number"></attribute>
+      <setter name="camerafar" args="camerafar">
+        if (! this.camera) return;
+        this.camera.far = camerafar;
+        this.camera.updateProjectionMatrix();
+      </setter>
+      <handler event="onidle" reference="dr.idle">
+        this.renderer.render( this.scene, this.camera );
+      </handler>
+      <handler event="onwidth" method="handleResize"></handler>
+      <handler event="onheight" method="handleResize"></handler>
+      <handler event="oninit">
+        var renderer = this.renderer = new THREE.WebGLRenderer();
+        renderer.setClearColor( this.bgcolor );
+        renderer.setSize(this.width, this.height);
+        renderer.domElement.$view = this;
+        this.sprite.el.appendChild(renderer.domElement);
+
+        this.camera = new THREE.PerspectiveCamera( 70, this.width / this.height, this.cameranear, this.camerafar );
+        this.scene = new THREE.Scene();
+        this.initScene(this.scene);
+      </handler>
+      <handler event="onbgcolor" args="color">
+        if (! this.renderer) return;
+        this.renderer.setClearColor(color);
+      </handler>
+      <method name="handleResize">
+        if (this.camera) {
+          this.camera.aspect = this.width / this.height;
+          this.camera.updateProjectionMatrix();
+        }
+        if (this.renderer) {
+          this.renderer.setSize( this.width, this.height);
+        }
+      </method>
+      <method name="initScene" args="scene"></method>
+    </class>
