@@ -33,41 +33,57 @@ SOFTWARE. -->
 <!-- Don't use until dr syntax highlighter is available via cdn
     <class name="ace" width="300" height="100" clickable="true" scriptincludes="http://cdnjs.cloudflare.com/ajax/libs/ace/1.1.3/ace.js">
 -->
-    <class name="ace" width="300" height="100" clickable="true" scriptincludes="/lib/ace/src-noconflict/ace.js">
-      <handler event="ondata" args="d">
-        this.setAttribute('text', d)
-      </handler>
 
       <!--/**
         * @cfg {string} [theme='ace/theme/chrome']
         * Specify the ace theme to use.
         */-->
+
+      <!--/**
+        * @cfg {string} [mode='ace/mode/dr']
+        * Specify the ace mode to use.
+        */-->
+
+      <!--/**
+        * @cfg {String} [text=""]
+        * Initial text for the ace editor.
+        */-->
+
+      <!--/**
+        * @event ontext
+        * Fired when the contents of the ace entry changes
+        * @param {dr.ace} view The dr.ace that fired the event
+        */-->
+
+      <!--/**
+        * @cfg {Number} [pausedelay=500]
+        * Time (msec) after user entry stops to fire onpausedelay event.
+        * 0 will disable this option.
+        */-->
+
+      <!--/**
+        * @event onpausedelay
+        * Fired when user entries stops for a period of time.
+        * @param {dr.ace} view The dr.ace that fired the event
+        */-->
+
+    <class name="ace" width="300" height="100" clickable="true" scriptincludes="/lib/ace/src-noconflict/ace.js">
+      <handler event="ondata" args="d">
+        this.setAttribute('text', d)
+      </handler>
+
       <attribute name="theme" type="string" value="ace/theme/chrome"/>
       <handler event="ontheme">
         if (this.editor)
           this.editor.setTheme(this.theme);
       </handler>
 
-      <!--/**
-        * @cfg {string} [mode='ace/mode/dr']
-        * Specify the ace mode to use.
-        */-->
       <attribute name="mode" type="string" value="ace/mode/dr"/>
       <handler event="onmode">
         if (this.editor)
           this.editor.getSession().setMode(this.mode);
       </handler>
 
-
-      <!--/**
-        * @cfg {String} [text=""]
-        * Initial text for the ace editor.
-        */-->
-      <!--/**
-        * @event ontext
-        * Fired when the contents of the ace entry changes
-        * @param {dr.ace} view The dr.ace that fired the event
-        */-->
       <setter name="text" args="text">
         if (this.editor && this.editor.getValue() != text) {
           // console.log('set_text', text)
@@ -78,22 +94,16 @@ SOFTWARE. -->
       <handler event="onwidth" method="handleResize"></handler>
       <handler event="onheight" method="handleResize"></handler>
 
-      <!--/**
-        * @cfg {Number} [pausedelay=500]
-        * Time (msec) after user entry stops to fire onpausedelay event.
-        * 0 will disable this option.
-        */-->
-      <!--/**
-        * @event onpausedelay
-        * Fired when user entries stops for a period of time.
-        * @param {dr.ace} view The dr.ace that fired the event
-        */-->
       <attribute name="pausedelay" type="number" value="500"/>
       <handler event="onpausedelay">
         delete this._lastkeytime;
       </handler>
 
       <handler event="oninit">
+        // Get initial text (match behavior of inputtext)
+        text = this.text || this.sprite.text();
+        this.sprite.text('');
+
         // I couldn't get jquery syntax to work so directly modify the DOM.
         var acediv = document.createElement("DIV");
         acediv.style.position = "absolute";
@@ -115,8 +125,6 @@ SOFTWARE. -->
         // To remove line numbers, enable next line
         //this.editor.renderer.setShowGutter(false);    
 
-        // Set initial text
-        var text = this.text || this.$textcontent;
         this.editor.setValue(text);
         this.text = text;
     
