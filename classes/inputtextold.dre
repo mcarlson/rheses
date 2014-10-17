@@ -20,7 +20,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. -->
     <!--/**
-     * @class dr.inputtext
+     * @class dr.inputtextold
      * @extends dr.view
      * Provides an editable input text field.
      *
@@ -40,7 +40,7 @@ SOFTWARE. -->
      *     <text id="welcome"></text>
      *
      * It's possible to listen for an onchange event to find out when the user changed the inputtext value:
-     * 
+     *
      *     @example
      *
      *     <inputtext id="nameinput" bgcolor="white" border="1px solid lightgrey" width="200" onchange="console.log('onchange', this.text)"></inputtext>
@@ -54,7 +54,7 @@ SOFTWARE. -->
         * @cfg {String} text
         * The text inside this input text field
         */-->
-    <class name="inputtext" type="coffee" clickable="true" width="100">
+    <class name="inputtextold" type="coffee" clickable="true" width="100">
       <attribute name="multiline" value="false" type="boolean"></attribute>
       <method name="updateSize">
         @setAttributes(@sprite.measureTextSize(@multiline, @width))

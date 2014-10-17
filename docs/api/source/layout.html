@@ -77,7 +77,7 @@
   })();
 
   window.dr = (function() {
-    var Class, Eventable, Events, Idle, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, View, Window, capabilities, compiler, constraintScopes, debug, dom, exports, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, querystring, showWarnings, warnings, _initConstraints;
+    var Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, View, Window, capabilities, compiler, constraintScopes, debug, dom, exports, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, querystring, showWarnings, warnings, _initConstraints;
     mixOf = function() {
       var Mixed, base, i, method, mixin, mixins, name, _i, _ref;
       base = arguments[0], mixins = 2 &lt;= arguments.length ? __slice.call(arguments, 1) : [];
@@ -1587,6 +1587,136 @@
       return View;
 
     })(Node);
+
+<span id='dr-inputtext'>    /**
+</span>     * @class dr.inputtext
+     * @extends dr.view
+     * Provides an editable input text field.
+     *
+     *     @example
+     *     &lt;simplelayout axis=&quot;y&quot;&gt;&lt;/simplelayout&gt;
+     *
+     *     &lt;text text=&quot;Enter your name&quot;&gt;&lt;/text&gt;
+     *
+     *     &lt;inputtext id=&quot;nameinput&quot; bgcolor=&quot;white&quot; border=&quot;1px solid lightgrey&quot; width=&quot;200&quot;&gt;&lt;/inputtext&gt;
+     *
+     *     &lt;labelbutton text=&quot;submit&quot;&gt;
+     *       &lt;handler event=&quot;onclick&quot;&gt;
+     *         welcome.setAttribute(&#39;text&#39;, &#39;Welcome &#39; + nameinput.text);
+     *       &lt;/handler&gt;
+     *     &lt;/labelbutton&gt;
+     *
+     *     &lt;text id=&quot;welcome&quot;&gt;&lt;/text&gt;
+     *
+     * It&#39;s possible to listen for an onchange event to find out when the user changed the inputtext value:
+     *
+     *     @example
+     *     &lt;inputtext id=&quot;nameinput&quot; bgcolor=&quot;white&quot; border=&quot;1px solid lightgrey&quot; width=&quot;200&quot; onchange=&quot;console.log(&#39;onchange&#39;, this.text)&quot;&gt;&lt;/inputtext&gt;
+     *
+     */
+    InputText = (function(_super) {
+      __extends(InputText, _super);
+
+
+<span id='dr-inputtext-cfg-multiline'>      /**
+</span>       * @cfg {Boolean} [multiline=false]
+       * Set to true to show multi-line text.
+       */
+
+
+<span id='dr-inputtext-cfg-text'>      /**
+</span>       * @cfg {String} text
+       * The text inside this input text field
+       */
+
+      function InputText(el, attributes) {
+        var key, text, type, types, _ref;
+        if (attributes == null) {
+          attributes = {};
+        }
+        if (!(&#39;width&#39; in attributes)) {
+          this[&#39;width&#39;] = 100;
+        }
+        if (!(&#39;clickable&#39; in attributes)) {
+          this[&#39;clickable&#39;] = true;
+        }
+        if (!(&#39;multiline&#39; in attributes)) {
+          this[&#39;multiline&#39;] = false;
+        }
+        types = {
+          multiline: &#39;boolean&#39;
+        };
+        _ref = attributes.$types;
+        for (key in _ref) {
+          type = _ref[key];
+          types[key] = type;
+        }
+        attributes.$types = types;
+        InputText.__super__.constructor.apply(this, arguments);
+        text = attributes[&#39;text&#39;] || this.sprite.text();
+        this.sprite.text(&#39;&#39;);
+        this.sprite.createInputtextElement(text, this.multiline, this.width, this.height);
+        this.inputElem = this.sprite.el.getElementsByTagName(&#39;input&#39;)[0];
+        if (!this.height) {
+          this.height = this._heightFromInputHeight();
+        }
+        this.listenTo(this, &#39;change&#39;, this._handleChange);
+      }
+
+      InputText.prototype._heightFromInputHeight = function() {
+        var borderH, h, paddingH;
+        if (!this.inputElem) {
+          return;
+        }
+        h = parseInt($(this.inputElem).css(&#39;height&#39;));
+        borderH = parseInt($(this.sprite.el).css(&#39;border-top-width&#39;)) + parseInt($(this.sprite.el).css(&#39;border-bottom-width&#39;));
+        paddingH = parseInt($(this.sprite.el).css(&#39;padding-top&#39;)) + parseInt($(this.sprite.el).css(&#39;padding-bottom&#39;));
+        return h + borderH + paddingH;
+      };
+
+      InputText.prototype._handleChange = function() {
+        var newdata;
+        if (!this.replicator) {
+          return;
+        }
+        newdata = this.text;
+        if (typeof this.data === &#39;number&#39;) {
+          if (parseFloat(newdata) + &#39;&#39; === newdata) {
+            newdata = parseFloat(newdata);
+          }
+        } else if (typeof this.data === &#39;boolean&#39;) {
+          if (newdata === &#39;true&#39;) {
+            newdata = true;
+          } else if (newdata === &#39;false&#39;) {
+            newdata = false;
+          }
+        }
+        return this.replicator.updateData(newdata);
+      };
+
+      InputText.prototype.set_data = function(d) {
+        return this.setAttribute(&#39;text&#39;, d);
+      };
+
+      InputText.prototype.set_text = function(text) {
+        return this.sprite.value(text);
+      };
+
+      InputText.prototype.set_width = function(w) {
+        if (this.inputElem) {
+          return $(this.inputElem).css(&#39;width&#39;, w);
+        }
+      };
+
+      InputText.prototype.set_width = function(h) {
+        if (this.inputElem) {
+          return $(this.inputElem).css(&#39;height&#39;, h);
+        }
+      };
+
+      return InputText;
+
+    })(View);
     warnings = [];
     showWarnings = function(data) {
       var out, pre;
@@ -2056,32 +2186,32 @@
         processSpecialTags: processSpecialTags,
         writeCSS: writeCSS
       };
-    })();
 
-<span id='dr-state'>    /**
-</span>     * @class dr.state
-     * @extends dr.node
-     * Allows a group of attributes, methods, handlers and instances to be removed and applied as a group.
-     * 
-     * Like views and nodes, states can contain methods, handlers, setters, constraints, attributes and other view, node or class instances.
-     *
-     * Currently, states must end with the string &#39;state&#39; in their name to work properly.
-     *
-     *     @example
-     *     &lt;simplelayout axis=&quot;y&quot;&gt;&lt;/simplelayout&gt;
-     *     &lt;view id=&quot;square&quot; width=&quot;100&quot; height=&quot;100&quot; bgcolor=&quot;lightgrey&quot;&gt;
-     *       &lt;attribute name=&quot;ispink&quot; type=&quot;boolean&quot; value=&quot;false&quot;&gt;&lt;/attribute&gt;
-     *       &lt;state name=&quot;pinkstate&quot; applied=&quot;${this.parent.ispink}&quot;&gt;
-     *         &lt;attribute name=&quot;bgcolor&quot; value=&quot;pink&quot; type=&quot;string&quot;&gt;&lt;/attribute&gt;
-     *       &lt;/state&gt;
-     *     &lt;/view&gt;
-     *     &lt;labelbutton text=&quot;pinkify!&quot;&gt;
-     *       &lt;handler event=&quot;onclick&quot;&gt;
-     *         square.setAttribute(&#39;ispink&#39;, true);
-     *       &lt;/handler&gt;
-     *     &lt;/labelbutton&gt;
-     *
-     */
+<span id='dr-state'>      /**
+</span>         * @class dr.state
+         * @extends dr.node
+         * Allows a group of attributes, methods, handlers and instances to be removed and applied as a group.
+         *
+         * Like views and nodes, states can contain methods, handlers, setters, constraints, attributes and other view, node or class instances.
+         *
+         * Currently, states must end with the string &#39;state&#39; in their name to work properly.
+         *
+         *     @example
+         *     &lt;simplelayout axis=&quot;y&quot;&gt;&lt;/simplelayout&gt;
+         *     &lt;view id=&quot;square&quot; width=&quot;100&quot; height=&quot;100&quot; bgcolor=&quot;lightgrey&quot;&gt;
+         *       &lt;attribute name=&quot;ispink&quot; type=&quot;boolean&quot; value=&quot;false&quot;&gt;&lt;/attribute&gt;
+         *       &lt;state name=&quot;pinkstate&quot; applied=&quot;${this.parent.ispink}&quot;&gt;
+         *         &lt;attribute name=&quot;bgcolor&quot; value=&quot;pink&quot; type=&quot;string&quot;&gt;&lt;/attribute&gt;
+         *       &lt;/state&gt;
+         *     &lt;/view&gt;
+         *     &lt;labelbutton text=&quot;pinkify!&quot;&gt;
+         *       &lt;handler event=&quot;onclick&quot;&gt;
+         *         square.setAttribute(&#39;ispink&#39;, true);
+         *       &lt;/handler&gt;
+         *     &lt;/labelbutton&gt;
+         *
+       */
+    })();
     State = (function(_super) {
       __extends(State, _super);
 
@@ -3049,6 +3179,7 @@
      */
     return exports = {
       view: View,
+      inputtext: InputText,
       &quot;class&quot;: Class,
       node: Node,
       mouse: new Mouse(),

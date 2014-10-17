@@ -686,6 +686,7 @@ window.dr = do ->
 
     _bindHandlers: (isLate) ->
       bindings = if isLate then @latehandlers else @handlers
+      return unless bindings
       for binding in bindings
         {scope, name, ev, callback, reference} = binding
         if reference
@@ -1200,6 +1201,96 @@ window.dr = do ->
     set_class: (classname) ->
       @sprite.set_class(classname)
 
+  ###*
+  # @class dr.inputtext
+  # @extends dr.view
+  # Provides an editable input text field.
+  #
+  #     @example
+  #     <simplelayout axis="y"></simplelayout>
+  #
+  #     <text text="Enter your name"></text>
+  #
+  #     <inputtext id="nameinput" bgcolor="white" border="1px solid lightgrey" width="200"></inputtext>
+  #
+  #     <labelbutton text="submit">
+  #       <handler event="onclick">
+  #         welcome.setAttribute('text', 'Welcome ' + nameinput.text);
+  #       </handler>
+  #     </labelbutton>
+  #
+  #     <text id="welcome"></text>
+  #
+  # It's possible to listen for an onchange event to find out when the user changed the inputtext value:
+  #
+  #     @example
+  #     <inputtext id="nameinput" bgcolor="white" border="1px solid lightgrey" width="200" onchange="console.log('onchange', this.text)"></inputtext>
+  #
+  ###
+  class InputText extends View
+    ###*
+    # @cfg {Boolean} [multiline=false]
+    # Set to true to show multi-line text.
+    ###
+    ###*
+    # @cfg {String} text
+    # The text inside this input text field
+    ###
+    constructor: (el, attributes = {}) ->
+      attributes.clickable = true if not ('clickable' of attributes)
+      attributes.multiline = true if not ('multiline' of attributes)
+      attributes.width = true if not ('width' of attributes)
+
+      types = {multiline: 'boolean'}
+      for key, type of attributes.$types
+        types[key] = type
+      attributes.$types = types
+
+      super
+
+      text = attributes['text'] || @sprite.text()
+      @sprite.text('')
+      @sprite.createInputtextElement(text, @multiline, @width, @height)
+      @inputElem = @sprite.el.getElementsByTagName('input')[0]
+      @height = @_heightFromInputHeight() unless @height
+
+      @listenTo(@, 'change', @_handleChange)
+
+      @listenTo(@, 'width',
+        (w) ->
+          $(@inputElem).css('width', w) if @inputElem
+      )
+      @listenTo(@, 'height',
+        (h) ->
+          $(@inputElem).css('height', h) if @inputElem
+      )
+
+    _heightFromInputHeight: () ->
+      return unless @inputElem
+      h = parseInt($(@inputElem).css('height'))
+      borderH = parseInt($(@sprite.el).css('border-top-width')) + parseInt($(@sprite.el).css('border-bottom-width'))
+      paddingH = parseInt($(@sprite.el).css('padding-top')) + parseInt($(@sprite.el).css('padding-bottom'))
+      return h + borderH + paddingH
+
+    _handleChange: () ->
+      return unless @replicator
+      # attempt to coerce to the current type if it was a boolean or number (bad idea?)
+      newdata = @text
+      if (typeof @data == 'number')
+        if parseFloat(newdata) + '' == newdata
+          newdata = parseFloat(newdata)
+      else if (typeof @data == 'boolean')
+        if newdata == 'true'
+          newdata = true
+        else if newdata == 'false'
+          newdata = false
+      @replicator.updateData(newdata)
+
+    set_data: (d) ->
+      @setAttribute('text', d)
+
+    set_text: (text) ->
+      @sprite.value(text)
 
   warnings = []
   showWarnings = (data) ->
@@ -1213,7 +1304,7 @@ window.dr = do ->
 
 
   dom = do ->
-    getChildren = (el) -> 
+    getChildren = (el) ->
       child for child in el.childNodes when child.nodeType == 1 and child.localName in specialtags
 
     # flatten element.attributes to a hash
@@ -1295,7 +1386,7 @@ window.dr = do ->
         filerequests.push(prom)
 
       loadIncludes = (callback) ->
-        # load includes 
+        # load includes
         for jel in jqel.find('include')
           includerequests.push($.get(jel.attributes.href.value))
 
@@ -1317,7 +1408,7 @@ window.dr = do ->
             name = el.localName
             if name == 'class'
               if el.attributes.extends
-                extendz = el.attributes.extends.value 
+                extendz = el.attributes.extends.value
                 # load load class extends
                 loadLZX(extendz, el)
                 # initONE = true if extendz = 'state'
@@ -1333,13 +1424,13 @@ window.dr = do ->
             else
               # load class instance for tag
               loadLZX(name, el)
-     
+
           # console.log(filerequests, fileloaded, inlineclasses)
           # wait for all dre files to finish loading
           $.when.apply($, filerequests).done((args...) ->
             args = [args] if (filerequests.length == 1)
             for xhr in args
-              # console.log 'inserting html', args, xhr[0] 
+              # console.log 'inserting html', args, xhr[0]
               jqel.prepend(xhr[0])
               if debug
                 jqel.contents().each(() ->
@@ -1385,7 +1476,7 @@ window.dr = do ->
         # console.log(url, data)
         prom = $.ajax({
           # type: 'POST'
-          url: url, 
+          url: url,
           data: {url: window.location.pathname},
           # processData: false
           success: (data) ->
@@ -1427,7 +1518,7 @@ window.dr = do ->
 
       tagname = el.localName
       return if tagname in specialtags
-      
+
       if not tagname of dr
         console.warn 'could not find class for tag', tagname, el unless tagname in builtinTags
         return
@@ -1502,7 +1593,7 @@ window.dr = do ->
       return
 
 
-    # write default CSS to the DOM 
+    # write default CSS to the DOM
     writeCSS = ->
       style = document.createElement('style')
       style.type = 'text/css'
@@ -1523,7 +1614,7 @@ window.dr = do ->
       out = ''
       for child in e.childNodes
         if child.nodeValue? and (child.nodeType == 3 or child.nodeType == 8)
-          out += child.nodeValue 
+          out += child.nodeValue
           # console.log('child', child.nodeType, child)
           # console.log('out', out)
         else
@@ -1531,7 +1622,7 @@ window.dr = do ->
           return
       out
 
-    # process handlers, methods, setters and attributes 
+    # process handlers, methods, setters and attributes
     processSpecialTags = (el, classattributes, defaulttype) ->
       classattributes.$types ?= {}
       classattributes.$methods ?= {}
@@ -1554,7 +1645,7 @@ window.dr = do ->
         switch tagname
           when 'handler'
             # console.log 'adding handler', name, script, child.innerHTML, attributes
-            handler = 
+            handler =
               name: name
               ev: attributes.event
               script: compiler.transform(script, type)
@@ -1586,7 +1677,7 @@ window.dr = do ->
       processSpecialTags: processSpecialTags
       writeCSS: writeCSS
 
-  ###*
+    ###*
   # @class dr.state
   # @extends dr.node
   # Allows a group of attributes, methods, handlers and instances to be removed and applied as a group.
@@ -2427,6 +2518,7 @@ window.dr = do ->
   ###
   exports = 
     view: View
+    inputtext: InputText
     class: Class
     node: Node
     mouse: new Mouse()
