@@ -1722,6 +1722,17 @@
         }
       };
 
+      Text.prototype.setAttribute = function(name, value, skipstyle) {
+        var size;
+        if (name === "width" && this.resize) {
+          size = this.sprite.measureTextSize(this.multiline, this.width, this.resize);
+          if (size.width !== value) {
+            return;
+          }
+        }
+        return Text.__super__.setAttribute.apply(this, arguments);
+      };
+
       return Text;
 
     })(View);

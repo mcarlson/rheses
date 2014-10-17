@@ -1322,6 +1322,13 @@ window.dr = do ->
         @sprite.text(@format(text))
         @updateSize()
 
+    setAttribute: (name, value, skipstyle) ->
+      if name == "width" && @resize
+        size = @sprite.measureTextSize(@multiline, @width, @resize)
+        return unless size.width == value
+
+      super
+
   warnings = []
   showWarnings = (data) ->
     warnings = warnings.concat(data)
