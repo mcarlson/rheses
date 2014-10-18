@@ -49,7 +49,7 @@ SOFTWARE. -->
         
         this.sprite.el.appendChild(renderer.domElement);
 
-        this.camera = new THREE.PerspectiveCamera( 70, this.width / this.height, this.cameranear, this.camerafar );
+        this.camera = new THREE.PerspectiveCamera( 40, this.width / this.height, this.cameranear, this.camerafar );
         this.scene = new THREE.Scene();
         this.initScene(this.scene);
 
@@ -78,7 +78,6 @@ SOFTWARE. -->
         }
 
       </method>
-
       <method name="update" args="scene, camera"></method>
       <method name="initScene" args="scene"></method>
     </class>
