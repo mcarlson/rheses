@@ -39,6 +39,12 @@ SOFTWARE. -->
      *
      *     <text id="welcome"></text>
      *
+     * It's possible to listen for an onchange event to find out when the user changed the inputtext value:
+     * 
+     *     @example
+     *
+     *     <inputtext id="nameinput" bgcolor="white" border="1px solid lightgrey" width="200" onchange="console.log('onchange', this.text)"></inputtext>
+     *
      */-->
       <!--/**
         * @cfg {Boolean} [multiline=false]

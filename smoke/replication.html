@@ -1,0 +1,114 @@
+<html>
+<head>
+  <title>rhes.es</title>
+  <script type="text/javascript" src="/lib/jquery-1.9.1.min.js"></script>
+  <script type="text/javascript" src="/lib/acorn.js"></script>
+  <script type="text/javascript" src="/lib/coffee-script.js"></script>
+  <script type="text/javascript" src="/lib/assert.js"></script>
+  <script type="text/javascript" src="/layout.js"></script>
+</head>
+<body>
+<view id="all" width="100%" height="100%" clip="true">
+  <dataset name="tempdata">
+    {
+      "coord": {
+        "lon": -122.42,
+        "lat": 37.78
+      },
+      "sys": {
+        "message": 0.0181,
+        "country": "United States of America",
+        "sunrise": 1398173030,
+        "sunset": 1398221535
+      },
+      "weather": [
+        {
+          "id": 721,
+          "main": "Haze",
+          "description": "haze",
+          "icon": "50n"
+        }
+      ],
+      "base": "cmc stations",
+      "main": {
+        "temp": 63.88,
+        "pressure": 1015,
+        "temp_min": 55,
+        "temp_max": 73.99,
+        "humidity": 78
+      },
+      "wind": {
+        "speed": 2.22,
+        "gust": 2.57,
+        "deg": 135
+      },
+      "clouds": {
+        "all": 88
+      },
+      "dt": 1398126124,
+      "id": 5391959,
+      "name": "San Francisco",
+      "cod": 200
+    }
+  </dataset>
+
+  <simplelayout axis="y"></simplelayout>
+
+  <!-- Test datapath binding through non-bound parents -->
+  <class name="weather" extends="boundedview">
+    <view>
+      <simplelayout></simplelayout>
+      <boundslayout></boundslayout>
+      <replicator datapath="/weather[0]/main" classname="text"></replicator>
+      <replicator datapath="/main/temp" classname="text"></replicator>
+      <replicator datapath="/wind/speed" classname="text"></replicator>
+      <replicator datapath="/wind/deg" classname="text"></replicator>
+    </view>
+  </class>
+  <replicator datapath="$tempdata" classname="weather"></replicator>
+
+  <class name="weather2" extends="boundedview">
+    <boundedview>
+      <simplelayout></simplelayout>
+      <replicator datapath="/weather[0]/main" classname="text"></replicator>
+      <replicator datapath="/main/temp" classname="text"></replicator>
+      <replicator datapath="/wind/speed" classname="text"></replicator>
+      <replicator datapath="/wind/deg" classname="text"></replicator>
+    </boundedview>
+  </class>
+  <replicator datapath="$tempdata" classname="weather2"></replicator>
+
+  <replicator datapath="$tempdata/main/temp" classname="inputtext"></replicator>
+
+  <handler event="oninit">
+    assert.equal(this.subviews.length, 3)
+    assert.equal(this.subnodes.length, 8)
+    assert.equal(this.subviews[2].text, '63.88')
+    this.subviews[2].setAttribute('text', 5)
+  </handler>
+
+
+</view>
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+</body>
+</html>

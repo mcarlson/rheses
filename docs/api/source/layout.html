@@ -77,7 +77,7 @@
   })();
 
   window.dr = (function() {
-    var Class, Eventable, Events, Idle, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, View, Window, capabilities, compiler, constraintScopes, dom, exports, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, showWarnings, warnings, _initConstraints;
+    var Class, Eventable, Events, Idle, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, View, Window, capabilities, compiler, constraintScopes, debug, dom, exports, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, querystring, showWarnings, warnings, _initConstraints;
     mixOf = function() {
       var Mixed, base, i, method, mixin, mixins, name, _i, _ref;
       base = arguments[0], mixins = 2 &lt;= arguments.length ? __slice.call(arguments, 1) : [];
@@ -373,7 +373,7 @@
         type = this.types[name];
         if (type) {
           if (!typemappings[type]) {
-            console.warn(&#39;invalid type &quot;&#39; + type + &#39;&quot; for attribute&#39;, name);
+            showWarnings([&quot;Invalid type &#39;&quot; + type + &quot;&#39; for attribute &#39;&quot; + name + &quot;&#39;, must be one of: &quot; + (Object.keys(typemappings).join(&#39;, &#39;))]);
             return;
           }
           value = typemappings[type](value);
@@ -445,22 +445,21 @@
       })(),
       touch: &#39;ontouchstart&#39; in window || &#39;onmsgesturechange&#39; in window
     };
+    querystring = window.location.search;
+    debug = querystring.indexOf(&#39;debug&#39;) &gt; 0;
     compiler = (function() {
-      var cacheKey, compile, compileCache, debug, exports, findBindings, querystring, scriptCache, strict, transform, usecache;
-      querystring = window.location.search;
-      usecache = querystring.indexOf(&#39;nocache&#39;) &gt; 0;
-      debug = querystring.indexOf(&#39;debug&#39;) &gt; 0;
+      var cacheData, cacheKey, compile, compileCache, exports, findBindings, nocache, scriptCache, strict, transform, usecache;
+      nocache = querystring.indexOf(&#39;nocache&#39;) &gt; 0;
       strict = querystring.indexOf(&#39;strict&#39;) &gt; 0;
-      if (!capabilities.localStorage) {
-        usecache = false;
+      if (!nocache) {
+        usecache = capabilities.localStorage;
       }
       cacheKey = &quot;dreemcache&quot;;
-      if (usecache &amp;&amp; cacheKey in localStorage) {
-        compileCache = JSON.parse(localStorage[cacheKey]);
+      cacheData = localStorage.getItem(cacheKey);
+      if (usecache &amp;&amp; cacheData &amp;&amp; cacheData.length &lt; 5000000) {
+        compileCache = JSON.parse(cacheData);
       } else {
-        if (!usecache) {
-          localStorage.clear;
-        }
+        localStorage.clear();
         compileCache = {
           bindings: {},
           script: {
@@ -471,7 +470,7 @@
           localStorage[cacheKey] = JSON.stringify(compileCache);
         }
       }
-      $(window).on(&#39;unload&#39;, function() {
+      window.addEventListener(&#39;unload&#39;, function() {
         if (usecache) {
           return localStorage[cacheKey] = JSON.stringify(compileCache);
         }
@@ -1600,7 +1599,19 @@
       return console.error(out);
     };
     dom = (function() {
-      var builtinTags, checkRequiredAttributes, exports, findAutoIncludes, flattenattributes, htmlDecode, initAllElements, initElement, initFromElement, processSpecialTags, requiredAttributes, sendInit, specialtags, writeCSS;
+      var builtinTags, checkRequiredAttributes, exports, findAutoIncludes, flattenattributes, getChildren, htmlDecode, initAllElements, initElement, initFromElement, processSpecialTags, requiredAttributes, sendInit, specialtags, writeCSS;
+      getChildren = function(el) {
+        var child, _i, _len, _ref, _ref1, _results;
+        _ref = el.childNodes;
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i &lt; _len; _i++) {
+          child = _ref[_i];
+          if (child.nodeType === 1 &amp;&amp; (_ref1 = child.localName, __indexOf.call(specialtags, _ref1) &gt;= 0)) {
+            _results.push(child);
+          }
+        }
+        return _results;
+      };
       flattenattributes = function(namednodemap) {
         var attributes, i, _i, _len;
         attributes = {};
@@ -1735,6 +1746,13 @@
               for (_l = 0, _len3 = args.length; _l &lt; _len3; _l++) {
                 xhr = args[_l];
                 jqel.prepend(xhr[0]);
+                if (debug) {
+                  jqel.contents().each(function() {
+                    if (this.nodeType === 8) {
+                      return $(this).remove();
+                    }
+                  });
+                }
               }
               scriptsloading = false;
               if (initONE) {
@@ -1840,7 +1858,7 @@
         return error;
       };
       initElement = function(el, parent) {
-        var attributes, child, children, doinit, event, eventname, isClass, isState, li, skiponinit, tagname, _i, _j, _len, _len1, _ref;
+        var attr, attributes, checkChildren, child, children, event, eventname, isClass, isState, li, skiponinit, tagname, _i, _j, _len, _len1;
         if (el.$init) {
           return;
         }
@@ -1850,7 +1868,7 @@
           return;
         }
         if (!tagname in dr) {
-          if (!(__indexOf.call(builtinTags, tagname) &gt;= 0 || __indexOf.call(specialtags, tagname) &gt;= 0)) {
+          if (__indexOf.call(builtinTags, tagname) &lt; 0) {
             console.warn(&#39;could not find class for tag&#39;, tagname, el);
           }
           return;
@@ -1873,6 +1891,11 @@
             el.removeAttribute(eventname);
           }
         }
+        for (attr in attributes) {
+          if (attr.indexOf(&#39;on&#39;) === 0) {
+            el.removeAttribute(attr);
+          }
+        }
         if (parent == null) {
           parent = el.parentNode;
         }
@@ -1885,19 +1908,13 @@
         if (!(isClass || isState)) {
           dom.processSpecialTags(el, attributes, attributes.type);
         }
-        attributes.$skiponinit = skiponinit = ((function() {
-          var _j, _len1, _ref, _results;
-          _ref = el.childNodes;
-          _results = [];
-          for (_j = 0, _len1 = _ref.length; _j &lt; _len1; _j++) {
-            child = _ref[_j];
-            if (child.nodeType === 1) {
-              _results.push(child);
-            }
-          }
-          return _results;
-        })()).length &gt; 0;
-        parent = new dr[tagname](el, attributes);
+        attributes.$skiponinit = skiponinit = getChildren(el).length &gt; 0;
+        if (typeof dr[tagname] === &#39;function&#39;) {
+          parent = new dr[tagname](el, attributes);
+        } else {
+          showWarnings([&quot;Unrecognized class &quot; + tagname + &quot; &quot; + el.outerHTML]);
+          return;
+        }
         if (!(isClass || isState)) {
           children = (function() {
             var _j, _len1, _ref, _results;
@@ -1913,19 +1930,26 @@
           })();
           for (_j = 0, _len1 = children.length; _j &lt; _len1; _j++) {
             child = children[_j];
-            if (_ref = child.localName, __indexOf.call(specialtags, _ref) &lt; 0) {
-              initElement(child, parent);
-            }
+            initElement(child, parent);
           }
-          doinit = function() {
-            parent.inited = true;
-            parent.sendEvent(&#39;init&#39;, parent);
-          };
           if (skiponinit &amp;&amp; !parent.inited) {
             if (children.length) {
-              idle(0, doinit);
+              checkChildren = function() {
+                var _k, _len2;
+                for (_k = 0, _len2 = children.length; _k &lt; _len2; _k++) {
+                  child = children[_k];
+                  if (!child.inited &amp;&amp; child.localName === !&#39;class&#39;) {
+                    setTimeout(checkChildren, 0);
+                    return;
+                  }
+                }
+                parent.inited = true;
+                parent.sendEvent(&#39;init&#39;, parent);
+              };
+              setTimeout(checkChildren, 0);
             } else {
-              doinit();
+              parent.inited = true;
+              parent.sendEvent(&#39;init&#39;, parent);
             }
           }
         }
@@ -1934,7 +1958,7 @@
         var style;
         style = document.createElement(&#39;style&#39;);
         style.type = &#39;text/css&#39;;
-        style.innerHTML = &#39;.sprite{ position: absolute; pointer-events: none; padding: 0; margin: 0;} .sprite-text{ width: auto; height; auto; white-space: nowrap;  padding: 0; margin: 0;} .hidden{ display: none; } .noselect{ -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;} method { display: none; } handler { display: none; } setter { display: none; } class { display:none } node { display:none } dataset { display:none } .warnings {font-size: 14px; background-color: pink; margin: 0;}&#39;;
+        style.innerHTML = &#39;.sprite{ position: absolute; pointer-events: none; padding: 0; margin: 0; box-sizing:border-box;} .sprite-text{ width: auto; height; auto; white-space: nowrap;  padding: 0; margin: 0;} .hidden{ display: none; } .noselect{ -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;} method { display: none; } handler { display: none; } setter { display: none; } class { display:none } node { display:none } dataset { display:none } .warnings {font-size: 14px; background-color: pink; margin: 0;}&#39;;
         return document.getElementsByTagName(&#39;head&#39;)[0].appendChild(style);
       };
       initAllElements = function(selector) {
@@ -1955,7 +1979,7 @@
         _ref = e.childNodes;
         for (_i = 0, _len = _ref.length; _i &lt; _len; _i++) {
           child = _ref[_i];
-          if ((child.nodeValue != null) &amp;&amp; child.nodeType === 3) {
+          if ((child.nodeValue != null) &amp;&amp; (child.nodeType === 3 || child.nodeType === 8)) {
             out += child.nodeValue;
           } else {
             return;
@@ -1974,18 +1998,7 @@
         if (classattributes.$handlers == null) {
           classattributes.$handlers = [];
         }
-        children = (function() {
-          var _i, _len, _ref, _ref1, _results;
-          _ref = el.childNodes;
-          _results = [];
-          for (_i = 0, _len = _ref.length; _i &lt; _len; _i++) {
-            child = _ref[_i];
-            if (child.nodeType === 1 &amp;&amp; (_ref1 = child.localName, __indexOf.call(specialtags, _ref1) &gt;= 0)) {
-              _results.push(child);
-            }
-          }
-          return _results;
-        })();
+        children = getChildren(el);
         for (_i = 0, _len = children.length; _i &lt; _len; _i++) {
           child = children[_i];
           attributes = flattenattributes(child.attributes);
@@ -1993,7 +2006,7 @@
           args = ((_ref = attributes.args) != null ? _ref : &#39;&#39;).split();
           script = htmlDecode(child.innerHTML);
           if (script == null) {
-            console.warn(&#39;Invalid&#39;, name, child);
+            console.warn(&#39;Invalid tag&#39;, name, child);
           }
           type = (_ref1 = attributes.type) != null ? _ref1 : defaulttype;
           name = attributes.name;
@@ -2308,7 +2321,7 @@
           console.warn(&#39;overwriting class&#39;, name);
         }
         dr[name] = function(instanceel, instanceattributes) {
-          var attributes, children, key, parent, propname, val, value, viewel, _j, _len1, _ref;
+          var attributes, checkChildren, children, key, parent, propname, sendInit, val, value, viewel, _j, _len1, _ref;
           attributes = clone(classattributes);
           for (key in instanceattributes) {
             value = instanceattributes[key];
@@ -2367,11 +2380,30 @@
               dom.initElement(child, parent);
             }
           }
-          parent._bindHandlers();
-          parent._bindHandlers(true);
-          if (!parent.inited) {
+          sendInit = function() {
+            if (parent.inited) {
+              return;
+            }
+            parent._bindHandlers();
+            parent._bindHandlers(true);
             parent.inited = true;
-            parent.sendEvent(&#39;init&#39;, parent);
+            return parent.sendEvent(&#39;init&#39;, parent);
+          };
+          if (children != null ? children.length : void 0) {
+            checkChildren = function() {
+              var _k, _len2;
+              for (_k = 0, _len2 = children.length; _k &lt; _len2; _k++) {
+                child = children[_k];
+                if (!child.inited &amp;&amp; child.localName === !&#39;class&#39;) {
+                  setTimeout(checkChildren, 10);
+                  return;
+                }
+              }
+              return sendInit();
+            };
+            setTimeout(checkChildren, 0);
+          } else {
+            sendInit();
           }
           return parent;
         };

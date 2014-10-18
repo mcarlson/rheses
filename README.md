@@ -53,6 +53,10 @@ running smoke tests
 The smoke tests docs are run with [http://phantomjs.org/](), so you'll need to install it. Next, run:
 
 	phantomjs ./bin/phantomrunner.js
+
+If you get RESOURCE ERROR messages, try specifying a different timeout argument. The smaller the number, the faster the tests will run:
+    
+    phantomjs ./bin/phantomrunner.js 100
     
 running the component tests
 --------------------------
@@ -92,6 +96,8 @@ If you are on Mac
 Then run this again:
 
     bundle install    
+
+Windows users: capybara-webkit can only install on a 32-bit version of Windows. See [https://github.com/thoughtbot/capybara-webkit#windows-support]()
 		
 <!-- The MIT License (MIT)
 

@@ -1,24 +1,32 @@
 var fs = require('fs');
 
-var path = "./bugs/";
-var list = fs.list(path);
+var timeout = 60;
+var path = "/smoke/";
+
+var system = require('system');
+var args = system.args;
+if (args[1]) {
+  timeout = parseInt(args[1]);
+}
+
+var list = fs.list("." + path);
 var files = [];
 for(var i = 0; i < list.length; i++){
   var file = list[i]
   if (file.indexOf('.html') > 0) {
-    files.push(file);
+    files.unshift(file);
   }       
 }
 
 var expected = fs.read('./bin/expected.txt')
-console.log(expected)
-out = []
+var out = []
 
 var page = require('webpage').create();
 
 var runTest = function (file, callback) {
   var tId;
   var updateTimer = function(ms) {
+    ms = ms || timeout
     if (tId) clearTimeout(tId) 
     tId = setTimeout(callback, ms);
   }
@@ -39,6 +47,7 @@ var runTest = function (file, callback) {
     page.evaluate(function () {
       window.addEventListener('dreeminit', function (e) { console.log('~~DONE~~') }, false);
     });
+    // add missing methods to phantom, specifically Function.bind(). See https://github.com/ariya/phantomjs/issues/10522
     page.injectJs('./lib/es5-shim.min.js');
   };
   page.onResourceError = function(resourceError) {
@@ -47,24 +56,26 @@ var runTest = function (file, callback) {
   };
   page.onConsoleMessage = function(msg, lineNum, sourceId) {
     if (msg === '~~DONE~~') {
-      updateTimer(40);
+      updateTimer(timeout);
       return;
     }
     out.push(msg)
+    console.log(msg)
   };
-  page.open('http://127.0.0.1:8080/bugs/' + file);
+  page.open('http://127.0.0.1:8080' + path + file);
 }
 
 var loadNext = function() {
   var file = files.pop();
   if (file) {
     // console.log('')
-    // console.log('loading file: ' + file)
+    console.log('loading file: ' + file)
     runTest(file, loadNext);
   } else {
     var output = out.join('\n')
     if (expected !== output) {
-      console.log('ERROR: unexpected output', expected, output);
+      console.log('ERROR: unexpected output, expected:');
+      console.log(expected)
       phantom.exit(1);
     } else {
       phantom.exit();
