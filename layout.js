@@ -1192,11 +1192,15 @@
         return this.setStyle('overflow', clip ? 'hidden' : '');
       };
 
-      Sprite.prototype.text = function(text) {
-        if (text != null) {
-          return this.el.innerHTML = text;
+      Sprite.prototype.text = function(textOrTextOnlyFlag) {
+        if ((textOrTextOnlyFlag != null) && typeof textOrTextOnlyFlag === "string") {
+          return this.el.innerHTML = textOrTextOnlyFlag;
         } else {
-          return this.el.innerHTML;
+          if ((textOrTextOnlyFlag != null) && typeof textOrTextOnlyFlag === "boolean" && textOrTextOnlyFlag === true) {
+            return this.el.innerText;
+          } else {
+            return this.el.innerHTML;
+          }
         }
       };
 
@@ -1640,7 +1644,8 @@
         }
         attributes.$types = types;
         InputText.__super__.constructor.apply(this, arguments);
-        text = attributes['text'] || this.sprite.text();
+        text = attributes['text'] || this.sprite.text(true);
+        this['text'] = attributes['text'] = text;
         this.sprite.text('');
         this.sprite.createInputtextElement(text, this.multiline, this.width, this.height);
         this.inputElem = this.sprite.el.getElementsByTagName('input')[0];

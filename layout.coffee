@@ -912,11 +912,14 @@ window.dr = do ->
       # console.log('setid', @id)
       @setStyle('overflow', if clip then 'hidden' else '')
 
-    text: (text) ->
-      if text?
-        @el.innerHTML = text
+    text: (textOrTextOnlyFlag) ->
+      if textOrTextOnlyFlag? && typeof textOrTextOnlyFlag == "string"
+        @el.innerHTML = textOrTextOnlyFlag
       else
-        @el.innerHTML
+        if textOrTextOnlyFlag? && typeof textOrTextOnlyFlag == "boolean" && textOrTextOnlyFlag == true
+          @el.innerText
+        else
+          @el.innerHTML
 
     value: (value) ->
       return unless @input
@@ -1248,7 +1251,8 @@ window.dr = do ->
 
       super
 
-      text = attributes['text'] || @sprite.text()
+      text = attributes['text'] || @sprite.text(true)
+      @['text'] = attributes['text'] = text
       @sprite.text('')
       @sprite.createInputtextElement(text, @multiline, @width, @height)
       @inputElem = @sprite.el.getElementsByTagName('input')[0]
