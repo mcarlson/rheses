@@ -60,7 +60,7 @@
   })();
 
   window.dr = (function() {
-    var Class, Eventable, Events, Idle, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, capabilities, compiler, constraintScopes, debug, dom, exports, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, querystring, showWarnings, warnings, _initConstraints;
+    var Class, Eventable, Events, Idle, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, View, Window, capabilities, compiler, constraintScopes, debug, dom, exports, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, querystring, showWarnings, warnings, _initConstraints;
     mixOf = function() {
       var Mixed, base, i, method, mixin, mixins, name, _i, _ref;
       base = arguments[0], mixins = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
@@ -1570,172 +1570,6 @@
       return View;
 
     })(Node);
-
-    /**
-     * @class dr.text
-     * @extends dr.view
-     * Text component that supports single and multi-line text.
-     *
-     * The text component can be fixed size, or sized to fit the size of the text.
-     *
-     *     @example
-     *     <text text="Hello World!" bgcolor="red"></text>
-     *
-     * Here is a multiline text
-     *
-     *     @example
-     *     <text multiline="true" text="Lorem ipsum dolor sit amet, consectetur adipiscing elit"></text>
-     *
-     * You might want to set the value of a text element based on the value of other attributes via a constraint. Here we set the value by concatenating three attributes together.
-     *
-     *     @example
-     *     <attribute name="firstName" type="string" value="Lumpy"></attribute>
-     *     <attribute name="middleName" type="string" value="Space"></attribute>
-     *     <attribute name="lastName" type="string" value="Princess"></attribute>
-     *
-     *     <text text="${this.parent.firstName + ' ' + this.parent.middleName + ' ' + this.parent.lastName}" color="hotpink"></text>
-     *
-     * Constraints can contain more complex JavaScript code
-     *
-     *     @example
-     *     <attribute name="firstName" type="string" value="Lumpy"></attribute>
-     *     <attribute name="middleName" type="string" value="Space"></attribute>
-     *     <attribute name="lastName" type="string" value="Princess"></attribute>
-     *
-     *     <text text="${this.parent.firstName.charAt(0) + ' ' + this.parent.middleName.charAt(0) + ' ' + this.parent.lastName.charAt(0)}" color="hotpink"></text>
-     *
-     * We can simplify this by using a method to return the concatenation and constraining the text value to the return value of the method
-     *
-     *     @example
-     *     <attribute name="firstName" type="string" value="Lumpy"></attribute>
-     *     <attribute name="middleName" type="string" value="Space"></attribute>
-     *     <attribute name="lastName" type="string" value="Princess"></attribute>
-     *
-     *     <method name="initials">
-     *       return this.firstName.charAt(0) + ' ' + this.middleName.charAt(0) + ' ' + this.lastName.charAt(0);
-     *     </method>
-     *
-     *     <text text="${this.parent.initials()}" color="hotpink"></text>
-     *
-     * You can override the format method to provide custom formatting for text elements. Here is a subclass of text, timetext, with the format method overridden to convert the text given in seconds into a formatted string.
-     *
-     *     @example
-     *     <class name="timetext" extends="text">
-     *       <method name="format" args="seconds">
-     *         var minutes = Math.floor(seconds / 60);
-     *         var seconds = Math.floor(seconds) - minutes * 60;
-     *         if (seconds < 10) {
-     *           seconds = '0' + seconds;
-     *         }
-     *         return minutes + ':' + seconds;
-     *       </method>
-     *     </class>
-     *
-     *     <timetext text="240"></timetext>
-     *
-     */
-    Text = (function(_super) {
-      __extends(Text, _super);
-
-
-      /**
-       * @cfg {Boolean} [multiline=false]
-       * Set to true to show multi-line text.
-       */
-
-
-      /**
-       * @cfg {Boolean} [resize=true]
-       * By default, the text component is sized to the size of the text.
-       * By setting resize=false, the component size is not modified
-       * when the text changes.
-       */
-
-
-      /**
-       * @cfg {String} [text=""]
-       * Component text.
-       */
-
-      function Text(el, attributes) {
-        var key, type, types, _ref;
-        if (attributes == null) {
-          attributes = {};
-        }
-        types = {
-          resize: 'boolean',
-          multiline: 'boolean'
-        };
-        if (!('resize' in attributes)) {
-          this['resize'] = true;
-        }
-        if (!('multiline' in attributes)) {
-          this['multiline'] = false;
-        }
-        _ref = attributes.$types;
-        for (key in _ref) {
-          type = _ref[key];
-          types[key] = type;
-        }
-        attributes.$types = types;
-        this.listenTo(this, 'multiline', this.updateSize);
-        this.listenTo(this, 'resize', this.updateSize);
-        this.listenTo(this, 'init', this.updateSize);
-        Text.__super__.constructor.apply(this, arguments);
-        this.sprite.text(this.format(attributes.text));
-      }
-
-
-      /**
-       * @method format
-       * Format the text to be displayed. The default behavior is to
-       * return the text intact. Override to change formatting.
-       * @param {String} str The current value of the text component.
-       * @return {String} The formated string to display in the component.
-       *
-       */
-
-      Text.prototype.format = function(str) {
-        return str;
-      };
-
-      Text.prototype.updateSize = function() {
-        var size;
-        if (!this.inited) {
-          return;
-        }
-        size = this.sprite.measureTextSize(this.multiline, this.width, this.resize);
-        if (this.resize) {
-          this.setAttribute('width', size.width, true);
-        }
-        return this.setAttribute('height', size.height, true);
-      };
-
-      Text.prototype.set_data = function(d) {
-        return this.setAttribute('text', d);
-      };
-
-      Text.prototype.set_text = function(text) {
-        if (text !== this.text) {
-          this.sprite.text(this.format(text));
-          return this.updateSize();
-        }
-      };
-
-      Text.prototype.setAttribute = function(name, value, skipstyle) {
-        var size;
-        if (name === "width" && this.resize) {
-          size = this.sprite.measureTextSize(this.multiline, this.width, this.resize);
-          if (size.width !== value) {
-            return;
-          }
-        }
-        return Text.__super__.setAttribute.apply(this, arguments);
-      };
-
-      return Text;
-
-    })(View);
     warnings = [];
     showWarnings = function(data) {
       var out, pre;
@@ -2205,32 +2039,32 @@
         processSpecialTags: processSpecialTags,
         writeCSS: writeCSS
       };
-
-      /**
-         * @class dr.state
-         * @extends dr.node
-         * Allows a group of attributes, methods, handlers and instances to be removed and applied as a group.
-         * 
-         * Like views and nodes, states can contain methods, handlers, setters, constraints, attributes and other view, node or class instances.
-         *
-         * Currently, states must end with the string 'state' in their name to work properly.
-         *
-         *     @example
-         *     <simplelayout axis="y"></simplelayout>
-         *     <view id="square" width="100" height="100" bgcolor="lightgrey">
-         *       <attribute name="ispink" type="boolean" value="false"></attribute>
-         *       <state name="pinkstate" applied="${this.parent.ispink}">
-         *         <attribute name="bgcolor" value="pink" type="string"></attribute>
-         *       </state>
-         *     </view>
-         *     <labelbutton text="pinkify!">
-         *       <handler event="onclick">
-         *         square.setAttribute('ispink', true);
-         *       </handler>
-         *     </labelbutton>
-         *
-       */
     })();
+
+    /**
+     * @class dr.state
+     * @extends dr.node
+     * Allows a group of attributes, methods, handlers and instances to be removed and applied as a group.
+     * 
+     * Like views and nodes, states can contain methods, handlers, setters, constraints, attributes and other view, node or class instances.
+     *
+     * Currently, states must end with the string 'state' in their name to work properly.
+     *
+     *     @example
+     *     <simplelayout axis="y"></simplelayout>
+     *     <view id="square" width="100" height="100" bgcolor="lightgrey">
+     *       <attribute name="ispink" type="boolean" value="false"></attribute>
+     *       <state name="pinkstate" applied="${this.parent.ispink}">
+     *         <attribute name="bgcolor" value="pink" type="string"></attribute>
+     *       </state>
+     *     </view>
+     *     <labelbutton text="pinkify!">
+     *       <handler event="onclick">
+     *         square.setAttribute('ispink', true);
+     *       </handler>
+     *     </labelbutton>
+     *
+     */
     State = (function(_super) {
       __extends(State, _super);
 
@@ -3198,7 +3032,6 @@
      */
     return exports = {
       view: View,
-      text: Text,
       "class": Class,
       node: Node,
       mouse: new Mouse(),
