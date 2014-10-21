@@ -110,6 +110,7 @@ SOFTWARE. -->
         acediv.style.width = this.width;
         acediv.style.height = this.height;
         this.sprite.el.appendChild(acediv);
+        acediv.$init = true;
 
         // Keep track of original div in this.acediv, and editor in this.editor
         this.acediv = acediv;
