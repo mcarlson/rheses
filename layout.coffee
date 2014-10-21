@@ -237,6 +237,8 @@ window.dr = do ->
 
       # console.log 'type', name, type, value, typemappings[type], @
         value = typemappings[type](value)
+#      else
+#        console.warn("No known type for attribute", name, @)
 
       @["set_#{name}"]?(value)
       @[name] = value
@@ -258,7 +260,7 @@ window.dr = do ->
 
       # send event
       if @events?[name]
-        @trigger(name, value, @) 
+        @trigger(name, value, @)
       # else
         # console.log 'no event named', name, @events, @
       @
@@ -519,10 +521,11 @@ window.dr = do ->
       unless deferbindings
         @_bindHandlers()
 
+
       # Bind to event expressions and set attributes
       for name, value of attributes
         @bindAttribute(name, value, attributes.$tagname) unless name in lateattributes
-      constraintScopes.push(@) if @constraints 
+      constraintScopes.push(@) if @constraints
 
       for name in lateattributes
         @setAttribute(name, attributes[name]) if attributes[name]
@@ -545,7 +548,7 @@ window.dr = do ->
       unless skiponinit
         unless @inited
           @inited = true
-          @sendEvent('init', @) 
+          @sendEvent('init', @)
 
     installMethods: (methods, tagname, scope=@, callbackscope=@) ->
       # console.log('installing methods', methods, tagname, scope, callbackscope)
@@ -974,7 +977,6 @@ window.dr = do ->
       # console.log('setid', @id)
       @el.setAttribute('class', classname)
 
-
   # internal attributes ignored by class declarations and view styles
   ignoredAttributes = {parent: true, id: true, name: true, extends: true, type: true, scriptincludes: true}
   ###*
@@ -1136,6 +1138,7 @@ window.dr = do ->
         types[key] = type
       attributes.$types = types
 
+      #FIXME: should be 'visible' of attributes?
       attributes.visible = true unless 'visible' in attributes
 
       if (el instanceof View)
@@ -1199,6 +1202,132 @@ window.dr = do ->
     set_class: (classname) ->
       @sprite.set_class(classname)
 
+  ###*
+  # @class dr.text
+  # @extends dr.view
+  # Text component that supports single and multi-line text.
+  #
+  # The text component can be fixed size, or sized to fit the size of the text.
+  #
+  #     @example
+  #     <text text="Hello World!" bgcolor="red"></text>
+  #
+  # Here is a multiline text
+  #
+  #     @example
+  #     <text multiline="true" text="Lorem ipsum dolor sit amet, consectetur adipiscing elit"></text>
+  #
+  # You might want to set the value of a text element based on the value of other attributes via a constraint. Here we set the value by concatenating three attributes together.
+  #
+  #     @example
+  #     <attribute name="firstName" type="string" value="Lumpy"></attribute>
+  #     <attribute name="middleName" type="string" value="Space"></attribute>
+  #     <attribute name="lastName" type="string" value="Princess"></attribute>
+  #
+  #     <text text="${this.parent.firstName + ' ' + this.parent.middleName + ' ' + this.parent.lastName}" color="hotpink"></text>
+  #
+  # Constraints can contain more complex JavaScript code
+  #
+  #     @example
+  #     <attribute name="firstName" type="string" value="Lumpy"></attribute>
+  #     <attribute name="middleName" type="string" value="Space"></attribute>
+  #     <attribute name="lastName" type="string" value="Princess"></attribute>
+  #
+  #     <text text="${this.parent.firstName.charAt(0) + ' ' + this.parent.middleName.charAt(0) + ' ' + this.parent.lastName.charAt(0)}" color="hotpink"></text>
+  #
+  # We can simplify this by using a method to return the concatenation and constraining the text value to the return value of the method
+  #
+  #     @example
+  #     <attribute name="firstName" type="string" value="Lumpy"></attribute>
+  #     <attribute name="middleName" type="string" value="Space"></attribute>
+  #     <attribute name="lastName" type="string" value="Princess"></attribute>
+  #
+  #     <method name="initials">
+  #       return this.firstName.charAt(0) + ' ' + this.middleName.charAt(0) + ' ' + this.lastName.charAt(0);
+  #     </method>
+  #
+  #     <text text="${this.parent.initials()}" color="hotpink"></text>
+  #
+  # You can override the format method to provide custom formatting for text elements. Here is a subclass of text, timetext, with the format method overridden to convert the text given in seconds into a formatted string.
+  #
+  #     @example
+  #     <class name="timetext" extends="text">
+  #       <method name="format" args="seconds">
+  #         var minutes = Math.floor(seconds / 60);
+  #         var seconds = Math.floor(seconds) - minutes * 60;
+  #         if (seconds < 10) {
+  #           seconds = '0' + seconds;
+  #         }
+  #         return minutes + ':' + seconds;
+  #       </method>
+  #     </class>
+  #
+  #     <timetext text="240"></timetext>
+  #
+  ###
+  class Text extends View
+    ###*
+    # @cfg {Boolean} [multiline=false]
+    # Set to true to show multi-line text.
+    ###
+    ###*
+    # @cfg {Boolean} [resize=true]
+    # By default, the text component is sized to the size of the text.
+    # By setting resize=false, the component size is not modified
+    # when the text changes.
+    ###
+    ###*
+    # @cfg {String} [text=""]
+    # Component text.
+    ###
+    constructor: (el, attributes = {}) ->
+      types = {resize: 'boolean', multiline: 'boolean'}
+      @['resize'] = true unless 'resize' of attributes
+      @['multiline'] = false unless 'multiline' of attributes
+
+      for key, type of attributes.$types
+        types[key] = type
+      attributes.$types = types
+
+      @listenTo(@, 'multiline', @updateSize)
+      @listenTo(@, 'resize', @updateSize)
+      @listenTo(@, 'init', @updateSize)
+
+      super
+
+      @sprite.text(@format(attributes.text))
+
+    ###*
+    # @method format
+    # Format the text to be displayed. The default behavior is to
+    # return the text intact. Override to change formatting.
+    # @param {String} str The current value of the text component.
+    # @return {String} The formated string to display in the component.
+    #
+    ###
+    format: (str) ->
+      return str
+
+    updateSize: () ->
+      return unless @inited
+      size = @sprite.measureTextSize(@multiline, @width, @resize)
+      @setAttribute 'width', size.width, true if @resize
+      @setAttribute 'height', size.height, true
+
+    set_data: (d) ->
+      @setAttribute('text', d)
+
+    set_text: (text) ->
+      if (text != @text)
+        @sprite.text(@format(text))
+        @updateSize()
+
+    setAttribute: (name, value, skipstyle) ->
+      if name == "width" && @resize
+        size = @sprite.measureTextSize(@multiline, @width, @resize)
+        return unless size.width == value
+
+      super
 
   warnings = []
   showWarnings = (data) ->
@@ -1212,7 +1341,7 @@ window.dr = do ->
 
 
   dom = do ->
-    getChildren = (el) -> 
+    getChildren = (el) ->
       child for child in el.childNodes when child.nodeType == 1 and child.localName in specialtags
 
     # flatten element.attributes to a hash
@@ -1294,7 +1423,7 @@ window.dr = do ->
         filerequests.push(prom)
 
       loadIncludes = (callback) ->
-        # load includes 
+        # load includes
         for jel in jqel.find('include')
           includerequests.push($.get(jel.attributes.href.value))
 
@@ -1316,7 +1445,7 @@ window.dr = do ->
             name = el.localName
             if name == 'class'
               if el.attributes.extends
-                extendz = el.attributes.extends.value 
+                extendz = el.attributes.extends.value
                 # load load class extends
                 loadLZX(extendz, el)
                 # initONE = true if extendz = 'state'
@@ -1332,13 +1461,13 @@ window.dr = do ->
             else
               # load class instance for tag
               loadLZX(name, el)
-     
+
           # console.log(filerequests, fileloaded, inlineclasses)
           # wait for all dre files to finish loading
           $.when.apply($, filerequests).done((args...) ->
             args = [args] if (filerequests.length == 1)
             for xhr in args
-              # console.log 'inserting html', args, xhr[0] 
+              # console.log 'inserting html', args, xhr[0]
               jqel.prepend(xhr[0])
               if debug
                 jqel.contents().each(() ->
@@ -1384,7 +1513,7 @@ window.dr = do ->
         # console.log(url, data)
         prom = $.ajax({
           # type: 'POST'
-          url: url, 
+          url: url,
           data: {url: window.location.pathname},
           # processData: false
           success: (data) ->
@@ -1426,7 +1555,7 @@ window.dr = do ->
 
       tagname = el.localName
       return if tagname in specialtags
-      
+
       if not tagname of dr
         console.warn 'could not find class for tag', tagname, el unless tagname in builtinTags
         return
@@ -1501,7 +1630,7 @@ window.dr = do ->
       return
 
 
-    # write default CSS to the DOM 
+    # write default CSS to the DOM
     writeCSS = ->
       style = document.createElement('style')
       style.type = 'text/css'
@@ -1522,7 +1651,7 @@ window.dr = do ->
       out = ''
       for child in e.childNodes
         if child.nodeValue? and (child.nodeType == 3 or child.nodeType == 8)
-          out += child.nodeValue 
+          out += child.nodeValue
           # console.log('child', child.nodeType, child)
           # console.log('out', out)
         else
@@ -1530,7 +1659,7 @@ window.dr = do ->
           return
       out
 
-    # process handlers, methods, setters and attributes 
+    # process handlers, methods, setters and attributes
     processSpecialTags = (el, classattributes, defaulttype) ->
       classattributes.$types ?= {}
       classattributes.$methods ?= {}
@@ -1553,7 +1682,7 @@ window.dr = do ->
         switch tagname
           when 'handler'
             # console.log 'adding handler', name, script, child.innerHTML, attributes
-            handler = 
+            handler =
               name: name
               ev: attributes.event
               script: compiler.transform(script, type)
@@ -1585,7 +1714,7 @@ window.dr = do ->
       processSpecialTags: processSpecialTags
       writeCSS: writeCSS
 
-  ###*
+    ###*
   # @class dr.state
   # @extends dr.node
   # Allows a group of attributes, methods, handlers and instances to be removed and applied as a group.
@@ -2426,6 +2555,7 @@ window.dr = do ->
   ###
   exports = 
     view: View
+    text: Text
     class: Class
     node: Node
     mouse: new Mouse()

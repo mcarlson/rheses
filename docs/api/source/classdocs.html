@@ -235,150 +235,6 @@
      *     &lt;/view&gt;
      *
      */
-<span id='dr-datapath'>/**
-</span>     * @class dr.datapath
-     * @extends dr.node
-     * Handles datapath evaluation, filtering and sorting.
-     *
-     * Datapaths can be used to look up {@link #datapath datapath} expressions to values in JSON data in a dr.dataset. This example looks up the color of the bicycle in the dr.dataset named bikeshop:
-     *
-     *     @example
-     *     &lt;dataset name=&quot;bikeshop&quot;&gt;
-     *      {
-     *        &quot;bicycle&quot;: {
-     *          &quot;color&quot;: &quot;red&quot;,
-     *          &quot;price&quot;: 19.95
-     *        }
-     *      }
-     *     &lt;/dataset&gt;
-     *     &lt;datapath datapath=&quot;$bikeshop/bicycle/color&quot; ondata=&quot;console.log(&#39;data&#39;, this.data)&quot;&gt;&lt;/datapath&gt;
-     *
-     * Matching more multiple bicycles:
-     *
-     *     @example
-     *     &lt;dataset name=&quot;bikeshop&quot;&gt;
-     *      {
-     *        &quot;bicycle&quot;: [
-     *          {
-     *           &quot;color&quot;: &quot;red&quot;,
-     *           &quot;price&quot;: 19.95
-     *          },
-     *          {
-     *           &quot;color&quot;: &quot;green&quot;,
-     *           &quot;price&quot;: 29.95
-     *          },
-     *          {
-     *           &quot;color&quot;: &quot;blue&quot;,
-     *           &quot;price&quot;: 59.95
-     *          }
-     *        ]
-     *      }
-     *     &lt;/dataset&gt;
-     *     &lt;datapath datapath=&quot;$bikeshop/bicycle[*]/color&quot; ondata=&quot;console.log(&#39;data&#39;, this.data)&quot;&gt;&lt;/datapath&gt;
-     *
-     * It&#39;s possible to select a single item on from the array using an array index. This selects the second item:
-     *
-     *     @example
-     *     &lt;dataset name=&quot;bikeshop&quot;&gt;
-     *      {
-     *        &quot;bicycle&quot;: [
-     *          {
-     *           &quot;color&quot;: &quot;red&quot;,
-     *           &quot;price&quot;: 19.95
-     *          },
-     *          {
-     *           &quot;color&quot;: &quot;green&quot;,
-     *           &quot;price&quot;: 29.95
-     *          },
-     *          {
-     *           &quot;color&quot;: &quot;blue&quot;,
-     *           &quot;price&quot;: 59.95
-     *          }
-     *        ]
-     *      }
-     *     &lt;/dataset&gt;
-     *     &lt;datapath classname=&quot;text&quot; datapath=&quot;$bikeshop/bicycle[1]/color&quot; ondata=&quot;console.log(&#39;data&#39;, this.data)&quot;&gt;&lt;/datapath&gt;
-     *
-     * It&#39;s also possible to replicate a range of items in the array with the [start,end,stepsize] operator. This replicates every other item:
-     *
-     *     @example
-     *     &lt;dataset name=&quot;bikeshop&quot;&gt;
-     *      {
-     *        &quot;bicycle&quot;: [
-     *          {
-     *           &quot;color&quot;: &quot;red&quot;,
-     *           &quot;price&quot;: 19.95
-     *          },
-     *          {
-     *           &quot;color&quot;: &quot;green&quot;,
-     *           &quot;price&quot;: 29.95
-     *          },
-     *          {
-     *           &quot;color&quot;: &quot;blue&quot;,
-     *           &quot;price&quot;: 59.95
-     *          }
-     *        ]
-     *      }
-     *     &lt;/dataset&gt;
-     *     &lt;datapath classname=&quot;text&quot; datapath=&quot;$bikeshop/bicycle[0,3,2]/color&quot; ondata=&quot;console.log(&#39;data&#39;, this.data)&quot;&gt;&lt;/datapath&gt;
-     *
-     * Sometimes it&#39;s necessary to have complete control and flexibility over filtering and transforming results. Adding a [@] operator to the end of your datapath causes {@link #filterfunction filterfunction} to be called for each result. This example shows bike colors for bikes with a price greater than 20, in reverse order:
-     *
-     *     @example
-     *     &lt;dataset name=&quot;bikeshop&quot;&gt;
-     *      {
-     *        &quot;bicycle&quot;: [
-     *          {
-     *           &quot;color&quot;: &quot;red&quot;,
-     *           &quot;price&quot;: 19.95
-     *          },
-     *          {
-     *           &quot;color&quot;: &quot;green&quot;,
-     *           &quot;price&quot;: 29.95
-     *          },
-     *          {
-     *           &quot;color&quot;: &quot;blue&quot;,
-     *           &quot;price&quot;: 59.95
-     *          }
-     *        ]
-     *      }
-     *     &lt;/dataset&gt;
-     *     &lt;datapath classname=&quot;text&quot; datapath=&quot;$bikeshop/bicycle[*][@]&quot; ondata=&quot;console.log(&#39;data&#39;, this.data)&quot;&gt;
-     *       &lt;method name=&quot;filterfunction&quot; args=&quot;obj, accum&quot;&gt;
-     *         // add the color to the beginning of the results if the price is greater than 20
-     *         if (obj.price &gt; 20)
-     *           accum.unshift(obj.color);
-     *         return accum
-     *       &lt;/method&gt;
-     *     &lt;/datapath&gt;
-     *
-     * See [https://github.com/flitbit/json-path](https://github.com/flitbit/json-path) for more details on datapath expressions.
-     */
-<span id='dr-datapath-cfg-data'>/**
-</span>        * @cfg {Array} [data=[]]
-        * The list of results, updated when {@link #datapath datapath} is set.
-        */
-<span id='dr-datapath-cfg-datapath'>/**
-</span>        * @cfg {String} datapath
-        * The datapath expression to be replicated.
-        * See [https://github.com/flitbit/json-path](https://github.com/flitbit/json-path) for details.
-        */
-<span id='dr-datapath-cfg-sortfield'>/**
-</span>        * @cfg {String} [sortfield=&quot;&quot;]
-        * The field in the data to use for sorting. Only sort then this 
-        */
-<span id='dr-datapath-cfg-sortasc'>/**
-</span>        * @cfg {Boolean} [sortasc=true]
-        * If true, sort ascending.
-        */
-<span id='dr-datapath-method-filterfunction'>/**
-</span>        * @method filterfunction
-        * @abstract
-        * Called to filter data.
-        * @param obj An individual item to be processed.
-        * @param {Object[]} accum The array of items that have been accumulated. To keep a processed item, it must be added to the accum array.
-        * @returns {Object[]} The accum array. Must be returned otherwise results will be lost.
-        */
 <span id='dr-dataset'>/**
 </span>     * @class dr.dataset
      * @extends dr.node
@@ -921,8 +777,8 @@
      *     @example
      *     &lt;stats&gt;&lt;/stats&gt;
      */
-<span id='dr-text'>/**
-</span>     * @class dr.text
+<span id='dr-textold'>/**
+</span>     * @class dr.textold
      * @extends dr.view
      * Text component that supports single and multi-line text. The text
      * component can be fixed size, or sized to fit the size of the text.
@@ -984,21 +840,21 @@
      *
      *
      */
-<span id='dr-text-cfg-multiline'>/**
+<span id='dr-textold-cfg-multiline'>/**
 </span>        * @cfg {Boolean} [multiline=false]
         * Set to true to show multi-line text.
         */
-<span id='dr-text-cfg-resize'>/**
+<span id='dr-textold-cfg-resize'>/**
 </span>        * @cfg {Boolean} [resize=true]
         * By default, the text component is sized to the size of the text.
         * By setting resize=false, the component size is not modified
         * when the text changes.
         */
-<span id='dr-text-cfg-text'>/**
+<span id='dr-textold-cfg-text'>/**
 </span>        * @cfg {String} [text=&quot;&quot;]
         * Component text.
         */
-<span id='dr-text-method-format'>/**
+<span id='dr-textold-method-format'>/**
 </span>        * @method format
         * Format the text to be displayed. The default behavior is to 
         * return the text intact. Override to change formatting.
