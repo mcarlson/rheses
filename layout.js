@@ -1155,6 +1155,7 @@
         first = touches[0];
         switch (event.type) {
           case 'touchstart':
+            this.sendMouseEvent('mouseover', first);
             this.sendMouseEvent('mousedown', first);
             return lastTouchDown = first.target;
           case 'touchmove':

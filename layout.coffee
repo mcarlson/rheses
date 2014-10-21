@@ -876,6 +876,7 @@ window.dr = do ->
 
       switch event.type
         when 'touchstart'
+          @sendMouseEvent('mouseover', first)
           @sendMouseEvent('mousedown', first)
           lastTouchDown = first.target
         when 'touchmove'
