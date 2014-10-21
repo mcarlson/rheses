@@ -1206,7 +1206,7 @@ window.dr = do ->
     out = data.join('\n')
     pre = document.createElement('pre')
     pre.setAttribute('class', 'warnings');
-    pre.innerText = out
+    pre.textContent = out
     document.body.insertBefore(pre, document.body.firstChild);
     console.error out
 
