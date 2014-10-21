@@ -1181,6 +1181,22 @@ window.dr = do ->
     # @attribute {String} bgcolor
     # Sets this view's background color
     ###
+    ###*
+    # @attribute {String} bordercolor
+    # Sets this view's border color
+    ###
+    ###*
+    # @attribute {String} borderstyle
+    # Sets this view's border style (can be any css border-style value)
+    ###
+    ###*
+    # @attribute {Number} border
+    # Sets this view's border width
+    ###
+    ###*
+    # @attribute {Number} padding
+    # Sets this view's padding
+    ###
 
     ###*
     # @event onclick
@@ -1232,18 +1248,34 @@ window.dr = do ->
       # @property {Boolean} ignorelayout
       # If true, layouts should ignore this view
       ###
+
       @subviews = []
-      types = {x: 'number', y: 'number', width: 'number', height: 'number', clickable: 'boolean', clip: 'boolean', scrollable: 'boolean', visible: 'boolean'}
-      defaults = {x:0, y:0, width:0, height:0, clickable:false, clip:false, scrollable:false, visible:true}
+      types = {x: 'number', y: 'number', width: 'number', height: 'number', clickable: 'boolean', clip: 'boolean', scrollable: 'boolean', visible: 'boolean', 'border': 'number', padding: 'number'}
+      defaults = {x:0, y:0, width:0, height:0, clickable:false, clip:false, scrollable:false, visible:true, bordercolor:'transparent', borderstyle:'solid', border:0, padding:0}
 
       for key, type of attributes.$types
         types[key] = type
       attributes.$types = types
 
-      attributes['width'] = @_sizeFromPercent(attributes['width'], "width") if @_isPercent(attributes['width'])
-      attributes['height'] = @_sizeFromPercent(attributes['height'], "height") if @_isPercent(attributes['height'])
-
       @_setDefaults(attributes, defaults)
+
+      attributes['width'] = @_sizeConstraint(attributes['width'], "width") if @_isPercent(attributes['width'])
+      attributes['height'] = @_sizeConstraint(attributes['height'], "height") if @_isPercent(attributes['height'])
+      
+      if (attributes['parent'].padding) 
+        attributes['x'] += attributes['parent'].padding
+        attributes['y'] += attributes['parent'].padding
+        
+      attributes['border-width'] = attributes['border']
+      delete attributes['border'] #so it doesn't get passed through to the sprite
+      
+#      so these do get passed through to the sprite with the correct css names
+      attributes['border-color'] = attributes['bordercolor']
+      attributes['border-style'] = attributes['borderstyle']
+      attributes['padding-left'] = attributes['padding'] if 'padding-left' of attributes
+      attributes['padding-right'] = attributes['padding'] if 'padding-right' of attributes
+      attributes['padding-top'] = attributes['padding'] if 'padding-top' of attributes
+      attributes['padding-bottom'] = attributes['padding'] if 'padding-bottom' of attributes
 
       if (el instanceof View)
         el = el.sprite
@@ -1256,8 +1288,11 @@ window.dr = do ->
     _isPercent: (value) ->
       typeof value == 'string' && value.indexOf('%') > -1;
 
-    _sizeFromPercent: (percent, dim) ->
-      return "${this.parent.#{dim} ? this.parent.#{dim}*#{parseFloat(percent)/100.0} : $(this.parent).#{dim}()}"
+    innerSize: (percent, dim) ->
+      return (@[dim] * parseInt(percent)/100.0) - @['border-width']*2 - @padding*2
+
+    _sizeConstraint: (percent, dim) ->
+      return "${this.parent.innerSize ? this.parent.innerSize('#{percent}', '#{dim}') : $(this.parent).#{dim}()}"
 
     _createSprite: (el, attributes) ->
       @sprite = new Sprite(el, @, attributes.$tagname)
@@ -1375,11 +1410,11 @@ window.dr = do ->
 
       @listenTo(@, 'width',
         (w) ->
-          @sprite.setStyle('width', w, true, @sprite.input);
+          @sprite.setStyle('width', @innerSize('100%', 'width'), true, @sprite.input);
       )
       @listenTo(@, 'height',
         (h) ->
-          @sprite.setStyle('height', h, true, @sprite.input);
+          @sprite.setStyle('height', @innerSize('100%', 'height'), true, @sprite.input);
       )
 
     _createSprite: (el, attributes) ->
@@ -1387,7 +1422,11 @@ window.dr = do ->
       attributes.text ||= @sprite.getText(true)
       @sprite.setText('')
       multiline = @_coerceType('multiline', attributes.multiline, 'boolean')
-      @sprite.createInputtextElement('', multiline, attributes.width, attributes.height)
+      p = attributes['padding'] || 0
+      b = attributes['border-width'] || 0
+      w = attributes.width - p*2 - b*2
+      h = attributes.height - p*2 - b*2
+      @sprite.createInputtextElement('', multiline, w, h)
 
     _handleChange: () ->
       return unless @replicator
