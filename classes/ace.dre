@@ -105,8 +105,8 @@ SOFTWARE. -->
 
       <handler event="oninit">
         // Get initial text (match behavior of inputtext)
-        text = this.text || this.sprite.text();
-        this.sprite.text('');
+        text = this.text || this.sprite.getText(false);
+        this.sprite.setText('');
 
         // I couldn't get jquery syntax to work so directly modify the DOM.
         var acediv = document.createElement("DIV");

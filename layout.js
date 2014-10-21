@@ -1192,15 +1192,17 @@
         return this.setStyle('overflow', clip ? 'hidden' : '');
       };
 
-      Sprite.prototype.text = function(textOrTextOnlyFlag) {
-        if ((textOrTextOnlyFlag != null) && typeof textOrTextOnlyFlag === "string") {
-          return this.el.innerHTML = textOrTextOnlyFlag;
+      Sprite.prototype.setText = function(txt) {
+        if (txt != null) {
+          return this.el.innerHTML = txt;
+        }
+      };
+
+      Sprite.prototype.getText = function(textOnly) {
+        if (textOnly) {
+          return this.el.innerText;
         } else {
-          if ((textOrTextOnlyFlag != null) && typeof textOrTextOnlyFlag === "boolean" && textOrTextOnlyFlag === true) {
-            return this.el.innerText;
-          } else {
-            return this.el.innerHTML;
-          }
+          return this.el.innerHTML;
         }
       };
 
@@ -1621,7 +1623,7 @@
        */
 
       function InputText(el, attributes) {
-        var key, text, type, types, _ref;
+        var key, type, types, _ref;
         if (attributes == null) {
           attributes = {};
         }
@@ -1644,10 +1646,9 @@
         }
         attributes.$types = types;
         InputText.__super__.constructor.apply(this, arguments);
-        text = attributes['text'] || this.sprite.text(true);
-        this['text'] = attributes['text'] = text;
-        this.sprite.text('');
-        this.sprite.createInputtextElement(text, this.multiline, this.width, this.height);
+        this.text = attributes['text'] || this.sprite.getText(true);
+        this.sprite.setText('');
+        this.sprite.createInputtextElement(this.text, this.multiline, this.width, this.height);
         this.inputElem = this.sprite.el.getElementsByTagName('input')[0];
         if (!this.height) {
           this.height = this._heightFromInputHeight();
