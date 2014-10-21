@@ -68,10 +68,10 @@
      *       </handler>
      *     </art>
      *
-     * By default, the SVG's aspect ratio is preserved. Set the preserveaspectratio attribute to "none" to change this behavior
+     * By default, the SVG's aspect ratio is preserved. Set the stretches attribute to true to change this behavior.
      *
      *     @example
-     *     <art width="200" height="100" src="/images/cursorshapes.svg" path="0" fill="coral" preserveaspectratio="none">
+     *     <art width="200" height="100" src="/images/cursorshapes.svg" path="0" fill="coral" stretches="true">
      *       <handler event="onclick">
      *         this.setAttribute('path', this.path ^ 1);
      *         this.animate({width: (this.width == 200 ? 100 : 200)});
@@ -84,16 +84,16 @@
         * Set to true if the svg contents is found inline, as a comment
         */
 /**
+        * @attribute {Boolean} stretches [stretches=false]
+        * Set to true to stretch the svg to fill the view.
+        */
+/**
         * @attribute {String} src
         * The svg contents to load
         */
 /**
         * @attribute {String|Number} path
         * The svg path element to display. Can either be the name of the &lt;g&gt; element containing the path or a 0-based index.
-        */
-/**
-        * @attribute {String} preserveaspectratio
-        * By default, an SVG's aspect ratio is preserved. Set to "none" to stretch to fill the  container
         */
 /**
         * @attribute {Number} [animationspeed=400]
