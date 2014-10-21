@@ -1769,7 +1769,7 @@
               }
               for (_l = 0, _len3 = args.length; _l < _len3; _l++) {
                 xhr = args[_l];
-                console.error('failed to load', xhr.url, 'for element', xhr.el);
+                showWarnings(["failed to load " + xhr.url + " for element " + xhr.el.outerHTML]);
               }
             });
           });

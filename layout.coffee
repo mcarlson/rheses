@@ -1373,7 +1373,7 @@ window.dr = do ->
           ).fail((args...) ->
             args = [args] if (args.length == 1)
             for xhr in args
-              console.error('failed to load', xhr.url, 'for element', xhr.el)
+              showWarnings(["failed to load #{xhr.url} for element #{xhr.el.outerHTML}"])
             return
           )
         )
