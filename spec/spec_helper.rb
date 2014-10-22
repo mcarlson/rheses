@@ -1,7 +1,7 @@
 require 'capybara'
 require 'capybara/rspec'
 require 'capybara/poltergeist'
-require 'capybara/webkit'
+# require 'capybara/webkit'
 
 #https://github.com/jnicklas/capybara
 
