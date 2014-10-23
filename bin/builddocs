@@ -1,0 +1,5 @@
+git reset ./docs/api/
+rm -rf docs/api/
+coffee -mo ./ -c *.coffee
+node ./bin/finddoccomments.js > ./classdocs.js
+jsduck layout.js classdocs.js --output=./docs/api/ --eg-iframe=jsduck_iframe.html --title="Dreem API documentation" --footer="Copyright (c) 2014 Teem2 LLC"

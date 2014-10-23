@@ -1,0 +1,104 @@
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+
+  <!--/**
+     * @class dr.buttonbase
+     * @extends dr.view
+     * Base class for button components. Buttons share common elements, 
+     * including their ability to be selected, a visual element to display
+     * their state, and a default and selected color.
+     * The visual element is a dr.view that shows the current state of the
+     * button. For example, in a labelbutton the entire button is the visual
+     * element. For a checkbutton, the visual element is a square dr.view
+     * that is inside the button.
+     */-->    
+    <class name="buttonbase" type="coffee" clickable="true" clip="true">
+
+      <!--/**
+        * @cfg {Number} [padding=3]
+        * Amount of padding pixels around the button.
+        */-->
+      <attribute name="padding" type="number" value="3"></attribute>
+
+      <!--/**
+        * @cfg {String} [defaultcolor="#808080"]
+        * The default color of the visual button element when not selected.
+        */-->
+      <!--/**
+        * @cfg {String} [selectcolor="#a0a0a0"]
+        * The selected color of the visual button element when selected.
+        */-->
+      <attribute name="defaultcolor" type="string" value="#808080"></attribute>
+      <handler event="ondefaultcolor" method="visualize"></handler>
+
+      <attribute name="selectcolor" type="string" value="#a0a0a0"></attribute>
+      <handler event="onselectcolor" method="visualize"></handler>
+
+      <!--/**
+        * @cfg {Boolean} [selected=false]
+        * The current state of the button.
+        */-->
+      <!--/**
+        * @event onselected
+        * Fired when the state of the button changes.
+        * @param {dr.buttonbase} view The dr.buttonbase that fired the event
+        */-->
+      <!-- selected: button state -->
+      <attribute name="selected" type="boolean" value="false"></attribute>
+      <handler event="onselected" method="visualize"></handler>
+
+      <!-- visualize: Show the current button state -->
+      <method name="visualize">
+        # Hack. Should be @inited
+        return unless @realinited
+        return unless @visual
+        @visual.setAttribute('bgcolor', if @selected then @selectcolor else @defaultcolor);
+      </method>
+
+      <!-- text_x, text_y: Location of button text within button -->
+      <attribute name="textx" type="number" value="0"></attribute>
+      <attribute name="texty" type="number" value="0"></attribute>
+
+      <!-- label: Text label -->
+      <!--/**
+        * @cfg {String} [text=""]
+        * Button text.
+        */-->
+      <text name="label" type="coffee" x="${this.parent.textx}" y="${this.parent.texty}" text="${this.parent.text}">
+        <!-- Temporary until I figure how to add handlers with references -->
+        <handler event="onwidth" method="handleResize"></handler>
+        <handler event="onheight" method="handleResize"></handler>
+
+        <method name="handleResize">
+          # Force an onwidth event in the parent to resize the button
+          @parent.sendEvent('width', @parent.width)
+        </method>
+      </text>
+
+      <handler event="onwidth" method="handleResize"></handler>
+      <handler event="onheight" method="handleResize"></handler>
+
+      <method name="handleResize">
+        # Custom behavior in subclasses
+      </method>
+
+    </class>
