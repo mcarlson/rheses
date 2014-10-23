@@ -945,6 +945,9 @@
       Node.prototype._bindHandlers = function(isLate) {
         var binding, bindings, callback, ev, name, reference, refeval, scope, _i, _len;
         bindings = isLate ? this.latehandlers : this.handlers;
+        if (!bindings) {
+          return;
+        }
         for (_i = 0, _len = bindings.length; _i &lt; _len; _i++) {
           binding = bindings[_i];
           scope = binding.scope, name = binding.name, ev = binding.ev, callback = binding.callback, reference = binding.reference;
@@ -1172,6 +1175,7 @@
         first = touches[0];
         switch (event.type) {
           case &#39;touchstart&#39;:
+            this.sendMouseEvent(&#39;mouseover&#39;, first);
             this.sendMouseEvent(&#39;mousedown&#39;, first);
             return lastTouchDown = first.target;
           case &#39;touchmove&#39;:
@@ -1205,9 +1209,15 @@
         return this.setStyle(&#39;overflow&#39;, clip ? &#39;hidden&#39; : &#39;&#39;);
       };
 
-      Sprite.prototype.text = function(text) {
-        if (text != null) {
-          return this.el.innerHTML = text;
+      Sprite.prototype.setText = function(txt) {
+        if (txt != null) {
+          return this.el.innerHTML = txt;
+        }
+      };
+
+      Sprite.prototype.getText = function(textOnly) {
+        if (textOnly) {
+          return this.el.innerText;
         } else {
           return this.el.innerHTML;
         }
@@ -1522,9 +1532,13 @@
         if (el instanceof View) {
           el = el.sprite;
         }
-        this.sprite = new Sprite(el, this, attributes.$tagname);
+        this._createSprite(el, attributes);
         View.__super__.constructor.apply(this, arguments);
       }
+
+      View.prototype._createSprite = function(el, attributes) {
+        return this.sprite = new Sprite(el, this, attributes.$tagname);
+      };
 
       View.prototype.setAttribute = function(name, value, skipstyle) {
         if (!(skipstyle || name in ignoredAttributes || this[name] === value)) {
@@ -1630,18 +1644,18 @@
        */
 
       function InputText(el, attributes) {
-        var key, text, type, types, _ref;
+        var key, type, types, _ref;
         if (attributes == null) {
           attributes = {};
         }
-        if (!(&#39;width&#39; in attributes)) {
-          this[&#39;width&#39;] = 100;
-        }
         if (!(&#39;clickable&#39; in attributes)) {
-          this[&#39;clickable&#39;] = true;
+          attributes.clickable = true;
         }
         if (!(&#39;multiline&#39; in attributes)) {
-          this[&#39;multiline&#39;] = false;
+          attributes.multiline = true;
+        }
+        if (!(&#39;width&#39; in attributes)) {
+          attributes.width = true;
         }
         types = {
           multiline: &#39;boolean&#39;
@@ -1653,15 +1667,35 @@
         }
         attributes.$types = types;
         InputText.__super__.constructor.apply(this, arguments);
-        text = attributes[&#39;text&#39;] || this.sprite.text();
-        this.sprite.text(&#39;&#39;);
-        this.sprite.createInputtextElement(text, this.multiline, this.width, this.height);
-        this.inputElem = this.sprite.el.getElementsByTagName(&#39;input&#39;)[0];
-        if (!this.height) {
-          this.height = this._heightFromInputHeight();
-        }
+        setTimeout((function(_this) {
+          return function() {
+            if (!_this.height) {
+              _this.height = _this._heightFromInputHeight();
+            }
+            $(_this.inputElem).css(&#39;width&#39;, _this.width);
+            return $(_this.inputElem).css(&#39;height&#39;, _this.height);
+          };
+        })(this), 0);
         this.listenTo(this, &#39;change&#39;, this._handleChange);
+        this.listenTo(this, &#39;width&#39;, function(w) {
+          if (this.inputElem) {
+            return $(this.inputElem).css(&#39;width&#39;, w);
+          }
+        });
+        this.listenTo(this, &#39;height&#39;, function(h) {
+          if (this.inputElem) {
+            return $(this.inputElem).css(&#39;height&#39;, h);
+          }
+        });
       }
+
+      InputText.prototype._createSprite = function(el, attributes) {
+        InputText.__super__._createSprite.apply(this, arguments);
+        this.text = attributes[&#39;text&#39;] || this.sprite.getText(true);
+        this.sprite.setText(&#39;&#39;);
+        this.sprite.createInputtextElement(this.text, this.multiline, this.width, this.height);
+        return this.inputElem = this.sprite.el.getElementsByTagName(&#39;input&#39;)[0];
+      };
 
       InputText.prototype._heightFromInputHeight = function() {
         var borderH, h, paddingH;
@@ -1695,23 +1729,11 @@
       };
 
       InputText.prototype.set_data = function(d) {
-        return this.setAttribute(&#39;text&#39;, d);
+        return this.setAttribute(&#39;text&#39;, d, true);
       };
 
       InputText.prototype.set_text = function(text) {
         return this.sprite.value(text);
-      };
-
-      InputText.prototype.set_width = function(w) {
-        if (this.inputElem) {
-          return $(this.inputElem).css(&#39;width&#39;, w);
-        }
-      };
-
-      InputText.prototype.set_width = function(h) {
-        if (this.inputElem) {
-          return $(this.inputElem).css(&#39;height&#39;, h);
-        }
       };
 
       return InputText;
@@ -1724,7 +1746,7 @@
       out = data.join(&#39;\n&#39;);
       pre = document.createElement(&#39;pre&#39;);
       pre.setAttribute(&#39;class&#39;, &#39;warnings&#39;);
-      pre.innerText = out;
+      pre.textContent = out;
       document.body.insertBefore(pre, document.body.firstChild);
       return console.error(out);
     };
@@ -1916,7 +1938,7 @@
               }
               for (_l = 0, _len3 = args.length; _l &lt; _len3; _l++) {
                 xhr = args[_l];
-                console.error(&#39;failed to load&#39;, xhr.url, &#39;for element&#39;, xhr.el);
+                showWarnings([&quot;failed to load &quot; + xhr.url + &quot; for element &quot; + xhr.el.outerHTML]);
               }
             });
           });
@@ -2191,7 +2213,7 @@
 </span>         * @class dr.state
          * @extends dr.node
          * Allows a group of attributes, methods, handlers and instances to be removed and applied as a group.
-         *
+         * 
          * Like views and nodes, states can contain methods, handlers, setters, constraints, attributes and other view, node or class instances.
          *
          * Currently, states must end with the string &#39;state&#39; in their name to work properly.

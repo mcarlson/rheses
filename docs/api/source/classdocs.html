@@ -20,10 +20,14 @@
      * @extends dr.view
      * Ace editor component.
      *
-     *      @example
-     *      &lt;ace id=&quot;editor&quot;
-     *        width=&quot;500&quot;
-     *         text=&#39;&amp;lt;view width=&quot;100%&quot; height=&quot;100%&quot; bgcolor=&quot;thistle&quot;&amp;gt;&amp;lt;/view&amp;gt;&#39;&gt;&lt;/ace&gt;
+     *     @example
+     *     &lt;ace id=&quot;editor&quot; width=&quot;500&quot; text=&#39;Hello World&#39;&gt;&lt;/ace&gt;
+     *
+     * The initial text can also be included inline, and include dreem code.
+     *
+     *     @example
+     *     &lt;ace id=&quot;editor&quot; width=&quot;500&quot;&gt;&lt;view width=&quot;100%&quot; height=&quot;100%&quot; bgcolor=&quot;thistle&quot;&gt;&lt;/view&gt;&lt;/ace&gt;
+     *
      */
 <span id='dr-ace-cfg-theme'>/**
 </span>        * @cfg {string} [theme=&#39;ace/theme/chrome&#39;]
@@ -419,41 +423,6 @@
 <span id='dr-gyro-cfg-compassaccuracy'>/**
 </span>        * @cfg {Number} [compassaccuracy=0] (readonly)
         * The compass accuracy, see [https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html](https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html) for details.
-        */
-<span id='dr-inputtextold'>/**
-</span>     * @class dr.inputtextold
-     * @extends dr.view
-     * Provides an editable input text field.
-     *
-     *     @example
-     *     &lt;simplelayout axis=&quot;y&quot;&gt;&lt;/simplelayout&gt;
-     *
-     *     &lt;text text=&quot;Enter your name&quot;&gt;&lt;/text&gt;
-     *
-     *     &lt;inputtext id=&quot;nameinput&quot; bgcolor=&quot;white&quot; border=&quot;1px solid lightgrey&quot; width=&quot;200&quot;&gt;&lt;/inputtext&gt;
-     *
-     *     &lt;labelbutton text=&quot;submit&quot;&gt;
-     *       &lt;handler event=&quot;onclick&quot;&gt;
-     *         welcome.setAttribute(&#39;text&#39;, &#39;Welcome &#39; + nameinput.text);
-     *       &lt;/handler&gt;
-     *     &lt;/labelbutton&gt;
-     *
-     *     &lt;text id=&quot;welcome&quot;&gt;&lt;/text&gt;
-     *
-     * It&#39;s possible to listen for an onchange event to find out when the user changed the inputtext value:
-     * 
-     *     @example
-     *
-     *     &lt;inputtext id=&quot;nameinput&quot; bgcolor=&quot;white&quot; border=&quot;1px solid lightgrey&quot; width=&quot;200&quot; onchange=&quot;console.log(&#39;onchange&#39;, this.text)&quot;&gt;&lt;/inputtext&gt;
-     *
-     */
-<span id='dr-inputtextold-cfg-multiline'>/**
-</span>        * @cfg {Boolean} [multiline=false]
-        * Set to true to show multi-line text.
-        */
-<span id='dr-inputtextold-cfg-text'>/**
-</span>        * @cfg {String} text
-        * The text inside this input text field
         */
 <span id='dr-labelbutton'>/**
 </span>     * @class dr.labelbutton

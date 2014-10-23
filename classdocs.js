@@ -3,10 +3,14 @@
      * @extends dr.view
      * Ace editor component.
      *
-     *      @example
-     *      <ace id="editor"
-     *        width="500"
-     *         text='&lt;view width="100%" height="100%" bgcolor="thistle"&gt;&lt;/view&gt;'></ace>
+     *     @example
+     *     <ace id="editor" width="500" text='Hello World'></ace>
+     *
+     * The initial text can also be included inline, and include dreem code.
+     *
+     *     @example
+     *     <ace id="editor" width="500"><view width="100%" height="100%" bgcolor="thistle"></view></ace>
+     *
      */
 /**
         * @cfg {string} [theme='ace/theme/chrome']
@@ -402,41 +406,6 @@
 /**
         * @cfg {Number} [compassaccuracy=0] (readonly)
         * The compass accuracy, see [https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html](https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html) for details.
-        */
-/**
-     * @class dr.inputtextold
-     * @extends dr.view
-     * Provides an editable input text field.
-     *
-     *     @example
-     *     <simplelayout axis="y"></simplelayout>
-     *
-     *     <text text="Enter your name"></text>
-     *
-     *     <inputtext id="nameinput" bgcolor="white" border="1px solid lightgrey" width="200"></inputtext>
-     *
-     *     <labelbutton text="submit">
-     *       <handler event="onclick">
-     *         welcome.setAttribute('text', 'Welcome ' + nameinput.text);
-     *       </handler>
-     *     </labelbutton>
-     *
-     *     <text id="welcome"></text>
-     *
-     * It's possible to listen for an onchange event to find out when the user changed the inputtext value:
-     * 
-     *     @example
-     *
-     *     <inputtext id="nameinput" bgcolor="white" border="1px solid lightgrey" width="200" onchange="console.log('onchange', this.text)"></inputtext>
-     *
-     */
-/**
-        * @cfg {Boolean} [multiline=false]
-        * Set to true to show multi-line text.
-        */
-/**
-        * @cfg {String} text
-        * The text inside this input text field
         */
 /**
      * @class dr.labelbutton
