@@ -115,7 +115,7 @@ SOFTWARE. -->
       <setter name="text" args="text">
         # console.log('set_text', text)
         if (text != @text)
-          @sprite.text(@format(text))
+          @sprite.setText(@format(text))
           @updateSize()
       </setter>
       <handler event="oninit">

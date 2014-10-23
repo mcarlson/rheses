@@ -3,10 +3,14 @@
      * @extends dr.view
      * Ace editor component.
      *
-     *      @example
-     *      <ace id="editor"
-     *        width="500"
-     *         text='&lt;view width="100%" height="100%" bgcolor="thistle"&gt;&lt;/view&gt;'></ace>
+     *     @example
+     *     <ace id="editor" width="500" text='Hello World'></ace>
+     *
+     * The initial text can also be included inline, and include dreem code.
+     *
+     *     @example
+     *     <ace id="editor" width="500"><view width="100%" height="100%" bgcolor="thistle"></view></ace>
+     *
      */
 /**
         * @cfg {string} [theme='ace/theme/chrome']
@@ -219,150 +223,6 @@
      *
      */
 /**
-     * @class dr.datapath
-     * @extends dr.node
-     * Handles datapath evaluation, filtering and sorting.
-     *
-     * Datapaths can be used to look up {@link #datapath datapath} expressions to values in JSON data in a dr.dataset. This example looks up the color of the bicycle in the dr.dataset named bikeshop:
-     *
-     *     @example
-     *     <dataset name="bikeshop">
-     *      {
-     *        "bicycle": {
-     *          "color": "red",
-     *          "price": 19.95
-     *        }
-     *      }
-     *     </dataset>
-     *     <datapath datapath="$bikeshop/bicycle/color" ondata="console.log('data', this.data)"></datapath>
-     *
-     * Matching more multiple bicycles:
-     *
-     *     @example
-     *     <dataset name="bikeshop">
-     *      {
-     *        "bicycle": [
-     *          {
-     *           "color": "red",
-     *           "price": 19.95
-     *          },
-     *          {
-     *           "color": "green",
-     *           "price": 29.95
-     *          },
-     *          {
-     *           "color": "blue",
-     *           "price": 59.95
-     *          }
-     *        ]
-     *      }
-     *     </dataset>
-     *     <datapath datapath="$bikeshop/bicycle[*]/color" ondata="console.log('data', this.data)"></datapath>
-     *
-     * It's possible to select a single item on from the array using an array index. This selects the second item:
-     *
-     *     @example
-     *     <dataset name="bikeshop">
-     *      {
-     *        "bicycle": [
-     *          {
-     *           "color": "red",
-     *           "price": 19.95
-     *          },
-     *          {
-     *           "color": "green",
-     *           "price": 29.95
-     *          },
-     *          {
-     *           "color": "blue",
-     *           "price": 59.95
-     *          }
-     *        ]
-     *      }
-     *     </dataset>
-     *     <datapath classname="text" datapath="$bikeshop/bicycle[1]/color" ondata="console.log('data', this.data)"></datapath>
-     *
-     * It's also possible to replicate a range of items in the array with the [start,end,stepsize] operator. This replicates every other item:
-     *
-     *     @example
-     *     <dataset name="bikeshop">
-     *      {
-     *        "bicycle": [
-     *          {
-     *           "color": "red",
-     *           "price": 19.95
-     *          },
-     *          {
-     *           "color": "green",
-     *           "price": 29.95
-     *          },
-     *          {
-     *           "color": "blue",
-     *           "price": 59.95
-     *          }
-     *        ]
-     *      }
-     *     </dataset>
-     *     <datapath classname="text" datapath="$bikeshop/bicycle[0,3,2]/color" ondata="console.log('data', this.data)"></datapath>
-     *
-     * Sometimes it's necessary to have complete control and flexibility over filtering and transforming results. Adding a [@] operator to the end of your datapath causes {@link #filterfunction filterfunction} to be called for each result. This example shows bike colors for bikes with a price greater than 20, in reverse order:
-     *
-     *     @example
-     *     <dataset name="bikeshop">
-     *      {
-     *        "bicycle": [
-     *          {
-     *           "color": "red",
-     *           "price": 19.95
-     *          },
-     *          {
-     *           "color": "green",
-     *           "price": 29.95
-     *          },
-     *          {
-     *           "color": "blue",
-     *           "price": 59.95
-     *          }
-     *        ]
-     *      }
-     *     </dataset>
-     *     <datapath classname="text" datapath="$bikeshop/bicycle[*][@]" ondata="console.log('data', this.data)">
-     *       <method name="filterfunction" args="obj, accum">
-     *         // add the color to the beginning of the results if the price is greater than 20
-     *         if (obj.price > 20)
-     *           accum.unshift(obj.color);
-     *         return accum
-     *       </method>
-     *     </datapath>
-     *
-     * See [https://github.com/flitbit/json-path](https://github.com/flitbit/json-path) for more details on datapath expressions.
-     */
-/**
-        * @cfg {Array} [data=[]]
-        * The list of results, updated when {@link #datapath datapath} is set.
-        */
-/**
-        * @cfg {String} datapath
-        * The datapath expression to be replicated.
-        * See [https://github.com/flitbit/json-path](https://github.com/flitbit/json-path) for details.
-        */
-/**
-        * @cfg {String} [sortfield=""]
-        * The field in the data to use for sorting. Only sort then this 
-        */
-/**
-        * @cfg {Boolean} [sortasc=true]
-        * If true, sort ascending.
-        */
-/**
-        * @method filterfunction
-        * @abstract
-        * Called to filter data.
-        * @param obj An individual item to be processed.
-        * @param {Object[]} accum The array of items that have been accumulated. To keep a processed item, it must be added to the accum array.
-        * @returns {Object[]} The accum array. Must be returned otherwise results will be lost.
-        */
-/**
      * @class dr.dataset
      * @extends dr.node
      * Datasets hold onto a set of JSON data, either inline or loaded from a URL.
@@ -546,41 +406,6 @@
 /**
         * @cfg {Number} [compassaccuracy=0] (readonly)
         * The compass accuracy, see [https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html](https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html) for details.
-        */
-/**
-     * @class dr.inputtext
-     * @extends dr.view
-     * Provides an editable input text field.
-     *
-     *     @example
-     *     <simplelayout axis="y"></simplelayout>
-     *
-     *     <text text="Enter your name"></text>
-     *
-     *     <inputtext id="nameinput" bgcolor="white" border="1px solid lightgrey" width="200"></inputtext>
-     *
-     *     <labelbutton text="submit">
-     *       <handler event="onclick">
-     *         welcome.setAttribute('text', 'Welcome ' + nameinput.text);
-     *       </handler>
-     *     </labelbutton>
-     *
-     *     <text id="welcome"></text>
-     *
-     * It's possible to listen for an onchange event to find out when the user changed the inputtext value:
-     * 
-     *     @example
-     *
-     *     <inputtext id="nameinput" bgcolor="white" border="1px solid lightgrey" width="200" onchange="console.log('onchange', this.text)"></inputtext>
-     *
-     */
-/**
-        * @cfg {Boolean} [multiline=false]
-        * Set to true to show multi-line text.
-        */
-/**
-        * @cfg {String} text
-        * The text inside this input text field
         */
 /**
      * @class dr.labelbutton

@@ -60,7 +60,7 @@
   })();
 
   window.dr = (function() {
-    var Class, Eventable, Events, Idle, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, View, Window, capabilities, compiler, constraintScopes, debug, dom, exports, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, querystring, showWarnings, warnings, _initConstraints;
+    var Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, View, Window, capabilities, compiler, constraintScopes, debug, dom, exports, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, querystring, showWarnings, warnings, _initConstraints;
     mixOf = function() {
       var Mixed, base, i, method, mixin, mixins, name, _i, _ref;
       base = arguments[0], mixins = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
@@ -928,6 +928,9 @@
       Node.prototype._bindHandlers = function(isLate) {
         var binding, bindings, callback, ev, name, reference, refeval, scope, _i, _len;
         bindings = isLate ? this.latehandlers : this.handlers;
+        if (!bindings) {
+          return;
+        }
         for (_i = 0, _len = bindings.length; _i < _len; _i++) {
           binding = bindings[_i];
           scope = binding.scope, name = binding.name, ev = binding.ev, callback = binding.callback, reference = binding.reference;
@@ -1189,9 +1192,15 @@
         return this.setStyle('overflow', clip ? 'hidden' : '');
       };
 
-      Sprite.prototype.text = function(text) {
-        if (text != null) {
-          return this.el.innerHTML = text;
+      Sprite.prototype.setText = function(txt) {
+        if (txt != null) {
+          return this.el.innerHTML = txt;
+        }
+      };
+
+      Sprite.prototype.getText = function(textOnly) {
+        if (textOnly) {
+          return this.el.innerText;
         } else {
           return this.el.innerHTML;
         }
@@ -1506,9 +1515,13 @@
         if (el instanceof View) {
           el = el.sprite;
         }
-        this.sprite = new Sprite(el, this, attributes.$tagname);
+        this._createSprite(el, attributes);
         View.__super__.constructor.apply(this, arguments);
       }
+
+      View.prototype._createSprite = function(el, attributes) {
+        return this.sprite = new Sprite(el, this, attributes.$tagname);
+      };
 
       View.prototype.setAttribute = function(name, value, skipstyle) {
         if (!(skipstyle || name in ignoredAttributes || this[name] === value)) {
@@ -1571,6 +1584,144 @@
       return View;
 
     })(Node);
+
+    /**
+     * @class dr.inputtext
+     * @extends dr.view
+     * Provides an editable input text field.
+     *
+     *     @example
+     *     <simplelayout axis="y"></simplelayout>
+     *
+     *     <text text="Enter your name"></text>
+     *
+     *     <inputtext id="nameinput" bgcolor="white" border="1px solid lightgrey" width="200"></inputtext>
+     *
+     *     <labelbutton text="submit">
+     *       <handler event="onclick">
+     *         welcome.setAttribute('text', 'Welcome ' + nameinput.text);
+     *       </handler>
+     *     </labelbutton>
+     *
+     *     <text id="welcome"></text>
+     *
+     * It's possible to listen for an onchange event to find out when the user changed the inputtext value:
+     *
+     *     @example
+     *     <inputtext id="nameinput" bgcolor="white" border="1px solid lightgrey" width="200" onchange="console.log('onchange', this.text)"></inputtext>
+     *
+     */
+    InputText = (function(_super) {
+      __extends(InputText, _super);
+
+
+      /**
+       * @cfg {Boolean} [multiline=false]
+       * Set to true to show multi-line text.
+       */
+
+
+      /**
+       * @cfg {String} text
+       * The text inside this input text field
+       */
+
+      function InputText(el, attributes) {
+        var key, type, types, _ref;
+        if (attributes == null) {
+          attributes = {};
+        }
+        if (!('clickable' in attributes)) {
+          attributes.clickable = true;
+        }
+        if (!('multiline' in attributes)) {
+          attributes.multiline = true;
+        }
+        if (!('width' in attributes)) {
+          attributes.width = true;
+        }
+        types = {
+          multiline: 'boolean'
+        };
+        _ref = attributes.$types;
+        for (key in _ref) {
+          type = _ref[key];
+          types[key] = type;
+        }
+        attributes.$types = types;
+        InputText.__super__.constructor.apply(this, arguments);
+        setTimeout((function(_this) {
+          return function() {
+            if (!_this.height) {
+              _this.height = _this._heightFromInputHeight();
+            }
+            $(_this.inputElem).css('width', _this.width);
+            return $(_this.inputElem).css('height', _this.height);
+          };
+        })(this), 0);
+        this.listenTo(this, 'change', this._handleChange);
+        this.listenTo(this, 'width', function(w) {
+          if (this.inputElem) {
+            return $(this.inputElem).css('width', w);
+          }
+        });
+        this.listenTo(this, 'height', function(h) {
+          if (this.inputElem) {
+            return $(this.inputElem).css('height', h);
+          }
+        });
+      }
+
+      InputText.prototype._createSprite = function(el, attributes) {
+        InputText.__super__._createSprite.apply(this, arguments);
+        this.text = attributes['text'] || this.sprite.getText(true);
+        this.sprite.setText('');
+        this.sprite.createInputtextElement(this.text, this.multiline, this.width, this.height);
+        return this.inputElem = this.sprite.el.getElementsByTagName('input')[0];
+      };
+
+      InputText.prototype._heightFromInputHeight = function() {
+        var borderH, h, paddingH;
+        if (!this.inputElem) {
+          return;
+        }
+        h = parseInt($(this.inputElem).css('height'));
+        borderH = parseInt($(this.sprite.el).css('border-top-width')) + parseInt($(this.sprite.el).css('border-bottom-width'));
+        paddingH = parseInt($(this.sprite.el).css('padding-top')) + parseInt($(this.sprite.el).css('padding-bottom'));
+        return h + borderH + paddingH;
+      };
+
+      InputText.prototype._handleChange = function() {
+        var newdata;
+        if (!this.replicator) {
+          return;
+        }
+        newdata = this.text;
+        if (typeof this.data === 'number') {
+          if (parseFloat(newdata) + '' === newdata) {
+            newdata = parseFloat(newdata);
+          }
+        } else if (typeof this.data === 'boolean') {
+          if (newdata === 'true') {
+            newdata = true;
+          } else if (newdata === 'false') {
+            newdata = false;
+          }
+        }
+        return this.replicator.updateData(newdata);
+      };
+
+      InputText.prototype.set_data = function(d) {
+        return this.setAttribute('text', d, true);
+      };
+
+      InputText.prototype.set_text = function(text) {
+        return this.sprite.value(text);
+      };
+
+      return InputText;
+
+    })(View);
     warnings = [];
     showWarnings = function(data) {
       var out, pre;
@@ -2040,32 +2191,32 @@
         processSpecialTags: processSpecialTags,
         writeCSS: writeCSS
       };
-    })();
 
-    /**
-     * @class dr.state
-     * @extends dr.node
-     * Allows a group of attributes, methods, handlers and instances to be removed and applied as a group.
-     * 
-     * Like views and nodes, states can contain methods, handlers, setters, constraints, attributes and other view, node or class instances.
-     *
-     * Currently, states must end with the string 'state' in their name to work properly.
-     *
-     *     @example
-     *     <simplelayout axis="y"></simplelayout>
-     *     <view id="square" width="100" height="100" bgcolor="lightgrey">
-     *       <attribute name="ispink" type="boolean" value="false"></attribute>
-     *       <state name="pinkstate" applied="${this.parent.ispink}">
-     *         <attribute name="bgcolor" value="pink" type="string"></attribute>
-     *       </state>
-     *     </view>
-     *     <labelbutton text="pinkify!">
-     *       <handler event="onclick">
-     *         square.setAttribute('ispink', true);
-     *       </handler>
-     *     </labelbutton>
-     *
-     */
+      /**
+         * @class dr.state
+         * @extends dr.node
+         * Allows a group of attributes, methods, handlers and instances to be removed and applied as a group.
+         * 
+         * Like views and nodes, states can contain methods, handlers, setters, constraints, attributes and other view, node or class instances.
+         *
+         * Currently, states must end with the string 'state' in their name to work properly.
+         *
+         *     @example
+         *     <simplelayout axis="y"></simplelayout>
+         *     <view id="square" width="100" height="100" bgcolor="lightgrey">
+         *       <attribute name="ispink" type="boolean" value="false"></attribute>
+         *       <state name="pinkstate" applied="${this.parent.ispink}">
+         *         <attribute name="bgcolor" value="pink" type="string"></attribute>
+         *       </state>
+         *     </view>
+         *     <labelbutton text="pinkify!">
+         *       <handler event="onclick">
+         *         square.setAttribute('ispink', true);
+         *       </handler>
+         *     </labelbutton>
+         *
+       */
+    })();
     State = (function(_super) {
       __extends(State, _super);
 
@@ -3033,6 +3184,7 @@
      */
     return exports = {
       view: View,
+      inputtext: InputText,
       "class": Class,
       node: Node,
       mouse: new Mouse(),
