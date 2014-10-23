@@ -1515,9 +1515,13 @@
         if (el instanceof View) {
           el = el.sprite;
         }
-        this.sprite = new Sprite(el, this, attributes.$tagname);
+        this._createSprite(el, attributes);
         View.__super__.constructor.apply(this, arguments);
       }
+
+      View.prototype._createSprite = function(el, attributes) {
+        return this.sprite = new Sprite(el, this, attributes.$tagname);
+      };
 
       View.prototype.setAttribute = function(name, value, skipstyle) {
         if (!(skipstyle || name in ignoredAttributes || this[name] === value)) {
@@ -1646,13 +1650,15 @@
         }
         attributes.$types = types;
         InputText.__super__.constructor.apply(this, arguments);
-        this.text = attributes['text'] || this.sprite.getText(true);
-        this.sprite.setText('');
-        this.sprite.createInputtextElement(this.text, this.multiline, this.width, this.height);
-        this.inputElem = this.sprite.el.getElementsByTagName('input')[0];
-        if (!this.height) {
-          this.height = this._heightFromInputHeight();
-        }
+        setTimeout((function(_this) {
+          return function() {
+            if (!_this.height) {
+              _this.height = _this._heightFromInputHeight();
+            }
+            $(_this.inputElem).css('width', _this.width);
+            return $(_this.inputElem).css('height', _this.height);
+          };
+        })(this), 0);
         this.listenTo(this, 'change', this._handleChange);
         this.listenTo(this, 'width', function(w) {
           if (this.inputElem) {
@@ -1665,6 +1671,14 @@
           }
         });
       }
+
+      InputText.prototype._createSprite = function(el, attributes) {
+        InputText.__super__._createSprite.apply(this, arguments);
+        this.text = attributes['text'] || this.sprite.getText(true);
+        this.sprite.setText('');
+        this.sprite.createInputtextElement(this.text, this.multiline, this.width, this.height);
+        return this.inputElem = this.sprite.el.getElementsByTagName('input')[0];
+      };
 
       InputText.prototype._heightFromInputHeight = function() {
         var borderH, h, paddingH;
@@ -1698,7 +1712,7 @@
       };
 
       InputText.prototype.set_data = function(d) {
-        return this.setAttribute('text', d);
+        return this.setAttribute('text', d, true);
       };
 
       InputText.prototype.set_text = function(text) {
@@ -2182,7 +2196,7 @@
          * @class dr.state
          * @extends dr.node
          * Allows a group of attributes, methods, handlers and instances to be removed and applied as a group.
-         *
+         * 
          * Like views and nodes, states can contain methods, handlers, setters, constraints, attributes and other view, node or class instances.
          *
          * Currently, states must end with the string 'state' in their name to work properly.

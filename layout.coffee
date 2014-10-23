@@ -1148,10 +1148,13 @@ window.dr = do ->
         el = el.sprite
 
       # console.log 'sprite tagname', attributes.$tagname
-      @sprite = new Sprite(el, @, attributes.$tagname)
+      @_createSprite(el, attributes)
 
       super
       # console.log 'new view', el, attributes, @
+
+    _createSprite: (el, attributes) ->
+      @sprite = new Sprite(el, @, attributes.$tagname)
 
     setAttribute: (name, value, skipstyle) ->
       if not (skipstyle or name of ignoredAttributes or @[name] == value)
@@ -1252,11 +1255,14 @@ window.dr = do ->
 
       super
 
-      @text = attributes['text'] || @sprite.getText(true)
-      @sprite.setText('')
-      @sprite.createInputtextElement(@text, @multiline, @width, @height)
-      @inputElem = @sprite.el.getElementsByTagName('input')[0]
-      @height = @_heightFromInputHeight() unless @height
+      setTimeout(() =>
+        @height = @_heightFromInputHeight() unless @height
+
+        #FIXME: I think once we fix order of operations of attribute processing these will not be necessary
+        # anymore since an event will be thrown after the sprite creation (see https://www.pivotaltracker.com/story/show/81205368)
+        $(@inputElem).css('width', @width)
+        $(@inputElem).css('height', @height)
+      , 0)
 
       @listenTo(@, 'change', @_handleChange)
 
@@ -1268,6 +1274,13 @@ window.dr = do ->
         (h) ->
           $(@inputElem).css('height', h) if @inputElem
       )
+
+    _createSprite: (el, attributes) ->
+      super
+      @text = attributes['text'] || @sprite.getText(true)
+      @sprite.setText('')
+      @sprite.createInputtextElement(@text, @multiline, @width, @height)
+      @inputElem = @sprite.el.getElementsByTagName('input')[0]
 
     _heightFromInputHeight: () ->
       return unless @inputElem
@@ -1291,7 +1304,7 @@ window.dr = do ->
       @replicator.updateData(newdata)
 
     set_data: (d) ->
-      @setAttribute('text', d)
+      @setAttribute('text', d, true)
 
     set_text: (text) ->
       @sprite.value(text)
