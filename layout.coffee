@@ -1309,6 +1309,132 @@ window.dr = do ->
     set_text: (text) ->
       @sprite.value(text)
 
+  ###*
+  # @class dr.text
+  # @extends dr.view
+  # Text component that supports single and multi-line text.
+  #
+  # The text component can be fixed size, or sized to fit the size of the text.
+  #
+  #     @example
+  #     <text text="Hello World!" bgcolor="red"></text>
+  #
+  # Here is a multiline text
+  #
+  #     @example
+  #     <text multiline="true" text="Lorem ipsum dolor sit amet, consectetur adipiscing elit"></text>
+  #
+  # You might want to set the value of a text element based on the value of other attributes via a constraint. Here we set the value by concatenating three attributes together.
+  #
+  #     @example
+  #     <attribute name="firstName" type="string" value="Lumpy"></attribute>
+  #     <attribute name="middleName" type="string" value="Space"></attribute>
+  #     <attribute name="lastName" type="string" value="Princess"></attribute>
+  #
+  #     <text text="${this.parent.firstName + ' ' + this.parent.middleName + ' ' + this.parent.lastName}" color="hotpink"></text>
+  #
+  # Constraints can contain more complex JavaScript code
+  #
+  #     @example
+  #     <attribute name="firstName" type="string" value="Lumpy"></attribute>
+  #     <attribute name="middleName" type="string" value="Space"></attribute>
+  #     <attribute name="lastName" type="string" value="Princess"></attribute>
+  #
+  #     <text text="${this.parent.firstName.charAt(0) + ' ' + this.parent.middleName.charAt(0) + ' ' + this.parent.lastName.charAt(0)}" color="hotpink"></text>
+  #
+  # We can simplify this by using a method to return the concatenation and constraining the text value to the return value of the method
+  #
+  #     @example
+  #     <attribute name="firstName" type="string" value="Lumpy"></attribute>
+  #     <attribute name="middleName" type="string" value="Space"></attribute>
+  #     <attribute name="lastName" type="string" value="Princess"></attribute>
+  #
+  #     <method name="initials">
+  #       return this.firstName.charAt(0) + ' ' + this.middleName.charAt(0) + ' ' + this.lastName.charAt(0);
+  #     </method>
+  #
+  #     <text text="${this.parent.initials()}" color="hotpink"></text>
+  #
+  # You can override the format method to provide custom formatting for text elements. Here is a subclass of text, timetext, with the format method overridden to convert the text given in seconds into a formatted string.
+  #
+  #     @example
+  #     <class name="timetext" extends="text">
+  #       <method name="format" args="seconds">
+  #         var minutes = Math.floor(seconds / 60);
+  #         var seconds = Math.floor(seconds) - minutes * 60;
+  #         if (seconds < 10) {
+  #           seconds = '0' + seconds;
+  #         }
+  #         return minutes + ':' + seconds;
+  #       </method>
+  #     </class>
+  #
+  #     <timetext text="240"></timetext>
+  #
+  ###
+  class Text extends View
+    ###*
+    # @cfg {Boolean} [multiline=false]
+    # Set to true to show multi-line text.
+    ###
+    ###*
+    # @cfg {Boolean} [resize=true]
+    # By default, the text component is sized to the size of the text.
+    # By setting resize=false, the component size is not modified
+    # when the text changes.
+    ###
+    ###*
+    # @cfg {String} [text=""]
+    # Component text.
+    ###
+    constructor: (el, attributes = {}) ->
+      types = {resize: 'boolean', multiline: 'boolean'}
+      @['resize'] = true unless 'resize' of attributes
+      @['multiline'] = false unless 'multiline' of attributes
+
+      for key, type of attributes.$types
+        types[key] = type
+      attributes.$types = types
+
+      @listenTo(@, 'multiline', @updateSize)
+      @listenTo(@, 'resize', @updateSize)
+      @listenTo(@, 'init', @updateSize)
+
+      super
+
+      @sprite.setText(@format(attributes.text))
+
+    ###*
+    # @method format
+    # Format the text to be displayed. The default behavior is to
+    # return the text intact. Override to change formatting.
+    # @param {String} str The current value of the text component.
+    # @return {String} The formated string to display in the component.
+    #
+    ###
+    format: (str) ->
+      return str
+
+    updateSize: () ->
+      return unless @inited
+      size = @sprite.measureTextSize(@multiline, @width, @resize)
+      @setAttribute 'width', size.width, true if @resize
+      @setAttribute 'height', size.height, true
+
+    set_data: (d) ->
+      @setAttribute('text', d)
+
+    set_text: (text) ->
+      if (text != @text)
+        @sprite.setText(@format(text))
+        @updateSize()
+
+    setAttribute: (name, value, skipstyle) ->
+      if name == "width" && @resize
+        size = @sprite.measureTextSize(@multiline, @width, @resize)
+        return unless size.width == value
+      super
+
   warnings = []
   showWarnings = (data) ->
     warnings = warnings.concat(data)
@@ -2535,6 +2661,7 @@ window.dr = do ->
   ###
   exports = 
     view: View
+    text: Text
     inputtext: InputText
     class: Class
     node: Node
