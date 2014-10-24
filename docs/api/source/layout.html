@@ -77,7 +77,7 @@
   })();
 
   window.dr = (function() {
-    var Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, View, Window, capabilities, compiler, constraintScopes, debug, dom, exports, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, querystring, showWarnings, warnings, _initConstraints;
+    var Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, capabilities, compiler, constraintScopes, debug, dom, exports, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, querystring, showWarnings, warnings, _initConstraints;
     mixOf = function() {
       var Mixed, base, i, method, mixin, mixins, name, _i, _ref;
       base = arguments[0], mixins = 2 &lt;= arguments.length ? __slice.call(arguments, 1) : [];
@@ -1739,6 +1739,172 @@
       return InputText;
 
     })(View);
+
+<span id='dr-text'>    /**
+</span>     * @class dr.text
+     * @extends dr.view
+     * Text component that supports single and multi-line text.
+     *
+     * The text component can be fixed size, or sized to fit the size of the text.
+     *
+     *     @example
+     *     &lt;text text=&quot;Hello World!&quot; bgcolor=&quot;red&quot;&gt;&lt;/text&gt;
+     *
+     * Here is a multiline text
+     *
+     *     @example
+     *     &lt;text multiline=&quot;true&quot; text=&quot;Lorem ipsum dolor sit amet, consectetur adipiscing elit&quot;&gt;&lt;/text&gt;
+     *
+     * You might want to set the value of a text element based on the value of other attributes via a constraint. Here we set the value by concatenating three attributes together.
+     *
+     *     @example
+     *     &lt;attribute name=&quot;firstName&quot; type=&quot;string&quot; value=&quot;Lumpy&quot;&gt;&lt;/attribute&gt;
+     *     &lt;attribute name=&quot;middleName&quot; type=&quot;string&quot; value=&quot;Space&quot;&gt;&lt;/attribute&gt;
+     *     &lt;attribute name=&quot;lastName&quot; type=&quot;string&quot; value=&quot;Princess&quot;&gt;&lt;/attribute&gt;
+     *
+     *     &lt;text text=&quot;${this.parent.firstName + &#39; &#39; + this.parent.middleName + &#39; &#39; + this.parent.lastName}&quot; color=&quot;hotpink&quot;&gt;&lt;/text&gt;
+     *
+     * Constraints can contain more complex JavaScript code
+     *
+     *     @example
+     *     &lt;attribute name=&quot;firstName&quot; type=&quot;string&quot; value=&quot;Lumpy&quot;&gt;&lt;/attribute&gt;
+     *     &lt;attribute name=&quot;middleName&quot; type=&quot;string&quot; value=&quot;Space&quot;&gt;&lt;/attribute&gt;
+     *     &lt;attribute name=&quot;lastName&quot; type=&quot;string&quot; value=&quot;Princess&quot;&gt;&lt;/attribute&gt;
+     *
+     *     &lt;text text=&quot;${this.parent.firstName.charAt(0) + &#39; &#39; + this.parent.middleName.charAt(0) + &#39; &#39; + this.parent.lastName.charAt(0)}&quot; color=&quot;hotpink&quot;&gt;&lt;/text&gt;
+     *
+     * We can simplify this by using a method to return the concatenation and constraining the text value to the return value of the method
+     *
+     *     @example
+     *     &lt;attribute name=&quot;firstName&quot; type=&quot;string&quot; value=&quot;Lumpy&quot;&gt;&lt;/attribute&gt;
+     *     &lt;attribute name=&quot;middleName&quot; type=&quot;string&quot; value=&quot;Space&quot;&gt;&lt;/attribute&gt;
+     *     &lt;attribute name=&quot;lastName&quot; type=&quot;string&quot; value=&quot;Princess&quot;&gt;&lt;/attribute&gt;
+     *
+     *     &lt;method name=&quot;initials&quot;&gt;
+     *       return this.firstName.charAt(0) + &#39; &#39; + this.middleName.charAt(0) + &#39; &#39; + this.lastName.charAt(0);
+     *     &lt;/method&gt;
+     *
+     *     &lt;text text=&quot;${this.parent.initials()}&quot; color=&quot;hotpink&quot;&gt;&lt;/text&gt;
+     *
+     * You can override the format method to provide custom formatting for text elements. Here is a subclass of text, timetext, with the format method overridden to convert the text given in seconds into a formatted string.
+     *
+     *     @example
+     *     &lt;class name=&quot;timetext&quot; extends=&quot;text&quot;&gt;
+     *       &lt;method name=&quot;format&quot; args=&quot;seconds&quot;&gt;
+     *         var minutes = Math.floor(seconds / 60);
+     *         var seconds = Math.floor(seconds) - minutes * 60;
+     *         if (seconds &lt; 10) {
+     *           seconds = &#39;0&#39; + seconds;
+     *         }
+     *         return minutes + &#39;:&#39; + seconds;
+     *       &lt;/method&gt;
+     *     &lt;/class&gt;
+     *
+     *     &lt;timetext text=&quot;240&quot;&gt;&lt;/timetext&gt;
+     *
+     */
+    Text = (function(_super) {
+      __extends(Text, _super);
+
+
+<span id='dr-text-cfg-multiline'>      /**
+</span>       * @cfg {Boolean} [multiline=false]
+       * Set to true to show multi-line text.
+       */
+
+
+<span id='dr-text-cfg-resize'>      /**
+</span>       * @cfg {Boolean} [resize=true]
+       * By default, the text component is sized to the size of the text.
+       * By setting resize=false, the component size is not modified
+       * when the text changes.
+       */
+
+
+<span id='dr-text-cfg-text'>      /**
+</span>       * @cfg {String} [text=&quot;&quot;]
+       * Component text.
+       */
+
+      function Text(el, attributes) {
+        var key, type, types, _ref;
+        if (attributes == null) {
+          attributes = {};
+        }
+        types = {
+          resize: &#39;boolean&#39;,
+          multiline: &#39;boolean&#39;
+        };
+        if (!(&#39;resize&#39; in attributes)) {
+          this[&#39;resize&#39;] = true;
+        }
+        if (!(&#39;multiline&#39; in attributes)) {
+          this[&#39;multiline&#39;] = false;
+        }
+        _ref = attributes.$types;
+        for (key in _ref) {
+          type = _ref[key];
+          types[key] = type;
+        }
+        attributes.$types = types;
+        this.listenTo(this, &#39;multiline&#39;, this.updateSize);
+        this.listenTo(this, &#39;resize&#39;, this.updateSize);
+        this.listenTo(this, &#39;init&#39;, this.updateSize);
+        Text.__super__.constructor.apply(this, arguments);
+        this.sprite.setText(this.format(attributes.text));
+      }
+
+
+<span id='dr-text-method-format'>      /**
+</span>       * @method format
+       * Format the text to be displayed. The default behavior is to
+       * return the text intact. Override to change formatting.
+       * @param {String} str The current value of the text component.
+       * @return {String} The formated string to display in the component.
+       *
+       */
+
+      Text.prototype.format = function(str) {
+        return str;
+      };
+
+      Text.prototype.updateSize = function() {
+        var size;
+        if (!this.inited) {
+          return;
+        }
+        size = this.sprite.measureTextSize(this.multiline, this.width, this.resize);
+        if (this.resize) {
+          this.setAttribute(&#39;width&#39;, size.width, true);
+        }
+        return this.setAttribute(&#39;height&#39;, size.height, true);
+      };
+
+      Text.prototype.set_data = function(d) {
+        return this.setAttribute(&#39;text&#39;, d);
+      };
+
+      Text.prototype.set_text = function(text) {
+        if (text !== this.text) {
+          this.sprite.setText(this.format(text));
+          return this.updateSize();
+        }
+      };
+
+      Text.prototype.setAttribute = function(name, value, skipstyle) {
+        var size;
+        if (name === &quot;width&quot; &amp;&amp; this.resize) {
+          size = this.sprite.measureTextSize(this.multiline, this.width, this.resize);
+          if (size.width !== value) {
+            return;
+          }
+        }
+        return Text.__super__.setAttribute.apply(this, arguments);
+      };
+
+      return Text;
+
+    })(View);
     warnings = [];
     showWarnings = function(data) {
       var out, pre;
@@ -3201,6 +3367,7 @@
      */
     return exports = {
       view: View,
+      text: Text,
       inputtext: InputText,
       &quot;class&quot;: Class,
       node: Node,
