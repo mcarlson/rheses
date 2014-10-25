@@ -1,0 +1,96 @@
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+
+  <!--/**
+     * @class dr.dreem_object
+     * @extends dr.view
+     * Component wrapper for object tag.
+     * The size of the object matches the width/height of the view when the
+     * component is created.
+     *
+     */-->    
+
+      <!--/**
+        * @cfg {String} [data=""]
+        * url to be used by the object.
+        */-->
+
+      <!--/**
+        * @cfg {String} [type=""]
+        * Media type specified in the data attribute.
+        */-->
+
+    <class name="dreem_object" type="coffee">
+      <handler event="onwidth" method="handleResize"></handler>
+      <handler event="onheight" method="handleResize"></handler>
+
+      <attribute name="data" value="" type="string"></attribute>
+      <handler event="ondata" method="updateObject"></handler>
+
+      <attribute name="type" value="" type="string"></attribute>
+      <handler event="ontype" method="updateObject"></handler>
+
+      <handler event="oninit">
+        @createObject()
+      </handler>
+
+      <method name="createObject">
+        @sprite.el.removeChild(@object) if @object
+
+        # Static attributes
+        @object = document.createElement('object')
+
+        # Style
+        @object.setAttribute('style', 'border: 1px solid black')
+
+        # Dynamic attributes
+        @updateObject()
+
+
+        # Fire event when the object is loaded
+        @object.addEventListener 'load', (e) =>
+          obj = this.object  # @object
+          object_dom = obj.contentDocument
+          # Other initialization here.
+          # console.log(object_dom)
+          
+        # Attach the object to the DOM
+        @sprite.el.appendChild(@object)
+      </method>
+
+      <method name="updateObject">
+        return if (@width == 0 || @height == 0 || !@object)
+
+        @object.setAttribute('type', @type) unless @object.type == @type
+        @object.setAttribute('data', @data) unless @object.data == @data
+        @object.setAttribute('width', @width) unless @object.width == @width
+        @object.setAttribute('height', @height) unless @object.height == @height
+        @object.style.width = @width unless @object.style.width == @width
+        @object.style.height = @height unless @object.style.height == @height
+      </method>
+
+      <method name="handleResize">
+        if (@object)
+          @object.style.width = @width;
+          @object.style.height = @height;
+      </method>
+    </class>
