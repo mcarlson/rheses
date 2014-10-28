@@ -35,8 +35,13 @@ SOFTWARE. -->
         */-->
 
       <!--/**
-        * @cfg {String} [type=""]
-        * Media type specified in the data attribute.
+        * @method getDom
+        * Returns the base of the dom
+        */-->
+
+      <!--/**
+        * @method resizeToView
+        * Modify the embedded svg object to use the size of the view.
         */-->
 
     <class name="dreem_object" type="coffee">
@@ -49,9 +54,43 @@ SOFTWARE. -->
       <attribute name="type" value="" type="string"></attribute>
       <handler event="ontype" method="updateObject"></handler>
 
+      <method name="getDom">
+        return if !@object
+        return @object.contentDocument
+      </method>
+
       <handler event="oninit">
         @createObject()
       </handler>
+
+      <method name="resizeToView">
+        dom = @getDom()
+        return if !dom
+        
+        # Find every svg and modify width/height to be 100%.
+        # This only runs once per svg
+        elements = $(dom).find('svg')
+        for svg, index in elements
+          continue if svg.getAttribute('width_orig')
+
+          # Rewrite width and height, saving the original values
+          w = svg.getAttribute('width')
+          h = svg.getAttribute('height')
+          svg.setAttribute('width_orig', w)
+          svg.setAttribute('height_orig', h)
+          svg.setAttribute('width', '100%')
+          svg.setAttribute('height', '100%')
+          # console.log('svg size set from ', w, h)
+
+          # Add a viewPort if one is missing and w,h was absolute
+          viewBox = svg.getAttribute('viewBox')
+          if w && h && !viewBox
+            # Add a viewBox to match the size
+            viewBox = '0 0 ' + w + ' ' + h
+            svg.setAttribute('viewBox', viewBox)
+            # console.log('new viewBox', viewBox)
+
+      </method>
 
       <method name="createObject">
         @sprite.el.removeChild(@object) if @object
@@ -66,12 +105,12 @@ SOFTWARE. -->
         @updateObject()
 
 
-        # Fire event when the object is loaded
+        # Fire event when the object is loaded.
         @object.addEventListener 'load', (e) =>
           obj = this.object  # @object
           object_dom = obj.contentDocument
-          # Other initialization here.
-          # console.log(object_dom)
+          # Modify the svg to size to the view
+          this.resizeToView()
           
         # Attach the object to the DOM
         @sprite.el.appendChild(@object)

@@ -12,18 +12,34 @@
 <view id="all" width="100%" height="100%" clip="true">
 
   <simplelayout axis="y"></simplelayout>
-  <view>
+  <labelbutton text="Animate">
+    <handler event="onclick">
+      m = this.parent.container_svg.view_svg.width > 100 ? 0.5 : 1.0;
+
+      this.parent.container_swf.view_swf.animate({width: m*200, height: m*200});
+      this.parent.container_svg.view_svg.animate({width: m*200, height: m*200});
+      this.parent.container_svg2.view_svg2.animate({width: m*200, height: m*100});
+    </handler>
+  </labelbutton>
+  <view name="container_swf">
     <simplelayout axis="x"></simplelayout>
     <boundslayout></boundslayout>
-    <dreem_object data="relog.swf" type="application/x-shockwave-flash" width="200" height="200" clickable="true"></dreem_object>
+    <dreem_object name="view_swf" data="relog.swf" type="application/x-shockwave-flash" width="100" height="100" clickable="true"></dreem_object>
     <text>swf clock (http://www.flash-test.net)</text>
   </view>
 
-  <view>
+  <view name="container_svg">
     <simplelayout axis="x"></simplelayout>
     <boundslayout></boundslayout>
-    <dreem_object data="siemens-clock.svg" type="image/svg+xml" width="200" height="200" clickable="true"></dreem_object>
+    <dreem_object name="view_svg" data="siemens-clock.svg" type="image/svg+xml" width="100" height="100" clickable="true"></dreem_object>
     <text>svg clock (http://www.3quarks.com/en/SVGClock)</text>
+  </view>
+
+  <view name="container_svg2">
+    <simplelayout axis="x"></simplelayout>
+    <boundslayout></boundslayout>
+    <dreem_object name="view_svg2" data="button.svg" type="image/svg+xml" width="100" height="50" clickable="true"></dreem_object>
+    <text>svg button (http://tavmjong.free.fr/INKSCAPE/MANUAL/html/Button.html)</text>
   </view>
 
 </view>
