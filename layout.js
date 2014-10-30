@@ -344,15 +344,8 @@
         c: 0
       };
 
-
-      /**
-       * Sets an attribute, calls a setter if there is one, then sends an event with the new value
-       * @param {String} name the name of the attribute to set
-       * @param value the value to set to
-       */
-
-      Eventable.prototype.setAttribute = function(name, value) {
-        var type, _name;
+      Eventable.prototype._coerceType = function(name, value) {
+        var type;
         type = this.types[name];
         if (type) {
           if (!typemappings[type]) {
@@ -361,6 +354,36 @@
           }
           value = typemappings[type](value);
         }
+        return value;
+      };
+
+      Eventable.prototype._setDefaults = function(attributes, defaults) {
+        var key, value, _results;
+        if (defaults == null) {
+          defaults = {};
+        }
+        _results = [];
+        for (key in defaults) {
+          value = defaults[key];
+          if (!(key in attributes)) {
+            _results.push(attributes[key] = defaults[key]);
+          } else {
+            _results.push(void 0);
+          }
+        }
+        return _results;
+      };
+
+
+      /**
+       * Sets an attribute, calls a setter if there is one, then sends an event with the new value
+       * @param {String} name the name of the attribute to set
+       * @param value the value to set to
+       */
+
+      Eventable.prototype.setAttribute = function(name, value) {
+        var _name;
+        value = this._coerceType(name, value);
         if (typeof this[_name = "set_" + name] === "function") {
           this[_name](value);
         }
@@ -650,13 +673,13 @@
        * @cfg {String} scriptincludeserror 
        * An error to show if scriptincludes fail to load
        */
-      var lateattributes, matchConstraint, _eventCallback, _installMethod;
+      var earlyattributes, matchConstraint, _eventCallback, _installMethod;
 
       __extends(Node, _super);
 
       matchConstraint = /\${(.+)}/;
 
-      lateattributes = ['parent', 'name'];
+      earlyattributes = ['parent', 'name'];
 
       function Node(el, attributes) {
         var args, deferbindings, ev, method, name, reference, script, skiponinit, value, _i, _j, _len, _len1, _ref, _ref1, _ref2;
@@ -706,27 +729,27 @@
         if (!deferbindings) {
           this._bindHandlers();
         }
+        for (_j = 0, _len1 = earlyattributes.length; _j < _len1; _j++) {
+          name = earlyattributes[_j];
+          if (attributes[name]) {
+            this.setAttribute(name, attributes[name]);
+          }
+        }
         for (name in attributes) {
           value = attributes[name];
-          if (__indexOf.call(lateattributes, name) < 0) {
+          if (__indexOf.call(earlyattributes, name) < 0) {
             this.bindAttribute(name, value, attributes.$tagname);
           }
         }
         if (this.constraints) {
           constraintScopes.push(this);
         }
-        for (_j = 0, _len1 = lateattributes.length; _j < _len1; _j++) {
-          name = lateattributes[_j];
-          if (attributes[name]) {
-            this.setAttribute(name, attributes[name]);
-          }
-        }
         if (!deferbindings) {
           this._bindHandlers(true);
         }
 
         /**
-         * @event oninit 
+         * @event oninit
          * Fired when this node and all its children are completely initialized
          * @param {dr.node} node The dr.node that fired the event
          */
@@ -1232,6 +1255,9 @@
           if (resize) {
             this.setStyle('width', 'auto');
           }
+          if (resize) {
+            this.setStyle('height', 'auto');
+          }
           this.setStyle('whiteSpace', '');
         }
         return {
@@ -1455,7 +1481,7 @@
        */
 
       function View(el, attributes) {
-        var key, type, types, _ref;
+        var defaults, key, type, types, _ref;
         if (attributes == null) {
           attributes = {};
         }
@@ -1498,27 +1524,42 @@
           clip: 'boolean',
           visible: 'boolean'
         };
-        for (key in types) {
-          type = types[key];
-          if (!(key in attributes)) {
-            this[key] = type === 'number' ? 0 : false;
-          }
-        }
+        defaults = {
+          x: 0,
+          y: 0,
+          width: 0,
+          height: 0,
+          clickable: false,
+          clip: false,
+          visible: true
+        };
         _ref = attributes.$types;
         for (key in _ref) {
           type = _ref[key];
           types[key] = type;
         }
         attributes.$types = types;
-        if (__indexOf.call(attributes, 'visible') < 0) {
-          attributes.visible = true;
+        if (this._isPercent(attributes['width'])) {
+          attributes['width'] = this._sizeFromPercent(attributes['width'], "width");
         }
+        if (this._isPercent(attributes['height'])) {
+          attributes['height'] = this._sizeFromPercent(attributes['height'], "height");
+        }
+        this._setDefaults(attributes, defaults);
         if (el instanceof View) {
           el = el.sprite;
         }
         this._createSprite(el, attributes);
         View.__super__.constructor.apply(this, arguments);
       }
+
+      View.prototype._isPercent = function(value) {
+        return typeof value === 'string' && value.indexOf('%') > -1;
+      };
+
+      View.prototype._sizeFromPercent = function(percent, dim) {
+        return "${this.parent." + dim + " ? this.parent." + dim + "*" + (parseFloat(percent) / 100.0) + " : $(this.parent)." + dim + "()}";
+      };
 
       View.prototype._createSprite = function(el, attributes) {
         return this.sprite = new Sprite(el, this, attributes.$tagname);
@@ -1628,21 +1669,16 @@
        */
 
       function InputText(el, attributes) {
-        var key, type, types, _ref;
+        var defaults, key, type, types, _ref;
         if (attributes == null) {
           attributes = {};
         }
-        if (!('clickable' in attributes)) {
-          attributes.clickable = true;
-        }
-        if (!('multiline' in attributes)) {
-          attributes.multiline = true;
-        }
-        if (!('width' in attributes)) {
-          attributes.width = true;
-        }
         types = {
           multiline: 'boolean'
+        };
+        defaults = {
+          clickable: true,
+          multiline: true
         };
         _ref = attributes.$types;
         for (key in _ref) {
@@ -1650,6 +1686,7 @@
           types[key] = type;
         }
         attributes.$types = types;
+        this._setDefaults(attributes, defaults);
         InputText.__super__.constructor.apply(this, arguments);
         setTimeout((function(_this) {
           return function() {
@@ -1811,7 +1848,7 @@
        */
 
       function Text(el, attributes) {
-        var key, type, types, _ref;
+        var defaults, key, type, types, _ref;
         if (attributes == null) {
           attributes = {};
         }
@@ -1819,24 +1856,27 @@
           resize: 'boolean',
           multiline: 'boolean'
         };
-        if (!('resize' in attributes)) {
-          this['resize'] = true;
-        }
-        if (!('multiline' in attributes)) {
-          this['multiline'] = false;
-        }
+        defaults = {
+          resize: true,
+          multiline: false
+        };
         _ref = attributes.$types;
         for (key in _ref) {
           type = _ref[key];
           types[key] = type;
         }
         attributes.$types = types;
+        this._setDefaults(attributes, defaults);
         this.listenTo(this, 'multiline', this.updateSize);
         this.listenTo(this, 'resize', this.updateSize);
         this.listenTo(this, 'init', this.updateSize);
         Text.__super__.constructor.apply(this, arguments);
-        this.sprite.setText(this.format(attributes.text));
       }
+
+      Text.prototype._createSprite = function(el, attributes) {
+        Text.__super__._createSprite.apply(this, arguments);
+        return this.sprite.setText(this.format(attributes.text));
+      };
 
 
       /**
@@ -2799,6 +2839,7 @@
         this.locked = true;
         Layout.__super__.constructor.apply(this, arguments);
         this.listenTo(this.parent, 'subviews', this._added);
+        this.listenTo(this.parent, 'init', this.update);
         if ((_base = this.parent).layouts == null) {
           _base.layouts = [];
         }
