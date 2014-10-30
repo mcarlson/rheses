@@ -32,17 +32,26 @@ SOFTWARE. -->
       <!--/**
         * @cfg {String} [data=""]
         * url to be used by the object.
+        * Same meaning as the data attribute in the html object tag.
+        */-->
+
+      <!--/**
+        * @cfg {String} [type=""]
+        * media type of the data specified in the data attribute
+        * Same meaning as the type attribute in the html object tag.
         */-->
 
       <!--/**
         * @method getDom
-        * Returns the base of the dom
+        * Returns the base of the object dom
         */-->
 
       <!--/**
-        * @method resizeToView
-        * Modify the embedded svg object to use the size of the view.
+        * @method objectLoaded
+        * Called when the object is loaded. You can modify the contents of
+        * the object once it is loaded.
         */-->
+
 
     <class name="dreem_object" type="coffee">
       <handler event="onwidth" method="handleResize"></handler>
@@ -59,38 +68,16 @@ SOFTWARE. -->
         return @object.contentDocument
       </method>
 
+      <method name="objectLoaded">
+      </method>
+
       <handler event="oninit">
+        # Get initial text if the data is specified inline
+        @inline = @text || @sprite.text();
+        this.sprite.text('');
+
         @createObject()
       </handler>
-
-      <method name="resizeToView">
-        dom = @getDom()
-        return if !dom
-        
-        # Find every svg and modify width/height to be 100%.
-        # This only runs once per svg
-        elements = $(dom).find('svg')
-        for svg, index in elements
-          continue if svg.getAttribute('width_orig')
-
-          # Rewrite width and height, saving the original values
-          w = svg.getAttribute('width')
-          h = svg.getAttribute('height')
-          svg.setAttribute('width_orig', w)
-          svg.setAttribute('height_orig', h)
-          svg.setAttribute('width', '100%')
-          svg.setAttribute('height', '100%')
-          # console.log('svg size set from ', w, h)
-
-          # Add a viewPort if one is missing and w,h was absolute
-          viewBox = svg.getAttribute('viewBox')
-          if w && h && !viewBox
-            # Add a viewBox to match the size
-            viewBox = '0 0 ' + w + ' ' + h
-            svg.setAttribute('viewBox', viewBox)
-            # console.log('new viewBox', viewBox)
-
-      </method>
 
       <method name="createObject">
         @sprite.el.removeChild(@object) if @object
@@ -99,18 +86,35 @@ SOFTWARE. -->
         @object = document.createElement('object')
 
         # Style
-        @object.setAttribute('style', 'border: 1px solid black')
+        # @object.setAttribute('style', 'border: 1px solid black')
+        @object.setAttribute('style', 'overflow: hidden')
 
         # Dynamic attributes
         @updateObject()
 
+	# For inline data, write it to @inline and insert into dom when the
+        # object is loaded. Strip off comment tags, if present
+        if @inline
+          # console.log("inline", @inline)
+          @inline = @inline.trim()
+          # Remove comments. Comments are used to prevent compile errors
+          p1 = @inline.indexOf('<!--')
+          p2 = @inline.lastIndexOf('-->')
+          if p1 != -1 && p2 != -1
+            p1 = p1 + 4
+            @inline = @inline.substr(p1, p2-p1-3)
 
         # Fire event when the object is loaded.
         @object.addEventListener 'load', (e) =>
           obj = this.object  # @object
           object_dom = obj.contentDocument
-          # Modify the svg to size to the view
-          this.resizeToView()
+          # Write the svg inline if specified
+          if @inline
+            $(object_dom).contents().html(@inline)
+            # Don't use jquery because the kernel redefines .css
+            body = $(object_dom).contents().find('body')[0]
+            body.style.overflow = 'hidden'
+          this.objectLoaded()
           
         # Attach the object to the DOM
         @sprite.el.appendChild(@object)
