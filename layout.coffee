@@ -1531,12 +1531,19 @@ window.dr = do ->
       loadIncludes = (callback) ->
         # load includes
         for jel in jqel.find('include')
-          includerequests.push($.get(jel.attributes.href.value))
+          url = jel.attributes.href.value
+          jel.parentNode.removeChild(jel)
+          unless fileloaded[url]
+            # console.log('loading include', url, fileloaded[url])
+            fileloaded[url] = true
+            includerequests.push($.get(url)) 
 
         # wait for all includes to load
         $.when.apply($, includerequests).done((args...) ->
           # append includes
           args = [args] if (includerequests.length == 1)
+          includerequests = []
+          # console.log('loading includes', args)
 
           includeRE = /<[\/]*library>/gi
           initONE = true

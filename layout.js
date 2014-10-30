@@ -2000,11 +2000,16 @@
           return filerequests.push(prom);
         };
         loadIncludes = function(callback) {
-          var jel, _i, _len, _ref;
+          var jel, url, _i, _len, _ref;
           _ref = jqel.find('include');
           for (_i = 0, _len = _ref.length; _i < _len; _i++) {
             jel = _ref[_i];
-            includerequests.push($.get(jel.attributes.href.value));
+            url = jel.attributes.href.value;
+            jel.parentNode.removeChild(jel);
+            if (!fileloaded[url]) {
+              fileloaded[url] = true;
+              includerequests.push($.get(url));
+            }
           }
           return $.when.apply($, includerequests).done(function() {
             var args, el, extendz, html, includeRE, initONE, name, xhr, _j, _k, _len1, _len2, _ref1;
@@ -2012,6 +2017,7 @@
             if (includerequests.length === 1) {
               args = [args];
             }
+            includerequests = [];
             includeRE = /<[\/]*library>/gi;
             initONE = true;
             for (_j = 0, _len1 = args.length; _j < _len1; _j++) {
@@ -2039,7 +2045,7 @@
               }
             }
             return $.when.apply($, filerequests).done(function() {
-              var args, scriptsloading, url, _l, _len3, _len4, _len5, _m, _n, _ref2, _ref3, _ref4;
+              var args, scriptsloading, _l, _len3, _len4, _len5, _m, _n, _ref2, _ref3, _ref4;
               args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
               if (filerequests.length === 1) {
                 args = [args];
