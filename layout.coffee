@@ -1707,7 +1707,8 @@ window.dr = do ->
         dom.processSpecialTags(el, attributes, attributes.type)
 
       # Defer oninit if we have children
-      attributes.$skiponinit = skiponinit = getChildren(el).length > 0
+      children = (child for child in el.childNodes when child.nodeType == 1)
+      attributes.$skiponinit = skiponinit = children.length > 0
 
       if typeof dr[tagname] is 'function'
         parent = new dr[tagname](el, attributes)
@@ -1715,31 +1716,27 @@ window.dr = do ->
         showWarnings(["Unrecognized class #{tagname} #{el.outerHTML}"])
         return
 
+      return unless children.length > 0
+
       unless isClass or isState
-        children = (child for child in el.childNodes when child.nodeType == 1)
         # create children now
         for child in children
           # console.log 'initting class child', child.localName
           initElement(child, parent)
 
-        if skiponinit and not parent.inited
+        unless parent.inited
           # console.log('skiponinit', parent, parent.subnodes.length)
-          if (children.length)
-            checkChildren = ->
-              for child in children
-                if not child.inited and child.localName is not 'class'
-                  # console.log 'child not initted', child, parent
-                  setTimeout(checkChildren, 0)
-                  return
-              # console.log('doinit', parent)
-              parent.inited = true
-              parent.sendEvent('init', parent)
-              return
-            setTimeout(checkChildren, 0)
-          else
-            # console.log 'class init', parent
+          checkChildren = ->
+            for child in children
+              if not child.inited and child.localName is not 'class'
+                # console.log 'child not initted', child, parent
+                setTimeout(checkChildren, 0)
+                return
+            # console.log('doinit', parent)
             parent.inited = true
             parent.sendEvent('init', parent)
+            return
+          setTimeout(checkChildren, 0)
 
       return
 

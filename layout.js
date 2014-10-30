@@ -2216,49 +2216,47 @@
         if (!(isClass || isState)) {
           dom.processSpecialTags(el, attributes, attributes.type);
         }
-        attributes.$skiponinit = skiponinit = getChildren(el).length > 0;
+        children = (function() {
+          var _j, _len1, _ref, _results;
+          _ref = el.childNodes;
+          _results = [];
+          for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+            child = _ref[_j];
+            if (child.nodeType === 1) {
+              _results.push(child);
+            }
+          }
+          return _results;
+        })();
+        attributes.$skiponinit = skiponinit = children.length > 0;
         if (typeof dr[tagname] === 'function') {
           parent = new dr[tagname](el, attributes);
         } else {
           showWarnings(["Unrecognized class " + tagname + " " + el.outerHTML]);
           return;
         }
+        if (!(children.length > 0)) {
+          return;
+        }
         if (!(isClass || isState)) {
-          children = (function() {
-            var _j, _len1, _ref, _results;
-            _ref = el.childNodes;
-            _results = [];
-            for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
-              child = _ref[_j];
-              if (child.nodeType === 1) {
-                _results.push(child);
-              }
-            }
-            return _results;
-          })();
           for (_j = 0, _len1 = children.length; _j < _len1; _j++) {
             child = children[_j];
             initElement(child, parent);
           }
-          if (skiponinit && !parent.inited) {
-            if (children.length) {
-              checkChildren = function() {
-                var _k, _len2;
-                for (_k = 0, _len2 = children.length; _k < _len2; _k++) {
-                  child = children[_k];
-                  if (!child.inited && child.localName === !'class') {
-                    setTimeout(checkChildren, 0);
-                    return;
-                  }
+          if (!parent.inited) {
+            checkChildren = function() {
+              var _k, _len2;
+              for (_k = 0, _len2 = children.length; _k < _len2; _k++) {
+                child = children[_k];
+                if (!child.inited && child.localName === !'class') {
+                  setTimeout(checkChildren, 0);
+                  return;
                 }
-                parent.inited = true;
-                parent.sendEvent('init', parent);
-              };
-              setTimeout(checkChildren, 0);
-            } else {
+              }
               parent.inited = true;
               parent.sendEvent('init', parent);
-            }
+            };
+            setTimeout(checkChildren, 0);
           }
         }
       };
