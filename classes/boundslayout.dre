@@ -1,0 +1,114 @@
+ <!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+  <!--/**
+     * @class dr.boundslayout
+     * @extends dr.layout
+     * Sets the parent view's size to match the bounds of its children.
+     *
+     * Here is a view that contains three sub views that are positioned with a simplelayout. The parent view has a grey background color. Notice that the subviews are visible because they overflow the parent view, but the parent view itself takes up no space.
+     *
+     *     @example
+     *     <view bgcolor="darkgrey">
+     *       <simplelayout axis="y"></simplelayout>
+     *
+     *       <view width="100" height="25" bgcolor="lightpink" opacity=".3"></view>
+     *       <view width="100" height="25" bgcolor="plum" opacity=".3"></view>
+     *       <view width="100" height="25" bgcolor="lightblue" opacity=".3"></view>
+     *     </view>
+     *
+     * Now we'll add a boundlayout to the parent view. Notice that now the parent view does take up space, and you can see it through the semi-transparent subviews.
+     *
+     *     @example
+     *     <view bgcolor="darkgrey">
+     *       <boundslayout></boundslayout>
+     *
+     *       <simplelayout axis="y"></simplelayout>
+     *
+     *       <view width="100" height="25" bgcolor="lightpink" opacity=".3"></view>
+     *       <view width="100" height="25" bgcolor="plum" opacity=".3"></view>
+     *       <view width="100" height="25" bgcolor="lightblue" opacity=".3"></view>
+     *     </view>
+     */-->    
+    <class name="boundslayout" extends="layout" type="coffee">
+      <!--/**
+        * @cfg {""/"width"/"height"} [ignoreattr=""]
+        * Optionally skip bounds calculations for a specific axis.
+        */-->
+      <attribute name="ignoreattr" type="string" value=""></attribute>
+      <attribute name="width" type="number" value="0"></attribute>
+      <attribute name="height" type="number" value="0"></attribute>
+      <handler event="oninit">
+        # console.log('oninit', this)
+      </handler>
+      <handler event="onsubview" args="subview">
+        listeners = ""
+        listeners += "width x " unless @ignoreattr == 'width'
+        listeners += "height y " unless @ignoreattr == 'height'
+        # console.log('onsubview bound', listeners, subview, this)
+        @listenTo(subview, listeners, @update)
+      </handler>
+      <method name="update" args="value, sender, attribute">
+        # console.log('skip', @skip, @locked)
+        return if @skip()
+        locked = @locked
+        @locked = true
+        
+        # TODO: fix to track outliers (and maybe thresholds) and update everything when all outliers go below that threshold
+        if false # and sender? and value? and (@lastlength == @parent.subviews.length)
+          # update based on sender attribute where available
+          if (! attribute or attribute == 'x' or attribute == 'width')
+            width = Math.max(@width, sender.x + sender.width)
+            #if width != @width
+            @setAttribute('width', width) unless @.width == width
+            @parent.setAttribute('width', width) unless @parent.width == width
+
+          if (! attribute or attribute == 'y' or attribute == 'height')
+            height = Math.max(@height, sender.y + sender.height)
+            #if height != @height
+            @setAttribute('height', height) unless @.height == height
+            @parent.setAttribute('height', height) unless @parent.height == height
+
+          # console.log('sender', value, sender, attribute, width, height)
+        else
+          # console.log('brute force update')
+          width = 0
+          height = 0
+          for subview, len in @parent.subviews
+            continue if subview.ignorelayout or not subview.visible
+            # console.log 'updating', subview, @attribute, pos
+            width = Math.max(width, subview.x + subview.width) unless @ignoreattr == 'width'
+            height = Math.max(height, subview.y + subview.height) unless @ignoreattr == 'height'
+            # return if isNaN(width) or isNaN(height)
+            # console.log 'value', subview, width, height
+
+          @lastlength = len
+
+          width += @parent.padding * 2
+          height += @parent.padding * 2
+
+          @setAttribute('width', width) unless @ignoreattr == 'width' or @width == width
+          @setAttribute('height', height) unless @ignoreattr == 'height' or @height == height
+          @parent.setAttribute('width', width) unless @ignoreattr == 'width' or @parent.width == width
+          @parent.setAttribute('height', height) unless @ignoreattr == 'height' or @parent.height == height
+        @locked = locked
+      </method>
+    </class>
