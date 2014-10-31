@@ -12,7 +12,6 @@
   <view id="container">
     <view id="sub">
       <handler event="oninit">
-        console.log('sub oninit', sub.inited)
         assert.equal(false, !!container.inited)
       </handler>
     </view>
@@ -21,13 +20,11 @@
   <view id="container2">
     <view id="sub2">
       <handler event="oninit">
-        console.log('sub2 oninit', sub2.inited)
         assert.equal(false, !!container2.inited)
       </handler>
     </view>
     <handler event="oninit">
       assert.equal(true, !!sub2.inited)
-      console.log('container2 oninit', sub2.inited)
     </handler>
   </view>
 </view>
