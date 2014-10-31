@@ -21,11 +21,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. -->
 
   <!--/**
-     * @class dr.dreem_object
+     * @class dr.abstractart
      * @extends dr.view
      * Component wrapper for object tag.
      * The size of the object matches the width/height of the view when the
-     * component is created.
+     * component is created. dr.abstractart is usually used as a base class
+     * for art, but it can be directly to embed svg files into dreem.
      *
      */-->    
 
@@ -53,7 +54,7 @@ SOFTWARE. -->
         */-->
 
 
-    <class name="dreem_object" type="coffee">
+    <class name="abstractart" type="coffee">
       <handler event="onwidth" method="handleResize"></handler>
       <handler event="onheight" method="handleResize"></handler>
 

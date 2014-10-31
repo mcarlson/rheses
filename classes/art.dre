@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. -->
 
   <!--/**
-     * @class dr.dsvg
+     * @class dr.art
      * @extends dr.dreem_object
      * Vector graphics support using svg.
      *
@@ -39,7 +39,7 @@ SOFTWARE. -->
         * Modify the embedded svg object to use the size of the view.
         */-->
 
-    <class name="dsvg" type="coffee" extends="dreem_object">
+    <class name="art" type="coffee" extends="abstractart">
       <method name="objectLoaded">
         # Overridden from base class to modify the svg to size itself to the
         # view.
