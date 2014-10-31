@@ -2,3 +2,5 @@
 **/.idea
 apidocs/
 layout.js.map
+.DS_Store
+docs/api/data-*
