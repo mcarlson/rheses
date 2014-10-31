@@ -102,6 +102,9 @@ SOFTWARE. -->
 
           @lastlength = len
 
+          width += @parent.padding * 2
+          height += @parent.padding * 2
+
           @setAttribute('width', width) unless @ignoreattr == 'width' or @width == width
           @setAttribute('height', height) unless @ignoreattr == 'height' or @height == height
           @parent.setAttribute('width', width) unless @ignoreattr == 'width' or @parent.width == width
