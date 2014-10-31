@@ -207,7 +207,7 @@ window.dr = do ->
     ###
     @include Events
 
-    typemappings= 
+    typemappings=
       number: parseFloat
       boolean: (val) -> (if (typeof val == 'string') then val == 'true' else (!! val))
       string: (val) -> val + ''
@@ -220,6 +220,20 @@ window.dr = do ->
     # Tracks events sent by setAttribute() to prevent recursion
     eventlock = {c: 0}
 
+    _coerceType: (name, value) ->
+      type = @types[name]
+      if type
+        unless (typemappings[type])
+          showWarnings ["Invalid type '#{type}' for attribute '#{name}', must be one of: #{Object.keys(typemappings).join(', ')}"]
+          return
+        value = typemappings[type](value)
+      return value
+
+    _setDefaults: (attributes, defaults={}) ->
+      for key, value of defaults
+        if not (key of attributes)
+          attributes[key] = defaults[key]
+
     ###*
     # Sets an attribute, calls a setter if there is one, then sends an event with the new value
     # @param {String} name the name of the attribute to set
@@ -228,15 +242,7 @@ window.dr = do ->
     setAttribute: (name, value) ->
       # TODO: add support for dynamic constraints
 
-      # coerce value to type
-      type = @types[name]
-      if type# and type of typemappings
-        unless (typemappings[type])
-          showWarnings ["Invalid type '#{type}' for attribute '#{name}', must be one of: #{Object.keys(typemappings).join(', ')}"]
-          return
-
-      # console.log 'type', name, type, value, typemappings[type], @
-        value = typemappings[type](value)
+      value = @_coerceType(name, value)
 
       @["set_#{name}"]?(value)
       @[name] = value
@@ -475,9 +481,10 @@ window.dr = do ->
     ###
     matchConstraint = /\${(.+)}/
     # parent must be set before name
-    lateattributes = ['parent', 'name']
+    earlyattributes = ['parent', 'name']
 
     constructor: (el, attributes = {}) ->
+
       ###*
       # @property {dr.node[]} subnodes
       # @readonly
@@ -498,7 +505,7 @@ window.dr = do ->
       # Contains the textual contents of this node, if any
       ###
       # store textual content
-      if el?.textContent 
+      if el?.textContent
         attributes.$textcontent = el.textContent
 
       if attributes.$methods
@@ -519,33 +526,34 @@ window.dr = do ->
       unless deferbindings
         @_bindHandlers()
 
+      for name in earlyattributes
+        @setAttribute(name, attributes[name]) if attributes[name]
+
       # Bind to event expressions and set attributes
       for name, value of attributes
-        @bindAttribute(name, value, attributes.$tagname) unless name in lateattributes
-      constraintScopes.push(@) if @constraints 
+        @bindAttribute(name, value, attributes.$tagname) unless name in earlyattributes
 
-      for name in lateattributes
-        @setAttribute(name, attributes[name]) if attributes[name]
+      constraintScopes.push(@) if @constraints
 
       unless deferbindings
         @_bindHandlers(true)
 
       ###*
-      # @event oninit 
+      # @event oninit
       # Fired when this node and all its children are completely initialized
       # @param {dr.node} node The dr.node that fired the event
       ###
       ###*
       # @property {Boolean} inited
       # @readonly
-      # True when this node and all its children are completely initialized 
+      # True when this node and all its children are completely initialized
       ###
 
       # console.log 'new node', @, attributes
       unless skiponinit
         unless @inited
           @inited = true
-          @sendEvent('init', @) 
+          @sendEvent('init', @)
 
     installMethods: (methods, tagname, scope=@, callbackscope=@) ->
       # console.log('installing methods', methods, tagname, scope, callbackscope)
@@ -712,7 +720,7 @@ window.dr = do ->
       `}).bind(this)`
 
     set_parent: (parent) ->
-      # console.log 'set_parent', parent, @
+#      console.log 'set_parent', parent, @
       # normalize to jQuery object
       if parent instanceof Node
         # store references to parent and children
@@ -941,6 +949,7 @@ window.dr = do ->
       else
         @_cachedwidth = width
         @setStyle('width', 'auto') if resize
+        @setStyle('height', 'auto') if resize
         @setStyle('whiteSpace', '')
       {width: @el.clientWidth, height: @el.clientHeight}
 
@@ -1134,25 +1143,30 @@ window.dr = do ->
       ###
       @subviews = []
       types = {x: 'number', y: 'number', width: 'number', height: 'number', clickable: 'boolean', clip: 'boolean', visible: 'boolean'}
-      for key, type of types
-        if not (key of attributes)
-          @[key] = if type is 'number' then 0 else false
-          # console.log 'set default', key, type, @[key]
+      defaults = {x:0, y:0, width:0, height:0, clickable:false, clip:false, visible:true}
 
       for key, type of attributes.$types
         types[key] = type
       attributes.$types = types
 
-      attributes.visible = true unless 'visible' in attributes
+      attributes['width'] = @_sizeFromPercent(attributes['width'], "width") if @_isPercent(attributes['width'])
+      attributes['height'] = @_sizeFromPercent(attributes['height'], "height") if @_isPercent(attributes['height'])
+
+      @_setDefaults(attributes, defaults)
 
       if (el instanceof View)
         el = el.sprite
 
       # console.log 'sprite tagname', attributes.$tagname
       @_createSprite(el, attributes)
-
       super
       # console.log 'new view', el, attributes, @
+
+    _isPercent: (value) ->
+      typeof value == 'string' && value.indexOf('%') > -1;
+
+    _sizeFromPercent: (percent, dim) ->
+      return "${this.parent.#{dim} ? this.parent.#{dim}*#{parseFloat(percent)/100.0} : $(this.parent).#{dim}()}"
 
     _createSprite: (el, attributes) ->
       @sprite = new Sprite(el, @, attributes.$tagname)
@@ -1245,14 +1259,13 @@ window.dr = do ->
     # The text inside this input text field
     ###
     constructor: (el, attributes = {}) ->
-      attributes.clickable = true if not ('clickable' of attributes)
-      attributes.multiline = true if not ('multiline' of attributes)
-      attributes.width = true if not ('width' of attributes)
-
       types = {multiline: 'boolean'}
+      defaults = {clickable:true, multiline:true}
       for key, type of attributes.$types
         types[key] = type
       attributes.$types = types
+
+      @_setDefaults(attributes, defaults)
 
       super
 
@@ -1390,12 +1403,13 @@ window.dr = do ->
     ###
     constructor: (el, attributes = {}) ->
       types = {resize: 'boolean', multiline: 'boolean'}
-      @['resize'] = true unless 'resize' of attributes
-      @['multiline'] = false unless 'multiline' of attributes
+      defaults = {resize:true, multiline:false}
 
       for key, type of attributes.$types
         types[key] = type
       attributes.$types = types
+
+      @_setDefaults(attributes, defaults)
 
       @listenTo(@, 'multiline', @updateSize)
       @listenTo(@, 'resize', @updateSize)
@@ -1403,6 +1417,8 @@ window.dr = do ->
 
       super
 
+    _createSprite: (el, attributes) ->
+      super
       @sprite.setText(@format(attributes.text))
 
     ###*
@@ -2223,6 +2239,7 @@ window.dr = do ->
       super
       # listen for new subviews
       @listenTo(@parent, 'subviews', @_added)
+      @listenTo(@parent, 'init', @update)
       @parent.layouts ?= []
       @parent.layouts.push(@)
       @parent.sendEvent('layouts', @parent.layouts)
