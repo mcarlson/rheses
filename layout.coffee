@@ -969,9 +969,8 @@ window.dr = do ->
       # console.log 'event', event.type, view
       view.sendEvent(event.type, view)
 
-    createTextElement: (text) ->
+    createTextElement: () ->
       @el.setAttribute('class', 'sprite sprite-text noselect')
-      @setText(text)
 
     createInputtextElement: (text, multiline, width, height) ->
       @el.setAttribute('class', 'sprite noselect')
@@ -1432,7 +1431,7 @@ window.dr = do ->
 
     _createSprite: (el, attributes) ->
       super
-      @sprite.createTextElement(@format(attributes.text))
+      @sprite.createTextElement()
 
     ###*
     # @method format

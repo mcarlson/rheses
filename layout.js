@@ -1287,9 +1287,8 @@
         return view.sendEvent(event.type, view);
       };
 
-      Sprite.prototype.createTextElement = function(text) {
-        this.el.setAttribute('class', 'sprite sprite-text noselect');
-        return this.setText(text);
+      Sprite.prototype.createTextElement = function() {
+        return this.el.setAttribute('class', 'sprite sprite-text noselect');
       };
 
       Sprite.prototype.createInputtextElement = function(text, multiline, width, height) {
@@ -1887,7 +1886,7 @@
 
       Text.prototype._createSprite = function(el, attributes) {
         Text.__super__._createSprite.apply(this, arguments);
-        return this.sprite.createTextElement(this.format(attributes.text));
+        return this.sprite.createTextElement();
       };
 
 
