@@ -830,7 +830,7 @@ window.dr = do ->
       @el.setAttribute('class', 'sprite')
       # @jqel = $(@el)
 
-    setStyle: (name, value) ->
+    setStyle: (name, value, internal) ->
       value ?= ''
       if name of stylemap
         name = stylemap[name] 
@@ -839,7 +839,7 @@ window.dr = do ->
       else if name.match(rdashAlpha)
         # console.log "replacing #{name}"
         name = name.replace(rdashAlpha, fcamelCase)
-        console.warn "Setting unknown CSS property #{name} = #{value} on ", @el.$view
+        console.warn "Setting unknown CSS property #{name} = #{value} on ", @el.$view unless internal
       # console.log('setStyle', name, value, @el)
       @el.style[name] = value
       # @jqel.css(name, value)
@@ -898,8 +898,8 @@ window.dr = do ->
             lastTouchDown = null
 
     set_clickable: (clickable) ->
-      @setStyle('pointer-events', if clickable then 'auto' else 'none')
-      @setStyle('cursor', if clickable then 'pointer' else '')
+      @setStyle('pointer-events', (if clickable then 'auto' else 'none'), true)
+      @setStyle('cursor', (if clickable then 'pointer' else ''), true)
 
       if capabilities.touch
         document.addEventListener('touchstart', @touchHandler, true)

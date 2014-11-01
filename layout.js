@@ -1121,7 +1121,7 @@
         this.el.setAttribute('class', 'sprite');
       }
 
-      Sprite.prototype.setStyle = function(name, value) {
+      Sprite.prototype.setStyle = function(name, value, internal) {
         if (value == null) {
           value = '';
         }
@@ -1132,7 +1132,9 @@
           value = styleval[name](value);
         } else if (name.match(rdashAlpha)) {
           name = name.replace(rdashAlpha, fcamelCase);
-          console.warn("Setting unknown CSS property " + name + " = " + value + " on ", this.el.$view);
+          if (!internal) {
+            console.warn("Setting unknown CSS property " + name + " = " + value + " on ", this.el.$view);
+          }
         }
         return this.el.style[name] = value;
       };
@@ -1197,8 +1199,8 @@
       };
 
       Sprite.prototype.set_clickable = function(clickable) {
-        this.setStyle('pointer-events', clickable ? 'auto' : 'none');
-        this.setStyle('cursor', clickable ? 'pointer' : '');
+        this.setStyle('pointer-events', (clickable ? 'auto' : 'none'), true);
+        this.setStyle('cursor', (clickable ? 'pointer' : ''), true);
         if (capabilities.touch) {
           document.addEventListener('touchstart', this.touchHandler, true);
           document.addEventListener('touchmove', this.touchHandler, true);
