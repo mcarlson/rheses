@@ -1246,14 +1246,10 @@
       Sprite.prototype.measureTextSize = function(multiline, width, resize) {
         this.el.setAttribute('class', 'sprite sprite-text noselect');
         if (multiline) {
-          if (this._cachedwidth > -1) {
-            width = this._cachedwidth;
-            this._cachedwidth = -1;
-          }
           this.setStyle('width', width);
+          this.setStyle('height', 'auto');
           this.setStyle('whiteSpace', 'normal');
         } else {
-          this._cachedwidth = width;
           if (resize) {
             this.setStyle('width', 'auto');
           }
@@ -1292,16 +1288,9 @@
         input.setAttribute('style', style);
         this.el.setAttribute('class', 'sprite noselect');
         this.el.appendChild(input);
-        return setTimeout((function(_this) {
-          return function() {
-            if (!_this.el) {
-              return;
-            }
-            _this.input = _this.el.getElementsByTagName('input')[0];
-            _this.input.$view = _this.el.$view;
-            return $(input).on('focus blur', _this.handle);
-          };
-        })(this), 0);
+        this.input = this.el.getElementsByTagName('input')[0];
+        this.input.$view = this.el.$view;
+        return $(input).on('focus blur', this.handle);
       };
 
       Sprite.prototype.getAbsolute = function() {
@@ -1670,6 +1659,12 @@
        * The text inside this input text field
        */
 
+
+      /**
+       * @cfg {Number} [width=100]
+       * The width of this input text field
+       */
+
       function InputText(el, attributes) {
         var defaults, key, type, types, _ref;
         if (attributes == null) {
@@ -1680,7 +1675,8 @@
         };
         defaults = {
           clickable: true,
-          multiline: true
+          multiline: true,
+          width: 100
         };
         _ref = attributes.$types;
         for (key in _ref) {
@@ -1690,15 +1686,9 @@
         attributes.$types = types;
         this._setDefaults(attributes, defaults);
         InputText.__super__.constructor.apply(this, arguments);
-        setTimeout((function(_this) {
-          return function() {
-            if (!_this.height) {
-              _this.height = _this._heightFromInputHeight();
-            }
-            $(_this.inputElem).css('width', _this.width);
-            return $(_this.inputElem).css('height', _this.height);
-          };
-        })(this), 0);
+        if (!this.height) {
+          this.setAttribute('height', this._heightFromInputHeight());
+        }
         this.listenTo(this, 'change', this._handleChange);
         this.listenTo(this, 'width', function(w) {
           if (this.inputElem) {
@@ -1869,6 +1859,9 @@
         }
         attributes.$types = types;
         this._setDefaults(attributes, defaults);
+        if ('width' in attributes) {
+          this._initialwidth = attributes.width;
+        }
         this.listenTo(this, 'multiline', this.updateSize);
         this.listenTo(this, 'resize', this.updateSize);
         this.listenTo(this, 'init', this.updateSize);
@@ -1895,19 +1888,18 @@
       };
 
       Text.prototype.updateSize = function() {
-        var size;
+        var size, width;
         if (!this.inited) {
           return;
         }
-        size = this.sprite.measureTextSize(this.multiline, this.width, this.resize);
-        if (this.resize) {
-          this.setAttribute('width', size.width, true);
-        }
+        width = this.multiline ? this._initialwidth : this.width;
+        size = this.sprite.measureTextSize(this.multiline, width, this.resize);
+        this.setAttribute('width', size.width, true);
         return this.setAttribute('height', size.height, true);
       };
 
       Text.prototype.set_data = function(d) {
-        return this.setAttribute('text', d);
+        return this.setAttribute('text', d, true);
       };
 
       Text.prototype.set_text = function(text) {
@@ -1915,17 +1907,6 @@
           this.sprite.setText(this.format(text));
           return this.updateSize();
         }
-      };
-
-      Text.prototype.setAttribute = function(name, value, skipstyle) {
-        var size;
-        if (name === "width" && this.resize) {
-          size = this.sprite.measureTextSize(this.multiline, this.width, this.resize);
-          if (size.width !== value) {
-            return;
-          }
-        }
-        return Text.__super__.setAttribute.apply(this, arguments);
       };
 
       return Text;

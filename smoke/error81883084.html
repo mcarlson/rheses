@@ -19,15 +19,14 @@
     <handler event="oninit">
       // Works as of revision 78280c7... Merge pull request #33 from teem2/inputtext_sprite_80664234
       // broken after
-      if (this.parent.label.multiline) {
-        assert.equal(this.parent.label.width, 100)
-        assert.equal(this.parent.label.height, 64)
-      } 
-      this.parent.label.setAttribute('multiline', ! this.parent.label.multiline)
-      if (! this.parent.label.multiline) {
-        assert.equal(this.parent.label.width, 362)
-        assert.equal(this.parent.label.height, 16)
-      } 
+      assert.equal(this.parent.label.width, 100)
+      assert.equal(this.parent.label.height, 64)
+      this.parent.label.setAttribute('multiline', false)
+      assert.equal(this.parent.label.width, 362)
+      assert.equal(this.parent.label.height, 16)
+      this.parent.label.setAttribute('multiline', true)
+      assert.equal(this.parent.label.width, 100)
+      assert.equal(this.parent.label.height, 64)
     </handler>
     </text>
   </view>

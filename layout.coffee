@@ -941,13 +941,10 @@ window.dr = do ->
     measureTextSize: (multiline, width, resize) ->
       @el.setAttribute('class', 'sprite sprite-text noselect')
       if multiline
-        if @_cachedwidth > -1
-          width = @_cachedwidth
-          @_cachedwidth = -1
         @setStyle('width', width)
+        @setStyle('height', 'auto')
         @setStyle('whiteSpace', 'normal')
       else
-        @_cachedwidth = width
         @setStyle('width', 'auto') if resize
         @setStyle('height', 'auto') if resize
         @setStyle('whiteSpace', '')
@@ -974,12 +971,9 @@ window.dr = do ->
       @el.setAttribute('class', 'sprite noselect')
       @el.appendChild(input)
 
-      setTimeout(() =>
-        return unless @el
-        @input = @el.getElementsByTagName('input')[0]
-        @input.$view = @el.$view
-        $(input).on('focus blur', @handle)
-      , 0)
+      @input = @el.getElementsByTagName('input')[0]
+      @input.$view = @el.$view
+      $(input).on('focus blur', @handle)
 
     getAbsolute: () ->
       @jqel ?= $(@el)
@@ -1258,9 +1252,13 @@ window.dr = do ->
     # @cfg {String} text
     # The text inside this input text field
     ###
+    ###*
+    # @cfg {Number} [width=100]
+    # The width of this input text field
+    ###
     constructor: (el, attributes = {}) ->
       types = {multiline: 'boolean'}
-      defaults = {clickable:true, multiline:true}
+      defaults = {clickable:true, multiline:true, width: 100}
       for key, type of attributes.$types
         types[key] = type
       attributes.$types = types
@@ -1269,14 +1267,7 @@ window.dr = do ->
 
       super
 
-      setTimeout(() =>
-        @height = @_heightFromInputHeight() unless @height
-
-        #FIXME: I think once we fix order of operations of attribute processing these will not be necessary
-        # anymore since an event will be thrown after the sprite creation (see https://www.pivotaltracker.com/story/show/81205368)
-        $(@inputElem).css('width', @width)
-        $(@inputElem).css('height', @height)
-      , 0)
+      @setAttribute('height', @_heightFromInputHeight()) unless @height
 
       @listenTo(@, 'change', @_handleChange)
 
@@ -1411,6 +1402,9 @@ window.dr = do ->
 
       @_setDefaults(attributes, defaults)
 
+      if 'width' of attributes
+        @_initialwidth = attributes.width
+
       @listenTo(@, 'multiline', @updateSize)
       @listenTo(@, 'resize', @updateSize)
       @listenTo(@, 'init', @updateSize)
@@ -1434,23 +1428,20 @@ window.dr = do ->
 
     updateSize: () ->
       return unless @inited
-      size = @sprite.measureTextSize(@multiline, @width, @resize)
-      @setAttribute 'width', size.width, true if @resize
+      width = if @multiline then @_initialwidth else @width
+      size = @sprite.measureTextSize(@multiline, width, @resize)
+      # console.log('updateSize', @multiline, width, @resize, size, @)
+      @setAttribute 'width', size.width, true
       @setAttribute 'height', size.height, true
 
     set_data: (d) ->
-      @setAttribute('text', d)
+      @setAttribute('text', d, true)
 
     set_text: (text) ->
       if (text != @text)
         @sprite.setText(@format(text))
         @updateSize()
 
-    setAttribute: (name, value, skipstyle) ->
-      if name == "width" && @resize
-        size = @sprite.measureTextSize(@multiline, @width, @resize)
-        return unless size.width == value
-      super
 
   warnings = []
   showWarnings = (data) ->
