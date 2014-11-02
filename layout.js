@@ -379,9 +379,11 @@
        * @param value the value to set to
        */
 
-      Eventable.prototype.setAttribute = function(name, value) {
+      Eventable.prototype.setAttribute = function(name, value, skipcoercion) {
         var _name;
-        value = this._coerceType(name, value);
+        if (!skipcoercion) {
+          value = this._coerceType(name, value);
+        }
         if (typeof this[_name = "set_" + name] === "function") {
           this[_name](value);
         }
@@ -1551,10 +1553,11 @@
       };
 
       View.prototype.setAttribute = function(name, value, skipstyle) {
+        value = this._coerceType(name, value);
         if (!(skipstyle || name in ignoredAttributes || this[name] === value)) {
           this.sprite.setStyle(name, value);
         }
-        return View.__super__.setAttribute.apply(this, arguments);
+        return View.__super__.setAttribute.call(this, name, value, true);
       };
 
       View.prototype.set_clickable = function(clickable) {

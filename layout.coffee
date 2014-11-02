@@ -239,10 +239,9 @@ window.dr = do ->
     # @param {String} name the name of the attribute to set
     # @param value the value to set to
     ###
-    setAttribute: (name, value) ->
+    setAttribute: (name, value, skipcoercion) ->
       # TODO: add support for dynamic constraints
-
-      value = @_coerceType(name, value)
+      value = @_coerceType(name, value) unless skipcoercion
 
       @["set_#{name}"]?(value)
       @[name] = value
@@ -1167,10 +1166,11 @@ window.dr = do ->
       @sprite = new Sprite(el, @, attributes.$tagname)
 
     setAttribute: (name, value, skipstyle) ->
+      value = @_coerceType(name, value)
       if not (skipstyle or name of ignoredAttributes or @[name] == value)
         # console.log 'setting style', name, value, @
         @sprite.setStyle(name, value)
-      super
+      super(name, value, true)
 
     set_clickable: (clickable) ->
       @sprite.set_clickable(clickable)
