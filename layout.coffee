@@ -841,7 +841,7 @@ window.dr = do ->
       @el.setAttribute('class', 'sprite')
       # @jqel = $(@el)
 
-    setStyle: (name, value, internal) ->
+    setStyle: (name, value, internal, el=@el) ->
       value ?= ''
       if name of stylemap
         name = stylemap[name] 
@@ -852,7 +852,7 @@ window.dr = do ->
         name = name.replace(rdashAlpha, fcamelCase)
         console.warn "Setting unknown CSS property #{name} = #{value} on ", @el.$view unless internal
       # console.log('setStyle', name, value, @el)
-      @el.style[name] = value
+      el.style[name] = value
       # @jqel.css(name, value)
 
     set_parent: (parent) ->
@@ -950,7 +950,6 @@ window.dr = do ->
         @input.value
 
     measureTextSize: (multiline, width, resize) ->
-      @el.setAttribute('class', 'sprite sprite-text noselect')
       if multiline
         @setStyle('width', width)
         @setStyle('height', 'auto')
@@ -967,24 +966,32 @@ window.dr = do ->
       # console.log 'event', event.type, view
       view.sendEvent(event.type, view)
 
+    createTextElement: (text) ->
+      @el.setAttribute('class', 'sprite sprite-text noselect')
+      @setText(text)
+
     createInputtextElement: (text, multiline, width, height) ->
+      @el.setAttribute('class', 'sprite noselect')
       input = document.createElement('input')
       input.setAttribute('type', 'text')
       input.setAttribute('value', text)
-      style = 'border: none; outline: none; background-color:transparent;';
+      input.setAttribute('class', 'sprite-inputtext')
       if width
-        style +=  'width:' + width + 'px;'
+        @setStyle('width', width, true, input)
       if height
-        style +=  'height:' + height + 'px;'
-      input.setAttribute('style', style)
-
-      # input.setAttribute('class', 'noselect')
-      @el.setAttribute('class', 'sprite noselect')
+        @setStyle('height', height, true, input)
       @el.appendChild(input)
+      # console.log('createInputtextElement', text, multiline, width, height, input)
 
-      @input = @el.getElementsByTagName('input')[0]
-      @input.$view = @el.$view
+      input.$view = @el.$view
       $(input).on('focus blur', @handle)
+      @input = input
+
+    getInputtextHeight: () ->
+      h = parseInt($(@input).css('height'))
+      borderH = parseInt($(@el).css('border-top-width')) + parseInt($(@el).css('border-bottom-width'))
+      paddingH = parseInt($(@el).css('padding-top')) + parseInt($(@el).css('padding-bottom'))
+      return h + borderH + paddingH 
 
     getAbsolute: () ->
       @jqel ?= $(@el)
@@ -1279,32 +1286,24 @@ window.dr = do ->
 
       super
 
-      @setAttribute('height', @_heightFromInputHeight()) unless @height
+      @setAttribute('height', @sprite.getInputtextHeight()) unless @height
 
       @listenTo(@, 'change', @_handleChange)
 
       @listenTo(@, 'width',
         (w) ->
-          $(@inputElem).css('width', w) if @inputElem
+          @sprite.setStyle('width', w, true, @sprite.input);
       )
       @listenTo(@, 'height',
         (h) ->
-          $(@inputElem).css('height', h) if @inputElem
+          @sprite.setStyle('height', h, true, @sprite.input);
       )
 
     _createSprite: (el, attributes) ->
       super
-      @text = attributes['text'] || @sprite.getText(true)
+      @text = attributes.text || @sprite.getText(true)
       @sprite.setText('')
-      @sprite.createInputtextElement(@text, @multiline, @width, @height)
-      @inputElem = @sprite.el.getElementsByTagName('input')[0]
-
-    _heightFromInputHeight: () ->
-      return unless @inputElem
-      h = parseInt($(@inputElem).css('height'))
-      borderH = parseInt($(@sprite.el).css('border-top-width')) + parseInt($(@sprite.el).css('border-bottom-width'))
-      paddingH = parseInt($(@sprite.el).css('padding-top')) + parseInt($(@sprite.el).css('padding-bottom'))
-      return h + borderH + paddingH
+      @sprite.createInputtextElement(@text, attributes.multiline, attributes.width, attributes.height)
 
     _handleChange: () ->
       return unless @replicator
@@ -1425,7 +1424,7 @@ window.dr = do ->
 
     _createSprite: (el, attributes) ->
       super
-      @sprite.setText(@format(attributes.text))
+      @sprite.createTextElement(@format(attributes.text))
 
     ###*
     # @method format
@@ -1773,7 +1772,7 @@ window.dr = do ->
     writeCSS = ->
       style = document.createElement('style')
       style.type = 'text/css'
-      style.innerHTML = '.sprite{ position: absolute; pointer-events: none; padding: 0; margin: 0; box-sizing:border-box;} .sprite-text{ width: auto; height; auto; white-space: nowrap;  padding: 0; margin: 0;} .hidden{ display: none; } .noselect{ -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;} method { display: none; } handler { display: none; } setter { display: none; } class { display:none } node { display:none } dataset { display:none } .warnings {font-size: 14px; background-color: pink; margin: 0;}'
+      style.innerHTML = '.sprite{ position: absolute; pointer-events: none; padding: 0; margin: 0; box-sizing:border-box;} .sprite-text{ width: auto; height; auto; white-space: nowrap;  padding: 0; margin: 0;} .sprite-inputtext{border: none; outline: none; background-color:transparent; resize:none;} .hidden{ display: none; } .noselect{ -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;} method { display: none; } handler { display: none; } setter { display: none; } class { display:none } node { display:none } dataset { display:none } .warnings {font-size: 14px; background-color: pink; margin: 0;}'
       document.getElementsByTagName('head')[0].appendChild(style)
 
     # init top-level views in the DOM recursively

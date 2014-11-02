@@ -1130,7 +1130,10 @@
         this.el.setAttribute('class', 'sprite');
       }
 
-      Sprite.prototype.setStyle = function(name, value, internal) {
+      Sprite.prototype.setStyle = function(name, value, internal, el) {
+        if (el == null) {
+          el = this.el;
+        }
         if (value == null) {
           value = '';
         }
@@ -1145,7 +1148,7 @@
             console.warn("Setting unknown CSS property " + name + " = " + value + " on ", this.el.$view);
           }
         }
-        return this.el.style[name] = value;
+        return el.style[name] = value;
       };
 
       Sprite.prototype.set_parent = function(parent) {
@@ -1253,7 +1256,6 @@
       };
 
       Sprite.prototype.measureTextSize = function(multiline, width, resize) {
-        this.el.setAttribute('class', 'sprite sprite-text noselect');
         if (multiline) {
           this.setStyle('width', width);
           this.setStyle('height', 'auto');
@@ -1282,24 +1284,36 @@
         return view.sendEvent(event.type, view);
       };
 
+      Sprite.prototype.createTextElement = function(text) {
+        this.el.setAttribute('class', 'sprite sprite-text noselect');
+        return this.setText(text);
+      };
+
       Sprite.prototype.createInputtextElement = function(text, multiline, width, height) {
-        var input, style;
+        var input;
+        this.el.setAttribute('class', 'sprite noselect');
         input = document.createElement('input');
         input.setAttribute('type', 'text');
         input.setAttribute('value', text);
-        style = 'border: none; outline: none; background-color:transparent;';
+        input.setAttribute('class', 'sprite-inputtext');
         if (width) {
-          style += 'width:' + width + 'px;';
+          this.setStyle('width', width, true, input);
         }
         if (height) {
-          style += 'height:' + height + 'px;';
+          this.setStyle('height', height, true, input);
         }
-        input.setAttribute('style', style);
-        this.el.setAttribute('class', 'sprite noselect');
         this.el.appendChild(input);
-        this.input = this.el.getElementsByTagName('input')[0];
-        this.input.$view = this.el.$view;
-        return $(input).on('focus blur', this.handle);
+        input.$view = this.el.$view;
+        $(input).on('focus blur', this.handle);
+        return this.input = input;
+      };
+
+      Sprite.prototype.getInputtextHeight = function() {
+        var borderH, h, paddingH;
+        h = parseInt($(this.input).css('height'));
+        borderH = parseInt($(this.el).css('border-top-width')) + parseInt($(this.el).css('border-bottom-width'));
+        paddingH = parseInt($(this.el).css('padding-top')) + parseInt($(this.el).css('padding-bottom'));
+        return h + borderH + paddingH;
       };
 
       Sprite.prototype.getAbsolute = function() {
@@ -1697,38 +1711,22 @@
         this._setDefaults(attributes, defaults);
         InputText.__super__.constructor.apply(this, arguments);
         if (!this.height) {
-          this.setAttribute('height', this._heightFromInputHeight());
+          this.setAttribute('height', this.sprite.getInputtextHeight());
         }
         this.listenTo(this, 'change', this._handleChange);
         this.listenTo(this, 'width', function(w) {
-          if (this.inputElem) {
-            return $(this.inputElem).css('width', w);
-          }
+          return this.sprite.setStyle('width', w, true, this.sprite.input);
         });
         this.listenTo(this, 'height', function(h) {
-          if (this.inputElem) {
-            return $(this.inputElem).css('height', h);
-          }
+          return this.sprite.setStyle('height', h, true, this.sprite.input);
         });
       }
 
       InputText.prototype._createSprite = function(el, attributes) {
         InputText.__super__._createSprite.apply(this, arguments);
-        this.text = attributes['text'] || this.sprite.getText(true);
+        this.text = attributes.text || this.sprite.getText(true);
         this.sprite.setText('');
-        this.sprite.createInputtextElement(this.text, this.multiline, this.width, this.height);
-        return this.inputElem = this.sprite.el.getElementsByTagName('input')[0];
-      };
-
-      InputText.prototype._heightFromInputHeight = function() {
-        var borderH, h, paddingH;
-        if (!this.inputElem) {
-          return;
-        }
-        h = parseInt($(this.inputElem).css('height'));
-        borderH = parseInt($(this.sprite.el).css('border-top-width')) + parseInt($(this.sprite.el).css('border-bottom-width'));
-        paddingH = parseInt($(this.sprite.el).css('padding-top')) + parseInt($(this.sprite.el).css('padding-bottom'));
-        return h + borderH + paddingH;
+        return this.sprite.createInputtextElement(this.text, attributes.multiline, attributes.width, attributes.height);
       };
 
       InputText.prototype._handleChange = function() {
@@ -1880,7 +1878,7 @@
 
       Text.prototype._createSprite = function(el, attributes) {
         Text.__super__._createSprite.apply(this, arguments);
-        return this.sprite.setText(this.format(attributes.text));
+        return this.sprite.createTextElement(this.format(attributes.text));
       };
 
 
@@ -2309,7 +2307,7 @@
         var style;
         style = document.createElement('style');
         style.type = 'text/css';
-        style.innerHTML = '.sprite{ position: absolute; pointer-events: none; padding: 0; margin: 0; box-sizing:border-box;} .sprite-text{ width: auto; height; auto; white-space: nowrap;  padding: 0; margin: 0;} .hidden{ display: none; } .noselect{ -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;} method { display: none; } handler { display: none; } setter { display: none; } class { display:none } node { display:none } dataset { display:none } .warnings {font-size: 14px; background-color: pink; margin: 0;}';
+        style.innerHTML = '.sprite{ position: absolute; pointer-events: none; padding: 0; margin: 0; box-sizing:border-box;} .sprite-text{ width: auto; height; auto; white-space: nowrap;  padding: 0; margin: 0;} .sprite-inputtext{border: none; outline: none; background-color:transparent; resize:none;} .hidden{ display: none; } .noselect{ -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;} method { display: none; } handler { display: none; } setter { display: none; } class { display:none } node { display:none } dataset { display:none } .warnings {font-size: 14px; background-color: pink; margin: 0;}';
         return document.getElementsByTagName('head')[0].appendChild(style);
       };
       initAllElements = function(selector) {
