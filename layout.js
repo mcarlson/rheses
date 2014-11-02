@@ -1144,7 +1144,7 @@
           value = styleval[name](value);
         } else if (name.match(rdashAlpha)) {
           name = name.replace(rdashAlpha, fcamelCase);
-          if (!internal) {
+          if (debug && !internal) {
             console.warn("Setting unknown CSS property " + name + " = " + value + " on ", this.el.$view);
           }
         }

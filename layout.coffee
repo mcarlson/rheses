@@ -850,7 +850,7 @@ window.dr = do ->
       else if name.match(rdashAlpha)
         # console.log "replacing #{name}"
         name = name.replace(rdashAlpha, fcamelCase)
-        console.warn "Setting unknown CSS property #{name} = #{value} on ", @el.$view unless internal
+        console.warn "Setting unknown CSS property #{name} = #{value} on ", @el.$view if debug and not internal
       # console.log('setStyle', name, value, @el)
       el.style[name] = value
       # @jqel.css(name, value)
