@@ -246,11 +246,7 @@ window.dr = do ->
 
       @["set_#{name}"]?(value)
       @[name] = value
-      unless eventlock[name] == @
-        eventlock[name] = @
-        eventlock["c#{name}"] = 0
-        @sendEvent(name, value)
-        eventlock = {}
+      @sendEvent(name, value)
       @
 
     ###*
@@ -259,13 +255,17 @@ window.dr = do ->
     # @param value the value to send with the event
     ###
     sendEvent: (name, value) ->
-      if eventlock[name] == @ and eventlock["c#{name}"]++ > 0
+      lockkey = "c#{name}"
+      if eventlock[name] == @ and eventlock[lockkey]++ > 0
         # don't send events more than once per setAttribute() for a given object/name 
         return @ 
 
       # send event
-      if @events?[name]
+      if @events?[name] and eventlock[name] != @
+        eventlock[name] = @
+        eventlock[lockkey] = 0
         @trigger(name, value, @) 
+        eventlock = {}
       # else
         # console.log 'no event named', name, @events, @
       @

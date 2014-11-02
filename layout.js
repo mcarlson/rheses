@@ -386,12 +386,7 @@
           this[_name](value);
         }
         this[name] = value;
-        if (eventlock[name] !== this) {
-          eventlock[name] = this;
-          eventlock["c" + name] = 0;
-          this.sendEvent(name, value);
-          eventlock = {};
-        }
+        this.sendEvent(name, value);
         return this;
       };
 
@@ -403,12 +398,16 @@
        */
 
       Eventable.prototype.sendEvent = function(name, value) {
-        var _ref;
-        if (eventlock[name] === this && eventlock["c" + name]++ > 0) {
+        var lockkey, _ref;
+        lockkey = "c" + name;
+        if (eventlock[name] === this && eventlock[lockkey]++ > 0) {
           return this;
         }
-        if ((_ref = this.events) != null ? _ref[name] : void 0) {
+        if (((_ref = this.events) != null ? _ref[name] : void 0) && eventlock[name] !== this) {
+          eventlock[name] = this;
+          eventlock[lockkey] = 0;
           this.trigger(name, value, this);
+          eventlock = {};
         }
         return this;
       };
