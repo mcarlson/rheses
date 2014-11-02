@@ -340,9 +340,7 @@
         }
       };
 
-      eventlock = {
-        c: 0
-      };
+      eventlock = {};
 
       Eventable.prototype._coerceType = function(name, value) {
         var type;
@@ -390,10 +388,9 @@
         this[name] = value;
         if (eventlock[name] !== this) {
           eventlock[name] = this;
+          eventlock["c" + name] = 0;
           this.sendEvent(name, value);
-          eventlock = {
-            c: 0
-          };
+          eventlock = {};
         }
         return this;
       };
@@ -407,10 +404,8 @@
 
       Eventable.prototype.sendEvent = function(name, value) {
         var _ref;
-        if (eventlock[name] === this) {
-          if (eventlock.c++ > 1) {
-            return this;
-          }
+        if (eventlock[name] === this && eventlock["c" + name]++ > 0) {
+          return this;
         }
         if ((_ref = this.events) != null ? _ref[name] : void 0) {
           this.trigger(name, value, this);

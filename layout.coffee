@@ -218,7 +218,7 @@ window.dr = do ->
         eval(val)
 
     # Tracks events sent by setAttribute() to prevent recursion
-    eventlock = {c: 0}
+    eventlock = {}
 
     _coerceType: (name, value) ->
       type = @types[name]
@@ -248,8 +248,9 @@ window.dr = do ->
       @[name] = value
       unless eventlock[name] == @
         eventlock[name] = @
+        eventlock["c#{name}"] = 0
         @sendEvent(name, value)
-        eventlock = {c: 0}
+        eventlock = {}
       @
 
     ###*
@@ -258,9 +259,9 @@ window.dr = do ->
     # @param value the value to send with the event
     ###
     sendEvent: (name, value) ->
-      if eventlock[name] == @
+      if eventlock[name] == @ and eventlock["c#{name}"]++ > 0
         # don't send events more than once per setAttribute() for a given object/name 
-        return @ if eventlock.c++ > 1
+        return @ 
 
       # send event
       if @events?[name]
