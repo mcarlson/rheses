@@ -4,7 +4,6 @@
   <style type="text/css">
     body {
       background-color: rgb(46,36,30);
-      background-image: url(img/x2/background-r.png);
       background-size: 259px 259px;
       font-family: 'Helvetica';
       font-size: 14px;
@@ -31,7 +30,7 @@
       // works as of 16e8919... [#79246500] Improved ace examples by showing an example with inline dreem code. (I didn't rebuild the docs)
       assert.equal(this.inp.width, 100)
       // Height shouldn't be 0, but it is as of 16e8919 even though it looks correct:
-      assert.equal(this.inp.height, 16)
+      assert.equal(this.inp.height, window._phantom ? 14 : 16)
     </handler>
   </view>
 <!-- The MIT License (MIT)
