@@ -25,7 +25,7 @@ def wait_for_javascript_event event_name
   selenium_driver.execute_async_script(
       "var callback = arguments[arguments.length - 1];
     if (window.DREEM_INITED) callback();
-    else window.addEventListener('dreeminit', function (e) { setTimeout(callback, 1); alert(window.DREEM_INITED); return true; }, false);"
+    else window.addEventListener('dreeminit', function (e) { setTimeout(callback, 1);  return true; }, false);"
   )
 end
 
