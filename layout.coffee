@@ -750,6 +750,17 @@ window.dr = do ->
         @parent.sendEvent(name, arr[index])
       return
 
+    # find all parents with an attribute set to a specific value. Used in updateSize to deal with invisible parents.
+    _findParents: (name, value) ->
+      out = []
+      p = @
+      while (p)
+        if name of p and p[name] == value
+          out.push p
+        p = p.parent
+      out
+
+    # find an attribute in a parent. Returns the value found. Used by datapath.
     _findInParents: (name) ->
       p = @parent
       while (p)
@@ -1431,6 +1442,15 @@ window.dr = do ->
       return unless @inited
       width = if @multiline then @_initialwidth else @width
       size = @sprite.measureTextSize(@multiline, width, @resize)
+      if size.width == 0 and size.height == 0
+        # check for hidden parents
+        parents = @_findParents('visible', false)
+        for parent in parents
+          parent.sprite.el.style.display = ''
+        size = @sprite.measureTextSize(@multiline, width, @resize)
+        for parent in parents
+          parent.sprite.el.style.display = 'none'
+
       # console.log('updateSize', @multiline, width, @resize, size, @)
       @setAttribute 'width', size.width, true
       @setAttribute 'height', size.height, true

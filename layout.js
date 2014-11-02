@@ -1013,6 +1013,19 @@
         }
       };
 
+      Node.prototype._findParents = function(name, value) {
+        var out, p;
+        out = [];
+        p = this;
+        while (p) {
+          if (name in p && p[name] === value) {
+            out.push(p);
+          }
+          p = p.parent;
+        }
+        return out;
+      };
+
       Node.prototype._findInParents = function(name) {
         var p;
         p = this.parent;
@@ -1885,12 +1898,24 @@
       };
 
       Text.prototype.updateSize = function() {
-        var size, width;
+        var parent, parents, size, width, _i, _j, _len, _len1;
         if (!this.inited) {
           return;
         }
         width = this.multiline ? this._initialwidth : this.width;
         size = this.sprite.measureTextSize(this.multiline, width, this.resize);
+        if (size.width === 0 && size.height === 0) {
+          parents = this._findParents('visible', false);
+          for (_i = 0, _len = parents.length; _i < _len; _i++) {
+            parent = parents[_i];
+            parent.sprite.el.style.display = '';
+          }
+          size = this.sprite.measureTextSize(this.multiline, width, this.resize);
+          for (_j = 0, _len1 = parents.length; _j < _len1; _j++) {
+            parent = parents[_j];
+            parent.sprite.el.style.display = 'none';
+          }
+        }
         this.setAttribute('width', size.width, true);
         return this.setAttribute('height', size.height, true);
       };
