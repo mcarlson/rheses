@@ -1292,8 +1292,12 @@
       Sprite.prototype.createInputtextElement = function(text, multiline, width, height) {
         var input;
         this.el.setAttribute('class', 'sprite noselect');
-        input = document.createElement('input');
-        input.setAttribute('type', 'text');
+        if (multiline) {
+          input = document.createElement('textarea');
+        } else {
+          input = document.createElement('input');
+          input.setAttribute('type', 'text');
+        }
         input.setAttribute('value', text);
         input.setAttribute('class', 'sprite-inputtext');
         if (width) {
@@ -1699,7 +1703,7 @@
         };
         defaults = {
           clickable: true,
-          multiline: true,
+          multiline: false,
           width: 100
         };
         _ref = attributes.$types;

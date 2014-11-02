@@ -972,8 +972,11 @@ window.dr = do ->
 
     createInputtextElement: (text, multiline, width, height) ->
       @el.setAttribute('class', 'sprite noselect')
-      input = document.createElement('input')
-      input.setAttribute('type', 'text')
+      if multiline
+        input = document.createElement('textarea')
+      else
+        input = document.createElement('input')
+        input.setAttribute('type', 'text')
       input.setAttribute('value', text)
       input.setAttribute('class', 'sprite-inputtext')
       if width
@@ -1277,7 +1280,7 @@ window.dr = do ->
     ###
     constructor: (el, attributes = {}) ->
       types = {multiline: 'boolean'}
-      defaults = {clickable:true, multiline:true, width: 100}
+      defaults = {clickable:true, multiline:false, width: 100}
       for key, type of attributes.$types
         types[key] = type
       attributes.$types = types
