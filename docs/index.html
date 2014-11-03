@@ -43,20 +43,20 @@
 
       <view name="lesson_buttons">
         <simplelayout axis="x" spacing="8"></simplelayout>
-        <labelbutton name="prev" text="Previous Lesson" visible="false">
-          <handler event="onclick">
-            //topview = this.parent.parent.parent;
-            topview = $('view').not('view view')[0].$view;
-            page = topview.prev_page;
-            if (page) window.location.hash = page;
-          </handler>
-        </labelbutton>
-
         <labelbutton name="next" text="Next Lesson" visible="false">
           <handler event="onclick">
             //topview = this.parent.parent.parent;
             topview = $('view').not('view view')[0].$view;
             page = topview.next_page;
+            if (page) window.location.hash = page;
+          </handler>
+        </labelbutton>
+
+        <labelbutton name="prev" text="Previous Lesson" visible="false">
+          <handler event="onclick">
+            //topview = this.parent.parent.parent;
+            topview = $('view').not('view view')[0].$view;
+            page = topview.prev_page;
             if (page) window.location.hash = page;
           </handler>
         </labelbutton>

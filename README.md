@@ -57,6 +57,10 @@ The smoke tests docs are run with [http://phantomjs.org/](), so you'll need to i
 If you get RESOURCE ERROR messages, try specifying a different timeout argument. The smaller the number, the faster the tests will run:
     
     phantomjs ./bin/phantomrunner.js 100
+
+Finally, you may get better performance if you utilize phantom's disk cache:
+
+    phantomjs ./bin/phantomrunner.js 100 --disk-cache
     
 running the component tests
 --------------------------

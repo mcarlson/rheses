@@ -9,12 +9,24 @@
 </head>
 <body>
 <view id="all" width="100%" height="100%" clip="true">
-  <text width="100" height="100" text="Hello" bgcolor="green">
-  	<handler event="oninit">
-      assert.equal(this.width, 35)
-      assert.equal(this.height, 18)
-  	</handler>
-  </text>
+  <view id="container">
+    <view id="sub">
+      <handler event="oninit">
+        assert.equal(false, !!container.inited)
+      </handler>
+    </view>
+  </view>
+
+  <view id="container2">
+    <view id="sub2">
+      <handler event="oninit">
+        assert.equal(false, !!container2.inited)
+      </handler>
+    </view>
+    <handler event="oninit">
+      assert.equal(true, !!sub2.inited)
+    </handler>
+  </view>
 </view>
 <!-- The MIT License (MIT)
 

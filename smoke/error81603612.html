@@ -8,13 +8,27 @@
   <script type="text/javascript" src="/layout.js"></script>
 </head>
 <body>
-<view id="all" width="100%" height="100%" clip="true">
-  <text width="100" height="100" text="Hello" bgcolor="green">
-  	<handler event="oninit">
-      assert.equal(this.width, 35)
-      assert.equal(this.height, 18)
-  	</handler>
-  </text>
+<view id="main" width="100%" height="100%" clip="true">
+  <view id="outer" width="400" height="200" bgcolor="lightgrey">
+    <view id="inner" width="100%" height="100%" bgcolor="thistle">
+      <handler event="oninit">
+        assert.equal(400, inner.width)
+        assert.equal(200, inner.height)
+      </handler>
+
+      <view id="innermost" width="50%" height="50%">
+        <handler event="oninit">
+          assert.equal(200, innermost.width)
+          assert.equal(100, innermost.height)
+        </handler>
+      </view>
+    </view>
+  </view>
+
+  <handler event="oninit">
+    assert.notEqual(main.width, 100)
+    assert.equal(main.width, $('body').width())
+  </handler>
 </view>
 <!-- The MIT License (MIT)
 

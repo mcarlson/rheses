@@ -12,9 +12,10 @@
     input {
       font-family: 'Helvetica';
       font-size: 14px;
-      margin: 0px;
-      padding: 0px;
-      width: 100px;
+    }
+    textarea {
+      font-family: 'Helvetica';
+      font-size: 14px;
     }
     @font-face {
       font-family: 'wildride';
@@ -52,7 +53,7 @@
   <script type="text/javascript" src="layout.js"></script>
 </head>
 <body>
-  <view id="container" y="300" width="100" height="100" background-color="purple" border-radius="4px" clip="true">
+  <view id="container" y="300" width="100" height="100" bgcolor="purple" border-radius="4px" clip="true">
     <handler event="onclick">
       if (this.bnd) this.bnd.destroy()
       this.setAttribute('clip', false)
@@ -95,7 +96,8 @@
     <text onclick="this.setAttribute('text', 'Hi mum this is a lot wider!')" bgcolor="yellow">Hello</text>
     <text width="100" multiline="true" bgcolor="orange" onclick="this.setAttribute('multiline', ! this.multiline)">This text should wrap at my width. Click to toggle multiline.</text>
     <text text="${this.parent.inp.text}" bgcolor="red"></text>
-    <inputtext bgcolor="green" name="inp" onclick="this.setAttribute('text', 'Yooyoyo')">Text</inputtext>
+    <inputtext bgcolor="green" name="inp" onclick="this.setAttribute('text', 'Yooyoyo'); this.setAttribute('width', 150)" onfocus="console.log('focus', this)" onblur="console.log('blur', this)">Text</inputtext>
+    <inputtext bgcolor="green" name="inpmult" multiline="true" onclick="this.animate({width: 150, height: 100})" onfocus="console.log('focus', this)" onblur="console.log('blur', this)">Text</inputtext>
 
     <dataset name="storedata">
     { "store": {

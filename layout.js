@@ -340,8 +340,36 @@
         }
       };
 
-      eventlock = {
-        c: 0
+      eventlock = {};
+
+      Eventable.prototype._coerceType = function(name, value) {
+        var type;
+        type = this.types[name];
+        if (type) {
+          if (!typemappings[type]) {
+            showWarnings(["Invalid type '" + type + "' for attribute '" + name + "', must be one of: " + (Object.keys(typemappings).join(', '))]);
+            return;
+          }
+          value = typemappings[type](value);
+        }
+        return value;
+      };
+
+      Eventable.prototype._setDefaults = function(attributes, defaults) {
+        var key, value, _results;
+        if (defaults == null) {
+          defaults = {};
+        }
+        _results = [];
+        for (key in defaults) {
+          value = defaults[key];
+          if (!(key in attributes)) {
+            _results.push(attributes[key] = defaults[key]);
+          } else {
+            _results.push(void 0);
+          }
+        }
+        return _results;
       };
 
 
@@ -351,27 +379,16 @@
        * @param value the value to set to
        */
 
-      Eventable.prototype.setAttribute = function(name, value) {
-        var type, _name;
-        type = this.types[name];
-        if (type) {
-          if (!typemappings[type]) {
-            showWarnings(["Invalid type '" + type + "' for attribute '" + name + "', must be one of: " + (Object.keys(typemappings).join(', '))]);
-            return;
-          }
-          value = typemappings[type](value);
+      Eventable.prototype.setAttribute = function(name, value, skipcoercion) {
+        var _name;
+        if (!skipcoercion) {
+          value = this._coerceType(name, value);
         }
         if (typeof this[_name = "set_" + name] === "function") {
           this[_name](value);
         }
         this[name] = value;
-        if (eventlock[name] !== this) {
-          eventlock[name] = this;
-          this.sendEvent(name, value);
-          eventlock = {
-            c: 0
-          };
-        }
+        this.sendEvent(name, value);
         return this;
       };
 
@@ -383,14 +400,16 @@
        */
 
       Eventable.prototype.sendEvent = function(name, value) {
-        var _ref;
-        if (eventlock[name] === this) {
-          if (eventlock.c++ > 1) {
-            return this;
-          }
+        var lockkey, _ref;
+        lockkey = "c" + name;
+        if (eventlock[name] === this && eventlock[lockkey]++ > 0) {
+          return this;
         }
-        if ((_ref = this.events) != null ? _ref[name] : void 0) {
+        if (((_ref = this.events) != null ? _ref[name] : void 0) && eventlock[name] !== this) {
+          eventlock[name] = this;
+          eventlock[lockkey] = 0;
           this.trigger(name, value, this);
+          eventlock = {};
         }
         return this;
       };
@@ -653,13 +672,13 @@
        * @cfg {String} scriptincludeserror 
        * An error to show if scriptincludes fail to load
        */
-      var lateattributes, matchConstraint, _eventCallback, _installMethod;
+      var earlyattributes, matchConstraint, _eventCallback, _installMethod;
 
       __extends(Node, _super);
 
       matchConstraint = /\${(.+)}/;
 
-      lateattributes = ['parent', 'name'];
+      earlyattributes = ['parent', 'name'];
 
       function Node(el, attributes) {
         var args, deferbindings, ev, method, name, reference, script, skiponinit, value, _i, _j, _len, _len1, _ref, _ref1, _ref2;
@@ -709,27 +728,27 @@
         if (!deferbindings) {
           this._bindHandlers();
         }
+        for (_j = 0, _len1 = earlyattributes.length; _j < _len1; _j++) {
+          name = earlyattributes[_j];
+          if (attributes[name]) {
+            this.setAttribute(name, attributes[name]);
+          }
+        }
         for (name in attributes) {
           value = attributes[name];
-          if (__indexOf.call(lateattributes, name) < 0) {
+          if (__indexOf.call(earlyattributes, name) < 0) {
             this.bindAttribute(name, value, attributes.$tagname);
           }
         }
         if (this.constraints) {
           constraintScopes.push(this);
         }
-        for (_j = 0, _len1 = lateattributes.length; _j < _len1; _j++) {
-          name = lateattributes[_j];
-          if (attributes[name]) {
-            this.setAttribute(name, attributes[name]);
-          }
-        }
         if (!deferbindings) {
           this._bindHandlers(true);
         }
 
         /**
-         * @event oninit 
+         * @event oninit
          * Fired when this node and all its children are completely initialized
          * @param {dr.node} node The dr.node that fired the event
          */
@@ -997,6 +1016,19 @@
         }
       };
 
+      Node.prototype._findParents = function(name, value) {
+        var out, p;
+        out = [];
+        p = this;
+        while (p) {
+          if (name in p && p[name] === value) {
+            out.push(p);
+          }
+          p = p.parent;
+        }
+        return out;
+      };
+
       Node.prototype._findInParents = function(name) {
         var p;
         p = this.parent;
@@ -1101,7 +1133,10 @@
         this.el.setAttribute('class', 'sprite');
       }
 
-      Sprite.prototype.setStyle = function(name, value) {
+      Sprite.prototype.setStyle = function(name, value, internal, el) {
+        if (el == null) {
+          el = this.el;
+        }
         if (value == null) {
           value = '';
         }
@@ -1112,8 +1147,11 @@
           value = styleval[name](value);
         } else if (name.match(rdashAlpha)) {
           name = name.replace(rdashAlpha, fcamelCase);
+          if (debug && !internal) {
+            console.warn("Setting unknown CSS property " + name + " = " + value + " on ", this.el.$view);
+          }
         }
-        return this.el.style[name] = value;
+        return el.style[name] = value;
       };
 
       Sprite.prototype.set_parent = function(parent) {
@@ -1176,8 +1214,8 @@
       };
 
       Sprite.prototype.set_clickable = function(clickable) {
-        this.setStyle('pointer-events', clickable ? 'auto' : 'none');
-        this.setStyle('cursor', clickable ? 'pointer' : '');
+        this.setStyle('pointer-events', (clickable ? 'auto' : 'none'), true);
+        this.setStyle('cursor', (clickable ? 'pointer' : ''), true);
         if (capabilities.touch) {
           document.addEventListener('touchstart', this.touchHandler, true);
           document.addEventListener('touchmove', this.touchHandler, true);
@@ -1221,18 +1259,16 @@
       };
 
       Sprite.prototype.measureTextSize = function(multiline, width, resize) {
-        this.el.setAttribute('class', 'sprite sprite-text noselect');
         if (multiline) {
-          if (this._cachedwidth > -1) {
-            width = this._cachedwidth;
-            this._cachedwidth = -1;
-          }
           this.setStyle('width', width);
+          this.setStyle('height', 'auto');
           this.setStyle('whiteSpace', 'normal');
         } else {
-          this._cachedwidth = width;
           if (resize) {
             this.setStyle('width', 'auto');
+          }
+          if (resize) {
+            this.setStyle('height', 'auto');
           }
           this.setStyle('whiteSpace', '');
         }
@@ -1251,31 +1287,40 @@
         return view.sendEvent(event.type, view);
       };
 
+      Sprite.prototype.createTextElement = function(text) {
+        this.el.setAttribute('class', 'sprite sprite-text noselect');
+        return this.setText(text);
+      };
+
       Sprite.prototype.createInputtextElement = function(text, multiline, width, height) {
-        var input, style;
-        input = document.createElement('input');
-        input.setAttribute('type', 'text');
+        var input;
+        this.el.setAttribute('class', 'sprite noselect');
+        if (multiline) {
+          input = document.createElement('textarea');
+        } else {
+          input = document.createElement('input');
+          input.setAttribute('type', 'text');
+        }
         input.setAttribute('value', text);
-        style = 'border: none; outline: none; background-color:transparent;';
+        input.setAttribute('class', 'sprite-inputtext');
         if (width) {
-          style += 'width:' + width + 'px;';
+          this.setStyle('width', width, true, input);
         }
         if (height) {
-          style += 'height:' + height + 'px;';
+          this.setStyle('height', height, true, input);
         }
-        input.setAttribute('style', style);
-        this.el.setAttribute('class', 'sprite noselect');
         this.el.appendChild(input);
-        return setTimeout((function(_this) {
-          return function() {
-            if (!_this.el) {
-              return;
-            }
-            _this.input = _this.el.getElementsByTagName('input')[0];
-            _this.input.$view = _this.el.$view;
-            return $(input).on('focus blur', _this.handle);
-          };
-        })(this), 0);
+        input.$view = this.el.$view;
+        $(input).on('focus blur', this.handle);
+        return this.input = input;
+      };
+
+      Sprite.prototype.getInputtextHeight = function() {
+        var borderH, h, paddingH;
+        h = parseInt($(this.input).css('height'));
+        borderH = parseInt($(this.el).css('border-top-width')) + parseInt($(this.el).css('border-bottom-width'));
+        paddingH = parseInt($(this.el).css('padding-top')) + parseInt($(this.el).css('padding-bottom'));
+        return h + borderH + paddingH;
       };
 
       Sprite.prototype.getAbsolute = function() {
@@ -1458,7 +1503,7 @@
        */
 
       function View(el, attributes) {
-        var key, type, types, _ref;
+        var defaults, key, type, types, _ref;
         if (attributes == null) {
           attributes = {};
         }
@@ -1501,21 +1546,28 @@
           clip: 'boolean',
           visible: 'boolean'
         };
-        for (key in types) {
-          type = types[key];
-          if (!(key in attributes)) {
-            this[key] = type === 'number' ? 0 : false;
-          }
-        }
+        defaults = {
+          x: 0,
+          y: 0,
+          width: 0,
+          height: 0,
+          clickable: false,
+          clip: false,
+          visible: true
+        };
         _ref = attributes.$types;
         for (key in _ref) {
           type = _ref[key];
           types[key] = type;
         }
         attributes.$types = types;
-        if (__indexOf.call(attributes, 'visible') < 0) {
-          attributes.visible = true;
+        if (this._isPercent(attributes['width'])) {
+          attributes['width'] = this._sizeFromPercent(attributes['width'], "width");
         }
+        if (this._isPercent(attributes['height'])) {
+          attributes['height'] = this._sizeFromPercent(attributes['height'], "height");
+        }
+        this._setDefaults(attributes, defaults);
         if (el instanceof View) {
           el = el.sprite;
         }
@@ -1523,15 +1575,24 @@
         View.__super__.constructor.apply(this, arguments);
       }
 
+      View.prototype._isPercent = function(value) {
+        return typeof value === 'string' && value.indexOf('%') > -1;
+      };
+
+      View.prototype._sizeFromPercent = function(percent, dim) {
+        return "${this.parent." + dim + " ? this.parent." + dim + "*" + (parseFloat(percent) / 100.0) + " : $(this.parent)." + dim + "()}";
+      };
+
       View.prototype._createSprite = function(el, attributes) {
         return this.sprite = new Sprite(el, this, attributes.$tagname);
       };
 
       View.prototype.setAttribute = function(name, value, skipstyle) {
+        value = this._coerceType(name, value);
         if (!(skipstyle || name in ignoredAttributes || this[name] === value)) {
           this.sprite.setStyle(name, value);
         }
-        return View.__super__.setAttribute.apply(this, arguments);
+        return View.__super__.setAttribute.call(this, name, value, true);
       };
 
       View.prototype.set_clickable = function(clickable) {
@@ -1630,22 +1691,24 @@
        * The text inside this input text field
        */
 
+
+      /**
+       * @cfg {Number} [width=100]
+       * The width of this input text field
+       */
+
       function InputText(el, attributes) {
-        var key, type, types, _ref;
+        var defaults, key, type, types, _ref;
         if (attributes == null) {
           attributes = {};
         }
-        if (!('clickable' in attributes)) {
-          attributes.clickable = true;
-        }
-        if (!('multiline' in attributes)) {
-          attributes.multiline = true;
-        }
-        if (!('width' in attributes)) {
-          attributes.width = true;
-        }
         types = {
           multiline: 'boolean'
+        };
+        defaults = {
+          clickable: true,
+          multiline: false,
+          width: 100
         };
         _ref = attributes.$types;
         for (key in _ref) {
@@ -1653,46 +1716,25 @@
           types[key] = type;
         }
         attributes.$types = types;
+        this._setDefaults(attributes, defaults);
         InputText.__super__.constructor.apply(this, arguments);
-        setTimeout((function(_this) {
-          return function() {
-            if (!_this.height) {
-              _this.height = _this._heightFromInputHeight();
-            }
-            $(_this.inputElem).css('width', _this.width);
-            return $(_this.inputElem).css('height', _this.height);
-          };
-        })(this), 0);
+        if (!this.height) {
+          this.setAttribute('height', this.sprite.getInputtextHeight());
+        }
         this.listenTo(this, 'change', this._handleChange);
         this.listenTo(this, 'width', function(w) {
-          if (this.inputElem) {
-            return $(this.inputElem).css('width', w);
-          }
+          return this.sprite.setStyle('width', w, true, this.sprite.input);
         });
         this.listenTo(this, 'height', function(h) {
-          if (this.inputElem) {
-            return $(this.inputElem).css('height', h);
-          }
+          return this.sprite.setStyle('height', h, true, this.sprite.input);
         });
       }
 
       InputText.prototype._createSprite = function(el, attributes) {
         InputText.__super__._createSprite.apply(this, arguments);
-        this.text = attributes['text'] || this.sprite.getText(true);
+        this.text = attributes.text || this.sprite.getText(true);
         this.sprite.setText('');
-        this.sprite.createInputtextElement(this.text, this.multiline, this.width, this.height);
-        return this.inputElem = this.sprite.el.getElementsByTagName('input')[0];
-      };
-
-      InputText.prototype._heightFromInputHeight = function() {
-        var borderH, h, paddingH;
-        if (!this.inputElem) {
-          return;
-        }
-        h = parseInt($(this.inputElem).css('height'));
-        borderH = parseInt($(this.sprite.el).css('border-top-width')) + parseInt($(this.sprite.el).css('border-bottom-width'));
-        paddingH = parseInt($(this.sprite.el).css('padding-top')) + parseInt($(this.sprite.el).css('padding-bottom'));
-        return h + borderH + paddingH;
+        return this.sprite.createInputtextElement(this.text, attributes.multiline, attributes.width, attributes.height);
       };
 
       InputText.prototype._handleChange = function() {
@@ -1814,7 +1856,7 @@
        */
 
       function Text(el, attributes) {
-        var key, type, types, _ref;
+        var defaults, key, type, types, _ref;
         if (attributes == null) {
           attributes = {};
         }
@@ -1822,24 +1864,30 @@
           resize: 'boolean',
           multiline: 'boolean'
         };
-        if (!('resize' in attributes)) {
-          this['resize'] = true;
-        }
-        if (!('multiline' in attributes)) {
-          this['multiline'] = false;
-        }
+        defaults = {
+          resize: true,
+          multiline: false
+        };
         _ref = attributes.$types;
         for (key in _ref) {
           type = _ref[key];
           types[key] = type;
         }
         attributes.$types = types;
+        this._setDefaults(attributes, defaults);
+        if ('width' in attributes) {
+          this._initialwidth = attributes.width;
+        }
         this.listenTo(this, 'multiline', this.updateSize);
         this.listenTo(this, 'resize', this.updateSize);
         this.listenTo(this, 'init', this.updateSize);
         Text.__super__.constructor.apply(this, arguments);
-        this.sprite.setText(this.format(attributes.text));
       }
+
+      Text.prototype._createSprite = function(el, attributes) {
+        Text.__super__._createSprite.apply(this, arguments);
+        return this.sprite.createTextElement(this.format(attributes.text));
+      };
 
 
       /**
@@ -1856,19 +1904,30 @@
       };
 
       Text.prototype.updateSize = function() {
-        var size;
+        var parent, parents, size, width, _i, _j, _len, _len1;
         if (!this.inited) {
           return;
         }
-        size = this.sprite.measureTextSize(this.multiline, this.width, this.resize);
-        if (this.resize) {
-          this.setAttribute('width', size.width, true);
+        width = this.multiline ? this._initialwidth : this.width;
+        size = this.sprite.measureTextSize(this.multiline, width, this.resize);
+        if (size.width === 0 && size.height === 0) {
+          parents = this._findParents('visible', false);
+          for (_i = 0, _len = parents.length; _i < _len; _i++) {
+            parent = parents[_i];
+            parent.sprite.el.style.display = '';
+          }
+          size = this.sprite.measureTextSize(this.multiline, width, this.resize);
+          for (_j = 0, _len1 = parents.length; _j < _len1; _j++) {
+            parent = parents[_j];
+            parent.sprite.el.style.display = 'none';
+          }
         }
+        this.setAttribute('width', size.width, true);
         return this.setAttribute('height', size.height, true);
       };
 
       Text.prototype.set_data = function(d) {
-        return this.setAttribute('text', d);
+        return this.setAttribute('text', d, true);
       };
 
       Text.prototype.set_text = function(text) {
@@ -1876,17 +1935,6 @@
           this.sprite.setText(this.format(text));
           return this.updateSize();
         }
-      };
-
-      Text.prototype.setAttribute = function(name, value, skipstyle) {
-        var size;
-        if (name === "width" && this.resize) {
-          size = this.sprite.measureTextSize(this.multiline, this.width, this.resize);
-          if (size.width !== value) {
-            return;
-          }
-        }
-        return Text.__super__.setAttribute.apply(this, arguments);
       };
 
       return Text;
@@ -2219,49 +2267,47 @@
         if (!(isClass || isState)) {
           dom.processSpecialTags(el, attributes, attributes.type);
         }
-        attributes.$skiponinit = skiponinit = getChildren(el).length > 0;
+        children = (function() {
+          var _j, _len1, _ref, _results;
+          _ref = el.childNodes;
+          _results = [];
+          for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+            child = _ref[_j];
+            if (child.nodeType === 1) {
+              _results.push(child);
+            }
+          }
+          return _results;
+        })();
+        attributes.$skiponinit = skiponinit = children.length > 0;
         if (typeof dr[tagname] === 'function') {
           parent = new dr[tagname](el, attributes);
         } else {
           showWarnings(["Unrecognized class " + tagname + " " + el.outerHTML]);
           return;
         }
+        if (!(children.length > 0)) {
+          return;
+        }
         if (!(isClass || isState)) {
-          children = (function() {
-            var _j, _len1, _ref, _results;
-            _ref = el.childNodes;
-            _results = [];
-            for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
-              child = _ref[_j];
-              if (child.nodeType === 1) {
-                _results.push(child);
-              }
-            }
-            return _results;
-          })();
           for (_j = 0, _len1 = children.length; _j < _len1; _j++) {
             child = children[_j];
             initElement(child, parent);
           }
-          if (skiponinit && !parent.inited) {
-            if (children.length) {
-              checkChildren = function() {
-                var _k, _len2;
-                for (_k = 0, _len2 = children.length; _k < _len2; _k++) {
-                  child = children[_k];
-                  if (!child.inited && child.localName === !'class') {
-                    setTimeout(checkChildren, 0);
-                    return;
-                  }
+          if (!parent.inited) {
+            checkChildren = function() {
+              var _k, _len2;
+              for (_k = 0, _len2 = children.length; _k < _len2; _k++) {
+                child = children[_k];
+                if (!child.inited && child.localName === !'class') {
+                  setTimeout(checkChildren, 0);
+                  return;
                 }
-                parent.inited = true;
-                parent.sendEvent('init', parent);
-              };
-              setTimeout(checkChildren, 0);
-            } else {
+              }
               parent.inited = true;
               parent.sendEvent('init', parent);
-            }
+            };
+            setTimeout(checkChildren, 0);
           }
         }
       };
@@ -2269,7 +2315,7 @@
         var style;
         style = document.createElement('style');
         style.type = 'text/css';
-        style.innerHTML = '.sprite{ position: absolute; pointer-events: none; padding: 0; margin: 0; box-sizing:border-box;} .sprite-text{ width: auto; height; auto; white-space: nowrap;  padding: 0; margin: 0;} .hidden{ display: none; } .noselect{ -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;} method { display: none; } handler { display: none; } setter { display: none; } class { display:none } node { display:none } dataset { display:none } .warnings {font-size: 14px; background-color: pink; margin: 0;}';
+        style.innerHTML = '.sprite{ position: absolute; pointer-events: none; padding: 0; margin: 0; box-sizing:border-box;} .sprite-text{ width: auto; height; auto; white-space: nowrap;  padding: 0; margin: 0;} .sprite-inputtext{border: none; outline: none; background-color:transparent; resize:none;} .hidden{ display: none; } .noselect{ -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;} method { display: none; } handler { display: none; } setter { display: none; } class { display:none } node { display:none } dataset { display:none } .warnings {font-size: 14px; background-color: pink; margin: 0;}';
         return document.getElementsByTagName('head')[0].appendChild(style);
       };
       initAllElements = function(selector) {
@@ -2804,6 +2850,7 @@
         this.locked = true;
         Layout.__super__.constructor.apply(this, arguments);
         this.listenTo(this.parent, 'subviews', this._added);
+        this.listenTo(this.parent, 'init', this.update);
         if ((_base = this.parent).layouts == null) {
           _base.layouts = [];
         }

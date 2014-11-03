@@ -1,6 +1,21 @@
 <html>
 <head>
   <title>rhes.es</title>
+  <style type="text/css">
+    body {
+      background-color: rgb(46,36,30);
+      background-size: 259px 259px;
+      font-family: 'Helvetica';
+      font-size: 14px;
+    }
+    input {
+      font-family: 'Helvetica';
+      font-size: 14px;
+      margin: 0px;
+      padding: 0px;
+      width: 100px;
+    }
+  </style>
   <script type="text/javascript" src="/lib/jquery-1.9.1.min.js"></script>
   <script type="text/javascript" src="/lib/acorn.js"></script>
   <script type="text/javascript" src="/lib/coffee-script.js"></script>
@@ -8,14 +23,16 @@
   <script type="text/javascript" src="/layout.js"></script>
 </head>
 <body>
-<view id="all" width="100%" height="100%" clip="true">
-  <text width="100" height="100" text="Hello" bgcolor="green">
-  	<handler event="oninit">
-      assert.equal(this.width, 35)
-      assert.equal(this.height, 18)
-  	</handler>
-  </text>
-</view>
+  <view id="container" width="100%">
+    <inputtext bgcolor="green" name="inp" onclick="this.setAttribute('text', 'Yooyoyo')">Text
+    </inputtext>
+    <handler event="oninit">
+      // works as of 16e8919... [#79246500] Improved ace examples by showing an example with inline dreem code. (I didn't rebuild the docs)
+      assert.equal(this.inp.width, 100)
+      // Height shouldn't be 0, but it is as of 16e8919 even though it looks correct:
+      assert.equal(this.inp.height, window._phantom ? 14 : 16)
+    </handler>
+  </view>
 <!-- The MIT License (MIT)
 
 Copyright ( c ) 2014 Teem2 LLC

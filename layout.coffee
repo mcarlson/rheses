@@ -207,7 +207,7 @@ window.dr = do ->
     ###
     @include Events
 
-    typemappings= 
+    typemappings=
       number: parseFloat
       boolean: (val) -> (if (typeof val == 'string') then val == 'true' else (!! val))
       string: (val) -> val + ''
@@ -218,32 +218,34 @@ window.dr = do ->
         eval(val)
 
     # Tracks events sent by setAttribute() to prevent recursion
-    eventlock = {c: 0}
+    eventlock = {}
+
+    _coerceType: (name, value) ->
+      type = @types[name]
+      if type
+        unless (typemappings[type])
+          showWarnings ["Invalid type '#{type}' for attribute '#{name}', must be one of: #{Object.keys(typemappings).join(', ')}"]
+          return
+        value = typemappings[type](value)
+      return value
+
+    _setDefaults: (attributes, defaults={}) ->
+      for key, value of defaults
+        if not (key of attributes)
+          attributes[key] = defaults[key]
 
     ###*
     # Sets an attribute, calls a setter if there is one, then sends an event with the new value
     # @param {String} name the name of the attribute to set
     # @param value the value to set to
     ###
-    setAttribute: (name, value) ->
+    setAttribute: (name, value, skipcoercion) ->
       # TODO: add support for dynamic constraints
-
-      # coerce value to type
-      type = @types[name]
-      if type# and type of typemappings
-        unless (typemappings[type])
-          showWarnings ["Invalid type '#{type}' for attribute '#{name}', must be one of: #{Object.keys(typemappings).join(', ')}"]
-          return
-
-      # console.log 'type', name, type, value, typemappings[type], @
-        value = typemappings[type](value)
+      value = @_coerceType(name, value) unless skipcoercion
 
       @["set_#{name}"]?(value)
       @[name] = value
-      unless eventlock[name] == @
-        eventlock[name] = @
-        @sendEvent(name, value)
-        eventlock = {c: 0}
+      @sendEvent(name, value)
       @
 
     ###*
@@ -252,13 +254,17 @@ window.dr = do ->
     # @param value the value to send with the event
     ###
     sendEvent: (name, value) ->
-      if eventlock[name] == @
+      lockkey = "c#{name}"
+      if eventlock[name] == @ and eventlock[lockkey]++ > 0
         # don't send events more than once per setAttribute() for a given object/name 
-        return @ if eventlock.c++ > 1
+        return @ 
 
       # send event
-      if @events?[name]
+      if @events?[name] and eventlock[name] != @
+        eventlock[name] = @
+        eventlock[lockkey] = 0
         @trigger(name, value, @) 
+        eventlock = {}
       # else
         # console.log 'no event named', name, @events, @
       @
@@ -478,9 +484,10 @@ window.dr = do ->
     ###
     matchConstraint = /\${(.+)}/
     # parent must be set before name
-    lateattributes = ['parent', 'name']
+    earlyattributes = ['parent', 'name']
 
     constructor: (el, attributes = {}) ->
+
       ###*
       # @property {dr.node[]} subnodes
       # @readonly
@@ -501,7 +508,7 @@ window.dr = do ->
       # Contains the textual contents of this node, if any
       ###
       # store textual content
-      if el?.textContent 
+      if el?.textContent
         attributes.$textcontent = el.textContent
 
       if attributes.$methods
@@ -522,33 +529,34 @@ window.dr = do ->
       unless deferbindings
         @_bindHandlers()
 
+      for name in earlyattributes
+        @setAttribute(name, attributes[name]) if attributes[name]
+
       # Bind to event expressions and set attributes
       for name, value of attributes
-        @bindAttribute(name, value, attributes.$tagname) unless name in lateattributes
-      constraintScopes.push(@) if @constraints 
+        @bindAttribute(name, value, attributes.$tagname) unless name in earlyattributes
 
-      for name in lateattributes
-        @setAttribute(name, attributes[name]) if attributes[name]
+      constraintScopes.push(@) if @constraints
 
       unless deferbindings
         @_bindHandlers(true)
 
       ###*
-      # @event oninit 
+      # @event oninit
       # Fired when this node and all its children are completely initialized
       # @param {dr.node} node The dr.node that fired the event
       ###
       ###*
       # @property {Boolean} inited
       # @readonly
-      # True when this node and all its children are completely initialized 
+      # True when this node and all its children are completely initialized
       ###
 
       # console.log 'new node', @, attributes
       unless skiponinit
         unless @inited
           @inited = true
-          @sendEvent('init', @) 
+          @sendEvent('init', @)
 
     installMethods: (methods, tagname, scope=@, callbackscope=@) ->
       # console.log('installing methods', methods, tagname, scope, callbackscope)
@@ -715,7 +723,7 @@ window.dr = do ->
       `}).bind(this)`
 
     set_parent: (parent) ->
-      # console.log 'set_parent', parent, @
+#      console.log 'set_parent', parent, @
       # normalize to jQuery object
       if parent instanceof Node
         # store references to parent and children
@@ -745,6 +753,17 @@ window.dr = do ->
         @parent.sendEvent(name, arr[index])
       return
 
+    # find all parents with an attribute set to a specific value. Used in updateSize to deal with invisible parents.
+    _findParents: (name, value) ->
+      out = []
+      p = @
+      while (p)
+        if name of p and p[name] == value
+          out.push p
+        p = p.parent
+      out
+
+    # find an attribute in a parent. Returns the value found. Used by datapath.
     _findInParents: (name) ->
       p = @parent
       while (p)
@@ -825,7 +844,7 @@ window.dr = do ->
       @el.setAttribute('class', 'sprite')
       # @jqel = $(@el)
 
-    setStyle: (name, value) ->
+    setStyle: (name, value, internal, el=@el) ->
       value ?= ''
       if name of stylemap
         name = stylemap[name] 
@@ -834,8 +853,9 @@ window.dr = do ->
       else if name.match(rdashAlpha)
         # console.log "replacing #{name}"
         name = name.replace(rdashAlpha, fcamelCase)
+        console.warn "Setting unknown CSS property #{name} = #{value} on ", @el.$view if debug and not internal
       # console.log('setStyle', name, value, @el)
-      @el.style[name] = value
+      el.style[name] = value
       # @jqel.css(name, value)
 
     set_parent: (parent) ->
@@ -892,8 +912,8 @@ window.dr = do ->
             lastTouchDown = null
 
     set_clickable: (clickable) ->
-      @setStyle('pointer-events', if clickable then 'auto' else 'none')
-      @setStyle('cursor', if clickable then 'pointer' else '')
+      @setStyle('pointer-events', (if clickable then 'auto' else 'none'), true)
+      @setStyle('cursor', (if clickable then 'pointer' else ''), true)
 
       if capabilities.touch
         document.addEventListener('touchstart', @touchHandler, true)
@@ -933,16 +953,13 @@ window.dr = do ->
         @input.value
 
     measureTextSize: (multiline, width, resize) ->
-      @el.setAttribute('class', 'sprite sprite-text noselect')
       if multiline
-        if @_cachedwidth > -1
-          width = @_cachedwidth
-          @_cachedwidth = -1
         @setStyle('width', width)
+        @setStyle('height', 'auto')
         @setStyle('whiteSpace', 'normal')
       else
-        @_cachedwidth = width
         @setStyle('width', 'auto') if resize
+        @setStyle('height', 'auto') if resize
         @setStyle('whiteSpace', '')
       {width: @el.clientWidth, height: @el.clientHeight}
 
@@ -952,27 +969,35 @@ window.dr = do ->
       # console.log 'event', event.type, view
       view.sendEvent(event.type, view)
 
+    createTextElement: (text) ->
+      @el.setAttribute('class', 'sprite sprite-text noselect')
+      @setText(text)
+
     createInputtextElement: (text, multiline, width, height) ->
-      input = document.createElement('input')
-      input.setAttribute('type', 'text')
-      input.setAttribute('value', text)
-      style = 'border: none; outline: none; background-color:transparent;';
-      if width
-        style +=  'width:' + width + 'px;'
-      if height
-        style +=  'height:' + height + 'px;'
-      input.setAttribute('style', style)
-
-      # input.setAttribute('class', 'noselect')
       @el.setAttribute('class', 'sprite noselect')
+      if multiline
+        input = document.createElement('textarea')
+      else
+        input = document.createElement('input')
+        input.setAttribute('type', 'text')
+      input.setAttribute('value', text)
+      input.setAttribute('class', 'sprite-inputtext')
+      if width
+        @setStyle('width', width, true, input)
+      if height
+        @setStyle('height', height, true, input)
       @el.appendChild(input)
+      # console.log('createInputtextElement', text, multiline, width, height, input)
 
-      setTimeout(() =>
-        return unless @el
-        @input = @el.getElementsByTagName('input')[0]
-        @input.$view = @el.$view
-        $(input).on('focus blur', @handle)
-      , 0)
+      input.$view = @el.$view
+      $(input).on('focus blur', @handle)
+      @input = input
+
+    getInputtextHeight: () ->
+      h = parseInt($(@input).css('height'))
+      borderH = parseInt($(@el).css('border-top-width')) + parseInt($(@el).css('border-bottom-width'))
+      paddingH = parseInt($(@el).css('padding-top')) + parseInt($(@el).css('padding-bottom'))
+      return h + borderH + paddingH 
 
     getAbsolute: () ->
       @jqel ?= $(@el)
@@ -1137,34 +1162,40 @@ window.dr = do ->
       ###
       @subviews = []
       types = {x: 'number', y: 'number', width: 'number', height: 'number', clickable: 'boolean', clip: 'boolean', visible: 'boolean'}
-      for key, type of types
-        if not (key of attributes)
-          @[key] = if type is 'number' then 0 else false
-          # console.log 'set default', key, type, @[key]
+      defaults = {x:0, y:0, width:0, height:0, clickable:false, clip:false, visible:true}
 
       for key, type of attributes.$types
         types[key] = type
       attributes.$types = types
 
-      attributes.visible = true unless 'visible' in attributes
+      attributes['width'] = @_sizeFromPercent(attributes['width'], "width") if @_isPercent(attributes['width'])
+      attributes['height'] = @_sizeFromPercent(attributes['height'], "height") if @_isPercent(attributes['height'])
+
+      @_setDefaults(attributes, defaults)
 
       if (el instanceof View)
         el = el.sprite
 
       # console.log 'sprite tagname', attributes.$tagname
       @_createSprite(el, attributes)
-
       super
       # console.log 'new view', el, attributes, @
+
+    _isPercent: (value) ->
+      typeof value == 'string' && value.indexOf('%') > -1;
+
+    _sizeFromPercent: (percent, dim) ->
+      return "${this.parent.#{dim} ? this.parent.#{dim}*#{parseFloat(percent)/100.0} : $(this.parent).#{dim}()}"
 
     _createSprite: (el, attributes) ->
       @sprite = new Sprite(el, @, attributes.$tagname)
 
     setAttribute: (name, value, skipstyle) ->
+      value = @_coerceType(name, value)
       if not (skipstyle or name of ignoredAttributes or @[name] == value)
         # console.log 'setting style', name, value, @
         @sprite.setStyle(name, value)
-      super
+      super(name, value, true)
 
     set_clickable: (clickable) ->
       @sprite.set_clickable(clickable)
@@ -1247,51 +1278,39 @@ window.dr = do ->
     # @cfg {String} text
     # The text inside this input text field
     ###
+    ###*
+    # @cfg {Number} [width=100]
+    # The width of this input text field
+    ###
     constructor: (el, attributes = {}) ->
-      attributes.clickable = true if not ('clickable' of attributes)
-      attributes.multiline = true if not ('multiline' of attributes)
-      attributes.width = true if not ('width' of attributes)
-
       types = {multiline: 'boolean'}
+      defaults = {clickable:true, multiline:false, width: 100}
       for key, type of attributes.$types
         types[key] = type
       attributes.$types = types
 
+      @_setDefaults(attributes, defaults)
+
       super
 
-      setTimeout(() =>
-        @height = @_heightFromInputHeight() unless @height
-
-        #FIXME: I think once we fix order of operations of attribute processing these will not be necessary
-        # anymore since an event will be thrown after the sprite creation (see https://www.pivotaltracker.com/story/show/81205368)
-        $(@inputElem).css('width', @width)
-        $(@inputElem).css('height', @height)
-      , 0)
+      @setAttribute('height', @sprite.getInputtextHeight()) unless @height
 
       @listenTo(@, 'change', @_handleChange)
 
       @listenTo(@, 'width',
         (w) ->
-          $(@inputElem).css('width', w) if @inputElem
+          @sprite.setStyle('width', w, true, @sprite.input);
       )
       @listenTo(@, 'height',
         (h) ->
-          $(@inputElem).css('height', h) if @inputElem
+          @sprite.setStyle('height', h, true, @sprite.input);
       )
 
     _createSprite: (el, attributes) ->
       super
-      @text = attributes['text'] || @sprite.getText(true)
+      @text = attributes.text || @sprite.getText(true)
       @sprite.setText('')
-      @sprite.createInputtextElement(@text, @multiline, @width, @height)
-      @inputElem = @sprite.el.getElementsByTagName('input')[0]
-
-    _heightFromInputHeight: () ->
-      return unless @inputElem
-      h = parseInt($(@inputElem).css('height'))
-      borderH = parseInt($(@sprite.el).css('border-top-width')) + parseInt($(@sprite.el).css('border-bottom-width'))
-      paddingH = parseInt($(@sprite.el).css('padding-top')) + parseInt($(@sprite.el).css('padding-bottom'))
-      return h + borderH + paddingH
+      @sprite.createInputtextElement(@text, attributes.multiline, attributes.width, attributes.height)
 
     _handleChange: () ->
       return unless @replicator
@@ -1393,12 +1412,16 @@ window.dr = do ->
     ###
     constructor: (el, attributes = {}) ->
       types = {resize: 'boolean', multiline: 'boolean'}
-      @['resize'] = true unless 'resize' of attributes
-      @['multiline'] = false unless 'multiline' of attributes
+      defaults = {resize:true, multiline:false}
 
       for key, type of attributes.$types
         types[key] = type
       attributes.$types = types
+
+      @_setDefaults(attributes, defaults)
+
+      if 'width' of attributes
+        @_initialwidth = attributes.width
 
       @listenTo(@, 'multiline', @updateSize)
       @listenTo(@, 'resize', @updateSize)
@@ -1406,7 +1429,9 @@ window.dr = do ->
 
       super
 
-      @sprite.setText(@format(attributes.text))
+    _createSprite: (el, attributes) ->
+      super
+      @sprite.createTextElement(@format(attributes.text))
 
     ###*
     # @method format
@@ -1421,23 +1446,29 @@ window.dr = do ->
 
     updateSize: () ->
       return unless @inited
-      size = @sprite.measureTextSize(@multiline, @width, @resize)
-      @setAttribute 'width', size.width, true if @resize
+      width = if @multiline then @_initialwidth else @width
+      size = @sprite.measureTextSize(@multiline, width, @resize)
+      if size.width == 0 and size.height == 0
+        # check for hidden parents
+        parents = @_findParents('visible', false)
+        for parent in parents
+          parent.sprite.el.style.display = ''
+        size = @sprite.measureTextSize(@multiline, width, @resize)
+        for parent in parents
+          parent.sprite.el.style.display = 'none'
+
+      # console.log('updateSize', @multiline, width, @resize, size, @)
+      @setAttribute 'width', size.width, true
       @setAttribute 'height', size.height, true
 
     set_data: (d) ->
-      @setAttribute('text', d)
+      @setAttribute('text', d, true)
 
     set_text: (text) ->
       if (text != @text)
         @sprite.setText(@format(text))
         @updateSize()
 
-    setAttribute: (name, value, skipstyle) ->
-      if name == "width" && @resize
-        size = @sprite.measureTextSize(@multiline, @width, @resize)
-        return unless size.width == value
-      super
 
   warnings = []
   showWarnings = (data) ->
@@ -1710,7 +1741,8 @@ window.dr = do ->
         dom.processSpecialTags(el, attributes, attributes.type)
 
       # Defer oninit if we have children
-      attributes.$skiponinit = skiponinit = getChildren(el).length > 0
+      children = (child for child in el.childNodes when child.nodeType == 1)
+      attributes.$skiponinit = skiponinit = children.length > 0
 
       if typeof dr[tagname] is 'function'
         parent = new dr[tagname](el, attributes)
@@ -1718,31 +1750,27 @@ window.dr = do ->
         showWarnings(["Unrecognized class #{tagname} #{el.outerHTML}"])
         return
 
+      return unless children.length > 0
+
       unless isClass or isState
-        children = (child for child in el.childNodes when child.nodeType == 1)
         # create children now
         for child in children
           # console.log 'initting class child', child.localName
           initElement(child, parent)
 
-        if skiponinit and not parent.inited
+        unless parent.inited
           # console.log('skiponinit', parent, parent.subnodes.length)
-          if (children.length)
-            checkChildren = ->
-              for child in children
-                if not child.inited and child.localName is not 'class'
-                  # console.log 'child not initted', child, parent
-                  setTimeout(checkChildren, 0)
-                  return
-              # console.log('doinit', parent)
-              parent.inited = true
-              parent.sendEvent('init', parent)
-              return
-            setTimeout(checkChildren, 0)
-          else
-            # console.log 'class init', parent
+          checkChildren = ->
+            for child in children
+              if not child.inited and child.localName is not 'class'
+                # console.log 'child not initted', child, parent
+                setTimeout(checkChildren, 0)
+                return
+            # console.log('doinit', parent)
             parent.inited = true
             parent.sendEvent('init', parent)
+            return
+          setTimeout(checkChildren, 0)
 
       return
 
@@ -1751,7 +1779,7 @@ window.dr = do ->
     writeCSS = ->
       style = document.createElement('style')
       style.type = 'text/css'
-      style.innerHTML = '.sprite{ position: absolute; pointer-events: none; padding: 0; margin: 0; box-sizing:border-box;} .sprite-text{ width: auto; height; auto; white-space: nowrap;  padding: 0; margin: 0;} .hidden{ display: none; } .noselect{ -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;} method { display: none; } handler { display: none; } setter { display: none; } class { display:none } node { display:none } dataset { display:none } .warnings {font-size: 14px; background-color: pink; margin: 0;}'
+      style.innerHTML = '.sprite{ position: absolute; pointer-events: none; padding: 0; margin: 0; box-sizing:border-box;} .sprite-text{ width: auto; height; auto; white-space: nowrap;  padding: 0; margin: 0;} .sprite-inputtext{border: none; outline: none; background-color:transparent; resize:none;} .hidden{ display: none; } .noselect{ -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;} method { display: none; } handler { display: none; } setter { display: none; } class { display:none } node { display:none } dataset { display:none } .warnings {font-size: 14px; background-color: pink; margin: 0;}'
       document.getElementsByTagName('head')[0].appendChild(style)
 
     # init top-level views in the DOM recursively
@@ -2229,6 +2257,7 @@ window.dr = do ->
       super
       # listen for new subviews
       @listenTo(@parent, 'subviews', @_added)
+      @listenTo(@parent, 'init', @update)
       @parent.layouts ?= []
       @parent.layouts.push(@)
       @parent.sendEvent('layouts', @parent.layouts)
