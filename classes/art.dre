@@ -29,22 +29,13 @@ SOFTWARE. -->
      */-->    
 
       <!--/**
-        * @method objectLoaded
-        * Called when the object is loaded. Modifies the loaded svg to
-        * scale itself to the view.
-        */-->
-
-      <!--/**
         * @method resizeToView
         * Modify the embedded svg object to use the size of the view.
+        * Called in response to the onload event.
         */-->
 
     <class name="art" type="coffee" extends="abstractart">
-      <method name="objectLoaded">
-        # Overridden from base class to modify the svg to size itself to the
-        # view.
-        @resizeToView()
-      </method>
+      <handler event="onload" method="resizeToView"></handler>
 
       <method name="resizeToView">
         dom = @getDom()

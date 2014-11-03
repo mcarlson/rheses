@@ -48,9 +48,8 @@ SOFTWARE. -->
         */-->
 
       <!--/**
-        * @method objectLoaded
-        * Called when the object is loaded. You can modify the contents of
-        * the object once it is loaded.
+        * @event onload 
+        * Fired when the object is loaded.
         */-->
 
 
@@ -69,16 +68,22 @@ SOFTWARE. -->
         return @object.contentDocument
       </method>
 
-      <method name="objectLoaded">
-      </method>
-
       <handler event="oninit">
-        # Get initial text if the data is specified inline
         @inline = @text || @sprite.text();
         this.sprite.text('');
 
         @createObject()
       </handler>
+
+      <method name="object_loaded">
+        # Write the object inline if specified
+        if @inline
+          object_dom = @object.contentDocument
+          $(object_dom).contents().html(@inline)
+          # Don't use jquery because the kernel redefines .css
+          body = $(object_dom).contents().find('body')[0]
+          body.style.overflow = 'hidden' if body
+      </method>
 
       <method name="createObject">
         @sprite.el.removeChild(@object) if @object
@@ -96,28 +101,19 @@ SOFTWARE. -->
 	# For inline data, write it to @inline and insert into dom when the
         # object is loaded. Strip off comment tags, if present
         if @inline
-          # console.log("inline", @inline)
           @inline = @inline.trim()
           # Remove comments. Comments are used to prevent compile errors
-          p1 = @inline.indexOf('<!--')
-          p2 = @inline.lastIndexOf('-->')
-          if p1 != -1 && p2 != -1
-            p1 = p1 + 4
-            @inline = @inline.substr(p1, p2-p1-3)
+          match = new RegExp(/^\s*\<\!--(.*)--\>\s*$/).exec(@inline);
+          @inline = match[1] if !!match
 
-        # Fire event when the object is loaded.
+        # Fire event when the object is loaded, and then generate onload
+        _this = this
         @object.addEventListener 'load', (e) =>
-          obj = this.object  # @object
-          object_dom = obj.contentDocument
-          # Write the svg inline if specified
-          if @inline
-            $(object_dom).contents().html(@inline)
-            # Don't use jquery because the kernel redefines .css
-            body = $(object_dom).contents().find('body')[0]
-            body.style.overflow = 'hidden'
-          this.objectLoaded()
+          _this.object_loaded()
+          _this.sendEvent('load')
           
         # Attach the object to the DOM
+        @object.$init = true;
         @sprite.el.appendChild(@object)
       </method>
 
