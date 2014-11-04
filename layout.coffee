@@ -227,6 +227,10 @@ window.dr = do ->
           showWarnings ["Invalid type '#{type}' for attribute '#{name}', must be one of: #{Object.keys(typemappings).join(', ')}"]
           return
         value = typemappings[type](value)
+      else
+        #if this is a string type attribute it should be set to the empty string if it is null or undefined
+        # (as in the case where it is set by constraint, and the constraint resolves to undefined)
+        value = '' unless !!value
       return value
 
     _setDefaults: (attributes, defaults={}) ->
@@ -1431,6 +1435,7 @@ window.dr = do ->
 
     _createSprite: (el, attributes) ->
       super
+      attributes.text ||= @sprite.getText(true) #so the text attribute has value when the text is set between the tags
       @sprite.createTextElement()
 
     ###*

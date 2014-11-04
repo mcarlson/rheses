@@ -351,6 +351,10 @@
             return;
           }
           value = typemappings[type](value);
+        } else {
+          if (!value) {
+            value = '';
+          }
         }
         return value;
       };
@@ -1886,6 +1890,7 @@
 
       Text.prototype._createSprite = function(el, attributes) {
         Text.__super__._createSprite.apply(this, arguments);
+        attributes.text || (attributes.text = this.sprite.getText(true));
         return this.sprite.createTextElement();
       };
 
