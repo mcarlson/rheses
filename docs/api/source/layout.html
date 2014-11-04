@@ -2308,6 +2308,18 @@
           return;
         }
         if (!(isClass || isState)) {
+          children = (function() {
+            var _j, _len1, _ref, _results;
+            _ref = el.childNodes;
+            _results = [];
+            for (_j = 0, _len1 = _ref.length; _j &lt; _len1; _j++) {
+              child = _ref[_j];
+              if (child.nodeType === 1) {
+                _results.push(child);
+              }
+            }
+            return _results;
+          })();
           for (_j = 0, _len1 = children.length; _j &lt; _len1; _j++) {
             child = children[_j];
             initElement(child, parent);

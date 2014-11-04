@@ -323,6 +323,10 @@
         * The name of the dataset
         */
 /**
+        * @property {Object} data
+        * The data inside the dataset
+        */
+/**
         * @cfg {String} url
         * The url to load JSON data from.
         */

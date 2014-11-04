@@ -81,6 +81,10 @@ SOFTWARE. -->
         * @cfg {String} name (required)
         * The name of the dataset
         */-->
+      <!--/**
+        * @property {Object} data
+        * The data inside the dataset
+        */-->
       <handler event="oninit">
         dr.datasets ?= {}
         dr.datasets[@name] = @
