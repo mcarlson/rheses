@@ -1,4 +1,31 @@
 /**
+     * @class dr.abstractart
+     * @extends dr.view
+     * Component wrapper for object tag.
+     * The size of the object matches the width/height of the view when the
+     * component is created. dr.abstractart is usually used as a base class
+     * for art, but it can be directly to embed svg files into dreem.
+     *
+     */
+/**
+        * @cfg {String} [data=""]
+        * url to be used by the object.
+        * Same meaning as the data attribute in the html object tag.
+        */
+/**
+        * @cfg {String} [type=""]
+        * media type of the data specified in the data attribute
+        * Same meaning as the type attribute in the html object tag.
+        */
+/**
+        * @method getDom
+        * Returns the base of the object dom
+        */
+/**
+        * @event onload 
+        * Fired when the object is loaded.
+        */
+/**
      * @class dr.ace
      * @extends dr.view
      * Ace editor component.
@@ -40,6 +67,18 @@
         * @param {dr.ace} view The dr.ace that fired the event
         */
 /**
+     * @class dr.art
+     * @extends dr.abstractart
+     * Vector graphics support using svg.
+     *
+     *
+     */
+/**
+        * @method resizeToView
+        * Modify the embedded svg object to use the size of the view.
+        * Called in response to the onload event.
+        */
+/**
      * @class dr.audioplayer
      * @extends dr.node
      * audioplayer wraps the web audio APIs to provide a declarative interface to play audio.
@@ -47,7 +86,7 @@
      * This example shows how to load and play an mp3 audio file from the server:
      *
      *     @example
-     *     <audioplayer url="music/03_Homage Sliders.mp3" playing="true"></audioplayer>
+     *     <audioplayer url="music/YACHT_-_09_-_Im_In_Love_With_A_Ripper_Party_Mix_Instrumental.mp3" playing="true"></audioplayer>
      */
 /**
         * @cfg {String} url

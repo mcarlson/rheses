@@ -15,7 +15,34 @@
   </script>
 </head>
 <body onload="prettyPrint(); highlight();">
-  <pre class="prettyprint lang-js"><span id='dr-ace'>/**
+  <pre class="prettyprint lang-js"><span id='dr-abstractart'>/**
+</span>     * @class dr.abstractart
+     * @extends dr.view
+     * Component wrapper for object tag.
+     * The size of the object matches the width/height of the view when the
+     * component is created. dr.abstractart is usually used as a base class
+     * for art, but it can be directly to embed svg files into dreem.
+     *
+     */
+<span id='dr-abstractart-cfg-data'>/**
+</span>        * @cfg {String} [data=&quot;&quot;]
+        * url to be used by the object.
+        * Same meaning as the data attribute in the html object tag.
+        */
+<span id='dr-abstractart-cfg-type'>/**
+</span>        * @cfg {String} [type=&quot;&quot;]
+        * media type of the data specified in the data attribute
+        * Same meaning as the type attribute in the html object tag.
+        */
+<span id='dr-abstractart-method-getDom'>/**
+</span>        * @method getDom
+        * Returns the base of the object dom
+        */
+<span id='dr-abstractart-event-onload'>/**
+</span>        * @event onload 
+        * Fired when the object is loaded.
+        */
+<span id='dr-ace'>/**
 </span>     * @class dr.ace
      * @extends dr.view
      * Ace editor component.
@@ -56,6 +83,18 @@
         * Fired when user entries stops for a period of time.
         * @param {dr.ace} view The dr.ace that fired the event
         */
+<span id='dr-art'>/**
+</span>     * @class dr.art
+     * @extends dr.abstractart
+     * Vector graphics support using svg.
+     *
+     *
+     */
+<span id='dr-art-method-resizeToView'>/**
+</span>        * @method resizeToView
+        * Modify the embedded svg object to use the size of the view.
+        * Called in response to the onload event.
+        */
 <span id='dr-audioplayer'>/**
 </span>     * @class dr.audioplayer
      * @extends dr.node
@@ -64,7 +103,7 @@
      * This example shows how to load and play an mp3 audio file from the server:
      *
      *     @example
-     *     &lt;audioplayer url=&quot;music/03_Homage Sliders.mp3&quot; playing=&quot;true&quot;&gt;&lt;/audioplayer&gt;
+     *     &lt;audioplayer url=&quot;music/YACHT_-_09_-_Im_In_Love_With_A_Ripper_Party_Mix_Instrumental.mp3&quot; playing=&quot;true&quot;&gt;&lt;/audioplayer&gt;
      */
 <span id='dr-audioplayer-cfg-url'>/**
 </span>        * @cfg {String} url
