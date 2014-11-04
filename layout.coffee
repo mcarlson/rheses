@@ -256,8 +256,8 @@ window.dr = do ->
     sendEvent: (name, value) ->
       lockkey = "c#{name}"
       if eventlock[name] == @ and eventlock[lockkey]++ > 0
-        # don't send events more than once per setAttribute() for a given object/name 
-        return @ 
+        # don't send events more than once per setAttribute() for a given object/name
+        return @
 
       # send event
       if @events?[name] and eventlock[name] != @
@@ -296,7 +296,7 @@ window.dr = do ->
   compiler = do ->
     nocache = querystring.indexOf('nocache') > 0
     strict = querystring.indexOf('strict') > 0
-    
+
     # Fix for iOS throwing exceptions when accessing localStorage in private mode, see http://stackoverflow.com/questions/21159301/quotaexceedederror-dom-exception-22-an-attempt-was-made-to-add-something-to-st
     usecache = capabilities.localStorage unless nocache
 
@@ -307,9 +307,9 @@ window.dr = do ->
       # console.log 'restored', compileCache, cacheData.length
     else
       localStorage.clear()
-      compileCache = 
+      compileCache =
         bindings: {}
-        script: 
+        script:
           coffee: {}
       localStorage[cacheKey] = JSON.stringify(compileCache) if usecache
 
@@ -321,7 +321,7 @@ window.dr = do ->
     findBindings = do ->
       bindingCache = compileCache.bindings
       scopes = null
-      propertyBindings = 
+      propertyBindings =
         MemberExpression: (n) ->
           # grab the property name
           name = n.property.name
@@ -345,9 +345,9 @@ window.dr = do ->
       # propertyBindings.find = _.memoize(propertyBindings.find)
 
     # transforms a script to javascript using a runtime compiler
-    transform = do ->    
+    transform = do ->
       coffeeCache = compileCache.script.coffee
-      compilers = 
+      compilers =
         coffee: (script) ->
           if usecache and script of coffeeCache
             # console.log 'cache hit', script
@@ -355,7 +355,7 @@ window.dr = do ->
           if not window.CoffeeScript
             console.warn 'missing coffee-script.js include'
             return
-          try 
+          try
           # console.log 'compiling coffee-script', script
             coffeeCache[script] = CoffeeScript.compile(script, bare: true) if script
           catch error
@@ -366,7 +366,7 @@ window.dr = do ->
 
       (script='', name) ->
         return script unless name of compilers
-        compilers[name](script) 
+        compilers[name](script)
 
     # cache compiled scripts to speed up instantiation
     scriptCache = {}
@@ -376,7 +376,7 @@ window.dr = do ->
       key = script + argstring + name
       return scriptCache[key] if key of scriptCache
       # console.log 'compiling', args, script
-      try 
+      try
         # console.log scriptCache
         if debug and name
           script = "\"use strict\"\n" + script if strict
@@ -386,9 +386,9 @@ window.dr = do ->
         # console.log 'compiled', func
         scriptCache[key] = func
       catch e
-        console.error 'failed to compile', e.toString(), args, script 
+        console.error 'failed to compile', e.toString(), args, script
 
-    exports = 
+    exports =
       compile: compile
       transform: transform
       findBindings: findBindings
@@ -466,20 +466,20 @@ window.dr = do ->
   ###
   class Node extends Eventable
     ###*
-    # @cfg {String} name 
+    # @cfg {String} name
     # Names this node in its parent scope so it can be referred to later.
     ###
     ###*
-    # @cfg {String} id 
+    # @cfg {String} id
     # Gives this node a global ID, which can be looked up in the global window object.
     # Take care to not override builtin globals, or override your own instances!
     ###
     ###*
-    # @cfg {String} scriptincludes 
+    # @cfg {String} scriptincludes
     # A comma separated list of URLs to javascript includes required as dependencies. Useful if you need to ensure a third party library is available.
     ###
     ###*
-    # @cfg {String} scriptincludeserror 
+    # @cfg {String} scriptincludeserror
     # An error to show if scriptincludes fail to load
     ###
     matchConstraint = /\${(.+)}/
@@ -632,7 +632,7 @@ window.dr = do ->
           args = arguments
         else if name of scope
           args = [scope[name]]
-        else 
+        else
           args = []
         # console.log 'event callback', name, args, scope, js
         js.apply(scope, args)
@@ -652,11 +652,11 @@ window.dr = do ->
         scope[methodname] = method
       # console.log('installed method', methodname, scope, scope[methodname])
 
-    # applies a constraint, must call _initConstraints for constraints to be bound 
+    # applies a constraint, must call _initConstraints for constraints to be bound
     _applyConstraint: (property, expression) ->
       @constraints ?= {}
       # console.log 'adding constraint', property, expression, @
-      @constraints[property] = 
+      @constraints[property] =
         expression: expression
         bindings: {}
 
@@ -684,14 +684,14 @@ window.dr = do ->
         for bindexpression, bindinglist of bindings
           boundref = @_valueLookup(bindexpression)()
           if not boundref
-            showWarnings(["Could not bind constraint #{bindexpression}"]) 
+            showWarnings(["Could not bind constraint #{bindexpression}"])
             continue
           boundref ?= boundref.$view
           for binding in bindinglist
             property = binding.property
             # console.log 'binding to', property, 'on', boundref
             boundref.bind?(property, constraint)
-          
+
         @setAttribute(name, fn())
       return
 
@@ -708,9 +708,9 @@ window.dr = do ->
           # console.log('binding to scope', scope, ev)
           scope.bind(ev, callback)
           scope.sendEvent(ev, scope[ev]) if scope[ev]
-      if isLate 
+      if isLate
         @latehandlers = []
-      else 
+      else
         @handlers = []
       return
 
@@ -730,7 +730,7 @@ window.dr = do ->
         parent[@name] = @ if @name
         parent.subnodes.push(@)
         ###*
-        # @event onsubnodes 
+        # @event onsubnodes
         # Fired when this node's subnodes array has changed
         # @param {dr.node} node The dr.node that fired the event
         ###
@@ -783,7 +783,7 @@ window.dr = do ->
       # console.log 'destroy node', @
 
       ###*
-      # @event ondestroy 
+      # @event ondestroy
       # Fired when this node and all its children are about to be destroyed
       # @param {dr.node} node The dr.node that fired the event
       ###
@@ -812,7 +812,7 @@ window.dr = do ->
   class Sprite
 #    guid = 0
     noop = () ->
-    stylemap = 
+    stylemap =
       x: 'left'
       y: 'top'
       bgcolor: 'backgroundColor'
@@ -847,7 +847,7 @@ window.dr = do ->
     setStyle: (name, value, internal, el=@el) ->
       value ?= ''
       if name of stylemap
-        name = stylemap[name] 
+        name = stylemap[name]
       if name of styleval
         value = styleval[name](value)
       else if name.match(rdashAlpha)
@@ -885,9 +885,9 @@ window.dr = do ->
 
     sendMouseEvent: (type, first) ->
       simulatedEvent = document.createEvent('MouseEvent')
-      simulatedEvent.initMouseEvent(type, true, true, window, 1, 
-                                first.pageX, first.pageY, 
-                                first.clientX, first.clientY, false, 
+      simulatedEvent.initMouseEvent(type, true, true, window, 1,
+                                first.pageX, first.pageY,
+                                first.clientX, first.clientY, false,
                                 false, false, false, 0, null)
       first.target.dispatchEvent(simulatedEvent)
       if first.target.$view and first.target.$view.$tagname isnt 'inputtext'
@@ -997,7 +997,7 @@ window.dr = do ->
       h = parseInt($(@input).css('height'))
       borderH = parseInt($(@el).css('border-top-width')) + parseInt($(@el).css('border-bottom-width'))
       paddingH = parseInt($(@el).css('padding-top')) + parseInt($(@el).css('padding-bottom'))
-      return h + borderH + paddingH 
+      return h + borderH + paddingH
 
     getAbsolute: () ->
       @jqel ?= $(@el)
@@ -1018,15 +1018,15 @@ window.dr = do ->
   # The visual base class for everything in dreem. Views extend dr.node to add the ability to set and animate visual attributes, and interact with the mouse.
   #
   # Views are positioned inside their parent according to their x and y coordinates.
-  # 
+  #
   # Views can contain methods, handlers, setters, constraints, attributes and other view, node or class instances.
   #
   # Views can be easily converted to reusable classes/tags by changing their outermost &lt;view> tags to &lt;class> and adding a name attribute.
   #
   # Views support a number of builtin attributes. Setting attributes that aren't listed explicitly will pass through to the underlying Sprite implementation.
-  # 
+  #
   # Views currently integrate with jQuery, so any changes made to their CSS via jQuery will automatically cause them to update.
-  # 
+  #
   # Note that dreem apps must be contained inside a top-level &lt;view>&lt;/view> tag.
   #
   # The following example shows a pink view that contains a smaller blue view offset 10 pixels from the top and 10 from the left.
@@ -1111,27 +1111,27 @@ window.dr = do ->
     ###
 
     ###*
-    # @event onclick 
+    # @event onclick
     # Fired when this view is clicked
     # @param {dr.view} view The dr.view that fired the event
     ###
     ###*
-    # @event onmouseover 
+    # @event onmouseover
     # Fired when the mouse moves over this view
     # @param {dr.view} view The dr.view that fired the event
     ###
     ###*
-    # @event onmouseout 
+    # @event onmouseout
     # Fired when the mouse moves off this view
     # @param {dr.view} view The dr.view that fired the event
     ###
     ###*
-    # @event onmousedown 
+    # @event onmousedown
     # Fired when the mouse goes down on this view
     # @param {dr.view} view The dr.view that fired the event
     ###
     ###*
-    # @event onmouseup 
+    # @event onmouseup
     # Fired when the mouse goes up on this view
     # @param {dr.view} view The dr.view that fired the event
     ###
@@ -1142,7 +1142,7 @@ window.dr = do ->
       # An array of this views's child views
       ###
       ###*
-      # @event onsubviews 
+      # @event onsubviews
       # Fired when this views's subviews array has changed
       # @param {dr.view} view The dr.view that fired the event
       ###
@@ -1152,7 +1152,7 @@ window.dr = do ->
       # An array of this views's layouts. Only defined when needed.
       ###
       ###*
-      # @event onlayouts 
+      # @event onlayouts
       # Fired when this views's layouts array has changed
       # @param {dr.layout} view The dr.layout that fired the event
       ###
@@ -1309,9 +1309,13 @@ window.dr = do ->
 
     _createSprite: (el, attributes) ->
       super
-      @text = attributes.text || @sprite.getText(true)
+#      hack, don't set text attr here or ontext will fire with the empty value after the data has been set by
+# the replicator and overrite the value. See https://www.pivotaltracker.com/story/show/82060254
+      unless attributes.replicator
+        attributes.text ||= @sprite.getText(true)
+
       @sprite.setText('')
-      @sprite.createInputtextElement(@text, attributes.multiline, attributes.width, attributes.height)
+      @sprite.createInputtextElement('', attributes.multiline, attributes.width, attributes.height)
 
     _handleChange: () ->
       return unless @replicator

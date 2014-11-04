@@ -653,23 +653,23 @@
     Node = (function(_super) {
 
       /**
-       * @cfg {String} name 
+       * @cfg {String} name
        * Names this node in its parent scope so it can be referred to later.
        */
 
       /**
-       * @cfg {String} id 
+       * @cfg {String} id
        * Gives this node a global ID, which can be looked up in the global window object.
        * Take care to not override builtin globals, or override your own instances!
        */
 
       /**
-       * @cfg {String} scriptincludes 
+       * @cfg {String} scriptincludes
        * A comma separated list of URLs to javascript includes required as dependencies. Useful if you need to ensure a third party library is available.
        */
 
       /**
-       * @cfg {String} scriptincludeserror 
+       * @cfg {String} scriptincludeserror
        * An error to show if scriptincludes fail to load
        */
       var earlyattributes, matchConstraint, _eventCallback, _installMethod;
@@ -987,7 +987,7 @@
           parent.subnodes.push(this);
 
           /**
-           * @event onsubnodes 
+           * @event onsubnodes
            * Fired when this node's subnodes array has changed
            * @param {dr.node} node The dr.node that fired the event
            */
@@ -1054,7 +1054,7 @@
       Node.prototype.destroy = function(skipevents) {
 
         /**
-         * @event ondestroy 
+         * @event ondestroy
          * Fired when this node and all its children are about to be destroyed
          * @param {dr.node} node The dr.node that fired the event
          */
@@ -1358,15 +1358,15 @@
      * The visual base class for everything in dreem. Views extend dr.node to add the ability to set and animate visual attributes, and interact with the mouse.
      *
      * Views are positioned inside their parent according to their x and y coordinates.
-     * 
+     *
      * Views can contain methods, handlers, setters, constraints, attributes and other view, node or class instances.
      *
      * Views can be easily converted to reusable classes/tags by changing their outermost &lt;view> tags to &lt;class> and adding a name attribute.
      *
      * Views support a number of builtin attributes. Setting attributes that aren't listed explicitly will pass through to the underlying Sprite implementation.
-     * 
+     *
      * Views currently integrate with jQuery, so any changes made to their CSS via jQuery will automatically cause them to update.
-     * 
+     *
      * Note that dreem apps must be contained inside a top-level &lt;view>&lt;/view> tag.
      *
      * The following example shows a pink view that contains a smaller blue view offset 10 pixels from the top and 10 from the left.
@@ -1469,35 +1469,35 @@
 
 
       /**
-       * @event onclick 
+       * @event onclick
        * Fired when this view is clicked
        * @param {dr.view} view The dr.view that fired the event
        */
 
 
       /**
-       * @event onmouseover 
+       * @event onmouseover
        * Fired when the mouse moves over this view
        * @param {dr.view} view The dr.view that fired the event
        */
 
 
       /**
-       * @event onmouseout 
+       * @event onmouseout
        * Fired when the mouse moves off this view
        * @param {dr.view} view The dr.view that fired the event
        */
 
 
       /**
-       * @event onmousedown 
+       * @event onmousedown
        * Fired when the mouse goes down on this view
        * @param {dr.view} view The dr.view that fired the event
        */
 
 
       /**
-       * @event onmouseup 
+       * @event onmouseup
        * Fired when the mouse goes up on this view
        * @param {dr.view} view The dr.view that fired the event
        */
@@ -1515,7 +1515,7 @@
          */
 
         /**
-         * @event onsubviews 
+         * @event onsubviews
          * Fired when this views's subviews array has changed
          * @param {dr.view} view The dr.view that fired the event
          */
@@ -1527,7 +1527,7 @@
          */
 
         /**
-         * @event onlayouts 
+         * @event onlayouts
          * Fired when this views's layouts array has changed
          * @param {dr.layout} view The dr.layout that fired the event
          */
@@ -1733,9 +1733,11 @@
 
       InputText.prototype._createSprite = function(el, attributes) {
         InputText.__super__._createSprite.apply(this, arguments);
-        this.text = attributes.text || this.sprite.getText(true);
+        if (!attributes.replicator) {
+          attributes.text || (attributes.text = this.sprite.getText(true));
+        }
         this.sprite.setText('');
-        return this.sprite.createInputtextElement(this.text, attributes.multiline, attributes.width, attributes.height);
+        return this.sprite.createInputtextElement('', attributes.multiline, attributes.width, attributes.height);
       };
 
       InputText.prototype._handleChange = function() {
