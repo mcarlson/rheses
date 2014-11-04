@@ -1754,6 +1754,7 @@ window.dr = do ->
       return unless children.length > 0
 
       unless isClass or isState
+        children = (child for child in el.childNodes when child.nodeType == 1)
         # create children now
         for child in children
           # console.log 'initting class child', child.localName
