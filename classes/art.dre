@@ -1,0 +1,69 @@
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+
+  <!--/**
+     * @class dr.art
+     * @extends dr.dreem_object
+     * Vector graphics support using svg.
+     *
+     *
+     */-->    
+
+      <!--/**
+        * @method resizeToView
+        * Modify the embedded svg object to use the size of the view.
+        * Called in response to the onload event.
+        */-->
+
+    <class name="art" type="coffee" extends="abstractart">
+      <handler event="onload" method="resizeToView"></handler>
+
+      <method name="resizeToView">
+        dom = @getDom()
+        return if !dom
+        
+        # Find every svg and modify width/height to be 100%.
+        # This only runs once per svg
+        elements = $(dom).find('svg')
+        for svg, index in elements
+          continue if svg.getAttribute('width_orig')
+
+          # Rewrite width and height, saving the original values
+          w = svg.getAttribute('width')
+          h = svg.getAttribute('height')
+          svg.setAttribute('width_orig', w)
+          svg.setAttribute('height_orig', h)
+          svg.setAttribute('width', '100%')
+          svg.setAttribute('height', '100%')
+          # console.log('svg size set from ', w, h)
+
+          # Add a viewPort if one is missing and w,h was absolute
+          viewBox = svg.getAttribute('viewBox')
+          if w && h && !viewBox
+            # Add a viewBox to match the size
+            viewBox = '0 0 ' + w + ' ' + h
+            svg.setAttribute('viewBox', viewBox)
+            # console.log('new viewBox', viewBox)
+
+      </method>
+
+    </class>

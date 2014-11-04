@@ -1,0 +1,136 @@
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+
+  <!--/**
+     * @class dr.abstractart
+     * @extends dr.view
+     * Component wrapper for object tag.
+     * The size of the object matches the width/height of the view when the
+     * component is created. dr.abstractart is usually used as a base class
+     * for art, but it can be directly to embed svg files into dreem.
+     *
+     */-->    
+
+      <!--/**
+        * @cfg {String} [data=""]
+        * url to be used by the object.
+        * Same meaning as the data attribute in the html object tag.
+        */-->
+
+      <!--/**
+        * @cfg {String} [type=""]
+        * media type of the data specified in the data attribute
+        * Same meaning as the type attribute in the html object tag.
+        */-->
+
+      <!--/**
+        * @method getDom
+        * Returns the base of the object dom
+        */-->
+
+      <!--/**
+        * @event onload 
+        * Fired when the object is loaded.
+        */-->
+
+
+    <class name="abstractart" type="coffee">
+      <handler event="onwidth" method="handleResize"></handler>
+      <handler event="onheight" method="handleResize"></handler>
+
+      <attribute name="data" value="" type="string"></attribute>
+      <handler event="ondata" method="updateObject"></handler>
+
+      <attribute name="type" value="" type="string"></attribute>
+      <handler event="ontype" method="updateObject"></handler>
+
+      <method name="getDom">
+        return if !@object
+        return @object.contentDocument
+      </method>
+
+      <handler event="oninit">
+        @inline = @text || @sprite.text();
+        this.sprite.text('');
+
+        @createObject()
+      </handler>
+
+      <method name="object_loaded">
+        # Write the object inline if specified
+        if @inline
+          object_dom = @object.contentDocument
+          $(object_dom).contents().html(@inline)
+          # Don't use jquery because the kernel redefines .css
+          body = $(object_dom).contents().find('body')[0]
+          body.style.overflow = 'hidden' if body
+      </method>
+
+      <method name="createObject">
+        @sprite.el.removeChild(@object) if @object
+
+        # Static attributes
+        @object = document.createElement('object')
+
+        # Style
+        # @object.setAttribute('style', 'border: 1px solid black')
+        @object.setAttribute('style', 'overflow: hidden')
+
+        # Dynamic attributes
+        @updateObject()
+
+	# For inline data, write it to @inline and insert into dom when the
+        # object is loaded. Strip off comment tags, if present
+        if @inline
+          @inline = @inline.trim()
+          # Remove comments. Comments are used to prevent compile errors
+          match = new RegExp(/^\s*\<\!--(.*)--\>\s*$/).exec(@inline);
+          @inline = match[1] if !!match
+
+        # Fire event when the object is loaded, and then generate onload
+        _this = this
+        @object.addEventListener 'load', (e) =>
+          _this.object_loaded()
+          _this.sendEvent('load')
+          
+        # Attach the object to the DOM
+        @object.$init = true;
+        @sprite.el.appendChild(@object)
+      </method>
+
+      <method name="updateObject">
+        return if (@width == 0 || @height == 0 || !@object)
+
+        @object.setAttribute('type', @type) unless @object.type == @type
+        @object.setAttribute('data', @data) unless @object.data == @data
+        @object.setAttribute('width', @width) unless @object.width == @width
+        @object.setAttribute('height', @height) unless @object.height == @height
+        @object.style.width = @width unless @object.style.width == @width
+        @object.style.height = @height unless @object.style.height == @height
+      </method>
+
+      <method name="handleResize">
+        if (@object)
+          @object.style.width = @width;
+          @object.style.height = @height;
+      </method>
+    </class>
