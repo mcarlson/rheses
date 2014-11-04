@@ -69,8 +69,9 @@ SOFTWARE. -->
       </method>
 
       <handler event="oninit">
-        @inline = @text || @sprite.text();
-        this.sprite.text('');
+        # Retrieve the entire inline contents
+        @inline = @sprite.getText()
+        @sprite.setText('')
 
         @createObject()
       </handler>
