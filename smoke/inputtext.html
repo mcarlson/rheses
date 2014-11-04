@@ -38,7 +38,7 @@
     </handler>
   </inputtext>
 
-  <inputtext text="some text">
+  <inputtext text="some text" bgcolor="thistle">
     <handler event="oninit">
       assert.equal(this.text, "some text");
     </handler>
@@ -48,9 +48,19 @@
   <view>
     <attribute name="text" type="string" value="some text"></attribute>
 
-    <inputtext text="${this.parent.text}">
+    <inputtext bgcolor="lightgreen" text="${this.parent.text}">
       <handler event="oninit">
+        assert.equal($(this.sprite.input)[0].value, 'some text')
         assert.equal(this.text, "some text");
+      </handler>
+    </inputtext>
+  </view>
+
+  <view>
+    <inputtext bgcolor="lightyellow" text="${this.parent.text}">
+      <handler event="oninit">
+        assert.equal($(this.sprite.input)[0].value, '')
+        assert.equal(this.text, '');
       </handler>
     </inputtext>
   </view>

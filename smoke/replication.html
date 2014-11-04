@@ -55,7 +55,7 @@
   <simplelayout axis="y"></simplelayout>
 
   <!-- Test datapath binding through non-bound parents -->
-  <class name="weather" extends="boundedview">
+  <class name="weather" extends="boundedview" bgcolor="lightblue">
     <view>
       <simplelayout></simplelayout>
       <boundslayout></boundslayout>
@@ -67,7 +67,7 @@
   </class>
   <replicator datapath="$tempdata" classname="weather"></replicator>
 
-  <class name="weather2" extends="boundedview">
+  <class name="weather2" extends="boundedview" bgcolor="lightgreen">
     <boundedview>
       <simplelayout></simplelayout>
       <replicator datapath="/weather[0]/main" classname="text"></replicator>
@@ -84,7 +84,6 @@
     assert.equal(this.subviews.length, 3)
     assert.equal(this.subnodes.length, 8)
     assert.equal(this.subviews[2].text, '63.88')
-    this.subviews[2].setAttribute('text', 5)
   </handler>
 
 
