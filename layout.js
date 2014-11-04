@@ -1618,6 +1618,7 @@
       /**
        * Animates this view's attribute(s)
        * @param {Object} obj A hash of attribute names and values to animate to
+       * @param Number duration The duration of the animation in milliseconds
        */
 
       View.prototype.animate = function() {
