@@ -22,7 +22,7 @@ SOFTWARE. -->
 
   <!--/**
      * @class dr.art
-     * @extends dr.dreem_object
+     * @extends dr.abstractart
      * Vector graphics support using svg.
      *
      *
