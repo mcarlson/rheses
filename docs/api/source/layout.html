@@ -605,11 +605,12 @@
     };
 
 <span id='dr-node'>    /**
-</span>     * @class dr.node
+</span>     * @aside guide constraints
+     * @class dr.node
      * @extends Eventable
      * The nonvisual base class for everything in dreem. Handles parent/child relationships between tags.
-     * 
-     * Nodes can contain methods, handlers, setters, constraints, attributes and other node instances.
+     *
+     * Nodes can contain methods, handlers, setters, [constraints](#!/guide/constraints), attributes and other node instances.
      *
      * Here we define a data node that contains movie data.
      *
@@ -663,6 +664,8 @@
      *     &lt;text text=&quot;${conv.inchesval + &#39; inches&#39;}&quot;&gt;&lt;/text&gt;
      *     &lt;text text=&quot;${conv.centimetersval() + &#39; cm&#39;}&quot;&gt;&lt;/text&gt;
      *     &lt;text text=&quot;${conv.metersval() + &#39; m&#39;}&quot;&gt;&lt;/text&gt;
+     *
+     *
      */
     Node = (function(_super) {
 
@@ -1161,7 +1164,7 @@
           value = styleval[name](value);
         } else if (name.match(rdashAlpha)) {
           name = name.replace(rdashAlpha, fcamelCase);
-          if (!internal) {
+          if (debug &amp;&amp; !internal) {
             console.warn(&quot;Setting unknown CSS property &quot; + name + &quot; = &quot; + value + &quot; on &quot;, this.el.$view);
           }
         }
@@ -1366,7 +1369,8 @@
     };
 
 <span id='dr-view'>    /**
-</span>     * @class dr.view
+</span>     * @aside guide constraints
+     * @class dr.view
      * @extends dr.node
      * The visual base class for everything in dreem. Views extend dr.node to add the ability to set and animate visual attributes, and interact with the mouse.
      *
@@ -1418,7 +1422,7 @@
      *
      *     &lt;/view&gt;
      *
-     * It is convenient to constrain a view&#39;s size and position to attributes of its parent view. Here we&#39;ll position the inner view so that its inset by 10 pixels in its parent.
+     * It is convenient to [constrain](#!/guide/constraints) a view&#39;s size and position to attributes of its parent view. Here we&#39;ll position the inner view so that its inset by 10 pixels in its parent.
      *
      *     @example
      *     &lt;view width=&quot;200&quot; height=&quot;100&quot; bgcolor=&quot;lightpink&quot;&gt;

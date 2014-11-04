@@ -588,11 +588,12 @@
     };
 
     /**
+     * @aside guide constraints
      * @class dr.node
      * @extends Eventable
      * The nonvisual base class for everything in dreem. Handles parent/child relationships between tags.
-     * 
-     * Nodes can contain methods, handlers, setters, constraints, attributes and other node instances.
+     *
+     * Nodes can contain methods, handlers, setters, [constraints](#!/guide/constraints), attributes and other node instances.
      *
      * Here we define a data node that contains movie data.
      *
@@ -646,6 +647,8 @@
      *     <text text="${conv.inchesval + ' inches'}"></text>
      *     <text text="${conv.centimetersval() + ' cm'}"></text>
      *     <text text="${conv.metersval() + ' m'}"></text>
+     *
+     *
      */
     Node = (function(_super) {
 
@@ -1349,6 +1352,7 @@
     };
 
     /**
+     * @aside guide constraints
      * @class dr.view
      * @extends dr.node
      * The visual base class for everything in dreem. Views extend dr.node to add the ability to set and animate visual attributes, and interact with the mouse.
@@ -1401,7 +1405,7 @@
      *
      *     </view>
      *
-     * It is convenient to constrain a view's size and position to attributes of its parent view. Here we'll position the inner view so that its inset by 10 pixels in its parent.
+     * It is convenient to [constrain](#!/guide/constraints) a view's size and position to attributes of its parent view. Here we'll position the inner view so that its inset by 10 pixels in its parent.
      *
      *     @example
      *     <view width="200" height="100" bgcolor="lightpink">
