@@ -536,7 +536,7 @@ window.dr = do ->
         @_bindHandlers()
 
       for name in earlyattributes
-        @setAttribute(name, attributes[name]) if attributes[name]
+        @setAttribute(name, attributes[name]) if name of attributes
 
       # Bind to event expressions and set attributes
       for name, value of attributes
@@ -544,7 +544,7 @@ window.dr = do ->
         @bindAttribute(name, value, attributes.$tagname)
 
       for name in lateattributes
-        @setAttribute(name, attributes[name]) if attributes[name]
+        @bindAttribute(name, attributes[name], attributes.$tagname) if name of attributes
 
       constraintScopes.push(@) if @constraints
 

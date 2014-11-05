@@ -736,7 +736,7 @@
         }
         for (_j = 0, _len1 = earlyattributes.length; _j < _len1; _j++) {
           name = earlyattributes[_j];
-          if (attributes[name]) {
+          if (name in attributes) {
             this.setAttribute(name, attributes[name]);
           }
         }
@@ -749,8 +749,8 @@
         }
         for (_k = 0, _len2 = lateattributes.length; _k < _len2; _k++) {
           name = lateattributes[_k];
-          if (attributes[name]) {
-            this.setAttribute(name, attributes[name]);
+          if (name in attributes) {
+            this.bindAttribute(name, attributes[name], attributes.$tagname);
           }
         }
         if (this.constraints) {
