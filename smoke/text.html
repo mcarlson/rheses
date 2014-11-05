@@ -19,20 +19,17 @@
 
   <simplelayout axis="y"></simplelayout>
 
+  <!-- Replication -->
   <dataset name="book">
     {
       "title": "Text from data"
     }
   </dataset>
-
-  <simplelayout axis="y"></simplelayout>
-
   <class name="titletext" extends="text">
     <handler event="oninit">
       assert.equal(this.text, 'Text from data');
     </handler>
   </class>
-
   <replicator classname="titletext" datapath="$book/title"></replicator>
 
   <!-- Setting text with string -->
