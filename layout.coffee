@@ -221,6 +221,8 @@ window.dr = do ->
     eventlock = {}
 
     _coerceType: (name, value) ->
+      unless name of @types
+        console.warn('missing type', name, value, @types)
       type = @types[name]
       if type
         unless (typemappings[type])
@@ -493,6 +495,12 @@ window.dr = do ->
     lateattributes = ['data']
 
     constructor: (el, attributes = {}) ->
+      attributes.$types ?= {}
+      types = {parent: 'expression', name: 'string', id: 'string', $tagname: 'string', type: 'string', $textcontent: 'string', class: 'string'}
+      for key, type of attributes.$types
+        # console.log key, type, types
+        types[key] = type
+      attributes.$types = types
 
       ###*
       # @property {dr.node[]} subnodes
@@ -705,7 +713,7 @@ window.dr = do ->
         @setAttribute(name, fn())
       return
 
-    _bindHandlers: (isLate) =>
+    _bindHandlers: (isLate) ->
       bindings = if isLate then @latehandlers else @handlers
       return unless bindings
 
@@ -1192,7 +1200,7 @@ window.dr = do ->
       # If true, layouts should ignore this view
       ###
       @subviews = []
-      types = {x: 'number', y: 'number', width: 'number', height: 'number', clickable: 'boolean', clip: 'boolean', visible: 'boolean'}
+      types = {x: 'number', y: 'number', width: 'number', height: 'number', clickable: 'boolean', clip: 'boolean', visible: 'boolean', bgcolor: 'string'}
       defaults = {x:0, y:0, width:0, height:0, clickable:false, clip:false, visible:true}
 
       for key, type of attributes.$types
@@ -1447,7 +1455,7 @@ window.dr = do ->
     # Component text.
     ###
     constructor: (el, attributes = {}) ->
-      types = {resize: 'boolean', multiline: 'boolean'}
+      types = {resize: 'boolean', multiline: 'boolean', text: 'string'}
       defaults = {resize:true, multiline:false}
 
       for key, type of attributes.$types
@@ -1781,7 +1789,6 @@ window.dr = do ->
       # Defer oninit if we have children
       children = (child for child in el.childNodes when child.nodeType == 1)
       attributes.$skiponinit = skiponinit = children.length > 0
-      # attributes.$deferbindings = true
 
       if typeof dr[tagname] is 'function'
         parent = new dr[tagname](el, attributes)
