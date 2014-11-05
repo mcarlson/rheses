@@ -1925,6 +1925,8 @@ window.dr = do ->
   ###
   class State extends Node
     constructor: (el, attributes = {}) ->
+      attributes.$types ?= {}
+      attributes.$types['applied'] = 'boolean'
       @skipattributes = ['parent', 'types', 'applyattributes', 'applied', 'skipattributes', 'stateattributes']
       @stateattributes = attributes
       @applyattributes = {}
