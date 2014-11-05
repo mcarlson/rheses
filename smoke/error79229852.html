@@ -9,11 +9,22 @@
 </head>
 <body>
 <view width="100%" height="100%">
+  <simplelayout axis="y"></simplelayout>
+  
   <checkbutton id="greenbox" text="green" selectcolor="lightgreen" defaultcolor="lightgrey" bgcolor="white"></checkbutton>
 
   <handler event="onselected" args="value" reference="greenbox">
     console.log('onselected fired with value:', value);
+    window.hasBeenSelected = true
   </handler>
+  
+  <handler event="oninit">
+    greenbox.setAttribute('selected', true)
+    window.setTimeout(function() {
+      assert.equal(window.hasBeenSelected, true)
+    }, 0);
+  </handler>
+  
 </view>
 <!-- The MIT License (MIT)
 
