@@ -14,16 +14,67 @@
   <script type="text/javascript" src="/layout.js"></script>
 </head>
 <body>
-  <view width="100%">
-    <view name="redbox" width="100" height="100" bgcolor="red">
-      <handler event="onheight" args="h">
-        this.setAttribute('height', h + 100)
-      </handler>
-    </view>
-    <handler event="oninit">
-      assert.equal(this.redbox.height, 200)
+<view width="100%">
+  <view name="redbox" width="100" height="100" bgcolor="red">
+    <handler event="onheight" args="h">
+      this.setAttribute('height', h + 100)
     </handler>
   </view>
+  <handler event="oninit">
+    assert.equal(this.redbox.height, 200)
+  </handler>
+
+  <!-- Useful for debugging, from tracker bug 77982314 -->
+  <!--<class name="error13" bgcolor="#808080" width="20">-->
+    <!--<handler event="onwidth">-->
+      <!--this.setAttribute('width', this.width+1);-->
+    <!--</handler>-->
+  <!--</class>-->
+  <!--<error13>-->
+    <!--<handler event="oninit">-->
+      <!--assert.equal(this.width, 21);-->
+    <!--</handler>-->
+  <!--</error13>-->
+
+  <!--&lt;!&ndash; This doesn't work because the sprite is not changed &ndash;&gt;-->
+  <!--<class name="error13a" bgcolor="#808080" width="20" height="20">-->
+    <!--<handler event="onwidth">-->
+      <!--this.width = this.width + 50;-->
+    <!--</handler>-->
+    <!--<handler event="onheight">-->
+      <!--this.height = this.height + 50;-->
+    <!--</handler>-->
+  <!--</class>-->
+
+  <!--&lt;!&ndash; This works because a lock is added &ndash;&gt;-->
+  <!--<class name="error13b" bgcolor="#808080" width="20" height="20">-->
+    <!--<handler event="onwidth">-->
+      <!--if (this.locked) return;-->
+      <!--this.locked=true;-->
+      <!--this.setAttribute('width', this.width+50);-->
+      <!--this.locked=false;-->
+    <!--</handler>-->
+    <!--<handler event="onheight">-->
+      <!--if (this.locked) return;-->
+      <!--this.locked=true;-->
+      <!--this.setAttribute('height', this.height+50);-->
+      <!--this.locked=false;-->
+    <!--</handler>-->
+  <!--</class>-->
+
+  <!--<error13a>-->
+    <!--<handler event="oninit">-->
+      <!--assert.equal(this.width, 70);-->
+      <!--assert.equal(this.height, 70);-->
+    <!--</handler>-->
+  <!--</error13a>-->
+  <!--<error13b x="200">-->
+    <!--<handler event="oninit">-->
+      <!--assert.equal(this.width, 70);-->
+      <!--assert.equal(this.height, 70);-->
+    <!--</handler>-->
+  <!--</error13b>-->
+</view>
 <!-- The MIT License (MIT)
 
 Copyright ( c ) 2014 Teem2 LLC

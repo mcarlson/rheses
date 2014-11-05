@@ -1,12 +1,6 @@
 <html>
 <head>
   <title>rhes.es</title>
-  <style type="text/css">
-    body {
-      font-family: 'Helvetica';
-      font-size: 14px;
-    }
-  </style>
   <script type="text/javascript" src="/lib/jquery-1.9.1.min.js"></script>
   <script type="text/javascript" src="/lib/acorn.js"></script>
   <script type="text/javascript" src="/lib/coffee-script.js"></script>
@@ -14,14 +8,29 @@
   <script type="text/javascript" src="/layout.js"></script>
 </head>
 <body>
-  <view width="100%">
-    <view width="100" height="100" bgcolor="red">
-    <handler event="oninit">
-      this.setAttribute('visible', 'false')
-      assert.equal(this.sprite.el.style.display, 'none')
-    </handler>
+<view id="all" width="100%" height="100%" clip="true">
+  
+  <!-- Oninit fires after children have been inited -->
+  <!-- Here when the container has no "special" children (attributes, handlers, methods, etc) -->
+  <view id="container">
+    <view id="sub">
+      <handler event="oninit">
+        assert.equal(false, !!container.inited)
+      </handler>
     </view>
   </view>
+  <!-- Here when the container has "special" children (attributes, handlers, methods, etc) and regular (view, node, etc) children -->
+  <view id="container2">
+    <view id="sub2">
+      <handler event="oninit">
+        assert.equal(false, !!container2.inited)
+      </handler>
+    </view>
+    <handler event="oninit">
+      assert.equal(true, !!sub2.inited)
+    </handler>
+  </view>
+</view>
 <!-- The MIT License (MIT)
 
 Copyright ( c ) 2014 Teem2 LLC

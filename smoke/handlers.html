@@ -1,6 +1,13 @@
 <html>
 <head>
-  <title>rhes.es</title>
+  <style type="text/css">
+    body {
+      font-family: 'Helvetica';
+      font-size: 14px;
+    }
+  </style>
+
+  <title>rhes.es - Text Component Smoke Tests</title>
   <script type="text/javascript" src="/lib/jquery-1.9.1.min.js"></script>
   <script type="text/javascript" src="/lib/acorn.js"></script>
   <script type="text/javascript" src="/lib/coffee-script.js"></script>
@@ -8,23 +15,41 @@
   <script type="text/javascript" src="/layout.js"></script>
 </head>
 <body>
-<view width="100%" height="100%">
+<view id="all" width="100%" height="100%" clip="true">
+
   <simplelayout axis="y"></simplelayout>
   
+  <!-- Events are thrown for attributes set in the declaration -->
+  <!-- Also verifies that oninit fires after the other on<attr> events -->
+  <view bgcolor="AliceBlue" width="50" height="20">
+    <handler event="onbgcolor" args="c">
+      window.bgColorHandled = true
+    </handler>
+    <handler event="oninit">
+      assert.equal(window.bgColorHandled, true)
+    </handler>
+  </view>
+  
+  <!-- Handler executes after the new value has been set -->
+  <view bgcolor="AliceBlue" width="50" height="20">
+    <handler event="onbgcolor" args="c">
+      assert.equal(c, this.bgcolor)
+    </handler>
+  </view>
+  
+  <!-- Attaching by reference -->
   <checkbutton id="greenbox" text="green" selectcolor="lightgreen" defaultcolor="lightgrey" bgcolor="white"></checkbutton>
-
   <handler event="onselected" args="value" reference="greenbox">
     console.log('onselected fired with value:', value);
     window.hasBeenSelected = true
   </handler>
-  
   <handler event="oninit">
     greenbox.setAttribute('selected', true)
     window.setTimeout(function() {
       assert.equal(window.hasBeenSelected, true)
     }, 0);
   </handler>
-  
+
 </view>
 <!-- The MIT License (MIT)
 
