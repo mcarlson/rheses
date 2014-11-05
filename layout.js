@@ -351,10 +351,8 @@
             return;
           }
           value = typemappings[type](value);
-        } else {
-          if (!value) {
-            value = '';
-          }
+        } else if (value == null) {
+          value = '';
         }
         return value;
       };
