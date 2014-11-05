@@ -705,7 +705,7 @@ window.dr = do ->
         @setAttribute(name, fn())
       return
 
-    _bindHandlers: (isLate) =>
+    _bindHandlers: (isLate) ->
       bindings = if isLate then @latehandlers else @handlers
       return unless bindings
 
@@ -1781,7 +1781,6 @@ window.dr = do ->
       # Defer oninit if we have children
       children = (child for child in el.childNodes when child.nodeType == 1)
       attributes.$skiponinit = skiponinit = children.length > 0
-      # attributes.$deferbindings = true
 
       if typeof dr[tagname] is 'function'
         parent = new dr[tagname](el, attributes)

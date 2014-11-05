@@ -691,7 +691,6 @@
         if (attributes == null) {
           attributes = {};
         }
-        this._bindHandlers = __bind(this._bindHandlers, this);
 
         /**
          * @property {dr.node[]} subnodes
