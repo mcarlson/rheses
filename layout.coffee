@@ -1787,6 +1787,7 @@ window.dr = do ->
       return unless children.length > 0
 
       unless isClass or isState
+#        grab children again in case any were added when the parent was instantiated
         children = (child for child in el.childNodes when child.nodeType == 1)
         # create children now
         for child in children
