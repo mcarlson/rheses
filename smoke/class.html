@@ -1,6 +1,13 @@
 <html>
 <head>
-  <title>rhes.es</title>
+  <style type="text/css">
+    body {
+      font-family: 'Helvetica';
+      font-size: 14px;
+    }
+  </style>
+
+  <title>rhes.es - Text Component Smoke Tests</title>
   <script type="text/javascript" src="/lib/jquery-1.9.1.min.js"></script>
   <script type="text/javascript" src="/lib/acorn.js"></script>
   <script type="text/javascript" src="/lib/coffee-script.js"></script>
@@ -9,12 +16,50 @@
 </head>
 <body>
 <view id="all" width="100%" height="100%" clip="true">
-  <text width="100" height="100" text="Hello" bgcolor="green">
-  	<handler event="oninit">
-      assert.equal(this.width, 35)
-      assert.equal(this.height, 18)
-  	</handler>
-  </text>
+
+  <simplelayout axis="y"></simplelayout>
+
+  <!-- Setting a sub view's attribute with a constraint -->
+  <class name="labelview" width="${this.label.width}" height="${this.label.height}" bgcolor="#808080">
+    <text name="label" text="${this.parent.text}"></text>
+  </class>
+  <labelview id="foo" text="labelview object">
+    <handler event="oninit">
+      assert.equal(this.label.text, 'labelview object');
+    </handler>
+  </labelview>
+  
+  <!-- Extension -->
+  <!-- Overriding attributes in a subclass -->
+  <class name="text2" extends="text"></class>
+  <class name="text3" extends="text2"></class>
+  <text3 text="Hello">
+    <handler event="oninit" args="who">
+      assert.equal(who.text, 'Hello')
+    </handler>
+  </text3>
+  
+  <!-- Overridden methods automatically call super -->
+  <class name="c1" type="coffee">
+    <attribute name="counter" type="string" value="0"></attribute>
+    <method name="test">
+      this.counter += '1';
+      # console.log("c1.test")
+    </method>
+  </class>
+  <class name="c2" type="coffee" extends="c1">
+    <method name="test">
+      this.counter += '2';
+      # console.log("c2.test")
+    </method>
+    <handler event="oninit">
+      this.test()
+      assert.equal(this.counter, '012')
+    </handler>
+  </class>
+  <c2></c2>
+
+
 </view>
 <!-- The MIT License (MIT)
 

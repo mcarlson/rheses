@@ -22,6 +22,14 @@
     assert.equal(this.st.subviews.length, 1)
     assert.equal(this.st.subnodes.length, 2)
   </handler>
+  
+  <!-- $tagname -->
+  <class name="text2" extends="text"></class>
+  <class name="text3" extends="text2">
+    <handler event="oninit" args="who">
+      assert.equal(who.$tagname, 'text3')
+    </handler>
+  </class>
 </view>
 <!-- The MIT License (MIT)
 
