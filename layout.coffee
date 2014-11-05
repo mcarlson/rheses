@@ -705,20 +705,42 @@ window.dr = do ->
         @setAttribute(name, fn())
       return
 
-    _bindHandlers: (isLate) ->
+    _bindHandlers: (isLate) =>
       bindings = if isLate then @latehandlers else @handlers
       return unless bindings
+
+      # Track bindings that need to be deferred here
+      defer = []
       for binding in bindings
         {scope, name, ev, callback, reference} = binding
         if reference
           refeval = @_valueLookup(reference)()
-          # console.log('binding to reference', reference, refeval, ev, scope)
-          scope.listenTo(refeval, ev, callback)
+          # Ensure we have a reference to a Dreem object
+          if refeval instanceof Eventable
+            scope.listenTo(refeval, ev, callback)
+            # console.log('binding to reference', reference, refeval, ev, scope)
+          else
+            # if not, defer this binding and continue
+            defer.push binding
+            continue
         else
           # console.log('binding to scope', scope, ev)
           scope.bind(ev, callback)
           scope.sendEvent(ev, scope[ev]) if scope[ev]
-      if isLate
+
+      # if bindings need to be deferred, try again later
+      if defer.length
+        if isLate 
+          @latehandlers = defer
+        else 
+          @handlers = defer
+        # console.log 'found deferred bindings', defer
+        setTimeout(() =>
+          @_bindHandlers(isLate)
+        , 0)
+        return
+
+      if isLate 
         @latehandlers = []
       else
         @handlers = []
@@ -1670,7 +1692,7 @@ window.dr = do ->
           )
         )
 
-      parser = ->
+      validator = ->
         url = '/validate/'
         # data = '<html>' + document.getElementsByTagName('html')[0].innerHTML + '</html>'
         # console.log(url, data)
@@ -1682,12 +1704,13 @@ window.dr = do ->
           success: (data) ->
             showWarnings(data) if (data.length)
         })
+
         callback()
 
       # must do this thrice to catch autoinclude autoincludes, see https://github.com/teem2/dreem/issues/6 and https://www.pivotaltracker.com/story/show/77941122
       cb2 = () ->
         # console.log 'loading dre', name, url, el
-        loadIncludes(parser)
+        loadIncludes(validator)
       cb = () ->
         loadIncludes(cb2)
       loadIncludes(cb)
@@ -1758,6 +1781,7 @@ window.dr = do ->
       # Defer oninit if we have children
       children = (child for child in el.childNodes when child.nodeType == 1)
       attributes.$skiponinit = skiponinit = children.length > 0
+      # attributes.$deferbindings = true
 
       if typeof dr[tagname] is 'function'
         parent = new dr[tagname](el, attributes)
@@ -2189,7 +2213,7 @@ window.dr = do ->
             for child in children
               if not child.inited and child.localName is not 'class'
                 # console.log 'child not initted', child, parent
-                setTimeout(checkChildren, 10)
+                setTimeout(checkChildren, 0)
                 return
             # console.log('class doinit', parent)
             sendInit()

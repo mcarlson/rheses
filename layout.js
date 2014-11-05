@@ -691,6 +691,7 @@
         if (attributes == null) {
           attributes = {};
         }
+        this._bindHandlers = __bind(this._bindHandlers, this);
 
         /**
          * @property {dr.node[]} subnodes
@@ -961,23 +962,42 @@
       };
 
       Node.prototype._bindHandlers = function(isLate) {
-        var binding, bindings, callback, ev, name, reference, refeval, scope, _i, _len;
+        var binding, bindings, callback, defer, ev, name, reference, refeval, scope, _i, _len;
         bindings = isLate ? this.latehandlers : this.handlers;
         if (!bindings) {
           return;
         }
+        defer = [];
         for (_i = 0, _len = bindings.length; _i < _len; _i++) {
           binding = bindings[_i];
           scope = binding.scope, name = binding.name, ev = binding.ev, callback = binding.callback, reference = binding.reference;
           if (reference) {
             refeval = this._valueLookup(reference)();
-            scope.listenTo(refeval, ev, callback);
+            if (refeval instanceof Eventable) {
+              scope.listenTo(refeval, ev, callback);
+            } else {
+              defer.push(binding);
+              continue;
+            }
           } else {
             scope.bind(ev, callback);
             if (scope[ev]) {
               scope.sendEvent(ev, scope[ev]);
             }
           }
+        }
+        if (defer.length) {
+          if (isLate) {
+            this.latehandlers = defer;
+          } else {
+            this.handlers = defer;
+          }
+          setTimeout((function(_this) {
+            return function() {
+              return _this._bindHandlers(isLate);
+            };
+          })(this), 0);
+          return;
         }
         if (isLate) {
           this.latehandlers = [];
@@ -2007,7 +2027,7 @@
         });
       };
       findAutoIncludes = function(parentel, callback) {
-        var cb, cb2, fileloaded, filerequests, includedScripts, includerequests, inlineclasses, jqel, loadIncludes, loadLZX, loadScript, loadqueue, parser, scriptloading;
+        var cb, cb2, fileloaded, filerequests, includedScripts, includerequests, inlineclasses, jqel, loadIncludes, loadLZX, loadScript, loadqueue, scriptloading, validator;
         jqel = $(parentel);
         includerequests = [];
         includedScripts = {};
@@ -2166,7 +2186,7 @@
             });
           });
         };
-        parser = function() {
+        validator = function() {
           var prom, url;
           url = '/validate/';
           prom = $.ajax({
@@ -2183,7 +2203,7 @@
           return callback();
         };
         cb2 = function() {
-          return loadIncludes(parser);
+          return loadIncludes(validator);
         };
         cb = function() {
           return loadIncludes(cb2);
@@ -2780,7 +2800,7 @@
               for (_k = 0, _len2 = children.length; _k < _len2; _k++) {
                 child = children[_k];
                 if (!child.inited && child.localName === !'class') {
-                  setTimeout(checkChildren, 10);
+                  setTimeout(checkChildren, 0);
                   return;
                 }
               }
