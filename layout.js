@@ -1764,9 +1764,7 @@
 
       InputText.prototype._createSprite = function(el, attributes) {
         InputText.__super__._createSprite.apply(this, arguments);
-        if (!attributes.replicator) {
-          attributes.text || (attributes.text = this.sprite.getText(true));
-        }
+        attributes.text || (attributes.text = this.sprite.getText(true));
         this.sprite.setText('');
         return this.sprite.createInputtextElement('', attributes.multiline, attributes.width, attributes.height);
       };

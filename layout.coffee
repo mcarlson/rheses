@@ -1340,11 +1340,7 @@ window.dr = do ->
 
     _createSprite: (el, attributes) ->
       super
-#      hack, don't set text attr here or ontext will fire with the empty value after the data has been set by
-# the replicator and overrite the value. See https://www.pivotaltracker.com/story/show/82060254
-      unless attributes.replicator
-        attributes.text ||= @sprite.getText(true)
-
+      attributes.text ||= @sprite.getText(true)
       @sprite.setText('')
       @sprite.createInputtextElement('', attributes.multiline, attributes.width, attributes.height)
 
