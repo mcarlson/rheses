@@ -489,6 +489,8 @@ window.dr = do ->
     matchConstraint = /\${(.+)}/
     # parent must be set before name
     earlyattributes = ['parent', 'name']
+    # data must be set after text
+    lateattributes = ['data']
 
     constructor: (el, attributes = {}) ->
 
@@ -538,7 +540,11 @@ window.dr = do ->
 
       # Bind to event expressions and set attributes
       for name, value of attributes
-        @bindAttribute(name, value, attributes.$tagname) unless name in earlyattributes
+        continue if name in lateattributes or name in earlyattributes
+        @bindAttribute(name, value, attributes.$tagname)
+
+      for name in lateattributes
+        @setAttribute(name, attributes[name]) if attributes[name]
 
       constraintScopes.push(@) if @constraints
 

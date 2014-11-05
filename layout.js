@@ -676,7 +676,7 @@
        * @cfg {String} scriptincludeserror
        * An error to show if scriptincludes fail to load
        */
-      var earlyattributes, matchConstraint, _eventCallback, _installMethod;
+      var earlyattributes, lateattributes, matchConstraint, _eventCallback, _installMethod;
 
       __extends(Node, _super);
 
@@ -684,8 +684,10 @@
 
       earlyattributes = ['parent', 'name'];
 
+      lateattributes = ['data'];
+
       function Node(el, attributes) {
-        var args, deferbindings, ev, method, name, reference, script, skiponinit, value, _i, _j, _len, _len1, _ref, _ref1, _ref2;
+        var args, deferbindings, ev, method, name, reference, script, skiponinit, value, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
         if (attributes == null) {
           attributes = {};
         }
@@ -740,8 +742,15 @@
         }
         for (name in attributes) {
           value = attributes[name];
-          if (__indexOf.call(earlyattributes, name) < 0) {
-            this.bindAttribute(name, value, attributes.$tagname);
+          if (__indexOf.call(lateattributes, name) >= 0 || __indexOf.call(earlyattributes, name) >= 0) {
+            continue;
+          }
+          this.bindAttribute(name, value, attributes.$tagname);
+        }
+        for (_k = 0, _len2 = lateattributes.length; _k < _len2; _k++) {
+          name = lateattributes[_k];
+          if (attributes[name]) {
+            this.setAttribute(name, attributes[name]);
           }
         }
         if (this.constraints) {
