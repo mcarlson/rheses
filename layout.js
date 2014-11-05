@@ -344,9 +344,6 @@
 
       Eventable.prototype._coerceType = function(name, value) {
         var type;
-        if (!(name in this.types)) {
-          console.warn('missing type', name, value, this.types);
-        }
         type = this.types[name];
         if (type) {
           if (!typemappings[type]) {
@@ -690,28 +687,11 @@
       lateattributes = ['data'];
 
       function Node(el, attributes) {
-        var args, deferbindings, ev, key, method, name, reference, script, skiponinit, type, types, value, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2, _ref3;
+        var args, deferbindings, ev, method, name, reference, script, skiponinit, value, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
         if (attributes == null) {
           attributes = {};
         }
-        if (attributes.$types == null) {
-          attributes.$types = {};
-        }
-        types = {
-          parent: 'expression',
-          name: 'string',
-          id: 'string',
-          $tagname: 'string',
-          type: 'string',
-          $textcontent: 'string',
-          "class": 'string'
-        };
-        _ref = attributes.$types;
-        for (key in _ref) {
-          type = _ref[key];
-          types[key] = type;
-        }
-        attributes.$types = types;
+        this._bindHandlers = __bind(this._bindHandlers, this);
 
         /**
          * @property {dr.node[]} subnodes
@@ -719,7 +699,7 @@
          * An array of this node's child nodes
          */
         this.subnodes = [];
-        this.types = (_ref1 = attributes.$types) != null ? _ref1 : {};
+        this.types = (_ref = attributes.$types) != null ? _ref : {};
         delete attributes.$types;
         skiponinit = attributes.$skiponinit;
         delete attributes.$skiponinit;
@@ -740,9 +720,9 @@
         }
         if (attributes.$handlers) {
           this.installHandlers(attributes.$handlers, attributes.$tagname);
-          _ref2 = attributes.$handlers;
-          for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
-            _ref3 = _ref2[_i], ev = _ref3.ev, name = _ref3.name, script = _ref3.script, args = _ref3.args, reference = _ref3.reference, method = _ref3.method;
+          _ref1 = attributes.$handlers;
+          for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+            _ref2 = _ref1[_i], ev = _ref2.ev, name = _ref2.name, script = _ref2.script, args = _ref2.args, reference = _ref2.reference, method = _ref2.method;
             ev = ev.substr(2);
             if (__indexOf.call(mouseEvents, ev) >= 0) {
               if (attributes.clickable !== "false") {
@@ -1596,8 +1576,7 @@
           height: 'number',
           clickable: 'boolean',
           clip: 'boolean',
-          visible: 'boolean',
-          bgcolor: 'string'
+          visible: 'boolean'
         };
         defaults = {
           x: 0,
@@ -1918,8 +1897,7 @@
         }
         types = {
           resize: 'boolean',
-          multiline: 'boolean',
-          text: 'string'
+          multiline: 'boolean'
         };
         defaults = {
           resize: true,
