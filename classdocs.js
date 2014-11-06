@@ -492,6 +492,74 @@
      *     <replicator datapath="$topmovies/searchResponse/results[*]/movie[take(/releaseYear,/duration,/rating)]" classname="logger"></replicator>
      */
 /**
+   * @class dr.rangeslider
+   * @extends dr.slider
+   * An input component whose upper and lower bounds are changed when the mouse is dragged.
+   *
+   *     @example
+   *
+   *     <rangeslider name="hslide" y="5" width="250" height="10" lowvalue="30" highvalue="70" exclusive="true" lowselectcolor="#00CCFF" highselectcolor="33CCFF"></rangeslider>
+   *
+   */
+/**
+      * @cfg {Number} [minvalue=0]
+      * The minimum value of the slider
+      */
+/**
+    * @cfg {Number} [minhighvalue=0]
+    * The minimum value of the right slider
+    */
+/**
+      * @cfg {Number} [maxvalue=100]
+      * The maximum value of the slider
+      */
+/**
+      * @cfg {Number} [maxlowvalue=100]
+      * The maximum value of the lower bound slider
+      */
+/**
+      * @cfg {"x"/"y"} [axis=x]
+      * The axis to track on
+      */
+/**
+      * @cfg {Boolean} [invert=false]
+      * Set to false to have the scale run lower to higher, true to run higher to lower.
+      */
+/**
+      * @cfg {Boolean} [exclusive=false]
+      * Set to true to highlight the outer (exclusive) values of the range, false to select the inner (inclusive) values.
+      */
+/**
+      * @cfg {Number} [lowvalue=50]
+      * The current value of the left slider.
+      * Use changeLowValue() to range check the number and set the value.
+      */
+/**
+      * @cfg {Number} [highvalue=50]
+      * The current value of the right slider.
+      * Use changeHighValue() to range check the number and set the value.
+      */
+/**
+      * @method changeLowValue
+      * Given a new value for the slider position, constrain the value
+      * between minvalue and maxvalue or maxlowvalue (whichever is lower) and then calls setAttribute.
+      * @param {Number} v The new value of the component.
+      */
+/**
+      * @method changeHighValue
+      * Given a new value for the slider position, constrain the value
+      * between minvalue or minhighvalue (whichever is higher) and maxvalue and then calls setAttribute.
+      * @param {Number} v The new value of the component.
+      */
+/**
+      * @cfg {String} [lowselectcolor="#a0a0a0"]
+      * The selected color of the lower bound slider.
+      */
+/**
+      * @cfg {String} [highselectcolor="#a0a0a0"]
+      * The selected color of the upper bound slider.
+      */
+/**
      * @class dr.replicator
      * @extends dr.node
      * Handles replication and data binding.
