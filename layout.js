@@ -2490,10 +2490,6 @@
         if (attributes == null) {
           attributes = {};
         }
-        if (attributes.$types == null) {
-          attributes.$types = {};
-        }
-        attributes.$types['applied'] = 'boolean';
         this.skipattributes = ['parent', 'types', 'applyattributes', 'applied', 'skipattributes', 'stateattributes'];
         this.stateattributes = attributes;
         this.applyattributes = {};

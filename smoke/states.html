@@ -48,6 +48,7 @@
   <script type="text/javascript" src="/lib/jquery-1.9.1.min.js"></script>
   <script type="text/javascript" src="/lib/acorn.js"></script>
   <script type="text/javascript" src="/lib/coffee-script.js"></script>
+  <script type="text/javascript" src="/lib/assert.js"></script>
   <script type="text/javascript" src="/layout.js"></script>
 </head>
 <body>
@@ -73,8 +74,7 @@
       <dragstate bgcolor="red" applied="${this.parent.mouseisdown}" dragaxis="x">
         <attribute name="width" value="200" type="number"></attribute>
         <handler event="onapplied" args="applied">
-          //console.log('applied state', applied, this.parent.width)
-          //this.parent.animate({width: applied ? 200 : 100}, 1000)
+          assert.equal(this.applied, false)
         </handler>
       </dragstate>
     </mouseview>
