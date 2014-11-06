@@ -100,6 +100,26 @@
       assert.deepEqual(repl.data, ['a','b','c']);
     </handler>
   </view>
+  
+  <!-- Replicating over data bound to a constraint -->
+  <view id="v_rep_constraint" bgcolor="lightgrey" width="100" height="50">
+    <attribute name="dataArray" type="expression" value="[10,30,50]"></attribute>
+    
+    <class name="bar" width="10" bgcolor="thistle" height="${this.data}"></class>
+    
+    <simplelayout axis="x"></simplelayout>
+    <replicator classname="bar" data="${v_rep_constraint.dataArray}" pooling="true"></replicator>
+    
+    <handler event="oninit">
+      assert.equal(3, this.subviews.length)
+      assert.equal('bar', this.subviews[0].$tagname)
+      assert.equal(10, this.subviews[0].height)
+      assert.equal('bar', this.subviews[1].$tagname)
+      assert.equal(30, this.subviews[1].height)
+      assert.equal('bar', this.subviews[2].$tagname)
+      assert.equal(50, this.subviews[2].height)
+    </handler>
+  </view>
 
 
 </view>
