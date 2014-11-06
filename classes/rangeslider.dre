@@ -1,0 +1,260 @@
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+
+<!--/**
+   * @class dr.rangeslider
+   * @extends dr.slider
+   * An input component whose upper and lower bounds are changed when the mouse is dragged.
+   *
+   *     @example
+   *
+   *     <rangeslider name="hslide" y="5" width="250" height="10" lowvalue="30" highvalue="70" exclusive="true" lowselectcolor="#00CCFF" highselectcolor="33CCFF"></rangeslider>
+   *
+   */-->
+<class name="rangeslider" type="coffee" clickable="true" clip="true">
+
+
+    <handler event="oninit" method="visualize"></handler>
+    <handler event="onwidth" method="visualize"></handler>
+    <handler event="onheight" method="visualize"></handler>
+
+    <!--/**
+      * @cfg {Number} [minvalue=0]
+      * The minimum value of the slider
+      */-->
+    <attribute name="minvalue" type="number" value="0"></attribute>
+
+    <!--/**
+    * @cfg {Number} [minhighvalue=0]
+    * The minimum value of the right slider
+    */-->
+    <attribute name="minhighvalue" type="number" value="0"></attribute>
+
+    <!--/**
+      * @cfg {Number} [maxvalue=100]
+      * The maximum value of the slider
+      */-->
+    <attribute name="maxvalue" type="number" value="100"></attribute>
+
+    <!--/**
+      * @cfg {Number} [maxlowvalue=100]
+      * The maximum value of the lower bound slider
+      */-->
+    <attribute name="maxlowvalue" type="number" value="100"></attribute>
+
+    <!--/**
+      * @cfg {"x"/"y"} [axis=x]
+      * The axis to track on
+      */-->
+    <attribute name="axis" type="string" value="x"></attribute>
+
+    <!--/**
+      * @cfg {Boolean} [invert=false]
+      * Set to false to have the scale run lower to higher, true to run higher to lower.
+      */-->
+    <attribute name="invert" type="boolean" value="false"></attribute>
+
+    <!--/**
+      * @cfg {Boolean} [exclusive=false]
+      * Set to true to highlight the outer (exclusive) values of the range, false to select the inner (inclusive) values.
+      */-->
+    <attribute name="exclusive" type="boolean" value="false"></attribute>
+
+    <!--/**
+      * @cfg {Number} [lowvalue=50]
+      * The current value of the left slider.
+      * Use changeLowValue() to range check the number and set the value.
+      */-->
+    <attribute name="lowvalue" type="number" value="50"></attribute>
+    <handler event="onlowvalue" method="visualize"></handler>
+
+    <!--/**
+      * @cfg {Number} [highvalue=50]
+      * The current value of the right slider.
+      * Use changeHighValue() to range check the number and set the value.
+      */-->
+    <attribute name="highvalue" type="number" value="50"></attribute>
+    <handler event="onhighvalue" method="visualize"></handler>
+
+    <!--/**
+      * @method changeLowValue
+      * Given a new value for the slider position, constrain the value
+      * between minvalue and maxvalue or maxlowvalue (whichever is lower) and then calls setAttribute.
+      * @param {Number} v The new value of the component.
+      */-->
+    <method name="changeLowValue" args="v">
+        max = Math.min(@maxvalue, @maxlowvalue)
+        if (v > max)
+          v = max;
+        else if (v < @minvalue)
+          v = @minvalue;
+        @setAttribute('lowvalue', v);
+    </method>
+
+    <!--/**
+      * @method changeHighValue
+      * Given a new value for the slider position, constrain the value
+      * between minvalue or minhighvalue (whichever is higher) and maxvalue and then calls setAttribute.
+      * @param {Number} v The new value of the component.
+      */-->
+    <method name="changeHighValue" args="v">
+        min = Math.max(@minvalue, @minhighvalue)
+        if (v < min)
+          v = min;
+        else if (v > @maxvalue)
+          v = @maxvalue;
+        @setAttribute('highvalue', v);
+    </method>
+
+    <!--/**
+      * @cfg {String} [lowselectcolor="#a0a0a0"]
+      * The selected color of the lower bound slider.
+      */-->
+    <attribute name="lowselectcolor" type="string" value="#a0a0a0"></attribute>
+    <handler event="onlowselectcolor" method="visualize"></handler>
+
+    <!--/**
+      * @cfg {String} [highselectcolor="#a0a0a0"]
+      * The selected color of the upper bound slider.
+      */-->
+    <attribute name="highselectcolor" type="string" value="#a0a0a0"></attribute>
+    <handler event="onhighselectcolor" method="visualize"></handler>
+
+    <!-- Internal view to show the current right slider value -->
+    <view name="highvalueview" bgcolor="${this.parent.highselectcolor}"></view>
+
+    <!-- Internal view to show the current left slider value -->
+    <view name="lowvalueview" bgcolor="${this.parent.lowselectcolor}"></view>
+
+    <!-- visualize: Show the current value -->
+    <method name="visualize">
+
+        if @axis == 'x'
+
+          if @exclusive
+            lw = @width * ((@lowvalue - @minvalue) / (@maxvalue - @minvalue))
+
+            x = if @invert then (@width - lw) else 0
+
+            @lowvalueview.setAttributes({x:x, y:0, width:lw, height:@height})
+            @lowvalueview.setAttribute('background', @lowselectcolor)
+
+            hw = @width * ((@maxvalue - @highvalue) / (@maxvalue - @minvalue))
+            hx = if @invert then 0 else (@width - hw)
+
+            @highvalueview.setAttributes({x:hx, y:0, width:hw, height:@height})
+
+          else
+            w = @width * ((@highvalue - @lowvalue) / (@maxvalue - @minvalue))
+            x = @width * ((@lowvalue - @minvalue) / (@maxvalue - @minvalue))
+
+            x = (@width - w) - x if @invert
+
+            @lowvalueview.setAttributes({x:x, y:0, width:w, height:@height})
+            @highvalueview.setAttributes({x:x, y:0, width:w, height:@height})
+            @lowvalueview.setAttribute('background', 'linear-gradient(to right, ' + @lowselectcolor + ', ' + @highselectcolor + ')')
+
+        else
+
+          if @exclusive
+            lh = @height * ((@lowvalue - @minvalue) / (@maxvalue - @minvalue))
+
+            y = if @invert then (@height - lh) else 0
+
+            @lowvalueview.setAttributes({x:0, y:y, width:@width, height:lh})
+            @lowvalueview.setAttribute('background', @lowselectcolor)
+
+            hh = @height * ((@maxvalue - @highvalue) / (@maxvalue - @minvalue))
+            hy = if @invert then 0 else (@height - hh)
+
+            @highvalueview.setAttributes({x:0, y:hy, width:@width, height:hh})
+
+          else
+            h = @height * ((@highvalue - @lowvalue) / (@maxvalue - @minvalue))
+            y = @height * ((@lowvalue - @minvalue) / (@maxvalue - @minvalue))
+
+            y = (@height - h) - y if @invert
+
+            @lowvalueview.setAttributes({x:0, y:y, width:@width, height:h})
+            @highvalueview.setAttributes({x:0, y:y, width:@width, height:h})
+            @lowvalueview.setAttribute('background', 'linear-gradient(' + @lowselectcolor + ', ' + @highselectcolor + ')')
+
+    </method>
+
+    <!-- Apply dragstate when the mouse is down on the slider component. -->
+    <handler event="onmousedown">
+        @movePosition(if @axis == 'x' then dr.mouse.x else dr.mouse.y)
+        @drag.setAttribute('applied', true);
+    </handler>
+    <handler event="onmouseup">
+        @drag.setAttribute('applied', false);
+    </handler>
+    <handler event="onmouseupoutside">
+        @drag.setAttribute('applied', false);
+    </handler>
+
+    <!-- Move the slider in response to a change in position -->
+    <method name="movePosition" args="p">
+        spread = @maxvalue - @minvalue;
+
+        if (@axis == 'x')
+
+          if (@width > 0)
+            val = ((p - @getAbsolute().x) / @width * spread) + @minvalue
+            console.log("val:", val, @invert, '(', @maxvalue - val, ")", @lowvalue, @highvalue)
+            val = @maxvalue - val if @invert
+
+            ld = Math.abs(@lowvalue - val)
+            hd = Math.abs(@highvalue - val)
+
+            if (ld < hd)
+              @changeLowValue(val)
+            else
+              @changeHighValue(val)
+
+        else
+        
+          if (@height > 0)
+            val = ((p - @getAbsolute().y) / @height * spread) + @minvalue
+            val = @maxvalue - val if @invert
+
+            ld = Math.abs(@lowvalue - val)
+            hd = Math.abs(@highvalue - val)
+
+            if (ld < hd)
+              @changeLowValue(val)
+            else
+              @changeHighValue(val)
+
+    </method>
+
+    <!-- The @drag.applied can be removed when states are fixed to
+         remove global handlers. -->
+    <state name="drag" type="coffee">
+        <handler event="onx" reference="dr.mouse" args="x">
+            @movePosition(x) if @drag.applied && @axis == 'x'
+        </handler>
+        <handler event="ony" reference="dr.mouse" args="y">
+            @movePosition(y) if @drag.applied && @axis == 'y'
+        </handler>
+    </state>
+</class>

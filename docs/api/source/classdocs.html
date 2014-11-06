@@ -508,6 +508,74 @@
      *     &lt;dataset name=&quot;topmovies&quot; url=&quot;/top_movies.json&quot;&gt;&lt;/dataset&gt;
      *     &lt;replicator datapath=&quot;$topmovies/searchResponse/results[*]/movie[take(/releaseYear,/duration,/rating)]&quot; classname=&quot;logger&quot;&gt;&lt;/replicator&gt;
      */
+<span id='dr-rangeslider'>/**
+</span>   * @class dr.rangeslider
+   * @extends dr.slider
+   * An input component whose upper and lower bounds are changed when the mouse is dragged.
+   *
+   *     @example
+   *
+   *     &lt;rangeslider name=&quot;hslide&quot; y=&quot;5&quot; width=&quot;250&quot; height=&quot;10&quot; lowvalue=&quot;30&quot; highvalue=&quot;70&quot; exclusive=&quot;true&quot; lowselectcolor=&quot;#00CCFF&quot; highselectcolor=&quot;33CCFF&quot;&gt;&lt;/rangeslider&gt;
+   *
+   */
+<span id='dr-rangeslider-cfg-minvalue'>/**
+</span>      * @cfg {Number} [minvalue=0]
+      * The minimum value of the slider
+      */
+<span id='dr-rangeslider-cfg-minhighvalue'>/**
+</span>    * @cfg {Number} [minhighvalue=0]
+    * The minimum value of the right slider
+    */
+<span id='dr-rangeslider-cfg-maxvalue'>/**
+</span>      * @cfg {Number} [maxvalue=100]
+      * The maximum value of the slider
+      */
+<span id='dr-rangeslider-cfg-maxlowvalue'>/**
+</span>      * @cfg {Number} [maxlowvalue=100]
+      * The maximum value of the lower bound slider
+      */
+<span id='dr-rangeslider-cfg-axis'>/**
+</span>      * @cfg {&quot;x&quot;/&quot;y&quot;} [axis=x]
+      * The axis to track on
+      */
+<span id='dr-rangeslider-cfg-invert'>/**
+</span>      * @cfg {Boolean} [invert=false]
+      * Set to false to have the scale run lower to higher, true to run higher to lower.
+      */
+<span id='dr-rangeslider-cfg-exclusive'>/**
+</span>      * @cfg {Boolean} [exclusive=false]
+      * Set to true to highlight the outer (exclusive) values of the range, false to select the inner (inclusive) values.
+      */
+<span id='dr-rangeslider-cfg-lowvalue'>/**
+</span>      * @cfg {Number} [lowvalue=50]
+      * The current value of the left slider.
+      * Use changeLowValue() to range check the number and set the value.
+      */
+<span id='dr-rangeslider-cfg-highvalue'>/**
+</span>      * @cfg {Number} [highvalue=50]
+      * The current value of the right slider.
+      * Use changeHighValue() to range check the number and set the value.
+      */
+<span id='dr-rangeslider-method-changeLowValue'>/**
+</span>      * @method changeLowValue
+      * Given a new value for the slider position, constrain the value
+      * between minvalue and maxvalue or maxlowvalue (whichever is lower) and then calls setAttribute.
+      * @param {Number} v The new value of the component.
+      */
+<span id='dr-rangeslider-method-changeHighValue'>/**
+</span>      * @method changeHighValue
+      * Given a new value for the slider position, constrain the value
+      * between minvalue or minhighvalue (whichever is higher) and maxvalue and then calls setAttribute.
+      * @param {Number} v The new value of the component.
+      */
+<span id='dr-rangeslider-cfg-lowselectcolor'>/**
+</span>      * @cfg {String} [lowselectcolor=&quot;#a0a0a0&quot;]
+      * The selected color of the lower bound slider.
+      */
+<span id='dr-rangeslider-cfg-highselectcolor'>/**
+</span>      * @cfg {String} [highselectcolor=&quot;#a0a0a0&quot;]
+      * The selected color of the upper bound slider.
+      */
 <span id='dr-replicator'>/**
 </span>     * @class dr.replicator
      * @extends dr.node

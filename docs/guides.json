@@ -7,6 +7,12 @@
                 "url": "guides/constraints",
                 "title": "Dynamic Attributes",
                 "description": "This introduction to attribute constraints and explains how to get started using them in Dreem."
+            },
+            {
+                "name": "subclassing",
+                "url": "guides/subclassing",
+                "title": "Subclassing in Dreem",
+                "description": ""
             }
         ]
     }
