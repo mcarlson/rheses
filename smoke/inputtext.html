@@ -46,6 +46,7 @@
 
   <!-- Setting text with a constraint -->
   <view>
+    <boundslayout></boundslayout>
     <attribute name="text" type="string" value="some text"></attribute>
 
     <inputtext bgcolor="lightgreen" text="${this.parent.text}">
@@ -57,6 +58,7 @@
   </view>
 
   <view>
+    <boundslayout></boundslayout>
     <inputtext bgcolor="lightyellow" text="${this.parent.text}">
       <handler event="oninit">
         assert.equal($(this.sprite.input)[0].value, '')
@@ -98,6 +100,7 @@
       assert.equal(this.height, window._phantom ? 14 : 16)
     </handler>
   </inputtext>
+  
 </view>
 <!-- The MIT License (MIT)
 
