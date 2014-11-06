@@ -368,6 +368,8 @@
             return;
           }
           value = typemappings[type](value);
+        } else if (value == null) {
+          value = &#39;&#39;;
         }
         return value;
       };
@@ -670,26 +672,26 @@
     Node = (function(_super) {
 
 <span id='dr-node-cfg-name'>      /**
-</span>       * @cfg {String} name 
+</span>       * @cfg {String} name
        * Names this node in its parent scope so it can be referred to later.
        */
 
 <span id='dr-node-cfg-id'>      /**
-</span>       * @cfg {String} id 
+</span>       * @cfg {String} id
        * Gives this node a global ID, which can be looked up in the global window object.
        * Take care to not override builtin globals, or override your own instances!
        */
 
 <span id='dr-node-cfg-scriptincludes'>      /**
-</span>       * @cfg {String} scriptincludes 
+</span>       * @cfg {String} scriptincludes
        * A comma separated list of URLs to javascript includes required as dependencies. Useful if you need to ensure a third party library is available.
        */
 
 <span id='dr-node-cfg-scriptincludeserror'>      /**
-</span>       * @cfg {String} scriptincludeserror 
+</span>       * @cfg {String} scriptincludeserror
        * An error to show if scriptincludes fail to load
        */
-      var earlyattributes, matchConstraint, _eventCallback, _installMethod;
+      var earlyattributes, lateattributes, matchConstraint, _eventCallback, _installMethod;
 
       __extends(Node, _super);
 
@@ -697,8 +699,10 @@
 
       earlyattributes = [&#39;parent&#39;, &#39;name&#39;];
 
+      lateattributes = [&#39;data&#39;];
+
       function Node(el, attributes) {
-        var args, deferbindings, ev, method, name, reference, script, skiponinit, value, _i, _j, _len, _len1, _ref, _ref1, _ref2;
+        var args, deferbindings, ev, method, name, reference, script, skiponinit, value, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
         if (attributes == null) {
           attributes = {};
         }
@@ -747,14 +751,21 @@
         }
         for (_j = 0, _len1 = earlyattributes.length; _j &lt; _len1; _j++) {
           name = earlyattributes[_j];
-          if (attributes[name]) {
+          if (name in attributes) {
             this.setAttribute(name, attributes[name]);
           }
         }
         for (name in attributes) {
           value = attributes[name];
-          if (__indexOf.call(earlyattributes, name) &lt; 0) {
-            this.bindAttribute(name, value, attributes.$tagname);
+          if (__indexOf.call(lateattributes, name) &gt;= 0 || __indexOf.call(earlyattributes, name) &gt;= 0) {
+            continue;
+          }
+          this.bindAttribute(name, value, attributes.$tagname);
+        }
+        for (_k = 0, _len2 = lateattributes.length; _k &lt; _len2; _k++) {
+          name = lateattributes[_k];
+          if (name in attributes) {
+            this.bindAttribute(name, attributes[name], attributes.$tagname);
           }
         }
         if (this.constraints) {
@@ -965,23 +976,42 @@
       };
 
       Node.prototype._bindHandlers = function(isLate) {
-        var binding, bindings, callback, ev, name, reference, refeval, scope, _i, _len;
+        var binding, bindings, callback, defer, ev, name, reference, refeval, scope, _i, _len;
         bindings = isLate ? this.latehandlers : this.handlers;
         if (!bindings) {
           return;
         }
+        defer = [];
         for (_i = 0, _len = bindings.length; _i &lt; _len; _i++) {
           binding = bindings[_i];
           scope = binding.scope, name = binding.name, ev = binding.ev, callback = binding.callback, reference = binding.reference;
           if (reference) {
             refeval = this._valueLookup(reference)();
-            scope.listenTo(refeval, ev, callback);
+            if (refeval instanceof Eventable) {
+              scope.listenTo(refeval, ev, callback);
+            } else {
+              defer.push(binding);
+              continue;
+            }
           } else {
             scope.bind(ev, callback);
             if (scope[ev]) {
               scope.sendEvent(ev, scope[ev]);
             }
           }
+        }
+        if (defer.length) {
+          if (isLate) {
+            this.latehandlers = defer;
+          } else {
+            this.handlers = defer;
+          }
+          setTimeout((function(_this) {
+            return function() {
+              return _this._bindHandlers(isLate);
+            };
+          })(this), 0);
+          return;
         }
         if (isLate) {
           this.latehandlers = [];
@@ -1004,7 +1034,7 @@
           parent.subnodes.push(this);
 
 <span id='dr-node-event-onsubnodes'>          /**
-</span>           * @event onsubnodes 
+</span>           * @event onsubnodes
            * Fired when this node&#39;s subnodes array has changed
            * @param {dr.node} node The dr.node that fired the event
            */
@@ -1071,7 +1101,7 @@
       Node.prototype.destroy = function(skipevents) {
 
 <span id='dr-node-event-ondestroy'>        /**
-</span>         * @event ondestroy 
+</span>         * @event ondestroy
          * Fired when this node and all its children are about to be destroyed
          * @param {dr.node} node The dr.node that fired the event
          */
@@ -1304,9 +1334,8 @@
         return view.sendEvent(event.type, view);
       };
 
-      Sprite.prototype.createTextElement = function(text) {
-        this.el.setAttribute(&#39;class&#39;, &#39;sprite sprite-text noselect&#39;);
-        return this.setText(text);
+      Sprite.prototype.createTextElement = function() {
+        return this.el.setAttribute(&#39;class&#39;, &#39;sprite sprite-text noselect&#39;);
       };
 
       Sprite.prototype.createInputtextElement = function(text, multiline, width, height) {
@@ -1375,15 +1404,15 @@
      * The visual base class for everything in dreem. Views extend dr.node to add the ability to set and animate visual attributes, and interact with the mouse.
      *
      * Views are positioned inside their parent according to their x and y coordinates.
-     * 
+     *
      * Views can contain methods, handlers, setters, constraints, attributes and other view, node or class instances.
      *
      * Views can be easily converted to reusable classes/tags by changing their outermost &amp;lt;view&gt; tags to &amp;lt;class&gt; and adding a name attribute.
      *
      * Views support a number of builtin attributes. Setting attributes that aren&#39;t listed explicitly will pass through to the underlying Sprite implementation.
-     * 
+     *
      * Views currently integrate with jQuery, so any changes made to their CSS via jQuery will automatically cause them to update.
-     * 
+     *
      * Note that dreem apps must be contained inside a top-level &amp;lt;view&gt;&amp;lt;/view&gt; tag.
      *
      * The following example shows a pink view that contains a smaller blue view offset 10 pixels from the top and 10 from the left.
@@ -1486,35 +1515,35 @@
 
 
 <span id='dr-view-event-onclick'>      /**
-</span>       * @event onclick 
+</span>       * @event onclick
        * Fired when this view is clicked
        * @param {dr.view} view The dr.view that fired the event
        */
 
 
 <span id='dr-view-event-onmouseover'>      /**
-</span>       * @event onmouseover 
+</span>       * @event onmouseover
        * Fired when the mouse moves over this view
        * @param {dr.view} view The dr.view that fired the event
        */
 
 
 <span id='dr-view-event-onmouseout'>      /**
-</span>       * @event onmouseout 
+</span>       * @event onmouseout
        * Fired when the mouse moves off this view
        * @param {dr.view} view The dr.view that fired the event
        */
 
 
 <span id='dr-view-event-onmousedown'>      /**
-</span>       * @event onmousedown 
+</span>       * @event onmousedown
        * Fired when the mouse goes down on this view
        * @param {dr.view} view The dr.view that fired the event
        */
 
 
 <span id='dr-view-event-onmouseup'>      /**
-</span>       * @event onmouseup 
+</span>       * @event onmouseup
        * Fired when the mouse goes up on this view
        * @param {dr.view} view The dr.view that fired the event
        */
@@ -1532,7 +1561,7 @@
          */
 
 <span id='dr-view-event-onsubviews'>        /**
-</span>         * @event onsubviews 
+</span>         * @event onsubviews
          * Fired when this views&#39;s subviews array has changed
          * @param {dr.view} view The dr.view that fired the event
          */
@@ -1544,7 +1573,7 @@
          */
 
 <span id='dr-view-event-onlayouts'>        /**
-</span>         * @event onlayouts 
+</span>         * @event onlayouts
          * Fired when this views&#39;s layouts array has changed
          * @param {dr.layout} view The dr.layout that fired the event
          */
@@ -1750,9 +1779,9 @@
 
       InputText.prototype._createSprite = function(el, attributes) {
         InputText.__super__._createSprite.apply(this, arguments);
-        this.text = attributes.text || this.sprite.getText(true);
+        attributes.text || (attributes.text = this.sprite.getText(true));
         this.sprite.setText(&#39;&#39;);
-        return this.sprite.createInputtextElement(this.text, attributes.multiline, attributes.width, attributes.height);
+        return this.sprite.createInputtextElement(&#39;&#39;, attributes.multiline, attributes.width, attributes.height);
       };
 
       InputText.prototype._handleChange = function() {
@@ -1904,7 +1933,8 @@
 
       Text.prototype._createSprite = function(el, attributes) {
         Text.__super__._createSprite.apply(this, arguments);
-        return this.sprite.createTextElement(this.format(attributes.text));
+        attributes.text || (attributes.text = this.sprite.getText(true));
+        return this.sprite.createTextElement();
       };
 
 
@@ -2009,7 +2039,7 @@
         });
       };
       findAutoIncludes = function(parentel, callback) {
-        var cb, cb2, fileloaded, filerequests, includedScripts, includerequests, inlineclasses, jqel, loadIncludes, loadLZX, loadScript, loadqueue, parser, scriptloading;
+        var cb, cb2, fileloaded, filerequests, includedScripts, includerequests, inlineclasses, jqel, loadIncludes, loadLZX, loadScript, loadqueue, scriptloading, validator;
         jqel = $(parentel);
         includerequests = [];
         includedScripts = {};
@@ -2168,7 +2198,7 @@
             });
           });
         };
-        parser = function() {
+        validator = function() {
           var prom, url;
           url = &#39;/validate/&#39;;
           prom = $.ajax({
@@ -2185,7 +2215,7 @@
           return callback();
         };
         cb2 = function() {
-          return loadIncludes(parser);
+          return loadIncludes(validator);
         };
         cb = function() {
           return loadIncludes(cb2);
@@ -2782,7 +2812,7 @@
               for (_k = 0, _len2 = children.length; _k &lt; _len2; _k++) {
                 child = children[_k];
                 if (!child.inited &amp;&amp; child.localName === !&#39;class&#39;) {
-                  setTimeout(checkChildren, 10);
+                  setTimeout(checkChildren, 0);
                   return;
                 }
               }
