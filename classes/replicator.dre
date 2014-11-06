@@ -279,6 +279,13 @@ SOFTWARE. -->
         re = /^\$([^\/]+)/
         @dataset.updateData(@datapath.replace(re, ''), data);
       </method>
+      <!--/**
+        * @method refresh
+        * Refreshes the dataset manually
+        */-->
+      <method name="refresh">
+        this.applyData()
+      </method>
       <method name="clear">
         # @parent.setAttribute('display', 'none')
         if @children
