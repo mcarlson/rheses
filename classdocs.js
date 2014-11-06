@@ -664,6 +664,10 @@
         * If defined, data will be filtered against a [regular expression](https://developer.mozilla.org/en/docs/Web/JavaScript/Guide/Regular_Expressions). 
         */
 /**
+        * @method refresh
+        * Refreshes the dataset manually
+        */
+/**
         * @method filterfunction
         * @abstract
         * Called to filter data.
