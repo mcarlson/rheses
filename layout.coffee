@@ -850,8 +850,21 @@ window.dr = do ->
       bgcolor: 'backgroundColor'
       visible: 'display'
     styleval =
-      display: (isVisible) ->
+      display: (isVisible, view) ->
         if isVisible then '' else 'none'
+      overflow: (ignore, view) ->
+        if view.scrollable
+          'auto'
+        else if view.clip
+          'hidden'
+        else
+          ''
+      'pointer-events': (ignore, view) ->
+        if view.clickable || view.scrollable
+          'auto'
+        else
+          'none'
+        
     fcamelCase = ( all, letter ) ->
       letter.toUpperCase()
     rdashAlpha = /-([\da-z])/gi
@@ -868,7 +881,7 @@ window.dr = do ->
       else if jqel instanceof HTMLElement
         @el = jqel
       # console.log 'sprite el', @el, @
-      @el.$view = view
+      @.view = @el.$view = view
 
       # normalize to jQuery object
 #      guid++
@@ -881,7 +894,7 @@ window.dr = do ->
       if name of stylemap
         name = stylemap[name]
       if name of styleval
-        value = styleval[name](value)
+        value = styleval[name](value, @.view)
       else if name.match(rdashAlpha)
         # console.log "replacing #{name}"
         name = name.replace(rdashAlpha, fcamelCase)
@@ -944,7 +957,7 @@ window.dr = do ->
             lastTouchDown = null
 
     set_clickable: (clickable) ->
-      @setStyle('pointer-events', (if clickable then 'auto' else 'none'), true)
+      @setStyle('pointer-events', null, true)
       @setStyle('cursor', (if clickable then 'pointer' else ''), true)
 
       if capabilities.touch
@@ -959,13 +972,18 @@ window.dr = do ->
       # $(document.elementFromPoint(event.clientX,event.clientY)).trigger(type)
       # el.show()
 
+    set_clip: (clip) ->
+      # console.log('setid', @id)
+      @setStyle('overflow')
+
+    set_scrollable: (scrollable) ->
+      # console.log('setid', @id)
+      @setStyle('overflow')
+      @setStyle('pointer-events', null, true)
+
     destroy: ->
       @el.parentNode.removeChild(@el)
       @el = @jqel = null
-
-    set_clip: (clip) ->
-      # console.log('setid', @id)
-      @setStyle('overflow', if clip then 'hidden' else '')
 
     setText: (txt) ->
       if txt?
@@ -1133,6 +1151,10 @@ window.dr = do ->
     # If true, this view clips to its bounds
     ###
     ###*
+    # @cfg {Boolean} [scrollable=false]
+    # If true, this view clips to its bounds and provides scrolling to see content that overflows the bounds
+    ###
+    ###*
     # @cfg {Boolean} [visible=true]
     # If false, this view is invisible
     ###
@@ -1192,8 +1214,8 @@ window.dr = do ->
       # If true, layouts should ignore this view
       ###
       @subviews = []
-      types = {x: 'number', y: 'number', width: 'number', height: 'number', clickable: 'boolean', clip: 'boolean', visible: 'boolean'}
-      defaults = {x:0, y:0, width:0, height:0, clickable:false, clip:false, visible:true}
+      types = {x: 'number', y: 'number', width: 'number', height: 'number', clickable: 'boolean', clip: 'boolean', scrollable: 'boolean', visible: 'boolean'}
+      defaults = {x:0, y:0, width:0, height:0, clickable:false, clip:false, scrollable:false, visible:true}
 
       for key, type of attributes.$types
         types[key] = type
@@ -1260,6 +1282,9 @@ window.dr = do ->
 
     set_clip: (clip) ->
       @sprite.set_clip(clip)
+
+    set_scrollable: (scrollable) ->
+      @sprite.set_scrollable(scrollable)
 
     destroy: (skipevents) ->
       # console.log 'destroy view', @

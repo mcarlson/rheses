@@ -1131,9 +1131,25 @@
       };
 
       styleval = {
-        display: function(isVisible) {
+        display: function(isVisible, view) {
           if (isVisible) {
             return '';
+          } else {
+            return 'none';
+          }
+        },
+        overflow: function(ignore, view) {
+          if (view.scrollable) {
+            return 'auto';
+          } else if (view.clip) {
+            return 'hidden';
+          } else {
+            return '';
+          }
+        },
+        'pointer-events': function(ignore, view) {
+          if (view.clickable || view.scrollable) {
+            return 'auto';
           } else {
             return 'none';
           }
@@ -1159,7 +1175,7 @@
         } else if (jqel instanceof HTMLElement) {
           this.el = jqel;
         }
-        this.el.$view = view;
+        this.view = this.el.$view = view;
         this.el.setAttribute('class', 'sprite');
       }
 
@@ -1174,7 +1190,7 @@
           name = stylemap[name];
         }
         if (name in styleval) {
-          value = styleval[name](value);
+          value = styleval[name](value, this.view);
         } else if (name.match(rdashAlpha)) {
           name = name.replace(rdashAlpha, fcamelCase);
           if (debug && !internal) {
@@ -1244,7 +1260,7 @@
       };
 
       Sprite.prototype.set_clickable = function(clickable) {
-        this.setStyle('pointer-events', (clickable ? 'auto' : 'none'), true);
+        this.setStyle('pointer-events', null, true);
         this.setStyle('cursor', (clickable ? 'pointer' : ''), true);
         if (capabilities.touch) {
           document.addEventListener('touchstart', this.touchHandler, true);
@@ -1254,13 +1270,18 @@
         }
       };
 
+      Sprite.prototype.set_clip = function(clip) {
+        return this.setStyle('overflow');
+      };
+
+      Sprite.prototype.set_scrollable = function(scrollable) {
+        this.setStyle('overflow');
+        return this.setStyle('pointer-events', null, true);
+      };
+
       Sprite.prototype.destroy = function() {
         this.el.parentNode.removeChild(this.el);
         return this.el = this.jqel = null;
-      };
-
-      Sprite.prototype.set_clip = function(clip) {
-        return this.setStyle('overflow', clip ? 'hidden' : '');
       };
 
       Sprite.prototype.setText = function(txt) {
@@ -1486,6 +1507,12 @@
 
 
       /**
+       * @cfg {Boolean} [scrollable=false]
+       * If true, this view clips to its bounds and provides scrolling to see content that overflows the bounds
+       */
+
+
+      /**
        * @cfg {Boolean} [visible=true]
        * If false, this view is invisible
        */
@@ -1573,6 +1600,7 @@
           height: 'number',
           clickable: 'boolean',
           clip: 'boolean',
+          scrollable: 'boolean',
           visible: 'boolean'
         };
         defaults = {
@@ -1582,6 +1610,7 @@
           height: 0,
           clickable: false,
           clip: false,
+          scrollable: false,
           visible: true
         };
         _ref = attributes.$types;
@@ -1657,6 +1686,10 @@
 
       View.prototype.set_clip = function(clip) {
         return this.sprite.set_clip(clip);
+      };
+
+      View.prototype.set_scrollable = function(scrollable) {
+        return this.sprite.set_scrollable(scrollable);
       };
 
       View.prototype.destroy = function(skipevents) {
