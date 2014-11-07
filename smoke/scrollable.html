@@ -28,7 +28,31 @@
       assert.equal('', style.cursor);
     </handler>
     
-    <view x="10" y="10" width="100" height="100" bgcolor="#999999"></view>
+    <!-- Make sure clickable true with clip true works. -->
+    <view x="10" y="10" width="100" height="100"
+      bgcolor="#ff9999" clickable="true" clip="true"
+    >
+      <handler event="oninit">
+        assert.equal(false, this.scrollable);
+        assert.equal(true, this.clickable);
+        assert.equal(true, this.clip);
+        
+        var style = this.sprite.el.style;
+        assert.equal('hidden', style.overflow);
+        assert.equal('auto', style.pointerEvents);
+        assert.equal('pointer', style.cursor);
+      </handler>
+      <handler event="onclick">
+        this.setAttribute('bgcolor', (this.selected = !this.selected) ? '#99ff99' : '#ff9999');
+      </handler>
+      <view x="50" y="50" width="100" height="100" bgcolor="#666666">
+        <text>Inside</text>
+      </view>
+      <text>Click</text>
+    </view>
+    <view x="30" y="30" width="60" height="60" bgcolor="#ffffff">
+      <text>In Front</text>
+    </view>
     
     <!-- Make sure clickable true/false works. -->
     <view x="110" y="110" width="100" height="100"

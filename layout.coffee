@@ -850,20 +850,8 @@ window.dr = do ->
       bgcolor: 'backgroundColor'
       visible: 'display'
     styleval =
-      display: (isVisible, view) ->
+      display: (isVisible) ->
         if isVisible then '' else 'none'
-      overflow: (ignore, view) ->
-        if view.scrollable
-          'auto'
-        else if view.clip
-          'hidden'
-        else
-          ''
-      'pointer-events': (ignore, view) ->
-        if view.clickable || view.scrollable
-          'auto'
-        else
-          'none'
         
     fcamelCase = ( all, letter ) ->
       letter.toUpperCase()
@@ -881,7 +869,7 @@ window.dr = do ->
       else if jqel instanceof HTMLElement
         @el = jqel
       # console.log 'sprite el', @el, @
-      @.view = @el.$view = view
+      @el.$view = view
 
       # normalize to jQuery object
 #      guid++
@@ -894,7 +882,7 @@ window.dr = do ->
       if name of stylemap
         name = stylemap[name]
       if name of styleval
-        value = styleval[name](value, @.view)
+        value = styleval[name](value)
       else if name.match(rdashAlpha)
         # console.log "replacing #{name}"
         name = name.replace(rdashAlpha, fcamelCase)
@@ -957,7 +945,8 @@ window.dr = do ->
             lastTouchDown = null
 
     set_clickable: (clickable) ->
-      @setStyle('pointer-events', null, true)
+      @__clickable = clickable
+      @__updatePointerEvents()
       @setStyle('cursor', (if clickable then 'pointer' else ''), true)
 
       if capabilities.touch
@@ -974,12 +963,32 @@ window.dr = do ->
 
     set_clip: (clip) ->
       # console.log('setid', @id)
-      @setStyle('overflow')
+      @__clip = clip
+      @__updateOverflow()
 
     set_scrollable: (scrollable) ->
       # console.log('setid', @id)
-      @setStyle('overflow')
-      @setStyle('pointer-events', null, true)
+      @__scrollable = scrollable
+      @__updateOverflow()
+      @__updatePointerEvents()
+
+    __updateOverflow: () ->
+      @setStyle('overflow',
+        if @__scrollable
+          'auto'
+        else if @__clip
+          'hidden'
+        else
+          ''
+      )
+
+    __updatePointerEvents: () ->
+      @setStyle('pointer-events', (
+        if @__clickable || @__scrollable
+          'auto'
+        else
+          'none'
+      ), true)
 
     destroy: ->
       @el.parentNode.removeChild(@el)
