@@ -1175,8 +1175,7 @@
         } else if (jqel instanceof HTMLElement) {
           this.el = jqel;
         }
-        this.el.$view = view;
-        this.view = view;
+        this.view = this.el.$view = view;
         this.el.setAttribute('class', 'sprite');
       }
 

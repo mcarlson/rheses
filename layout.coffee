@@ -881,8 +881,7 @@ window.dr = do ->
       else if jqel instanceof HTMLElement
         @el = jqel
       # console.log 'sprite el', @el, @
-      @el.$view = view
-      @.view = view
+      @.view = @el.$view = view
 
       # normalize to jQuery object
 #      guid++
