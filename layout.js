@@ -1244,7 +1244,8 @@
       };
 
       Sprite.prototype.set_clickable = function(clickable) {
-        this.setStyle('pointer-events', (clickable ? 'auto' : 'none'), true);
+        this.__clickable = clickable;
+        this.__updatePointerEvents();
         this.setStyle('cursor', (clickable ? 'pointer' : ''), true);
         if (capabilities.touch) {
           document.addEventListener('touchstart', this.touchHandler, true);
@@ -1254,13 +1255,28 @@
         }
       };
 
+      Sprite.prototype.set_clip = function(clip) {
+        this.__clip = clip;
+        return this.__updateOverflow();
+      };
+
+      Sprite.prototype.set_scrollable = function(scrollable) {
+        this.__scrollable = scrollable;
+        this.__updateOverflow();
+        return this.__updatePointerEvents();
+      };
+
+      Sprite.prototype.__updateOverflow = function() {
+        return this.setStyle('overflow', this.__scrollable ? 'auto' : this.__clip ? 'hidden' : '');
+      };
+
+      Sprite.prototype.__updatePointerEvents = function() {
+        return this.setStyle('pointer-events', (this.__clickable || this.__scrollable ? 'auto' : 'none'), true);
+      };
+
       Sprite.prototype.destroy = function() {
         this.el.parentNode.removeChild(this.el);
         return this.el = this.jqel = null;
-      };
-
-      Sprite.prototype.set_clip = function(clip) {
-        return this.setStyle('overflow', clip ? 'hidden' : '');
       };
 
       Sprite.prototype.setText = function(txt) {
@@ -1486,6 +1502,12 @@
 
 
       /**
+       * @cfg {Boolean} [scrollable=false]
+       * If true, this view clips to its bounds and provides scrolling to see content that overflows the bounds
+       */
+
+
+      /**
        * @cfg {Boolean} [visible=true]
        * If false, this view is invisible
        */
@@ -1573,6 +1595,7 @@
           height: 'number',
           clickable: 'boolean',
           clip: 'boolean',
+          scrollable: 'boolean',
           visible: 'boolean'
         };
         defaults = {
@@ -1582,6 +1605,7 @@
           height: 0,
           clickable: false,
           clip: false,
+          scrollable: false,
           visible: true
         };
         _ref = attributes.$types;
@@ -1657,6 +1681,10 @@
 
       View.prototype.set_clip = function(clip) {
         return this.sprite.set_clip(clip);
+      };
+
+      View.prototype.set_scrollable = function(scrollable) {
+        return this.sprite.set_scrollable(scrollable);
       };
 
       View.prototype.destroy = function(skipevents) {

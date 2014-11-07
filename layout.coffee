@@ -944,7 +944,8 @@ window.dr = do ->
             lastTouchDown = null
 
     set_clickable: (clickable) ->
-      @setStyle('pointer-events', (if clickable then 'auto' else 'none'), true)
+      @__clickable = clickable
+      @__updatePointerEvents()
       @setStyle('cursor', (if clickable then 'pointer' else ''), true)
 
       if capabilities.touch
@@ -959,13 +960,38 @@ window.dr = do ->
       # $(document.elementFromPoint(event.clientX,event.clientY)).trigger(type)
       # el.show()
 
+    set_clip: (clip) ->
+      # console.log('setid', @id)
+      @__clip = clip
+      @__updateOverflow()
+
+    set_scrollable: (scrollable) ->
+      # console.log('setid', @id)
+      @__scrollable = scrollable
+      @__updateOverflow()
+      @__updatePointerEvents()
+
+    __updateOverflow: () ->
+      @setStyle('overflow',
+        if @__scrollable
+          'auto'
+        else if @__clip
+          'hidden'
+        else
+          ''
+      )
+
+    __updatePointerEvents: () ->
+      @setStyle('pointer-events', (
+        if @__clickable || @__scrollable
+          'auto'
+        else
+          'none'
+      ), true)
+
     destroy: ->
       @el.parentNode.removeChild(@el)
       @el = @jqel = null
-
-    set_clip: (clip) ->
-      # console.log('setid', @id)
-      @setStyle('overflow', if clip then 'hidden' else '')
 
     setText: (txt) ->
       if txt?
@@ -1133,6 +1159,10 @@ window.dr = do ->
     # If true, this view clips to its bounds
     ###
     ###*
+    # @cfg {Boolean} [scrollable=false]
+    # If true, this view clips to its bounds and provides scrolling to see content that overflows the bounds
+    ###
+    ###*
     # @cfg {Boolean} [visible=true]
     # If false, this view is invisible
     ###
@@ -1192,8 +1222,8 @@ window.dr = do ->
       # If true, layouts should ignore this view
       ###
       @subviews = []
-      types = {x: 'number', y: 'number', width: 'number', height: 'number', clickable: 'boolean', clip: 'boolean', visible: 'boolean'}
-      defaults = {x:0, y:0, width:0, height:0, clickable:false, clip:false, visible:true}
+      types = {x: 'number', y: 'number', width: 'number', height: 'number', clickable: 'boolean', clip: 'boolean', scrollable: 'boolean', visible: 'boolean'}
+      defaults = {x:0, y:0, width:0, height:0, clickable:false, clip:false, scrollable:false, visible:true}
 
       for key, type of attributes.$types
         types[key] = type
@@ -1260,6 +1290,9 @@ window.dr = do ->
 
     set_clip: (clip) ->
       @sprite.set_clip(clip)
+
+    set_scrollable: (scrollable) ->
+      @sprite.set_scrollable(scrollable)
 
     destroy: (skipevents) ->
       # console.log 'destroy view', @
