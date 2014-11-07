@@ -850,8 +850,21 @@ window.dr = do ->
       bgcolor: 'backgroundColor'
       visible: 'display'
     styleval =
-      display: (isVisible) ->
+      display: (isVisible, view) ->
         if isVisible then '' else 'none'
+      overflow: (ignore, view) ->
+        if view.scrollable
+          'auto'
+        else if view.clip
+          'hidden'
+        else
+          ''
+      'pointer-events': (ignore, view) ->
+        if view.clickable || view.scrollable
+          'auto'
+        else
+          'none'
+        
     fcamelCase = ( all, letter ) ->
       letter.toUpperCase()
     rdashAlpha = /-([\da-z])/gi
@@ -869,6 +882,7 @@ window.dr = do ->
         @el = jqel
       # console.log 'sprite el', @el, @
       @el.$view = view
+      @.view = view
 
       # normalize to jQuery object
 #      guid++
@@ -881,7 +895,7 @@ window.dr = do ->
       if name of stylemap
         name = stylemap[name]
       if name of styleval
-        value = styleval[name](value)
+        value = styleval[name](value, @.view)
       else if name.match(rdashAlpha)
         # console.log "replacing #{name}"
         name = name.replace(rdashAlpha, fcamelCase)
@@ -944,8 +958,7 @@ window.dr = do ->
             lastTouchDown = null
 
     set_clickable: (clickable) ->
-      @__clickable = clickable
-      @__updatePointerEvents()
+      @setStyle('pointer-events', null, true)
       @setStyle('cursor', (if clickable then 'pointer' else ''), true)
 
       if capabilities.touch
@@ -962,32 +975,12 @@ window.dr = do ->
 
     set_clip: (clip) ->
       # console.log('setid', @id)
-      @__clip = clip
-      @__updateOverflow()
+      @setStyle('overflow')
 
     set_scrollable: (scrollable) ->
       # console.log('setid', @id)
-      @__scrollable = scrollable
-      @__updateOverflow()
-      @__updatePointerEvents()
-
-    __updateOverflow: () ->
-      @setStyle('overflow',
-        if @__scrollable
-          'auto'
-        else if @__clip
-          'hidden'
-        else
-          ''
-      )
-
-    __updatePointerEvents: () ->
-      @setStyle('pointer-events', (
-        if @__clickable || @__scrollable
-          'auto'
-        else
-          'none'
-      ), true)
+      @setStyle('overflow')
+      @setStyle('pointer-events', null, true)
 
     destroy: ->
       @el.parentNode.removeChild(@el)

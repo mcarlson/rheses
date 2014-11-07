@@ -1131,9 +1131,25 @@
       };
 
       styleval = {
-        display: function(isVisible) {
+        display: function(isVisible, view) {
           if (isVisible) {
             return '';
+          } else {
+            return 'none';
+          }
+        },
+        overflow: function(ignore, view) {
+          if (view.scrollable) {
+            return 'auto';
+          } else if (view.clip) {
+            return 'hidden';
+          } else {
+            return '';
+          }
+        },
+        'pointer-events': function(ignore, view) {
+          if (view.clickable || view.scrollable) {
+            return 'auto';
           } else {
             return 'none';
           }
@@ -1160,6 +1176,7 @@
           this.el = jqel;
         }
         this.el.$view = view;
+        this.view = view;
         this.el.setAttribute('class', 'sprite');
       }
 
@@ -1174,7 +1191,7 @@
           name = stylemap[name];
         }
         if (name in styleval) {
-          value = styleval[name](value);
+          value = styleval[name](value, this.view);
         } else if (name.match(rdashAlpha)) {
           name = name.replace(rdashAlpha, fcamelCase);
           if (debug && !internal) {
@@ -1244,8 +1261,7 @@
       };
 
       Sprite.prototype.set_clickable = function(clickable) {
-        this.__clickable = clickable;
-        this.__updatePointerEvents();
+        this.setStyle('pointer-events', null, true);
         this.setStyle('cursor', (clickable ? 'pointer' : ''), true);
         if (capabilities.touch) {
           document.addEventListener('touchstart', this.touchHandler, true);
@@ -1256,22 +1272,12 @@
       };
 
       Sprite.prototype.set_clip = function(clip) {
-        this.__clip = clip;
-        return this.__updateOverflow();
+        return this.setStyle('overflow');
       };
 
       Sprite.prototype.set_scrollable = function(scrollable) {
-        this.__scrollable = scrollable;
-        this.__updateOverflow();
-        return this.__updatePointerEvents();
-      };
-
-      Sprite.prototype.__updateOverflow = function() {
-        return this.setStyle('overflow', this.__scrollable ? 'auto' : this.__clip ? 'hidden' : '');
-      };
-
-      Sprite.prototype.__updatePointerEvents = function() {
-        return this.setStyle('pointer-events', (this.__clickable || this.__scrollable ? 'auto' : 'none'), true);
+        this.setStyle('overflow');
+        return this.setStyle('pointer-events', null, true);
       };
 
       Sprite.prototype.destroy = function() {
