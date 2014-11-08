@@ -778,7 +778,7 @@
       }
 
       Node.prototype.installMethods = function(methods, tagname, scope, callbackscope) {
-        var allocation, args, method, methodlist, name, _i, _len, _ref;
+        var allocation, args, invokeSuper, method, methodlist, name, _i, _len, _ref;
         if (scope == null) {
           scope = this;
         }
@@ -788,8 +788,8 @@
         for (name in methods) {
           methodlist = methods[name];
           for (_i = 0, _len = methodlist.length; _i < _len; _i++) {
-            _ref = methodlist[_i], method = _ref.method, args = _ref.args, allocation = _ref.allocation;
-            _installMethod(scope, name, compiler.compile(method, args, "" + tagname + "$" + name).bind(callbackscope), allocation);
+            _ref = methodlist[_i], method = _ref.method, args = _ref.args, allocation = _ref.allocation, invokeSuper = _ref.invokeSuper;
+            _installMethod(scope, name, compiler.compile(method, args, "" + tagname + "$" + name).bind(callbackscope), allocation, invokeSuper);
           }
         }
       };
@@ -889,14 +889,32 @@
         };
       };
 
-      _installMethod = function(scope, methodname, method, allocation) {
+      _installMethod = function(scope, methodname, method, allocation, invokeSuper) {
         var meth, supr;
         if (methodname in scope) {
           supr = scope[methodname];
           meth = method;
           return scope[methodname] = function() {
-            supr.apply(scope, arguments);
-            return meth.apply(scope, arguments);
+            var prevOwn, prevValue;
+            if (invokeSuper === 'after') {
+              meth.apply(scope, arguments);
+              return supr.apply(scope, arguments);
+            } else if (invokeSuper === 'inside') {
+              prevValue = scope['super'];
+              prevOwn = scope.hasOwnProperty('super');
+              scope['super'] = function(args) {
+                return supr.apply(scope, args);
+              };
+              meth.apply(scope, arguments);
+              if (prevOwn) {
+                return scope['super'] = prevValue;
+              } else {
+                return delete scope.callSuper;
+              }
+            } else {
+              supr.apply(scope, arguments);
+              return meth.apply(scope, arguments);
+            }
           };
         } else {
           return scope[methodname] = method;
@@ -2458,7 +2476,8 @@
               classattributes.$methods[name].push({
                 method: compiler.transform(script, type),
                 args: args,
-                allocation: attributes.allocation
+                allocation: attributes.allocation,
+                invokeSuper: attributes.invokesuper
               });
               break;
             case 'setter':
@@ -2468,7 +2487,8 @@
               classattributes.$methods['set_' + name].push({
                 method: compiler.transform(script, type),
                 args: args,
-                allocation: attributes.allocation
+                allocation: attributes.allocation,
+                invokeSuper: attributes.invokesuper
               });
               break;
             case 'attribute':
