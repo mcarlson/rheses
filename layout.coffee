@@ -1901,7 +1901,7 @@ window.dr = do ->
           console.warn 'Invalid tag', name, child
 
         type = attributes.type ? defaulttype
-        name = attributes.name
+        name = (if attributes.name then attributes.name.toLowerCase() else attributes.name)
 
         checkRequiredAttributes(tagname, attributes, child, el)
 
@@ -2151,7 +2151,7 @@ window.dr = do ->
       newobj
 
     constructor: (el, classattributes = {}) ->
-      name = classattributes.name
+      name = (if classattributes.name then classattributes.name.toLowerCase() else classattributes.name)
       extend = classattributes.extends ?= 'view'
       compilertype = classattributes.type
       # only class instances should specify these

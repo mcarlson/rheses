@@ -2453,7 +2453,7 @@
             console.warn('Invalid tag', name, child);
           }
           type = (_ref1 = attributes.type) != null ? _ref1 : defaulttype;
-          name = attributes.name;
+          name = (attributes.name ? attributes.name.toLowerCase() : attributes.name);
           checkRequiredAttributes(tagname, attributes, child, el);
           switch (tagname) {
             case 'handler':
@@ -2735,7 +2735,7 @@
         if (classattributes == null) {
           classattributes = {};
         }
-        name = classattributes.name;
+        name = (classattributes.name ? classattributes.name.toLowerCase() : classattributes.name);
         extend = classattributes["extends"] != null ? classattributes["extends"] : classattributes["extends"] = 'view';
         compilertype = classattributes.type;
         for (ignored in ignoredAttributes) {
