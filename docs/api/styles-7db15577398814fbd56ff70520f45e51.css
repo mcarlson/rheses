@@ -99,6 +99,10 @@
           text-align: center;
           background-color: #eee;
         }
+#search-dropdown .icon-attribute { background-image: url(member-icons/attribute.png); background-repeat: no-repeat; }
+.members .members-section .icon-attribute { background-image: url(member-icons/attribute.png); background-repeat: no-repeat; }
+.members .comments-section .icon-attribute { background-image: url(member-icons/attribute.png); background-repeat: no-repeat; }
+.class-overview .x-toolbar.member-links .icon-attribute { background-image: url(member-icons/attribute.png); background-repeat: no-repeat; }
 #search-dropdown .icon-cfg { background-image: url(member-icons/cfg.png); background-repeat: no-repeat; }
 .members .members-section .icon-cfg { background-image: url(member-icons/cfg.png); background-repeat: no-repeat; }
 .members .comments-section .icon-cfg { background-image: url(member-icons/cfg.png); background-repeat: no-repeat; }

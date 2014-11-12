@@ -26,17 +26,17 @@ SOFTWARE. -->
      */-->
     <class name="shim" extends="node" scriptincludes="/primus/primus.io.js" scriptincludeserror="In order to use dr.shim, you need to be running the Teem server">
       <!--/**
-        * @cfg {Boolean} [connected=false] (readonly)
+        * @attribute {Boolean} [connected=false] (readonly)
         * If true, we are connected to the server
         */-->
       <attribute name="connected" value="false" type="boolean"></attribute>
       <!--/**
-        * @cfg {Number} [pingtime=1000]
+        * @attribute {Number} [pingtime=1000]
         * The frequency used to reconnect to the server
         */-->
       <attribute name="pingtime" value="1000" type="number"></attribute>
       <!--/**
-        * @cfg {Boolean} [websockets=false]
+        * @attribute {Boolean} [websockets=false]
         * If true, use websockets to connect to the server
         */-->
       <attribute name="websockets" value="false" type="boolean"></attribute>

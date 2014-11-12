@@ -8,12 +8,12 @@
      *
      */
 /**
-        * @cfg {String} [data=""]
+        * @attribute {String} [data=""]
         * url to be used by the object.
         * Same meaning as the data attribute in the html object tag.
         */
 /**
-        * @cfg {String} [type=""]
+        * @attribute {String} [type=""]
         * media type of the data specified in the data attribute
         * Same meaning as the type attribute in the html object tag.
         */
@@ -40,15 +40,15 @@
      *
      */
 /**
-        * @cfg {string} [theme='ace/theme/chrome']
+        * @attribute {string} [theme='ace/theme/chrome']
         * Specify the ace theme to use.
         */
 /**
-        * @cfg {string} [mode='ace/mode/dr']
+        * @attribute {string} [mode='ace/mode/dr']
         * Specify the ace mode to use.
         */
 /**
-        * @cfg {String} [text=""]
+        * @attribute {String} [text=""]
         * Initial text for the ace editor.
         */
 /**
@@ -57,7 +57,7 @@
         * @param {dr.ace} view The dr.ace that fired the event
         */
 /**
-        * @cfg {Number} [pausedelay=500]
+        * @attribute {Number} [pausedelay=500]
         * Time (msec) after user entry stops to fire onpausedelay event.
         * 0 will disable this option.
         */
@@ -93,51 +93,51 @@
      *     <audioplayer url="music/YACHT_-_09_-_Im_In_Love_With_A_Ripper_Party_Mix_Instrumental.mp3" playing="true"></audioplayer>
      */
 /**
-        * @cfg {String} url
+        * @attribute {String} url
         * The URL to an audio file to play
         */
 /**
-        * @cfg {Number} loadprogress 
+        * @attribute {Number} loadprogress
         * @readonly
         * A Number between 0 and 1 representing load progress
         */
 /**
-        * @cfg {Boolean} loaded 
+        * @attribute {Boolean} loaded
         * @readonly
         * If true, the audio is done loading
         */
 /**
-        * @cfg {Boolean} playing 
+        * @attribute {Boolean} playing
         * If true, the audio is playing.
         */
 /**
-        * @cfg {Boolean} paused 
+        * @attribute {Boolean} paused
         * If true, the audio is paused.
         */
 /**
-        * @cfg {Boolean} loop 
+        * @attribute {Boolean} loop
         * If true, the audio will play continuously.
         */
 /**
-        * @cfg {Number} time 
+        * @attribute {Number} time
         * @readonly
         * The number of seconds the file has played, with 0 being the start.
         */
 /**
-        * @cfg {Number} duration 
+        * @attribute {Number} duration
         * @readonly
         * The duration in seconds.
         */
 /**
-        * @cfg {Number} fftsize 
+        * @attribute {Number} fftsize
         * The number of fft frames to use when setting {@link #fft fft}. Must be a non-zero power of two in the range 32 to 2048.
         */
 /**
-        * @cfg {Number} [fftsmoothing=0.8]
+        * @attribute {Number} [fftsmoothing=0.8]
         * The amount of smoothing to apply to the FFT analysis. A value from 0 -> 1 where 0 represents no time averaging with the last FFT analysis frame.
         */
 /**
-        * @cfg {Number[]} fft
+        * @attribute {Number[]} fft
         * @readonly
         * An array of numbers representing the FFT analysis of the audio as it's playing.
         */
@@ -150,7 +150,7 @@
      *     <bitmap src="../api-examples-resources/shasta.jpg" width="230" height="161"></bitmap>
      */
 /**
-        * @cfg {String} src
+        * @attribute {String} src
         * The bitmap URL to load
         */
 /**
@@ -192,7 +192,7 @@
      *     </view>
      */
 /**
-        * @cfg {""/"width"/"height"} [ignoreattr=""]
+        * @attribute {""/"width"/"height"} [ignoreattr=""]
         * Optionally skip bounds calculations for a specific axis.
         */
 /**
@@ -207,19 +207,19 @@
      * that is inside the button.
      */
 /**
-        * @cfg {Number} [padding=3]
+        * @attribute {Number} [padding=3]
         * Amount of padding pixels around the button.
         */
 /**
-        * @cfg {String} [defaultcolor="#808080"]
+        * @attribute {String} [defaultcolor="#808080"]
         * The default color of the visual button element when not selected.
         */
 /**
-        * @cfg {String} [selectcolor="#a0a0a0"]
+        * @attribute {String} [selectcolor="#a0a0a0"]
         * The selected color of the visual button element when selected.
         */
 /**
-        * @cfg {Boolean} [selected=false]
+        * @attribute {Boolean} [selected=false]
         * The current state of the button.
         */
 /**
@@ -228,7 +228,7 @@
         * @param {dr.buttonbase} view The dr.buttonbase that fired the event
         */
 /**
-        * @cfg {String} [text=""]
+        * @attribute {String} [text=""]
         * Button text.
         */
 /**
@@ -323,7 +323,7 @@
      *     <replicator classname="text" datapath="$example/store/book[*]/title"></replicator>
      */
 /**
-        * @cfg {String} name (required)
+        * @attribute {String} name (required)
         * The name of the dataset
         */
 /**
@@ -331,7 +331,7 @@
         * The data inside the dataset
         */
 /**
-        * @cfg {String} url
+        * @attribute {String} url
         * The url to load JSON data from.
         */
 /**
@@ -372,7 +372,7 @@
      *     </view>
      */
 /**
-        * @cfg {"x"/"y"/"both"} [dragaxis="both"]
+        * @attribute {"x"/"y"/"both"} [dragaxis="both"]
         * The axes to drag on.
         */
 /**
@@ -403,16 +403,16 @@
      *
      */
 /**
-        * @cfg {String} [src="/iframe_stub.html"]
+        * @attribute {String} [src="/iframe_stub.html"]
         * url to load inside the iframe. By default, a file is loaded that has
         * an empty body but includes the libraries needed to support Dreem code.
         */
 /**
-        * @cfg {Boolean} [scrolling="false"]
+        * @attribute {Boolean} [scrolling="false"]
         * Controls scrollbar display in the iframe.
         */
 /**
-        * @cfg {String} [contents=""]
+        * @attribute {String} [contents=""]
         * string to write into the iframe body. This is dreem/html code
         * that is written inside the iframe's body tag. If you want to display
         * static web pages, specify the src attribute, but do not use contents.
@@ -423,35 +423,35 @@
      * Receives gyroscope and compass data where available. See [https://w3c.github.io/deviceorientation/spec-source-orientation.html#deviceorientation](https://w3c.github.io/deviceorientation/spec-source-orientation.html#deviceorientation) and [https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html](https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html) for details.
      */
 /**
-        * @cfg {Number} [x=0] (readonly)
+        * @attribute {Number} [x=0] (readonly)
         * The accelerometer x value
         */
 /**
-        * @cfg {Number} [y=0] (readonly)
+        * @attribute {Number} [y=0] (readonly)
         * The accelerometer y value
         */
 /**
-        * @cfg {Number} [z=0] (readonly)
+        * @attribute {Number} [z=0] (readonly)
         * The accelerometer z value
         */
 /**
-        * @cfg {Number} [alpha=0] (readonly)
+        * @attribute {Number} [alpha=0] (readonly)
         * The gyro alpha value rotating around the z axis
         */
 /**
-        * @cfg {Number} [beta=0] (readonly)
+        * @attribute {Number} [beta=0] (readonly)
         * The gyro beta value rotating around the x axis
         */
 /**
-        * @cfg {Number} [gamma=0] (readonly)
+        * @attribute {Number} [gamma=0] (readonly)
         * The gyro gamma value rotating around the y axis
         */
 /**
-        * @cfg {Number} [compass=0] (readonly)
+        * @attribute {Number} [compass=0] (readonly)
         * The compass orientation, see [https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html](https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html) for details.
         */
 /**
-        * @cfg {Number} [compassaccuracy=0] (readonly)
+        * @attribute {Number} [compassaccuracy=0] (readonly)
         * The compass accuracy, see [https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html](https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html) for details.
         */
 /**
@@ -502,40 +502,40 @@
    *
    */
 /**
-      * @cfg {Number} [minvalue=0]
+      * @attribute {Number} [minvalue=0]
       * The minimum value of the slider
       */
 /**
-    * @cfg {Number} [minhighvalue=0]
+    * @attribute {Number} [minhighvalue=0]
     * The minimum value of the right slider
     */
 /**
-      * @cfg {Number} [maxvalue=100]
+      * @attribute {Number} [maxvalue=100]
       * The maximum value of the slider
       */
 /**
-      * @cfg {Number} [maxlowvalue=100]
+      * @attribute {Number} [maxlowvalue=100]
       * The maximum value of the lower bound slider
       */
 /**
-      * @cfg {"x"/"y"} [axis=x]
+      * @attribute {"x"/"y"} [axis=x]
       * The axis to track on
       */
 /**
-      * @cfg {Boolean} [invert=false]
+      * @attribute {Boolean} [invert=false]
       * Set to false to have the scale run lower to higher, true to run higher to lower.
       */
 /**
-      * @cfg {Boolean} [exclusive=false]
+      * @attribute {Boolean} [exclusive=false]
       * Set to true to highlight the outer (exclusive) values of the range, false to select the inner (inclusive) values.
       */
 /**
-      * @cfg {Number} [lowvalue=50]
+      * @attribute {Number} [lowvalue=50]
       * The current value of the left slider.
       * Use changeLowValue() to range check the number and set the value.
       */
 /**
-      * @cfg {Number} [highvalue=50]
+      * @attribute {Number} [highvalue=50]
       * The current value of the right slider.
       * Use changeHighValue() to range check the number and set the value.
       */
@@ -552,11 +552,11 @@
       * @param {Number} v The new value of the component.
       */
 /**
-      * @cfg {String} [lowselectcolor="#a0a0a0"]
+      * @attribute {String} [lowselectcolor="#a0a0a0"]
       * The selected color of the lower bound slider.
       */
 /**
-      * @cfg {String} [highselectcolor="#a0a0a0"]
+      * @attribute {String} [highselectcolor="#a0a0a0"]
       * The selected color of the upper bound slider.
       */
 /**
@@ -703,32 +703,32 @@
      * See [https://github.com/flitbit/json-path](https://github.com/flitbit/json-path) for more details.
      */
 /**
-        * @cfg {Boolean} [pooling=false]
+        * @attribute {Boolean} [pooling=false]
         * If true, reuse views when replicating.
         */
 /**
-        * @cfg {Array} [data=[]]
+        * @attribute {Array} [data=[]]
         * The list of items to replicate. If {@link #datapath datapath} is set, it is converted to an array and stored here.
         */
 /**
-        * @cfg {String} classname (required)
+        * @attribute {String} classname (required)
         * The name of the class to be replicated.
         */
 /**
-        * @cfg {String} datapath
+        * @attribute {String} datapath
         * The datapath expression to be replicated.
         * See [https://github.com/flitbit/json-path](https://github.com/flitbit/json-path) for details.
         */
 /**
-        * @cfg {String} [sortfield=""]
+        * @attribute {String} [sortfield=""]
         * The field in the data to use for sorting. Only sort then this 
         */
 /**
-        * @cfg {Boolean} [sortasc=true]
+        * @attribute {Boolean} [sortasc=true]
         * If true, sort ascending.
         */
 /**
-        * @cfg {String} [filterexpression=""]
+        * @attribute {String} [filterexpression=""]
         * If defined, data will be filtered against a [regular expression](https://developer.mozilla.org/en/docs/Web/JavaScript/Guide/Regular_Expressions). 
         */
 /**
@@ -749,15 +749,15 @@
      * Connects to the shared event bus. When data is sent with a given type, a corresponding event is sent. For example, send('blah', {}) sends data with the 'blah' type, other shims will receive the object via an 'onblah' event.
      */
 /**
-        * @cfg {Boolean} [connected=false] (readonly)
+        * @attribute {Boolean} [connected=false] (readonly)
         * If true, we are connected to the server
         */
 /**
-        * @cfg {Number} [pingtime=1000]
+        * @attribute {Number} [pingtime=1000]
         * The frequency used to reconnect to the server
         */
 /**
-        * @cfg {Boolean} [websockets=false]
+        * @attribute {Boolean} [websockets=false]
         * If true, use websockets to connect to the server
         */
 /**
@@ -780,15 +780,15 @@
      *     <view width="100" height="25" bgcolor="lightblue"></view>
      */
 /**
-        * @cfg {Number} [inset=0]
+        * @attribute {Number} [inset=0]
         * Amount to inset the layout
         */
 /**
-        * @cfg {Number} [spacing=15]
+        * @attribute {Number} [spacing=15]
         * Amount of spacing between views
         */
 /**
-        * @cfg {"x"/"y"} [axis=x]
+        * @attribute {"x"/"y"} [axis=x]
         * The axis to stack on
         */
 /**
@@ -808,23 +808,23 @@
      *     <text text="${Math.round(this.parent.hslide.value)}" y="${this.parent.hslide.y + (this.parent.hslide.height-this.height)/2}"></text>
      */
 /**
-        * @cfg {Number} [minvalue=0]
+        * @attribute {Number} [minvalue=0]
         * The minimum value of the slider
         */
 /**
-        * @cfg {Number} [maxvalue=100]
+        * @attribute {Number} [maxvalue=100]
         * The maximum value of the slider
         */
 /**
-        * @cfg {"x"/"y"} [axis=x]
+        * @attribute {"x"/"y"} [axis=x]
         * The axis to track on
         */
 /**
-        * @cfg {Boolean} [invert=false]
+        * @attribute {Boolean} [invert=false]
         * Set to true to invert the direction of the slider.
         */
 /**
-        * @cfg {Number} [value=0]
+        * @attribute {Number} [value=0]
         * The current value of the slider.
         * Use changeValue() to range check the number and set the value.
         */
@@ -835,7 +835,7 @@
         * @param {Number} v The new value of the component.
         */
 /**
-        * @cfg {String} [selectcolor="#a0a0a0"]
+        * @attribute {String} [selectcolor="#a0a0a0"]
         * The selected color of the slider.
         */
 /**
@@ -854,14 +854,14 @@
      * Receives touch and multitouch data where available.
      */
 /**
-        * @cfg {Number} [x=0] (readonly)
+        * @attribute {Number} [x=0] (readonly)
         * The touch x value for the first finger.
         */
 /**
-        * @cfg {Number} [y=0] (readonly)
+        * @attribute {Number} [y=0] (readonly)
         * The touch y value for the first finger.
         */
 /**
-        * @cfg {Object[]} touches (readonly)
+        * @attribute {Object[]} touches (readonly)
         * An array of x/y coordinates for all fingers, where available. See [https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Touch_events](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Touch_events) for more details
         */
