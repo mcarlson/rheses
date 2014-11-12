@@ -1732,7 +1732,7 @@
      *
      *     @example
      *     <inputtext id="nameinput" bgcolor="white" border="1px solid lightgrey" width="200" onchange="console.log('onchange', this.text)"></inputtext>
-     *
+     *text
      */
     InputText = (function(_super) {
       __extends(InputText, _super);

@@ -17,18 +17,21 @@
             font-family: Helvetica
         }
     </style>
-    <style type="text/css">.sprite{ position: absolute; pointer-events: none; padding: 0; margin: 0;} .sprite-text{ width: auto; height; auto; white-space: nowrap;  padding: 0; margin: 0;} .hidden{ display: none; } .noselect{ -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;} method { display: none; } handler { display: none; } setter { display: none; } class { display:none } node { display:none } dataset { display:none }</style>
+    <style type="text/css">.sprite{ position: absolute; pointer-events: none; padding: 0; margin: 0;} .sprite-text{ width: auto; height: auto; white-space: nowrap;  padding: 0; margin: 0; } .hidden{ display: none; } .noselect{ -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;} method { display: none; } handler { display: none; } setter { display: none; } class { display:none } node { display:none } dataset { display:none }</style>
 
     <script type="text/javascript" src="/lib/jquery-1.9.1.min.js"></script>
     <script type="text/javascript" src="/lib/acorn.js"></script>
     <script type="text/javascript" src="/lib/coffee-script.js"></script>
     <script type="text/javascript" src="/layout.js"></script>
 
-
     <script type="text/javascript">
         function loadInlineExample(code, options, callback) {
             // Surround the example with a top-level view
-            prefix = '&lt;view id="all" width="600" height="300" clip="true">';
+            console.log("opts", options);
+            compact = options.compact || false;
+
+            wrapperSize = compact ? 'width="400" height="100"' : 'width="600" height="300"';
+            prefix = '&lt;view id="all" ' + wrapperSize + ' clip="true">';
 
             // setTimeout added for Firefox
             postfix = 

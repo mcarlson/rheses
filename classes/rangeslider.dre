@@ -22,16 +22,47 @@ SOFTWARE. -->
 
 <!--/**
    * @class dr.rangeslider
-   * @extends dr.slider
-   * An input component whose upper and lower bounds are changed when the mouse is dragged.
+   * @extends dr.view
+   * An input component whose upper and lower bounds are changed via mouse clicks or drags.
    *
-   *     @example
+   *     @example compact
    *
-   *     <rangeslider name="hslide" y="5" width="250" height="10" lowvalue="30" highvalue="70" exclusive="true" lowselectcolor="#00CCFF" highselectcolor="33CCFF"></rangeslider>
+   *     <rangeslider name="range" width="300" height="40" x="10" y="30" lowselectcolor="#00CCFF" highselectcolor="#FFCCFF" outline="2px dashed #00CCFF"
+   *                  lowvalue="30"
+   *                  highvalue="70">
+   *     </rangeslider>
+   *
+   *     <text name="rangeLabel" color="white" height="40"
+   *           y="${this.parent.range.y + (this.parent.range.height / 2) - (this.height / 2)}"
+   *           x="${(this.parent.range.lowvalue * 3) + (((this.parent.range.highvalue * 3) - (this.parent.range.lowvalue * 3)) / 2) - (this.width / 2)}"
+   *           text="${Math.round(this.parent.range.lowvalue) + ' ~ ' + Math.round(this.parent.range.highvalue)}"></text>
+   *
+   *
+   * A range slider highlights the inclusive values by default, however this behavior can be reversed with `exclusive="true"`.
+   * The following example demonstrates an exclusive-valued, inverted (range goes from high to low) horizontal slider.
+   *
+   *     @example compact
+   *
+   *     <rangeslider name="range" width="400" x="10" y="30" lowselectcolor="#AACCFF" highselectcolor="#FFAACC"
+   *                  height="30"
+   *                  lowvalue="45"
+   *                  highvalue="55"
+   *                  invert="true"
+   *                  exclusive="true">
+   *     </rangeslider>
+   *
+   *     <text name="highRangeLabel" color="#333" height="20"
+   *           y="${this.parent.range.y + (this.parent.range.height / 2) - (this.height / 2)}"
+   *           x="${(((this.parent.range.maxvalue * 4) - (this.parent.range.highvalue * 4)) / 2) - (this.width / 2)}"
+   *           text="${this.parent.range.maxvalue + ' ~ ' + Math.round(this.parent.range.highvalue)}"></text>
+   *
+   *     <text name="lowRangeLabel" color="#333" height="20"
+   *           y="${this.parent.range.y + (this.parent.range.height / 2) - (this.height / 2)}"
+   *           x="${(this.parent.range.width - (this.parent.range.lowvalue * 4)) + (((this.parent.range.lowvalue * 4) - (this.parent.range.minvalue * 4)) / 2) - (this.width / 2)}"
+   *           text="${Math.round(this.parent.range.lowvalue) + ' ~ ' + this.parent.range.minvalue}"></text>
    *
    */-->
 <class name="rangeslider" type="coffee" clickable="true" clip="true">
-
 
     <handler event="oninit" method="visualize"></handler>
     <handler event="onwidth" method="visualize"></handler>
@@ -220,7 +251,6 @@ SOFTWARE. -->
 
           if (@width > 0)
             val = ((p - @getAbsolute().x) / @width * spread) + @minvalue
-            console.log("val:", val, @invert, '(', @maxvalue - val, ")", @lowvalue, @highvalue)
             val = @maxvalue - val if @invert
 
             ld = Math.abs(@lowvalue - val)

@@ -1148,9 +1148,25 @@
       };
 
       styleval = {
-        display: function(isVisible) {
+        display: function(isVisible, view) {
           if (isVisible) {
             return &#39;&#39;;
+          } else {
+            return &#39;none&#39;;
+          }
+        },
+        overflow: function(ignore, view) {
+          if (view.scrollable) {
+            return &#39;auto&#39;;
+          } else if (view.clip) {
+            return &#39;hidden&#39;;
+          } else {
+            return &#39;&#39;;
+          }
+        },
+        &#39;pointer-events&#39;: function(ignore, view) {
+          if (view.clickable || view.scrollable) {
+            return &#39;auto&#39;;
           } else {
             return &#39;none&#39;;
           }
@@ -1176,7 +1192,7 @@
         } else if (jqel instanceof HTMLElement) {
           this.el = jqel;
         }
-        this.el.$view = view;
+        this.view = this.el.$view = view;
         this.el.setAttribute(&#39;class&#39;, &#39;sprite&#39;);
       }
 
@@ -1191,7 +1207,7 @@
           name = stylemap[name];
         }
         if (name in styleval) {
-          value = styleval[name](value);
+          value = styleval[name](value, this.view);
         } else if (name.match(rdashAlpha)) {
           name = name.replace(rdashAlpha, fcamelCase);
           if (debug &amp;&amp; !internal) {
@@ -1261,7 +1277,7 @@
       };
 
       Sprite.prototype.set_clickable = function(clickable) {
-        this.setStyle(&#39;pointer-events&#39;, (clickable ? &#39;auto&#39; : &#39;none&#39;), true);
+        this.setStyle(&#39;pointer-events&#39;, null, true);
         this.setStyle(&#39;cursor&#39;, (clickable ? &#39;pointer&#39; : &#39;&#39;), true);
         if (capabilities.touch) {
           document.addEventListener(&#39;touchstart&#39;, this.touchHandler, true);
@@ -1271,13 +1287,18 @@
         }
       };
 
+      Sprite.prototype.set_clip = function(clip) {
+        return this.setStyle(&#39;overflow&#39;);
+      };
+
+      Sprite.prototype.set_scrollable = function(scrollable) {
+        this.setStyle(&#39;overflow&#39;);
+        return this.setStyle(&#39;pointer-events&#39;, null, true);
+      };
+
       Sprite.prototype.destroy = function() {
         this.el.parentNode.removeChild(this.el);
         return this.el = this.jqel = null;
-      };
-
-      Sprite.prototype.set_clip = function(clip) {
-        return this.setStyle(&#39;overflow&#39;, clip ? &#39;hidden&#39; : &#39;&#39;);
       };
 
       Sprite.prototype.setText = function(txt) {
@@ -1502,6 +1523,12 @@
        */
 
 
+<span id='dr-view-cfg-scrollable'>      /**
+</span>       * @cfg {Boolean} [scrollable=false]
+       * If true, this view clips to its bounds and provides scrolling to see content that overflows the bounds
+       */
+
+
 <span id='dr-view-cfg-visible'>      /**
 </span>       * @cfg {Boolean} [visible=true]
        * If false, this view is invisible
@@ -1590,6 +1617,7 @@
           height: &#39;number&#39;,
           clickable: &#39;boolean&#39;,
           clip: &#39;boolean&#39;,
+          scrollable: &#39;boolean&#39;,
           visible: &#39;boolean&#39;
         };
         defaults = {
@@ -1599,6 +1627,7 @@
           height: 0,
           clickable: false,
           clip: false,
+          scrollable: false,
           visible: true
         };
         _ref = attributes.$types;
@@ -1676,6 +1705,10 @@
         return this.sprite.set_clip(clip);
       };
 
+      View.prototype.set_scrollable = function(scrollable) {
+        return this.sprite.set_scrollable(scrollable);
+      };
+
       View.prototype.destroy = function(skipevents) {
         View.__super__.destroy.apply(this, arguments);
         if (!skipevents) {
@@ -1721,7 +1754,7 @@
      *
      *     @example
      *     &lt;inputtext id=&quot;nameinput&quot; bgcolor=&quot;white&quot; border=&quot;1px solid lightgrey&quot; width=&quot;200&quot; onchange=&quot;console.log(&#39;onchange&#39;, this.text)&quot;&gt;&lt;/inputtext&gt;
-     *
+     *text
      */
     InputText = (function(_super) {
       __extends(InputText, _super);

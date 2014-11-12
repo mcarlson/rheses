@@ -510,12 +510,44 @@
      */
 <span id='dr-rangeslider'>/**
 </span>   * @class dr.rangeslider
-   * @extends dr.slider
-   * An input component whose upper and lower bounds are changed when the mouse is dragged.
+   * @extends dr.view
+   * An input component whose upper and lower bounds are changed via mouse clicks or drags.
    *
-   *     @example
+   *     @example compact
    *
-   *     &lt;rangeslider name=&quot;hslide&quot; y=&quot;5&quot; width=&quot;250&quot; height=&quot;10&quot; lowvalue=&quot;30&quot; highvalue=&quot;70&quot; exclusive=&quot;true&quot; lowselectcolor=&quot;#00CCFF&quot; highselectcolor=&quot;33CCFF&quot;&gt;&lt;/rangeslider&gt;
+   *     &lt;rangeslider name=&quot;range&quot; width=&quot;300&quot; height=&quot;40&quot; x=&quot;10&quot; y=&quot;30&quot; lowselectcolor=&quot;#00CCFF&quot; highselectcolor=&quot;#FFCCFF&quot; outline=&quot;2px dashed #00CCFF&quot;
+   *                  lowvalue=&quot;30&quot;
+   *                  highvalue=&quot;70&quot;&gt;
+   *     &lt;/rangeslider&gt;
+   *
+   *     &lt;text name=&quot;rangeLabel&quot; color=&quot;white&quot; height=&quot;40&quot;
+   *           y=&quot;${this.parent.range.y + (this.parent.range.height / 2) - (this.height / 2)}&quot;
+   *           x=&quot;${(this.parent.range.lowvalue * 3) + (((this.parent.range.highvalue * 3) - (this.parent.range.lowvalue * 3)) / 2) - (this.width / 2)}&quot;
+   *           text=&quot;${Math.round(this.parent.range.lowvalue) + &#39; ~ &#39; + Math.round(this.parent.range.highvalue)}&quot;&gt;&lt;/text&gt;
+   *
+   *
+   * A range slider highlights the inclusive values by default, however this behavior can be reversed with `exclusive=&quot;true&quot;`.
+   * The following example demonstrates an exclusive-valued, inverted (range goes from high to low) horizontal slider.
+   *
+   *     @example compact
+   *
+   *     &lt;rangeslider name=&quot;range&quot; width=&quot;400&quot; x=&quot;10&quot; y=&quot;30&quot; lowselectcolor=&quot;#AACCFF&quot; highselectcolor=&quot;#FFAACC&quot;
+   *                  height=&quot;30&quot;
+   *                  lowvalue=&quot;45&quot;
+   *                  highvalue=&quot;55&quot;
+   *                  invert=&quot;true&quot;
+   *                  exclusive=&quot;true&quot;&gt;
+   *     &lt;/rangeslider&gt;
+   *
+   *     &lt;text name=&quot;highRangeLabel&quot; color=&quot;#333&quot; height=&quot;20&quot;
+   *           y=&quot;${this.parent.range.y + (this.parent.range.height / 2) - (this.height / 2)}&quot;
+   *           x=&quot;${(((this.parent.range.maxvalue * 4) - (this.parent.range.highvalue * 4)) / 2) - (this.width / 2)}&quot;
+   *           text=&quot;${this.parent.range.maxvalue + &#39; ~ &#39; + Math.round(this.parent.range.highvalue)}&quot;&gt;&lt;/text&gt;
+   *
+   *     &lt;text name=&quot;lowRangeLabel&quot; color=&quot;#333&quot; height=&quot;20&quot;
+   *           y=&quot;${this.parent.range.y + (this.parent.range.height / 2) - (this.height / 2)}&quot;
+   *           x=&quot;${(this.parent.range.width - (this.parent.range.lowvalue * 4)) + (((this.parent.range.lowvalue * 4) - (this.parent.range.minvalue * 4)) / 2) - (this.width / 2)}&quot;
+   *           text=&quot;${Math.round(this.parent.range.lowvalue) + &#39; ~ &#39; + this.parent.range.minvalue}&quot;&gt;&lt;/text&gt;
    *
    */
 <span id='dr-rangeslider-cfg-minvalue'>/**
