@@ -24,13 +24,13 @@
      * for art, but it can be directly to embed svg files into dreem.
      *
      */
-<span id='dr-abstractart-cfg-data'>/**
-</span>        * @cfg {String} [data=&quot;&quot;]
+<span id='dr-abstractart-attribute-data'>/**
+</span>        * @attribute {String} [data=&quot;&quot;]
         * url to be used by the object.
         * Same meaning as the data attribute in the html object tag.
         */
-<span id='dr-abstractart-cfg-type'>/**
-</span>        * @cfg {String} [type=&quot;&quot;]
+<span id='dr-abstractart-attribute-type'>/**
+</span>        * @attribute {String} [type=&quot;&quot;]
         * media type of the data specified in the data attribute
         * Same meaning as the type attribute in the html object tag.
         */
@@ -56,16 +56,16 @@
      *     &lt;ace id=&quot;editor&quot; width=&quot;500&quot;&gt;&lt;view width=&quot;100%&quot; height=&quot;100%&quot; bgcolor=&quot;thistle&quot;&gt;&lt;/view&gt;&lt;/ace&gt;
      *
      */
-<span id='dr-ace-cfg-theme'>/**
-</span>        * @cfg {string} [theme=&#39;ace/theme/chrome&#39;]
+<span id='dr-ace-attribute-theme'>/**
+</span>        * @attribute {string} [theme=&#39;ace/theme/chrome&#39;]
         * Specify the ace theme to use.
         */
-<span id='dr-ace-cfg-mode'>/**
-</span>        * @cfg {string} [mode=&#39;ace/mode/dr&#39;]
+<span id='dr-ace-attribute-mode'>/**
+</span>        * @attribute {string} [mode=&#39;ace/mode/dr&#39;]
         * Specify the ace mode to use.
         */
-<span id='dr-ace-cfg-text'>/**
-</span>        * @cfg {String} [text=&quot;&quot;]
+<span id='dr-ace-attribute-text'>/**
+</span>        * @attribute {String} [text=&quot;&quot;]
         * Initial text for the ace editor.
         */
 <span id='dr-ace-event-ontext'>/**
@@ -73,8 +73,8 @@
         * Fired when the contents of the ace entry changes
         * @param {dr.ace} view The dr.ace that fired the event
         */
-<span id='dr-ace-cfg-pausedelay'>/**
-</span>        * @cfg {Number} [pausedelay=500]
+<span id='dr-ace-attribute-pausedelay'>/**
+</span>        * @attribute {Number} [pausedelay=500]
         * Time (msec) after user entry stops to fire onpausedelay event.
         * 0 will disable this option.
         */
@@ -109,52 +109,52 @@
      *     @example
      *     &lt;audioplayer url=&quot;music/YACHT_-_09_-_Im_In_Love_With_A_Ripper_Party_Mix_Instrumental.mp3&quot; playing=&quot;true&quot;&gt;&lt;/audioplayer&gt;
      */
-<span id='dr-audioplayer-cfg-url'>/**
-</span>        * @cfg {String} url
+<span id='dr-audioplayer-attribute-url'>/**
+</span>        * @attribute {String} url
         * The URL to an audio file to play
         */
-<span id='dr-audioplayer-cfg-loadprogress'>/**
-</span>        * @cfg {Number} loadprogress 
+<span id='dr-audioplayer-attribute-loadprogress'>/**
+</span>        * @attribute {Number} loadprogress
         * @readonly
         * A Number between 0 and 1 representing load progress
         */
-<span id='dr-audioplayer-cfg-loaded'>/**
-</span>        * @cfg {Boolean} loaded 
+<span id='dr-audioplayer-attribute-loaded'>/**
+</span>        * @attribute {Boolean} loaded
         * @readonly
         * If true, the audio is done loading
         */
-<span id='dr-audioplayer-cfg-playing'>/**
-</span>        * @cfg {Boolean} playing 
+<span id='dr-audioplayer-attribute-playing'>/**
+</span>        * @attribute {Boolean} playing
         * If true, the audio is playing.
         */
-<span id='dr-audioplayer-cfg-paused'>/**
-</span>        * @cfg {Boolean} paused 
+<span id='dr-audioplayer-attribute-paused'>/**
+</span>        * @attribute {Boolean} paused
         * If true, the audio is paused.
         */
-<span id='dr-audioplayer-cfg-loop'>/**
-</span>        * @cfg {Boolean} loop 
+<span id='dr-audioplayer-attribute-loop'>/**
+</span>        * @attribute {Boolean} loop
         * If true, the audio will play continuously.
         */
-<span id='dr-audioplayer-cfg-time'>/**
-</span>        * @cfg {Number} time 
+<span id='dr-audioplayer-attribute-time'>/**
+</span>        * @attribute {Number} time
         * @readonly
         * The number of seconds the file has played, with 0 being the start.
         */
-<span id='dr-audioplayer-cfg-duration'>/**
-</span>        * @cfg {Number} duration 
+<span id='dr-audioplayer-attribute-duration'>/**
+</span>        * @attribute {Number} duration
         * @readonly
         * The duration in seconds.
         */
-<span id='dr-audioplayer-cfg-fftsize'>/**
-</span>        * @cfg {Number} fftsize 
+<span id='dr-audioplayer-attribute-fftsize'>/**
+</span>        * @attribute {Number} fftsize
         * The number of fft frames to use when setting {@link #fft fft}. Must be a non-zero power of two in the range 32 to 2048.
         */
-<span id='dr-audioplayer-cfg-fftsmoothing'>/**
-</span>        * @cfg {Number} [fftsmoothing=0.8]
+<span id='dr-audioplayer-attribute-fftsmoothing'>/**
+</span>        * @attribute {Number} [fftsmoothing=0.8]
         * The amount of smoothing to apply to the FFT analysis. A value from 0 -&gt; 1 where 0 represents no time averaging with the last FFT analysis frame.
         */
-<span id='dr-audioplayer-cfg-fft'>/**
-</span>        * @cfg {Number[]} fft
+<span id='dr-audioplayer-attribute-fft'>/**
+</span>        * @attribute {Number[]} fft
         * @readonly
         * An array of numbers representing the FFT analysis of the audio as it&#39;s playing.
         */
@@ -166,8 +166,8 @@
      *     @example
      *     &lt;bitmap src=&quot;../api-examples-resources/shasta.jpg&quot; width=&quot;230&quot; height=&quot;161&quot;&gt;&lt;/bitmap&gt;
      */
-<span id='dr-bitmap-cfg-src'>/**
-</span>        * @cfg {String} src
+<span id='dr-bitmap-attribute-src'>/**
+</span>        * @attribute {String} src
         * The bitmap URL to load
         */
 <span id='dr-bitmap-event-onload'>/**
@@ -208,8 +208,8 @@
      *       &lt;view width=&quot;100&quot; height=&quot;25&quot; bgcolor=&quot;lightblue&quot; opacity=&quot;.3&quot;&gt;&lt;/view&gt;
      *     &lt;/view&gt;
      */
-<span id='dr-boundslayout-cfg-ignoreattr'>/**
-</span>        * @cfg {&quot;&quot;/&quot;width&quot;/&quot;height&quot;} [ignoreattr=&quot;&quot;]
+<span id='dr-boundslayout-attribute-ignoreattr'>/**
+</span>        * @attribute {&quot;&quot;/&quot;width&quot;/&quot;height&quot;} [ignoreattr=&quot;&quot;]
         * Optionally skip bounds calculations for a specific axis.
         */
 <span id='dr-buttonbase'>/**
@@ -223,20 +223,20 @@
      * element. For a checkbutton, the visual element is a square dr.view
      * that is inside the button.
      */
-<span id='dr-buttonbase-cfg-padding'>/**
-</span>        * @cfg {Number} [padding=3]
+<span id='dr-buttonbase-attribute-padding'>/**
+</span>        * @attribute {Number} [padding=3]
         * Amount of padding pixels around the button.
         */
-<span id='dr-buttonbase-cfg-defaultcolor'>/**
-</span>        * @cfg {String} [defaultcolor=&quot;#808080&quot;]
+<span id='dr-buttonbase-attribute-defaultcolor'>/**
+</span>        * @attribute {String} [defaultcolor=&quot;#808080&quot;]
         * The default color of the visual button element when not selected.
         */
-<span id='dr-buttonbase-cfg-selectcolor'>/**
-</span>        * @cfg {String} [selectcolor=&quot;#a0a0a0&quot;]
+<span id='dr-buttonbase-attribute-selectcolor'>/**
+</span>        * @attribute {String} [selectcolor=&quot;#a0a0a0&quot;]
         * The selected color of the visual button element when selected.
         */
-<span id='dr-buttonbase-cfg-selected'>/**
-</span>        * @cfg {Boolean} [selected=false]
+<span id='dr-buttonbase-attribute-selected'>/**
+</span>        * @attribute {Boolean} [selected=false]
         * The current state of the button.
         */
 <span id='dr-buttonbase-event-onselected'>/**
@@ -244,8 +244,8 @@
         * Fired when the state of the button changes.
         * @param {dr.buttonbase} view The dr.buttonbase that fired the event
         */
-<span id='dr-buttonbase-cfg-text'>/**
-</span>        * @cfg {String} [text=&quot;&quot;]
+<span id='dr-buttonbase-attribute-text'>/**
+</span>        * @attribute {String} [text=&quot;&quot;]
         * Button text.
         */
 <span id='dr-checkbutton'>/**
@@ -339,16 +339,16 @@
      *     &lt;simplelayout&gt;&lt;/simplelayout&gt;
      *     &lt;replicator classname=&quot;text&quot; datapath=&quot;$example/store/book[*]/title&quot;&gt;&lt;/replicator&gt;
      */
-<span id='dr-dataset-cfg-name'>/**
-</span>        * @cfg {String} name (required)
+<span id='dr-dataset-attribute-name'>/**
+</span>        * @attribute {String} name (required)
         * The name of the dataset
         */
 <span id='dr-dataset-property-data'>/**
 </span>        * @property {Object} data
         * The data inside the dataset
         */
-<span id='dr-dataset-cfg-url'>/**
-</span>        * @cfg {String} url
+<span id='dr-dataset-attribute-url'>/**
+</span>        * @attribute {String} url
         * The url to load JSON data from.
         */
 <span id='dr-dragstate'>/**
@@ -388,8 +388,8 @@
      *       &lt;/dragstate&gt;
      *     &lt;/view&gt;
      */
-<span id='dr-dragstate-cfg-dragaxis'>/**
-</span>        * @cfg {&quot;x&quot;/&quot;y&quot;/&quot;both&quot;} [dragaxis=&quot;both&quot;]
+<span id='dr-dragstate-attribute-dragaxis'>/**
+</span>        * @attribute {&quot;x&quot;/&quot;y&quot;/&quot;both&quot;} [dragaxis=&quot;both&quot;]
         * The axes to drag on.
         */
 <span id='dr-dreem_iframe'>/**
@@ -419,17 +419,17 @@
      *     &lt;dreem_iframe width=&quot;300&quot; height=&quot;140&quot; contents=&quot;Hello&quot;&gt;&lt;/dreem_iframe&gt;
      *
      */
-<span id='dr-dreem_iframe-cfg-src'>/**
-</span>        * @cfg {String} [src=&quot;/iframe_stub.html&quot;]
+<span id='dr-dreem_iframe-attribute-src'>/**
+</span>        * @attribute {String} [src=&quot;/iframe_stub.html&quot;]
         * url to load inside the iframe. By default, a file is loaded that has
         * an empty body but includes the libraries needed to support Dreem code.
         */
-<span id='dr-dreem_iframe-cfg-scrolling'>/**
-</span>        * @cfg {Boolean} [scrolling=&quot;false&quot;]
+<span id='dr-dreem_iframe-attribute-scrolling'>/**
+</span>        * @attribute {Boolean} [scrolling=&quot;false&quot;]
         * Controls scrollbar display in the iframe.
         */
-<span id='dr-dreem_iframe-cfg-contents'>/**
-</span>        * @cfg {String} [contents=&quot;&quot;]
+<span id='dr-dreem_iframe-attribute-contents'>/**
+</span>        * @attribute {String} [contents=&quot;&quot;]
         * string to write into the iframe body. This is dreem/html code
         * that is written inside the iframe&#39;s body tag. If you want to display
         * static web pages, specify the src attribute, but do not use contents.
@@ -439,36 +439,36 @@
      * @extends dr.node
      * Receives gyroscope and compass data where available. See [https://w3c.github.io/deviceorientation/spec-source-orientation.html#deviceorientation](https://w3c.github.io/deviceorientation/spec-source-orientation.html#deviceorientation) and [https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html](https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html) for details.
      */
-<span id='dr-gyro-cfg-x'>/**
-</span>        * @cfg {Number} [x=0] (readonly)
+<span id='dr-gyro-attribute-x'>/**
+</span>        * @attribute {Number} [x=0] (readonly)
         * The accelerometer x value
         */
-<span id='dr-gyro-cfg-y'>/**
-</span>        * @cfg {Number} [y=0] (readonly)
+<span id='dr-gyro-attribute-y'>/**
+</span>        * @attribute {Number} [y=0] (readonly)
         * The accelerometer y value
         */
-<span id='dr-gyro-cfg-z'>/**
-</span>        * @cfg {Number} [z=0] (readonly)
+<span id='dr-gyro-attribute-z'>/**
+</span>        * @attribute {Number} [z=0] (readonly)
         * The accelerometer z value
         */
-<span id='dr-gyro-cfg-alpha'>/**
-</span>        * @cfg {Number} [alpha=0] (readonly)
+<span id='dr-gyro-attribute-alpha'>/**
+</span>        * @attribute {Number} [alpha=0] (readonly)
         * The gyro alpha value rotating around the z axis
         */
-<span id='dr-gyro-cfg-beta'>/**
-</span>        * @cfg {Number} [beta=0] (readonly)
+<span id='dr-gyro-attribute-beta'>/**
+</span>        * @attribute {Number} [beta=0] (readonly)
         * The gyro beta value rotating around the x axis
         */
-<span id='dr-gyro-cfg-gamma'>/**
-</span>        * @cfg {Number} [gamma=0] (readonly)
+<span id='dr-gyro-attribute-gamma'>/**
+</span>        * @attribute {Number} [gamma=0] (readonly)
         * The gyro gamma value rotating around the y axis
         */
-<span id='dr-gyro-cfg-compass'>/**
-</span>        * @cfg {Number} [compass=0] (readonly)
+<span id='dr-gyro-attribute-compass'>/**
+</span>        * @attribute {Number} [compass=0] (readonly)
         * The compass orientation, see [https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html](https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html) for details.
         */
-<span id='dr-gyro-cfg-compassaccuracy'>/**
-</span>        * @cfg {Number} [compassaccuracy=0] (readonly)
+<span id='dr-gyro-attribute-compassaccuracy'>/**
+</span>        * @attribute {Number} [compassaccuracy=0] (readonly)
         * The compass accuracy, see [https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html](https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html) for details.
         */
 <span id='dr-labelbutton'>/**
@@ -549,41 +549,41 @@
    *           text=&quot;${Math.round(this.parent.range.lowvalue) + &#39; ~ &#39; + this.parent.range.minvalue}&quot;&gt;&lt;/text&gt;
    *
    */
-<span id='dr-rangeslider-cfg-minvalue'>/**
-</span>      * @cfg {Number} [minvalue=0]
+<span id='dr-rangeslider-attribute-minvalue'>/**
+</span>      * @attribute {Number} [minvalue=0]
       * The minimum value of the slider
       */
-<span id='dr-rangeslider-cfg-minhighvalue'>/**
-</span>    * @cfg {Number} [minhighvalue=0]
+<span id='dr-rangeslider-attribute-minhighvalue'>/**
+</span>    * @attribute {Number} [minhighvalue=0]
     * The minimum value of the right slider
     */
-<span id='dr-rangeslider-cfg-maxvalue'>/**
-</span>      * @cfg {Number} [maxvalue=100]
+<span id='dr-rangeslider-attribute-maxvalue'>/**
+</span>      * @attribute {Number} [maxvalue=100]
       * The maximum value of the slider
       */
-<span id='dr-rangeslider-cfg-maxlowvalue'>/**
-</span>      * @cfg {Number} [maxlowvalue=100]
+<span id='dr-rangeslider-attribute-maxlowvalue'>/**
+</span>      * @attribute {Number} [maxlowvalue=100]
       * The maximum value of the lower bound slider
       */
-<span id='dr-rangeslider-cfg-axis'>/**
-</span>      * @cfg {&quot;x&quot;/&quot;y&quot;} [axis=x]
+<span id='dr-rangeslider-attribute-axis'>/**
+</span>      * @attribute {&quot;x&quot;/&quot;y&quot;} [axis=x]
       * The axis to track on
       */
-<span id='dr-rangeslider-cfg-invert'>/**
-</span>      * @cfg {Boolean} [invert=false]
+<span id='dr-rangeslider-attribute-invert'>/**
+</span>      * @attribute {Boolean} [invert=false]
       * Set to false to have the scale run lower to higher, true to run higher to lower.
       */
-<span id='dr-rangeslider-cfg-exclusive'>/**
-</span>      * @cfg {Boolean} [exclusive=false]
+<span id='dr-rangeslider-attribute-exclusive'>/**
+</span>      * @attribute {Boolean} [exclusive=false]
       * Set to true to highlight the outer (exclusive) values of the range, false to select the inner (inclusive) values.
       */
-<span id='dr-rangeslider-cfg-lowvalue'>/**
-</span>      * @cfg {Number} [lowvalue=50]
+<span id='dr-rangeslider-attribute-lowvalue'>/**
+</span>      * @attribute {Number} [lowvalue=50]
       * The current value of the left slider.
       * Use changeLowValue() to range check the number and set the value.
       */
-<span id='dr-rangeslider-cfg-highvalue'>/**
-</span>      * @cfg {Number} [highvalue=50]
+<span id='dr-rangeslider-attribute-highvalue'>/**
+</span>      * @attribute {Number} [highvalue=50]
       * The current value of the right slider.
       * Use changeHighValue() to range check the number and set the value.
       */
@@ -599,12 +599,12 @@
       * between minvalue or minhighvalue (whichever is higher) and maxvalue and then calls setAttribute.
       * @param {Number} v The new value of the component.
       */
-<span id='dr-rangeslider-cfg-lowselectcolor'>/**
-</span>      * @cfg {String} [lowselectcolor=&quot;#a0a0a0&quot;]
+<span id='dr-rangeslider-attribute-lowselectcolor'>/**
+</span>      * @attribute {String} [lowselectcolor=&quot;#a0a0a0&quot;]
       * The selected color of the lower bound slider.
       */
-<span id='dr-rangeslider-cfg-highselectcolor'>/**
-</span>      * @cfg {String} [highselectcolor=&quot;#a0a0a0&quot;]
+<span id='dr-rangeslider-attribute-highselectcolor'>/**
+</span>      * @attribute {String} [highselectcolor=&quot;#a0a0a0&quot;]
       * The selected color of the upper bound slider.
       */
 <span id='dr-replicator'>/**
@@ -750,33 +750,33 @@
      *
      * See [https://github.com/flitbit/json-path](https://github.com/flitbit/json-path) for more details.
      */
-<span id='dr-replicator-cfg-pooling'>/**
-</span>        * @cfg {Boolean} [pooling=false]
+<span id='dr-replicator-attribute-pooling'>/**
+</span>        * @attribute {Boolean} [pooling=false]
         * If true, reuse views when replicating.
         */
-<span id='dr-replicator-cfg-data'>/**
-</span>        * @cfg {Array} [data=[]]
+<span id='dr-replicator-attribute-data'>/**
+</span>        * @attribute {Array} [data=[]]
         * The list of items to replicate. If {@link #datapath datapath} is set, it is converted to an array and stored here.
         */
-<span id='dr-replicator-cfg-classname'>/**
-</span>        * @cfg {String} classname (required)
+<span id='dr-replicator-attribute-classname'>/**
+</span>        * @attribute {String} classname (required)
         * The name of the class to be replicated.
         */
-<span id='dr-replicator-cfg-datapath'>/**
-</span>        * @cfg {String} datapath
+<span id='dr-replicator-attribute-datapath'>/**
+</span>        * @attribute {String} datapath
         * The datapath expression to be replicated.
         * See [https://github.com/flitbit/json-path](https://github.com/flitbit/json-path) for details.
         */
-<span id='dr-replicator-cfg-sortfield'>/**
-</span>        * @cfg {String} [sortfield=&quot;&quot;]
+<span id='dr-replicator-attribute-sortfield'>/**
+</span>        * @attribute {String} [sortfield=&quot;&quot;]
         * The field in the data to use for sorting. Only sort then this 
         */
-<span id='dr-replicator-cfg-sortasc'>/**
-</span>        * @cfg {Boolean} [sortasc=true]
+<span id='dr-replicator-attribute-sortasc'>/**
+</span>        * @attribute {Boolean} [sortasc=true]
         * If true, sort ascending.
         */
-<span id='dr-replicator-cfg-filterexpression'>/**
-</span>        * @cfg {String} [filterexpression=&quot;&quot;]
+<span id='dr-replicator-attribute-filterexpression'>/**
+</span>        * @attribute {String} [filterexpression=&quot;&quot;]
         * If defined, data will be filtered against a [regular expression](https://developer.mozilla.org/en/docs/Web/JavaScript/Guide/Regular_Expressions). 
         */
 <span id='dr-replicator-method-refresh'>/**
@@ -796,16 +796,16 @@
      * @extends dr.node
      * Connects to the shared event bus. When data is sent with a given type, a corresponding event is sent. For example, send(&#39;blah&#39;, {}) sends data with the &#39;blah&#39; type, other shims will receive the object via an &#39;onblah&#39; event.
      */
-<span id='dr-shim-cfg-connected'>/**
-</span>        * @cfg {Boolean} [connected=false] (readonly)
+<span id='dr-shim-attribute-connected'>/**
+</span>        * @attribute {Boolean} [connected=false] (readonly)
         * If true, we are connected to the server
         */
-<span id='dr-shim-cfg-pingtime'>/**
-</span>        * @cfg {Number} [pingtime=1000]
+<span id='dr-shim-attribute-pingtime'>/**
+</span>        * @attribute {Number} [pingtime=1000]
         * The frequency used to reconnect to the server
         */
-<span id='dr-shim-cfg-websockets'>/**
-</span>        * @cfg {Boolean} [websockets=false]
+<span id='dr-shim-attribute-websockets'>/**
+</span>        * @attribute {Boolean} [websockets=false]
         * If true, use websockets to connect to the server
         */
 <span id='dr-shim-method-send'>/**
@@ -827,16 +827,16 @@
      *     &lt;view width=&quot;100&quot; height=&quot;25&quot; bgcolor=&quot;plum&quot;&gt;&lt;/view&gt;
      *     &lt;view width=&quot;100&quot; height=&quot;25&quot; bgcolor=&quot;lightblue&quot;&gt;&lt;/view&gt;
      */
-<span id='dr-simplelayout-cfg-inset'>/**
-</span>        * @cfg {Number} [inset=0]
+<span id='dr-simplelayout-attribute-inset'>/**
+</span>        * @attribute {Number} [inset=0]
         * Amount to inset the layout
         */
-<span id='dr-simplelayout-cfg-spacing'>/**
-</span>        * @cfg {Number} [spacing=15]
+<span id='dr-simplelayout-attribute-spacing'>/**
+</span>        * @attribute {Number} [spacing=15]
         * Amount of spacing between views
         */
-<span id='dr-simplelayout-cfg-axis'>/**
-</span>        * @cfg {&quot;x&quot;/&quot;y&quot;} [axis=x]
+<span id='dr-simplelayout-attribute-axis'>/**
+</span>        * @attribute {&quot;x&quot;/&quot;y&quot;} [axis=x]
         * The axis to stack on
         */
 <span id='dr-slider'>/**
@@ -855,24 +855,24 @@
      *     &lt;slider name=&quot;hslide&quot; y=&quot;5&quot; width=&quot;250&quot; height=&quot;10&quot; value=&quot;50&quot; bgcolor=&quot;#808080&quot;&gt;&lt;/slider&gt;
      *     &lt;text text=&quot;${Math.round(this.parent.hslide.value)}&quot; y=&quot;${this.parent.hslide.y + (this.parent.hslide.height-this.height)/2}&quot;&gt;&lt;/text&gt;
      */
-<span id='dr-slider-cfg-minvalue'>/**
-</span>        * @cfg {Number} [minvalue=0]
+<span id='dr-slider-attribute-minvalue'>/**
+</span>        * @attribute {Number} [minvalue=0]
         * The minimum value of the slider
         */
-<span id='dr-slider-cfg-maxvalue'>/**
-</span>        * @cfg {Number} [maxvalue=100]
+<span id='dr-slider-attribute-maxvalue'>/**
+</span>        * @attribute {Number} [maxvalue=100]
         * The maximum value of the slider
         */
-<span id='dr-slider-cfg-axis'>/**
-</span>        * @cfg {&quot;x&quot;/&quot;y&quot;} [axis=x]
+<span id='dr-slider-attribute-axis'>/**
+</span>        * @attribute {&quot;x&quot;/&quot;y&quot;} [axis=x]
         * The axis to track on
         */
-<span id='dr-slider-cfg-invert'>/**
-</span>        * @cfg {Boolean} [invert=false]
+<span id='dr-slider-attribute-invert'>/**
+</span>        * @attribute {Boolean} [invert=false]
         * Set to true to invert the direction of the slider.
         */
-<span id='dr-slider-cfg-value'>/**
-</span>        * @cfg {Number} [value=0]
+<span id='dr-slider-attribute-value'>/**
+</span>        * @attribute {Number} [value=0]
         * The current value of the slider.
         * Use changeValue() to range check the number and set the value.
         */
@@ -882,8 +882,8 @@
         * between minvalue and maxvalue and then calls setAttribute.
         * @param {Number} v The new value of the component.
         */
-<span id='dr-slider-cfg-selectcolor'>/**
-</span>        * @cfg {String} [selectcolor=&quot;#a0a0a0&quot;]
+<span id='dr-slider-attribute-selectcolor'>/**
+</span>        * @attribute {String} [selectcolor=&quot;#a0a0a0&quot;]
         * The selected color of the slider.
         */
 <span id='dr-stats'>/**
@@ -901,16 +901,16 @@
      * @extends dr.node
      * Receives touch and multitouch data where available.
      */
-<span id='dr-touch-cfg-x'>/**
-</span>        * @cfg {Number} [x=0] (readonly)
+<span id='dr-touch-attribute-x'>/**
+</span>        * @attribute {Number} [x=0] (readonly)
         * The touch x value for the first finger.
         */
-<span id='dr-touch-cfg-y'>/**
-</span>        * @cfg {Number} [y=0] (readonly)
+<span id='dr-touch-attribute-y'>/**
+</span>        * @attribute {Number} [y=0] (readonly)
         * The touch y value for the first finger.
         */
-<span id='dr-touch-cfg-touches'>/**
-</span>        * @cfg {Object[]} touches (readonly)
+<span id='dr-touch-attribute-touches'>/**
+</span>        * @attribute {Object[]} touches (readonly)
         * An array of x/y coordinates for all fingers, where available. See [https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Touch_events](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Touch_events) for more details
         */
 </pre>

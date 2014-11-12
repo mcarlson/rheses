@@ -53,7 +53,7 @@ SOFTWARE. -->
       <handler event="onheight" method="handleResize"></handler>
 
       <!--/**
-        * @cfg {String} [src="/iframe_stub.html"]
+        * @attribute {String} [src="/iframe_stub.html"]
         * url to load inside the iframe. By default, a file is loaded that has
         * an empty body but includes the libraries needed to support Dreem code.
         */-->
@@ -61,14 +61,14 @@ SOFTWARE. -->
       <handler event="onsrc" method="updateFrame"></handler>
 
       <!--/**
-        * @cfg {Boolean} [scrolling="false"]
+        * @attribute {Boolean} [scrolling="false"]
         * Controls scrollbar display in the iframe.
         */-->
       <attribute name="scrolling" value="false" type="boolean"></attribute>
       <handler event="onscrolling" method="updateFrame"></handler>
 
       <!--/**
-        * @cfg {String} [contents=""]
+        * @attribute {String} [contents=""]
         * string to write into the iframe body. This is dreem/html code
         * that is written inside the iframe's body tag. If you want to display
         * static web pages, specify the src attribute, but do not use contents.

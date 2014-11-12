@@ -34,17 +34,17 @@ SOFTWARE. -->
     <class name="buttonbase" type="coffee" clickable="true" clip="true">
 
       <!--/**
-        * @cfg {Number} [padding=3]
+        * @attribute {Number} [padding=3]
         * Amount of padding pixels around the button.
         */-->
       <attribute name="padding" type="number" value="3"></attribute>
 
       <!--/**
-        * @cfg {String} [defaultcolor="#808080"]
+        * @attribute {String} [defaultcolor="#808080"]
         * The default color of the visual button element when not selected.
         */-->
       <!--/**
-        * @cfg {String} [selectcolor="#a0a0a0"]
+        * @attribute {String} [selectcolor="#a0a0a0"]
         * The selected color of the visual button element when selected.
         */-->
       <attribute name="defaultcolor" type="string" value="#808080"></attribute>
@@ -54,7 +54,7 @@ SOFTWARE. -->
       <handler event="onselectcolor" method="visualize"></handler>
 
       <!--/**
-        * @cfg {Boolean} [selected=false]
+        * @attribute {Boolean} [selected=false]
         * The current state of the button.
         */-->
       <!--/**
@@ -80,7 +80,7 @@ SOFTWARE. -->
 
       <!-- label: Text label -->
       <!--/**
-        * @cfg {String} [text=""]
+        * @attribute {String} [text=""]
         * Button text.
         */-->
       <text name="label" type="coffee" x="${this.parent.textx}" y="${this.parent.texty}" text="${this.parent.text}">

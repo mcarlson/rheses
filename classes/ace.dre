@@ -39,17 +39,17 @@ SOFTWARE. -->
 -->
 
       <!--/**
-        * @cfg {string} [theme='ace/theme/chrome']
+        * @attribute {string} [theme='ace/theme/chrome']
         * Specify the ace theme to use.
         */-->
 
       <!--/**
-        * @cfg {string} [mode='ace/mode/dr']
+        * @attribute {string} [mode='ace/mode/dr']
         * Specify the ace mode to use.
         */-->
 
       <!--/**
-        * @cfg {String} [text=""]
+        * @attribute {String} [text=""]
         * Initial text for the ace editor.
         */-->
 
@@ -60,7 +60,7 @@ SOFTWARE. -->
         */-->
 
       <!--/**
-        * @cfg {Number} [pausedelay=500]
+        * @attribute {Number} [pausedelay=500]
         * Time (msec) after user entry stops to fire onpausedelay event.
         * 0 will disable this option.
         */-->
