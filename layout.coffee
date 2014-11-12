@@ -569,9 +569,9 @@ window.dr = do ->
       # console.log('installing methods', methods, tagname, scope, callbackscope)
       # Install methods
       for name, methodlist of methods
-        for {method, args, allocation} in methodlist
+        for {method, args, allocation, invokeSuper} in methodlist
           # console.log 'installing method', name, method, args, allocation, @
-          _installMethod(scope, name, compiler.compile(method, args, "#{tagname}$#{name}").bind(callbackscope), allocation)
+          _installMethod(scope, name, compiler.compile(method, args, "#{tagname}$#{name}").bind(callbackscope), allocation, invokeSuper)
       return
 
     installHandlers: (handlers, tagname, scope=@) ->
@@ -644,7 +644,7 @@ window.dr = do ->
         # console.log 'event callback', name, args, scope, js
         js.apply(scope, args)
 
-    _installMethod = (scope, methodname, method, allocation) ->
+    _installMethod = (scope, methodname, method, allocation, invokeSuper) ->
       # TODO: add class methods when allocation == 'class'
       if methodname of scope
         # Cheesy override
@@ -652,8 +652,21 @@ window.dr = do ->
         meth = method
         scope[methodname] = ->
           # console.log 'applying overridden method', methodname, arguments
-          supr.apply(scope, arguments)
-          meth.apply(scope, arguments)
+          if invokeSuper == 'after'
+            meth.apply(scope, arguments)
+            supr.apply(scope, arguments)
+          else if invokeSuper == 'inside'
+            prevValue = scope['super'];
+            prevOwn = scope.hasOwnProperty('super');
+            scope['super'] = (args) -> supr.apply(scope, args)
+            meth.apply(scope, arguments)
+            if prevOwn
+              scope['super'] = prevValue;
+            else
+              delete scope.callSuper;
+          else # before (default)
+            supr.apply(scope, arguments)
+            meth.apply(scope, arguments)
         # console.log('overrode method', methodname, scope, supr, meth)
       else
         scope[methodname] = method
@@ -1906,11 +1919,11 @@ window.dr = do ->
             # console.log 'added handler', name, script, attributes
           when 'method'
             classattributes.$methods[name] ?= []
-            classattributes.$methods[name].push({method: compiler.transform(script, type), args: args, allocation: attributes.allocation})
+            classattributes.$methods[name].push({method: compiler.transform(script, type), args: args, allocation: attributes.allocation, invokeSuper: attributes.invokesuper})
             # console.log 'added method', name, script, classattributes, classattributes.$methods[name]
           when 'setter'
             classattributes.$methods['set_' + name] ?= []
-            classattributes.$methods['set_' + name].push({method: compiler.transform(script, type), args: args, allocation: attributes.allocation})
+            classattributes.$methods['set_' + name].push({method: compiler.transform(script, type), args: args, allocation: attributes.allocation, invokeSuper: attributes.invokesuper})
             # console.log 'added setter', 'set_' + name, args, classattributes.$methods
           when 'attribute'
             classattributes[name] = attributes.value
