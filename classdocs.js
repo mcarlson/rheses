@@ -35,7 +35,7 @@
      *
      * The initial text can also be included inline, and include dreem code.
      *
-     *     @example
+     *     @example wide
      *     <ace id="editor" width="500"><view width="100%" height="100%" bgcolor="thistle"></view></ace>
      *
      */
@@ -273,7 +273,7 @@
      *
      * This example shows how to create a dataset with inline JSON data, and use a replicator to show values inside. Inline datasets are useful for prototyping, especially when your backend server isn't ready yet:
      *
-     *     @example
+     *     @example wide
      *     <dataset name="example">
      *      {
      *        "store": {
@@ -317,7 +317,7 @@
      *
      * Data can be loaded from a URL when your backend server is ready, or reloaded to show changes over time:
      *
-     *     @example
+     *     @example wide
      *     <dataset name="example" url="/example.json"></dataset>
      *     <simplelayout></simplelayout>
      *     <replicator classname="text" datapath="$example/store/book[*]/title"></replicator>
@@ -388,18 +388,18 @@
      * contents of the iframe are not editable:
      *
      *     @example
-     *     <dreem_iframe src="http://en.wikipedia.org/wiki/San_Francisco" width="400" height="150"></dreem_iframe>
+     *     <dreem_iframe src="http://en.wikipedia.org/wiki/San_Francisco" width="300" height="140"></dreem_iframe>
      *
      * To make the web page clickable, and to add scrolling:
      *
      *     @example
-     *     <dreem_iframe src="http://en.wikipedia.org/wiki/San_Francisco" width="400" height="150" scrolling="true" clickable="true"></dreem_iframe>
+     *     <dreem_iframe src="http://en.wikipedia.org/wiki/San_Francisco" width="300" height="140" scrolling="true" clickable="true"></dreem_iframe>
      *
      * The content of the iframe can also be dynamically generated, including
      * adding Dreem code:
      *
      *     @example
-     *     <dreem_iframe width="300" height="150" contents="Hello"></dreem_iframe>
+     *     <dreem_iframe width="300" height="140" contents="Hello"></dreem_iframe>
      *
      */
 /**
@@ -487,18 +487,49 @@
      *
      * This example shows how to log all setAttribute() calls for a replicator to console.log():
      *
-     *     @example
      *     <dataset name="topmovies" url="/top_movies.json"></dataset>
      *     <replicator datapath="$topmovies/searchResponse/results[*]/movie[take(/releaseYear,/duration,/rating)]" classname="logger"></replicator>
      */
 /**
    * @class dr.rangeslider
-   * @extends dr.slider
-   * An input component whose upper and lower bounds are changed when the mouse is dragged.
+   * @extends dr.view
+   * An input component whose upper and lower bounds are changed via mouse clicks or drags.
    *
    *     @example
    *
-   *     <rangeslider name="hslide" y="5" width="250" height="10" lowvalue="30" highvalue="70" exclusive="true" lowselectcolor="#00CCFF" highselectcolor="33CCFF"></rangeslider>
+   *     <rangeslider name="range" width="300" height="40" x="10" y="30" lowselectcolor="#00CCFF" highselectcolor="#FFCCFF" outline="2px dashed #00CCFF"
+   *                  lowvalue="30"
+   *                  highvalue="70">
+   *     </rangeslider>
+   *
+   *     <text name="rangeLabel" color="white" height="40"
+   *           y="${this.parent.range.y + (this.parent.range.height / 2) - (this.height / 2)}"
+   *           x="${(this.parent.range.lowvalue * 3) + (((this.parent.range.highvalue * 3) - (this.parent.range.lowvalue * 3)) / 2) - (this.width / 2)}"
+   *           text="${Math.round(this.parent.range.lowvalue) + ' ~ ' + Math.round(this.parent.range.highvalue)}"></text>
+   *
+   *
+   * A range slider highlights the inclusive values by default, however this behavior can be reversed with `exclusive="true"`.
+   * The following example demonstrates an exclusive-valued, inverted (range goes from high to low) horizontal slider.
+   *
+   *     @example
+   *
+   *     <rangeslider name="range" width="400" x="10" y="30" lowselectcolor="#AACCFF" highselectcolor="#FFAACC""
+   *                  height="30"
+   *                  lowvalue="45"
+   *                  highvalue="55"
+   *                  invert="true"
+   *                  exclusive="true">
+   *     </rangeslider>
+   *
+   *     <text name="highRangeLabel" color="#666" height="20"
+   *           y="${this.parent.range.y + (this.parent.range.height / 2) - (this.height / 2)}"
+   *           x="${(((this.parent.range.maxvalue * 4) - (this.parent.range.highvalue * 4)) / 2) - (this.width / 2)}"
+   *           text="${this.parent.range.maxvalue + ' ~ ' + Math.round(this.parent.range.highvalue)}"></text>
+   *
+   *     <text name="lowRangeLabel" color="#666" height="20"
+   *           y="${this.parent.range.y + (this.parent.range.height / 2) - (this.height / 2)}"
+   *           x="${(this.parent.range.width - (this.parent.range.lowvalue * 4)) + (((this.parent.range.lowvalue * 4) - (this.parent.range.minvalue * 4)) / 2) - (this.width / 2)}"
+   *           text="${Math.round(this.parent.range.lowvalue) + ' ~ ' + this.parent.range.minvalue}"></text>
    *
    */
 /**

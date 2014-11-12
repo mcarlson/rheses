@@ -30,7 +30,7 @@ SOFTWARE. -->
      *
      * The initial text can also be included inline, and include dreem code.
      *
-     *     @example
+     *     @example wide
      *     <ace id="editor" width="500"><view width="100%" height="100%" bgcolor="thistle"></view></ace>
      *
      */-->    

@@ -607,8 +607,7 @@
     };
 
 <span id='dr-node'>    /**
-</span>     * @aside guide constraints
-     * @class dr.node
+</span>     * @class dr.node
      * @extends Eventable
      * The nonvisual base class for everything in dreem. Handles parent/child relationships between tags.
      *
@@ -616,7 +615,6 @@
      *
      * Here we define a data node that contains movie data.
      *
-     *     @example
      *     &lt;node id=&quot;data&quot;&gt;
      *       &lt;node&gt;
      *         &lt;attribute name=&quot;title&quot; type=&quot;string&quot; value=&quot;Bill and Teds Excellent Adventure&quot;&gt;&lt;/attribute&gt;
@@ -634,7 +632,6 @@
      *
      * This node defines a set of math helper methods. The node provides a tidy container for these related utility functions.
      *
-     *     @example
      *     &lt;node id=&quot;utils&quot;&gt;
      *       &lt;method name=&quot;add&quot; args=&quot;a,b&quot;&gt;
      *         return a+b;
@@ -3308,7 +3305,6 @@
      * @extends Eventable
      * Sends window resize events. Often used to dynamically reposition views as the window size changes.
      *
-     *     @example
      *     &lt;handler event=&quot;onwidth&quot; reference=&quot;dr.window&quot; args=&quot;newWidth&quot;&gt;
      *       //adjust views
      *     &lt;/handler&gt;
@@ -3635,6 +3631,7 @@
      *       // do something now that x has changed
      *     &lt;/handler&gt;
      *
+     * When a handler uses the args attribute, it can recieve the value that changed:
      *
      * Sometimes it&#39;s nice to use a single method to respond to multiple events:
      *
@@ -3663,7 +3660,6 @@
      *
      * It&#39;s also possible to listen for events on another scope. This handler listens for onidle events on dr.idle instead of the local scope:
      *
-     *     @example
      *     &lt;handler event=&quot;onidle&quot; args=&quot;time&quot; reference=&quot;dr.idle&quot;&gt;
      *       exampleLabel.setAttribute(&#39;text&#39;, &#39;received time from dr.idle.onidle: &#39; + Math.round(time));
      *     &lt;/handler&gt;
@@ -3707,7 +3703,6 @@
      *
      * Here we create a new class with a custom attribute representing a person&#39;s mood, along with two instances. One instance has the default mood of &#39;happy&#39;, the other sets the mood attribute to &#39;sad&#39;. Note there&#39;s nothing visible in this example yet:
      *
-     *     @example
      *     &lt;class name=&quot;person&quot;&gt;
      *       &lt;attribute name=&quot;mood&quot; type=&quot;string&quot; value=&quot;happy&quot;&gt;&lt;/attribute&gt;
      *     &lt;/class&gt;
