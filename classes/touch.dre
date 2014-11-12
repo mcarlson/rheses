@@ -26,17 +26,17 @@ SOFTWARE. -->
      */-->
     <class name="touch" extends="node">
       <!--/**
-        * @cfg {Number} [x=0] (readonly)
+        * @attribute {Number} [x=0] (readonly)
         * The touch x value for the first finger.
         */-->
       <attribute name="x" value="0" type="number"></attribute>
       <!--/**
-        * @cfg {Number} [y=0] (readonly)
+        * @attribute {Number} [y=0] (readonly)
         * The touch y value for the first finger.
         */-->
       <attribute name="y" value="0" type="number"></attribute>
       <!--/**
-        * @cfg {Object[]} touches (readonly)
+        * @attribute {Object[]} touches (readonly)
         * An array of x/y coordinates for all fingers, where available. See [https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Touch_events](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Touch_events) for more details
         */-->
       <attribute name="touches" value="[]" type="expression"></attribute>

@@ -671,24 +671,24 @@
      */
     Node = (function(_super) {
 
-<span id='dr-node-cfg-name'>      /**
-</span>       * @cfg {String} name
+<span id='dr-node-attribute-name'>      /**
+</span>       * @attribute {String} name
        * Names this node in its parent scope so it can be referred to later.
        */
 
-<span id='dr-node-cfg-id'>      /**
-</span>       * @cfg {String} id
+<span id='dr-node-attribute-id'>      /**
+</span>       * @attribute {String} id
        * Gives this node a global ID, which can be looked up in the global window object.
        * Take care to not override builtin globals, or override your own instances!
        */
 
-<span id='dr-node-cfg-scriptincludes'>      /**
-</span>       * @cfg {String} scriptincludes
+<span id='dr-node-attribute-scriptincludes'>      /**
+</span>       * @attribute {String} scriptincludes
        * A comma separated list of URLs to javascript includes required as dependencies. Useful if you need to ensure a third party library is available.
        */
 
-<span id='dr-node-cfg-scriptincludeserror'>      /**
-</span>       * @cfg {String} scriptincludeserror
+<span id='dr-node-attribute-scriptincludeserror'>      /**
+</span>       * @attribute {String} scriptincludeserror
        * An error to show if scriptincludes fail to load
        */
       var earlyattributes, lateattributes, matchConstraint, _eventCallback, _installMethod;
@@ -1482,56 +1482,56 @@
       __extends(View, _super);
 
 
-<span id='dr-view-cfg-x'>      /**
-</span>       * @cfg {Number} [x=0]
+<span id='dr-view-attribute-x'>      /**
+</span>       * @attribute {Number} [x=0]
        * This view&#39;s x position
        */
 
 
-<span id='dr-view-cfg-y'>      /**
-</span>       * @cfg {Number} [y=0]
+<span id='dr-view-attribute-y'>      /**
+</span>       * @attribute {Number} [y=0]
        * This view&#39;s y position
        */
 
 
-<span id='dr-view-cfg-width'>      /**
-</span>       * @cfg {Number} [width=0]
+<span id='dr-view-attribute-width'>      /**
+</span>       * @attribute {Number} [width=0]
        * This view&#39;s width
        */
 
 
-<span id='dr-view-cfg-height'>      /**
-</span>       * @cfg {Number} [height=0]
+<span id='dr-view-attribute-height'>      /**
+</span>       * @attribute {Number} [height=0]
        * This view&#39;s height
        */
 
 
-<span id='dr-view-cfg-clickable'>      /**
-</span>       * @cfg {Boolean} [clickable=false]
+<span id='dr-view-attribute-clickable'>      /**
+</span>       * @attribute {Boolean} [clickable=false]
        * If true, this view recieves mouse events. Automatically set to true when an onclick/mouse* event is registered for this view.
        */
 
 
-<span id='dr-view-cfg-clip'>      /**
-</span>       * @cfg {Boolean} [clip=false]
+<span id='dr-view-attribute-clip'>      /**
+</span>       * @attribute {Boolean} [clip=false]
        * If true, this view clips to its bounds
        */
 
 
-<span id='dr-view-cfg-scrollable'>      /**
-</span>       * @cfg {Boolean} [scrollable=false]
+<span id='dr-view-attribute-scrollable'>      /**
+</span>       * @attribute {Boolean} [scrollable=false]
        * If true, this view clips to its bounds and provides scrolling to see content that overflows the bounds
        */
 
 
-<span id='dr-view-cfg-visible'>      /**
-</span>       * @cfg {Boolean} [visible=true]
+<span id='dr-view-attribute-visible'>      /**
+</span>       * @attribute {Boolean} [visible=true]
        * If false, this view is invisible
        */
 
 
-<span id='dr-view-cfg-bgcolor'>      /**
-</span>       * @cfg {String} bgcolor
+<span id='dr-view-attribute-bgcolor'>      /**
+</span>       * @attribute {String} bgcolor
        * Sets this view&#39;s background color
        */
 
@@ -1755,20 +1755,20 @@
       __extends(InputText, _super);
 
 
-<span id='dr-inputtext-cfg-multiline'>      /**
-</span>       * @cfg {Boolean} [multiline=false]
+<span id='dr-inputtext-attribute-multiline'>      /**
+</span>       * @attribute {Boolean} [multiline=false]
        * Set to true to show multi-line text.
        */
 
 
-<span id='dr-inputtext-cfg-text'>      /**
-</span>       * @cfg {String} text
+<span id='dr-inputtext-attribute-text'>      /**
+</span>       * @attribute {String} text
        * The text inside this input text field
        */
 
 
-<span id='dr-inputtext-cfg-width'>      /**
-</span>       * @cfg {Number} [width=100]
+<span id='dr-inputtext-attribute-width'>      /**
+</span>       * @attribute {Number} [width=100]
        * The width of this input text field
        */
 
@@ -1911,22 +1911,22 @@
       __extends(Text, _super);
 
 
-<span id='dr-text-cfg-multiline'>      /**
-</span>       * @cfg {Boolean} [multiline=false]
+<span id='dr-text-attribute-multiline'>      /**
+</span>       * @attribute {Boolean} [multiline=false]
        * Set to true to show multi-line text.
        */
 
 
-<span id='dr-text-cfg-resize'>      /**
-</span>       * @cfg {Boolean} [resize=true]
+<span id='dr-text-attribute-resize'>      /**
+</span>       * @attribute {Boolean} [resize=true]
        * By default, the text component is sized to the size of the text.
        * By setting resize=false, the component size is not modified
        * when the text changes.
        */
 
 
-<span id='dr-text-cfg-text'>      /**
-</span>       * @cfg {String} [text=&quot;&quot;]
+<span id='dr-text-attribute-text'>      /**
+</span>       * @attribute {String} [text=&quot;&quot;]
        * Component text.
        */
 
@@ -2600,8 +2600,8 @@
        */
 
 
-<span id='dr-state-cfg-applied'>      /**
-</span>       * @cfg {Boolean} [applied=false]
+<span id='dr-state-attribute-applied'>      /**
+</span>       * @attribute {Boolean} [applied=false]
        * If true, the state is applied.
        */
 
@@ -2703,18 +2703,18 @@
      */
     Class = (function() {
 
-<span id='dr-class-cfg-name'>      /**
-</span>       * @cfg {String} name (required)
+<span id='dr-class-attribute-name'>      /**
+</span>       * @attribute {String} name (required)
        * The name of the new tag.
        */
 
-<span id='dr-class-cfg-extends'>      /**
-</span>       * @cfg {String} [extends=view] 
+<span id='dr-class-attribute-extends'>      /**
+</span>       * @attribute {String} [extends=view] 
        * The name of a class that should be extended.
        */
 
-<span id='dr-class-cfg-type'>      /**
-</span>       * @cfg {&quot;js&quot;/&quot;coffee&quot;} [type=js] 
+<span id='dr-class-attribute-type'>      /**
+</span>       * @attribute {&quot;js&quot;/&quot;coffee&quot;} [type=js] 
        * The default compiler to use for methods, setters and handlers. Either &#39;js&#39; or &#39;coffee&#39;
        */
       var clone;
@@ -3583,18 +3583,18 @@
      *
      */
 
-<span id='dr-method-cfg-name'>    /**
-</span>     * @cfg {String} name (required)
+<span id='dr-method-attribute-name'>    /**
+</span>     * @attribute {String} name (required)
      * The name of the method.
      */
 
-<span id='dr-method-cfg-args'>    /**
-</span>     * @cfg {String[]} args
+<span id='dr-method-attribute-args'>    /**
+</span>     * @attribute {String[]} args
      * A comma separated list of method arguments.
      */
 
-<span id='dr-method-cfg-type'>    /**
-</span>     * @cfg {&quot;js&quot;/&quot;coffee&quot;} type 
+<span id='dr-method-attribute-type'>    /**
+</span>     * @attribute {&quot;js&quot;/&quot;coffee&quot;} type 
      * The compiler to use for this method. Inherits from the immediate class if unspecified.
      */
 
@@ -3608,18 +3608,18 @@
      * @ignore
      */
 
-<span id='dr-setter-cfg-name'>    /**
-</span>     * @cfg {String} name (required)
+<span id='dr-setter-attribute-name'>    /**
+</span>     * @attribute {String} name (required)
      * The name of the method.
      */
 
-<span id='dr-setter-cfg-args'>    /**
-</span>     * @cfg {String[]} args
+<span id='dr-setter-attribute-args'>    /**
+</span>     * @attribute {String[]} args
      * A comma separated list of method arguments.
      */
 
-<span id='dr-setter-cfg-type'>    /**
-</span>     * @cfg {&quot;js&quot;/&quot;coffee&quot;} type 
+<span id='dr-setter-attribute-type'>    /**
+</span>     * @attribute {&quot;js&quot;/&quot;coffee&quot;} type 
      * The compiler to use for this method. Inherits from the immediate class if unspecified.
      */
 
@@ -3672,28 +3672,28 @@
      *
      */
 
-<span id='dr-handler-cfg-event'>    /**
-</span>     * @cfg {String} event (required)
+<span id='dr-handler-attribute-event'>    /**
+</span>     * @attribute {String} event (required)
      * The name of the event to listen for, e.g. &#39;onwidth&#39;.
      */
 
-<span id='dr-handler-cfg-reference'>    /**
-</span>     * @cfg {String} reference
+<span id='dr-handler-attribute-reference'>    /**
+</span>     * @attribute {String} reference
      * If set, the handler will listen for an event in another scope.
      */
 
-<span id='dr-handler-cfg-method'>    /**
-</span>     * @cfg {String} method
+<span id='dr-handler-attribute-method'>    /**
+</span>     * @attribute {String} method
      * If set, the handler call a local method. Useful when multiple handlers need to do the same thing.
      */
 
-<span id='dr-handler-cfg-args'>    /**
-</span>     * @cfg {String[]} args
+<span id='dr-handler-attribute-args'>    /**
+</span>     * @attribute {String[]} args
      * A comma separated list of method arguments.
      */
 
-<span id='dr-handler-cfg-type'>    /**
-</span>     * @cfg {&quot;js&quot;/&quot;coffee&quot;} type 
+<span id='dr-handler-attribute-type'>    /**
+</span>     * @attribute {&quot;js&quot;/&quot;coffee&quot;} type 
      * The compiler to use for this method. Inherits from the immediate class if unspecified.
      */
 
@@ -3753,18 +3753,18 @@
      *     &lt;person mood=&quot;sad&quot; size=&quot;50&quot;&gt;&lt;/person&gt;
      */
 
-<span id='dr-attribute-cfg-name'>    /**
-</span>     * @cfg {String} name (required)
+<span id='dr-attribute-attribute-name'>    /**
+</span>     * @attribute {String} name (required)
      * The name of the attribute
      */
 
-<span id='dr-attribute-cfg-type'>    /**
-</span>     * @cfg {&quot;string&quot;/&quot;number&quot;/&quot;boolean&quot;/&quot;json&quot;} [type=string] (required)
+<span id='dr-attribute-attribute-type'>    /**
+</span>     * @attribute {&quot;string&quot;/&quot;number&quot;/&quot;boolean&quot;/&quot;json&quot;} [type=string] (required)
      * The type of the attribute. Used to convert from a string to an appropriate representation of the type.
      */
 
-<span id='dr-attribute-cfg-value'>    /**
-</span>     * @cfg {String} value (required)
+<span id='dr-attribute-attribute-value'>    /**
+</span>     * @attribute {String} value (required)
      * The initial value for the attribute
      */
   })();
