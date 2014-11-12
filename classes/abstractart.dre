@@ -31,13 +31,13 @@ SOFTWARE. -->
      */-->    
 
       <!--/**
-        * @cfg {String} [data=""]
+        * @attribute {String} [data=""]
         * url to be used by the object.
         * Same meaning as the data attribute in the html object tag.
         */-->
 
       <!--/**
-        * @cfg {String} [type=""]
+        * @attribute {String} [type=""]
         * media type of the data specified in the data attribute
         * Same meaning as the type attribute in the html object tag.
         */-->

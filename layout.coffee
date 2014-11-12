@@ -470,20 +470,20 @@ window.dr = do ->
   ###
   class Node extends Eventable
     ###*
-    # @cfg {String} name
+    # @attribute {String} name
     # Names this node in its parent scope so it can be referred to later.
     ###
     ###*
-    # @cfg {String} id
+    # @attribute {String} id
     # Gives this node a global ID, which can be looked up in the global window object.
     # Take care to not override builtin globals, or override your own instances!
     ###
     ###*
-    # @cfg {String} scriptincludes
+    # @attribute {String} scriptincludes
     # A comma separated list of URLs to javascript includes required as dependencies. Useful if you need to ensure a third party library is available.
     ###
     ###*
-    # @cfg {String} scriptincludeserror
+    # @attribute {String} scriptincludeserror
     # An error to show if scriptincludes fail to load
     ###
     matchConstraint = /\${(.+)}/
@@ -1136,39 +1136,39 @@ window.dr = do ->
   ###
   class View extends Node
     ###*
-    # @cfg {Number} [x=0]
+    # @attribute {Number} [x=0]
     # This view's x position
     ###
     ###*
-    # @cfg {Number} [y=0]
+    # @attribute {Number} [y=0]
     # This view's y position
     ###
     ###*
-    # @cfg {Number} [width=0]
+    # @attribute {Number} [width=0]
     # This view's width
     ###
     ###*
-    # @cfg {Number} [height=0]
+    # @attribute {Number} [height=0]
     # This view's height
     ###
     ###*
-    # @cfg {Boolean} [clickable=false]
+    # @attribute {Boolean} [clickable=false]
     # If true, this view recieves mouse events. Automatically set to true when an onclick/mouse* event is registered for this view.
     ###
     ###*
-    # @cfg {Boolean} [clip=false]
+    # @attribute {Boolean} [clip=false]
     # If true, this view clips to its bounds
     ###
     ###*
-    # @cfg {Boolean} [scrollable=false]
+    # @attribute {Boolean} [scrollable=false]
     # If true, this view clips to its bounds and provides scrolling to see content that overflows the bounds
     ###
     ###*
-    # @cfg {Boolean} [visible=true]
+    # @attribute {Boolean} [visible=true]
     # If false, this view is invisible
     ###
     ###*
-    # @cfg {String} bgcolor
+    # @attribute {String} bgcolor
     # Sets this view's background color
     ###
 
@@ -1337,15 +1337,15 @@ window.dr = do ->
   ###
   class InputText extends View
     ###*
-    # @cfg {Boolean} [multiline=false]
+    # @attribute {Boolean} [multiline=false]
     # Set to true to show multi-line text.
     ###
     ###*
-    # @cfg {String} text
+    # @attribute {String} text
     # The text inside this input text field
     ###
     ###*
-    # @cfg {Number} [width=100]
+    # @attribute {Number} [width=100]
     # The width of this input text field
     ###
     constructor: (el, attributes = {}) ->
@@ -1463,17 +1463,17 @@ window.dr = do ->
   ###
   class Text extends View
     ###*
-    # @cfg {Boolean} [multiline=false]
+    # @attribute {Boolean} [multiline=false]
     # Set to true to show multi-line text.
     ###
     ###*
-    # @cfg {Boolean} [resize=true]
+    # @attribute {Boolean} [resize=true]
     # By default, the text component is sized to the size of the text.
     # By setting resize=false, the component size is not modified
     # when the text changes.
     ###
     ###*
-    # @cfg {String} [text=""]
+    # @attribute {String} [text=""]
     # Component text.
     ###
     constructor: (el, attributes = {}) ->
@@ -2033,7 +2033,7 @@ window.dr = do ->
     # @param {Boolean} applied If true, the state was applied.
     ###
     ###*
-    # @cfg {Boolean} [applied=false]
+    # @attribute {Boolean} [applied=false]
     # If true, the state is applied.
     ###
     set_applied: (applied) ->
@@ -2122,15 +2122,15 @@ window.dr = do ->
   ###
   class Class
     ###*
-    # @cfg {String} name (required)
+    # @attribute {String} name (required)
     # The name of the new tag. 
     ###
     ###*
-    # @cfg {String} [extends=view] 
+    # @attribute {String} [extends=view] 
     # The name of a class that should be extended.
     ###
     ###*
-    # @cfg {"js"/"coffee"} [type=js] 
+    # @attribute {"js"/"coffee"} [type=js] 
     # The default compiler to use for methods, setters and handlers. Either 'js' or 'coffee'
     ###
     clone = (obj) ->
@@ -2857,15 +2857,15 @@ window.dr = do ->
   #
   ###
   ###*
-  # @cfg {String} name (required)
+  # @attribute {String} name (required)
   # The name of the method.
   ###
   ###*
-  # @cfg {String[]} args
+  # @attribute {String[]} args
   # A comma separated list of method arguments.
   ###
   ###*
-  # @cfg {"js"/"coffee"} type 
+  # @attribute {"js"/"coffee"} type 
   # The compiler to use for this method. Inherits from the immediate class if unspecified.
   ###
 
@@ -2879,15 +2879,15 @@ window.dr = do ->
   # @ignore
   ###
   ###*
-  # @cfg {String} name (required)
+  # @attribute {String} name (required)
   # The name of the method.
   ###
   ###*
-  # @cfg {String[]} args
+  # @attribute {String[]} args
   # A comma separated list of method arguments.
   ###
   ###*
-  # @cfg {"js"/"coffee"} type 
+  # @attribute {"js"/"coffee"} type 
   # The compiler to use for this method. Inherits from the immediate class if unspecified.
   ###
 
@@ -2928,23 +2928,23 @@ window.dr = do ->
   #     </method>
   ###
   ###*
-  # @cfg {String} event (required)
+  # @attribute {String} event (required)
   # The name of the event to listen for, e.g. 'onwidth'.
   ###
   ###*
-  # @cfg {String} reference
+  # @attribute {String} reference
   # If set, the handler will listen for an event in another scope.
   ###
   ###*
-  # @cfg {String} method
+  # @attribute {String} method
   # If set, the handler call a local method. Useful when multiple handlers need to do the same thing.
   ###
   ###*
-  # @cfg {String[]} args
+  # @attribute {String[]} args
   # A comma separated list of method arguments.
   ###
   ###*
-  # @cfg {"js"/"coffee"} type 
+  # @attribute {"js"/"coffee"} type 
   # The compiler to use for this method. Inherits from the immediate class if unspecified.
   ###
 
@@ -3004,15 +3004,15 @@ window.dr = do ->
   #     <person mood="sad" size="50"></person>
   ###
   ###*
-  # @cfg {String} name (required)
+  # @attribute {String} name (required)
   # The name of the attribute
   ###
   ###*
-  # @cfg {"string"/"number"/"boolean"/"json"} [type=string] (required)
+  # @attribute {"string"/"number"/"boolean"/"json"} [type=string] (required)
   # The type of the attribute. Used to convert from a string to an appropriate representation of the type.
   ###
   ###*
-  # @cfg {String} value (required)
+  # @attribute {String} value (required)
   # The initial value for the attribute
   ###
 

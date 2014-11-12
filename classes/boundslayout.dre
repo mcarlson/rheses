@@ -50,7 +50,7 @@ SOFTWARE. -->
      */-->    
     <class name="boundslayout" extends="layout" type="coffee">
       <!--/**
-        * @cfg {""/"width"/"height"} [ignoreattr=""]
+        * @attribute {""/"width"/"height"} [ignoreattr=""]
         * Optionally skip bounds calculations for a specific axis.
         */-->
       <attribute name="ignoreattr" type="string" value=""></attribute>

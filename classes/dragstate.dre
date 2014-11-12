@@ -59,7 +59,7 @@ SOFTWARE. -->
      */-->
     <class name="dragstate" extends="state">
       <!--/**
-        * @cfg {"x"/"y"/"both"} [dragaxis="both"]
+        * @attribute {"x"/"y"/"both"} [dragaxis="both"]
         * The axes to drag on.
         */-->
       <attribute name="dragaxis" value="both" type="string"></attribute>

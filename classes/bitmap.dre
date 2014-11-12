@@ -29,7 +29,7 @@ SOFTWARE. -->
      */-->
     <class name="bitmap">
       <!--/**
-        * @cfg {String} src
+        * @attribute {String} src
         * The bitmap URL to load
         */-->
       <setter name="src" args="src">
