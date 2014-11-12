@@ -3660,6 +3660,8 @@
      *
      * It&#39;s also possible to listen for events on another scope. This handler listens for onidle events on dr.idle instead of the local scope:
      *
+     *     @example
+     *
      *     &lt;handler event=&quot;onidle&quot; args=&quot;time&quot; reference=&quot;dr.idle&quot;&gt;
      *       exampleLabel.setAttribute(&#39;text&#39;, &#39;received time from dr.idle.onidle: &#39; + Math.round(time));
      *     &lt;/handler&gt;
