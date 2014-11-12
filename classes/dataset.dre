@@ -78,7 +78,7 @@ SOFTWARE. -->
      */-->
     <class name="dataset" type="coffee" extends="node">
       <!--/**
-        * @cfg {String} name (required)
+        * @attribute {String} name (required)
         * The name of the dataset
         */-->
       <!--/**
@@ -90,7 +90,7 @@ SOFTWARE. -->
         dr.datasets[@name] = @
       </handler>
       <!--/**
-        * @cfg {String} url
+        * @attribute {String} url
         * The url to load JSON data from.
         */-->
       <attribute name="url" type="string" value=""></attribute>

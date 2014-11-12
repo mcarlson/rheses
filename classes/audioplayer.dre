@@ -31,18 +31,18 @@ SOFTWARE. -->
      */-->
     <class name="audioplayer" extends="node">
       <!--/**
-        * @cfg {String} url
+        * @attribute {String} url
         * The URL to an audio file to play
         */-->
       <attribute name="url" value="" type="string"></attribute>
       <!--/**
-        * @cfg {Number} loadprogress 
+        * @attribute {Number} loadprogress
         * @readonly
         * A Number between 0 and 1 representing load progress
         */-->
       <attribute name="loadprogress" value="0" type="number"></attribute>
       <!--/**
-        * @cfg {Boolean} loaded 
+        * @attribute {Boolean} loaded
         * @readonly
         * If true, the audio is done loading
         */-->
@@ -55,7 +55,7 @@ SOFTWARE. -->
         }
       </setter>
       <!--/**
-        * @cfg {Boolean} playing 
+        * @attribute {Boolean} playing
         * If true, the audio is playing.
         */-->
       <attribute name="playing" value="false" type="boolean"></attribute>
@@ -67,7 +67,7 @@ SOFTWARE. -->
         }
       </setter>
       <!--/**
-        * @cfg {Boolean} paused 
+        * @attribute {Boolean} paused
         * If true, the audio is paused.
         */-->
       <attribute name="paused" value="false" type="boolean"></attribute>
@@ -79,7 +79,7 @@ SOFTWARE. -->
         }
       </setter>
       <!--/**
-        * @cfg {Boolean} loop 
+        * @attribute {Boolean} loop
         * If true, the audio will play continuously.
         */-->
       <attribute name="loop" value="false" type="boolean"></attribute>
@@ -88,29 +88,29 @@ SOFTWARE. -->
           this.source.loop = loop;
       </setter>
       <!--/**
-        * @cfg {Number} time 
+        * @attribute {Number} time
         * @readonly
         * The number of seconds the file has played, with 0 being the start.
         */-->
       <attribute name="time" value="0" type="number"></attribute>
       <!--/**
-        * @cfg {Number} duration 
+        * @attribute {Number} duration
         * @readonly
         * The duration in seconds.
         */-->
       <attribute name="duration" value="0" type="number"></attribute>
       <!--/**
-        * @cfg {Number} fftsize 
+        * @attribute {Number} fftsize
         * The number of fft frames to use when setting {@link #fft fft}. Must be a non-zero power of two in the range 32 to 2048.
         */-->
       <attribute name="fftsize" value="0" type="number"></attribute>
       <!--/**
-        * @cfg {Number} [fftsmoothing=0.8]
+        * @attribute {Number} [fftsmoothing=0.8]
         * The amount of smoothing to apply to the FFT analysis. A value from 0 -> 1 where 0 represents no time averaging with the last FFT analysis frame.
         */-->
       <attribute name="fftsmoothing" value="0.8" type="number"></attribute>
       <!--/**
-        * @cfg {Number[]} fft
+        * @attribute {Number[]} fft
         * @readonly
         * An array of numbers representing the FFT analysis of the audio as it's playing.
         */-->
