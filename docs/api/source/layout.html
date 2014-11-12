@@ -607,8 +607,7 @@
     };
 
 <span id='dr-node'>    /**
-</span>     * @aside guide constraints
-     * @class dr.node
+</span>     * @class dr.node
      * @extends Eventable
      * The nonvisual base class for everything in dreem. Handles parent/child relationships between tags.
      *
@@ -616,7 +615,6 @@
      *
      * Here we define a data node that contains movie data.
      *
-     *     @example
      *     &lt;node id=&quot;data&quot;&gt;
      *       &lt;node&gt;
      *         &lt;attribute name=&quot;title&quot; type=&quot;string&quot; value=&quot;Bill and Teds Excellent Adventure&quot;&gt;&lt;/attribute&gt;
@@ -634,7 +632,6 @@
      *
      * This node defines a set of math helper methods. The node provides a tidy container for these related utility functions.
      *
-     *     @example
      *     &lt;node id=&quot;utils&quot;&gt;
      *       &lt;method name=&quot;add&quot; args=&quot;a,b&quot;&gt;
      *         return a+b;
@@ -1148,25 +1145,9 @@
       };
 
       styleval = {
-        display: function(isVisible, view) {
+        display: function(isVisible) {
           if (isVisible) {
             return &#39;&#39;;
-          } else {
-            return &#39;none&#39;;
-          }
-        },
-        overflow: function(ignore, view) {
-          if (view.scrollable) {
-            return &#39;auto&#39;;
-          } else if (view.clip) {
-            return &#39;hidden&#39;;
-          } else {
-            return &#39;&#39;;
-          }
-        },
-        &#39;pointer-events&#39;: function(ignore, view) {
-          if (view.clickable || view.scrollable) {
-            return &#39;auto&#39;;
           } else {
             return &#39;none&#39;;
           }
@@ -1192,7 +1173,7 @@
         } else if (jqel instanceof HTMLElement) {
           this.el = jqel;
         }
-        this.view = this.el.$view = view;
+        this.el.$view = view;
         this.el.setAttribute(&#39;class&#39;, &#39;sprite&#39;);
       }
 
@@ -1207,7 +1188,7 @@
           name = stylemap[name];
         }
         if (name in styleval) {
-          value = styleval[name](value, this.view);
+          value = styleval[name](value);
         } else if (name.match(rdashAlpha)) {
           name = name.replace(rdashAlpha, fcamelCase);
           if (debug &amp;&amp; !internal) {
@@ -1277,7 +1258,8 @@
       };
 
       Sprite.prototype.set_clickable = function(clickable) {
-        this.setStyle(&#39;pointer-events&#39;, null, true);
+        this.__clickable = clickable;
+        this.__updatePointerEvents();
         this.setStyle(&#39;cursor&#39;, (clickable ? &#39;pointer&#39; : &#39;&#39;), true);
         if (capabilities.touch) {
           document.addEventListener(&#39;touchstart&#39;, this.touchHandler, true);
@@ -1288,12 +1270,22 @@
       };
 
       Sprite.prototype.set_clip = function(clip) {
-        return this.setStyle(&#39;overflow&#39;);
+        this.__clip = clip;
+        return this.__updateOverflow();
       };
 
       Sprite.prototype.set_scrollable = function(scrollable) {
-        this.setStyle(&#39;overflow&#39;);
-        return this.setStyle(&#39;pointer-events&#39;, null, true);
+        this.__scrollable = scrollable;
+        this.__updateOverflow();
+        return this.__updatePointerEvents();
+      };
+
+      Sprite.prototype.__updateOverflow = function() {
+        return this.setStyle(&#39;overflow&#39;, this.__scrollable ? &#39;auto&#39; : this.__clip ? &#39;hidden&#39; : &#39;&#39;);
+      };
+
+      Sprite.prototype.__updatePointerEvents = function() {
+        return this.setStyle(&#39;pointer-events&#39;, (this.__clickable || this.__scrollable ? &#39;auto&#39; : &#39;none&#39;), true);
       };
 
       Sprite.prototype.destroy = function() {
@@ -3313,7 +3305,6 @@
      * @extends Eventable
      * Sends window resize events. Often used to dynamically reposition views as the window size changes.
      *
-     *     @example
      *     &lt;handler event=&quot;onwidth&quot; reference=&quot;dr.window&quot; args=&quot;newWidth&quot;&gt;
      *       //adjust views
      *     &lt;/handler&gt;
@@ -3636,28 +3627,24 @@
      *
      * Here is a simple handler that listens for an onx event in the local scope. The handler runs when x changes:
      *
-     *     @example
      *     &lt;handler event=&quot;onx&quot;&gt;
      *       // do something now that x has changed
      *     &lt;/handler&gt;
      *
      * When a handler uses the args attribute, it can recieve the value that changed:
      *
-     *     @example
      *     &lt;handler event=&quot;onx&quot; args=&quot;x&quot;&gt;
      *       console.log(&#39;received x&#39;, x);
      *     &lt;/handler&gt;
      *
      * It&#39;s also possible to listen for events on another scope. This handler listens for onidle events on dr.idle instead of the local scope:
      *
-     *     @example
      *     &lt;handler event=&quot;onidle&quot; args=&quot;time&quot; reference=&quot;dr.idle&quot;&gt;
      *       console.log(&#39;received time from dr.idle.onidle&#39;, time);
      *     &lt;/handler&gt;
      *
      * Sometimes it&#39;s nice to use a single method to respond to multiple events:
      *
-     *     @example
      *     &lt;handler event=&quot;onx&quot; method=&quot;handlePosition&quot;&gt;&lt;/handler&gt;
      *     &lt;handler event=&quot;ony&quot; method=&quot;handlePosition&quot;&gt;&lt;/handler&gt;
      *     &lt;method name=&quot;handlePosition&quot;&gt;
@@ -3700,7 +3687,6 @@
      *
      * Here we create a new class with a custom attribute representing a person&#39;s mood, along with two instances. One instance has the default mood of &#39;happy&#39;, the other sets the mood attribute to &#39;sad&#39;. Note there&#39;s nothing visible in this example yet:
      *
-     *     @example
      *     &lt;class name=&quot;person&quot;&gt;
      *       &lt;attribute name=&quot;mood&quot; type=&quot;string&quot; value=&quot;happy&quot;&gt;&lt;/attribute&gt;
      *     &lt;/class&gt;

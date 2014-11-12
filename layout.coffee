@@ -406,7 +406,6 @@ window.dr = do ->
       constraint._bindConstraints()
     constraintScopes = []
   ###*
-  # @aside guide constraints
   # @class dr.node
   # @extends Eventable
   # The nonvisual base class for everything in dreem. Handles parent/child relationships between tags.
@@ -415,7 +414,6 @@ window.dr = do ->
   #
   # Here we define a data node that contains movie data.
   #
-  #     @example
   #     <node id="data">
   #       <node>
   #         <attribute name="title" type="string" value="Bill and Teds Excellent Adventure"></attribute>
@@ -433,7 +431,6 @@ window.dr = do ->
   #
   # This node defines a set of math helper methods. The node provides a tidy container for these related utility functions.
   #
-  #     @example
   #     <node id="utils">
   #       <method name="add" args="a,b">
   #         return a+b;
@@ -2614,7 +2611,6 @@ window.dr = do ->
   # @extends Eventable
   # Sends window resize events. Often used to dynamically reposition views as the window size changes.
   #
-  #     @example
   #     <handler event="onwidth" reference="dr.window" args="newWidth">
   #       //adjust views
   #     </handler>
@@ -2899,28 +2895,24 @@ window.dr = do ->
   #
   # Here is a simple handler that listens for an onx event in the local scope. The handler runs when x changes:
   #
-  #     @example
   #     <handler event="onx">
   #       // do something now that x has changed
   #     </handler>
   #
   # When a handler uses the args attribute, it can recieve the value that changed:
   #
-  #     @example
   #     <handler event="onx" args="x">
   #       console.log('received x', x);
   #     </handler>
   #
   # It's also possible to listen for events on another scope. This handler listens for onidle events on dr.idle instead of the local scope:
   #
-  #     @example
   #     <handler event="onidle" args="time" reference="dr.idle">
   #       console.log('received time from dr.idle.onidle', time);
   #     </handler>
   #
   # Sometimes it's nice to use a single method to respond to multiple events:
   #
-  #     @example
   #     <handler event="onx" method="handlePosition"></handler>
   #     <handler event="ony" method="handlePosition"></handler>
   #     <method name="handlePosition">
@@ -2958,7 +2950,6 @@ window.dr = do ->
   #
   # Here we create a new class with a custom attribute representing a person's mood, along with two instances. One instance has the default mood of 'happy', the other sets the mood attribute to 'sad'. Note there's nothing visible in this example yet:
   #
-  #     @example
   #     <class name="person">
   #       <attribute name="mood" type="string" value="happy"></attribute>
   #     </class>

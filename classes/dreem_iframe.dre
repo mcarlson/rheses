@@ -33,18 +33,18 @@ SOFTWARE. -->
      * contents of the iframe are not editable:
      *
      *     @example
-     *     <dreem_iframe src="http://en.wikipedia.org/wiki/San_Francisco" width="400" height="150"></dreem_iframe>
+     *     <dreem_iframe src="http://en.wikipedia.org/wiki/San_Francisco" width="300" height="140"></dreem_iframe>
      *
      * To make the web page clickable, and to add scrolling:
      *
      *     @example
-     *     <dreem_iframe src="http://en.wikipedia.org/wiki/San_Francisco" width="400" height="150" scrolling="true" clickable="true"></dreem_iframe>
+     *     <dreem_iframe src="http://en.wikipedia.org/wiki/San_Francisco" width="300" height="140" scrolling="true" clickable="true"></dreem_iframe>
      *
      * The content of the iframe can also be dynamically generated, including
      * adding Dreem code:
      *
      *     @example
-     *     <dreem_iframe width="300" height="150" contents="Hello"></dreem_iframe>
+     *     <dreem_iframe width="300" height="140" contents="Hello"></dreem_iframe>
      *
      */-->    
 

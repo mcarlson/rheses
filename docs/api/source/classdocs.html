@@ -52,7 +52,7 @@
      *
      * The initial text can also be included inline, and include dreem code.
      *
-     *     @example
+     *     @example wide
      *     &lt;ace id=&quot;editor&quot; width=&quot;500&quot;&gt;&lt;view width=&quot;100%&quot; height=&quot;100%&quot; bgcolor=&quot;thistle&quot;&gt;&lt;/view&gt;&lt;/ace&gt;
      *
      */
@@ -290,7 +290,7 @@
      *
      * This example shows how to create a dataset with inline JSON data, and use a replicator to show values inside. Inline datasets are useful for prototyping, especially when your backend server isn&#39;t ready yet:
      *
-     *     @example
+     *     @example wide
      *     &lt;dataset name=&quot;example&quot;&gt;
      *      {
      *        &quot;store&quot;: {
@@ -334,7 +334,7 @@
      *
      * Data can be loaded from a URL when your backend server is ready, or reloaded to show changes over time:
      *
-     *     @example
+     *     @example wide
      *     &lt;dataset name=&quot;example&quot; url=&quot;/example.json&quot;&gt;&lt;/dataset&gt;
      *     &lt;simplelayout&gt;&lt;/simplelayout&gt;
      *     &lt;replicator classname=&quot;text&quot; datapath=&quot;$example/store/book[*]/title&quot;&gt;&lt;/replicator&gt;
@@ -405,18 +405,18 @@
      * contents of the iframe are not editable:
      *
      *     @example
-     *     &lt;dreem_iframe src=&quot;http://en.wikipedia.org/wiki/San_Francisco&quot; width=&quot;400&quot; height=&quot;150&quot;&gt;&lt;/dreem_iframe&gt;
+     *     &lt;dreem_iframe src=&quot;http://en.wikipedia.org/wiki/San_Francisco&quot; width=&quot;300&quot; height=&quot;140&quot;&gt;&lt;/dreem_iframe&gt;
      *
      * To make the web page clickable, and to add scrolling:
      *
      *     @example
-     *     &lt;dreem_iframe src=&quot;http://en.wikipedia.org/wiki/San_Francisco&quot; width=&quot;400&quot; height=&quot;150&quot; scrolling=&quot;true&quot; clickable=&quot;true&quot;&gt;&lt;/dreem_iframe&gt;
+     *     &lt;dreem_iframe src=&quot;http://en.wikipedia.org/wiki/San_Francisco&quot; width=&quot;300&quot; height=&quot;140&quot; scrolling=&quot;true&quot; clickable=&quot;true&quot;&gt;&lt;/dreem_iframe&gt;
      *
      * The content of the iframe can also be dynamically generated, including
      * adding Dreem code:
      *
      *     @example
-     *     &lt;dreem_iframe width=&quot;300&quot; height=&quot;150&quot; contents=&quot;Hello&quot;&gt;&lt;/dreem_iframe&gt;
+     *     &lt;dreem_iframe width=&quot;300&quot; height=&quot;140&quot; contents=&quot;Hello&quot;&gt;&lt;/dreem_iframe&gt;
      *
      */
 <span id='dr-dreem_iframe-cfg-src'>/**
@@ -504,7 +504,6 @@
      *
      * This example shows how to log all setAttribute() calls for a replicator to console.log():
      *
-     *     @example
      *     &lt;dataset name=&quot;topmovies&quot; url=&quot;/top_movies.json&quot;&gt;&lt;/dataset&gt;
      *     &lt;replicator datapath=&quot;$topmovies/searchResponse/results[*]/movie[take(/releaseYear,/duration,/rating)]&quot; classname=&quot;logger&quot;&gt;&lt;/replicator&gt;
      */
@@ -513,7 +512,7 @@
    * @extends dr.view
    * An input component whose upper and lower bounds are changed via mouse clicks or drags.
    *
-   *     @example compact
+   *     @example
    *
    *     &lt;rangeslider name=&quot;range&quot; width=&quot;300&quot; height=&quot;40&quot; x=&quot;10&quot; y=&quot;30&quot; lowselectcolor=&quot;#00CCFF&quot; highselectcolor=&quot;#FFCCFF&quot; outline=&quot;2px dashed #00CCFF&quot;
    *                  lowvalue=&quot;30&quot;
@@ -529,9 +528,9 @@
    * A range slider highlights the inclusive values by default, however this behavior can be reversed with `exclusive=&quot;true&quot;`.
    * The following example demonstrates an exclusive-valued, inverted (range goes from high to low) horizontal slider.
    *
-   *     @example compact
+   *     @example
    *
-   *     &lt;rangeslider name=&quot;range&quot; width=&quot;400&quot; x=&quot;10&quot; y=&quot;30&quot; lowselectcolor=&quot;#AACCFF&quot; highselectcolor=&quot;#FFAACC&quot;
+   *     &lt;rangeslider name=&quot;range&quot; width=&quot;400&quot; x=&quot;10&quot; y=&quot;30&quot; lowselectcolor=&quot;#AACCFF&quot; highselectcolor=&quot;#FFAACC&quot;&quot;
    *                  height=&quot;30&quot;
    *                  lowvalue=&quot;45&quot;
    *                  highvalue=&quot;55&quot;
@@ -539,12 +538,12 @@
    *                  exclusive=&quot;true&quot;&gt;
    *     &lt;/rangeslider&gt;
    *
-   *     &lt;text name=&quot;highRangeLabel&quot; color=&quot;#333&quot; height=&quot;20&quot;
+   *     &lt;text name=&quot;highRangeLabel&quot; color=&quot;#666&quot; height=&quot;20&quot;
    *           y=&quot;${this.parent.range.y + (this.parent.range.height / 2) - (this.height / 2)}&quot;
    *           x=&quot;${(((this.parent.range.maxvalue * 4) - (this.parent.range.highvalue * 4)) / 2) - (this.width / 2)}&quot;
    *           text=&quot;${this.parent.range.maxvalue + &#39; ~ &#39; + Math.round(this.parent.range.highvalue)}&quot;&gt;&lt;/text&gt;
    *
-   *     &lt;text name=&quot;lowRangeLabel&quot; color=&quot;#333&quot; height=&quot;20&quot;
+   *     &lt;text name=&quot;lowRangeLabel&quot; color=&quot;#666&quot; height=&quot;20&quot;
    *           y=&quot;${this.parent.range.y + (this.parent.range.height / 2) - (this.height / 2)}&quot;
    *           x=&quot;${(this.parent.range.width - (this.parent.range.lowvalue * 4)) + (((this.parent.range.lowvalue * 4) - (this.parent.range.minvalue * 4)) / 2) - (this.width / 2)}&quot;
    *           text=&quot;${Math.round(this.parent.range.lowvalue) + &#39; ~ &#39; + this.parent.range.minvalue}&quot;&gt;&lt;/text&gt;

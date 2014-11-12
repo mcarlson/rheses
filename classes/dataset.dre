@@ -27,7 +27,7 @@ SOFTWARE. -->
      *
      * This example shows how to create a dataset with inline JSON data, and use a replicator to show values inside. Inline datasets are useful for prototyping, especially when your backend server isn't ready yet:
      *
-     *     @example
+     *     @example wide
      *     <dataset name="example">
      *      {
      *        "store": {
@@ -71,7 +71,7 @@ SOFTWARE. -->
      *
      * Data can be loaded from a URL when your backend server is ready, or reloaded to show changes over time:
      *
-     *     @example
+     *     @example wide
      *     <dataset name="example" url="/example.json"></dataset>
      *     <simplelayout></simplelayout>
      *     <replicator classname="text" datapath="$example/store/book[*]/title"></replicator>
