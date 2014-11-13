@@ -1901,7 +1901,7 @@ window.dr = do ->
           console.warn 'Invalid tag', name, child
 
         type = attributes.type ? defaulttype
-        name = (if attributes.name then attributes.name.toLowerCase() else attributes.name)
+        name = attributes.name
 
         checkRequiredAttributes(tagname, attributes, child, el)
 
@@ -1923,10 +1923,12 @@ window.dr = do ->
             classattributes.$methods[name].push({method: compiler.transform(script, type), args: args, allocation: attributes.allocation, invokeSuper: attributes.invokesuper})
             # console.log 'added method', name, script, classattributes, classattributes.$methods[name]
           when 'setter'
+            name = name.toLowerCase()
             classattributes.$methods['set_' + name] ?= []
             classattributes.$methods['set_' + name].push({method: compiler.transform(script, type), args: args, allocation: attributes.allocation, invokeSuper: attributes.invokesuper})
             # console.log 'added setter', 'set_' + name, args, classattributes.$methods
           when 'attribute'
+            name = name.toLowerCase()
             classattributes[name] = attributes.value
             classattributes.$types[name] = attributes.type
             # console.log 'added attribute', attributes, classattributes

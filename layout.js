@@ -2453,7 +2453,7 @@
             console.warn('Invalid tag', name, child);
           }
           type = (_ref1 = attributes.type) != null ? _ref1 : defaulttype;
-          name = (attributes.name ? attributes.name.toLowerCase() : attributes.name);
+          name = attributes.name;
           checkRequiredAttributes(tagname, attributes, child, el);
           switch (tagname) {
             case 'handler':
@@ -2479,6 +2479,7 @@
               });
               break;
             case 'setter':
+              name = name.toLowerCase();
               if ((_base1 = classattributes.$methods)[_name = 'set_' + name] == null) {
                 _base1[_name] = [];
               }
@@ -2490,6 +2491,7 @@
               });
               break;
             case 'attribute':
+              name = name.toLowerCase();
               classattributes[name] = attributes.value;
               classattributes.$types[name] = attributes.type;
           }

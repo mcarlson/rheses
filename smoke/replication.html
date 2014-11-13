@@ -103,12 +103,12 @@
   
   <!-- Replicating over data bound to a constraint -->
   <view id="v_rep_constraint" bgcolor="lightgrey" width="100" height="50">
-    <attribute name="dataArray" type="expression" value="[10,30,50]"></attribute>
+    <attribute name="dataarray" type="expression" value="[10,30,50]"></attribute>
     
     <class name="bar" width="10" bgcolor="thistle" height="${this.data}"></class>
     
     <simplelayout axis="x"></simplelayout>
-    <replicator classname="bar" data="${v_rep_constraint.dataArray}" pooling="true"></replicator>
+    <replicator classname="bar" data="${v_rep_constraint.dataarray}" pooling="true"></replicator>
     
     <handler event="oninit">
       assert.equal(3, this.subviews.length)
