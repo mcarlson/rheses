@@ -2479,6 +2479,7 @@
               });
               break;
             case 'setter':
+              name = name.toLowerCase();
               if ((_base1 = classattributes.$methods)[_name = 'set_' + name] == null) {
                 _base1[_name] = [];
               }
@@ -2490,6 +2491,7 @@
               });
               break;
             case 'attribute':
+              name = name.toLowerCase();
               classattributes[name] = attributes.value;
               classattributes.$types[name] = attributes.type;
           }
@@ -2735,7 +2737,7 @@
         if (classattributes == null) {
           classattributes = {};
         }
-        name = classattributes.name;
+        name = (classattributes.name ? classattributes.name.toLowerCase() : classattributes.name);
         extend = classattributes["extends"] != null ? classattributes["extends"] : classattributes["extends"] = 'view';
         compilertype = classattributes.type;
         for (ignored in ignoredAttributes) {

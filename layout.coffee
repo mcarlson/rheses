@@ -1923,10 +1923,12 @@ window.dr = do ->
             classattributes.$methods[name].push({method: compiler.transform(script, type), args: args, allocation: attributes.allocation, invokeSuper: attributes.invokesuper})
             # console.log 'added method', name, script, classattributes, classattributes.$methods[name]
           when 'setter'
+            name = name.toLowerCase()
             classattributes.$methods['set_' + name] ?= []
             classattributes.$methods['set_' + name].push({method: compiler.transform(script, type), args: args, allocation: attributes.allocation, invokeSuper: attributes.invokesuper})
             # console.log 'added setter', 'set_' + name, args, classattributes.$methods
           when 'attribute'
+            name = name.toLowerCase()
             classattributes[name] = attributes.value
             classattributes.$types[name] = attributes.type
             # console.log 'added attribute', attributes, classattributes
@@ -2151,7 +2153,7 @@ window.dr = do ->
       newobj
 
     constructor: (el, classattributes = {}) ->
-      name = classattributes.name
+      name = (if classattributes.name then classattributes.name.toLowerCase() else classattributes.name)
       extend = classattributes.extends ?= 'view'
       compilertype = classattributes.type
       # only class instances should specify these
