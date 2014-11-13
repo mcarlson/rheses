@@ -88,18 +88,22 @@
   </text>
 
   <!-- Multiline -->
-  <text width="100" name="label" multiline="true" bgcolor="orange" onclick="this.setAttribute('multiline', ! this.multiline)">This text should wrap at my width. Click to toggle multiline.
+  <text width="100" multiline="true" bgcolor="orange" onclick="this.setAttribute('multiline', ! this.multiline)">This text should wrap at my width. Click to toggle multiline.
     <handler event="oninit">
-      // Works as of revision 78280c7... Merge pull request #33 from teem2/inputtext_sprite_80664234
-      // broken after
-      assert.equal(this.parent.label.width, 100)
-      assert.equal(this.parent.label.height, window._phantom ? 56 : 64)
-      this.parent.label.setAttribute('multiline', false)
-      assert.equal(this.parent.label.width, window._phantom ? 368 : 362)
-      assert.equal(this.parent.label.height, window._phantom ? 14 : 16)
-      this.parent.label.setAttribute('multiline', true)
-      assert.equal(this.parent.label.width, 100)
-      assert.equal(this.parent.label.height, window._phantom ? 56 : 64)
+      assert.equal(this.width, 100)
+      assert.equal(this.height, window._phantom ? 56 : 64)
+      this.setAttribute('multiline', false)
+      assert.equal(this.width, window._phantom ? 368 : 362)
+      assert.equal(this.height, window._phantom ? 14 : 16)
+      this.setAttribute('multiline', true)
+      assert.equal(this.width, 100)
+      assert.equal(this.height, window._phantom ? 56 : 64)
+    </handler>
+  </text>
+  <text multiline="false" bgcolor="thistle">
+    Some single line of text
+    <handler event="oninit">
+      assert.equal(this.height, window._phantom ? 14 : 16)
     </handler>
   </text>
 

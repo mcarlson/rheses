@@ -342,9 +342,8 @@
 
       eventlock = {};
 
-      Eventable.prototype._coerceType = function(name, value) {
-        var type;
-        type = this.types[name];
+      Eventable.prototype._coerceType = function(name, value, type) {
+        type || (type = this.types[name]);
         if (type) {
           if (!typemappings[type]) {
             showWarnings(["Invalid type '" + type + "' for attribute '" + name + "', must be one of: " + (Object.keys(typemappings).join(', '))]);
@@ -1804,10 +1803,12 @@
       }
 
       InputText.prototype._createSprite = function(el, attributes) {
+        var multiline;
         InputText.__super__._createSprite.apply(this, arguments);
         attributes.text || (attributes.text = this.sprite.getText(true));
         this.sprite.setText('');
-        return this.sprite.createInputtextElement('', attributes.multiline, attributes.width, attributes.height);
+        multiline = this._coerceType('multiline', attributes.multiline, 'boolean');
+        return this.sprite.createInputtextElement('', multiline, attributes.width, attributes.height);
       };
 
       InputText.prototype._handleChange = function() {

@@ -100,6 +100,20 @@
       assert.equal(this.height, window._phantom ? 14 : 16)
     </handler>
   </inputtext>
+
+  <!-- Multiline -->
+  <inputtext bgcolor="thistle" multiline="true">
+    Test content heres some more test content to make this a lot bigger
+    <handler event="oninit">
+      assert.equal($(this.sprite.el).children('textarea').length, 1)
+    </handler>
+  </inputtext>
+  <inputtext bgcolor="thistle" multiline="false">
+    Test content heres some more test content to make this a lot bigger
+    <handler event="oninit">
+      assert.equal($(this.sprite.el).children('textarea').length, 0)
+    </handler>
+  </inputtext>
   
 </view>
 <!-- The MIT License (MIT)

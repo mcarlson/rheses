@@ -220,8 +220,8 @@ window.dr = do ->
     # Tracks events sent by setAttribute() to prevent recursion
     eventlock = {}
 
-    _coerceType: (name, value) ->
-      type = @types[name]
+    _coerceType: (name, value, type) ->
+      type ||= @types[name]
       if type
         unless (typemappings[type])
           showWarnings ["Invalid type '#{type}' for attribute '#{name}', must be one of: #{Object.keys(typemappings).join(', ')}"]
@@ -1386,7 +1386,8 @@ window.dr = do ->
       super
       attributes.text ||= @sprite.getText(true)
       @sprite.setText('')
-      @sprite.createInputtextElement('', attributes.multiline, attributes.width, attributes.height)
+      multiline = @_coerceType('multiline', attributes.multiline, 'boolean')
+      @sprite.createInputtextElement('', multiline, attributes.width, attributes.height)
 
     _handleChange: () ->
       return unless @replicator
