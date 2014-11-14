@@ -736,7 +736,7 @@ window.dr = do ->
         else
           # console.log('binding to scope', scope, ev)
           scope.bind(ev, callback)
-          scope.sendEvent(ev, scope[ev]) if scope[ev]
+          scope.sendEvent(ev, scope[ev]) if ev of scope
 
       # if bindings need to be deferred, try again later
       if defer.length

@@ -992,7 +992,7 @@
             }
           } else {
             scope.bind(ev, callback);
-            if (scope[ev]) {
+            if (ev in scope) {
               scope.sendEvent(ev, scope[ev]);
             }
           }
