@@ -790,9 +790,10 @@ window.dr = do ->
       arr = @parent[name]
       index = arr.indexOf(@)
       if (index != -1)
+        removedNode = arr[index]
         arr.splice(index, 1)
         # console.log('_removeFromParent', index, name, arr.length, arr, @)
-        @parent.sendEvent(name, arr[index])
+        @parent.sendEvent(name, removedNode)
       return
 
     # find all parents with an attribute set to a specific value. Used in updateSize to deal with invisible parents.

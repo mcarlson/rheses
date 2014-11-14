@@ -1048,15 +1048,16 @@
       };
 
       Node.prototype._removeFromParent = function(name) {
-        var arr, index;
+        var arr, index, removedNode;
         if (!this.parent) {
           return;
         }
         arr = this.parent[name];
         index = arr.indexOf(this);
         if (index !== -1) {
+          removedNode = arr[index];
           arr.splice(index, 1);
-          this.parent.sendEvent(name, arr[index]);
+          this.parent.sendEvent(name, removedNode);
         }
       };
 
