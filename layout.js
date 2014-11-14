@@ -60,7 +60,7 @@
   })();
 
   window.dr = (function() {
-    var Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, capabilities, compiler, constraintScopes, debug, dom, exports, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, querystring, showWarnings, skipEvent, triggerlock, warnings, _initConstraints;
+    var Class, Eventable, Events, Idle, InputText, Keyboard, Layoot, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, capabilities, compiler, constraintScopes, debug, dom, exports, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, querystring, showWarnings, skipEvent, triggerlock, warnings, _initConstraints;
     mixOf = function() {
       var Mixed, base, i, method, mixin, mixins, name, _i, _ref;
       base = arguments[0], mixins = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
@@ -341,6 +341,9 @@
         },
         json: function(val) {
           return JSON.parse(val);
+        },
+        any: function(val) {
+          return val;
         },
         expression: function(val) {
           if (typeof val !== 'string') {
@@ -684,7 +687,7 @@
       lateattributes = ['data'];
 
       function Node(el, attributes) {
-        var args, deferbindings, ev, method, name, reference, script, skiponinit, value, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
+        var args, deferbindings, ev, method, name, parent, reference, script, skiponinit, value, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
         if (attributes == null) {
           attributes = {};
         }
@@ -743,6 +746,24 @@
             continue;
           }
           this.bindAttribute(name, value, attributes.$tagname);
+        }
+        parent = this.parent;
+        if (parent && parent instanceof Node) {
+
+          /**
+           * @event onsubnodes
+           * Fired when this node's subnodes array has changed
+           * @param {dr.node} node The dr.node that fired the event
+           */
+
+          /**
+           * @event subnodeAdded
+           * Fired when a subnode is added to this node.
+           * @param {dr.node} node The dr.node that was added
+           */
+          parent.sendEvent('subnodes', this);
+          parent.sendEvent('subnodeAdded', this);
+          parent.doSubnodeAdded(this);
         }
         for (_k = 0, _len2 = lateattributes.length; _k < _len2; _k++) {
           name = lateattributes[_k];
@@ -1032,14 +1053,7 @@
           if (this.name) {
             parent[this.name] = this;
           }
-          parent.subnodes.push(this);
-
-          /**
-           * @event onsubnodes
-           * Fired when this node's subnodes array has changed
-           * @param {dr.node} node The dr.node that fired the event
-           */
-          return parent.sendEvent('subnodes', this);
+          return parent.subnodes.push(this);
         }
       };
 
@@ -1064,6 +1078,16 @@
           removedNode = arr[index];
           arr.splice(index, 1);
           this.parent.sendEvent(name, removedNode);
+          if (name === 'subnodes') {
+
+            /**
+             * @event subnodeRemoved
+             * Fired when a subnode is removed from this node.
+             * @param {dr.node} node The dr.node that was removed
+             */
+            this.parent.sendEvent('subnodeRemoved', removedNode);
+            this.parent.doSubnodeRemoved(removedNode);
+          }
         }
       };
 
@@ -1090,6 +1114,28 @@
           p = p.parent;
         }
       };
+
+
+      /**
+       * Called when a subnode is added to this node. Provides a hook for
+       * subclasses. No need for subclasses to call super. Do not call this
+       * method to add a subnode. Instead call setParent.
+       * @param {dr.node} node The subnode that was added.
+       * @return {void}
+       */
+
+      Node.prototype.doSubnodeAdded = function(node) {};
+
+
+      /**
+       * Called when a subnode is removed from this node. Provides a hook for
+       * subclasses. No need for subclasses to call super. Do not call this
+       * method to remove a subnode. Instead call _removeFromParent.
+       * @param {dr.node} node The subnode that was removed.
+       * @return {void}
+       */
+
+      Node.prototype.doSubnodeRemoved = function(node) {};
 
 
       /**
@@ -1707,6 +1753,106 @@
       View.prototype.set_scrollable = function(scrollable) {
         return this.sprite.set_scrollable(scrollable);
       };
+
+
+      /**
+       * Calls doSubviewAdded/doLayoutAdded if the added subnode is a view or
+       * layout respectively. Subclasses should call super.
+       */
+
+      View.prototype.doSubnodeAdded = function(node) {
+        if (node instanceof View) {
+
+          /**
+           * @event subviewAdded
+           * Fired when a subview is added to this view.
+           * @param {dr.view} view The dr.view that was added
+           */
+          this.sendEvent('subviewAdded', node);
+          return this.doSubviewAdded(node);
+        } else if (node instanceof Layout) {
+
+          /**
+           * @event layoutAdded
+           * Fired when a layout is added to this view.
+           * @param {dr.layout} layout The dr.layout that was added
+           */
+          this.sendEvent('layoutAdded', node);
+          return this.doLayoutAdded(node);
+        }
+      };
+
+
+      /**
+       * Calls doSubviewRemoved/doLayoutRemoved if the removed subnode is a view or
+       * layout respectively. Subclasses should call super.
+       */
+
+      View.prototype.doSubnodeRemoved = function(node) {
+        if (node instanceof View) {
+
+          /**
+           * @event subviewRemoved
+           * Fired when a subview is removed from this view.
+           * @param {dr.view} view The dr.view that was removed
+           */
+          this.sendEvent('subviewRemoved', node);
+          return this.doSubviewRemoved(node);
+        } else if (node instanceof Layout) {
+
+          /**
+           * @event layoutRemoved
+           * Fired when a layout is removed from this view.
+           * @param {dr.layout} layout The dr.layout that was removed
+           */
+          this.sendEvent('layoutRemoved', node);
+          return this.doLayoutRemoved(node);
+        }
+      };
+
+
+      /**
+       * Called when a subview is added to this view. Provides a hook for
+       * subclasses. No need for subclasses to call super. Do not call this
+       * method to add a subview. Instead call setParent.
+       * @param {dr.view} sv The subview that was added.
+       * @return {void}
+       */
+
+      View.prototype.doSubviewAdded = function(sv) {};
+
+
+      /**
+       * Called when a subview is removed from this view. Provides a hook for
+       * subclasses. No need for subclasses to call super. Do not call this
+       * method to remove a subview. Instead call _removeFromParent.
+       * @param {dr.view} sv The subview that was removed.
+       * @return {void}
+       */
+
+      View.prototype.doSubviewRemoved = function(sv) {};
+
+
+      /**
+       * Called when a layout is added to this view. Provides a hook for
+       * subclasses. No need for subclasses to call super. Do not call this
+       * method to add a layout. Instead call setParent.
+       * @param {dr.layout} layout The layout that was added.
+       * @return {void}
+       */
+
+      View.prototype.doLayoutAdded = function(layout) {};
+
+
+      /**
+       * Called when a layout is removed from this view. Provides a hook for
+       * subclasses. No need for subclasses to call super. Do not call this
+       * method to remove a layout. Instead call _removeFromParent.
+       * @param {dr.layout} layout The layout that was removed.
+       * @return {void}
+       */
+
+      View.prototype.doLayoutRemoved = function(layout) {};
 
       View.prototype.destroy = function(skipevents) {
         View.__super__.destroy.apply(this, arguments);
@@ -3034,6 +3180,183 @@
       return Layout;
 
     })(Node);
+
+    /**
+     * @class dr.layoot
+     * @extends dr.node
+     * The base class for all layouts.
+     */
+    Layoot = (function(_super) {
+      __extends(Layoot, _super);
+
+      function Layoot(el, attributes) {
+        var subview, subviews, _base, _i, _len;
+        if (attributes == null) {
+          attributes = {};
+        }
+        this.locked = true;
+        this.subviews = [];
+        Layoot.__super__.constructor.apply(this, arguments);
+        this.listenTo(this.parent, 'subviewAdded', this.addSubview.bind(this));
+        this.listenTo(this.parent, 'subviewRemoved', this.removeSubview.bind(this));
+        if ((_base = this.parent).layouts == null) {
+          _base.layouts = [];
+        }
+        this.parent.layouts.push(this);
+        subviews = this.parent.subviews;
+        if (subviews) {
+          for (_i = 0, _len = subviews.length; _i < _len; _i++) {
+            subview = subviews[_i];
+            this.addSubview(subview);
+          }
+        }
+        this.locked = false;
+        this.update();
+      }
+
+      Layoot.prototype.destroy = function(skipevents) {
+        this.locked = true;
+        Layoot.__super__.destroy.apply(this, arguments);
+        if (!skipevents) {
+          return this._removeFromParent('layouts');
+        }
+      };
+
+
+      /**
+       * Adds the provided view to the subviews array of this layout.
+       * @param {dr.view} view The view to add to this layout.
+       * @return {void}
+       */
+
+      Layoot.prototype.addSubview = function(view) {
+        if (this.ignore(view)) {
+          return;
+        }
+        this.subviews.push(view);
+        this.startMonitoringSubview(view);
+        if (!this.locked) {
+          return this.update();
+        }
+      };
+
+
+      /**
+       * Removes the provided View from the subviews array of this Layout.
+       * @param {dr.view} view The view to remove from this layout.
+       * @return {number} the index of the removed subview or -1 if not removed.
+       */
+
+      Layoot.prototype.removeSubview = function(view) {
+        var idx;
+        if (this.ignore(view)) {
+          return -1;
+        }
+        idx = this.subviews.indexOf(view);
+        if (idx !== -1) {
+          this.stopMonitoringSubview(view);
+          this.subviews.splice(idx, 1);
+          if (!this.locked) {
+            this.update();
+          }
+        }
+        return idx;
+      };
+
+
+      /**
+       * Checks if a subview can be added to this Layout or not. The default 
+       * implementation returns the 'ignorelayout' attributes of the subview.
+       * @param {dr.view} view The view to check.
+       * @return {boolean} True means the subview will be skipped, false otherwise.
+       */
+
+      Layoot.prototype.ignore = function(view) {
+        return view.ignorelayout;
+      };
+
+
+      /**
+       * Subclasses should implement this method to start listening to
+       * events from the subview that should trigger the update method.
+       * @param {dr.view} view The view to start monitoring for changes.
+       * @return {void}
+       */
+
+      Layoot.prototype.startMonitoringSubview = function(view) {};
+
+
+      /**
+       * Calls startMonitoringSubview for all views. Used by layout 
+       * implementations when a change occurs to the layout that requires
+       * refreshing all the subview monitoring.
+       * @return {void}
+       */
+
+      Layoot.prototype.startMonitoringAllSubviews = function() {
+        var i, svs, _results;
+        svs = this.subviews;
+        i = svs.length;
+        _results = [];
+        while (i) {
+          _results.push(this.startMonitoringSubview(svs[--i]));
+        }
+        return _results;
+      };
+
+
+      /**
+       * Subclasses should implement this method to stop listening to
+       * events from the subview that would trigger the update method. This
+       * should remove all listeners that were setup in startMonitoringSubview.
+       * @param {dr.view} view The view to stop monitoring for changes.
+       * @return {void}
+       */
+
+      Layoot.prototype.stopMonitoringSubview = function(view) {};
+
+
+      /**
+       * Calls stopMonitoringSubview for all views. Used by Layout 
+       * implementations when a change occurs to the layout that requires
+       * refreshing all the subview monitoring.
+       * @return {void}
+       */
+
+      Layoot.prototype.stopMonitoringAllSubviews = function() {
+        var i, svs, _results;
+        svs = this.subviews;
+        i = svs.length;
+        _results = [];
+        while (i) {
+          _results.push(this.stopMonitoringSubview(svs[--i]));
+        }
+        return _results;
+      };
+
+
+      /**
+       * Checks if the layout is locked or not. Should be called by the
+       * "update" method of each layout to check if it is OK to do the update.
+       * @return {boolean} true if not locked, false otherwise.
+       */
+
+      Layoot.prototype.canUpdate = function() {
+        return !this.locked;
+      };
+
+
+      /**
+       * Updates the layout. Subclasses should call canUpdate to check lock state
+       * before doing anything.
+       * @return {void}
+       */
+
+      Layoot.prototype.update = function() {};
+
+      return Layoot;
+
+    })(Node);
     idle = (function() {
       var doTick, requestAnimationFrame, tickEvents, ticking;
       requestAnimationFrame = (function() {
@@ -3524,6 +3847,7 @@
       keyboard: new Keyboard(),
       window: new Window(),
       layout: Layout,
+      layoot: Layoot,
       idle: new Idle(),
       state: State,
 
