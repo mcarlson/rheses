@@ -11,8 +11,12 @@
   <script type="text/javascript" src="/lib/jquery-1.9.1.min.js"></script>
   <script type="text/javascript" src="/lib/acorn.js"></script>
   <script type="text/javascript" src="/lib/coffee-script.js"></script>
-  <script type="text/javascript" src="/lib/assert.js"></script>
+  <script type="text/javascript" src="/lib/chai.js"></script>
   <script type="text/javascript" src="/layout.js"></script>
+  
+  <script>
+    var assert = chai.assert
+  </script>
 </head>
 <body>
 <view id="all" width="100%" height="100%" clip="true">
@@ -27,7 +31,7 @@
   </dataset>
   <class name="titletext" extends="text">
     <handler event="oninit">
-      assert.equal(this.text, 'Text from data');
+      assert.equal(this.text, 'Text from data', 'replication test');
     </handler>
   </class>
   <replicator classname="titletext" datapath="$book/title"></replicator>
@@ -35,20 +39,20 @@
   <!-- Setting text with string -->
   <text id="notextset" width="100" height="30" resize="false" bgcolor="lightpink">
     <handler event="oninit">
-      assert.equal(this.text, '')
-      assert.equal(this.sprite.el.innerText, '')
+      assert.equal(this.text, '', 'notextset this.text')
+      assert.equal(this.sprite.el.innerText, '', 'notextset sprite innerText')
     </handler>
   </text>
   <text id="blanktextset" text="">
     <handler event="oninit">
-      assert.equal(this.text, '')
-      assert.equal(this.sprite.el.innerText, this.text)
+      assert.equal(this.text, '', 'blanktextset this.text')
+      assert.equal(this.sprite.el.innerText, this.text, 'blanktextset sprite innerText')
     </handler>
   </text>
   <text id="sometextset" text="some text">
     <handler event="oninit">
-      assert.equal(this.text, 'some text')
-      assert.equal(this.sprite.el.innerText, this.text)
+      assert.equal(this.text, 'some text', 'text set with string this.text')
+      assert.equal(this.sprite.el.innerText, this.text, 'text set with string sprite innerText')
     </handler>
   </text>
 
@@ -56,25 +60,26 @@
   <view>
     <text text="${this.parent.text}">
       <handler event="oninit">
-        assert.equal(this.text, '')
+        assert.equal(this.text, '', 'text set with a constraint where constraint evals to undefined')
       </handler>
     </text>
   </view>
 
-  <view text="">
+  <view>
+    <attribute name="text" value="" type="string"></attribute>
     <text text="${this.parent.text}">
       <handler event="oninit">
-        assert.equal(this.text, '')
+        assert.equal(this.text, '', 'text set with a constraint where constraint evals to the empty string')
       </handler>
     </text>
   </view>
 
-  <view text="">
+  <view>
     <attribute name="text" value="some text" type="string"></attribute>
 
     <text text="${this.parent.text}">
       <handler event="oninit">
-        assert.equal(this.text, 'some text')
+        assert.equal(this.text, 'some text', 'text set with a constraint where constraint evals to a string')
       </handler>
     </text>
   </view>
@@ -83,43 +88,43 @@
   <text bgcolor="lightgreen">
     Some text goes here
     <handler event="oninit">
-      assert.equal(this.text, 'Some text goes here')
+      assert.equal(this.text, 'Some text goes here', 'text set as innerText inside the tag')
     </handler>
   </text>
 
   <!-- Multiline -->
   <text width="100" multiline="true" bgcolor="orange" onclick="this.setAttribute('multiline', ! this.multiline)">This text should wrap at my width. Click to toggle multiline.
     <handler event="oninit">
-      assert.equal(this.width, 100)
-      assert.equal(this.height, window._phantom ? 56 : 64)
+      assert.equal(this.width, 100, 'multiline true, checking width')
+      assert.equal(this.height, window._phantom ? 56 : 64, 'multiline true, checking height')
       this.setAttribute('multiline', false)
-      assert.equal(this.width, window._phantom ? 368 : 362)
-      assert.equal(this.height, window._phantom ? 14 : 16)
+      assert.equal(this.width, window._phantom ? 368 : 362, 'multiline set to false, checking width')
+      assert.equal(this.height, window._phantom ? 14 : 16, 'multiline set to false, checking height')
       this.setAttribute('multiline', true)
-      assert.equal(this.width, 100)
-      assert.equal(this.height, window._phantom ? 56 : 64)
+      assert.equal(this.width, 100, 'multiline set to back to true, checking width')
+      assert.equal(this.height, window._phantom ? 56 : 64, 'multiline set to back to true, checking height')
     </handler>
   </text>
   <text multiline="false" bgcolor="thistle">
     Some single line of text
     <handler event="oninit">
-      assert.equal(this.height, window._phantom ? 14 : 16)
+      assert.equal(this.height, window._phantom ? 14 : 16, 'multiline false, checking height')
     </handler>
   </text>
 
   <!-- Resize = true -->
   <text width="100" height="100" text="Hello" bgcolor="green">
     <handler event="oninit">
-      assert.equal(this.width, 32)
-      assert.equal(this.height, window._phantom ? 14 : 16)
+      assert.equal(this.width, 32, 'resize true, checking width')
+      assert.equal(this.height, window._phantom ? 14 : 16, 'resize true, checking hegiht')
     </handler>
   </text>
 
   <!-- Resize = false -->
   <text width="100" height="100" text="Hello" bgcolor="green" resize="false">
     <handler event="oninit">
-      assert.equal(this.width, 100)
-      assert.equal(this.height, 100)
+      assert.equal(this.width, 100, 'resize false, checking width')
+      assert.equal(this.height, 100, 'resize false, checking height')
     </handler>
   </text>
 
