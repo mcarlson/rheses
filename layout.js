@@ -676,7 +676,7 @@
 
       matchConstraint = /\${(.+)}/;
 
-      earlyattributes = ['parent', 'name'];
+      earlyattributes = ['name', 'parent'];
 
       lateattributes = ['data'];
 
@@ -1040,7 +1040,9 @@
       };
 
       Node.prototype.set_name = function(name) {
-        return this.parent[name] = this;
+        if (this.parent && name) {
+          return this.parent[name] = this;
+        }
       };
 
       Node.prototype.set_id = function(id) {
