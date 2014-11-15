@@ -872,6 +872,8 @@ window.dr = do ->
     styleval =
       display: (isVisible) ->
         if isVisible then '' else 'none'
+      cursor: (clickable) ->
+        if clickable then 'pointer' else ''
         
     constructor: (jqel, view, tagname = 'div') ->
       # console.log 'new sprite', jqel, view, tagname
@@ -891,7 +893,6 @@ window.dr = do ->
 #      guid++
 #      jqel.attr('id', 'jqel-' + guid) if not jqel.attr('id')
       @el.setAttribute('class', 'sprite')
-      # @jqel = $(@el)
 
     setStyle: (name, value, internal, el=@el) ->
       value ?= ''
@@ -957,7 +958,7 @@ window.dr = do ->
     set_clickable: (clickable) ->
       @__clickable = clickable
       @__updatePointerEvents()
-      @setStyle('cursor', (if clickable then 'pointer' else ''), true)
+      @setStyle('cursor', clickable, true)
 
       if capabilities.touch
         document.addEventListener('touchstart', @touchHandler, true)
@@ -990,15 +991,15 @@ window.dr = do ->
           'hidden'
         else
           ''
-      )
+      , true)
 
     __updatePointerEvents: () ->
-      @setStyle('pointer-events', (
+      @setStyle('pointer-events', 
         if @__clickable || @__scrollable
           'auto'
         else
-          'none'
-      ), true)
+          ''
+      , true)
 
     destroy: ->
       @el.parentNode.removeChild(@el)
@@ -1023,13 +1024,14 @@ window.dr = do ->
 
     measureTextSize: (multiline, width, resize) ->
       if multiline
-        @setStyle('width', width)
-        @setStyle('height', 'auto')
-        @setStyle('whiteSpace', 'normal')
+        @setStyle('width', width, true)
+        @setStyle('height', 'auto', true)
+        @setStyle('whiteSpace', 'normal', true)
       else
-        @setStyle('width', 'auto') if resize
-        @setStyle('height', 'auto') if resize
-        @setStyle('whiteSpace', '')
+        if resize
+          @setStyle('width', 'auto', true)
+          @setStyle('height', 'auto', true)
+        @setStyle('whiteSpace', '', true)
       {width: @el.clientWidth, height: @el.clientHeight}
 
     handle: (event) =>

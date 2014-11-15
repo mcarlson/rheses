@@ -1174,6 +1174,13 @@
           } else {
             return 'none';
           }
+        },
+        cursor: function(clickable) {
+          if (clickable) {
+            return 'pointer';
+          } else {
+            return '';
+          }
         }
       };
 
@@ -1272,7 +1279,7 @@
       Sprite.prototype.set_clickable = function(clickable) {
         this.__clickable = clickable;
         this.__updatePointerEvents();
-        this.setStyle('cursor', (clickable ? 'pointer' : ''), true);
+        this.setStyle('cursor', clickable, true);
         if (capabilities.touch) {
           document.addEventListener('touchstart', this.touchHandler, true);
           document.addEventListener('touchmove', this.touchHandler, true);
@@ -1293,11 +1300,11 @@
       };
 
       Sprite.prototype.__updateOverflow = function() {
-        return this.setStyle('overflow', this.__scrollable ? 'auto' : this.__clip ? 'hidden' : '');
+        return this.setStyle('overflow', this.__scrollable ? 'auto' : this.__clip ? 'hidden' : '', true);
       };
 
       Sprite.prototype.__updatePointerEvents = function() {
-        return this.setStyle('pointer-events', (this.__clickable || this.__scrollable ? 'auto' : 'none'), true);
+        return this.setStyle('pointer-events', this.__clickable || this.__scrollable ? 'auto' : '', true);
       };
 
       Sprite.prototype.destroy = function() {
@@ -1332,17 +1339,15 @@
 
       Sprite.prototype.measureTextSize = function(multiline, width, resize) {
         if (multiline) {
-          this.setStyle('width', width);
-          this.setStyle('height', 'auto');
-          this.setStyle('whiteSpace', 'normal');
+          this.setStyle('width', width, true);
+          this.setStyle('height', 'auto', true);
+          this.setStyle('whiteSpace', 'normal', true);
         } else {
           if (resize) {
-            this.setStyle('width', 'auto');
+            this.setStyle('width', 'auto', true);
+            this.setStyle('height', 'auto', true);
           }
-          if (resize) {
-            this.setStyle('height', 'auto');
-          }
-          this.setStyle('whiteSpace', '');
+          this.setStyle('whiteSpace', '', true);
         }
         return {
           width: this.el.clientWidth,
