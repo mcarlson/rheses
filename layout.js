@@ -1700,9 +1700,24 @@
         return this.sprite = new Sprite(el, this, attributes.$tagname);
       };
 
+      View.prototype.styleblacklist = {
+        text: true,
+        $tagname: true,
+        data: true,
+        replicator: true,
+        "class": true,
+        clip: true,
+        clickable: true,
+        scrollable: true,
+        $textcontent: true,
+        resize: true,
+        multiline: true,
+        ignorelayout: true
+      };
+
       View.prototype.setAttribute = function(name, value, skipstyle) {
         value = this._coerceType(name, value);
-        if (!(skipstyle || name in ignoredAttributes || this[name] === value)) {
+        if (!(skipstyle || name in ignoredAttributes || name in View.prototype.styleblacklist || this[name] === value)) {
           this.sprite.setStyle(name, value);
         }
         return View.__super__.setAttribute.call(this, name, value, true);

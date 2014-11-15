@@ -1284,9 +1284,24 @@ window.dr = do ->
     _createSprite: (el, attributes) ->
       @sprite = new Sprite(el, @, attributes.$tagname)
 
+    # sprite.setStyle() won't be called for attributes in this list
+    styleblacklist: {
+      text: true,
+      $tagname: true,
+      data: true,
+      replicator: true,
+      class: true,
+      clip: true,
+      clickable: true,
+      scrollable: true,
+      $textcontent: true,
+      resize: true,
+      multiline: true,
+      ignorelayout: true,
+    }
     setAttribute: (name, value, skipstyle) ->
       value = @_coerceType(name, value)
-      if not (skipstyle or name of ignoredAttributes or @[name] == value)
+      if not (skipstyle or name of ignoredAttributes or name of View::styleblacklist or @[name] == value)
         # console.log 'setting style', name, value, @
         @sprite.setStyle(name, value)
       super(name, value, true)
