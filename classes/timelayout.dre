@@ -22,7 +22,7 @@ SOFTWARE. -->
     <class name="timelayout" extends="layout" type="coffee">
       <!-- The axis in which this layout operates. One of 'x' or 'y'.  -->
       <attribute name="axis" value="x" type="string"></attribute>
-      <attribute name="startFieldName" value="releaseYear" type="string"></attribute>
+      <attribute name="startfieldname" value="releaseYear" type="string"></attribute>
       <attribute name="scale" value="1" type="number"></attribute>
       <attribute name="inset" value="0" type="number"></attribute>
 
@@ -45,7 +45,7 @@ SOFTWARE. -->
         for subview, index in @parent.subviews
           continue if subview.ignorelayout or not subview.visible
           # console.log 'subview', subview
-          pos = (subview.data?[@startFieldName] - @inset) * @scale
+          pos = (subview.data?[@startfieldname] - @inset) * @scale
           subview.setAttribute @axis, pos if subview[@axis] != pos
 
         @locked = locked

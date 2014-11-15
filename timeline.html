@@ -43,7 +43,7 @@
     </class>
 
     <class name="genrestrip">
-      <timelayout scale="14" inset="1900" startFieldName="releaseYear"></timelayout>
+      <timelayout scale="14" inset="1900" startfieldname="releaseYear"></timelayout>
       <replicator datapath="$topmovies/searchResponse/results[*]/movie[@]" lazycount="0" classname="genreyear">
         <handler event="oninit">
           var genrename = this.parent.parent.data.name;
