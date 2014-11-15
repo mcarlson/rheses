@@ -59,6 +59,7 @@ window.dr = do ->
   # A lightweight event system, used internally.
   ###
   # based on https://github.com/spine/spine/tree/dev/src
+  triggerlock = {}
   Events =
     ###*
     # Binds an event to the current scope
@@ -87,14 +88,20 @@ window.dr = do ->
     # Fires an event
     # @param {String} ev the name of the event to fire
     ###
-    trigger: (args...) ->
-      ev = args.shift()
+    trigger: (ev, args...) ->
       list = @hasOwnProperty('events') and @events?[ev]
       return unless list
+      if triggerlock.scope == @ and triggerlock.ev == ev
+        return @
+      triggerlock = {
+        ev: ev
+        scope: @
+      }
       # if list then console.log 'trigger', ev, list
       for callback in list
         if callback.apply(@, args) is false
           break
+      triggerlock = {}
       @
     ###*
     # Listens for an event on a specific scope
@@ -258,17 +265,9 @@ window.dr = do ->
     # @param value the value to send with the event
     ###
     sendEvent: (name, value) ->
-      lockkey = "c#{name}"
-      if eventlock[name] == @ and eventlock[lockkey]++ > 0
-        # don't send events more than once per setAttribute() for a given object/name
-        return @
-
       # send event
-      if @events?[name] and eventlock[name] != @
-        eventlock[name] = @
-        eventlock[lockkey] = 0
+      if @events?[name]
         @trigger(name, value, @) 
-        eventlock = {}
       # else
         # console.log 'no event named', name, @events, @
       @
@@ -2577,7 +2576,6 @@ window.dr = do ->
       if view
         if type is 'mousedown'
           @_lastMouseDown = view
-          # prevent text selection, see https://www.pivotaltracker.com/story/show/82787330
           skipEvent(event)
       
       if type is 'mouseup' and @_lastMouseDown and @_lastMouseDown != view

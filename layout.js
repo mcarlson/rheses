@@ -60,7 +60,7 @@
   })();
 
   window.dr = (function() {
-    var Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, capabilities, compiler, constraintScopes, debug, dom, exports, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, querystring, showWarnings, skipEvent, warnings, _initConstraints;
+    var Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, capabilities, compiler, constraintScopes, debug, dom, exports, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, querystring, showWarnings, skipEvent, triggerlock, warnings, _initConstraints;
     mixOf = function() {
       var Mixed, base, i, method, mixin, mixins, name, _i, _ref;
       base = arguments[0], mixins = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
@@ -90,6 +90,7 @@
      * @private
      * A lightweight event system, used internally.
      */
+    triggerlock = {};
     Events = {
 
       /**
@@ -130,18 +131,25 @@
        */
       trigger: function() {
         var args, callback, ev, list, _i, _len, _ref;
-        args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-        ev = args.shift();
+        ev = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
         list = this.hasOwnProperty('events') && ((_ref = this.events) != null ? _ref[ev] : void 0);
         if (!list) {
           return;
         }
+        if (triggerlock.scope === this && triggerlock.ev === ev) {
+          return this;
+        }
+        triggerlock = {
+          ev: ev,
+          scope: this
+        };
         for (_i = 0, _len = list.length; _i < _len; _i++) {
           callback = list[_i];
           if (callback.apply(this, args) === false) {
             break;
           }
         }
+        triggerlock = {};
         return this;
       },
 
@@ -401,16 +409,9 @@
        */
 
       Eventable.prototype.sendEvent = function(name, value) {
-        var lockkey, _ref;
-        lockkey = "c" + name;
-        if (eventlock[name] === this && eventlock[lockkey]++ > 0) {
-          return this;
-        }
-        if (((_ref = this.events) != null ? _ref[name] : void 0) && eventlock[name] !== this) {
-          eventlock[name] = this;
-          eventlock[lockkey] = 0;
+        var _ref;
+        if ((_ref = this.events) != null ? _ref[name] : void 0) {
           this.trigger(name, value, this);
-          eventlock = {};
         }
         return this;
       };
