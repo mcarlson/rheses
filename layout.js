@@ -60,7 +60,7 @@
   })();
 
   window.dr = (function() {
-    var Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, capabilities, compiler, constraintScopes, debug, dom, exports, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, querystring, showWarnings, warnings, _initConstraints;
+    var Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, capabilities, compiler, constraintScopes, debug, dom, exports, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, querystring, showWarnings, skipEvent, warnings, _initConstraints;
     mixOf = function() {
       var Mixed, base, i, method, mixin, mixins, name, _i, _ref;
       base = arguments[0], mixins = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
@@ -3154,6 +3154,17 @@
 
     })(StartEventable);
     mouseEvents = ['click', 'mouseover', 'mouseout', 'mousedown', 'mouseup'];
+    skipEvent = function(e) {
+      if (e.stopPropagation) {
+        e.stopPropagation();
+      }
+      if (e.preventDefault) {
+        e.preventDefault();
+      }
+      e.cancelBubble = true;
+      e.returnValue = false;
+      return false;
+    };
 
     /**
      * @class dr.mouse
@@ -3235,6 +3246,7 @@
         if (view) {
           if (type === 'mousedown') {
             this._lastMouseDown = view;
+            skipEvent(event);
           }
         }
         if (type === 'mouseup' && this._lastMouseDown && this._lastMouseDown !== view) {

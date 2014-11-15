@@ -2504,6 +2504,15 @@ window.dr = do ->
 
   # singleton that listens for mouse events. Holds data about the most recent left and top mouse coordinates
   mouseEvents = ['click', 'mouseover', 'mouseout', 'mousedown', 'mouseup']
+  skipEvent = (e) ->
+    if e.stopPropagation
+      e.stopPropagation()
+    if e.preventDefault  
+      e.preventDefault()
+    e.cancelBubble = true
+    e.returnValue = false
+    return false;
+
   ###*
   # @class dr.mouse
   # @extends Eventable
@@ -2568,6 +2577,9 @@ window.dr = do ->
       if view
         if type is 'mousedown'
           @_lastMouseDown = view
+          # prevent text selection, see https://www.pivotaltracker.com/story/show/82787330
+          skipEvent(event)
+      
       if type is 'mouseup' and @_lastMouseDown and @_lastMouseDown != view
         # send onmouseup and onmouseupoutside to the view that the mouse originally went down
         @sendEvent('mouseup', @_lastMouseDown)
