@@ -60,7 +60,7 @@
   })();
 
   window.dr = (function() {
-    var Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, capabilities, compiler, constraintScopes, debug, dom, exports, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, querystring, showWarnings, skipEvent, triggerlock, warnings, _initConstraints;
+    var Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, capabilities, compiler, constraintScopes, debug, dom, exports, fcamelCase, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, querystring, rdashAlpha, showWarnings, skipEvent, ss, ss2, style, stylemap, styles, triggerlock, warnings, _initConstraints;
     mixOf = function() {
       var Mixed, base, i, method, mixin, mixins, name, _i, _ref;
       base = arguments[0], mixins = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
@@ -447,12 +447,13 @@
           return false;
         }
       })(),
-      touch: 'ontouchstart' in window || 'onmsgesturechange' in window
+      touch: 'ontouchstart' in window || 'onmsgesturechange' in window,
+      camelcss: navigator.userAgent.toLowerCase().indexOf('firefox') > -1
     };
     querystring = window.location.search;
     debug = querystring.indexOf('debug') > 0;
     compiler = (function() {
-      var cacheData, cacheKey, compile, compileCache, exports, findBindings, nocache, scriptCache, strict, transform, usecache;
+      var cacheData, cacheKey, compile, compileCache, compiledebug, exports, findBindings, nocache, scriptCache, strict, transform, usecache;
       nocache = querystring.indexOf('nocache') > 0;
       strict = querystring.indexOf('strict') > 0;
       if (!nocache) {
@@ -542,7 +543,7 @@
         };
       })();
       scriptCache = {};
-      compile = function(script, args, name) {
+      compiledebug = function(script, args, name) {
         var argstring, e, func, key;
         if (script == null) {
           script = '';
@@ -554,15 +555,15 @@
           name = '';
         }
         argstring = args.join();
-        key = script + argstring + name;
+        key = name + argstring + script + debug + strict;
         if (key in scriptCache) {
           return scriptCache[key];
         }
         try {
-          if (debug && name) {
-            if (strict) {
-              script = "\"use strict\"\n" + script;
-            }
+          if (strict) {
+            script = "\"use strict\"\n" + script;
+          }
+          if (name) {
             func = new Function("return function " + name + "(" + argstring + "){" + script + "}")();
           } else {
             func = new Function(args, script);
@@ -573,8 +574,26 @@
           return console.error('failed to compile', e.toString(), args, script);
         }
       };
+      compile = function(script, args, name) {
+        var argstring, key;
+        if (script == null) {
+          script = '';
+        }
+        if (args == null) {
+          args = [];
+        }
+        if (name == null) {
+          name = '';
+        }
+        argstring = args.join();
+        key = name + argstring + script;
+        if (key in scriptCache) {
+          return scriptCache[key];
+        }
+        return scriptCache[key] = new Function(args, script);
+      };
       return exports = {
-        compile: compile,
+        compile: debug ? compiledebug : compile,
         transform: transform,
         findBindings: findBindings
       };
@@ -1131,6 +1150,12 @@
       return Node;
 
     })(Eventable);
+    stylemap = {
+      x: 'left',
+      y: 'top',
+      bgcolor: 'backgroundColor',
+      visible: 'display'
+    };
 
     /**
      * @class Sprite
@@ -1138,16 +1163,9 @@
      * Abstracts the underlying visual primitives (currently HTML) from dreem's view system.
      */
     Sprite = (function() {
-      var fcamelCase, lastTouchDown, noop, rdashAlpha, stylemap, styleval;
+      var lastTouchDown, noop, styleval;
 
       noop = function() {};
-
-      stylemap = {
-        x: 'left',
-        y: 'top',
-        bgcolor: 'backgroundColor',
-        visible: 'display'
-      };
 
       styleval = {
         display: function(isVisible) {
@@ -1156,14 +1174,15 @@
           } else {
             return 'none';
           }
+        },
+        cursor: function(clickable) {
+          if (clickable) {
+            return 'pointer';
+          } else {
+            return '';
+          }
         }
       };
-
-      fcamelCase = function(all, letter) {
-        return letter.toUpperCase();
-      };
-
-      rdashAlpha = /-([\da-z])/gi;
 
       function Sprite(jqel, view, tagname) {
         if (tagname == null) {
@@ -1194,11 +1213,6 @@
         }
         if (name in styleval) {
           value = styleval[name](value);
-        } else if (name.match(rdashAlpha)) {
-          name = name.replace(rdashAlpha, fcamelCase);
-          if (debug && !internal) {
-            console.warn("Setting unknown CSS property " + name + " = " + value + " on ", this.el.$view);
-          }
         }
         return el.style[name] = value;
       };
@@ -1265,7 +1279,7 @@
       Sprite.prototype.set_clickable = function(clickable) {
         this.__clickable = clickable;
         this.__updatePointerEvents();
-        this.setStyle('cursor', (clickable ? 'pointer' : ''), true);
+        this.setStyle('cursor', clickable, true);
         if (capabilities.touch) {
           document.addEventListener('touchstart', this.touchHandler, true);
           document.addEventListener('touchmove', this.touchHandler, true);
@@ -1286,11 +1300,11 @@
       };
 
       Sprite.prototype.__updateOverflow = function() {
-        return this.setStyle('overflow', this.__scrollable ? 'auto' : this.__clip ? 'hidden' : '');
+        return this.setStyle('overflow', this.__scrollable ? 'auto' : this.__clip ? 'hidden' : '', true);
       };
 
       Sprite.prototype.__updatePointerEvents = function() {
-        return this.setStyle('pointer-events', (this.__clickable || this.__scrollable ? 'auto' : 'none'), true);
+        return this.setStyle('pointerEvents', this.__clickable || this.__scrollable ? 'auto' : '', true);
       };
 
       Sprite.prototype.destroy = function() {
@@ -1325,17 +1339,15 @@
 
       Sprite.prototype.measureTextSize = function(multiline, width, resize) {
         if (multiline) {
-          this.setStyle('width', width);
-          this.setStyle('height', 'auto');
-          this.setStyle('whiteSpace', 'normal');
+          this.setStyle('width', width, true);
+          this.setStyle('height', 'auto', true);
+          this.setStyle('whiteSpace', 'normal', true);
         } else {
           if (resize) {
-            this.setStyle('width', 'auto');
+            this.setStyle('width', 'auto', true);
+            this.setStyle('height', 'auto', true);
           }
-          if (resize) {
-            this.setStyle('height', 'auto');
-          }
-          this.setStyle('whiteSpace', '');
+          this.setStyle('whiteSpace', '', true);
         }
         return {
           width: this.el.clientWidth,
@@ -1406,6 +1418,44 @@
       return Sprite;
 
     })();
+    if (capabilities.camelcss) {
+      ss = Sprite.prototype.setStyle;
+      fcamelCase = function(all, letter) {
+        return letter.toUpperCase();
+      };
+      rdashAlpha = /-([\da-z])/gi;
+      Sprite.prototype.setStyle = function(name, value, internal, el) {
+        if (el == null) {
+          el = this.el;
+        }
+        if (name.match(rdashAlpha)) {
+          name = name.replace(rdashAlpha, fcamelCase);
+        }
+        return ss(name, value, internal, el);
+      };
+    }
+    if (debug) {
+      styles = (function() {
+        var _i, _len, _ref, _results;
+        _ref = ['width', 'height', 'background-color'];
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          style = _ref[_i];
+          _results.push(stylemap[style] = style);
+        }
+        return _results;
+      })();
+      ss2 = Sprite.prototype.setStyle;
+      Sprite.prototype.setStyle = function(name, value, internal, el) {
+        if (el == null) {
+          el = this.el;
+        }
+        if (!internal && !(name in stylemap)) {
+          console.warn("Setting unknown CSS property " + name + " = " + value + " on ", this.el.$view, stylemap, internal);
+        }
+        return ss2(name, value, internal, el);
+      };
+    }
     ignoredAttributes = {
       parent: true,
       id: true,
@@ -1659,9 +1709,24 @@
         return this.sprite = new Sprite(el, this, attributes.$tagname);
       };
 
+      View.prototype.cssblacklist = {
+        text: true,
+        $tagname: true,
+        data: true,
+        replicator: true,
+        "class": true,
+        clip: true,
+        clickable: true,
+        scrollable: true,
+        $textcontent: true,
+        resize: true,
+        multiline: true,
+        ignorelayout: true
+      };
+
       View.prototype.setAttribute = function(name, value, skipstyle) {
         value = this._coerceType(name, value);
-        if (!(skipstyle || name in ignoredAttributes || this[name] === value)) {
+        if (!(skipstyle || name in ignoredAttributes || name in View.prototype.cssblacklist || this[name] === value)) {
           this.sprite.setStyle(name, value);
         }
         return View.__super__.setAttribute.call(this, name, value, true);
@@ -2404,7 +2469,6 @@
         }
       };
       writeCSS = function() {
-        var style;
         style = document.createElement('style');
         style.type = 'text/css';
         style.innerHTML = '.sprite{ position: absolute; pointer-events: none; padding: 0; margin: 0; box-sizing:border-box;} .sprite-text{ width: auto; height; auto; white-space: nowrap;  padding: 0; margin: 0;} .sprite-inputtext{border: none; outline: none; background-color:transparent; resize:none;} .hidden{ display: none; } .noselect{ -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;} method { display: none; } handler { display: none; } setter { display: none; } class { display:none } node { display:none } dataset { display:none } .warnings {font-size: 14px; background-color: pink; margin: 0;}';
@@ -3247,7 +3311,9 @@
         if (view) {
           if (type === 'mousedown') {
             this._lastMouseDown = view;
-            skipEvent(event);
+            if (!capabilities.touch) {
+              skipEvent(event);
+            }
           }
         }
         if (type === 'mouseup' && this._lastMouseDown && this._lastMouseDown !== view) {

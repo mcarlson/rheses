@@ -373,26 +373,33 @@ window.dr = do ->
 
     # cache compiled scripts to speed up instantiation
     scriptCache = {}
-    # compile a string into a function
-    compile = (script='', args=[], name='') ->
+    compiledebug = (script='', args=[], name='') ->
       argstring = args.join()
       key = script + argstring + name
       return scriptCache[key] if key of scriptCache
       # console.log 'compiling', args, script
       try
-        # console.log scriptCache
-        if debug and name
-          script = "\"use strict\"\n" + script if strict
+        script = "\"use strict\"\n" + script if strict
+        if name
           func = new Function("return function #{name}(#{argstring}){#{script}}")()
-        else
+        else 
           func = new Function(args, script)
         # console.log 'compiled', func
         scriptCache[key] = func
       catch e
         console.error 'failed to compile', e.toString(), args, script
 
+    # compile a string into a function
+    compile = (script='', args=[], name='') ->
+      argstring = args.join()
+      key = script + argstring + name
+      return scriptCache[key] if key of scriptCache
+      # console.log 'compiling', key, args, script
+      scriptCache[key] = new Function(args, script)
+      # console.log 'compiled', scriptCache
+
     exports =
-      compile: compile
+      compile: if debug then compiledebug else compile
       transform: transform
       findBindings: findBindings
 
