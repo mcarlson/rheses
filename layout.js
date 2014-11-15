@@ -60,7 +60,7 @@
   })();
 
   window.dr = (function() {
-    var Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, capabilities, compiler, constraintScopes, debug, dom, exports, fcamelCase, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, querystring, rdashAlpha, showWarnings, skipEvent, ss, ss2, style, stylemap, styles, triggerlock, warnings, _initConstraints;
+    var Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, capabilities, compiler, constraintScopes, debug, dom, exports, fcamelCase, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, otherstyles, querystring, rdashAlpha, showWarnings, skipEvent, ss, ss2, stylemap, triggerlock, warnings, _initConstraints;
     mixOf = function() {
       var Mixed, base, i, method, mixin, mixins, name, _i, _ref;
       base = arguments[0], mixins = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
@@ -555,7 +555,7 @@
           name = '';
         }
         argstring = args.join();
-        key = name + argstring + script + debug + strict;
+        key = script + argstring + name;
         if (key in scriptCache) {
           return scriptCache[key];
         }
@@ -586,7 +586,7 @@
           name = '';
         }
         argstring = args.join();
-        key = name + argstring + script;
+        key = script + argstring + name;
         if (key in scriptCache) {
           return scriptCache[key];
         }
@@ -1174,13 +1174,6 @@
           } else {
             return 'none';
           }
-        },
-        cursor: function(clickable) {
-          if (clickable) {
-            return 'pointer';
-          } else {
-            return '';
-          }
         }
       };
 
@@ -1279,7 +1272,7 @@
       Sprite.prototype.set_clickable = function(clickable) {
         this.__clickable = clickable;
         this.__updatePointerEvents();
-        this.setStyle('cursor', clickable, true);
+        this.setStyle('cursor', (clickable ? 'pointer' : ''), true);
         if (capabilities.touch) {
           document.addEventListener('touchstart', this.touchHandler, true);
           document.addEventListener('touchmove', this.touchHandler, true);
@@ -1300,11 +1293,11 @@
       };
 
       Sprite.prototype.__updateOverflow = function() {
-        return this.setStyle('overflow', this.__scrollable ? 'auto' : this.__clip ? 'hidden' : '', true);
+        return this.setStyle('overflow', this.__scrollable ? 'auto' : this.__clip ? 'hidden' : '');
       };
 
       Sprite.prototype.__updatePointerEvents = function() {
-        return this.setStyle('pointerEvents', this.__clickable || this.__scrollable ? 'auto' : '', true);
+        return this.setStyle('pointer-events', (this.__clickable || this.__scrollable ? 'auto' : 'none'), true);
       };
 
       Sprite.prototype.destroy = function() {
@@ -1339,15 +1332,17 @@
 
       Sprite.prototype.measureTextSize = function(multiline, width, resize) {
         if (multiline) {
-          this.setStyle('width', width, true);
-          this.setStyle('height', 'auto', true);
-          this.setStyle('whiteSpace', 'normal', true);
+          this.setStyle('width', width);
+          this.setStyle('height', 'auto');
+          this.setStyle('whiteSpace', 'normal');
         } else {
           if (resize) {
-            this.setStyle('width', 'auto', true);
-            this.setStyle('height', 'auto', true);
+            this.setStyle('width', 'auto');
           }
-          this.setStyle('whiteSpace', '', true);
+          if (resize) {
+            this.setStyle('height', 'auto');
+          }
+          this.setStyle('whiteSpace', '');
         }
         return {
           width: this.el.clientWidth,
@@ -1435,22 +1430,13 @@
       };
     }
     if (debug) {
-      styles = (function() {
-        var _i, _len, _ref, _results;
-        _ref = ['width', 'height', 'background-color'];
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          style = _ref[_i];
-          _results.push(stylemap[style] = style);
-        }
-        return _results;
-      })();
+      otherstyles = ['width', 'height', 'background-color'];
       ss2 = Sprite.prototype.setStyle;
       Sprite.prototype.setStyle = function(name, value, internal, el) {
         if (el == null) {
           el = this.el;
         }
-        if (!internal && !(name in stylemap)) {
+        if (!internal && !(name in stylemap) && !(__indexOf.call(otherstyles, name) >= 0)) {
           console.warn("Setting unknown CSS property " + name + " = " + value + " on ", this.el.$view, stylemap, internal);
         }
         return ss2(name, value, internal, el);
@@ -1709,24 +1695,9 @@
         return this.sprite = new Sprite(el, this, attributes.$tagname);
       };
 
-      View.prototype.cssblacklist = {
-        text: true,
-        $tagname: true,
-        data: true,
-        replicator: true,
-        "class": true,
-        clip: true,
-        clickable: true,
-        scrollable: true,
-        $textcontent: true,
-        resize: true,
-        multiline: true,
-        ignorelayout: true
-      };
-
       View.prototype.setAttribute = function(name, value, skipstyle) {
         value = this._coerceType(name, value);
-        if (!(skipstyle || name in ignoredAttributes || name in View.prototype.cssblacklist || this[name] === value)) {
+        if (!(skipstyle || name in ignoredAttributes || this[name] === value)) {
           this.sprite.setStyle(name, value);
         }
         return View.__super__.setAttribute.call(this, name, value, true);
@@ -2469,6 +2440,7 @@
         }
       };
       writeCSS = function() {
+        var style;
         style = document.createElement('style');
         style.type = 'text/css';
         style.innerHTML = '.sprite{ position: absolute; pointer-events: none; padding: 0; margin: 0; box-sizing:border-box;} .sprite-text{ width: auto; height; auto; white-space: nowrap;  padding: 0; margin: 0;} .sprite-inputtext{border: none; outline: none; background-color:transparent; resize:none;} .hidden{ display: none; } .noselect{ -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;} method { display: none; } handler { display: none; } setter { display: none; } class { display:none } node { display:none } dataset { display:none } .warnings {font-size: 14px; background-color: pink; margin: 0;}';
@@ -3311,9 +3283,7 @@
         if (view) {
           if (type === 'mousedown') {
             this._lastMouseDown = view;
-            if (!capabilities.touch) {
-              skipEvent(event);
-            }
+            skipEvent(event);
           }
         }
         if (type === 'mouseup' && this._lastMouseDown && this._lastMouseDown !== view) {

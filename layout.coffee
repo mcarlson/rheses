@@ -292,6 +292,7 @@ window.dr = do ->
         return false
     # detect touchhttp://stackoverflow.com/questions/4817029/whats-the-best-way-to-detect-a-touch-screen-device-using-javascript
     touch: 'ontouchstart' of window || 'onmsgesturechange' of window # deal with ie10
+    camelcss: navigator.userAgent.toLowerCase().indexOf('firefox') > -1
   }
 
   querystring = window.location.search
@@ -855,6 +856,11 @@ window.dr = do ->
 
       @_removeFromParent('subnodes') unless skipevents
 
+  stylemap =
+    x: 'left'
+    y: 'top'
+    bgcolor: 'backgroundColor'
+    visible: 'display'
   ###*
   # @class Sprite
   # @private
@@ -863,19 +869,10 @@ window.dr = do ->
   class Sprite
 #    guid = 0
     noop = () ->
-    stylemap =
-      x: 'left'
-      y: 'top'
-      bgcolor: 'backgroundColor'
-      visible: 'display'
     styleval =
       display: (isVisible) ->
         if isVisible then '' else 'none'
         
-    fcamelCase = ( all, letter ) ->
-      letter.toUpperCase()
-    rdashAlpha = /-([\da-z])/gi
-
     constructor: (jqel, view, tagname = 'div') ->
       # console.log 'new sprite', jqel, view, tagname
       if not jqel?
@@ -898,14 +895,8 @@ window.dr = do ->
 
     setStyle: (name, value, internal, el=@el) ->
       value ?= ''
-      if name of stylemap
-        name = stylemap[name]
-      if name of styleval
-        value = styleval[name](value)
-      else if name.match(rdashAlpha)
-        # console.log "replacing #{name}"
-        name = name.replace(rdashAlpha, fcamelCase)
-        console.warn "Setting unknown CSS property #{name} = #{value} on ", @el.$view if debug and not internal
+      name = stylemap[name] if name of stylemap
+      value = styleval[name](value) if name of styleval
       # console.log('setStyle', name, value, @el)
       el.style[name] = value
       # @jqel.css(name, value)
@@ -1085,6 +1076,26 @@ window.dr = do ->
       # console.log('setid', @id)
       @el.setAttribute('class', classname)
 
+  if (capabilities.camelcss)
+    # handle camelCasing CSS styles, e.g. background-color -> backgroundColor - not needed for webkit
+    ss = Sprite::setStyle
+    fcamelCase = ( all, letter ) ->
+      letter.toUpperCase()
+    rdashAlpha = /-([\da-z])/gi
+    Sprite::setStyle = (name, value, internal, el=@el) ->
+      if name.match(rdashAlpha)
+        # console.log "replacing #{name}"
+        name = name.replace(rdashAlpha, fcamelCase)
+      ss(name, value, internal, el)
+
+  if (debug)
+    # add warnings for unknown CSS properties
+    otherstyles = ['width', 'height', 'background-color']
+    ss2 = Sprite::setStyle
+    Sprite::setStyle = (name, value, internal, el=@el) ->
+      if not internal and not (name of stylemap) and not (name in otherstyles)
+        console.warn "Setting unknown CSS property #{name} = #{value} on ", @el.$view, stylemap, internal
+      ss2(name, value, internal, el)
 
   # internal attributes ignored by class declarations and view styles
   ignoredAttributes = {parent: true, id: true, name: true, extends: true, type: true, scriptincludes: true}
