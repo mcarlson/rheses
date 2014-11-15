@@ -484,8 +484,9 @@ window.dr = do ->
     # An error to show if scriptincludes fail to load
     ###
     matchConstraint = /\${(.+)}/
-    # parent must be set before name
-    earlyattributes = ['parent', 'name']
+    # name should be set before parent so that when subnode events fire the 
+    # nodes can be identified
+    earlyattributes = ['name', 'parent']
     # data must be set after text
     lateattributes = ['data']
 
@@ -765,7 +766,7 @@ window.dr = do ->
       `}).bind(this)`
 
     set_parent: (parent) ->
-#      console.log 'set_parent', parent, @
+      # console.log 'set_parent', parent, @
       # normalize to jQuery object
       if parent instanceof Node
         # store references to parent and children
@@ -780,7 +781,7 @@ window.dr = do ->
 
     set_name: (name) ->
       # console.log 'set_name', name, @
-      @parent[name] = @
+      @parent[name] = @ if @parent and name
 
     set_id: (id) ->
       window[id] = @
