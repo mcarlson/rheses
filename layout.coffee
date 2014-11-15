@@ -654,20 +654,21 @@ window.dr = do ->
         scope[methodname] = ->
           # console.log 'applying overridden method', methodname, arguments
           if invokeSuper == 'after'
-            meth.apply(scope, arguments)
+            retval = meth.apply(scope, arguments)
             supr.apply(scope, arguments)
           else if invokeSuper == 'inside'
             prevValue = scope['super'];
             prevOwn = scope.hasOwnProperty('super');
             scope['super'] = (args) -> supr.apply(scope, args)
-            meth.apply(scope, arguments)
+            retval = meth.apply(scope, arguments)
             if prevOwn
               scope['super'] = prevValue;
             else
               delete scope.callSuper;
           else # before (default)
             supr.apply(scope, arguments)
-            meth.apply(scope, arguments)
+            retval = meth.apply(scope, arguments)
+          return retval
         # console.log('overrode method', methodname, scope, supr, meth)
       else
         scope[methodname] = method

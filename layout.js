@@ -891,26 +891,27 @@
           supr = scope[methodname];
           meth = method;
           return scope[methodname] = function() {
-            var prevOwn, prevValue;
+            var prevOwn, prevValue, retval;
             if (invokeSuper === 'after') {
-              meth.apply(scope, arguments);
-              return supr.apply(scope, arguments);
+              retval = meth.apply(scope, arguments);
+              supr.apply(scope, arguments);
             } else if (invokeSuper === 'inside') {
               prevValue = scope['super'];
               prevOwn = scope.hasOwnProperty('super');
               scope['super'] = function(args) {
                 return supr.apply(scope, args);
               };
-              meth.apply(scope, arguments);
+              retval = meth.apply(scope, arguments);
               if (prevOwn) {
-                return scope['super'] = prevValue;
+                scope['super'] = prevValue;
               } else {
-                return delete scope.callSuper;
+                delete scope.callSuper;
               }
             } else {
               supr.apply(scope, arguments);
-              return meth.apply(scope, arguments);
+              retval = meth.apply(scope, arguments);
             }
+            return retval;
           };
         } else {
           return scope[methodname] = method;
