@@ -43,7 +43,7 @@ SOFTWARE. -->
     * @attribute {*} [value=0]
     * The value to set the attribute to.
     */-->
-  <attribute name="value" type="any" value="0"></attribute>
+  <attribute name="value" type="expression" value="0"></attribute>
   
   <setter name="attribute" args="attribute">
     @attribute = attribute

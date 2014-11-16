@@ -78,7 +78,6 @@
         
         <variablelayout attribute="y" value="10" collapseparent="true">
           <method name="updateSubview" args="count, view, attribute, value">
-            value = Number(value)
             view.setAttribute(attribute, value)
             return value + view.height + 5
           </method>

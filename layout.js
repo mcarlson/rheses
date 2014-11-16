@@ -342,9 +342,6 @@
         json: function(val) {
           return JSON.parse(val);
         },
-        any: function(val) {
-          return val;
-        },
         expression: function(val) {
           if (typeof val !== 'string') {
             return val;

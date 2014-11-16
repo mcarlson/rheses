@@ -44,16 +44,16 @@ SOFTWARE. -->
   
   <method name="startMonitoringSubview" args="view" invokesuper="inside">
     # Don't monitor width/height of the "stretchy" subviews since this 
-    # layout changes them.
-    if (!(Number(view.layouthint) > 0))
+    # layout resizes them so you would get an infinite loop.
+    if !(Number(view.layouthint) > 0)
       @listenTo(view, @measureAttrName, @update)
     @listenTo(view, 'visible', @update)
   </method>
   
   <method name="stopMonitoringSubview" args="view" invokesuper="inside">
     # Don't monitor width/height of the "stretchy" subviews since this 
-    # layout changes them.
-    if (!(Number(view.layouthint) > 0))
+    # layout resizes them so you would get an infinite loop.
+    if !(Number(view.layouthint) > 0)
       @stopListening(view, @measureAttrName, @update)
     @stopListening(view, 'visible', @update)
   </method>
@@ -68,10 +68,8 @@ SOFTWARE. -->
     
     svs = @subviews
     i = svs.length
-    sv
     count = 0
     resizeSum = 0
-    hint
     
     while (i)
       sv = svs[--i]

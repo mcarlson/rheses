@@ -223,7 +223,6 @@ window.dr = do ->
       boolean: (val) -> (if (typeof val == 'string') then val == 'true' else (!! val))
       string: (val) -> val + ''
       json: (val) -> JSON.parse(val)
-      any: (val) -> val
       expression: (val) -> 
         if typeof val != 'string'
           return val
