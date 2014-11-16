@@ -60,7 +60,7 @@
   })();
 
   window.dr = (function() {
-    var Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, capabilities, compiler, constraintScopes, debug, dom, exports, fcamelCase, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, otherstyles, querystring, rdashAlpha, showWarnings, skipEvent, ss, ss2, stylemap, triggerlock, warnings, _initConstraints;
+    var Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, capabilities, compiler, constraintScopes, debug, dom, exports, fcamelCase, hiddenAttributes, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, otherstyles, querystring, rdashAlpha, showWarnings, skipEvent, ss, ss2, stylemap, triggerlock, warnings, _initConstraints;
     mixOf = function() {
       var Mixed, base, i, method, mixin, mixins, name, _i, _ref;
       base = arguments[0], mixins = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
@@ -1661,24 +1661,9 @@
         return this.sprite = new Sprite(el, this, attributes.$tagname);
       };
 
-      View.prototype.styleblacklist = {
-        text: true,
-        $tagname: true,
-        data: true,
-        replicator: true,
-        "class": true,
-        clip: true,
-        clickable: true,
-        scrollable: true,
-        $textcontent: true,
-        resize: true,
-        multiline: true,
-        ignorelayout: true
-      };
-
       View.prototype.setAttribute = function(name, value, skipstyle) {
         value = this._coerceType(name, value);
-        if (!(skipstyle || name in ignoredAttributes || name in View.prototype.styleblacklist || this[name] === value)) {
+        if (!(skipstyle || name in ignoredAttributes || name in hiddenAttributes || this[name] === value)) {
           this.sprite.setStyle(name, value);
         }
         return View.__super__.setAttribute.call(this, name, value, true);
@@ -2047,6 +2032,20 @@
       pre.textContent = out;
       document.body.insertBefore(pre, document.body.firstChild);
       return console.error(out);
+    };
+    hiddenAttributes = {
+      text: true,
+      $tagname: true,
+      data: true,
+      replicator: true,
+      "class": true,
+      clip: true,
+      clickable: true,
+      scrollable: true,
+      $textcontent: true,
+      resize: true,
+      multiline: true,
+      ignorelayout: true
     };
     dom = (function() {
       var builtinTags, checkRequiredAttributes, exports, findAutoIncludes, flattenattributes, getChildren, htmlDecode, initAllElements, initElement, initFromElement, processSpecialTags, requiredAttributes, sendInit, specialtags, writeCSS;
@@ -2516,6 +2515,9 @@
               name = name.toLowerCase();
               classattributes[name] = attributes.value;
               classattributes.$types[name] = attributes.type;
+              if ('visual' in attributes) {
+                hiddenAttributes[name] = attributes.visual === 'false';
+              }
           }
         }
         return children;
@@ -3844,6 +3846,11 @@
     /**
      * @attribute {String} value (required)
      * The initial value for the attribute
+     */
+
+    /**
+     * @attribute {Boolean} [visible=true]
+     * Set to false if an attribute shouldn't affect a view's visual appearence
      */
   })();
 

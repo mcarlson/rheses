@@ -1252,24 +1252,9 @@ window.dr = do ->
     _createSprite: (el, attributes) ->
       @sprite = new Sprite(el, @, attributes.$tagname)
 
-    # sprite.setStyle() won't be called for attributes in this list
-    styleblacklist: {
-      text: true,
-      $tagname: true,
-      data: true,
-      replicator: true,
-      class: true,
-      clip: true,
-      clickable: true,
-      scrollable: true,
-      $textcontent: true,
-      resize: true,
-      multiline: true,
-      ignorelayout: true,
-    }
     setAttribute: (name, value, skipstyle) ->
       value = @_coerceType(name, value)
-      if not (skipstyle or name of ignoredAttributes or name of View::styleblacklist or @[name] == value)
+      if not (skipstyle or name of ignoredAttributes or name of hiddenAttributes or @[name] == value)
         # console.log 'setting style', name, value, @
         @sprite.setStyle(name, value)
       super(name, value, true)
@@ -1564,6 +1549,21 @@ window.dr = do ->
     console.error out
 
 
+  # a collection of attributes that shouldn't be applied visually.
+  hiddenAttributes = {
+    text: true,
+    $tagname: true,
+    data: true,
+    replicator: true,
+    class: true,
+    clip: true,
+    clickable: true,
+    scrollable: true,
+    $textcontent: true,
+    resize: true,
+    multiline: true,
+    ignorelayout: true,
+  }
   dom = do ->
     getChildren = (el) ->
       child for child in el.childNodes when child.nodeType == 1 and child.localName in specialtags
@@ -1936,6 +1936,9 @@ window.dr = do ->
             name = name.toLowerCase()
             classattributes[name] = attributes.value
             classattributes.$types[name] = attributes.type
+            if 'visual' of attributes 
+              # allow non-visual attributes to be added
+              hiddenAttributes[name] = attributes.visual == 'false'
             # console.log 'added attribute', attributes, classattributes
 
       # console.log('processSpecialTags', classattributes)
@@ -3089,6 +3092,10 @@ window.dr = do ->
   ###*
   # @attribute {String} value (required)
   # The initial value for the attribute
+  ###
+  ###*
+  # @attribute {Boolean} [visible=true]
+  # Set to false if an attribute shouldn't affect a view's visual appearence
   ###
 
 dr.writeCSS()
