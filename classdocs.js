@@ -68,6 +68,16 @@
      *       </handler>
      *     </art>
      *
+     * By default, the SVG's aspect ratio is preserved. Set the preserveaspectratio attribute to "none" to change this behavior
+     *
+     *     @example
+     *     <art width="200" height="100" src="/images/cursorshapes.svg" path="0" fill="coral" preserveaspectratio="none">
+     *       <handler event="onclick">
+     *         this.setAttribute('path', this.path ^ 1);
+     *         this.animate({width: (this.width == 200 ? 100 : 200)});
+     *       </handler>
+     *     </art>
+     *
      */
 /**
         * @attribute {Boolean} [inline=false]
@@ -80,6 +90,18 @@
 /**
         * @attribute {String|Number} path
         * The svg path element to display. Can either be the name of the &lt;g&gt; element containing the path or a 0-based index.
+        */
+/**
+        * @attribute {String} preserveaspectratio
+        * By default, an SVG's aspect ratio is preserved. Set to "none" to stretch to fill the  container
+        */
+/**
+        * @attribute {Number} [animationspeed=400]
+        * The number of milliseconds to use when animating between paths
+        */
+/**
+        * @attribute {"linear"/"easeout"/"easein"/"easeinout"/"backin"/"backout"/"elastic"/"bounce"} [animationcurve="linear"]
+        * The name of the curve to use when animating between paths
         */
 /**
         * @event onready

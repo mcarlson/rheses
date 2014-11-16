@@ -49,6 +49,16 @@ SOFTWARE. -->
      *       </handler>
      *     </art>
      *
+     * By default, the SVG's aspect ratio is preserved. Set the preserveaspectratio attribute to "none" to change this behavior
+     *
+     *     @example
+     *     <art width="200" height="100" src="/images/cursorshapes.svg" path="0" fill="coral" preserveaspectratio="none">
+     *       <handler event="onclick">
+     *         this.setAttribute('path', this.path ^ 1);
+     *         this.animate({width: (this.width == 200 ? 100 : 200)});
+     *       </handler>
+     *     </art>
+     *
      */-->    
 
       <!--/**
@@ -67,6 +77,21 @@ SOFTWARE. -->
         */-->
 
       <!--/**
+        * @attribute {String} preserveaspectratio
+        * By default, an SVG's aspect ratio is preserved. Set to "none" to stretch to fill the  container
+        */-->
+
+      <!--/**
+        * @attribute {Number} [animationspeed=400]
+        * The number of milliseconds to use when animating between paths
+        */-->
+
+      <!--/**
+        * @attribute {"linear"/"easeout"/"easein"/"easeinout"/"backin"/"backout"/"elastic"/"bounce"} [animationcurve="linear"]
+        * The name of the curve to use when animating between paths
+        */-->
+
+      <!--/**
         * @event onready
         * Fired when the art is loaded and ready
         */-->
@@ -80,6 +105,8 @@ SOFTWARE. -->
       <attribute name="inline" value="false" type="boolean"></attribute>
       <attribute name="src" value="" type="string"></attribute>
       <attribute name="preserveaspectratio" value="" type="string"></attribute>
+      <attribute name="animationspeed" value="400" type="number"></attribute>
+      <attribute name="animationcurve" value="linear" type="string"></attribute>
 
       <attribute name="path" value="" type="string"></attribute>
       <handler event="onpath">
@@ -91,6 +118,10 @@ SOFTWARE. -->
         return if !src
         return if @src == src
         @src = src
+      </setter>
+
+      <setter name="preserveaspectratio" args="preserveaspectratio">
+        @snap?.attr({preserveAspectRatio: preserveaspectratio})
       </setter>
 
       <handler event="oninit">
@@ -123,23 +154,20 @@ SOFTWARE. -->
       </method>
 
 
-      <method name="animate_path" args="name,msec,bounce,params">
+      <method name="animate_path" args="name, params">
         # Animate the path, as well as specified params
         return @show_path(name) if !@snap
 
-        msec = 1000 if !msec
-        bounce = mina.bounce if !bounce
+        curve = mina[@animationcurve] or mina.linear
         params = {} if !params
-        # console.log('msec, params', msec, params)
 
         # Animate to a given path, by name, or id
         path = @get_path(name)
         if path
           d1 = path[0].getAttribute('d')
           params['d'] = d1
-          _this = this
-          @snappath.animate params, msec, bounce, ->
-            _this.sendEvent('tween')
+          @snappath.animate params, @animationspeed, curve, =>
+            @sendEvent('tween')
       </method>
 
 
@@ -169,16 +197,16 @@ SOFTWARE. -->
         rect = @get_bounding_box()
         viewbox = rect.x + ' ' + rect.y + ' ' + rect.width + ' ' + rect.height
         @snap.attr({viewBox: viewbox})
+        @snap.attr({preserveAspectRatio: @preserveaspectratio})
 
         # If this object is clickable, listen to mouse events
         if @clickable
-          _this = this
-          @snap.click -> _this.sendEvent('click')
-          @snap.mousedown -> _this.sendEvent('mousedown')
-          @snap.mouseup -> _this.sendEvent('mouseup')
-          @snap.mousemove -> _this.sendEvent('mousemove')
-          @snap.mouseover -> _this.sendEvent('mouseover')
-          @snap.mouseout -> _this.sendEvent('mouseout')
+          @snap.click => @sendEvent('click')
+          @snap.mousedown => @sendEvent('mousedown')
+          @snap.mouseup => @sendEvent('mouseup')
+          @snap.mousemove => @sendEvent('mousemove')
+          @snap.mouseover => @sendEvent('mouseover')
+          @snap.mouseout => @sendEvent('mouseout')
 
         # Hide the static svg object
         @hide_art()
@@ -276,13 +304,12 @@ SOFTWARE. -->
 
           # Add click events
           if @clickable
-            _this = this
-            $(svg).on 'click', -> _this.sendEvent('click')
-            $(svg).on 'mousedown', -> _this.sendEvent('mousedown')
-            $(svg).on 'mouseup', -> _this.sendEvent('mouseup')
-            $(svg).on 'mousemove', -> _this.sendEvent('mousemove')
-            $(svg).on 'mouseover', -> _this.sendEvent('mouseover')
-            $(svg).on 'mouseout', -> _this.sendEvent('mouseout')
+            $(svg).on 'click', => @sendEvent('click')
+            $(svg).on 'mousedown', => @sendEvent('mousedown')
+            $(svg).on 'mouseup', => @sendEvent('mouseup')
+            $(svg).on 'mousemove', => @sendEvent('mousemove')
+            $(svg).on 'mouseover', => @sendEvent('mouseover')
+            $(svg).on 'mouseout', => @sendEvent('mouseout')
 
         # Move to the specified path
         @animate_path(@path) if @path.length > 0
@@ -305,9 +332,8 @@ SOFTWARE. -->
 
         # Trigger ready
         #TODO Can this be improved? I tried binding to DOM events, svg loaded
-        _this = this
-        setTimeout ( ->
-          _this.sendEvent('ready')
+        setTimeout ( =>
+          @sendEvent('ready')
         ), 1
       </method>
 

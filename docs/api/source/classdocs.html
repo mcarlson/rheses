@@ -85,6 +85,16 @@
      *       &lt;/handler&gt;
      *     &lt;/art&gt;
      *
+     * By default, the SVG&#39;s aspect ratio is preserved. Set the preserveaspectratio attribute to &quot;none&quot; to change this behavior
+     *
+     *     @example
+     *     &lt;art width=&quot;200&quot; height=&quot;100&quot; src=&quot;/images/cursorshapes.svg&quot; path=&quot;0&quot; fill=&quot;coral&quot; preserveaspectratio=&quot;none&quot;&gt;
+     *       &lt;handler event=&quot;onclick&quot;&gt;
+     *         this.setAttribute(&#39;path&#39;, this.path ^ 1);
+     *         this.animate({width: (this.width == 200 ? 100 : 200)});
+     *       &lt;/handler&gt;
+     *     &lt;/art&gt;
+     *
      */
 <span id='dr-art-attribute-inline'>/**
 </span>        * @attribute {Boolean} [inline=false]
@@ -97,6 +107,18 @@
 <span id='dr-art-attribute-path'>/**
 </span>        * @attribute {String|Number} path
         * The svg path element to display. Can either be the name of the &amp;lt;g&amp;gt; element containing the path or a 0-based index.
+        */
+<span id='dr-art-attribute-preserveaspectratio'>/**
+</span>        * @attribute {String} preserveaspectratio
+        * By default, an SVG&#39;s aspect ratio is preserved. Set to &quot;none&quot; to stretch to fill the  container
+        */
+<span id='dr-art-attribute-animationspeed'>/**
+</span>        * @attribute {Number} [animationspeed=400]
+        * The number of milliseconds to use when animating between paths
+        */
+<span id='dr-art-attribute-animationcurve'>/**
+</span>        * @attribute {&quot;linear&quot;/&quot;easeout&quot;/&quot;easein&quot;/&quot;easeinout&quot;/&quot;backin&quot;/&quot;backout&quot;/&quot;elastic&quot;/&quot;bounce&quot;} [animationcurve=&quot;linear&quot;]
+        * The name of the curve to use when animating between paths
         */
 <span id='dr-art-event-onready'>/**
 </span>        * @event onready
