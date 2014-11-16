@@ -40,7 +40,6 @@ SOFTWARE. -->
     * 'left', 'center', 'right' and 'top', 'middle' and 'bottom'.
     */-->
   <attribute name="align" type="string" value="middle"></attribute>
-  
   <setter name="align" args="align">
     @measureAttrName ?= 'height'
     @setterAttrName ?= 'y'
@@ -54,12 +53,11 @@ SOFTWARE. -->
       when 'top', 'middle', 'bottom'
         @measureAttrName = 'height'
         @setterAttrName = 'y'
-    @align = align
-    
-    @startMonitoringAllSubviews()
-    
-    @update()
   </setter>
+  <handler event="onalign">
+    @startMonitoringAllSubviews()
+    @update()
+  </handler>
   
   <method name="startMonitoringSubview" args="view" invokesuper="inside">
     @super(arguments)
@@ -80,7 +78,7 @@ SOFTWARE. -->
     i = svs.length
     value = 0
     
-    while (i)
+    while i
       sv = svs[--i]
       if @skipSubview(sv) then continue
       value = Math.max(value, sv[measureAttrName])
@@ -92,16 +90,13 @@ SOFTWARE. -->
   </method>
   
   <method name="updateSubview" args="count, view, attribute, value" invokesuper="inside">
-    measureAttrName = @measureAttrName
-    setterAttrName = @setterAttrName
-    
     switch @align
       when 'center','middle'
-        view.setAttribute(setterAttrName, (value - view[measureAttrName]) / 2)
+        view.setAttribute(@setterAttrName, (value - view[@measureAttrName]) / 2)
       when 'right','bottom'
-        view.setAttribute(setterAttrName, value - view[measureAttrName])
+        view.setAttribute(@setterAttrName, value - view[@measureAttrName])
       else
-        view.setAttribute(setterAttrName, 0)
+        view.setAttribute(@setterAttrName, 0)
     
     return value
   </method>

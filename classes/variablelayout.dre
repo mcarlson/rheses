@@ -40,6 +40,7 @@ SOFTWARE. -->
     * will typically resize the parent to fit the newly layed out child views.
     */-->
   <attribute name="collapseparent" type="boolean" value="false"></attribute>
+  <handler event="oncollapseparent" method="update"></handler>
   
   <!--/**
     * @attribute {boolean} [reverse=false]
@@ -47,16 +48,7 @@ SOFTWARE. -->
     * example, right to left instead of left to right.
     */-->
   <attribute name="reverse" type="boolean" value="false"></attribute>
-  
-  <setter name="collapseparent" args="collapseparent">
-    @collapseparent = collapseparent
-    @update()
-  </setter>
-  
-  <setter name="reverse" args="reverse">
-    @reverse = reverse
-    @update()
-  </setter>
+  <handler event="onreverse" method="update"></handler>
   
   <!--/**
     * Called by update before any processing is done. Gives subviews a
@@ -146,13 +138,13 @@ SOFTWARE. -->
       
       if @reverse
         i = len
-        while (i) 
+        while i
           sv = svs[--i]
           if @skipSubview(sv) then continue
           value = @updateSubview(++count, sv, attribute, value)
       else
         i = 0
-        while (len > i)
+        while len > i
           sv = svs[i++]
           if @skipSubview(sv) then continue
           value = @updateSubview(++count, sv, attribute, value)

@@ -43,29 +43,20 @@ SOFTWARE. -->
     * The spacing between views.
     */-->
   <attribute name="spacing" type="number" value="0"></attribute>
-  
-  <setter name="spacing" args="spacing">
-    @spacing = spacing
-    @update()
-  </setter>
+  <handler event="onspacing" method="update"></handler>
   
   <!--/**
     * @attribute {Number} [outset=0]
     * Space after the last view.
     */-->
   <attribute name="outset" type="number" value="0"></attribute>
-  
-  <setter name="outset" args="outset">
-    @outset = outset
-    @update()
-  </setter>
+  <handler event="onoutset" method="update"></handler>
   
   <!--/**
     * @attribute {Number} [inset=0]
     * Space before the first view.
     */-->
   <attribute name="inset" type="number" value="0"></attribute>
-  
   <setter name="inset" args="inset">
     # An alias for value.
     @setAttribute('value', inset);
@@ -76,33 +67,21 @@ SOFTWARE. -->
     * The spacing between each line of views.
     */-->
   <attribute name="linespacing" type="number" value="0"></attribute>
-  
-  <setter name="linespacing" args="linespacing">
-    @linespacing = linespacing
-    @update()
-  </setter>
+  <handler event="onlinespacing" method="update"></handler>
   
   <!--/**
     * @attribute {Number} [lineoutset=0]
     * Space after the last line of views. Only used when collapseparent is true.
     */-->
   <attribute name="lineoutset" type="number" value="0"></attribute>
-  
-  <setter name="lineoutset" args="lineoutset">
-    @lineoutset = lineoutset
-    @update()
-  </setter>
+  <handler event="onlineoutset" method="update"></handler>
   
   <!--/**
     * @attribute {Number} [lineinset=0]
     * Space before the first line of views.
     */-->
   <attribute name="lineinset" type="number" value="0"></attribute>
-  
-  <setter name="lineinset" args="lineinset">
-    @lineinset = lineinset
-    @update()
-  </setter>
+  <handler event="onlineinset" method="update"></handler>
   
   <!--/**
     * @attribute {String} [axis='x']
@@ -111,7 +90,6 @@ SOFTWARE. -->
     * will orient them vertically.
     */-->
   <attribute name="axis" type="string" value="x"></attribute>
-  
   <setter name="axis" args="axis">
     # An alias for attribute.
     @setAttribute('attribute', axis);
@@ -132,14 +110,12 @@ SOFTWARE. -->
       @measureAttrName = 'width'
       @otherMeasureAttrName = 'height'
       @otherAttribute = 'y'
-
-    @attribute = attribute
-    
+  </setter>
+  <handler event="onattribute">
     @startMonitoringAllSubviews()
     @listenTo(@parent, @measureAttrName, @update)
-    
     @update()
-  </setter>
+  </handler>
   
   <method name="startMonitoringSubview" args="view" invokesuper="inside">
     @super(arguments)

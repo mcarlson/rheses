@@ -39,35 +39,27 @@ SOFTWARE. -->
     * Supported values are 'x', 'y' and 'both'.
     */-->
   <attribute name="axis" type="string" value="x"></attribute>
+  <setter name="axis" args="axis">
+    @stopMonitoringAllSubviews()
+  </setter>
+  <handler event="onaxis">
+    @startMonitoringAllSubviews()
+    @update()
+  </handler>
   
   <!--/**
     * @attribute {Number} [xpad=0]
     * Additional space added on the child extent along the x-axis.
     */-->
   <attribute name="xpad" type="number" value="0"></attribute>
+  <handler event="onxpad" method="update"></handler>
   
   <!--/**
     * @attribute {Number} [ypad=0]
     * Additional space added on the child extent along the y-axis.
     */-->
   <attribute name="ypad" type="number" value="0"></attribute>
-  
-  <setter name="axis" args="axis">
-    @stopMonitoringAllSubviews()
-    @axis = axis
-    @startMonitoringAllSubviews()
-    @update()
-  </setter>
-  
-  <setter name="xpad" args="xpad">
-    @xpad = xpad
-    @update()
-  </setter>
-  
-  <setter name="ypad" args="ypad">
-    @ypad = ypad
-    @update()
-  </setter>
+  <handler event="onypad" method="update"></handler>
   
   <method name="startMonitoringSubview" args="view">
     @__updateMonitoringSubview(view, @listenTo)
@@ -88,11 +80,11 @@ SOFTWARE. -->
     axis = @axis
     func = func.bind(@)
     
-    if (axis != 'y')
+    if axis != 'y'
       func(view, 'x', @update)
       func(view, 'width', @update)
     
-    if (axis != 'x')
+    if axis != 'x'
       func(view, 'y', @update)
       func(view, 'height', @update)
     
@@ -106,21 +98,22 @@ SOFTWARE. -->
       
       svs = @subviews
       len = svs.length
+      maxFunc = Math.max
       
-      if (@axis != 'y')
+      if @axis != 'y'
         max = 0
         i = len
-        while (i)
+        while i
           sv = svs[--i]
-          if (sv.visible) then max = Math.max(max, sv.x + Math.max(0, sv.width))
+          if sv.visible then max = maxFunc(max, sv.x + maxFunc(0, sv.width))
         @parent.setAttribute('width', max + @xpad)
         
-      if (@axis != 'x')
+      if @axis != 'x'
         max = 0
         i = len
-        while (i)
+        while i
           sv = svs[--i]
-          if (sv.visible) then max = Math.max(max, sv.y + Math.max(0, sv.height))
+          if sv.visible then max = maxFunc(max, sv.y + maxFunc(0, sv.height))
         @parent.setAttribute('height', max + @ypad)
       
       @locked = false

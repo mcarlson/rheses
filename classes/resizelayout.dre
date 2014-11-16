@@ -71,7 +71,7 @@ SOFTWARE. -->
     count = 0
     resizeSum = 0
     
-    while (i)
+    while i
       sv = svs[--i]
       if @skipSubview(sv) then continue
       ++count
