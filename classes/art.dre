@@ -49,10 +49,10 @@ SOFTWARE. -->
      *       </handler>
      *     </art>
      *
-     * By default, the SVG's aspect ratio is preserved. Set the preserveaspectratio attribute to "none" to change this behavior
+     * By default, the SVG's aspect ratio is preserved. Set the stretches attribute to true to change this behavior.
      *
      *     @example
-     *     <art width="200" height="100" src="/images/cursorshapes.svg" path="0" fill="coral" preserveaspectratio="none">
+     *     <art width="200" height="100" src="/images/cursorshapes.svg" path="0" fill="coral" stretches="true">
      *       <handler event="onclick">
      *         this.setAttribute('path', this.path ^ 1);
      *         this.animate({width: (this.width == 200 ? 100 : 200)});
@@ -82,11 +82,6 @@ SOFTWARE. -->
         */-->
 
       <!--/**
-        * @attribute {String} preserveaspectratio
-        * By default, an SVG's aspect ratio is preserved. Set to "none" to stretch to fill the  container
-        */-->
-
-      <!--/**
         * @attribute {Number} [animationspeed=400]
         * The number of milliseconds to use when animating between paths
         */-->
@@ -109,7 +104,6 @@ SOFTWARE. -->
     <class name="art" type="coffee" scriptincludes="/lib/snap.svg-min.js" clickable="true">
       <attribute name="inline" value="false" type="boolean"></attribute>
       <attribute name="src" value="" type="string"></attribute>
-      <attribute name="preserveaspectratio" value="" type="string"></attribute>
       <attribute name="animationspeed" value="400" type="number"></attribute>
       <attribute name="animationcurve" value="linear" type="string"></attribute>
 
@@ -128,10 +122,6 @@ SOFTWARE. -->
         @src = src
       </setter>
 
-      <setter name="preserveaspectratio" args="preserveaspectratio">
-        @snap?.attr({preserveAspectRatio: preserveaspectratio})
-      </setter>
-
       <handler event="oninit">
         # Retrieve the entire inline contents
         if @inline
@@ -146,7 +136,7 @@ SOFTWARE. -->
         # If debug=true, show attributes that pass through to the svg
         debug = window.location.search.indexOf('debug') > 0
         if debug
-          @expectedAttr = ['x','y','width','height','parent','clip','id','scrollable','clickable','visible','$textcontent','$tagname','inline','src','path','stretches'] unless @expectedAttr
+          @expectedAttr = ['x','y','width','height','parent','clip','id','scrollable','clickable','visible','$textcontent','$tagname','inline','src','path','stretches','animationspeed','animationcurve'] unless @expectedAttr
           unless name in @expectedAttr
             console.warn('Passing attribute', name, 'to svg')
       </method>
@@ -205,7 +195,6 @@ SOFTWARE. -->
         rect = @get_bounding_box()
         viewbox = rect.x + ' ' + rect.y + ' ' + rect.width + ' ' + rect.height
         @snap.attr({viewBox: viewbox})
-        @snap.attr({preserveAspectRatio: @preserveaspectratio})
 
         # If this object is clickable, listen to mouse events
         if @clickable
