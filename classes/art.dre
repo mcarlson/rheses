@@ -22,6 +22,7 @@ SOFTWARE. -->
 
   <!--/**
      * @class dr.art
+     * @extends dr.view
      * Vector graphics support using svg.
      *
      * This example shows how to load an existing svg
