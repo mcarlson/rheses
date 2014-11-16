@@ -1,31 +1,4 @@
 /**
-     * @class dr.abstractart
-     * @extends dr.view
-     * Component wrapper for object tag.
-     * The size of the object matches the width/height of the view when the
-     * component is created. dr.abstractart is usually used as a base class
-     * for art, but it can be directly to embed svg files into dreem.
-     *
-     */
-/**
-        * @attribute {String} [data=""]
-        * url to be used by the object.
-        * Same meaning as the data attribute in the html object tag.
-        */
-/**
-        * @attribute {String} [type=""]
-        * media type of the data specified in the data attribute
-        * Same meaning as the type attribute in the html object tag.
-        */
-/**
-        * @method getDom
-        * Returns the base of the object dom
-        */
-/**
-        * @event onload 
-        * Fired when the object is loaded.
-        */
-/**
      * @class dr.ace
      * @extends dr.view
      * Ace editor component.
@@ -68,19 +41,52 @@
         */
 /**
      * @class dr.art
-     * @extends dr.abstractart
      * Vector graphics support using svg.
      *
-     * This example shows how to include some svg art inline
+     * This example shows how to load an existing svg
      *
      *     @example
-     *     <art data="/images/cursorshapes.svg" type="image/svg+xml" width="100" height="100" x="10" y="10"></art>
+     *     <art width="100" height="100" src="/images/siemens-clock.svg"></art>
+     *
+     * Paths within an svg can be selected using the path attribute
+     *
+     *     @example
+     *     <art width="100" height="100" src="/images/cursorshapes.svg" path="0"></art>
+     *
+     * Attributes are automatically passed through to the SVG. Here, the fill color is changed
+     *
+     *     @example
+     *     <art width="100" height="100" src="/images/cursorshapes.svg" path="0" fill="coral"></art>
+     *
+     * Setting the path attribute animates between paths. This example animates when the mouse is clicked
+     *
+     *     @example
+     *     <art width="100" height="100" src="/images/cursorshapes.svg" path="0" fill="coral">
+     *       <handler event="onclick">
+     *         this.setAttribute('path', this.path ^ 1);
+     *       </handler>
+     *     </art>
      *
      */
 /**
-        * @method resizeToView
-        * Modify the embedded svg object to use the size of the view.
-        * Called in response to the onload event.
+        * @attribute {Boolean} [inline=false]
+        * Set to true if the svg contents is found inline, as a comment
+        */
+/**
+        * @attribute {String} src
+        * The svg contents to load
+        */
+/**
+        * @attribute {String|Number} path
+        * The svg path element to display. Can either be the name of the &lt;g&gt; element containing the path or a 0-based index.
+        */
+/**
+        * @event onartready
+        * Fired when the art is loaded and ready
+        */
+/**
+        * @event ontweening
+        * Fired when the art has animated to the next position
         */
 /**
      * @class dr.audioplayer

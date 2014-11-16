@@ -15,34 +15,7 @@
   </script>
 </head>
 <body onload="prettyPrint(); highlight();">
-  <pre class="prettyprint lang-js"><span id='dr-abstractart'>/**
-</span>     * @class dr.abstractart
-     * @extends dr.view
-     * Component wrapper for object tag.
-     * The size of the object matches the width/height of the view when the
-     * component is created. dr.abstractart is usually used as a base class
-     * for art, but it can be directly to embed svg files into dreem.
-     *
-     */
-<span id='dr-abstractart-attribute-data'>/**
-</span>        * @attribute {String} [data=&quot;&quot;]
-        * url to be used by the object.
-        * Same meaning as the data attribute in the html object tag.
-        */
-<span id='dr-abstractart-attribute-type'>/**
-</span>        * @attribute {String} [type=&quot;&quot;]
-        * media type of the data specified in the data attribute
-        * Same meaning as the type attribute in the html object tag.
-        */
-<span id='dr-abstractart-method-getDom'>/**
-</span>        * @method getDom
-        * Returns the base of the object dom
-        */
-<span id='dr-abstractart-event-onload'>/**
-</span>        * @event onload 
-        * Fired when the object is loaded.
-        */
-<span id='dr-ace'>/**
+  <pre class="prettyprint lang-js"><span id='dr-ace'>/**
 </span>     * @class dr.ace
      * @extends dr.view
      * Ace editor component.
@@ -85,19 +58,52 @@
         */
 <span id='dr-art'>/**
 </span>     * @class dr.art
-     * @extends dr.abstractart
      * Vector graphics support using svg.
      *
-     * This example shows how to include some svg art inline
+     * This example shows how to load an existing svg
      *
      *     @example
-     *     &lt;art data=&quot;/images/cursorshapes.svg&quot; type=&quot;image/svg+xml&quot; width=&quot;100&quot; height=&quot;100&quot; x=&quot;10&quot; y=&quot;10&quot;&gt;&lt;/art&gt;
+     *     &lt;art width=&quot;100&quot; height=&quot;100&quot; src=&quot;/images/siemens-clock.svg&quot;&gt;&lt;/art&gt;
+     *
+     * Paths within an svg can be selected using the path attribute
+     *
+     *     @example
+     *     &lt;art width=&quot;100&quot; height=&quot;100&quot; src=&quot;/images/cursorshapes.svg&quot; path=&quot;0&quot;&gt;&lt;/art&gt;
+     *
+     * Attributes are automatically passed through to the SVG. Here, the fill color is changed
+     *
+     *     @example
+     *     &lt;art width=&quot;100&quot; height=&quot;100&quot; src=&quot;/images/cursorshapes.svg&quot; path=&quot;0&quot; fill=&quot;coral&quot;&gt;&lt;/art&gt;
+     *
+     * Setting the path attribute animates between paths. This example animates when the mouse is clicked
+     *
+     *     @example
+     *     &lt;art width=&quot;100&quot; height=&quot;100&quot; src=&quot;/images/cursorshapes.svg&quot; path=&quot;0&quot; fill=&quot;coral&quot;&gt;
+     *       &lt;handler event=&quot;onclick&quot;&gt;
+     *         this.setAttribute(&#39;path&#39;, this.path ^ 1);
+     *       &lt;/handler&gt;
+     *     &lt;/art&gt;
      *
      */
-<span id='dr-art-method-resizeToView'>/**
-</span>        * @method resizeToView
-        * Modify the embedded svg object to use the size of the view.
-        * Called in response to the onload event.
+<span id='dr-art-attribute-inline'>/**
+</span>        * @attribute {Boolean} [inline=false]
+        * Set to true if the svg contents is found inline, as a comment
+        */
+<span id='dr-art-attribute-src'>/**
+</span>        * @attribute {String} src
+        * The svg contents to load
+        */
+<span id='dr-art-attribute-path'>/**
+</span>        * @attribute {String|Number} path
+        * The svg path element to display. Can either be the name of the &amp;lt;g&amp;gt; element containing the path or a 0-based index.
+        */
+<span id='dr-art-event-onartready'>/**
+</span>        * @event onartready
+        * Fired when the art is loaded and ready
+        */
+<span id='dr-art-event-ontweening'>/**
+</span>        * @event ontweening
+        * Fired when the art has animated to the next position
         */
 <span id='dr-audioplayer'>/**
 </span>     * @class dr.audioplayer

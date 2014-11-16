@@ -77,7 +77,7 @@
   })();
 
   window.dr = (function() {
-    var Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, capabilities, compiler, constraintScopes, debug, dom, exports, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, querystring, showWarnings, warnings, _initConstraints;
+    var Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, capabilities, compiler, constraintScopes, debug, dom, exports, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, querystring, showWarnings, skipEvent, triggerlock, warnings, _initConstraints;
     mixOf = function() {
       var Mixed, base, i, method, mixin, mixins, name, _i, _ref;
       base = arguments[0], mixins = 2 &lt;= arguments.length ? __slice.call(arguments, 1) : [];
@@ -107,6 +107,7 @@
      * @private
      * A lightweight event system, used internally.
      */
+    triggerlock = null;
     Events = {
 
 <span id='Events-method-bind'>      /**
@@ -147,11 +148,19 @@
        */
       trigger: function() {
         var args, callback, ev, list, _i, _len, _ref;
-        args = 1 &lt;= arguments.length ? __slice.call(arguments, 0) : [];
-        ev = args.shift();
+        ev = arguments[0], args = 2 &lt;= arguments.length ? __slice.call(arguments, 1) : [];
         list = this.hasOwnProperty(&#39;events&#39;) &amp;&amp; ((_ref = this.events) != null ? _ref[ev] : void 0);
         if (!list) {
           return;
+        }
+        if (triggerlock &amp;&amp; triggerlock.scope === this &amp;&amp; triggerlock.ev === ev) {
+          return this;
+        }
+        if (!triggerlock) {
+          triggerlock = {
+            ev: ev,
+            scope: this
+          };
         }
         for (_i = 0, _len = list.length; _i &lt; _len; _i++) {
           callback = list[_i];
@@ -159,6 +168,7 @@
             break;
           }
         }
+        triggerlock = null;
         return this;
       },
 
@@ -359,9 +369,8 @@
 
       eventlock = {};
 
-      Eventable.prototype._coerceType = function(name, value) {
-        var type;
-        type = this.types[name];
+      Eventable.prototype._coerceType = function(name, value, type) {
+        type || (type = this.types[name]);
         if (type) {
           if (!typemappings[type]) {
             showWarnings([&quot;Invalid type &#39;&quot; + type + &quot;&#39; for attribute &#39;&quot; + name + &quot;&#39;, must be one of: &quot; + (Object.keys(typemappings).join(&#39;, &#39;))]);
@@ -419,16 +428,9 @@
        */
 
       Eventable.prototype.sendEvent = function(name, value) {
-        var lockkey, _ref;
-        lockkey = &quot;c&quot; + name;
-        if (eventlock[name] === this &amp;&amp; eventlock[lockkey]++ &gt; 0) {
-          return this;
-        }
-        if (((_ref = this.events) != null ? _ref[name] : void 0) &amp;&amp; eventlock[name] !== this) {
-          eventlock[name] = this;
-          eventlock[lockkey] = 0;
+        var _ref;
+        if ((_ref = this.events) != null ? _ref[name] : void 0) {
           this.trigger(name, value, this);
-          eventlock = {};
         }
         return this;
       };
@@ -694,7 +696,7 @@
 
       matchConstraint = /\${(.+)}/;
 
-      earlyattributes = [&#39;parent&#39;, &#39;name&#39;];
+      earlyattributes = [&#39;name&#39;, &#39;parent&#39;];
 
       lateattributes = [&#39;data&#39;];
 
@@ -792,7 +794,7 @@
       }
 
       Node.prototype.installMethods = function(methods, tagname, scope, callbackscope) {
-        var allocation, args, method, methodlist, name, _i, _len, _ref;
+        var allocation, args, invokeSuper, method, methodlist, name, _i, _len, _ref;
         if (scope == null) {
           scope = this;
         }
@@ -802,8 +804,8 @@
         for (name in methods) {
           methodlist = methods[name];
           for (_i = 0, _len = methodlist.length; _i &lt; _len; _i++) {
-            _ref = methodlist[_i], method = _ref.method, args = _ref.args, allocation = _ref.allocation;
-            _installMethod(scope, name, compiler.compile(method, args, &quot;&quot; + tagname + &quot;$&quot; + name).bind(callbackscope), allocation);
+            _ref = methodlist[_i], method = _ref.method, args = _ref.args, allocation = _ref.allocation, invokeSuper = _ref.invokeSuper;
+            _installMethod(scope, name, compiler.compile(method, args, &quot;&quot; + tagname + &quot;$&quot; + name).bind(callbackscope), allocation, invokeSuper);
           }
         }
       };
@@ -903,14 +905,33 @@
         };
       };
 
-      _installMethod = function(scope, methodname, method, allocation) {
+      _installMethod = function(scope, methodname, method, allocation, invokeSuper) {
         var meth, supr;
         if (methodname in scope) {
           supr = scope[methodname];
           meth = method;
           return scope[methodname] = function() {
-            supr.apply(scope, arguments);
-            return meth.apply(scope, arguments);
+            var prevOwn, prevValue, retval;
+            if (invokeSuper === &#39;after&#39;) {
+              retval = meth.apply(scope, arguments);
+              supr.apply(scope, arguments);
+            } else if (invokeSuper === &#39;inside&#39;) {
+              prevValue = scope[&#39;super&#39;];
+              prevOwn = scope.hasOwnProperty(&#39;super&#39;);
+              scope[&#39;super&#39;] = function(args) {
+                return supr.apply(scope, args);
+              };
+              retval = meth.apply(scope, arguments);
+              if (prevOwn) {
+                scope[&#39;super&#39;] = prevValue;
+              } else {
+                delete scope.callSuper;
+              }
+            } else {
+              supr.apply(scope, arguments);
+              retval = meth.apply(scope, arguments);
+            }
+            return retval;
           };
         } else {
           return scope[methodname] = method;
@@ -992,7 +1013,7 @@
             }
           } else {
             scope.bind(ev, callback);
-            if (scope[ev]) {
+            if (ev in scope) {
               scope.sendEvent(ev, scope[ev]);
             }
           }
@@ -1040,7 +1061,9 @@
       };
 
       Node.prototype.set_name = function(name) {
-        return this.parent[name] = this;
+        if (this.parent &amp;&amp; name) {
+          return this.parent[name] = this;
+        }
       };
 
       Node.prototype.set_id = function(id) {
@@ -1048,15 +1071,16 @@
       };
 
       Node.prototype._removeFromParent = function(name) {
-        var arr, index;
+        var arr, index, removedNode;
         if (!this.parent) {
           return;
         }
         arr = this.parent[name];
         index = arr.indexOf(this);
         if (index !== -1) {
+          removedNode = arr[index];
           arr.splice(index, 1);
-          this.parent.sendEvent(name, arr[index]);
+          this.parent.sendEvent(name, removedNode);
         }
       };
 
@@ -1803,10 +1827,12 @@
       }
 
       InputText.prototype._createSprite = function(el, attributes) {
+        var multiline;
         InputText.__super__._createSprite.apply(this, arguments);
         attributes.text || (attributes.text = this.sprite.getText(true));
         this.sprite.setText(&#39;&#39;);
-        return this.sprite.createInputtextElement(&#39;&#39;, attributes.multiline, attributes.width, attributes.height);
+        multiline = this._coerceType(&#39;multiline&#39;, attributes.multiline, &#39;boolean&#39;);
+        return this.sprite.createInputtextElement(&#39;&#39;, multiline, attributes.width, attributes.height);
       };
 
       InputText.prototype._handleChange = function() {
@@ -2472,20 +2498,24 @@
               classattributes.$methods[name].push({
                 method: compiler.transform(script, type),
                 args: args,
-                allocation: attributes.allocation
+                allocation: attributes.allocation,
+                invokeSuper: attributes.invokesuper
               });
               break;
             case &#39;setter&#39;:
+              name = name.toLowerCase();
               if ((_base1 = classattributes.$methods)[_name = &#39;set_&#39; + name] == null) {
                 _base1[_name] = [];
               }
               classattributes.$methods[&#39;set_&#39; + name].push({
                 method: compiler.transform(script, type),
                 args: args,
-                allocation: attributes.allocation
+                allocation: attributes.allocation,
+                invokeSuper: attributes.invokesuper
               });
               break;
             case &#39;attribute&#39;:
+              name = name.toLowerCase();
               classattributes[name] = attributes.value;
               classattributes.$types[name] = attributes.type;
           }
@@ -2731,7 +2761,7 @@
         if (classattributes == null) {
           classattributes = {};
         }
-        name = classattributes.name;
+        name = (classattributes.name ? classattributes.name.toLowerCase() : classattributes.name);
         extend = classattributes[&quot;extends&quot;] != null ? classattributes[&quot;extends&quot;] : classattributes[&quot;extends&quot;] = &#39;view&#39;;
         compilertype = classattributes.type;
         for (ignored in ignoredAttributes) {
@@ -3144,6 +3174,17 @@
 
     })(StartEventable);
     mouseEvents = [&#39;click&#39;, &#39;mouseover&#39;, &#39;mouseout&#39;, &#39;mousedown&#39;, &#39;mouseup&#39;];
+    skipEvent = function(e) {
+      if (e.stopPropagation) {
+        e.stopPropagation();
+      }
+      if (e.preventDefault) {
+        e.preventDefault();
+      }
+      e.cancelBubble = true;
+      e.returnValue = false;
+      return false;
+    };
 
 <span id='dr-mouse'>    /**
 </span>     * @class dr.mouse
@@ -3225,6 +3266,7 @@
         if (view) {
           if (type === &#39;mousedown&#39;) {
             this._lastMouseDown = view;
+            skipEvent(event);
           }
         }
         if (type === &#39;mouseup&#39; &amp;&amp; this._lastMouseDown &amp;&amp; this._lastMouseDown !== view) {
