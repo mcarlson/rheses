@@ -53,6 +53,11 @@ SOFTWARE. -->
         */-->
 
       <!--/**
+        * @attribute {Boolean} stretches [stretches=false]
+        * Set to true to stretch the svg to fill the view.
+        */-->
+
+      <!--/**
         * @attribute {String} src
         * The svg contents to load
         */-->
@@ -75,6 +80,9 @@ SOFTWARE. -->
     <class name="art" type="coffee" scriptincludes="/lib/snap.svg-min.js" clickable="true">
       <attribute name="inline" value="false" type="boolean"></attribute>
       <attribute name="src" value="" type="string"></attribute>
+
+      <attribute name="stretches" value="false" type="boolean"></attribute>
+      <handler event="onstretches" method="resizeArt"></handler>
 
       <attribute name="path" value="" type="string"></attribute>
       <handler event="onpath">
@@ -102,7 +110,7 @@ SOFTWARE. -->
         # If debug=true, show attributes that pass through to the svg
         debug = window.location.search.indexOf('debug') > 0
         if debug
-          @expectedAttr = ['x','y','width','height','parent','clip','id','scrollable','clickable','visible','$textcontent','$tagname','inline','src','path'] unless @expectedAttr
+          @expectedAttr = ['x','y','width','height','parent','clip','id','scrollable','clickable','visible','$textcontent','$tagname','inline','src','path','stretches'] unless @expectedAttr
           unless name in @expectedAttr
             console.warn('Passing attribute', name, 'to svg')
       </method>
@@ -174,6 +182,8 @@ SOFTWARE. -->
           @snap.mousemove -> _this.sendEvent('mousemove')
           @snap.mouseover -> _this.sendEvent('mouseover')
           @snap.mouseout -> _this.sendEvent('mouseout')
+
+        @resizeArt()
 
         # Hide the static svg object
         @hide_art()
@@ -263,6 +273,7 @@ SOFTWARE. -->
 
           # Add a viewPort if one is missing and w,h was absolute
           viewBox = svg.getAttribute('viewBox')
+          svg.setAttribute('viewBox_orig', viewBox) if viewBox
           if w && h && !viewBox
             # Add a viewBox to match the size
             viewBox = '0 0 ' + w + ' ' + h
@@ -279,8 +290,32 @@ SOFTWARE. -->
             $(svg).on 'mouseover', -> _this.sendEvent('mouseover')
             $(svg).on 'mouseout', -> _this.sendEvent('mouseout')
 
+        @resizeArt()
+
         # Move to the specified path
         @animate_path(@path) if @path.length > 0
+      </method>
+
+      <method name="resizeArt">
+        # Resize the art, if needed, for changes in container size
+
+        # Apply stretches to the static svg
+        if @container and @stretches
+          elements = $(@container).find('svg')
+          if elements.length > 0
+            svg = elements[0]
+            if @stretches
+              svg.setAttribute('preserveAspectRatio', 'none')
+            else
+              svg.removeAttribute('preserveAspectRatio')
+
+        # Apply stretches to the snap svg
+        if @snap
+          svg = $(@snap.node)[0]
+          if @stretches
+            svg.setAttribute('preserveAspectRatio', 'none')
+          else
+            svg.removeAttribute('preserveAspectRatio')
       </method>
 
       <method name="loadInline">
