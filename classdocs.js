@@ -82,12 +82,12 @@
         * The svg path element to display. Can either be the name of the &lt;g&gt; element containing the path or a 0-based index.
         */
 /**
-        * @event onartready
+        * @event onready
         * Fired when the art is loaded and ready
         */
 /**
-        * @event ontweening
-        * Fired when the art has animated to the next position
+        * @event ontween
+        * Fired when the art has animated its path to the next position
         */
 /**
      * @class dr.audioplayer

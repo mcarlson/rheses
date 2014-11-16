@@ -67,18 +67,19 @@ SOFTWARE. -->
         */-->
 
       <!--/**
-        * @event onartready
+        * @event onready
         * Fired when the art is loaded and ready
         */-->
 
       <!--/**
-        * @event ontweening
-        * Fired when the art has animated to the next position
+        * @event ontween
+        * Fired when the art has animated its path to the next position
         */-->
 
     <class name="art" type="coffee" scriptincludes="/lib/snap.svg-min.js" clickable="true">
       <attribute name="inline" value="false" type="boolean"></attribute>
       <attribute name="src" value="" type="string"></attribute>
+      <attribute name="preserveaspectratio" value="" type="string"></attribute>
 
       <attribute name="path" value="" type="string"></attribute>
       <handler event="onpath">
@@ -138,7 +139,7 @@ SOFTWARE. -->
           params['d'] = d1
           _this = this
           @snappath.animate params, msec, bounce, ->
-            _this.sendEvent('tweening')
+            _this.sendEvent('tween')
       </method>
 
 
@@ -244,7 +245,7 @@ SOFTWARE. -->
         return rect
       </method>
 
-      <handler event="onartready" method="normalizeArt"></handler>
+      <handler event="onready" method="normalizeArt"></handler>
 
       <method name="normalizeArt">
         return unless @container
@@ -302,11 +303,11 @@ SOFTWARE. -->
         # Refresh the div
         $(@container).html($(@container).html())
 
-        # Trigger artready
+        # Trigger ready
         #TODO Can this be improved? I tried binding to DOM events, svg loaded
         _this = this
         setTimeout ( ->
-          _this.sendEvent('artready')
+          _this.sendEvent('ready')
         ), 1
       </method>
 
@@ -317,8 +318,8 @@ SOFTWARE. -->
         # Fire onload when the graphic is loaded
         _this = this
         $(@container).load @src, ->
-          # Generate onartready event
-          _this.sendEvent('artready')
+          # Generate onready event
+          _this.sendEvent('ready')
       </method>
 
     </class>
