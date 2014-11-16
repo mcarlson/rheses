@@ -90,7 +90,7 @@
      * @private
      * A lightweight event system, used internally.
      */
-    triggerlock = {};
+    triggerlock = null;
     Events = {
 
       /**
@@ -136,20 +136,22 @@
         if (!list) {
           return;
         }
-        if (triggerlock.scope === this && triggerlock.ev === ev) {
+        if (triggerlock && triggerlock.scope === this && triggerlock.ev === ev) {
           return this;
         }
-        triggerlock = {
-          ev: ev,
-          scope: this
-        };
+        if (!triggerlock) {
+          triggerlock = {
+            ev: ev,
+            scope: this
+          };
+        }
         for (_i = 0, _len = list.length; _i < _len; _i++) {
           callback = list[_i];
           if (callback.apply(this, args) === false) {
             break;
           }
         }
-        triggerlock = {};
+        triggerlock = null;
         return this;
       },
 

@@ -15,13 +15,14 @@
 </head>
 <body>
 <view width="100%">
-  <view name="redbox" width="100" height="100" bgcolor="red">
+  <view name="redbox" width="100" height="${this.width}" bgcolor="red">
     <handler event="onheight" args="h">
-      this.setAttribute('height', h + 100)
+      this.setAttribute('width', h + 100)
     </handler>
   </view>
   <handler event="oninit">
     assert.equal(this.redbox.height, 200)
+    assert.equal(this.redbox.width, 200)
   </handler>
 
   <!-- Useful for debugging, from tracker bug 77982314 -->

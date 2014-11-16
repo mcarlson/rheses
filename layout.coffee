@@ -59,7 +59,7 @@ window.dr = do ->
   # A lightweight event system, used internally.
   ###
   # based on https://github.com/spine/spine/tree/dev/src
-  triggerlock = {}
+  triggerlock = null
   Events =
     ###*
     # Binds an event to the current scope
@@ -91,17 +91,21 @@ window.dr = do ->
     trigger: (ev, args...) ->
       list = @hasOwnProperty('events') and @events?[ev]
       return unless list
-      if triggerlock.scope == @ and triggerlock.ev == ev
+      if triggerlock and triggerlock.scope == @ and triggerlock.ev == ev
         return @
-      triggerlock = {
-        ev: ev
-        scope: @
-      }
+      unless triggerlock
+        triggerlock = {
+          ev: ev
+          scope: @
+        }
+        # console.log triggerlock
+      # else
+      #   console.log 'old', triggerlock
       # if list then console.log 'trigger', ev, list
       for callback in list
         if callback.apply(@, args) is false
           break
-      triggerlock = {}
+      triggerlock = null
       @
     ###*
     # Listens for an event on a specific scope
