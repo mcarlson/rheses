@@ -2556,6 +2556,7 @@ window.dr = do ->
       # listen for changes in the parent
       @listenTo(@parent, 'subviewAdded', @addSubview.bind(@))
       @listenTo(@parent, 'subviewRemoved', @removeSubview.bind(@))
+      @listenTo(@parent, 'init', @update)
       
       # Store ourself in the parent layouts
       @parent.layouts ?= []
@@ -2666,7 +2667,7 @@ window.dr = do ->
     # @return {boolean} true if not locked, false otherwise.
     ###
     canUpdate: ->
-      return !@locked
+      return !@locked and @parent.inited
     
     ###*
     # Updates the layout. Subclasses should call canUpdate to check lock state

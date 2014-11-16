@@ -3196,6 +3196,7 @@
         Layoot.__super__.constructor.apply(this, arguments);
         this.listenTo(this.parent, 'subviewAdded', this.addSubview.bind(this));
         this.listenTo(this.parent, 'subviewRemoved', this.removeSubview.bind(this));
+        this.listenTo(this.parent, 'init', this.update);
         if ((_base = this.parent).layouts == null) {
           _base.layouts = [];
         }
@@ -3339,7 +3340,7 @@
        */
 
       Layoot.prototype.canUpdate = function() {
-        return !this.locked;
+        return !this.locked && this.parent.inited;
       };
 
 
