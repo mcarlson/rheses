@@ -49,10 +49,10 @@ SOFTWARE. -->
      *       </handler>
      *     </art>
      *
-     * By default, the SVG's aspect ratio is preserved. Set the preserveaspectratio attribute to "none" to change this behavior
+     * By default, the SVG's aspect ratio is preserved. Set the stretches attribute to true to change this behavior.
      *
      *     @example
-     *     <art width="200" height="100" src="/images/cursorshapes.svg" path="0" fill="coral" preserveaspectratio="none">
+     *     <art width="200" height="100" src="/images/cursorshapes.svg" path="0" fill="coral" stretches="true">
      *       <handler event="onclick">
      *         this.setAttribute('path', this.path ^ 1);
      *         this.animate({width: (this.width == 200 ? 100 : 200)});
@@ -67,6 +67,11 @@ SOFTWARE. -->
         */-->
 
       <!--/**
+        * @attribute {Boolean} stretches [stretches=false]
+        * Set to true to stretch the svg to fill the view.
+        */-->
+
+      <!--/**
         * @attribute {String} src
         * The svg contents to load
         */-->
@@ -74,11 +79,6 @@ SOFTWARE. -->
       <!--/**
         * @attribute {String|Number} path
         * The svg path element to display. Can either be the name of the &lt;g&gt; element containing the path or a 0-based index.
-        */-->
-
-      <!--/**
-        * @attribute {String} preserveaspectratio
-        * By default, an SVG's aspect ratio is preserved. Set to "none" to stretch to fill the  container
         */-->
 
       <!--/**
@@ -104,9 +104,11 @@ SOFTWARE. -->
     <class name="art" type="coffee" scriptincludes="/lib/snap.svg-min.js" clickable="true">
       <attribute name="inline" value="false" type="boolean"></attribute>
       <attribute name="src" value="" type="string"></attribute>
-      <attribute name="preserveaspectratio" value="" type="string"></attribute>
       <attribute name="animationspeed" value="400" type="number"></attribute>
       <attribute name="animationcurve" value="linear" type="string"></attribute>
+
+      <attribute name="stretches" value="false" type="boolean"></attribute>
+      <handler event="onstretches" method="resizeArt"></handler>
 
       <attribute name="path" value="" type="string"></attribute>
       <handler event="onpath">
@@ -118,10 +120,6 @@ SOFTWARE. -->
         return if !src
         return if @src == src
         @src = src
-      </setter>
-
-      <setter name="preserveaspectratio" args="preserveaspectratio">
-        @snap?.attr({preserveAspectRatio: preserveaspectratio})
       </setter>
 
       <handler event="oninit">
@@ -138,7 +136,7 @@ SOFTWARE. -->
         # If debug=true, show attributes that pass through to the svg
         debug = window.location.search.indexOf('debug') > 0
         if debug
-          @expectedAttr = ['x','y','width','height','parent','clip','id','scrollable','clickable','visible','$textcontent','$tagname','inline','src','path'] unless @expectedAttr
+          @expectedAttr = ['x','y','width','height','parent','clip','id','scrollable','clickable','visible','$textcontent','$tagname','inline','src','path','stretches','animationspeed','animationcurve'] unless @expectedAttr
           unless name in @expectedAttr
             console.warn('Passing attribute', name, 'to svg')
       </method>
@@ -197,7 +195,6 @@ SOFTWARE. -->
         rect = @get_bounding_box()
         viewbox = rect.x + ' ' + rect.y + ' ' + rect.width + ' ' + rect.height
         @snap.attr({viewBox: viewbox})
-        @snap.attr({preserveAspectRatio: @preserveaspectratio})
 
         # If this object is clickable, listen to mouse events
         if @clickable
@@ -207,6 +204,8 @@ SOFTWARE. -->
           @snap.mousemove => @sendEvent('mousemove')
           @snap.mouseover => @sendEvent('mouseover')
           @snap.mouseout => @sendEvent('mouseout')
+
+        @resizeArt()
 
         # Hide the static svg object
         @hide_art()
@@ -296,6 +295,7 @@ SOFTWARE. -->
 
           # Add a viewPort if one is missing and w,h was absolute
           viewBox = svg.getAttribute('viewBox')
+          svg.setAttribute('viewBox_orig', viewBox) if viewBox
           if w && h && !viewBox
             # Add a viewBox to match the size
             viewBox = '0 0 ' + w + ' ' + h
@@ -311,8 +311,32 @@ SOFTWARE. -->
             $(svg).on 'mouseover', => @sendEvent('mouseover')
             $(svg).on 'mouseout', => @sendEvent('mouseout')
 
+        @resizeArt()
+
         # Move to the specified path
         @animate_path(@path) if @path.length > 0
+      </method>
+
+      <method name="resizeArt">
+        # Resize the art, if needed, for changes in container size
+
+        # Apply stretches to the static svg
+        if @container and @stretches
+          elements = $(@container).find('svg')
+          if elements.length > 0
+            svg = elements[0]
+            if @stretches
+              svg.setAttribute('preserveAspectRatio', 'none')
+            else
+              svg.removeAttribute('preserveAspectRatio')
+
+        # Apply stretches to the snap svg
+        if @snap
+          svg = $(@snap.node)[0]
+          if @stretches
+            svg.setAttribute('preserveAspectRatio', 'none')
+          else
+            svg.removeAttribute('preserveAspectRatio')
       </method>
 
       <method name="loadInline">
