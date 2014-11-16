@@ -927,44 +927,12 @@ window.dr = do ->
       # console.log 'sprite animate', arguments[0], @jqel
       @jqel.animate.apply(@jqel, arguments)
 
-    sendMouseEvent: (type, first) ->
-      simulatedEvent = document.createEvent('MouseEvent')
-      simulatedEvent.initMouseEvent(type, true, true, window, 1,
-                                first.pageX, first.pageY,
-                                first.clientX, first.clientY, false,
-                                false, false, false, 0, null)
-      first.target.dispatchEvent(simulatedEvent)
-      if first.target.$view and first.target.$view.$tagname isnt 'inputtext'
-        event.preventDefault()
 
-    lastTouchDown = null
-    touchHandler: (event) =>
-      touches = event.changedTouches
-      first = touches[0]
-
-      switch event.type
-        when 'touchstart'
-          @sendMouseEvent('mouseover', first)
-          @sendMouseEvent('mousedown', first)
-          lastTouchDown = first.target
-        when 'touchmove'
-          @sendMouseEvent('mousemove', first)
-        when 'touchend'
-          @sendMouseEvent('mouseup', first)
-          if (lastTouchDown == first.target)
-            @sendMouseEvent('click', first)
-            lastTouchDown = null
 
     set_clickable: (clickable) ->
       @__clickable = clickable
       @__updatePointerEvents()
       @setStyle('cursor', clickable, true)
-
-      if capabilities.touch
-        document.addEventListener('touchstart', @touchHandler, true)
-        document.addEventListener('touchmove', @touchHandler, true)
-        document.addEventListener('touchend', @touchHandler, true)
-        document.addEventListener('touchcancel', @touchHandler, true)
 
       # TODO: retrigger the event for the element below for IE and Opera? See http://stackoverflow.com/questions/3680429/click-through-a-div-to-underlying-elements
       # el = $(event.target)
@@ -2601,9 +2569,43 @@ window.dr = do ->
       @docSelector.on(mouseEvents.join(' '), @handle)
       @docSelector.on("mousemove", @handle).one("mouseout", @stopEvent)
 
+      if capabilities.touch
+        document.addEventListener('touchstart', @touchHandler, true)
+        document.addEventListener('touchmove', @touchHandler, true)
+        document.addEventListener('touchend', @touchHandler, true)
+        document.addEventListener('touchcancel', @touchHandler, true)
+
     startEventTest: () ->
       @events['mousemove']?.length or @events['x']?.length or @events['y']?.length
 
+    sendMouseEvent: (type, first) ->
+      simulatedEvent = document.createEvent('MouseEvent')
+      simulatedEvent.initMouseEvent(type, true, true, window, 1,
+                                first.pageX, first.pageY,
+                                first.clientX, first.clientY, false,
+                                false, false, false, 0, null)
+      first.target.dispatchEvent(simulatedEvent)
+      if first.target.$view and first.target.$view.$tagname isnt 'inputtext'
+        event.preventDefault()
+
+    lastTouchDown = null
+    touchHandler: (event) =>
+      touches = event.changedTouches
+      first = touches[0]
+
+      switch event.type
+        when 'touchstart'
+          @sendMouseEvent('mouseover', first)
+          @sendMouseEvent('mousedown', first)
+          lastTouchDown = first.target
+        when 'touchmove'
+          @sendMouseEvent('mousemove', first)
+        when 'touchend'
+          @sendMouseEvent('mouseup', first)
+          if (lastTouchDown == first.target)
+            @sendMouseEvent('click', first)
+            lastTouchDown = null
+            
     handle: (event) =>
       view = event.target.$view
       type = event.type

@@ -1163,7 +1163,7 @@
      * Abstracts the underlying visual primitives (currently HTML) from dreem's view system.
      */
     Sprite = (function() {
-      var lastTouchDown, noop, styleval;
+      var noop, styleval;
 
       noop = function() {};
 
@@ -1189,7 +1189,6 @@
           tagname = 'div';
         }
         this.handle = __bind(this.handle, this);
-        this.touchHandler = __bind(this.touchHandler, this);
         this.animate = __bind(this.animate, this);
         if (jqel == null) {
           this.el = document.createElement(tagname);
@@ -1244,48 +1243,10 @@
         return this.jqel.animate.apply(this.jqel, arguments);
       };
 
-      Sprite.prototype.sendMouseEvent = function(type, first) {
-        var simulatedEvent;
-        simulatedEvent = document.createEvent('MouseEvent');
-        simulatedEvent.initMouseEvent(type, true, true, window, 1, first.pageX, first.pageY, first.clientX, first.clientY, false, false, false, false, 0, null);
-        first.target.dispatchEvent(simulatedEvent);
-        if (first.target.$view && first.target.$view.$tagname !== 'inputtext') {
-          return event.preventDefault();
-        }
-      };
-
-      lastTouchDown = null;
-
-      Sprite.prototype.touchHandler = function(event) {
-        var first, touches;
-        touches = event.changedTouches;
-        first = touches[0];
-        switch (event.type) {
-          case 'touchstart':
-            this.sendMouseEvent('mouseover', first);
-            this.sendMouseEvent('mousedown', first);
-            return lastTouchDown = first.target;
-          case 'touchmove':
-            return this.sendMouseEvent('mousemove', first);
-          case 'touchend':
-            this.sendMouseEvent('mouseup', first);
-            if (lastTouchDown === first.target) {
-              this.sendMouseEvent('click', first);
-              return lastTouchDown = null;
-            }
-        }
-      };
-
       Sprite.prototype.set_clickable = function(clickable) {
         this.__clickable = clickable;
         this.__updatePointerEvents();
-        this.setStyle('cursor', clickable, true);
-        if (capabilities.touch) {
-          document.addEventListener('touchstart', this.touchHandler, true);
-          document.addEventListener('touchmove', this.touchHandler, true);
-          document.addEventListener('touchend', this.touchHandler, true);
-          return document.addEventListener('touchcancel', this.touchHandler, true);
-        }
+        return this.setStyle('cursor', clickable, true);
       };
 
       Sprite.prototype.set_clip = function(clip) {
@@ -3244,6 +3205,8 @@
      *
      */
     Mouse = (function(_super) {
+      var lastTouchDown;
+
       __extends(Mouse, _super);
 
 
@@ -3284,16 +3247,55 @@
       function Mouse() {
         this.sender = __bind(this.sender, this);
         this.handle = __bind(this.handle, this);
+        this.touchHandler = __bind(this.touchHandler, this);
         this.x = 0;
         this.y = 0;
         this.docSelector = $(document);
         this.docSelector.on(mouseEvents.join(' '), this.handle);
         this.docSelector.on("mousemove", this.handle).one("mouseout", this.stopEvent);
+        if (capabilities.touch) {
+          document.addEventListener('touchstart', this.touchHandler, true);
+          document.addEventListener('touchmove', this.touchHandler, true);
+          document.addEventListener('touchend', this.touchHandler, true);
+          document.addEventListener('touchcancel', this.touchHandler, true);
+        }
       }
 
       Mouse.prototype.startEventTest = function() {
         var _ref, _ref1, _ref2;
         return ((_ref = this.events['mousemove']) != null ? _ref.length : void 0) || ((_ref1 = this.events['x']) != null ? _ref1.length : void 0) || ((_ref2 = this.events['y']) != null ? _ref2.length : void 0);
+      };
+
+      Mouse.prototype.sendMouseEvent = function(type, first) {
+        var simulatedEvent;
+        simulatedEvent = document.createEvent('MouseEvent');
+        simulatedEvent.initMouseEvent(type, true, true, window, 1, first.pageX, first.pageY, first.clientX, first.clientY, false, false, false, false, 0, null);
+        first.target.dispatchEvent(simulatedEvent);
+        if (first.target.$view && first.target.$view.$tagname !== 'inputtext') {
+          return event.preventDefault();
+        }
+      };
+
+      lastTouchDown = null;
+
+      Mouse.prototype.touchHandler = function(event) {
+        var first, touches;
+        touches = event.changedTouches;
+        first = touches[0];
+        switch (event.type) {
+          case 'touchstart':
+            this.sendMouseEvent('mouseover', first);
+            this.sendMouseEvent('mousedown', first);
+            return lastTouchDown = first.target;
+          case 'touchmove':
+            return this.sendMouseEvent('mousemove', first);
+          case 'touchend':
+            this.sendMouseEvent('mouseup', first);
+            if (lastTouchDown === first.target) {
+              this.sendMouseEvent('click', first);
+              return lastTouchDown = null;
+            }
+        }
       };
 
       Mouse.prototype.handle = function(event) {
