@@ -25,10 +25,11 @@ SOFTWARE. -->
      * @extends dr.abstractart
      * Vector graphics support using svg.
      *
-     * This example shows how to include some svg art inline
+     * This example shows how to load an existing svg
      *
      *     @example
-     *     <art data="/images/cursorshapes.svg" type="image/svg+xml" width="100" height="100" x="10" y="10"></art>
+     *     <art width="100" height="100" src="/images/siemens-clock.svg">
+     *     </art>
      *
      */-->    
 
@@ -40,6 +41,11 @@ SOFTWARE. -->
       <!--/**
         * @attribute {String} src
         * The svg contents to load
+        */-->
+
+      <!--/**
+        * @attribute {String} path
+        * The svg path element to display. Path can either be a named path, or a 0-based index of the path to display.
         */-->
 
       <!--/**
@@ -209,6 +215,11 @@ SOFTWARE. -->
             x1 = Math.max(x1, box.x + box.width)
             y1 = Math.max(y1, box.y + box.height)
         if rect
+          # Use floor/ceil to create a viewBox that covers all paths
+          x1 = Math.ceil(x1)
+          y1 = Math.ceil(y1)
+          rect.x = Math.floor(rect.x)
+          rect.y = Math.floor(rect.y)
           rect.width = x1 - rect.x
           rect.height = y1 - rect.y
 
