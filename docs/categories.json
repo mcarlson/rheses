@@ -27,10 +27,10 @@
                 "name": "UI Components",
                 "classes": [
                     "dr.ace",
+                    "dr.art",
                     "dr.buttonbase",
                     "dr.checkbutton",
                     "dr.view",
-                    "dr.window",
                     "dr.text",
                     "dr.audioplayer",
                     "dr.bitmap",
@@ -38,8 +38,9 @@
                     "dr.labelbutton",
                     "dr.labeltoggle",
                     "dr.slider",
+                    "dr.rangeslider",
                     "dr.dragstate",
-                    "dr.dreem_iframe"
+                    "dr.webpage"
                 ]
             },
             {
@@ -53,6 +54,7 @@
             {
                 "name": "Input",
                 "classes": [
+                    "dr.inputtext",
                     "dr.keyboard",
                     "dr.mouse",
                     "dr.gyro",
@@ -72,7 +74,8 @@
                     "dr.logger",
                     "dr.stats",
                     "dr.idle",
-                    "dr.shim"
+                    "dr.shim",
+                    "dr.window"
                 ]
             }
         ]
