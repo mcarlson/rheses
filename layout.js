@@ -3209,7 +3209,7 @@
      *
      */
     Mouse = (function(_super) {
-      var lastTouchDown;
+      var lastTouchDown, lastTouchOver;
 
       __extends(Mouse, _super);
 
@@ -3282,8 +3282,10 @@
 
       lastTouchDown = null;
 
+      lastTouchOver = null;
+
       Mouse.prototype.touchHandler = function(event) {
-        var first, touches;
+        var first, over, touches;
         touches = event.changedTouches;
         first = touches[0];
         switch (event.type) {
@@ -3292,6 +3294,20 @@
             this.sendMouseEvent('mousedown', first);
             return lastTouchDown = first.target;
           case 'touchmove':
+            over = document.elementFromPoint(first.pageX - window.pageXOffset, first.pageY - window.pageYOffset);
+            if (over && over.$view) {
+              if (lastTouchOver !== over) {
+                this.handle({
+                  target: lastTouchOver,
+                  type: 'mouseout'
+                });
+                lastTouchOver = over;
+              }
+              this.handle({
+                target: over,
+                type: 'mouseover'
+              });
+            }
             return this.sendMouseEvent('mousemove', first);
           case 'touchend':
             this.sendMouseEvent('mouseup', first);

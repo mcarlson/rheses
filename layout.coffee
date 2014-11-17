@@ -2596,6 +2596,7 @@ window.dr = do ->
         event.preventDefault()
 
     lastTouchDown = null
+    lastTouchOver = null
     touchHandler: (event) =>
       touches = event.changedTouches
       first = touches[0]
@@ -2606,6 +2607,15 @@ window.dr = do ->
           @sendMouseEvent('mousedown', first)
           lastTouchDown = first.target
         when 'touchmove'
+          # console.log 'touchmove', event.touches, first, window.pageXOffset, window.pageYOffset, first.pageX, first.pageY, first.target
+          over = document.elementFromPoint(first.pageX - window.pageXOffset, first.pageY - window.pageYOffset);
+          if (over and over.$view)
+            if (lastTouchOver != over)
+              @handle({target: lastTouchOver, type: 'mouseout'}) 
+              lastTouchOver = over
+            @handle({target: over, type: 'mouseover'})
+            # console.log 'over', over, over.$view
+
           @sendMouseEvent('mousemove', first)
         when 'touchend'
           @sendMouseEvent('mouseup', first)
