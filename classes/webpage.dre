@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. -->
 
   <!--/**
-     * @class dr.dreem_iframe
+     * @class dr.webpage
      * @extends dr.view
      * iframe component for embedding dreem code or html in a dreem application.
      * The size of the iframe matches the width/height of the view when the
@@ -33,22 +33,22 @@ SOFTWARE. -->
      * contents of the iframe are not editable:
      *
      *     @example
-     *     <dreem_iframe src="http://en.wikipedia.org/wiki/San_Francisco" width="300" height="140"></dreem_iframe>
+     *     <webpage src="http://en.wikipedia.org/wiki/San_Francisco" width="300" height="140"></webpage>
      *
      * To make the web page clickable, and to add scrolling:
      *
      *     @example
-     *     <dreem_iframe src="http://en.wikipedia.org/wiki/San_Francisco" width="300" height="140" scrolling="true" clickable="true"></dreem_iframe>
+     *     <webpage src="http://en.wikipedia.org/wiki/San_Francisco" width="300" height="140" scrolling="true" clickable="true"></webpage>
      *
      * The content of the iframe can also be dynamically generated, including
      * adding Dreem code:
      *
      *     @example
-     *     <dreem_iframe width="300" height="140" contents="Hello"></dreem_iframe>
+     *     <webpage width="300" height="140" contents="Hello"></webpage>
      *
      */-->    
 
-    <class name="dreem_iframe" type="coffee">
+    <class name="webpage" type="coffee">
       <handler event="onwidth" method="handleResize"></handler>
       <handler event="onheight" method="handleResize"></handler>
 

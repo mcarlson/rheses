@@ -1,31 +1,4 @@
 /**
-     * @class dr.abstractart
-     * @extends dr.view
-     * Component wrapper for object tag.
-     * The size of the object matches the width/height of the view when the
-     * component is created. dr.abstractart is usually used as a base class
-     * for art, but it can be directly to embed svg files into dreem.
-     *
-     */
-/**
-        * @attribute {String} [data=""]
-        * url to be used by the object.
-        * Same meaning as the data attribute in the html object tag.
-        */
-/**
-        * @attribute {String} [type=""]
-        * media type of the data specified in the data attribute
-        * Same meaning as the type attribute in the html object tag.
-        */
-/**
-        * @method getDom
-        * Returns the base of the object dom
-        */
-/**
-        * @event onload 
-        * Fired when the object is loaded.
-        */
-/**
      * @class dr.ace
      * @extends dr.view
      * Ace editor component.
@@ -68,19 +41,75 @@
         */
 /**
      * @class dr.art
-     * @extends dr.abstractart
+     * @extends dr.view
      * Vector graphics support using svg.
      *
-     * This example shows how to include some svg art inline
+     * This example shows how to load an existing svg
      *
      *     @example
-     *     <art data="/images/cursorshapes.svg" type="image/svg+xml" width="100" height="100" x="10" y="10"></art>
+     *     <art width="100" height="100" src="/images/siemens-clock.svg"></art>
+     *
+     * Paths within an svg can be selected using the path attribute
+     *
+     *     @example
+     *     <art width="100" height="100" src="/images/cursorshapes.svg" path="0"></art>
+     *
+     * Attributes are automatically passed through to the SVG. Here, the fill color is changed
+     *
+     *     @example
+     *     <art width="100" height="100" src="/images/cursorshapes.svg" path="0" fill="coral"></art>
+     *
+     * Setting the path attribute animates between paths. This example animates when the mouse is clicked
+     *
+     *     @example
+     *     <art width="100" height="100" src="/images/cursorshapes.svg" path="0" fill="coral">
+     *       <handler event="onclick">
+     *         this.setAttribute('path', this.path ^ 1);
+     *       </handler>
+     *     </art>
+     *
+     * By default, the SVG's aspect ratio is preserved. Set the stretches attribute to true to change this behavior.
+     *
+     *     @example
+     *     <art width="200" height="100" src="/images/cursorshapes.svg" path="0" fill="coral" stretches="true">
+     *       <handler event="onclick">
+     *         this.setAttribute('path', this.path ^ 1);
+     *         this.animate({width: (this.width == 200 ? 100 : 200)});
+     *       </handler>
+     *     </art>
      *
      */
 /**
-        * @method resizeToView
-        * Modify the embedded svg object to use the size of the view.
-        * Called in response to the onload event.
+        * @attribute {Boolean} [inline=false]
+        * Set to true if the svg contents is found inline, as a comment
+        */
+/**
+        * @attribute {Boolean} stretches [stretches=false]
+        * Set to true to stretch the svg to fill the view.
+        */
+/**
+        * @attribute {String} src
+        * The svg contents to load
+        */
+/**
+        * @attribute {String|Number} path
+        * The svg path element to display. Can either be the name of the &lt;g&gt; element containing the path or a 0-based index.
+        */
+/**
+        * @attribute {Number} [animationspeed=400]
+        * The number of milliseconds to use when animating between paths
+        */
+/**
+        * @attribute {"linear"/"easeout"/"easein"/"easeinout"/"backin"/"backout"/"elastic"/"bounce"} [animationcurve="linear"]
+        * The name of the curve to use when animating between paths
+        */
+/**
+        * @event onready
+        * Fired when the art is loaded and ready
+        */
+/**
+        * @event ontween
+        * Fired when the art has animated its path to the next position
         */
 /**
      * @class dr.audioplayer
@@ -90,7 +119,7 @@
      * This example shows how to load and play an mp3 audio file from the server:
      *
      *     @example
-     *     <audioplayer url="music/YACHT_-_09_-_Im_In_Love_With_A_Ripper_Party_Mix_Instrumental.mp3" playing="true"></audioplayer>
+     *     <audioplayer url="/music/YACHT_-_09_-_Im_In_Love_With_A_Ripper_Party_Mix_Instrumental.mp3" playing="true"></audioplayer>
      */
 /**
         * @attribute {String} url
@@ -376,48 +405,6 @@
         * The axes to drag on.
         */
 /**
-     * @class dr.dreem_iframe
-     * @extends dr.view
-     * iframe component for embedding dreem code or html in a dreem application.
-     * The size of the iframe matches the width/height of the view when the
-     * component is created. The iframe component can show a web page by
-     * using the src attribute, or to show dynamic content using the
-     * contents attribute.
-     *
-     * This example shows how to display a web page in an iframe. The 
-     * contents of the iframe are not editable:
-     *
-     *     @example
-     *     <dreem_iframe src="http://en.wikipedia.org/wiki/San_Francisco" width="300" height="140"></dreem_iframe>
-     *
-     * To make the web page clickable, and to add scrolling:
-     *
-     *     @example
-     *     <dreem_iframe src="http://en.wikipedia.org/wiki/San_Francisco" width="300" height="140" scrolling="true" clickable="true"></dreem_iframe>
-     *
-     * The content of the iframe can also be dynamically generated, including
-     * adding Dreem code:
-     *
-     *     @example
-     *     <dreem_iframe width="300" height="140" contents="Hello"></dreem_iframe>
-     *
-     */
-/**
-        * @attribute {String} [src="/iframe_stub.html"]
-        * url to load inside the iframe. By default, a file is loaded that has
-        * an empty body but includes the libraries needed to support Dreem code.
-        */
-/**
-        * @attribute {Boolean} [scrolling="false"]
-        * Controls scrollbar display in the iframe.
-        */
-/**
-        * @attribute {String} [contents=""]
-        * string to write into the iframe body. This is dreem/html code
-        * that is written inside the iframe's body tag. If you want to display
-        * static web pages, specify the src attribute, but do not use contents.
-        */
-/**
      * @class dr.gyro
      * @extends dr.node
      * Receives gyroscope and compass data where available. See [https://w3c.github.io/deviceorientation/spec-source-orientation.html#deviceorientation](https://w3c.github.io/deviceorientation/spec-source-orientation.html#deviceorientation) and [https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html](https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html) for details.
@@ -487,6 +474,7 @@
      *
      * This example shows how to log all setAttribute() calls for a replicator to console.log():
      *
+     *     @example
      *     <dataset name="topmovies" url="/top_movies.json"></dataset>
      *     <replicator datapath="$topmovies/searchResponse/results[*]/movie[take(/releaseYear,/duration,/rating)]" classname="logger"></replicator>
      */
@@ -895,4 +883,46 @@
 /**
         * @attribute {Object[]} touches (readonly)
         * An array of x/y coordinates for all fingers, where available. See [https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Touch_events](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Touch_events) for more details
+        */
+/**
+     * @class dr.webpage
+     * @extends dr.view
+     * iframe component for embedding dreem code or html in a dreem application.
+     * The size of the iframe matches the width/height of the view when the
+     * component is created. The iframe component can show a web page by
+     * using the src attribute, or to show dynamic content using the
+     * contents attribute.
+     *
+     * This example shows how to display a web page in an iframe. The 
+     * contents of the iframe are not editable:
+     *
+     *     @example
+     *     <webpage src="http://en.wikipedia.org/wiki/San_Francisco" width="300" height="140"></webpage>
+     *
+     * To make the web page clickable, and to add scrolling:
+     *
+     *     @example
+     *     <webpage src="http://en.wikipedia.org/wiki/San_Francisco" width="300" height="140" scrolling="true" clickable="true"></webpage>
+     *
+     * The content of the iframe can also be dynamically generated, including
+     * adding Dreem code:
+     *
+     *     @example
+     *     <webpage width="300" height="140" contents="Hello"></webpage>
+     *
+     */
+/**
+        * @attribute {String} [src="/iframe_stub.html"]
+        * url to load inside the iframe. By default, a file is loaded that has
+        * an empty body but includes the libraries needed to support Dreem code.
+        */
+/**
+        * @attribute {Boolean} [scrolling="false"]
+        * Controls scrollbar display in the iframe.
+        */
+/**
+        * @attribute {String} [contents=""]
+        * string to write into the iframe body. This is dreem/html code
+        * that is written inside the iframe's body tag. If you want to display
+        * static web pages, specify the src attribute, but do not use contents.
         */

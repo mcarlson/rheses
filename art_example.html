@@ -37,15 +37,17 @@
     </handler>
   </labelbutton>
 
-  <art id="art_1" width="100" height="100" src="/images/cursorshapes.svg" path="0" stroke="coral" fill="coral">
-    <handler event="onartready">
-      console.log("onartready");
+  <art id="art_1" width="100" height="100" src="/images/cursorshapes.svg" path="0" stroke="coral" fill="coral" stretches="true" animationcurve="bounce" animationspeed="2000">
+    <handler event="onready">
+      console.log("onready");
     </handler>
-    <handler event="ontweening">
+    <handler event="ontween">
       console.log("animation finished")
     </handler>
     <handler event="onclick">
-      console.log("onclick")
+      this.setAttribute('path', this.path ^ 1);
+      size = this.width == 100 ? 200 : 100;
+      this.animate({width: size})
     </handler>
   </art>
 

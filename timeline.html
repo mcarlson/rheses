@@ -34,7 +34,7 @@
     <class name="genreyear" width="14" height="60" opacity=".13">
       <handler event="onmouseover">
         bus.send('movie', this.data)
-        cursor.setAttribute('x', this.x)
+        cursor.setAttribute('x', this.getAbsolute().x)
       </handler>
       <handler event="oninit">
         var color = '#' + md5(this.parent.parent.data.name).substring(0,6)

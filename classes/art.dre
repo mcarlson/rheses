@@ -22,19 +22,53 @@ SOFTWARE. -->
 
   <!--/**
      * @class dr.art
-     * @extends dr.abstractart
+     * @extends dr.view
      * Vector graphics support using svg.
      *
-     * This example shows how to include some svg art inline
+     * This example shows how to load an existing svg
      *
      *     @example
-     *     <art data="/images/cursorshapes.svg" type="image/svg+xml" width="100" height="100" x="10" y="10"></art>
+     *     <art width="100" height="100" src="/images/siemens-clock.svg"></art>
+     *
+     * Paths within an svg can be selected using the path attribute
+     *
+     *     @example
+     *     <art width="100" height="100" src="/images/cursorshapes.svg" path="0"></art>
+     *
+     * Attributes are automatically passed through to the SVG. Here, the fill color is changed
+     *
+     *     @example
+     *     <art width="100" height="100" src="/images/cursorshapes.svg" path="0" fill="coral"></art>
+     *
+     * Setting the path attribute animates between paths. This example animates when the mouse is clicked
+     *
+     *     @example
+     *     <art width="100" height="100" src="/images/cursorshapes.svg" path="0" fill="coral">
+     *       <handler event="onclick">
+     *         this.setAttribute('path', this.path ^ 1);
+     *       </handler>
+     *     </art>
+     *
+     * By default, the SVG's aspect ratio is preserved. Set the stretches attribute to true to change this behavior.
+     *
+     *     @example
+     *     <art width="200" height="100" src="/images/cursorshapes.svg" path="0" fill="coral" stretches="true">
+     *       <handler event="onclick">
+     *         this.setAttribute('path', this.path ^ 1);
+     *         this.animate({width: (this.width == 200 ? 100 : 200)});
+     *       </handler>
+     *     </art>
      *
      */-->    
 
       <!--/**
-        * @attribute {Boolean} inline [inline=false]
+        * @attribute {Boolean} [inline=false]
         * Set to true if the svg contents is found inline, as a comment
+        */-->
+
+      <!--/**
+        * @attribute {Boolean} stretches [stretches=false]
+        * Set to true to stretch the svg to fill the view.
         */-->
 
       <!--/**
@@ -43,18 +77,38 @@ SOFTWARE. -->
         */-->
 
       <!--/**
-        * @event onartready
+        * @attribute {String|Number} path
+        * The svg path element to display. Can either be the name of the &lt;g&gt; element containing the path or a 0-based index.
+        */-->
+
+      <!--/**
+        * @attribute {Number} [animationspeed=400]
+        * The number of milliseconds to use when animating between paths
+        */-->
+
+      <!--/**
+        * @attribute {"linear"/"easeout"/"easein"/"easeinout"/"backin"/"backout"/"elastic"/"bounce"} [animationcurve="linear"]
+        * The name of the curve to use when animating between paths
+        */-->
+
+      <!--/**
+        * @event onready
         * Fired when the art is loaded and ready
         */-->
 
       <!--/**
-        * @event ontweening
-        * Fired when the art has animated to the next position
+        * @event ontween
+        * Fired when the art has animated its path to the next position
         */-->
 
     <class name="art" type="coffee" scriptincludes="/lib/snap.svg-min.js" clickable="true">
       <attribute name="inline" value="false" type="boolean"></attribute>
       <attribute name="src" value="" type="string"></attribute>
+      <attribute name="animationspeed" value="400" type="number"></attribute>
+      <attribute name="animationcurve" value="linear" type="string"></attribute>
+
+      <attribute name="stretches" value="false" type="boolean"></attribute>
+      <handler event="onstretches" method="resizeArt"></handler>
 
       <attribute name="path" value="" type="string"></attribute>
       <handler event="onpath">
@@ -82,7 +136,7 @@ SOFTWARE. -->
         # If debug=true, show attributes that pass through to the svg
         debug = window.location.search.indexOf('debug') > 0
         if debug
-          @expectedAttr = ['x','y','width','height','parent','clip','id','scrollable','clickable','visible','$textcontent','$tagname','inline','src','path'] unless @expectedAttr
+          @expectedAttr = ['x','y','width','height','parent','clip','id','scrollable','clickable','visible','$textcontent','$tagname','inline','src','path','stretches','animationspeed','animationcurve'] unless @expectedAttr
           unless name in @expectedAttr
             console.warn('Passing attribute', name, 'to svg')
       </method>
@@ -98,23 +152,20 @@ SOFTWARE. -->
       </method>
 
 
-      <method name="animate_path" args="name,msec,bounce,params">
+      <method name="animate_path" args="name, params">
         # Animate the path, as well as specified params
         return @show_path(name) if !@snap
 
-        msec = 1000 if !msec
-        bounce = mina.bounce if !bounce
+        curve = mina[@animationcurve] or mina.linear
         params = {} if !params
-        # console.log('msec, params', msec, params)
 
         # Animate to a given path, by name, or id
         path = @get_path(name)
         if path
           d1 = path[0].getAttribute('d')
           params['d'] = d1
-          _this = this
-          @snappath.animate params, msec, bounce, ->
-            _this.sendEvent('tweening')
+          @snappath.animate params, @animationspeed, curve, =>
+            @sendEvent('tween')
       </method>
 
 
@@ -147,13 +198,14 @@ SOFTWARE. -->
 
         # If this object is clickable, listen to mouse events
         if @clickable
-          _this = this
-          @snap.click -> _this.sendEvent('click')
-          @snap.mousedown -> _this.sendEvent('mousedown')
-          @snap.mouseup -> _this.sendEvent('mouseup')
-          @snap.mousemove -> _this.sendEvent('mousemove')
-          @snap.mouseover -> _this.sendEvent('mouseover')
-          @snap.mouseout -> _this.sendEvent('mouseout')
+          @snap.click => @sendEvent('click')
+          @snap.mousedown => @sendEvent('mousedown')
+          @snap.mouseup => @sendEvent('mouseup')
+          @snap.mousemove => @sendEvent('mousemove')
+          @snap.mouseover => @sendEvent('mouseover')
+          @snap.mouseout => @sendEvent('mouseout')
+
+        @resizeArt()
 
         # Hide the static svg object
         @hide_art()
@@ -209,13 +261,18 @@ SOFTWARE. -->
             x1 = Math.max(x1, box.x + box.width)
             y1 = Math.max(y1, box.y + box.height)
         if rect
+          # Use floor/ceil to create a viewBox that covers all paths
+          x1 = Math.ceil(x1)
+          y1 = Math.ceil(y1)
+          rect.x = Math.floor(rect.x)
+          rect.y = Math.floor(rect.y)
           rect.width = x1 - rect.x
           rect.height = y1 - rect.y
 
         return rect
       </method>
 
-      <handler event="onartready" method="normalizeArt"></handler>
+      <handler event="onready" method="normalizeArt"></handler>
 
       <method name="normalizeArt">
         return unless @container
@@ -238,6 +295,7 @@ SOFTWARE. -->
 
           # Add a viewPort if one is missing and w,h was absolute
           viewBox = svg.getAttribute('viewBox')
+          svg.setAttribute('viewBox_orig', viewBox) if viewBox
           if w && h && !viewBox
             # Add a viewBox to match the size
             viewBox = '0 0 ' + w + ' ' + h
@@ -246,16 +304,39 @@ SOFTWARE. -->
 
           # Add click events
           if @clickable
-            _this = this
-            $(svg).on 'click', -> _this.sendEvent('click')
-            $(svg).on 'mousedown', -> _this.sendEvent('mousedown')
-            $(svg).on 'mouseup', -> _this.sendEvent('mouseup')
-            $(svg).on 'mousemove', -> _this.sendEvent('mousemove')
-            $(svg).on 'mouseover', -> _this.sendEvent('mouseover')
-            $(svg).on 'mouseout', -> _this.sendEvent('mouseout')
+            $(svg).on 'click', => @sendEvent('click')
+            $(svg).on 'mousedown', => @sendEvent('mousedown')
+            $(svg).on 'mouseup', => @sendEvent('mouseup')
+            $(svg).on 'mousemove', => @sendEvent('mousemove')
+            $(svg).on 'mouseover', => @sendEvent('mouseover')
+            $(svg).on 'mouseout', => @sendEvent('mouseout')
+
+        @resizeArt()
 
         # Move to the specified path
         @animate_path(@path) if @path.length > 0
+      </method>
+
+      <method name="resizeArt">
+        # Resize the art, if needed, for changes in container size
+
+        # Apply stretches to the static svg
+        if @container and @stretches
+          elements = $(@container).find('svg')
+          if elements.length > 0
+            svg = elements[0]
+            if @stretches
+              svg.setAttribute('preserveAspectRatio', 'none')
+            else
+              svg.removeAttribute('preserveAspectRatio')
+
+        # Apply stretches to the snap svg
+        if @snap
+          svg = $(@snap.node)[0]
+          if @stretches
+            svg.setAttribute('preserveAspectRatio', 'none')
+          else
+            svg.removeAttribute('preserveAspectRatio')
       </method>
 
       <method name="loadInline">
@@ -273,11 +354,10 @@ SOFTWARE. -->
         # Refresh the div
         $(@container).html($(@container).html())
 
-        # Trigger artready
+        # Trigger ready
         #TODO Can this be improved? I tried binding to DOM events, svg loaded
-        _this = this
-        setTimeout ( ->
-          _this.sendEvent('artready')
+        setTimeout ( =>
+          @sendEvent('ready')
         ), 1
       </method>
 
@@ -288,8 +368,8 @@ SOFTWARE. -->
         # Fire onload when the graphic is loaded
         _this = this
         $(@container).load @src, ->
-          # Generate onartready event
-          _this.sendEvent('artready')
+          # Generate onready event
+          _this.sendEvent('ready')
       </method>
 
     </class>
