@@ -296,6 +296,7 @@ window.dr = do ->
         return false
     # detect touchhttp://stackoverflow.com/questions/4817029/whats-the-best-way-to-detect-a-touch-screen-device-using-javascript
     touch: 'ontouchstart' of window || 'onmsgesturechange' of window # deal with ie10
+    camelcss: navigator.userAgent.toLowerCase().indexOf('firefox') > -1
   }
 
   querystring = window.location.search
@@ -377,26 +378,33 @@ window.dr = do ->
 
     # cache compiled scripts to speed up instantiation
     scriptCache = {}
-    # compile a string into a function
-    compile = (script='', args=[], name='') ->
+    compiledebug = (script='', args=[], name='') ->
       argstring = args.join()
       key = script + argstring + name
       return scriptCache[key] if key of scriptCache
       # console.log 'compiling', args, script
       try
-        # console.log scriptCache
-        if debug and name
-          script = "\"use strict\"\n" + script if strict
+        script = "\"use strict\"\n" + script if strict
+        if name
           func = new Function("return function #{name}(#{argstring}){#{script}}")()
-        else
+        else 
           func = new Function(args, script)
         # console.log 'compiled', func
         scriptCache[key] = func
       catch e
         console.error 'failed to compile', e.toString(), args, script
 
+    # compile a string into a function
+    compile = (script='', args=[], name='') ->
+      argstring = args.join()
+      key = script + argstring + name
+      return scriptCache[key] if key of scriptCache
+      # console.log 'compiling', key, args, script
+      scriptCache[key] = new Function(args, script)
+      # console.log 'compiled', scriptCache
+
     exports =
-      compile: compile
+      compile: if debug then compiledebug else compile
       transform: transform
       findBindings: findBindings
 
@@ -896,6 +904,11 @@ window.dr = do ->
 
       @_removeFromParent('subnodes') unless skipevents
 
+  stylemap =
+    x: 'left'
+    y: 'top'
+    bgcolor: 'backgroundColor'
+    visible: 'display'
   ###*
   # @class Sprite
   # @private
@@ -904,19 +917,12 @@ window.dr = do ->
   class Sprite
 #    guid = 0
     noop = () ->
-    stylemap =
-      x: 'left'
-      y: 'top'
-      bgcolor: 'backgroundColor'
-      visible: 'display'
     styleval =
       display: (isVisible) ->
         if isVisible then '' else 'none'
+      cursor: (clickable) ->
+        if clickable then 'pointer' else ''
         
-    fcamelCase = ( all, letter ) ->
-      letter.toUpperCase()
-    rdashAlpha = /-([\da-z])/gi
-
     constructor: (jqel, view, tagname = 'div') ->
       # console.log 'new sprite', jqel, view, tagname
       if not jqel?
@@ -935,18 +941,11 @@ window.dr = do ->
 #      guid++
 #      jqel.attr('id', 'jqel-' + guid) if not jqel.attr('id')
       @el.setAttribute('class', 'sprite')
-      # @jqel = $(@el)
 
     setStyle: (name, value, internal, el=@el) ->
       value ?= ''
-      if name of stylemap
-        name = stylemap[name]
-      if name of styleval
-        value = styleval[name](value)
-      else if name.match(rdashAlpha)
-        # console.log "replacing #{name}"
-        name = name.replace(rdashAlpha, fcamelCase)
-        console.warn "Setting unknown CSS property #{name} = #{value} on ", @el.$view if debug and not internal
+      name = stylemap[name] if name of stylemap
+      value = styleval[name](value) if name of styleval
       # console.log('setStyle', name, value, @el)
       el.style[name] = value
       # @jqel.css(name, value)
@@ -976,44 +975,12 @@ window.dr = do ->
       # console.log 'sprite animate', arguments[0], @jqel
       @jqel.animate.apply(@jqel, arguments)
 
-    sendMouseEvent: (type, first) ->
-      simulatedEvent = document.createEvent('MouseEvent')
-      simulatedEvent.initMouseEvent(type, true, true, window, 1,
-                                first.pageX, first.pageY,
-                                first.clientX, first.clientY, false,
-                                false, false, false, 0, null)
-      first.target.dispatchEvent(simulatedEvent)
-      if first.target.$view and first.target.$view.$tagname isnt 'inputtext'
-        event.preventDefault()
 
-    lastTouchDown = null
-    touchHandler: (event) =>
-      touches = event.changedTouches
-      first = touches[0]
-
-      switch event.type
-        when 'touchstart'
-          @sendMouseEvent('mouseover', first)
-          @sendMouseEvent('mousedown', first)
-          lastTouchDown = first.target
-        when 'touchmove'
-          @sendMouseEvent('mousemove', first)
-        when 'touchend'
-          @sendMouseEvent('mouseup', first)
-          if (lastTouchDown == first.target)
-            @sendMouseEvent('click', first)
-            lastTouchDown = null
 
     set_clickable: (clickable) ->
       @__clickable = clickable
       @__updatePointerEvents()
-      @setStyle('cursor', (if clickable then 'pointer' else ''), true)
-
-      if capabilities.touch
-        document.addEventListener('touchstart', @touchHandler, true)
-        document.addEventListener('touchmove', @touchHandler, true)
-        document.addEventListener('touchend', @touchHandler, true)
-        document.addEventListener('touchcancel', @touchHandler, true)
+      @setStyle('cursor', clickable, true)
 
       # TODO: retrigger the event for the element below for IE and Opera? See http://stackoverflow.com/questions/3680429/click-through-a-div-to-underlying-elements
       # el = $(event.target)
@@ -1040,15 +1007,15 @@ window.dr = do ->
           'hidden'
         else
           ''
-      )
+      , true)
 
     __updatePointerEvents: () ->
-      @setStyle('pointer-events', (
+      @setStyle('pointer-events', 
         if @__clickable || @__scrollable
           'auto'
         else
-          'none'
-      ), true)
+          ''
+      , true)
 
     destroy: ->
       @el.parentNode.removeChild(@el)
@@ -1073,13 +1040,14 @@ window.dr = do ->
 
     measureTextSize: (multiline, width, resize) ->
       if multiline
-        @setStyle('width', width)
-        @setStyle('height', 'auto')
-        @setStyle('whiteSpace', 'normal')
+        @setStyle('width', width, true)
+        @setStyle('height', 'auto', true)
+        @setStyle('whiteSpace', 'normal', true)
       else
-        @setStyle('width', 'auto') if resize
-        @setStyle('height', 'auto') if resize
-        @setStyle('whiteSpace', '')
+        if resize
+          @setStyle('width', 'auto', true)
+          @setStyle('height', 'auto', true)
+        @setStyle('whiteSpace', '', true)
       {width: @el.clientWidth, height: @el.clientHeight}
 
     handle: (event) =>
@@ -1120,12 +1088,32 @@ window.dr = do ->
     getAbsolute: () ->
       @jqel ?= $(@el)
       pos = @jqel.offset()
-      {x: pos.left, y: pos.top}
+      {x: pos.left - window.pageXOffset, y: pos.top - window.pageYOffset}
 
     set_class: (classname) ->
       # console.log('setid', @id)
       @el.setAttribute('class', classname)
 
+  if (capabilities.camelcss)
+    # handle camelCasing CSS styles, e.g. background-color -> backgroundColor - not needed for webkit
+    ss = Sprite::setStyle
+    fcamelCase = ( all, letter ) ->
+      letter.toUpperCase()
+    rdashAlpha = /-([\da-z])/gi
+    Sprite::setStyle = (name, value, internal, el=@el) ->
+      if name.match(rdashAlpha)
+        # console.log "replacing #{name}"
+        name = name.replace(rdashAlpha, fcamelCase)
+      ss(name, value, internal, el)
+
+  if (debug)
+    # add warnings for unknown CSS properties
+    otherstyles = ['width', 'height', 'background-color']
+    ss2 = Sprite::setStyle
+    Sprite::setStyle = (name, value, internal, el=@el) ->
+      if not internal and not (name of stylemap) and not (name in otherstyles)
+        console.warn "Setting unknown CSS property #{name} = #{value} on ", @el.$view, stylemap, internal
+      ss2(name, value, internal, el)
 
   # internal attributes ignored by class declarations and view styles
   ignoredAttributes = {parent: true, id: true, name: true, extends: true, type: true, scriptincludes: true}
@@ -1349,7 +1337,7 @@ window.dr = do ->
 
     setAttribute: (name, value, skipstyle) ->
       value = @_coerceType(name, value)
-      if not (skipstyle or name of ignoredAttributes or @[name] == value)
+      if not (skipstyle or name of ignoredAttributes or name of hiddenAttributes or @[name] == value)
         # console.log 'setting style', name, value, @
         @sprite.setStyle(name, value)
       super(name, value, true)
@@ -1732,6 +1720,21 @@ window.dr = do ->
     console.error out
 
 
+  # a collection of attributes that shouldn't be applied visually.
+  hiddenAttributes = {
+    text: true,
+    $tagname: true,
+    data: true,
+    replicator: true,
+    class: true,
+    clip: true,
+    clickable: true,
+    scrollable: true,
+    $textcontent: true,
+    resize: true,
+    multiline: true,
+    ignorelayout: true,
+  }
   dom = do ->
     getChildren = (el) ->
       child for child in el.childNodes when child.nodeType == 1 and child.localName in specialtags
@@ -1823,7 +1826,7 @@ window.dr = do ->
               # load load class extends
               names[el.attributes.extends.value] = el
             # track inline class declaration so we don't attempt to load it later
-            inlineclasses[el.attributes.name.value] = true
+            inlineclasses[el.attributes.name?.value] = true
           else if name == 'replicator'
             # load class instance for tag
             names[name] = el
@@ -2122,6 +2125,9 @@ window.dr = do ->
             name = name.toLowerCase()
             classattributes[name] = attributes.value
             classattributes.$types[name] = attributes.type
+            if 'visual' of attributes 
+              # allow non-visual attributes to be added
+              hiddenAttributes[name] = attributes.visual == 'false'
             # console.log 'added attribute', attributes, classattributes
 
       # console.log('processSpecialTags', classattributes)
@@ -2891,9 +2897,53 @@ window.dr = do ->
       @docSelector.on(mouseEvents.join(' '), @handle)
       @docSelector.on("mousemove", @handle).one("mouseout", @stopEvent)
 
+      if capabilities.touch
+        document.addEventListener('touchstart', @touchHandler, true)
+        document.addEventListener('touchmove', @touchHandler, true)
+        document.addEventListener('touchend', @touchHandler, true)
+        document.addEventListener('touchcancel', @touchHandler, true)
+
     startEventTest: () ->
       @events['mousemove']?.length or @events['x']?.length or @events['y']?.length
 
+    sendMouseEvent: (type, first) ->
+      simulatedEvent = document.createEvent('MouseEvent')
+      simulatedEvent.initMouseEvent(type, true, true, window, 1,
+                                first.pageX, first.pageY,
+                                first.clientX, first.clientY, false,
+                                false, false, false, 0, null)
+      first.target.dispatchEvent(simulatedEvent)
+      if first.target.$view and first.target.$view.$tagname isnt 'inputtext'
+        event.preventDefault()
+
+    lastTouchDown = null
+    lastTouchOver = null
+    touchHandler: (event) =>
+      touches = event.changedTouches
+      first = touches[0]
+
+      switch event.type
+        when 'touchstart'
+          @sendMouseEvent('mouseover', first)
+          @sendMouseEvent('mousedown', first)
+          lastTouchDown = first.target
+        when 'touchmove'
+          # console.log 'touchmove', event.touches, first, window.pageXOffset, window.pageYOffset, first.pageX, first.pageY, first.target
+          over = document.elementFromPoint(first.pageX - window.pageXOffset, first.pageY - window.pageYOffset);
+          if (over and over.$view)
+            if (lastTouchOver and lastTouchOver != over)
+              @handle({target: lastTouchOver, type: 'mouseout'}) 
+            lastTouchOver = over
+            @handle({target: over, type: 'mouseover'})
+            # console.log 'over', over, over.$view
+
+          @sendMouseEvent('mousemove', first)
+        when 'touchend'
+          @sendMouseEvent('mouseup', first)
+          if (lastTouchDown == first.target)
+            @sendMouseEvent('click', first)
+            lastTouchDown = null
+            
     handle: (event) =>
       view = event.target.$view
       type = event.type
@@ -3378,6 +3428,10 @@ window.dr = do ->
   ###*
   # @attribute {String} value (required)
   # The initial value for the attribute
+  ###
+  ###*
+  # @attribute {Boolean} [visible=true]
+  # Set to false if an attribute shouldn't affect a view's visual appearence
   ###
 
 dr.writeCSS()
