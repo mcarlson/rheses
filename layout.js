@@ -2130,10 +2130,9 @@
           return sendInit();
         });
       };
-      findAutoIncludes = function(parentel, callback) {
-        var cb, cb2, fileloaded, filerequests, includedScripts, includerequests, inlineclasses, jqel, loadIncludes, loadLZX, loadScript, loadqueue, scriptloading, validator;
+      findAutoIncludes = function(parentel, finalcallback) {
+        var fileloaded, filerequests, findIncludeURLs, findMissingClasses, includedScripts, inlineclasses, jqel, loadInclude, loadIncludes, loadScript, loadqueue, scriptloading, validator;
         jqel = $(parentel);
-        includerequests = [];
         includedScripts = {};
         loadqueue = [];
         scriptloading = false;
@@ -2157,8 +2156,8 @@
             script.type = 'text/javascript';
             $('head').append(script);
             script.onload = cb;
-            script.onerror = function() {
-              console.error(error);
+            script.onerror = function(err) {
+              console.error(error, err);
               return cb();
             };
             return script.src = url;
@@ -2176,74 +2175,98 @@
         inlineclasses = {};
         filerequests = [];
         fileloaded = {};
-        loadLZX = function(name, el) {
-          var prom, url, _ref;
-          if (name in dr || name in fileloaded || __indexOf.call(specialtags, name) >= 0 || name in inlineclasses || __indexOf.call(builtinTags, name) >= 0) {
+        loadInclude = function(url, el) {
+          var prom;
+          if (url in fileloaded) {
             return;
           }
-          if (_ref = el.parentNode.localName, __indexOf.call(specialtags, _ref) >= 0) {
-            return;
-          }
-          fileloaded[name] = true;
-          url = '/classes/' + name + '.dre';
+          fileloaded[url] = el;
           prom = $.get(url);
           prom.url = url;
           prom.el = el;
           return filerequests.push(prom);
         };
-        loadIncludes = function(callback) {
-          var jel, url, _i, _len, _ref;
-          _ref = jqel.find('include');
+        findMissingClasses = function(names) {
+          var el, name, out, _i, _len, _ref, _ref1;
+          if (names == null) {
+            names = {};
+          }
+          _ref = jqel.find('*');
           for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            jel = _ref[_i];
-            url = jel.attributes.href.value;
-            jel.parentNode.removeChild(jel);
-            if (!fileloaded[url]) {
-              fileloaded[url] = true;
-              includerequests.push($.get(url));
+            el = _ref[_i];
+            name = el.localName;
+            if (name === 'class') {
+              if (el.attributes["extends"]) {
+                names[el.attributes["extends"].value] = el;
+              }
+              inlineclasses[el.attributes.name.value] = true;
+            } else if (name === 'replicator') {
+              names[name] = el;
+              names[el.attributes.classname.value] = el;
+            } else {
+              if (_ref1 = el.parentNode.localName, __indexOf.call(specialtags, _ref1) < 0) {
+                names[name] = el;
+              }
             }
           }
-          return $.when.apply($, includerequests).done(function() {
-            var args, el, extendz, html, includeRE, initONE, name, xhr, _j, _k, _len1, _len2, _ref1;
+          out = {};
+          for (name in names) {
+            el = names[name];
+            if (!(name in dr || name in fileloaded || __indexOf.call(specialtags, name) >= 0 || name in inlineclasses || __indexOf.call(builtinTags, name) >= 0)) {
+              out[name] = el;
+            }
+          }
+          return out;
+        };
+        findIncludeURLs = function(urls) {
+          var el, url, _i, _len, _ref;
+          if (urls == null) {
+            urls = {};
+          }
+          _ref = jqel.find('include');
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            el = _ref[_i];
+            url = el.attributes.href.value;
+            el.parentNode.removeChild(el);
+            urls[url] = el;
+          }
+          return urls;
+        };
+        loadIncludes = function(callback) {
+          var el, url, _ref;
+          _ref = findIncludeURLs();
+          for (url in _ref) {
+            el = _ref[url];
+            loadInclude(url, el);
+          }
+          return $.when.apply($, filerequests).done(function() {
+            var args, html, includeRE, name, xhr, _i, _len, _ref1;
             args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-            if (includerequests.length === 1) {
+            if (filerequests.length === 1) {
               args = [args];
             }
-            includerequests = [];
+            filerequests = [];
             includeRE = /<[\/]*library>/gi;
-            initONE = true;
-            for (_j = 0, _len1 = args.length; _j < _len1; _j++) {
-              xhr = args[_j];
+            for (_i = 0, _len = args.length; _i < _len; _i++) {
+              xhr = args[_i];
               html = xhr[0].replace(includeRE, '');
               jqel.prepend(html);
             }
-            _ref1 = jqel.find('*');
-            for (_k = 0, _len2 = _ref1.length; _k < _len2; _k++) {
-              el = _ref1[_k];
-              name = el.localName;
-              if (name === 'class') {
-                if (el.attributes["extends"]) {
-                  extendz = el.attributes["extends"].value;
-                  loadLZX(extendz, el);
-                }
-                inlineclasses[el.attributes.name.value] = true;
-              } else if (name === 'state') {
-                initONE = true;
-              } else if (name === 'replicator') {
-                loadLZX(name, el);
-                loadLZX(el.attributes.classname.value, el);
-              } else {
-                loadLZX(name, el);
-              }
+            _ref1 = findMissingClasses();
+            for (name in _ref1) {
+              el = _ref1[name];
+              fileloaded[name] = true;
+              loadInclude("/classes/" + name + ".dre", el);
             }
             return $.when.apply($, filerequests).done(function() {
-              var args, scriptsloading, _l, _len3, _len4, _len5, _m, _n, _ref2, _ref3, _ref4;
+              var args, includes, _j, _len1;
               args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
               if (filerequests.length === 1) {
                 args = [args];
               }
-              for (_l = 0, _len3 = args.length; _l < _len3; _l++) {
-                xhr = args[_l];
+              filerequests = [];
+              for (_j = 0, _len1 = args.length; _j < _len1; _j++) {
+                xhr = args[_j];
                 jqel.prepend(xhr[0]);
                 if (debug) {
                   jqel.contents().each(function() {
@@ -2253,47 +2276,62 @@
                   });
                 }
               }
-              scriptsloading = false;
-              if (initONE) {
-                scriptsloading = loadScript('/lib/one_base.js', function() {
-                  ONE.base_.call(Eventable.prototype);
-                  Eventable.prototype.enumfalse(Eventable.prototype.keys());
-                  Node.prototype.enumfalse(Node.prototype.keys());
-                  View.prototype.enumfalse(View.prototype.keys());
-                  Layout.prototype.enumfalse(Layout.prototype.keys());
-                  return callback();
-                });
+              includes = findMissingClasses(findIncludeURLs());
+              if (Object.keys(includes).length > 0) {
+                loadIncludes(callback);
+                return;
               }
-              _ref2 = jqel.find('[scriptincludes]');
-              for (_m = 0, _len4 = _ref2.length; _m < _len4; _m++) {
-                el = _ref2[_m];
-                _ref3 = el.attributes.scriptincludes.value.split(',');
-                for (_n = 0, _len5 = _ref3.length; _n < _len5; _n++) {
-                  url = _ref3[_n];
-                  scriptsloading = loadScript(url.trim(), callback, (_ref4 = el.attributes.scriptincludeserror) != null ? _ref4.value.toString() : void 0);
+              return $.getScript('/lib/one_base.js', function() {
+                ONE.base_.call(Eventable.prototype);
+                Eventable.prototype.enumfalse(Eventable.prototype.keys());
+                Node.prototype.enumfalse(Node.prototype.keys());
+                View.prototype.enumfalse(View.prototype.keys());
+                return Layout.prototype.enumfalse(Layout.prototype.keys());
+              }).done(function() {
+                var scriptloaded, _k, _l, _len2, _len3, _ref2, _ref3, _ref4;
+                scriptloaded = false;
+                _ref2 = jqel.find('[scriptincludes]');
+                for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
+                  el = _ref2[_k];
+                  _ref3 = el.attributes.scriptincludes.value.split(',');
+                  for (_l = 0, _len3 = _ref3.length; _l < _len3; _l++) {
+                    url = _ref3[_l];
+                    scriptloaded = loadScript(url.trim(), callback, (_ref4 = el.attributes.scriptincludeserror) != null ? _ref4.value.toString() : void 0);
+                  }
                 }
-              }
-              filerequests = [];
-              if (!scriptsloading) {
-                return callback();
-              }
+                if (!scriptloaded) {
+                  return callback();
+                }
+              }).fail(function() {
+                return console.warn('failed to load /lib/one_base.js');
+              });
             }).fail(function() {
-              var args, _l, _len3;
+              var args, _j, _len1;
               args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
               if (args.length === 1) {
                 args = [args];
               }
-              for (_l = 0, _len3 = args.length; _l < _len3; _l++) {
-                xhr = args[_l];
+              for (_j = 0, _len1 = args.length; _j < _len1; _j++) {
+                xhr = args[_j];
                 showWarnings(["failed to load " + xhr.url + " for element " + xhr.el.outerHTML]);
               }
             });
+          }).fail(function() {
+            var args, xhr, _i, _len;
+            args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+            if (args.length === 1) {
+              args = [args];
+            }
+            for (_i = 0, _len = args.length; _i < _len; _i++) {
+              xhr = args[_i];
+              showWarnings(["failed to load " + xhr.url + " for element " + xhr.el.outerHTML]);
+            }
           });
         };
         validator = function() {
           var prom, url;
           url = '/validate/';
-          prom = $.ajax({
+          return prom = $.ajax({
             url: url,
             data: {
               url: window.location.pathname
@@ -2303,16 +2341,11 @@
                 return showWarnings(data);
               }
             }
+          }).always(function() {
+            return finalcallback();
           });
-          return callback();
         };
-        cb2 = function() {
-          return loadIncludes(validator);
-        };
-        cb = function() {
-          return loadIncludes(cb2);
-        };
-        return loadIncludes(cb);
+        return loadIncludes(validator);
       };
       specialtags = ['handler', 'method', 'attribute', 'setter', 'include'];
       builtinTags = ['a', 'abbr', 'address', 'area', 'article', 'aside', 'audio', 'b', 'base', 'bdi', 'bdo', 'blockquote', 'body', 'br', 'button', 'canvas', 'caption', 'cite', 'code', 'col', 'colgroup', 'command', 'datalist', 'dd', 'del', 'details', 'dfn', 'div', 'dl', 'dt', 'em', 'embed', 'fieldset', 'figcaption', 'figure', 'footer', 'form', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'head', 'header', 'hgroup', 'hr', 'html', 'i', 'iframe', 'img', 'image', 'input', 'ins', 'kbd', 'keygen', 'label', 'legend', 'li', 'link', 'map', 'mark', 'menu', 'meta', 'meter', 'nav', 'noscript', 'object', 'ol', 'optgroup', 'option', 'output', 'p', 'param', 'pre', 'progress', 'q', 'rp', 'rt', 'ruby', 's', 'samp', 'script', 'section', 'select', 'small', 'source', 'span', 'strong', 'style', 'sub', 'summary', 'sup', 'table', 'tbody', 'td', 'textarea', 'tfoot', 'th', 'thead', 'time', 'title', 'tr', 'track', 'u', 'ul', 'var', 'video', 'wbr'];

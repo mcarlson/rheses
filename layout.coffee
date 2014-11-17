@@ -1633,9 +1633,8 @@ window.dr = do ->
         sendInit()
       )
 
-    findAutoIncludes = (parentel, callback) ->
+    findAutoIncludes = (parentel, finalcallback) ->
       jqel = $(parentel)
-      includerequests = []
 
       includedScripts = {}
       loadqueue = []
@@ -1655,8 +1654,8 @@ window.dr = do ->
           script.type = 'text/javascript'
           $('head').append(script)
           script.onload = cb
-          script.onerror = () ->
-            console.error(error)
+          script.onerror = (err) ->
+            console.error(error, err)
             cb()
           script.src = url
 
@@ -1671,72 +1670,90 @@ window.dr = do ->
 
         appendScript(url, appendcallback, error)
 
+      # classes declared inline with the class tag
       inlineclasses = {}
+      # current list of jquery promises for outstanding requests
       filerequests = []
+      # hash of files and classes loaded already
       fileloaded = {}
-      loadLZX = (name, el) ->
-        return if name of dr or name of fileloaded or name in specialtags or name of inlineclasses or name in builtinTags
-        # don't autoload elements found inside specialtags, e.g. setter
-        return if el.parentNode.localName in specialtags
-        fileloaded[name] = true
-        url = '/classes/' + name + '.dre'
-        # console.log 'loading dre', name, url, el
+
+      loadInclude = (url, el) ->
+        return if url of fileloaded
+        fileloaded[url] = el
+        # console.log "Loading #{url}", el
         prom = $.get(url)
         prom.url = url
         prom.el = el
         filerequests.push(prom)
 
+      findMissingClasses = (names={}) ->
+        # look for class declarations and unloaded classes for tags
+        for el in jqel.find('*')
+          name = el.localName
+          if name == 'class'
+            if el.attributes.extends
+              # load load class extends
+              names[el.attributes.extends.value] = el
+            # track inline class declaration so we don't attempt to load it later
+            inlineclasses[el.attributes.name.value] = true
+          else if name == 'replicator'
+            # load class instance for tag
+            names[name] = el
+            # load classname instance as well
+            names[el.attributes.classname.value] = el
+          else
+            # don't autoload elements found inside specialtags, e.g. setter
+            unless el.parentNode.localName in specialtags
+              # load class instance for tag
+              names[name] = el 
+
+        # filter out classnames that may have already been loaded or should otherwise be ignored
+        out = {}
+        for name, el of names
+          unless name of dr or name of fileloaded or name in specialtags or name of inlineclasses or name in builtinTags
+            out[name] = el
+        out
+
+      findIncludeURLs = (urls={}) ->
+        for el in jqel.find('include')
+          url = el.attributes.href.value
+          el.parentNode.removeChild(el)
+          urls[url] = el
+          # console.log('found include', url)
+        urls
+
       loadIncludes = (callback) ->
         # load includes
-        for jel in jqel.find('include')
-          url = jel.attributes.href.value
-          jel.parentNode.removeChild(jel)
-          unless fileloaded[url]
-            # console.log('loading include', url, fileloaded[url])
-            fileloaded[url] = true
-            includerequests.push($.get(url)) 
+        for url, el of findIncludeURLs()
+          # console.log 'include url', url
+          loadInclude(url, el)
 
         # wait for all includes to load
-        $.when.apply($, includerequests).done((args...) ->
+        $.when.apply($, filerequests).done((args...) ->
           # append includes
-          args = [args] if (includerequests.length == 1)
-          includerequests = []
-          # console.log('loading includes', args)
+          args = [args] if (filerequests.length == 1)
+          filerequests = []
+          # console.log('loaded includes', args)
 
           includeRE = /<[\/]*library>/gi
-          initONE = true
           for xhr in args
             # remove any library tags found
             html = xhr[0].replace(includeRE, '')
             # console.log 'inserting include', html
             jqel.prepend(html)
 
-          # look for class declarations and unloaded classes for tags
-          for el in jqel.find('*')
-            name = el.localName
-            if name == 'class'
-              if el.attributes.extends
-                extendz = el.attributes.extends.value
-                # load load class extends
-                loadLZX(extendz, el)
-                # initONE = true if extendz = 'state'
-              # track inline class declaration so we don't load it again later
-              inlineclasses[el.attributes.name.value] = true
-            else if name == 'state'
-              initONE = true
-            else if name == 'replicator'
-              # load class instance for tag
-              loadLZX(name, el)
-              # load classname instance as well
-              loadLZX(el.attributes.classname.value, el)
-            else
-              # load class instance for tag
-              loadLZX(name, el)
+          # load missing classes
+          for name, el of findMissingClasses()
+            fileloaded[name] = true
+            loadInclude("/classes/#{name}.dre", el)
+            # console.log 'loading dre', name, url, el
 
           # console.log(filerequests, fileloaded, inlineclasses)
           # wait for all dre files to finish loading
           $.when.apply($, filerequests).done((args...) ->
             args = [args] if (filerequests.length == 1)
+            filerequests = []
+
             for xhr in args
               # console.log 'inserting html', args, xhr[0]
               jqel.prepend(xhr[0])
@@ -1746,36 +1763,42 @@ window.dr = do ->
                     $(this).remove()
                 )
 
+            includes = findMissingClasses(findIncludeURLs())
+            if Object.keys(includes).length > 0
+              # console.warn("missing includes", includes)
+              loadIncludes(callback)
+              return;
+
             # find class script includes and load them in lexical order
-            scriptsloading = false
-            if (initONE)
-              # initialize ONE integration
-              scriptsloading = loadScript('/lib/one_base.js', () ->
-                ONE.base_.call(Eventable::)
-                # hide builtin keys from learn()
-                Eventable::enumfalse(Eventable::keys())
-                Node::enumfalse(Node::keys())
-                View::enumfalse(View::keys())
-                Layout::enumfalse(Layout::keys())
-                callback()
-              )
 
-            for el in jqel.find('[scriptincludes]')
-              for url in el.attributes.scriptincludes.value.split(',')
-                scriptsloading = loadScript(url.trim(), callback, el.attributes.scriptincludeserror?.value.toString())
-
-            # done loading
-            filerequests = []
-
-            # no class script includes found, execute callback immediately
-            unless scriptsloading
-              callback()
+            # initialize ONE integration
+            $.getScript('/lib/one_base.js', () ->
+              ONE.base_.call(Eventable::)
+              # hide builtin keys from learn()
+              Eventable::enumfalse(Eventable::keys())
+              Node::enumfalse(Node::keys())
+              View::enumfalse(View::keys())
+              Layout::enumfalse(Layout::keys())
+            ).done(() ->
+              scriptloaded = false
+              for el in jqel.find('[scriptincludes]')
+                for url in el.attributes.scriptincludes.value.split(',')
+                  scriptloaded = loadScript(url.trim(), callback, el.attributes.scriptincludeserror?.value.toString())
+              callback() unless scriptloaded
+            ).fail(() ->
+              console.warn('failed to load /lib/one_base.js')
+            )
           ).fail((args...) ->
             args = [args] if (args.length == 1)
             for xhr in args
               showWarnings(["failed to load #{xhr.url} for element #{xhr.el.outerHTML}"])
             return
           )
+        ).fail((args...) ->
+          args = [args] if (args.length == 1)
+          for xhr in args
+            showWarnings(["failed to load #{xhr.url} for element #{xhr.el.outerHTML}"])
+          return
         )
 
       validator = ->
@@ -1789,17 +1812,12 @@ window.dr = do ->
           # processData: false
           success: (data) ->
             showWarnings(data) if (data.length)
-        })
+        }).always(() ->
+          finalcallback()
+        )
 
-        callback()
-
-      # must do this thrice to catch autoinclude autoincludes, see https://github.com/teem2/dreem/issues/6 and https://www.pivotaltracker.com/story/show/77941122
-      cb2 = () ->
-        # console.log 'loading dre', name, url, el
-        loadIncludes(validator)
-      cb = () ->
-        loadIncludes(cb2)
-      loadIncludes(cb)
+      # call the validator after everything loads
+      loadIncludes(validator)
 
     specialtags = ['handler', 'method', 'attribute', 'setter', 'include']
     # tags built into the browser that should be ignored, from http://www.w3.org/TR/html-markup/elements.html
