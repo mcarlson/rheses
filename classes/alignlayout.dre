@@ -29,13 +29,13 @@ SOFTWARE. -->
       *     <alignlayout align="middle" collapseparent="true">
       *     </alignlayout>
       *
-      *     <view width="100" height="25" bgcolor="lightpink"></view>
       *     <view width="100" height="35" bgcolor="plum"></view>
+      *     <view width="100" height="25" bgcolor="lightpink"></view>
       *     <view width="100" height="15" bgcolor="lightblue"></view>
       */-->
 <class name="alignlayout" extends="variablelayout" type="coffee">
   <!--/**
-    * @attribute {string} [align='middle']
+    * @attribute {String} [align='middle']
     * Determines which way the views are aligned. Supported values are 
     * 'left', 'center', 'right' and 'top', 'middle' and 'bottom'.
     */-->
@@ -70,6 +70,7 @@ SOFTWARE. -->
   </method>
   
   <!--/**
+    * @method doBeforeUpdate
     * Determine the maximum subview width/height according to the alignment.
     */-->
   <method name="doBeforeUpdate" invokesuper="inside">

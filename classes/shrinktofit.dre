@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. -->
 <!--/**
       * @class dr.shrinktofit
-      * @extends dr.layout
+      * @extends dr.layoot
       * A special "layout" that resizes the parent to fit the children 
       * rather than laying out the children.
       *
@@ -70,9 +70,10 @@ SOFTWARE. -->
   </method>
   
   <!--/**
+    * @method __updateMonitoringSubview 
     * Wrapped by startMonitoringSubview and stopMonitoringSubview.
     * @param {dr.view} view
-    * @param {function) func
+    * @param {Function} func
     * @return {void}
     * @private
     */-->
