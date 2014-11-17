@@ -1369,8 +1369,8 @@
         }
         pos = this.jqel.offset();
         return {
-          x: pos.left,
-          y: pos.top
+          x: pos.left - window.pageXOffset,
+          y: pos.top - window.pageYOffset
         };
       };
 

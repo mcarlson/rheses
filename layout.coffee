@@ -1044,7 +1044,7 @@ window.dr = do ->
     getAbsolute: () ->
       @jqel ?= $(@el)
       pos = @jqel.offset()
-      {x: pos.left, y: pos.top}
+      {x: pos.left - window.pageXOffset, y: pos.top - window.pageYOffset}
 
     set_class: (classname) ->
       # console.log('setid', @id)
