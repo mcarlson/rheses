@@ -1541,6 +1541,30 @@
 
 
       /**
+       * @attribute {String} bordercolor
+       * Sets this view's border color
+       */
+
+
+      /**
+       * @attribute {String} borderstyle
+       * Sets this view's border style (can be any css border-style value)
+       */
+
+
+      /**
+       * @attribute {Number} border
+       * Sets this view's border width
+       */
+
+
+      /**
+       * @attribute {Number} padding
+       * Sets this view's padding
+       */
+
+
+      /**
        * @event onclick
        * Fired when this view is clicked
        * @param {dr.view} view The dr.view that fired the event
@@ -1617,7 +1641,9 @@
           clickable: 'boolean',
           clip: 'boolean',
           scrollable: 'boolean',
-          visible: 'boolean'
+          visible: 'boolean',
+          'border': 'number',
+          padding: 'number'
         };
         defaults = {
           x: 0,
@@ -1627,7 +1653,11 @@
           clickable: false,
           clip: false,
           scrollable: false,
-          visible: true
+          visible: true,
+          bordercolor: 'transparent',
+          borderstyle: 'solid',
+          border: 0,
+          padding: 0
         };
         _ref = attributes.$types;
         for (key in _ref) {
@@ -1635,13 +1665,33 @@
           types[key] = type;
         }
         attributes.$types = types;
+        this._setDefaults(attributes, defaults);
         if (this._isPercent(attributes['width'])) {
-          attributes['width'] = this._sizeFromPercent(attributes['width'], "width");
+          attributes['width'] = this._sizeConstraint(attributes['width'], "width");
         }
         if (this._isPercent(attributes['height'])) {
-          attributes['height'] = this._sizeFromPercent(attributes['height'], "height");
+          attributes['height'] = this._sizeConstraint(attributes['height'], "height");
         }
-        this._setDefaults(attributes, defaults);
+        if (attributes['parent'].padding) {
+          attributes['x'] += attributes['parent'].padding;
+          attributes['y'] += attributes['parent'].padding;
+        }
+        attributes['border-width'] = attributes['border'];
+        delete attributes['border'];
+        attributes['border-color'] = attributes['bordercolor'];
+        attributes['border-style'] = attributes['borderstyle'];
+        if ('padding-left' in attributes) {
+          attributes['padding-left'] = attributes['padding'];
+        }
+        if ('padding-right' in attributes) {
+          attributes['padding-right'] = attributes['padding'];
+        }
+        if ('padding-top' in attributes) {
+          attributes['padding-top'] = attributes['padding'];
+        }
+        if ('padding-bottom' in attributes) {
+          attributes['padding-bottom'] = attributes['padding'];
+        }
         if (el instanceof View) {
           el = el.sprite;
         }
@@ -1653,8 +1703,12 @@
         return typeof value === 'string' && value.indexOf('%') > -1;
       };
 
-      View.prototype._sizeFromPercent = function(percent, dim) {
-        return "${this.parent." + dim + " ? this.parent." + dim + "*" + (parseFloat(percent) / 100.0) + " : $(this.parent)." + dim + "()}";
+      View.prototype.innerSize = function(percent, dim) {
+        return (this[dim] * parseInt(percent) / 100.0) - this['border-width'] * 2 - this.padding * 2;
+      };
+
+      View.prototype._sizeConstraint = function(percent, dim) {
+        return "${this.parent.innerSize ? this.parent.innerSize('" + percent + "', '" + dim + "') : $(this.parent)." + dim + "()}";
       };
 
       View.prototype._createSprite = function(el, attributes) {
@@ -1802,20 +1856,24 @@
         }
         this.listenTo(this, 'change', this._handleChange);
         this.listenTo(this, 'width', function(w) {
-          return this.sprite.setStyle('width', w, true, this.sprite.input);
+          return this.sprite.setStyle('width', this.innerSize('100%', 'width'), true, this.sprite.input);
         });
         this.listenTo(this, 'height', function(h) {
-          return this.sprite.setStyle('height', h, true, this.sprite.input);
+          return this.sprite.setStyle('height', this.innerSize('100%', 'height'), true, this.sprite.input);
         });
       }
 
       InputText.prototype._createSprite = function(el, attributes) {
-        var multiline;
+        var b, h, multiline, p, w;
         InputText.__super__._createSprite.apply(this, arguments);
         attributes.text || (attributes.text = this.sprite.getText(true));
         this.sprite.setText('');
         multiline = this._coerceType('multiline', attributes.multiline, 'boolean');
-        return this.sprite.createInputtextElement('', multiline, attributes.width, attributes.height);
+        p = attributes['padding'] || 0;
+        b = attributes['border-width'] || 0;
+        w = attributes.width - p * 2 - b * 2;
+        h = attributes.height - p * 2 - b * 2;
+        return this.sprite.createInputtextElement('', multiline, w, h);
       };
 
       InputText.prototype._handleChange = function() {
