@@ -1231,6 +1231,22 @@ window.dr = do ->
     # @attribute {String} bgcolor
     # Sets this view's background color
     ###
+    ###*
+    # @attribute {String} bordercolor
+    # Sets this view's border color
+    ###
+    ###*
+    # @attribute {String} borderstyle
+    # Sets this view's border style (can be any css border-style value)
+    ###
+    ###*
+    # @attribute {Number} border
+    # Sets this view's border width
+    ###
+    ###*
+    # @attribute {Number} padding
+    # Sets this view's padding
+    ###
 
     ###*
     # @event onclick
@@ -1282,18 +1298,34 @@ window.dr = do ->
       # @property {Boolean} ignorelayout
       # If true, layouts should ignore this view
       ###
+
       @subviews = []
-      types = {x: 'number', y: 'number', width: 'number', height: 'number', clickable: 'boolean', clip: 'boolean', scrollable: 'boolean', visible: 'boolean'}
-      defaults = {x:0, y:0, width:0, height:0, clickable:false, clip:false, scrollable:false, visible:true}
+      types = {x: 'number', y: 'number', width: 'number', height: 'number', clickable: 'boolean', clip: 'boolean', scrollable: 'boolean', visible: 'boolean', 'border': 'number', padding: 'number'}
+      defaults = {x:0, y:0, width:0, height:0, clickable:false, clip:false, scrollable:false, visible:true, bordercolor:'transparent', borderstyle:'solid', border:0, padding:0}
 
       for key, type of attributes.$types
         types[key] = type
       attributes.$types = types
 
-      attributes['width'] = @_sizeFromPercent(attributes['width'], "width") if @_isPercent(attributes['width'])
-      attributes['height'] = @_sizeFromPercent(attributes['height'], "height") if @_isPercent(attributes['height'])
-
       @_setDefaults(attributes, defaults)
+
+      attributes['width'] = @_sizeConstraint(attributes['width'], "width") if @_isPercent(attributes['width'])
+      attributes['height'] = @_sizeConstraint(attributes['height'], "height") if @_isPercent(attributes['height'])
+
+      if (attributes['parent'].padding)
+        attributes['x'] += attributes['parent'].padding
+        attributes['y'] += attributes['parent'].padding
+
+      attributes['border-width'] = attributes['border']
+      delete attributes['border'] #so it doesn't get passed through to the sprite
+
+#      so these do get passed through to the sprite with the correct css names
+      attributes['border-color'] = attributes['bordercolor']
+      attributes['border-style'] = attributes['borderstyle']
+      attributes['padding-left'] = attributes['padding'] if 'padding-left' of attributes
+      attributes['padding-right'] = attributes['padding'] if 'padding-right' of attributes
+      attributes['padding-top'] = attributes['padding'] if 'padding-top' of attributes
+      attributes['padding-bottom'] = attributes['padding'] if 'padding-bottom' of attributes
 
       if (el instanceof View)
         el = el.sprite
@@ -1306,8 +1338,11 @@ window.dr = do ->
     _isPercent: (value) ->
       typeof value == 'string' && value.indexOf('%') > -1;
 
-    _sizeFromPercent: (percent, dim) ->
-      return "${this.parent.#{dim} ? this.parent.#{dim}*#{parseFloat(percent)/100.0} : $(this.parent).#{dim}()}"
+    innerSize: (percent, dim) ->
+      return (@[dim] * parseInt(percent)/100.0) - @['border-width']*2 - @padding*2
+
+    _sizeConstraint: (percent, dim) ->
+      return "${this.parent.innerSize ? this.parent.innerSize('#{percent}', '#{dim}') : $(this.parent).#{dim}()}"
 
     _createSprite: (el, attributes) ->
       @sprite = new Sprite(el, @, attributes.$tagname)
@@ -1509,11 +1544,11 @@ window.dr = do ->
 
       @listenTo(@, 'width',
         (w) ->
-          @sprite.setStyle('width', w, true, @sprite.input);
+          @sprite.setStyle('width', @innerSize('100%', 'width'), true, @sprite.input);
       )
       @listenTo(@, 'height',
         (h) ->
-          @sprite.setStyle('height', h, true, @sprite.input);
+          @sprite.setStyle('height', @innerSize('100%', 'height'), true, @sprite.input);
       )
 
     _createSprite: (el, attributes) ->
@@ -1521,7 +1556,11 @@ window.dr = do ->
       attributes.text ||= @sprite.getText(true)
       @sprite.setText('')
       multiline = @_coerceType('multiline', attributes.multiline, 'boolean')
-      @sprite.createInputtextElement('', multiline, attributes.width, attributes.height)
+      p = attributes['padding'] || 0
+      b = attributes['border-width'] || 0
+      w = attributes.width - p*2 - b*2
+      h = attributes.height - p*2 - b*2
+      @sprite.createInputtextElement('', multiline, w, h)
 
     _handleChange: () ->
       return unless @replicator
@@ -1722,9 +1761,8 @@ window.dr = do ->
         sendInit()
       )
 
-    findAutoIncludes = (parentel, callback) ->
+    findAutoIncludes = (parentel, finalcallback) ->
       jqel = $(parentel)
-      includerequests = []
 
       includedScripts = {}
       loadqueue = []
@@ -1744,8 +1782,8 @@ window.dr = do ->
           script.type = 'text/javascript'
           $('head').append(script)
           script.onload = cb
-          script.onerror = () ->
-            console.error(error)
+          script.onerror = (err) ->
+            console.error(error, err)
             cb()
           script.src = url
 
@@ -1760,72 +1798,90 @@ window.dr = do ->
 
         appendScript(url, appendcallback, error)
 
+      # classes declared inline with the class tag
       inlineclasses = {}
+      # current list of jquery promises for outstanding requests
       filerequests = []
+      # hash of files and classes loaded already
       fileloaded = {}
-      loadLZX = (name, el) ->
-        return if name of dr or name of fileloaded or name in specialtags or name of inlineclasses or name in builtinTags
-        # don't autoload elements found inside specialtags, e.g. setter
-        return if el.parentNode.localName in specialtags
-        fileloaded[name] = true
-        url = '/classes/' + name + '.dre'
-        # console.log 'loading dre', name, url, el
+
+      loadInclude = (url, el) ->
+        return if url of fileloaded
+        fileloaded[url] = el
+        # console.log "Loading #{url}", el
         prom = $.get(url)
         prom.url = url
         prom.el = el
         filerequests.push(prom)
 
+      findMissingClasses = (names={}) ->
+        # look for class declarations and unloaded classes for tags
+        for el in jqel.find('*')
+          name = el.localName
+          if name == 'class'
+            if el.attributes.extends
+              # load load class extends
+              names[el.attributes.extends.value] = el
+            # track inline class declaration so we don't attempt to load it later
+            inlineclasses[el.attributes.name.value] = true
+          else if name == 'replicator'
+            # load class instance for tag
+            names[name] = el
+            # load classname instance as well
+            names[el.attributes.classname.value] = el
+          else
+            # don't autoload elements found inside specialtags, e.g. setter
+            unless el.parentNode.localName in specialtags
+              # load class instance for tag
+              names[name] = el 
+
+        # filter out classnames that may have already been loaded or should otherwise be ignored
+        out = {}
+        for name, el of names
+          unless name of dr or name of fileloaded or name in specialtags or name of inlineclasses or name in builtinTags
+            out[name] = el
+        out
+
+      findIncludeURLs = (urls={}) ->
+        for el in jqel.find('include')
+          url = el.attributes.href.value
+          el.parentNode.removeChild(el)
+          urls[url] = el
+          # console.log('found include', url)
+        urls
+
       loadIncludes = (callback) ->
         # load includes
-        for jel in jqel.find('include')
-          url = jel.attributes.href.value
-          jel.parentNode.removeChild(jel)
-          unless fileloaded[url]
-            # console.log('loading include', url, fileloaded[url])
-            fileloaded[url] = true
-            includerequests.push($.get(url)) 
+        for url, el of findIncludeURLs()
+          # console.log 'include url', url
+          loadInclude(url, el)
 
         # wait for all includes to load
-        $.when.apply($, includerequests).done((args...) ->
+        $.when.apply($, filerequests).done((args...) ->
           # append includes
-          args = [args] if (includerequests.length == 1)
-          includerequests = []
-          # console.log('loading includes', args)
+          args = [args] if (filerequests.length == 1)
+          filerequests = []
+          # console.log('loaded includes', args)
 
           includeRE = /<[\/]*library>/gi
-          initONE = true
           for xhr in args
             # remove any library tags found
             html = xhr[0].replace(includeRE, '')
             # console.log 'inserting include', html
             jqel.prepend(html)
 
-          # look for class declarations and unloaded classes for tags
-          for el in jqel.find('*')
-            name = el.localName
-            if name == 'class'
-              if el.attributes.extends
-                extendz = el.attributes.extends.value
-                # load load class extends
-                loadLZX(extendz, el)
-                # initONE = true if extendz = 'state'
-              # track inline class declaration so we don't load it again later
-              inlineclasses[el.attributes.name.value] = true
-            else if name == 'state'
-              initONE = true
-            else if name == 'replicator'
-              # load class instance for tag
-              loadLZX(name, el)
-              # load classname instance as well
-              loadLZX(el.attributes.classname.value, el)
-            else
-              # load class instance for tag
-              loadLZX(name, el)
+          # load missing classes
+          for name, el of findMissingClasses()
+            fileloaded[name] = true
+            loadInclude("/classes/#{name}.dre", el)
+            # console.log 'loading dre', name, url, el
 
           # console.log(filerequests, fileloaded, inlineclasses)
           # wait for all dre files to finish loading
           $.when.apply($, filerequests).done((args...) ->
             args = [args] if (filerequests.length == 1)
+            filerequests = []
+
             for xhr in args
               # console.log 'inserting html', args, xhr[0]
               jqel.prepend(xhr[0])
@@ -1835,36 +1891,42 @@ window.dr = do ->
                     $(this).remove()
                 )
 
+            includes = findMissingClasses(findIncludeURLs())
+            if Object.keys(includes).length > 0
+              # console.warn("missing includes", includes)
+              loadIncludes(callback)
+              return;
+
             # find class script includes and load them in lexical order
-            scriptsloading = false
-            if (initONE)
-              # initialize ONE integration
-              scriptsloading = loadScript('/lib/one_base.js', () ->
-                ONE.base_.call(Eventable::)
-                # hide builtin keys from learn()
-                Eventable::enumfalse(Eventable::keys())
-                Node::enumfalse(Node::keys())
-                View::enumfalse(View::keys())
-                Layout::enumfalse(Layout::keys())
-                callback()
-              )
 
-            for el in jqel.find('[scriptincludes]')
-              for url in el.attributes.scriptincludes.value.split(',')
-                scriptsloading = loadScript(url.trim(), callback, el.attributes.scriptincludeserror?.value.toString())
-
-            # done loading
-            filerequests = []
-
-            # no class script includes found, execute callback immediately
-            unless scriptsloading
-              callback()
+            # initialize ONE integration
+            $.getScript('/lib/one_base.js', () ->
+              ONE.base_.call(Eventable::)
+              # hide builtin keys from learn()
+              Eventable::enumfalse(Eventable::keys())
+              Node::enumfalse(Node::keys())
+              View::enumfalse(View::keys())
+              Layout::enumfalse(Layout::keys())
+            ).done(() ->
+              scriptloaded = false
+              for el in jqel.find('[scriptincludes]')
+                for url in el.attributes.scriptincludes.value.split(',')
+                  scriptloaded = loadScript(url.trim(), callback, el.attributes.scriptincludeserror?.value.toString())
+              callback() unless scriptloaded
+            ).fail(() ->
+              console.warn('failed to load /lib/one_base.js')
+            )
           ).fail((args...) ->
             args = [args] if (args.length == 1)
             for xhr in args
               showWarnings(["failed to load #{xhr.url} for element #{xhr.el.outerHTML}"])
             return
           )
+        ).fail((args...) ->
+          args = [args] if (args.length == 1)
+          for xhr in args
+            showWarnings(["failed to load #{xhr.url} for element #{xhr.el.outerHTML}"])
+          return
         )
 
       validator = ->
@@ -1878,17 +1940,12 @@ window.dr = do ->
           # processData: false
           success: (data) ->
             showWarnings(data) if (data.length)
-        })
+        }).always(() ->
+          finalcallback()
+        )
 
-        callback()
-
-      # must do this thrice to catch autoinclude autoincludes, see https://github.com/teem2/dreem/issues/6 and https://www.pivotaltracker.com/story/show/77941122
-      cb2 = () ->
-        # console.log 'loading dre', name, url, el
-        loadIncludes(validator)
-      cb = () ->
-        loadIncludes(cb2)
-      loadIncludes(cb)
+      # call the validator after everything loads
+      loadIncludes(validator)
 
     specialtags = ['handler', 'method', 'attribute', 'setter', 'include']
     # tags built into the browser that should be ignored, from http://www.w3.org/TR/html-markup/elements.html
