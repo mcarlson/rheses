@@ -1,0 +1,106 @@
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+<!--/**
+      * @class dr.spacedlayout
+      * @extends dr.variablelayout
+      * A variableLayout that positions views along an axis using an inset, 
+      * outset and spacing value.
+      *
+      *     @example
+      *     <spacedlayout axis="y" spacing="2" inset="5" outset="5">
+      *     </spacedlayout>
+      *
+      *     <view width="100" height="25" bgcolor="lightpink"></view>
+      *     <view width="100" height="35" bgcolor="plum"></view>
+      *     <view width="100" height="15" bgcolor="lightblue"></view>
+      */-->
+<class name="spacedlayout" extends="variablelayout" type="coffee">
+  <!--/**
+    * @attribute {Number} [spacing=0]
+    * The spacing between views.
+    */-->
+  <attribute name="spacing" type="number" value="0"></attribute>
+  <handler event="onspacing" method="update"></handler>
+  
+  <!--/**
+    * @attribute {Number} [outset=0]
+    * Space after the last view. Only used when collapseparent is true.
+    */-->
+  <attribute name="outset" type="number" value="0"></attribute>
+  <handler event="onoutset" method="update"></handler>
+  
+  <!--/**
+    * @attribute {Number} [inset=0]
+    * Space before the first view.
+    */-->
+  <attribute name="inset" type="number" value="0"></attribute>
+  <setter name="inset" args="inset">
+    # An alias for value.
+    @setAttribute('value', inset);
+  </setter>
+  
+  <!--/**
+    * @attribute {String} [axis='x']
+    * The orientation of the layout. Supported values are 'x' and 'y'.
+    * A value of 'x' will orient the views horizontally and a value of 'y'
+    * will orient them vertically.
+    */-->
+  <attribute name="axis" type="string" value="x"></attribute>
+  <setter name="axis" args="axis">
+    # An alias for attribute.
+    @setAttribute('attribute', axis);
+  </setter>
+  
+  <setter name="attribute" args="attribute" invokesuper="inside">
+    @measureAttrName ?= 'height'
+    
+    @stopMonitoringAllSubviews()
+    
+    if attribute == 'y'
+      @measureAttrName = 'height'
+    else
+      @measureAttrName = 'width'
+  </setter>
+  <handler event="onattribute">
+    @startMonitoringAllSubviews()
+    @update()
+  </handler>
+  
+  <method name="startMonitoringSubview" args="view" invokesuper="inside">
+    @super(arguments)
+    @listenTo(view, @measureAttrName, @update)
+  </method>
+  
+  <method name="stopMonitoringSubview" args="view" invokesuper="inside">
+    @super(arguments)
+    @stopListening(view, @measureAttrName, @update)
+  </method>
+  
+  <method name="updateSubview" args="count, view, attribute, value" invokesuper="inside">
+    view.setAttribute(attribute, value)
+    return value + view[@measureAttrName] + @spacing
+  </method>
+  
+  <method name="updateParent" args="attribute, value" invokesuper="inside">
+    @parent.setAttribute(@measureAttrName, value + @outset - @spacing)
+  </method>
+</class>

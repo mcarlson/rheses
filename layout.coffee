@@ -551,6 +551,28 @@ window.dr = do ->
       for name, value of attributes
         continue if name in lateattributes or name in earlyattributes
         @bindAttribute(name, value, attributes.$tagname)
+      
+      # Need to fire subnode added events after attributes have been set since
+      # we aren't fully configured until now so listeners may be notified
+      # before the node is actually ready. Doing this in set_parent specificaly
+      # causes problems in layouts when a view is added after initialization
+      # since the layout will set a value such as x,y before the x,y setters
+      # of the node itself have run.
+      parent = @parent
+      if (parent and parent instanceof Node)
+        ###*
+        # @event onsubnodes
+        # Fired when this node's subnodes array has changed
+        # @param {dr.node} node The dr.node that fired the event
+        ###
+        ###*
+        # @event subnodeAdded
+        # Fired when a subnode is added to this node.
+        # @param {dr.node} node The dr.node that was added
+        ###
+        parent.sendEvent('subnodes', @)
+        parent.sendEvent('subnodeAdded', @)
+        parent.doSubnodeAdded(@)
 
       for name in lateattributes
         @bindAttribute(name, attributes[name], attributes.$tagname) if name of attributes
@@ -784,12 +806,6 @@ window.dr = do ->
         # store references to parent and children
         parent[@name] = @ if @name
         parent.subnodes.push(@)
-        ###*
-        # @event onsubnodes
-        # Fired when this node's subnodes array has changed
-        # @param {dr.node} node The dr.node that fired the event
-        ###
-        parent.sendEvent('subnodes', @)
 
     set_name: (name) ->
       # console.log 'set_name', name, @
@@ -807,6 +823,14 @@ window.dr = do ->
         arr.splice(index, 1)
         # console.log('_removeFromParent', index, name, arr.length, arr, @)
         @parent.sendEvent(name, removedNode)
+        if name == 'subnodes'
+          ###*
+          # @event subnodeRemoved
+          # Fired when a subnode is removed from this node.
+          # @param {dr.node} node The dr.node that was removed
+          ###
+          @parent.sendEvent('subnodeRemoved', removedNode)
+          @parent.doSubnodeRemoved(removedNode)
       return
 
     # find all parents with an attribute set to a specific value. Used in updateSize to deal with invisible parents.
@@ -827,6 +851,26 @@ window.dr = do ->
           # console.log 'found in parent', name, p
           return p[name]
         p = p.parent
+
+    ###*
+    # Called when a subnode is added to this node. Provides a hook for
+    # subclasses. No need for subclasses to call super. Do not call this
+    # method to add a subnode. Instead call setParent.
+    # @param {dr.node} node The subnode that was added.
+    # @return {void}
+    ###
+    doSubnodeAdded: (node) ->
+      # Empty implementation by default
+
+    ###*
+    # Called when a subnode is removed from this node. Provides a hook for
+    # subclasses. No need for subclasses to call super. Do not call this
+    # method to remove a subnode. Instead call _removeFromParent.
+    # @param {dr.node} node The subnode that was removed.
+    # @return {void}
+    ###
+    doSubnodeRemoved: (node) ->
+      # Empty implementation by default
 
     ###*
     # @method destroy
@@ -1333,6 +1377,90 @@ window.dr = do ->
 
     set_scrollable: (scrollable) ->
       @sprite.set_scrollable(scrollable)
+
+    ###*
+    # Calls doSubviewAdded/doLayoutAdded if the added subnode is a view or
+    # layout respectively. Subclasses should call super.
+    ###
+    doSubnodeAdded: (node) ->
+      if node instanceof View
+        ###*
+        # @event subviewAdded
+        # Fired when a subview is added to this view.
+        # @param {dr.view} view The dr.view that was added
+        ###
+        @sendEvent('subviewAdded', node)
+        @doSubviewAdded(node);
+      else if node instanceof Layout
+        ###*
+        # @event layoutAdded
+        # Fired when a layout is added to this view.
+        # @param {dr.layout} layout The dr.layout that was added
+        ###
+        @sendEvent('layoutAdded', node)
+        @doLayoutAdded(node);
+
+    ###*
+    # Calls doSubviewRemoved/doLayoutRemoved if the removed subnode is a view or
+    # layout respectively. Subclasses should call super.
+    ###
+    doSubnodeRemoved: (node) ->
+      if node instanceof View
+        ###*
+        # @event subviewRemoved
+        # Fired when a subview is removed from this view.
+        # @param {dr.view} view The dr.view that was removed
+        ###
+        @sendEvent('subviewRemoved', node)
+        @doSubviewRemoved(node);
+      else if node instanceof Layout
+        ###*
+        # @event layoutRemoved
+        # Fired when a layout is removed from this view.
+        # @param {dr.layout} layout The dr.layout that was removed
+        ###
+        @sendEvent('layoutRemoved', node)
+        @doLayoutRemoved(node);
+
+    ###*
+    # Called when a subview is added to this view. Provides a hook for
+    # subclasses. No need for subclasses to call super. Do not call this
+    # method to add a subview. Instead call setParent.
+    # @param {dr.view} sv The subview that was added.
+    # @return {void}
+    ###
+    doSubviewAdded: (sv) ->
+      # Empty implementation by default
+    
+    ###*
+    # Called when a subview is removed from this view. Provides a hook for
+    # subclasses. No need for subclasses to call super. Do not call this
+    # method to remove a subview. Instead call _removeFromParent.
+    # @param {dr.view} sv The subview that was removed.
+    # @return {void}
+    ###
+    doSubviewRemoved: (sv) ->
+      # Empty implementation by default
+
+    ###*
+    # Called when a layout is added to this view. Provides a hook for
+    # subclasses. No need for subclasses to call super. Do not call this
+    # method to add a layout. Instead call setParent.
+    # @param {dr.layout} layout The layout that was added.
+    # @return {void}
+    ###
+    doLayoutAdded: (layout) ->
+      # Empty implementation by default
+    
+    ###*
+    # Called when a layout is removed from this view. Provides a hook for
+    # subclasses. No need for subclasses to call super. Do not call this
+    # method to remove a layout. Instead call _removeFromParent.
+    # @param {dr.layout} layout The layout that was removed.
+    # @return {void}
+    ###
+    doLayoutRemoved: (layout) ->
+      # Empty implementation by default
 
     destroy: (skipevents) ->
       # console.log 'destroy view', @
@@ -2476,6 +2604,142 @@ window.dr = do ->
       # console.log 'set_locked', locked
       @update() if (changed and not locked)
 
+  ###*
+  # @class dr.layoot
+  # @extends dr.node
+  # The base class for all layouts. 
+  ###
+  class Layoot extends Node
+    constructor: (el, attributes = {}) ->
+      @locked = true
+      @subviews = []
+      
+      super
+      
+      # listen for changes in the parent
+      @listenTo(@parent, 'subviewAdded', @addSubview.bind(@))
+      @listenTo(@parent, 'subviewRemoved', @removeSubview.bind(@))
+      @listenTo(@parent, 'init', @update)
+      
+      # Store ourself in the parent layouts
+      @parent.layouts ?= []
+      @parent.layouts.push(@)
+      
+      # Start monitoring existing subviews
+      subviews = @parent.subviews
+      if subviews
+        for subview in subviews
+          @addSubview(subview)
+      
+      @locked = false
+      
+      @update()
+    
+    destroy: (skipevents) ->
+      @locked = true
+      # console.log 'destroy layout', @
+      super
+      @_removeFromParent('layouts') unless skipevents
+    
+    ###*
+    # Adds the provided view to the subviews array of this layout.
+    # @param {dr.view} view The view to add to this layout.
+    # @return {void}
+    ###
+    addSubview: (view) ->
+      if @ignore(view)
+        return
+      
+      @subviews.push(view)
+      @startMonitoringSubview(view)
+      if !@locked
+        @update()
+    
+    ###*
+    # Removes the provided View from the subviews array of this Layout.
+    # @param {dr.view} view The view to remove from this layout.
+    # @return {number} the index of the removed subview or -1 if not removed.
+    ###
+    removeSubview: (view) ->
+      if @ignore(view)
+        return -1
+      
+      idx = @subviews.indexOf(view)
+      if idx != -1
+        @stopMonitoringSubview(view)
+        @subviews.splice(idx, 1)
+        if !@locked
+          @update()
+      return idx
+    
+    ###*
+    # Checks if a subview can be added to this Layout or not. The default 
+    # implementation returns the 'ignorelayout' attributes of the subview.
+    # @param {dr.view} view The view to check.
+    # @return {boolean} True means the subview will be skipped, false otherwise.
+    ###
+    ignore: (view) ->
+      return view.ignorelayout
+    
+    ###*
+    # Subclasses should implement this method to start listening to
+    # events from the subview that should trigger the update method.
+    # @param {dr.view} view The view to start monitoring for changes.
+    # @return {void}
+    ###
+    startMonitoringSubview: (view) ->
+      # Empty implementation by default
+    
+    ###*
+    # Calls startMonitoringSubview for all views. Used by layout 
+    # implementations when a change occurs to the layout that requires
+    # refreshing all the subview monitoring.
+    # @return {void}
+    ###
+    startMonitoringAllSubviews: ->
+      svs = @subviews
+      i = svs.length
+      while (i)
+        @startMonitoringSubview(svs[--i])
+    
+    ###*
+    # Subclasses should implement this method to stop listening to
+    # events from the subview that would trigger the update method. This
+    # should remove all listeners that were setup in startMonitoringSubview.
+    # @param {dr.view} view The view to stop monitoring for changes.
+    # @return {void}
+    ###
+    stopMonitoringSubview: (view) ->
+      # Empty implementation by default
+    
+    ###*
+    # Calls stopMonitoringSubview for all views. Used by Layout 
+    # implementations when a change occurs to the layout that requires
+    # refreshing all the subview monitoring.
+    # @return {void}
+    ###
+    stopMonitoringAllSubviews: ->
+      svs = @subviews
+      i = svs.length
+      while (i)
+        @stopMonitoringSubview(svs[--i])
+    
+    ###*
+    # Checks if the layout is locked or not. Should be called by the
+    # "update" method of each layout to check if it is OK to do the update.
+    # @return {boolean} true if not locked, false otherwise.
+    ###
+    canUpdate: ->
+      return !@locked and @parent.inited
+    
+    ###*
+    # Updates the layout. Subclasses should call canUpdate to check lock state
+    # before doing anything.
+    # @return {void}
+    ###
+    update: ->
+      # Empty implementation by default
+
   idle = do ->
     requestAnimationFrame = (()->
       return  window.requestAnimationFrame       or
@@ -2915,6 +3179,7 @@ window.dr = do ->
     keyboard: new Keyboard()
     window: new Window()
     layout: Layout
+    layoot: Layoot
     idle: new Idle()
     state: State
     ###*

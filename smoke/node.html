@@ -7,7 +7,7 @@
     }
   </style>
 
-  <title>rhes.es - Text Component Smoke Tests</title>
+  <title>Dr33m - Node Smoke Tests</title>
   <script type="text/javascript" src="/lib/jquery-1.9.1.min.js"></script>
   <script type="text/javascript" src="/lib/acorn.js"></script>
   <script type="text/javascript" src="/lib/coffee-script.js"></script>
@@ -16,26 +16,39 @@
 </head>
 <body>
 <view id="all" width="100%" height="100%" clip="true">
-
-  <simplelayout axis="y"></simplelayout>
   
-  <!-- Handlers -->
-  <!-- oninit -->
-  <class name="text2" extends="text"></class>
-  <class name="text3" extends="text2">
-    <handler event="oninit" args="who">
-      assert.equal(who, this)
-    </handler>
-  </class>
-  
-  <!-- Subnode init -->
-  <!-- Subnodes are created, and attributes of subnodes are set before oninit of parent fires -->
-  <view id="p">
-    <view id="s" width="50" height="50" bgcolor="#e0e0e0"></view>
-
+  <view name="foo" width="200" height="200" bgcolor="green">
+    <handler event="onsubnodeAdded" args="node">console.log("EVENT subnodeAdded", node.name);</handler>
+    <handler event="onsubnodeRemoved" args="node">console.log("EVENT subnodeRemoved", node.name);</handler>
+    <method name="doSubnodeAdded" args="node" invokesuper="after">console.log("subnodeAdded", node.name);</method>
+    <method name="doSubnodeRemoved" args="node" invokesuper="after">console.log("subnodeRemoved", node.name);</method>
+    
+    <handler event="onsubviewAdded" args="sv">console.log("EVENT subviewAdded", sv.name);</handler>
+    <handler event="onsubviewRemoved" args="sv">console.log("EVENT subviewRemoved", sv.name);</handler>
+    <method name="doSubviewAdded" args="sv">console.log("subviewAdded", sv.name);</method>
+    <method name="doSubviewRemoved" args="sv">console.log("subviewRemoved", sv.name);</method>
+    
+    <handler event="onlayoutAdded" args="layout">console.log("EVENT layoutAdded", layout.name);</handler>
+    <handler event="onlayoutRemoved" args="layout">console.log("EVENT layoutRemoved", layout.name);</handler>
+    <method name="doLayoutAdded" args="layout">console.log("layoutAdded", layout.name);</method>
+    <method name="doLayoutRemoved" args="layout">console.log("layoutRemoved", layout.name);</method>
+    
+    <node name="bar" id="bar">
+      <handler event="oninit">
+        console.log("oninit handler", this.name);
+      </handler>
+    </node>
+    
+    <view name="baz" id="baz" width="100" height="100" bgcolor="red">
+      <handler event="oninit">
+        console.log("oninit handler", this.name);
+      </handler>
+    </view>
+    
+    <simplelayout axis="y" name="hey" id="hey"></simplelayout>
+    
     <handler event="oninit">
-      assert.equal(s.width, 50);
-      // console.log("parent oninit", s);
+      console.log("oninit handler", this.name);
     </handler>
   </view>
 </view>
