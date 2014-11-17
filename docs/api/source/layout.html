@@ -77,7 +77,7 @@
   })();
 
   window.dr = (function() {
-    var Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, capabilities, compiler, constraintScopes, debug, dom, exports, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, querystring, showWarnings, skipEvent, triggerlock, warnings, _initConstraints;
+    var Class, Eventable, Events, Idle, InputText, Keyboard, Layoot, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, capabilities, compiler, constraintScopes, debug, dom, exports, fcamelCase, hiddenAttributes, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, otherstyles, querystring, rdashAlpha, showWarnings, skipEvent, ss, ss2, stylemap, triggerlock, warnings, _initConstraints;
     mixOf = function() {
       var Mixed, base, i, method, mixin, mixins, name, _i, _ref;
       base = arguments[0], mixins = 2 &lt;= arguments.length ? __slice.call(arguments, 1) : [];
@@ -466,12 +466,13 @@
           return false;
         }
       })(),
-      touch: &#39;ontouchstart&#39; in window || &#39;onmsgesturechange&#39; in window
+      touch: &#39;ontouchstart&#39; in window || &#39;onmsgesturechange&#39; in window,
+      camelcss: navigator.userAgent.toLowerCase().indexOf(&#39;firefox&#39;) &gt; -1
     };
     querystring = window.location.search;
     debug = querystring.indexOf(&#39;debug&#39;) &gt; 0;
     compiler = (function() {
-      var cacheData, cacheKey, compile, compileCache, exports, findBindings, nocache, scriptCache, strict, transform, usecache;
+      var cacheData, cacheKey, compile, compileCache, compiledebug, exports, findBindings, nocache, scriptCache, strict, transform, usecache;
       nocache = querystring.indexOf(&#39;nocache&#39;) &gt; 0;
       strict = querystring.indexOf(&#39;strict&#39;) &gt; 0;
       if (!nocache) {
@@ -561,7 +562,7 @@
         };
       })();
       scriptCache = {};
-      compile = function(script, args, name) {
+      compiledebug = function(script, args, name) {
         var argstring, e, func, key;
         if (script == null) {
           script = &#39;&#39;;
@@ -578,10 +579,10 @@
           return scriptCache[key];
         }
         try {
-          if (debug &amp;&amp; name) {
-            if (strict) {
-              script = &quot;\&quot;use strict\&quot;\n&quot; + script;
-            }
+          if (strict) {
+            script = &quot;\&quot;use strict\&quot;\n&quot; + script;
+          }
+          if (name) {
             func = new Function(&quot;return function &quot; + name + &quot;(&quot; + argstring + &quot;){&quot; + script + &quot;}&quot;)();
           } else {
             func = new Function(args, script);
@@ -592,8 +593,26 @@
           return console.error(&#39;failed to compile&#39;, e.toString(), args, script);
         }
       };
+      compile = function(script, args, name) {
+        var argstring, key;
+        if (script == null) {
+          script = &#39;&#39;;
+        }
+        if (args == null) {
+          args = [];
+        }
+        if (name == null) {
+          name = &#39;&#39;;
+        }
+        argstring = args.join();
+        key = script + argstring + name;
+        if (key in scriptCache) {
+          return scriptCache[key];
+        }
+        return scriptCache[key] = new Function(args, script);
+      };
       return exports = {
-        compile: compile,
+        compile: debug ? compiledebug : compile,
         transform: transform,
         findBindings: findBindings
       };
@@ -701,7 +720,7 @@
       lateattributes = [&#39;data&#39;];
 
       function Node(el, attributes) {
-        var args, deferbindings, ev, method, name, reference, script, skiponinit, value, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
+        var args, deferbindings, ev, method, name, parent, reference, script, skiponinit, value, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
         if (attributes == null) {
           attributes = {};
         }
@@ -760,6 +779,24 @@
             continue;
           }
           this.bindAttribute(name, value, attributes.$tagname);
+        }
+        parent = this.parent;
+        if (parent &amp;&amp; parent instanceof Node) {
+
+<span id='dr-node-event-onsubnodes'>          /**
+</span>           * @event onsubnodes
+           * Fired when this node&#39;s subnodes array has changed
+           * @param {dr.node} node The dr.node that fired the event
+           */
+
+<span id='dr-node-event-subnodeAdded'>          /**
+</span>           * @event subnodeAdded
+           * Fired when a subnode is added to this node.
+           * @param {dr.node} node The dr.node that was added
+           */
+          parent.sendEvent(&#39;subnodes&#39;, this);
+          parent.sendEvent(&#39;subnodeAdded&#39;, this);
+          parent.doSubnodeAdded(this);
         }
         for (_k = 0, _len2 = lateattributes.length; _k &lt; _len2; _k++) {
           name = lateattributes[_k];
@@ -1049,14 +1086,7 @@
           if (this.name) {
             parent[this.name] = this;
           }
-          parent.subnodes.push(this);
-
-<span id='dr-node-event-onsubnodes'>          /**
-</span>           * @event onsubnodes
-           * Fired when this node&#39;s subnodes array has changed
-           * @param {dr.node} node The dr.node that fired the event
-           */
-          return parent.sendEvent(&#39;subnodes&#39;, this);
+          return parent.subnodes.push(this);
         }
       };
 
@@ -1081,6 +1111,16 @@
           removedNode = arr[index];
           arr.splice(index, 1);
           this.parent.sendEvent(name, removedNode);
+          if (name === &#39;subnodes&#39;) {
+
+<span id='dr-node-event-subnodeRemoved'>            /**
+</span>             * @event subnodeRemoved
+             * Fired when a subnode is removed from this node.
+             * @param {dr.node} node The dr.node that was removed
+             */
+            this.parent.sendEvent(&#39;subnodeRemoved&#39;, removedNode);
+            this.parent.doSubnodeRemoved(removedNode);
+          }
         }
       };
 
@@ -1107,6 +1147,28 @@
           p = p.parent;
         }
       };
+
+
+<span id='dr-node-method-doSubnodeAdded'>      /**
+</span>       * Called when a subnode is added to this node. Provides a hook for
+       * subclasses. No need for subclasses to call super. Do not call this
+       * method to add a subnode. Instead call setParent.
+       * @param {dr.node} node The subnode that was added.
+       * @return {void}
+       */
+
+      Node.prototype.doSubnodeAdded = function(node) {};
+
+
+<span id='dr-node-method-doSubnodeRemoved'>      /**
+</span>       * Called when a subnode is removed from this node. Provides a hook for
+       * subclasses. No need for subclasses to call super. Do not call this
+       * method to remove a subnode. Instead call _removeFromParent.
+       * @param {dr.node} node The subnode that was removed.
+       * @return {void}
+       */
+
+      Node.prototype.doSubnodeRemoved = function(node) {};
 
 
 <span id='dr-node-method-destroy'>      /**
@@ -1150,6 +1212,12 @@
       return Node;
 
     })(Eventable);
+    stylemap = {
+      x: &#39;left&#39;,
+      y: &#39;top&#39;,
+      bgcolor: &#39;backgroundColor&#39;,
+      visible: &#39;display&#39;
+    };
 
 <span id='Sprite'>    /**
 </span>     * @class Sprite
@@ -1157,16 +1225,9 @@
      * Abstracts the underlying visual primitives (currently HTML) from dreem&#39;s view system.
      */
     Sprite = (function() {
-      var fcamelCase, lastTouchDown, noop, rdashAlpha, stylemap, styleval;
+      var noop, styleval;
 
       noop = function() {};
-
-      stylemap = {
-        x: &#39;left&#39;,
-        y: &#39;top&#39;,
-        bgcolor: &#39;backgroundColor&#39;,
-        visible: &#39;display&#39;
-      };
 
       styleval = {
         display: function(isVisible) {
@@ -1175,21 +1236,21 @@
           } else {
             return &#39;none&#39;;
           }
+        },
+        cursor: function(clickable) {
+          if (clickable) {
+            return &#39;pointer&#39;;
+          } else {
+            return &#39;&#39;;
+          }
         }
       };
-
-      fcamelCase = function(all, letter) {
-        return letter.toUpperCase();
-      };
-
-      rdashAlpha = /-([\da-z])/gi;
 
       function Sprite(jqel, view, tagname) {
         if (tagname == null) {
           tagname = &#39;div&#39;;
         }
         this.handle = __bind(this.handle, this);
-        this.touchHandler = __bind(this.touchHandler, this);
         this.animate = __bind(this.animate, this);
         if (jqel == null) {
           this.el = document.createElement(tagname);
@@ -1213,11 +1274,6 @@
         }
         if (name in styleval) {
           value = styleval[name](value);
-        } else if (name.match(rdashAlpha)) {
-          name = name.replace(rdashAlpha, fcamelCase);
-          if (debug &amp;&amp; !internal) {
-            console.warn(&quot;Setting unknown CSS property &quot; + name + &quot; = &quot; + value + &quot; on &quot;, this.el.$view);
-          }
         }
         return el.style[name] = value;
       };
@@ -1249,48 +1305,10 @@
         return this.jqel.animate.apply(this.jqel, arguments);
       };
 
-      Sprite.prototype.sendMouseEvent = function(type, first) {
-        var simulatedEvent;
-        simulatedEvent = document.createEvent(&#39;MouseEvent&#39;);
-        simulatedEvent.initMouseEvent(type, true, true, window, 1, first.pageX, first.pageY, first.clientX, first.clientY, false, false, false, false, 0, null);
-        first.target.dispatchEvent(simulatedEvent);
-        if (first.target.$view &amp;&amp; first.target.$view.$tagname !== &#39;inputtext&#39;) {
-          return event.preventDefault();
-        }
-      };
-
-      lastTouchDown = null;
-
-      Sprite.prototype.touchHandler = function(event) {
-        var first, touches;
-        touches = event.changedTouches;
-        first = touches[0];
-        switch (event.type) {
-          case &#39;touchstart&#39;:
-            this.sendMouseEvent(&#39;mouseover&#39;, first);
-            this.sendMouseEvent(&#39;mousedown&#39;, first);
-            return lastTouchDown = first.target;
-          case &#39;touchmove&#39;:
-            return this.sendMouseEvent(&#39;mousemove&#39;, first);
-          case &#39;touchend&#39;:
-            this.sendMouseEvent(&#39;mouseup&#39;, first);
-            if (lastTouchDown === first.target) {
-              this.sendMouseEvent(&#39;click&#39;, first);
-              return lastTouchDown = null;
-            }
-        }
-      };
-
       Sprite.prototype.set_clickable = function(clickable) {
         this.__clickable = clickable;
         this.__updatePointerEvents();
-        this.setStyle(&#39;cursor&#39;, (clickable ? &#39;pointer&#39; : &#39;&#39;), true);
-        if (capabilities.touch) {
-          document.addEventListener(&#39;touchstart&#39;, this.touchHandler, true);
-          document.addEventListener(&#39;touchmove&#39;, this.touchHandler, true);
-          document.addEventListener(&#39;touchend&#39;, this.touchHandler, true);
-          return document.addEventListener(&#39;touchcancel&#39;, this.touchHandler, true);
-        }
+        return this.setStyle(&#39;cursor&#39;, clickable, true);
       };
 
       Sprite.prototype.set_clip = function(clip) {
@@ -1305,11 +1323,11 @@
       };
 
       Sprite.prototype.__updateOverflow = function() {
-        return this.setStyle(&#39;overflow&#39;, this.__scrollable ? &#39;auto&#39; : this.__clip ? &#39;hidden&#39; : &#39;&#39;);
+        return this.setStyle(&#39;overflow&#39;, this.__scrollable ? &#39;auto&#39; : this.__clip ? &#39;hidden&#39; : &#39;&#39;, true);
       };
 
       Sprite.prototype.__updatePointerEvents = function() {
-        return this.setStyle(&#39;pointer-events&#39;, (this.__clickable || this.__scrollable ? &#39;auto&#39; : &#39;none&#39;), true);
+        return this.setStyle(&#39;pointer-events&#39;, this.__clickable || this.__scrollable ? &#39;auto&#39; : &#39;&#39;, true);
       };
 
       Sprite.prototype.destroy = function() {
@@ -1344,17 +1362,15 @@
 
       Sprite.prototype.measureTextSize = function(multiline, width, resize) {
         if (multiline) {
-          this.setStyle(&#39;width&#39;, width);
-          this.setStyle(&#39;height&#39;, &#39;auto&#39;);
-          this.setStyle(&#39;whiteSpace&#39;, &#39;normal&#39;);
+          this.setStyle(&#39;width&#39;, width, true);
+          this.setStyle(&#39;height&#39;, &#39;auto&#39;, true);
+          this.setStyle(&#39;whiteSpace&#39;, &#39;normal&#39;, true);
         } else {
           if (resize) {
-            this.setStyle(&#39;width&#39;, &#39;auto&#39;);
+            this.setStyle(&#39;width&#39;, &#39;auto&#39;, true);
+            this.setStyle(&#39;height&#39;, &#39;auto&#39;, true);
           }
-          if (resize) {
-            this.setStyle(&#39;height&#39;, &#39;auto&#39;);
-          }
-          this.setStyle(&#39;whiteSpace&#39;, &#39;&#39;);
+          this.setStyle(&#39;whiteSpace&#39;, &#39;&#39;, true);
         }
         return {
           width: this.el.clientWidth,
@@ -1413,8 +1429,8 @@
         }
         pos = this.jqel.offset();
         return {
-          x: pos.left,
-          y: pos.top
+          x: pos.left - window.pageXOffset,
+          y: pos.top - window.pageYOffset
         };
       };
 
@@ -1425,6 +1441,35 @@
       return Sprite;
 
     })();
+    if (capabilities.camelcss) {
+      ss = Sprite.prototype.setStyle;
+      fcamelCase = function(all, letter) {
+        return letter.toUpperCase();
+      };
+      rdashAlpha = /-([\da-z])/gi;
+      Sprite.prototype.setStyle = function(name, value, internal, el) {
+        if (el == null) {
+          el = this.el;
+        }
+        if (name.match(rdashAlpha)) {
+          name = name.replace(rdashAlpha, fcamelCase);
+        }
+        return ss(name, value, internal, el);
+      };
+    }
+    if (debug) {
+      otherstyles = [&#39;width&#39;, &#39;height&#39;, &#39;background-color&#39;];
+      ss2 = Sprite.prototype.setStyle;
+      Sprite.prototype.setStyle = function(name, value, internal, el) {
+        if (el == null) {
+          el = this.el;
+        }
+        if (!internal &amp;&amp; !(name in stylemap) &amp;&amp; !(__indexOf.call(otherstyles, name) &gt;= 0)) {
+          console.warn(&quot;Setting unknown CSS property &quot; + name + &quot; = &quot; + value + &quot; on &quot;, this.el.$view, stylemap, internal);
+        }
+        return ss2(name, value, internal, el);
+      };
+    }
     ignoredAttributes = {
       parent: true,
       id: true,
@@ -1734,7 +1779,7 @@
 
       View.prototype.setAttribute = function(name, value, skipstyle) {
         value = this._coerceType(name, value);
-        if (!(skipstyle || name in ignoredAttributes || this[name] === value)) {
+        if (!(skipstyle || name in ignoredAttributes || name in hiddenAttributes || this[name] === value)) {
           this.sprite.setStyle(name, value);
         }
         return View.__super__.setAttribute.call(this, name, value, true);
@@ -1778,6 +1823,106 @@
       View.prototype.set_scrollable = function(scrollable) {
         return this.sprite.set_scrollable(scrollable);
       };
+
+
+<span id='dr-view-method-doSubnodeAdded'>      /**
+</span>       * Calls doSubviewAdded/doLayoutAdded if the added subnode is a view or
+       * layout respectively. Subclasses should call super.
+       */
+
+      View.prototype.doSubnodeAdded = function(node) {
+        if (node instanceof View) {
+
+<span id='dr-view-event-subviewAdded'>          /**
+</span>           * @event subviewAdded
+           * Fired when a subview is added to this view.
+           * @param {dr.view} view The dr.view that was added
+           */
+          this.sendEvent(&#39;subviewAdded&#39;, node);
+          return this.doSubviewAdded(node);
+        } else if (node instanceof Layout) {
+
+<span id='dr-view-event-layoutAdded'>          /**
+</span>           * @event layoutAdded
+           * Fired when a layout is added to this view.
+           * @param {dr.layout} layout The dr.layout that was added
+           */
+          this.sendEvent(&#39;layoutAdded&#39;, node);
+          return this.doLayoutAdded(node);
+        }
+      };
+
+
+<span id='dr-view-method-doSubnodeRemoved'>      /**
+</span>       * Calls doSubviewRemoved/doLayoutRemoved if the removed subnode is a view or
+       * layout respectively. Subclasses should call super.
+       */
+
+      View.prototype.doSubnodeRemoved = function(node) {
+        if (node instanceof View) {
+
+<span id='dr-view-event-subviewRemoved'>          /**
+</span>           * @event subviewRemoved
+           * Fired when a subview is removed from this view.
+           * @param {dr.view} view The dr.view that was removed
+           */
+          this.sendEvent(&#39;subviewRemoved&#39;, node);
+          return this.doSubviewRemoved(node);
+        } else if (node instanceof Layout) {
+
+<span id='dr-view-event-layoutRemoved'>          /**
+</span>           * @event layoutRemoved
+           * Fired when a layout is removed from this view.
+           * @param {dr.layout} layout The dr.layout that was removed
+           */
+          this.sendEvent(&#39;layoutRemoved&#39;, node);
+          return this.doLayoutRemoved(node);
+        }
+      };
+
+
+<span id='dr-view-method-doSubviewAdded'>      /**
+</span>       * Called when a subview is added to this view. Provides a hook for
+       * subclasses. No need for subclasses to call super. Do not call this
+       * method to add a subview. Instead call setParent.
+       * @param {dr.view} sv The subview that was added.
+       * @return {void}
+       */
+
+      View.prototype.doSubviewAdded = function(sv) {};
+
+
+<span id='dr-view-method-doSubviewRemoved'>      /**
+</span>       * Called when a subview is removed from this view. Provides a hook for
+       * subclasses. No need for subclasses to call super. Do not call this
+       * method to remove a subview. Instead call _removeFromParent.
+       * @param {dr.view} sv The subview that was removed.
+       * @return {void}
+       */
+
+      View.prototype.doSubviewRemoved = function(sv) {};
+
+
+<span id='dr-view-method-doLayoutAdded'>      /**
+</span>       * Called when a layout is added to this view. Provides a hook for
+       * subclasses. No need for subclasses to call super. Do not call this
+       * method to add a layout. Instead call setParent.
+       * @param {dr.layout} layout The layout that was added.
+       * @return {void}
+       */
+
+      View.prototype.doLayoutAdded = function(layout) {};
+
+
+<span id='dr-view-method-doLayoutRemoved'>      /**
+</span>       * Called when a layout is removed from this view. Provides a hook for
+       * subclasses. No need for subclasses to call super. Do not call this
+       * method to remove a layout. Instead call _removeFromParent.
+       * @param {dr.layout} layout The layout that was removed.
+       * @return {void}
+       */
+
+      View.prototype.doLayoutRemoved = function(layout) {};
 
       View.prototype.destroy = function(skipevents) {
         View.__super__.destroy.apply(this, arguments);
@@ -2108,6 +2253,20 @@
       document.body.insertBefore(pre, document.body.firstChild);
       return console.error(out);
     };
+    hiddenAttributes = {
+      text: true,
+      $tagname: true,
+      data: true,
+      replicator: true,
+      &quot;class&quot;: true,
+      clip: true,
+      clickable: true,
+      scrollable: true,
+      $textcontent: true,
+      resize: true,
+      multiline: true,
+      ignorelayout: true
+    };
     dom = (function() {
       var builtinTags, checkRequiredAttributes, exports, findAutoIncludes, flattenattributes, getChildren, htmlDecode, initAllElements, initElement, initFromElement, processSpecialTags, requiredAttributes, sendInit, specialtags, writeCSS;
       getChildren = function(el) {
@@ -2147,10 +2306,9 @@
           return sendInit();
         });
       };
-      findAutoIncludes = function(parentel, callback) {
-        var cb, cb2, fileloaded, filerequests, includedScripts, includerequests, inlineclasses, jqel, loadIncludes, loadLZX, loadScript, loadqueue, scriptloading, validator;
+      findAutoIncludes = function(parentel, finalcallback) {
+        var fileloaded, filerequests, findIncludeURLs, findMissingClasses, includedScripts, inlineclasses, jqel, loadInclude, loadIncludes, loadScript, loadqueue, scriptloading, validator;
         jqel = $(parentel);
-        includerequests = [];
         includedScripts = {};
         loadqueue = [];
         scriptloading = false;
@@ -2174,8 +2332,8 @@
             script.type = &#39;text/javascript&#39;;
             $(&#39;head&#39;).append(script);
             script.onload = cb;
-            script.onerror = function() {
-              console.error(error);
+            script.onerror = function(err) {
+              console.error(error, err);
               return cb();
             };
             return script.src = url;
@@ -2193,74 +2351,98 @@
         inlineclasses = {};
         filerequests = [];
         fileloaded = {};
-        loadLZX = function(name, el) {
-          var prom, url, _ref;
-          if (name in dr || name in fileloaded || __indexOf.call(specialtags, name) &gt;= 0 || name in inlineclasses || __indexOf.call(builtinTags, name) &gt;= 0) {
+        loadInclude = function(url, el) {
+          var prom;
+          if (url in fileloaded) {
             return;
           }
-          if (_ref = el.parentNode.localName, __indexOf.call(specialtags, _ref) &gt;= 0) {
-            return;
-          }
-          fileloaded[name] = true;
-          url = &#39;/classes/&#39; + name + &#39;.dre&#39;;
+          fileloaded[url] = el;
           prom = $.get(url);
           prom.url = url;
           prom.el = el;
           return filerequests.push(prom);
         };
-        loadIncludes = function(callback) {
-          var jel, url, _i, _len, _ref;
-          _ref = jqel.find(&#39;include&#39;);
+        findMissingClasses = function(names) {
+          var el, name, out, _i, _len, _ref, _ref1, _ref2;
+          if (names == null) {
+            names = {};
+          }
+          _ref = jqel.find(&#39;*&#39;);
           for (_i = 0, _len = _ref.length; _i &lt; _len; _i++) {
-            jel = _ref[_i];
-            url = jel.attributes.href.value;
-            jel.parentNode.removeChild(jel);
-            if (!fileloaded[url]) {
-              fileloaded[url] = true;
-              includerequests.push($.get(url));
+            el = _ref[_i];
+            name = el.localName;
+            if (name === &#39;class&#39;) {
+              if (el.attributes[&quot;extends&quot;]) {
+                names[el.attributes[&quot;extends&quot;].value] = el;
+              }
+              inlineclasses[(_ref1 = el.attributes.name) != null ? _ref1.value : void 0] = true;
+            } else if (name === &#39;replicator&#39;) {
+              names[name] = el;
+              names[el.attributes.classname.value] = el;
+            } else {
+              if (_ref2 = el.parentNode.localName, __indexOf.call(specialtags, _ref2) &lt; 0) {
+                names[name] = el;
+              }
             }
           }
-          return $.when.apply($, includerequests).done(function() {
-            var args, el, extendz, html, includeRE, initONE, name, xhr, _j, _k, _len1, _len2, _ref1;
+          out = {};
+          for (name in names) {
+            el = names[name];
+            if (!(name in dr || name in fileloaded || __indexOf.call(specialtags, name) &gt;= 0 || name in inlineclasses || __indexOf.call(builtinTags, name) &gt;= 0)) {
+              out[name] = el;
+            }
+          }
+          return out;
+        };
+        findIncludeURLs = function(urls) {
+          var el, url, _i, _len, _ref;
+          if (urls == null) {
+            urls = {};
+          }
+          _ref = jqel.find(&#39;include&#39;);
+          for (_i = 0, _len = _ref.length; _i &lt; _len; _i++) {
+            el = _ref[_i];
+            url = el.attributes.href.value;
+            el.parentNode.removeChild(el);
+            urls[url] = el;
+          }
+          return urls;
+        };
+        loadIncludes = function(callback) {
+          var el, url, _ref;
+          _ref = findIncludeURLs();
+          for (url in _ref) {
+            el = _ref[url];
+            loadInclude(url, el);
+          }
+          return $.when.apply($, filerequests).done(function() {
+            var args, html, includeRE, name, xhr, _i, _len, _ref1;
             args = 1 &lt;= arguments.length ? __slice.call(arguments, 0) : [];
-            if (includerequests.length === 1) {
+            if (filerequests.length === 1) {
               args = [args];
             }
-            includerequests = [];
+            filerequests = [];
             includeRE = /&lt;[\/]*library&gt;/gi;
-            initONE = true;
-            for (_j = 0, _len1 = args.length; _j &lt; _len1; _j++) {
-              xhr = args[_j];
+            for (_i = 0, _len = args.length; _i &lt; _len; _i++) {
+              xhr = args[_i];
               html = xhr[0].replace(includeRE, &#39;&#39;);
               jqel.prepend(html);
             }
-            _ref1 = jqel.find(&#39;*&#39;);
-            for (_k = 0, _len2 = _ref1.length; _k &lt; _len2; _k++) {
-              el = _ref1[_k];
-              name = el.localName;
-              if (name === &#39;class&#39;) {
-                if (el.attributes[&quot;extends&quot;]) {
-                  extendz = el.attributes[&quot;extends&quot;].value;
-                  loadLZX(extendz, el);
-                }
-                inlineclasses[el.attributes.name.value] = true;
-              } else if (name === &#39;state&#39;) {
-                initONE = true;
-              } else if (name === &#39;replicator&#39;) {
-                loadLZX(name, el);
-                loadLZX(el.attributes.classname.value, el);
-              } else {
-                loadLZX(name, el);
-              }
+            _ref1 = findMissingClasses();
+            for (name in _ref1) {
+              el = _ref1[name];
+              fileloaded[name] = true;
+              loadInclude(&quot;/classes/&quot; + name + &quot;.dre&quot;, el);
             }
             return $.when.apply($, filerequests).done(function() {
-              var args, scriptsloading, _l, _len3, _len4, _len5, _m, _n, _ref2, _ref3, _ref4;
+              var args, includes, _j, _len1;
               args = 1 &lt;= arguments.length ? __slice.call(arguments, 0) : [];
               if (filerequests.length === 1) {
                 args = [args];
               }
-              for (_l = 0, _len3 = args.length; _l &lt; _len3; _l++) {
-                xhr = args[_l];
+              filerequests = [];
+              for (_j = 0, _len1 = args.length; _j &lt; _len1; _j++) {
+                xhr = args[_j];
                 jqel.prepend(xhr[0]);
                 if (debug) {
                   jqel.contents().each(function() {
@@ -2270,47 +2452,62 @@
                   });
                 }
               }
-              scriptsloading = false;
-              if (initONE) {
-                scriptsloading = loadScript(&#39;/lib/one_base.js&#39;, function() {
-                  ONE.base_.call(Eventable.prototype);
-                  Eventable.prototype.enumfalse(Eventable.prototype.keys());
-                  Node.prototype.enumfalse(Node.prototype.keys());
-                  View.prototype.enumfalse(View.prototype.keys());
-                  Layout.prototype.enumfalse(Layout.prototype.keys());
-                  return callback();
-                });
+              includes = findMissingClasses(findIncludeURLs());
+              if (Object.keys(includes).length &gt; 0) {
+                loadIncludes(callback);
+                return;
               }
-              _ref2 = jqel.find(&#39;[scriptincludes]&#39;);
-              for (_m = 0, _len4 = _ref2.length; _m &lt; _len4; _m++) {
-                el = _ref2[_m];
-                _ref3 = el.attributes.scriptincludes.value.split(&#39;,&#39;);
-                for (_n = 0, _len5 = _ref3.length; _n &lt; _len5; _n++) {
-                  url = _ref3[_n];
-                  scriptsloading = loadScript(url.trim(), callback, (_ref4 = el.attributes.scriptincludeserror) != null ? _ref4.value.toString() : void 0);
+              return $.getScript(&#39;/lib/one_base.js&#39;, function() {
+                ONE.base_.call(Eventable.prototype);
+                Eventable.prototype.enumfalse(Eventable.prototype.keys());
+                Node.prototype.enumfalse(Node.prototype.keys());
+                View.prototype.enumfalse(View.prototype.keys());
+                return Layout.prototype.enumfalse(Layout.prototype.keys());
+              }).done(function() {
+                var scriptloaded, _k, _l, _len2, _len3, _ref2, _ref3, _ref4;
+                scriptloaded = false;
+                _ref2 = jqel.find(&#39;[scriptincludes]&#39;);
+                for (_k = 0, _len2 = _ref2.length; _k &lt; _len2; _k++) {
+                  el = _ref2[_k];
+                  _ref3 = el.attributes.scriptincludes.value.split(&#39;,&#39;);
+                  for (_l = 0, _len3 = _ref3.length; _l &lt; _len3; _l++) {
+                    url = _ref3[_l];
+                    scriptloaded = loadScript(url.trim(), callback, (_ref4 = el.attributes.scriptincludeserror) != null ? _ref4.value.toString() : void 0);
+                  }
                 }
-              }
-              filerequests = [];
-              if (!scriptsloading) {
-                return callback();
-              }
+                if (!scriptloaded) {
+                  return callback();
+                }
+              }).fail(function() {
+                return console.warn(&#39;failed to load /lib/one_base.js&#39;);
+              });
             }).fail(function() {
-              var args, _l, _len3;
+              var args, _j, _len1;
               args = 1 &lt;= arguments.length ? __slice.call(arguments, 0) : [];
               if (args.length === 1) {
                 args = [args];
               }
-              for (_l = 0, _len3 = args.length; _l &lt; _len3; _l++) {
-                xhr = args[_l];
+              for (_j = 0, _len1 = args.length; _j &lt; _len1; _j++) {
+                xhr = args[_j];
                 showWarnings([&quot;failed to load &quot; + xhr.url + &quot; for element &quot; + xhr.el.outerHTML]);
               }
             });
+          }).fail(function() {
+            var args, xhr, _i, _len;
+            args = 1 &lt;= arguments.length ? __slice.call(arguments, 0) : [];
+            if (args.length === 1) {
+              args = [args];
+            }
+            for (_i = 0, _len = args.length; _i &lt; _len; _i++) {
+              xhr = args[_i];
+              showWarnings([&quot;failed to load &quot; + xhr.url + &quot; for element &quot; + xhr.el.outerHTML]);
+            }
           });
         };
         validator = function() {
           var prom, url;
           url = &#39;/validate/&#39;;
-          prom = $.ajax({
+          return prom = $.ajax({
             url: url,
             data: {
               url: window.location.pathname
@@ -2320,16 +2517,11 @@
                 return showWarnings(data);
               }
             }
+          }).always(function() {
+            return finalcallback();
           });
-          return callback();
         };
-        cb2 = function() {
-          return loadIncludes(validator);
-        };
-        cb = function() {
-          return loadIncludes(cb2);
-        };
-        return loadIncludes(cb);
+        return loadIncludes(validator);
       };
       specialtags = [&#39;handler&#39;, &#39;method&#39;, &#39;attribute&#39;, &#39;setter&#39;, &#39;include&#39;];
       builtinTags = [&#39;a&#39;, &#39;abbr&#39;, &#39;address&#39;, &#39;area&#39;, &#39;article&#39;, &#39;aside&#39;, &#39;audio&#39;, &#39;b&#39;, &#39;base&#39;, &#39;bdi&#39;, &#39;bdo&#39;, &#39;blockquote&#39;, &#39;body&#39;, &#39;br&#39;, &#39;button&#39;, &#39;canvas&#39;, &#39;caption&#39;, &#39;cite&#39;, &#39;code&#39;, &#39;col&#39;, &#39;colgroup&#39;, &#39;command&#39;, &#39;datalist&#39;, &#39;dd&#39;, &#39;del&#39;, &#39;details&#39;, &#39;dfn&#39;, &#39;div&#39;, &#39;dl&#39;, &#39;dt&#39;, &#39;em&#39;, &#39;embed&#39;, &#39;fieldset&#39;, &#39;figcaption&#39;, &#39;figure&#39;, &#39;footer&#39;, &#39;form&#39;, &#39;h1&#39;, &#39;h2&#39;, &#39;h3&#39;, &#39;h4&#39;, &#39;h5&#39;, &#39;h6&#39;, &#39;head&#39;, &#39;header&#39;, &#39;hgroup&#39;, &#39;hr&#39;, &#39;html&#39;, &#39;i&#39;, &#39;iframe&#39;, &#39;img&#39;, &#39;image&#39;, &#39;input&#39;, &#39;ins&#39;, &#39;kbd&#39;, &#39;keygen&#39;, &#39;label&#39;, &#39;legend&#39;, &#39;li&#39;, &#39;link&#39;, &#39;map&#39;, &#39;mark&#39;, &#39;menu&#39;, &#39;meta&#39;, &#39;meter&#39;, &#39;nav&#39;, &#39;noscript&#39;, &#39;object&#39;, &#39;ol&#39;, &#39;optgroup&#39;, &#39;option&#39;, &#39;output&#39;, &#39;p&#39;, &#39;param&#39;, &#39;pre&#39;, &#39;progress&#39;, &#39;q&#39;, &#39;rp&#39;, &#39;rt&#39;, &#39;ruby&#39;, &#39;s&#39;, &#39;samp&#39;, &#39;script&#39;, &#39;section&#39;, &#39;select&#39;, &#39;small&#39;, &#39;source&#39;, &#39;span&#39;, &#39;strong&#39;, &#39;style&#39;, &#39;sub&#39;, &#39;summary&#39;, &#39;sup&#39;, &#39;table&#39;, &#39;tbody&#39;, &#39;td&#39;, &#39;textarea&#39;, &#39;tfoot&#39;, &#39;th&#39;, &#39;thead&#39;, &#39;time&#39;, &#39;title&#39;, &#39;tr&#39;, &#39;track&#39;, &#39;u&#39;, &#39;ul&#39;, &#39;var&#39;, &#39;video&#39;, &#39;wbr&#39;];
@@ -2576,6 +2768,9 @@
               name = name.toLowerCase();
               classattributes[name] = attributes.value;
               classattributes.$types[name] = attributes.type;
+              if (&#39;visual&#39; in attributes) {
+                hiddenAttributes[name] = attributes.visual === &#39;false&#39;;
+              }
           }
         }
         return children;
@@ -3109,6 +3304,184 @@
       return Layout;
 
     })(Node);
+
+<span id='dr-layoot'>    /**
+</span>     * @class dr.layoot
+     * @extends dr.node
+     * The base class for all layouts.
+     */
+    Layoot = (function(_super) {
+      __extends(Layoot, _super);
+
+      function Layoot(el, attributes) {
+        var subview, subviews, _base, _i, _len;
+        if (attributes == null) {
+          attributes = {};
+        }
+        this.locked = true;
+        this.subviews = [];
+        Layoot.__super__.constructor.apply(this, arguments);
+        this.listenTo(this.parent, &#39;subviewAdded&#39;, this.addSubview.bind(this));
+        this.listenTo(this.parent, &#39;subviewRemoved&#39;, this.removeSubview.bind(this));
+        this.listenTo(this.parent, &#39;init&#39;, this.update);
+        if ((_base = this.parent).layouts == null) {
+          _base.layouts = [];
+        }
+        this.parent.layouts.push(this);
+        subviews = this.parent.subviews;
+        if (subviews) {
+          for (_i = 0, _len = subviews.length; _i &lt; _len; _i++) {
+            subview = subviews[_i];
+            this.addSubview(subview);
+          }
+        }
+        this.locked = false;
+        this.update();
+      }
+
+      Layoot.prototype.destroy = function(skipevents) {
+        this.locked = true;
+        Layoot.__super__.destroy.apply(this, arguments);
+        if (!skipevents) {
+          return this._removeFromParent(&#39;layouts&#39;);
+        }
+      };
+
+
+<span id='dr-layoot-method-addSubview'>      /**
+</span>       * Adds the provided view to the subviews array of this layout.
+       * @param {dr.view} view The view to add to this layout.
+       * @return {void}
+       */
+
+      Layoot.prototype.addSubview = function(view) {
+        if (this.ignore(view)) {
+          return;
+        }
+        this.subviews.push(view);
+        this.startMonitoringSubview(view);
+        if (!this.locked) {
+          return this.update();
+        }
+      };
+
+
+<span id='dr-layoot-method-removeSubview'>      /**
+</span>       * Removes the provided View from the subviews array of this Layout.
+       * @param {dr.view} view The view to remove from this layout.
+       * @return {number} the index of the removed subview or -1 if not removed.
+       */
+
+      Layoot.prototype.removeSubview = function(view) {
+        var idx;
+        if (this.ignore(view)) {
+          return -1;
+        }
+        idx = this.subviews.indexOf(view);
+        if (idx !== -1) {
+          this.stopMonitoringSubview(view);
+          this.subviews.splice(idx, 1);
+          if (!this.locked) {
+            this.update();
+          }
+        }
+        return idx;
+      };
+
+
+<span id='dr-layoot-method-ignore'>      /**
+</span>       * Checks if a subview can be added to this Layout or not. The default 
+       * implementation returns the &#39;ignorelayout&#39; attributes of the subview.
+       * @param {dr.view} view The view to check.
+       * @return {boolean} True means the subview will be skipped, false otherwise.
+       */
+
+      Layoot.prototype.ignore = function(view) {
+        return view.ignorelayout;
+      };
+
+
+<span id='dr-layoot-method-startMonitoringSubview'>      /**
+</span>       * Subclasses should implement this method to start listening to
+       * events from the subview that should trigger the update method.
+       * @param {dr.view} view The view to start monitoring for changes.
+       * @return {void}
+       */
+
+      Layoot.prototype.startMonitoringSubview = function(view) {};
+
+
+<span id='dr-layoot-method-startMonitoringAllSubviews'>      /**
+</span>       * Calls startMonitoringSubview for all views. Used by layout 
+       * implementations when a change occurs to the layout that requires
+       * refreshing all the subview monitoring.
+       * @return {void}
+       */
+
+      Layoot.prototype.startMonitoringAllSubviews = function() {
+        var i, svs, _results;
+        svs = this.subviews;
+        i = svs.length;
+        _results = [];
+        while (i) {
+          _results.push(this.startMonitoringSubview(svs[--i]));
+        }
+        return _results;
+      };
+
+
+<span id='dr-layoot-method-stopMonitoringSubview'>      /**
+</span>       * Subclasses should implement this method to stop listening to
+       * events from the subview that would trigger the update method. This
+       * should remove all listeners that were setup in startMonitoringSubview.
+       * @param {dr.view} view The view to stop monitoring for changes.
+       * @return {void}
+       */
+
+      Layoot.prototype.stopMonitoringSubview = function(view) {};
+
+
+<span id='dr-layoot-method-stopMonitoringAllSubviews'>      /**
+</span>       * Calls stopMonitoringSubview for all views. Used by Layout 
+       * implementations when a change occurs to the layout that requires
+       * refreshing all the subview monitoring.
+       * @return {void}
+       */
+
+      Layoot.prototype.stopMonitoringAllSubviews = function() {
+        var i, svs, _results;
+        svs = this.subviews;
+        i = svs.length;
+        _results = [];
+        while (i) {
+          _results.push(this.stopMonitoringSubview(svs[--i]));
+        }
+        return _results;
+      };
+
+
+<span id='dr-layoot-method-canUpdate'>      /**
+</span>       * Checks if the layout is locked or not. Should be called by the
+       * &quot;update&quot; method of each layout to check if it is OK to do the update.
+       * @return {boolean} true if not locked, false otherwise.
+       */
+
+      Layoot.prototype.canUpdate = function() {
+        return !this.locked &amp;&amp; this.parent.inited;
+      };
+
+
+<span id='dr-layoot-method-update'>      /**
+</span>       * Updates the layout. Subclasses should call canUpdate to check lock state
+       * before doing anything.
+       * @return {void}
+       */
+
+      Layoot.prototype.update = function() {};
+
+      return Layoot;
+
+    })(Node);
     idle = (function() {
       var doTick, requestAnimationFrame, tickEvents, ticking;
       requestAnimationFrame = (function() {
@@ -3265,6 +3638,8 @@
      *
      */
     Mouse = (function(_super) {
+      var lastTouchDown, lastTouchOver;
+
       __extends(Mouse, _super);
 
 
@@ -3305,16 +3680,71 @@
       function Mouse() {
         this.sender = __bind(this.sender, this);
         this.handle = __bind(this.handle, this);
+        this.touchHandler = __bind(this.touchHandler, this);
         this.x = 0;
         this.y = 0;
         this.docSelector = $(document);
         this.docSelector.on(mouseEvents.join(&#39; &#39;), this.handle);
         this.docSelector.on(&quot;mousemove&quot;, this.handle).one(&quot;mouseout&quot;, this.stopEvent);
+        if (capabilities.touch) {
+          document.addEventListener(&#39;touchstart&#39;, this.touchHandler, true);
+          document.addEventListener(&#39;touchmove&#39;, this.touchHandler, true);
+          document.addEventListener(&#39;touchend&#39;, this.touchHandler, true);
+          document.addEventListener(&#39;touchcancel&#39;, this.touchHandler, true);
+        }
       }
 
       Mouse.prototype.startEventTest = function() {
         var _ref, _ref1, _ref2;
         return ((_ref = this.events[&#39;mousemove&#39;]) != null ? _ref.length : void 0) || ((_ref1 = this.events[&#39;x&#39;]) != null ? _ref1.length : void 0) || ((_ref2 = this.events[&#39;y&#39;]) != null ? _ref2.length : void 0);
+      };
+
+      Mouse.prototype.sendMouseEvent = function(type, first) {
+        var simulatedEvent;
+        simulatedEvent = document.createEvent(&#39;MouseEvent&#39;);
+        simulatedEvent.initMouseEvent(type, true, true, window, 1, first.pageX, first.pageY, first.clientX, first.clientY, false, false, false, false, 0, null);
+        first.target.dispatchEvent(simulatedEvent);
+        if (first.target.$view &amp;&amp; first.target.$view.$tagname !== &#39;inputtext&#39;) {
+          return event.preventDefault();
+        }
+      };
+
+      lastTouchDown = null;
+
+      lastTouchOver = null;
+
+      Mouse.prototype.touchHandler = function(event) {
+        var first, over, touches;
+        touches = event.changedTouches;
+        first = touches[0];
+        switch (event.type) {
+          case &#39;touchstart&#39;:
+            this.sendMouseEvent(&#39;mouseover&#39;, first);
+            this.sendMouseEvent(&#39;mousedown&#39;, first);
+            return lastTouchDown = first.target;
+          case &#39;touchmove&#39;:
+            over = document.elementFromPoint(first.pageX - window.pageXOffset, first.pageY - window.pageYOffset);
+            if (over &amp;&amp; over.$view) {
+              if (lastTouchOver &amp;&amp; lastTouchOver !== over) {
+                this.handle({
+                  target: lastTouchOver,
+                  type: &#39;mouseout&#39;
+                });
+              }
+              lastTouchOver = over;
+              this.handle({
+                target: over,
+                type: &#39;mouseover&#39;
+              });
+            }
+            return this.sendMouseEvent(&#39;mousemove&#39;, first);
+          case &#39;touchend&#39;:
+            this.sendMouseEvent(&#39;mouseup&#39;, first);
+            if (lastTouchDown === first.target) {
+              this.sendMouseEvent(&#39;click&#39;, first);
+              return lastTouchDown = null;
+            }
+        }
       };
 
       Mouse.prototype.handle = function(event) {
@@ -3599,6 +4029,7 @@
       keyboard: new Keyboard(),
       window: new Window(),
       layout: Layout,
+      layoot: Layoot,
       idle: new Idle(),
       state: State,
 
@@ -3863,6 +4294,11 @@
 <span id='dr-attribute-attribute-value'>    /**
 </span>     * @attribute {String} value (required)
      * The initial value for the attribute
+     */
+
+<span id='dr-attribute-attribute-visible'>    /**
+</span>     * @attribute {Boolean} [visible=true]
+     * Set to false if an attribute shouldn&#39;t affect a view&#39;s visual appearence
      */
   })();
 

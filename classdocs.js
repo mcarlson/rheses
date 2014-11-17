@@ -40,6 +40,29 @@
         * @param {dr.ace} view The dr.ace that fired the event
         */
 /**
+      * @class dr.alignlayout
+      * @extends dr.variablelayout
+      * A variablelayout that aligns each view vertically or horizontally
+      * relative to all the other views.
+      *
+      *     @example
+      *     <alignlayout align="middle" collapseparent="true">
+      *     </alignlayout>
+      *
+      *     <view width="100" height="35" bgcolor="plum"></view>
+      *     <view width="100" height="25" bgcolor="lightpink"></view>
+      *     <view width="100" height="15" bgcolor="lightblue"></view>
+      */
+/**
+    * @attribute {String} [align='middle']
+    * Determines which way the views are aligned. Supported values are 
+    * 'left', 'center', 'right' and 'top', 'middle' and 'bottom'.
+    */
+/**
+    * @method doBeforeUpdate
+    * Determine the maximum subview width/height according to the alignment.
+    */
+/**
      * @class dr.art
      * @extends dr.view
      * Vector graphics support using svg.
@@ -294,6 +317,27 @@
      *     </view>
      *
      */
+/**
+      * @class dr.constantlayout
+      * @extends dr.layoot
+      * A layout that sets the target attribute name to the target value for 
+      * each subview.
+      *
+      *     @example
+      *     <constantlayout attribute="y" value="10"></constantlayout>
+      *
+      *     <view width="100" height="25" bgcolor="lightpink"></view>
+      *     <view width="100" height="25" bgcolor="plum"></view>
+      *     <view width="100" height="25" bgcolor="lightblue"></view>
+      */
+/**
+    * @attribute {String} [attribute=x]
+    * The name of the attribute to update on each subview.
+    */
+/**
+    * @attribute {*} [value=0]
+    * The value to set the attribute to.
+    */
 /**
      * @class dr.dataset
      * @extends dr.node
@@ -763,6 +807,19 @@
         * @returns {Object[]} The accum array. Must be returned otherwise results will be lost.
         */
 /**
+      * @class dr.resizelayout
+      * @extends dr.spacedlayout
+      * Resizes one or more views to fill in any remaining space.
+      *
+      *     @example
+      *     <resizelayout spacing="2" inset="5" outset="5">
+      *     </resizelayout>
+      *
+      *     <view height="25" bgcolor="lightpink"></view>
+      *     <view height="35" bgcolor="plum" layouthint="1"></view>
+      *     <view height="15" bgcolor="lightblue"></view>
+      */
+/**
      * @class dr.shim
      * @extends dr.node
      * Connects to the shared event bus. When data is sent with a given type, a corresponding event is sent. For example, send('blah', {}) sends data with the 'blah' type, other shims will receive the object via an 'onblah' event.
@@ -785,6 +842,40 @@
         * @param {String} type The type of event to be sent.
         * @param {Object} data The data to be sent.
         */
+/**
+      * @class dr.shrinktofit
+      * @extends dr.layoot
+      * A special "layout" that resizes the parent to fit the children 
+      * rather than laying out the children.
+      *
+      *     @example
+      *     <shrinktofit axis="both" xpad="5" ypad="10"></shrinktofit>
+      *
+      *     <view width="100" height="25" bgcolor="lightpink"></view>
+      *     <view width="100" height="25" bgcolor="plum"></view>
+      *     <view width="100" height="25" bgcolor="lightblue"></view>
+      */
+/**
+    * @attribute {String} [axis=x]
+    * The axis along which to resize this view to fit its children. 
+    * Supported values are 'x', 'y' and 'both'.
+    */
+/**
+    * @attribute {Number} [xpad=0]
+    * Additional space added on the child extent along the x-axis.
+    */
+/**
+    * @attribute {Number} [ypad=0]
+    * Additional space added on the child extent along the y-axis.
+    */
+/**
+    * @method __updateMonitoringSubview 
+    * Wrapped by startMonitoringSubview and stopMonitoringSubview.
+    * @param {dr.view} view
+    * @param {Function} func
+    * @return {void}
+    * @private
+    */
 /**
      * @class dr.simplelayout
      * @extends dr.layout
@@ -858,6 +949,38 @@
         * The selected color of the slider.
         */
 /**
+      * @class dr.spacedlayout
+      * @extends dr.variablelayout
+      * A variableLayout that positions views along an axis using an inset, 
+      * outset and spacing value.
+      *
+      *     @example
+      *     <spacedlayout axis="y" spacing="2" inset="5" outset="5">
+      *     </spacedlayout>
+      *
+      *     <view width="100" height="25" bgcolor="lightpink"></view>
+      *     <view width="100" height="35" bgcolor="plum"></view>
+      *     <view width="100" height="15" bgcolor="lightblue"></view>
+      */
+/**
+    * @attribute {Number} [spacing=0]
+    * The spacing between views.
+    */
+/**
+    * @attribute {Number} [outset=0]
+    * Space after the last view. Only used when collapseparent is true.
+    */
+/**
+    * @attribute {Number} [inset=0]
+    * Space before the first view.
+    */
+/**
+    * @attribute {String} [axis='x']
+    * The orientation of the layout. Supported values are 'x' and 'y'.
+    * A value of 'x' will orient the views horizontally and a value of 'y'
+    * will orient them vertically.
+    */
+/**
      * @class dr.stats
      * @extends dr.view
      * wraps the three.js stats control which shows framerate over time
@@ -884,6 +1007,83 @@
         * @attribute {Object[]} touches (readonly)
         * An array of x/y coordinates for all fingers, where available. See [https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Touch_events](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Touch_events) for more details
         */
+/**
+      * @class dr.variablelayout
+      * @extends dr.constantlayout
+      * Allows for variation based on the index and subview. An updateSubview 
+      * method is provided that can be overriden to provide variable behavior.
+      *
+      *     @example
+      *     <variablelayout attribute="x" value="10">
+      *     </variablelayout>
+      *
+      *     <view width="100" height="25" bgcolor="lightpink"></view>
+      *     <view width="100" height="25" bgcolor="plum"></view>
+      *     <view width="100" height="25" bgcolor="lightblue"></view>
+      */
+/**
+    * @attribute {boolean} [collapseparent=false]
+    * If true the updateParent method will be called. The updateParent method 
+    * will typically resize the parent to fit the newly layed out child views.
+    */
+/**
+    * @attribute {boolean} [reverse=false]
+    * If true the layout will position the items in the opposite order. For 
+    * example, right to left instead of left to right.
+    */
+/**
+    * @method doBeforeUpdate
+    * Called by update before any processing is done. Gives subviews a
+    * chance to do any special setup before update is processed.
+    * @return {void}
+    */
+/**
+    * @method doAfterUpdate
+    * Called by update after any processing is done but before the optional
+    * collapsing of parent is done. Gives subviews a chance to do any 
+    * special teardown after update is processed.
+    * @return {void}
+    */
+/**
+    * @method startMonitoringSubview
+    * Provides a default implementation that calls update when the
+    * visibility of a subview changes.
+    * @param {dr.view} view
+    */
+/**
+    * @method stopMonitoringSubview
+    * Provides a default implementation that calls update when the
+    * visibility of a subview changes.
+    * @param {dr.view} view
+    */
+/**
+    * @method updateSubview
+    * Called for each subview in the layout.
+    * @param {Number} count The number of subviews that have been layed out
+    *   including the current one. i.e. count will be 1 for the first
+    *   subview layed out.
+    * @param {dr.view} view The subview being layed out.
+    * @param {String} attribute The name of the attribute to update.
+    * @param {*} value The value to set on the subview.
+    * @return {*} The value to use for the next subview.
+    */
+/**
+    * @method skipSubview
+    * Called for each subview in the layout to determine if the view should
+    * be updated or not. The default implementation returns true if the 
+    * subview is not visible.
+    * @param {dr.view} view The subview to check.
+    * @return {Boolean} True if the subview should be skipped during 
+    *   layout updates.
+    */
+/**
+    * @method updateParent
+    * Called if the collapseparent attribute is true. Subclasses should 
+    * implement this if they want to modify the parent view.
+    * @param {String} attribute The name of the attribute to update.
+    * @param {*} value The value to set on the parent.
+    * @return {void}
+    */
 /**
      * @class dr.webpage
      * @extends dr.view
@@ -926,3 +1126,51 @@
         * that is written inside the iframe's body tag. If you want to display
         * static web pages, specify the src attribute, but do not use contents.
         */
+/**
+      * @class dr.wrappinglayout
+      * @extends dr.variablelayout
+      * An extension of VariableLayout that positions views along an axis using
+      * an inset, outset and spacing value. Views will be wrapped when they
+      * overflow the available space.
+      *
+      * Supported Layout Hints:
+      *   break:string Will force the subview to start a new line/column.
+      *
+      *     @example
+      *     <wrappinglayout axis="y" spacing="2" inset="5" outset="5" lineinset="10" linespacing="5" lineoutset="10">
+      *     </wrappinglayout>
+      *
+      *     <view width="100" height="25" bgcolor="lightpink"></view>
+      *     <view width="100" height="35" bgcolor="plum"></view>
+      *     <view width="100" height="15" bgcolor="lightblue"></view>
+      */
+/**
+    * @attribute {Number} [spacing=0]
+    * The spacing between views.
+    */
+/**
+    * @attribute {Number} [outset=0]
+    * Space after the last view.
+    */
+/**
+    * @attribute {Number} [inset=0]
+    * Space before the first view.
+    */
+/**
+    * @attribute {Number} [linespacing=0]
+    * The spacing between each line of views.
+    */
+/**
+    * @attribute {Number} [lineoutset=0]
+    * Space after the last line of views. Only used when collapseparent is true.
+    */
+/**
+    * @attribute {Number} [lineinset=0]
+    * Space before the first line of views.
+    */
+/**
+    * @attribute {String} [axis='x']
+    * The orientation of the layout. Supported values are 'x' and 'y'.
+    * A value of 'x' will orient the views horizontally and a value of 'y'
+    * will orient them vertically.
+    */
