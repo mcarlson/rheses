@@ -1,0 +1,191 @@
+<html>
+<head>
+  <title>dr33m | Scrollable View Smoke Tests</title>
+  <style type="text/css">
+    body {
+      font-family:Arial, Helvetica, sans-serif;
+      font-size:12px;
+    }
+  </style>
+  <script type="text/javascript" src="../lib/jquery-1.9.1.js"></script>
+  <script type="text/javascript" src="../lib/acorn.js"></script>
+  <script type="text/javascript" src="../lib/coffee-script.js"></script>
+  <script type="text/javascript" src="/lib/assert.js"></script>
+  <script type="text/javascript" src="../layout.js"></script>
+</head>
+<body>
+  <view x="50" y="50" width="${dr.window.width - 100}" height="${dr.window.height - 100}"
+    bgcolor="#cccccc" scrollable="true"
+  >
+    <handler event="oninit">
+      assert.equal(true, this.scrollable);
+      assert.equal(false, this.clickable);
+      assert.equal(false, this.clip);
+      
+      var style = this.sprite.el.style;
+      assert.equal('auto', style.overflow);
+      assert.equal('auto', style.pointerEvents);
+      assert.equal('', style.cursor);
+    </handler>
+    
+    <!-- Make sure clickable true with clip true works. -->
+    <view x="10" y="10" width="100" height="100"
+      bgcolor="#ff9999" clickable="true" clip="true"
+    >
+      <handler event="oninit">
+        assert.equal(false, this.scrollable);
+        assert.equal(true, this.clickable);
+        assert.equal(true, this.clip);
+        
+        var style = this.sprite.el.style;
+        assert.equal('hidden', style.overflow);
+        assert.equal('auto', style.pointerEvents);
+        assert.equal('pointer', style.cursor);
+      </handler>
+      <handler event="onclick">
+        this.setAttribute('bgcolor', (this.selected = !this.selected) ? '#99ff99' : '#ff9999');
+      </handler>
+      <view x="50" y="50" width="100" height="100" bgcolor="#666666">
+        <text>Inside</text>
+      </view>
+      <text>Click</text>
+    </view>
+    <view x="30" y="30" width="60" height="60" bgcolor="#ffffff">
+      <text>In Front</text>
+    </view>
+    
+    <!-- Make sure clickable true/false works. -->
+    <view x="110" y="110" width="100" height="100"
+      bgcolor="#ff9999" clickable="true"
+    >
+      <handler event="oninit">
+        assert.equal(false, this.scrollable);
+        assert.equal(true, this.clickable);
+        assert.equal(false, this.clip);
+        
+        var style = this.sprite.el.style;
+        assert.equal('', style.overflow);
+        assert.equal('auto', style.pointerEvents);
+        assert.equal('pointer', style.cursor);
+      </handler>
+      <handler event="onclick">
+        this.setAttribute('bgcolor', (this.selected = !this.selected) ? '#99ff99' : '#ff9999');
+      </handler>
+      <text>Click</text>
+    </view>
+    <view x="130" y="130" width="60" height="60" bgcolor="#ffffff">
+      <text>In Front</text>
+    </view>
+    
+    <!-- Make sure no clip works. -->
+    <view x="210" y="210" width="100" height="100" bgcolor="#999999">
+      <handler event="oninit">
+        assert.equal(false, this.scrollable);
+        assert.equal(false, this.clickable);
+        assert.equal(false, this.clip);
+        
+        var style = this.sprite.el.style;
+        assert.equal('', style.overflow);
+        assert.equal('none', style.pointerEvents);
+        assert.equal('', style.cursor);
+      </handler>
+      <text>No Clip</text>
+      <view x="50" y="50" width="100" height="100" bgcolor="#666666">
+        <text>Inside</text>
+      </view>
+    </view>
+    
+    <!-- Make sure clip works. -->
+    <view x="310" y="310" width="100" height="100" bgcolor="#999999" clip="true">
+      <handler event="oninit">
+        assert.equal(false, this.scrollable);
+        assert.equal(false, this.clickable);
+        assert.equal(true, this.clip);
+        
+        var style = this.sprite.el.style;
+        assert.equal('hidden', style.overflow);
+        assert.equal('none', style.pointerEvents);
+        assert.equal('', style.cursor);
+      </handler>
+      <text>Clipped</text>
+      <view x="50" y="50" width="100" height="100" bgcolor="#666666">
+        <text>Inside</text>
+      </view>
+    </view>
+    
+    <!-- Make sure nested scrolling works and also clickable false does 
+         not suppress scrolling. -->
+    <view x="410" y="410" width="100" height="100" 
+      bgcolor="#999999" scrollable="true" clickable="false"
+    >
+      <handler event="oninit">
+        assert.equal(true, this.scrollable);
+        assert.equal(false, this.clickable);
+        assert.equal(false, this.clip);
+        
+        var style = this.sprite.el.style;
+        assert.equal('auto', style.overflow);
+        assert.equal('auto', style.pointerEvents);
+        assert.equal('', style.cursor);
+      </handler>
+      <text>Scroll No Click</text>
+      <view x="50" y="50" width="100" height="100" bgcolor="#666666">
+        <text>Inside</text>
+      </view>
+    </view>
+    
+    <!-- Scroll, clip and click all together. Should be behave as clickable 
+         and scrollable. -->
+    <view x="510" y="510" width="100" height="100" 
+      bgcolor="#ff9999" scrollable="true" clip="true" clickable="true"
+    >
+      <handler event="oninit">
+        assert.equal(true, this.scrollable);
+        assert.equal(true, this.clickable);
+        assert.equal(true, this.clip);
+        
+        var style = this.sprite.el.style;
+        assert.equal('auto', style.overflow);
+        assert.equal('auto', style.pointerEvents);
+        assert.equal('pointer', style.cursor);
+      </handler>
+      <handler event="onclick">
+        this.setAttribute('bgcolor', (this.selected = !this.selected) ? '#99ff99' : '#ff9999');
+      </handler>
+      <view x="50" y="50" width="100" height="100" bgcolor="#666666">
+        <text>Inside</text>
+      </view>
+      <text>Scroll, Clip and Click</text>
+    </view>
+    <view x="530" y="530" width="60" height="60" bgcolor="#ffffff">
+      <text>In Front</text>
+    </view>
+    
+    <view x="610" y="610" width="100" height="100" bgcolor="#999999"></view>
+    <view x="710" y="710" width="100" height="100" bgcolor="#999999"></view>
+    <view x="810" y="810" width="100" height="100" bgcolor="#999999"></view>
+    <view x="910" y="910" width="100" height="100" bgcolor="#999999"></view>
+  </view>
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+</body>
+</html>

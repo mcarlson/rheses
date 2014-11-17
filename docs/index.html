@@ -1,0 +1,217 @@
+
+<html lang="en">
+
+  <head>
+    <title>Dreem in 10</title>
+    <script type="text/javascript" src="/lib/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="/lib/acorn.js"></script>
+    <script type="text/javascript" src="/lib/coffee-script.js"></script>
+    <script type="text/javascript" src="/layout.js"></script>
+
+    <style type="text/css">
+      html {
+        height: 100%;
+      }
+      body {
+        min-height: 100%;
+        font-family: 'Helvetica';
+        margin: 0px;
+        padding: 0px;
+      }
+    </style>
+
+
+  </head>
+
+  <body>
+
+  <view id="all" width="${dr.window.width}" height="${dr.window.height}" clip="true">
+
+    <view name="lesson" width="${this.parent.width/4}" height="${this.parent.height}" bgcolor="#e0e0e0">
+      <simplelayout axis="y" spacing="10"></simplelayout>
+      
+<!--   Executing is now automatic
+      <labelbutton text="Execute button">
+        <handler event="onclick">
+          this.parent.parent.execute();
+        </handler>
+      </labelbutton>
+-->
+
+      <text name="description" width="${this.parent.width}" bgcolor="#e0e0e0" multiline="true">
+      </text>
+
+      <view name="lesson_buttons">
+        <simplelayout axis="x" spacing="8"></simplelayout>
+        <labelbutton name="next" text="Next Lesson" visible="false">
+          <handler event="onclick">
+            //topview = this.parent.parent.parent;
+            topview = $('view').not('view view')[0].$view;
+            page = topview.next_page;
+            if (page) window.location.hash = page;
+          </handler>
+        </labelbutton>
+
+        <labelbutton name="prev" text="Previous Lesson" visible="false">
+          <handler event="onclick">
+            //topview = this.parent.parent.parent;
+            topview = $('view').not('view view')[0].$view;
+            page = topview.prev_page;
+            if (page) window.location.hash = page;
+          </handler>
+        </labelbutton>
+
+      </view>
+    </view>
+
+
+    <ace name="editor" x="${this.parent.width/4}" width="${this.parent.width/2}" height="${this.parent.height}" text="" bgcolor="#808080">
+      <handler event="onkeypause">
+        // This fires after inactivity.
+        var topview = $('view').not('view view')[0].$view;
+        topview.execute();
+      </handler>
+    </ace>
+
+    <webpage name="renderFrame" x="${this.parent.width*3/4}" width="${this.parent.width/4}" height="${this.parent.height}" bgcolor="#e0e0e0">
+    </webpage>
+
+    <!-- Split the file into description and code.
+         The first comment block is the description.
+     -->
+    <method name="showLesson" args="contents,page">
+      // Parse the page name to see what buttons to show  (lesson_X_Y)
+      var topview = $('view').not('view view')[0].$view;
+      this.prev_page = null;
+      this.next_page = null;
+      elements = page.split('_', 3);
+      if (elements.length == 3) {
+        page0 = parseInt(elements[1]);
+        page1 = parseInt(elements[2]);
+       
+        viz = false;
+        if (page0 > 1) {
+          elements[1] = page0 - 1;
+          this.prev_page = elements.join('_');
+          viz = true;
+        }
+        topview.lesson.lesson_buttons.prev.setAttribute('visible', viz);
+
+        viz = false;
+        if (page0 < page1) {
+          elements[1] = page0 + 1;
+          this.next_page = elements.join('_');
+          viz = true;
+        }
+        topview.lesson.lesson_buttons.next.setAttribute('visible', viz);
+      }
+      else {
+        // Page does not follow format of (lesson_X_Y). Remove navigation.
+        topview.lesson.lesson_buttons.prev.setAttribute('visible', false);
+        topview.lesson.lesson_buttons.next.setAttribute('visible', false);
+      }
+
+      var description = '';
+      var code = contents;
+      var p0 = contents.indexOf('/**');
+      if (p0 >= 0) {
+        var p1 = contents.indexOf('*/', p0);
+        if (p1 >= 0) {
+          description = contents.substr(p0+3, p1-(p0+3));
+
+          // The code starts at the first newline after the description
+          code = contents.substr(p1+2);
+          p0 = code.indexOf('\n');
+          if (p0 >= 0)
+            code = code.substr(p0+1);
+        }
+      }
+
+      this.lesson.description.setAttribute('text', description);
+      this.editor.setAttribute('text', code);
+    </method>
+
+
+    <!-- Given the page name, locate the lesson page and display it. If
+         missing, the default page is shown.
+    -->
+    <method name="renderPage" args="page">
+      var $this = this;
+
+      // Retrieve this page, or use the default if missing
+      var lesson = 'din10';
+      url = "/docs/" + lesson + "/" + page + ".dre";
+      $.ajax({
+        type: 'GET',
+        url: url,
+        success: function(data) {
+          $this.showLesson(data, page);
+        },
+        error: function() {
+          page = 'intro_1_5.dre'
+          url = "/docs/" + lesson + "/" + page + ".dre";
+          $.get(url, function(data) { $this.showLesson(data, page);});
+        }
+      });
+    </method>
+
+    <!-- Execute the text in the editor -->
+    <method name="execute">
+      prefix = '&lt;view id="all" width="600" height="600" clip="true">';
+
+      // setTimeout added for Firefox
+      postfix = 
+       ['&lt;/view>',
+        '&lt;script>$(function(){setTimeout(function(){window.frames[0].dr.initElements()}, 0);});&lt;/script>'].join('\n');
+
+      contents = this.editor.text;
+      fullcontents = prefix + contents + postfix;
+      fullcontents = fullcontents.replace('&lt;', '<');
+      this.renderFrame.setAttribute('contents', fullcontents);
+    </method>
+
+    <!-- Render a page using the current hash value -->
+    <method name="renderHash">
+      // Page to show comes from the hash attribute. If the page is missing,
+      // a default page is shown.
+      var page = $(location).attr('hash').replace('#','');
+      if (!page) page = 'intro_1_5';
+
+      this.renderPage (page);
+    </method>
+
+    <handler event="oninit">
+      // Show the desired page from the hash value
+      this.renderHash();
+
+      // Listen for onhashchange to change pages
+      var $this = this;
+      $(window).bind('hashchange', function() {
+        $this.renderHash();
+      });
+    </handler>
+
+  </view>
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+  </body>
+</html>

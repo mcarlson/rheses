@@ -1,0 +1,173 @@
+<html>
+<head>
+  <style type="text/css">
+    body {
+      font-family: 'Helvetica';
+      font-size: 14px;
+    }
+  </style>
+
+  <title>dr33m - Attributes Smoke Tests</title>
+  <script type="text/javascript" src="/lib/jquery-1.9.1.min.js"></script>
+  <script type="text/javascript" src="/lib/acorn.js"></script>
+  <script type="text/javascript" src="/lib/coffee-script.js"></script>
+  <script type="text/javascript" src="/lib/assert.js"></script>
+  <script type="text/javascript" src="/layout.js"></script>
+</head>
+<body>
+<view id="main" width="100%" height="100%" clip="true">
+
+  <simplelayout axis="y" spacing="1"></simplelayout>
+  
+  <!-- Attribute Overrides -->
+  <class name="foo" width="10" height="10" bgcolor="#666666">
+    <attribute name="barha" type="number" value="100"></attribute>
+    <attribute name="bar" type="number" value="1000"></attribute>
+  </class>
+  
+  <!-- Foo will replace the foo class. -->
+  <class name="Foo" width="10" height="10" bgcolor="#999999">
+    <attribute name="barhA" type="number" value="200"></attribute>
+    <attribute name="barHa" type="number" value="100"></attribute>
+    <attribute name="bar" type="number" value="10"></attribute>
+  </class>
+  
+  <!-- attribute overrides parent class attribute. -->
+  <class name="foosub1" extends="foo">
+    <attribute name="bar" type="number" value="20"></attribute>
+  </class>
+  
+  <!-- attribute beats attr in class declaration. -->
+  <class name="foosub2" extends="foo" bar="20">
+    <attribute name="bar" type="number" value="15"></attribute>
+  </class>
+  
+  <!-- attr overrides parent class attribute. -->
+  <class name="foosub3" extends="foo" bar="30" barHa="300">
+  </class>
+  
+  <Foo><!-- attribute value is inherited. -->
+    <handler event="oninit">
+      assert.equal(this.bar, 10);
+      assert.equal(this.barHa, undefined);
+      assert.equal(this.barha, 100);
+    </handler>
+  </Foo>
+  <foo bar="25"><!-- instance attr overrides class. -->
+    <handler event="oninit">assert.equal(this.bar, 25)</handler>
+  </foo>
+  <foo><!-- instance attribute overrides class. -->
+    <attribute name="bar" type="number" value="25"></attribute>
+    <handler event="oninit">assert.equal(this.bar, 25)</handler>
+  </foo>
+  
+  <foosub1>
+    <handler event="oninit">assert.equal(this.bar, 20)</handler>
+  </foosub1>
+  <foosub1 bar="25">
+    <handler event="oninit">assert.equal(this.bar, 25)</handler>
+  </foosub1>
+  <foosub1>
+    <attribute name="bar" type="number" value="25"></attribute>
+    <handler event="oninit">assert.equal(this.bar, 25)</handler>
+  </foosub1>
+  
+  <foosub2>
+    <handler event="oninit">assert.equal(this.bar, 15)</handler>
+  </foosub2>
+  <foosub2 bar="25">
+    <handler event="oninit">assert.equal(this.bar, 25)</handler>
+  </foosub2>
+  <foosub2>
+    <attribute name="bar" type="number" value="25"></attribute>
+    <handler event="oninit">assert.equal(this.bar, 25)</handler>
+  </foosub2>
+  
+  <foosub3>
+    <handler event="oninit">
+      assert.equal(this.bar, 30);
+      assert.equal(this.barha, 300);
+    </handler>
+  </foosub3>
+  <foosub3 bar="25">
+    <handler event="oninit">assert.equal(this.bar, 25)</handler>
+  </foosub3>
+  <foosub3>
+    <attribute name="bar" type="number" value="25"></attribute>
+    <handler event="oninit">assert.equal(this.bar, 25)</handler>
+  </foosub3>
+  
+  <!-- String types -->
+  <view>
+    <attribute name="numberlabel" type="string" value="10"></attribute>
+    <handler event="oninit">
+      this.numberlabel += 200
+      assert.equal(this.numberlabel, '10200')
+    </handler>
+  </view>
+  
+  <!-- Constraints -->
+  <!-- Constraints should be executed before oninit of a node and oninit of the node's parent -->
+  <view>
+    <attribute name="checkx" type="number" value="50"></attribute>
+    <attribute name="checky" type="number" value="50"></attribute>
+  
+    <view name="check" x="${this.parent.checkx}" y="${this.parent.checky}" width="50" height="50" bgcolor="red">
+      <handler event="oninit">
+        assert.equal(this.x, 50);
+        assert.equal(this.y, 50);
+      </handler>
+    </view>
+  
+    <handler event="oninit">
+      assert.equal(this.check.x, 50);
+      assert.equal(this.check.y, 50);
+    </handler>
+  </view>
+  
+  <!-- Percentage values -->
+  <view id="outer" width="400" height="200" bgcolor="lightgrey">
+    <view id="inner" width="100%" height="100%" bgcolor="thistle">
+      <handler event="oninit">
+        assert.equal(400, inner.width)
+        assert.equal(200, inner.height)
+      </handler>
+
+      <view id="innermost" width="50%" height="50%">
+        <handler event="oninit">
+          assert.equal(200, innermost.width)
+          assert.equal(100, innermost.height)
+        </handler>
+      </view>
+    </view>
+  </view>
+  
+  <handler event="oninit">
+    assert.notEqual(main.width, 100)
+    assert.equal(main.width, $('body').width())
+  </handler>
+
+</view>
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+</body>
+</html>

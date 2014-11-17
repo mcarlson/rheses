@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js"><span id='dr-ace'>/**
+</span>     * @class dr.ace
+     * @extends dr.view
+     * Ace editor component.
+     *
+     *     @example
+     *     &lt;ace id=&quot;editor&quot; width=&quot;500&quot; text=&#39;Hello World&#39;&gt;&lt;/ace&gt;
+     *
+     * The initial text can also be included inline, and include dreem code.
+     *
+     *     @example wide
+     *     &lt;ace id=&quot;editor&quot; width=&quot;500&quot;&gt;&lt;view width=&quot;100%&quot; height=&quot;100%&quot; bgcolor=&quot;thistle&quot;&gt;&lt;/view&gt;&lt;/ace&gt;
+     *
+     */
+<span id='dr-ace-attribute-theme'>/**
+</span>        * @attribute {string} [theme=&#39;ace/theme/chrome&#39;]
+        * Specify the ace theme to use.
+        */
+<span id='dr-ace-attribute-mode'>/**
+</span>        * @attribute {string} [mode=&#39;ace/mode/dr&#39;]
+        * Specify the ace mode to use.
+        */
+<span id='dr-ace-attribute-text'>/**
+</span>        * @attribute {String} [text=&quot;&quot;]
+        * Initial text for the ace editor.
+        */
+<span id='dr-ace-event-ontext'>/**
+</span>        * @event ontext
+        * Fired when the contents of the ace entry changes
+        * @param {dr.ace} view The dr.ace that fired the event
+        */
+<span id='dr-ace-attribute-pausedelay'>/**
+</span>        * @attribute {Number} [pausedelay=500]
+        * Time (msec) after user entry stops to fire onpausedelay event.
+        * 0 will disable this option.
+        */
+<span id='dr-ace-event-onpausedelay'>/**
+</span>        * @event onpausedelay
+        * Fired when user entries stops for a period of time.
+        * @param {dr.ace} view The dr.ace that fired the event
+        */
+<span id='dr-art'>/**
+</span>     * @class dr.art
+     * @extends dr.view
+     * Vector graphics support using svg.
+     *
+     * This example shows how to load an existing svg
+     *
+     *     @example
+     *     &lt;art width=&quot;100&quot; height=&quot;100&quot; src=&quot;/images/siemens-clock.svg&quot;&gt;&lt;/art&gt;
+     *
+     * Paths within an svg can be selected using the path attribute
+     *
+     *     @example
+     *     &lt;art width=&quot;100&quot; height=&quot;100&quot; src=&quot;/images/cursorshapes.svg&quot; path=&quot;0&quot;&gt;&lt;/art&gt;
+     *
+     * Attributes are automatically passed through to the SVG. Here, the fill color is changed
+     *
+     *     @example
+     *     &lt;art width=&quot;100&quot; height=&quot;100&quot; src=&quot;/images/cursorshapes.svg&quot; path=&quot;0&quot; fill=&quot;coral&quot;&gt;&lt;/art&gt;
+     *
+     * Setting the path attribute animates between paths. This example animates when the mouse is clicked
+     *
+     *     @example
+     *     &lt;art width=&quot;100&quot; height=&quot;100&quot; src=&quot;/images/cursorshapes.svg&quot; path=&quot;0&quot; fill=&quot;coral&quot;&gt;
+     *       &lt;handler event=&quot;onclick&quot;&gt;
+     *         this.setAttribute(&#39;path&#39;, this.path ^ 1);
+     *       &lt;/handler&gt;
+     *     &lt;/art&gt;
+     *
+     * By default, the SVG&#39;s aspect ratio is preserved. Set the stretches attribute to true to change this behavior.
+     *
+     *     @example
+     *     &lt;art width=&quot;200&quot; height=&quot;100&quot; src=&quot;/images/cursorshapes.svg&quot; path=&quot;0&quot; fill=&quot;coral&quot; stretches=&quot;true&quot;&gt;
+     *       &lt;handler event=&quot;onclick&quot;&gt;
+     *         this.setAttribute(&#39;path&#39;, this.path ^ 1);
+     *         this.animate({width: (this.width == 200 ? 100 : 200)});
+     *       &lt;/handler&gt;
+     *     &lt;/art&gt;
+     *
+     */
+<span id='dr-art-attribute-inline'>/**
+</span>        * @attribute {Boolean} [inline=false]
+        * Set to true if the svg contents is found inline, as a comment
+        */
+<span id='dr-art-attribute-stretches'>/**
+</span>        * @attribute {Boolean} stretches [stretches=false]
+        * Set to true to stretch the svg to fill the view.
+        */
+<span id='dr-art-attribute-src'>/**
+</span>        * @attribute {String} src
+        * The svg contents to load
+        */
+<span id='dr-art-attribute-path'>/**
+</span>        * @attribute {String|Number} path
+        * The svg path element to display. Can either be the name of the &amp;lt;g&amp;gt; element containing the path or a 0-based index.
+        */
+<span id='dr-art-attribute-animationspeed'>/**
+</span>        * @attribute {Number} [animationspeed=400]
+        * The number of milliseconds to use when animating between paths
+        */
+<span id='dr-art-attribute-animationcurve'>/**
+</span>        * @attribute {&quot;linear&quot;/&quot;easeout&quot;/&quot;easein&quot;/&quot;easeinout&quot;/&quot;backin&quot;/&quot;backout&quot;/&quot;elastic&quot;/&quot;bounce&quot;} [animationcurve=&quot;linear&quot;]
+        * The name of the curve to use when animating between paths
+        */
+<span id='dr-art-event-onready'>/**
+</span>        * @event onready
+        * Fired when the art is loaded and ready
+        */
+<span id='dr-art-event-ontween'>/**
+</span>        * @event ontween
+        * Fired when the art has animated its path to the next position
+        */
+<span id='dr-audioplayer'>/**
+</span>     * @class dr.audioplayer
+     * @extends dr.node
+     * audioplayer wraps the web audio APIs to provide a declarative interface to play audio.
+     *
+     * This example shows how to load and play an mp3 audio file from the server:
+     *
+     *     @example
+     *     &lt;audioplayer url=&quot;/music/YACHT_-_09_-_Im_In_Love_With_A_Ripper_Party_Mix_Instrumental.mp3&quot; playing=&quot;true&quot;&gt;&lt;/audioplayer&gt;
+     */
+<span id='dr-audioplayer-attribute-url'>/**
+</span>        * @attribute {String} url
+        * The URL to an audio file to play
+        */
+<span id='dr-audioplayer-attribute-loadprogress'>/**
+</span>        * @attribute {Number} loadprogress
+        * @readonly
+        * A Number between 0 and 1 representing load progress
+        */
+<span id='dr-audioplayer-attribute-loaded'>/**
+</span>        * @attribute {Boolean} loaded
+        * @readonly
+        * If true, the audio is done loading
+        */
+<span id='dr-audioplayer-attribute-playing'>/**
+</span>        * @attribute {Boolean} playing
+        * If true, the audio is playing.
+        */
+<span id='dr-audioplayer-attribute-paused'>/**
+</span>        * @attribute {Boolean} paused
+        * If true, the audio is paused.
+        */
+<span id='dr-audioplayer-attribute-loop'>/**
+</span>        * @attribute {Boolean} loop
+        * If true, the audio will play continuously.
+        */
+<span id='dr-audioplayer-attribute-time'>/**
+</span>        * @attribute {Number} time
+        * @readonly
+        * The number of seconds the file has played, with 0 being the start.
+        */
+<span id='dr-audioplayer-attribute-duration'>/**
+</span>        * @attribute {Number} duration
+        * @readonly
+        * The duration in seconds.
+        */
+<span id='dr-audioplayer-attribute-fftsize'>/**
+</span>        * @attribute {Number} fftsize
+        * The number of fft frames to use when setting {@link #fft fft}. Must be a non-zero power of two in the range 32 to 2048.
+        */
+<span id='dr-audioplayer-attribute-fftsmoothing'>/**
+</span>        * @attribute {Number} [fftsmoothing=0.8]
+        * The amount of smoothing to apply to the FFT analysis. A value from 0 -&gt; 1 where 0 represents no time averaging with the last FFT analysis frame.
+        */
+<span id='dr-audioplayer-attribute-fft'>/**
+</span>        * @attribute {Number[]} fft
+        * @readonly
+        * An array of numbers representing the FFT analysis of the audio as it&#39;s playing.
+        */
+<span id='dr-bitmap'>/**
+</span>     * @class dr.bitmap
+     * @extends dr.view
+     * Loads an image from a URL.
+     *
+     *     @example
+     *     &lt;bitmap src=&quot;../api-examples-resources/shasta.jpg&quot; width=&quot;230&quot; height=&quot;161&quot;&gt;&lt;/bitmap&gt;
+     */
+<span id='dr-bitmap-attribute-src'>/**
+</span>        * @attribute {String} src
+        * The bitmap URL to load
+        */
+<span id='dr-bitmap-event-onload'>/**
+</span>             * @event onload 
+             * Fired when the bitmap is loaded
+             * @param {Object} size An object containing the width and height
+             */
+<span id='dr-bitmap-event-onerror'>/**
+</span>             * @event onerror 
+             * Fired when there is an error loading the bitmap
+             */
+<span id='dr-boundslayout'>/**
+</span>     * @class dr.boundslayout
+     * @extends dr.layout
+     * Sets the parent view&#39;s size to match the bounds of its children.
+     *
+     * Here is a view that contains three sub views that are positioned with a simplelayout. The parent view has a grey background color. Notice that the subviews are visible because they overflow the parent view, but the parent view itself takes up no space.
+     *
+     *     @example
+     *     &lt;view bgcolor=&quot;darkgrey&quot;&gt;
+     *       &lt;simplelayout axis=&quot;y&quot;&gt;&lt;/simplelayout&gt;
+     *
+     *       &lt;view width=&quot;100&quot; height=&quot;25&quot; bgcolor=&quot;lightpink&quot; opacity=&quot;.3&quot;&gt;&lt;/view&gt;
+     *       &lt;view width=&quot;100&quot; height=&quot;25&quot; bgcolor=&quot;plum&quot; opacity=&quot;.3&quot;&gt;&lt;/view&gt;
+     *       &lt;view width=&quot;100&quot; height=&quot;25&quot; bgcolor=&quot;lightblue&quot; opacity=&quot;.3&quot;&gt;&lt;/view&gt;
+     *     &lt;/view&gt;
+     *
+     * Now we&#39;ll add a boundlayout to the parent view. Notice that now the parent view does take up space, and you can see it through the semi-transparent subviews.
+     *
+     *     @example
+     *     &lt;view bgcolor=&quot;darkgrey&quot;&gt;
+     *       &lt;boundslayout&gt;&lt;/boundslayout&gt;
+     *
+     *       &lt;simplelayout axis=&quot;y&quot;&gt;&lt;/simplelayout&gt;
+     *
+     *       &lt;view width=&quot;100&quot; height=&quot;25&quot; bgcolor=&quot;lightpink&quot; opacity=&quot;.3&quot;&gt;&lt;/view&gt;
+     *       &lt;view width=&quot;100&quot; height=&quot;25&quot; bgcolor=&quot;plum&quot; opacity=&quot;.3&quot;&gt;&lt;/view&gt;
+     *       &lt;view width=&quot;100&quot; height=&quot;25&quot; bgcolor=&quot;lightblue&quot; opacity=&quot;.3&quot;&gt;&lt;/view&gt;
+     *     &lt;/view&gt;
+     */
+<span id='dr-boundslayout-attribute-ignoreattr'>/**
+</span>        * @attribute {&quot;&quot;/&quot;width&quot;/&quot;height&quot;} [ignoreattr=&quot;&quot;]
+        * Optionally skip bounds calculations for a specific axis.
+        */
+<span id='dr-buttonbase'>/**
+</span>     * @class dr.buttonbase
+     * @extends dr.view
+     * Base class for button components. Buttons share common elements, 
+     * including their ability to be selected, a visual element to display
+     * their state, and a default and selected color.
+     * The visual element is a dr.view that shows the current state of the
+     * button. For example, in a labelbutton the entire button is the visual
+     * element. For a checkbutton, the visual element is a square dr.view
+     * that is inside the button.
+     */
+<span id='dr-buttonbase-attribute-padding'>/**
+</span>        * @attribute {Number} [padding=3]
+        * Amount of padding pixels around the button.
+        */
+<span id='dr-buttonbase-attribute-defaultcolor'>/**
+</span>        * @attribute {String} [defaultcolor=&quot;#808080&quot;]
+        * The default color of the visual button element when not selected.
+        */
+<span id='dr-buttonbase-attribute-selectcolor'>/**
+</span>        * @attribute {String} [selectcolor=&quot;#a0a0a0&quot;]
+        * The selected color of the visual button element when selected.
+        */
+<span id='dr-buttonbase-attribute-selected'>/**
+</span>        * @attribute {Boolean} [selected=false]
+        * The current state of the button.
+        */
+<span id='dr-buttonbase-event-onselected'>/**
+</span>        * @event onselected
+        * Fired when the state of the button changes.
+        * @param {dr.buttonbase} view The dr.buttonbase that fired the event
+        */
+<span id='dr-buttonbase-attribute-text'>/**
+</span>        * @attribute {String} [text=&quot;&quot;]
+        * Button text.
+        */
+<span id='dr-checkbutton'>/**
+</span>     * @class dr.checkbutton
+     * @extends dr.buttonbase
+     * Button class consisting of text and a visual element to show the
+     * current state of the component. The state of the
+     * button changes each time the button is clicked. The select property
+     * holds the current state of the button. The onselected event
+     * is generated when the button is the selected state.
+     *
+     *     @example
+     *     &lt;simplelayout axis=&quot;y&quot;&gt;&lt;/simplelayout&gt;
+     *
+     *     &lt;checkbutton text=&quot;pink&quot; selectcolor=&quot;pink&quot; defaultcolor=&quot;lightgrey&quot; bgcolor=&quot;white&quot;&gt;&lt;/checkbutton&gt;
+     *     &lt;checkbutton text=&quot;blue&quot; selectcolor=&quot;lightblue&quot; defaultcolor=&quot;lightgrey&quot; bgcolor=&quot;white&quot;&gt;&lt;/checkbutton&gt;
+     *     &lt;checkbutton text=&quot;green&quot; selectcolor=&quot;lightgreen&quot; defaultcolor=&quot;lightgrey&quot; bgcolor=&quot;white&quot;&gt;&lt;/checkbutton&gt;
+     *
+     * Here we listen for the onselected event on a checkbox and print the value that is passed to the handler.
+     *
+     *     @example
+     *     &lt;simplelayout axis=&quot;y&quot;&gt;&lt;/simplelayout&gt;
+     *
+     *     &lt;checkbutton text=&quot;green&quot; selectcolor=&quot;lightgreen&quot; defaultcolor=&quot;lightgrey&quot; bgcolor=&quot;white&quot;&gt;
+     *       &lt;handler event=&quot;onselected&quot; args=&quot;value&quot;&gt;
+     *         displayselected.setAttribute(&#39;text&#39;, value);
+     *       &lt;/handler&gt;
+     *     &lt;/checkbutton&gt;
+     *
+     *     &lt;view&gt;
+     *       &lt;simplelayout axis=&quot;x&quot;&gt;&lt;/simplelayout&gt;
+     *       &lt;text text=&quot;Selected:&quot;&gt;&lt;/text&gt;
+     *       &lt;text id=&quot;displayselected&quot;&gt;&lt;/text&gt;
+     *     &lt;/view&gt;
+     *
+     */
+<span id='dr-dataset'>/**
+</span>     * @class dr.dataset
+     * @extends dr.node
+     * Datasets hold onto a set of JSON data, either inline or loaded from a URL.
+     * They are used with lz.replicator for data binding.
+     *
+     * This example shows how to create a dataset with inline JSON data, and use a replicator to show values inside. Inline datasets are useful for prototyping, especially when your backend server isn&#39;t ready yet:
+     *
+     *     @example wide
+     *     &lt;dataset name=&quot;example&quot;&gt;
+     *      {
+     *        &quot;store&quot;: {
+     *          &quot;book&quot;: [
+     *            {
+     *              &quot;category&quot;: &quot;reference&quot;,
+     *              &quot;author&quot;: &quot;Nigel Rees&quot;,
+     *              &quot;title&quot;: &quot;Sayings of the Century&quot;,
+     *              &quot;price&quot;: 8.95
+     *            },
+     *            {
+     *              &quot;category&quot;: &quot;fiction&quot;,
+     *              &quot;author&quot;: &quot;Evelyn Waugh&quot;,
+     *              &quot;title&quot;: &quot;Sword of Honour&quot;,
+     *              &quot;price&quot;: 12.99
+     *            },
+     *            {
+     *              &quot;category&quot;: &quot;fiction&quot;,
+     *              &quot;author&quot;: &quot;Herman Melville&quot;,
+     *              &quot;title&quot;: &quot;Moby Dick&quot;,
+     *              &quot;isbn&quot;: &quot;0-553-21311-3&quot;,
+     *              &quot;price&quot;: 8.99
+     *            },
+     *            {
+     *              &quot;category&quot;: &quot;fiction&quot;,
+     *              &quot;author&quot;: &quot;J. R. R. Tolkien&quot;,
+     *              &quot;title&quot;: &quot;The Lord of the Rings&quot;,
+     *              &quot;isbn&quot;: &quot;0-395-19395-8&quot;,
+     *              &quot;price&quot;: 22.99
+     *            }
+     *          ],
+     *          &quot;bicycle&quot;: {
+     *            &quot;color&quot;: &quot;red&quot;,
+     *            &quot;price&quot;: 19.95
+     *          }
+     *        }
+     *      }
+     *     &lt;/dataset&gt;
+     *     &lt;simplelayout&gt;&lt;/simplelayout&gt;
+     *     &lt;replicator classname=&quot;text&quot; datapath=&quot;$example/store/book[*]/title&quot;&gt;&lt;/replicator&gt;
+     *
+     * Data can be loaded from a URL when your backend server is ready, or reloaded to show changes over time:
+     *
+     *     @example wide
+     *     &lt;dataset name=&quot;example&quot; url=&quot;/example.json&quot;&gt;&lt;/dataset&gt;
+     *     &lt;simplelayout&gt;&lt;/simplelayout&gt;
+     *     &lt;replicator classname=&quot;text&quot; datapath=&quot;$example/store/book[*]/title&quot;&gt;&lt;/replicator&gt;
+     */
+<span id='dr-dataset-attribute-name'>/**
+</span>        * @attribute {String} name (required)
+        * The name of the dataset
+        */
+<span id='dr-dataset-property-data'>/**
+</span>        * @property {Object} data
+        * The data inside the dataset
+        */
+<span id='dr-dataset-attribute-url'>/**
+</span>        * @attribute {String} url
+        * The url to load JSON data from.
+        */
+<span id='dr-dragstate'>/**
+</span>     * @class dr.dragstate
+     * @extends dr.state
+     * Allows views to be dragged by the mouse.
+     *
+     * Here is a view that contains a dragstate. The dragstate is applied when the mouse is down in the view, and then removed when the mouse is up. You can modify the attributes of the draggable view by setting them inside the dragstate, like we do here with bgcolor.
+     *
+     *     @example
+     *     &lt;view width=&quot;100&quot; height=&quot;100&quot; bgcolor=&quot;plum&quot;&gt;
+     *       &lt;attribute name=&quot;mouseIsDown&quot; type=&quot;boolean&quot; value=&quot;false&quot;&gt;&lt;/attribute&gt;
+     *       &lt;handler event=&quot;onmousedown&quot;&gt;
+     *         this.setAttribute(&#39;mouseIsDown&#39;, true);
+     *       &lt;/handler&gt;
+     *       &lt;handler event=&quot;onmouseup&quot;&gt;
+     *         this.setAttribute(&#39;mouseIsDown&#39;, false);
+     *       &lt;/handler&gt;
+     *       &lt;dragstate applied=&quot;${this.parent.mouseIsDown}&quot;&gt;
+     *         &lt;attribute name=&quot;bgcolor&quot; type=&quot;string&quot; value=&quot;purple&quot;&gt;&lt;/attribute&gt;
+     *       &lt;/dragstate&gt;
+     *     &lt;/view&gt;
+     *
+     * To constrain the motion of the element to either the x or y axis set the dragaxis property. Here the same purple square can only move horizontally.
+     *
+     *     @example
+     *     &lt;view width=&quot;100&quot; height=&quot;100&quot; bgcolor=&quot;plum&quot;&gt;
+     *       &lt;attribute name=&quot;mouseIsDown&quot; type=&quot;boolean&quot; value=&quot;false&quot;&gt;&lt;/attribute&gt;
+     *       &lt;handler event=&quot;onmousedown&quot;&gt;
+     *         this.setAttribute(&#39;mouseIsDown&#39;, true);
+     *       &lt;/handler&gt;
+     *       &lt;handler event=&quot;onmouseup&quot;&gt;
+     *         this.setAttribute(&#39;mouseIsDown&#39;, false);
+     *       &lt;/handler&gt;
+     *       &lt;dragstate applied=&quot;${this.parent.mouseIsDown}&quot; dragaxis=&quot;x&quot;&gt;
+     *         &lt;attribute name=&quot;bgcolor&quot; type=&quot;string&quot; value=&quot;purple&quot;&gt;&lt;/attribute&gt;
+     *       &lt;/dragstate&gt;
+     *     &lt;/view&gt;
+     */
+<span id='dr-dragstate-attribute-dragaxis'>/**
+</span>        * @attribute {&quot;x&quot;/&quot;y&quot;/&quot;both&quot;} [dragaxis=&quot;both&quot;]
+        * The axes to drag on.
+        */
+<span id='dr-gyro'>/**
+</span>     * @class dr.gyro
+     * @extends dr.node
+     * Receives gyroscope and compass data where available. See [https://w3c.github.io/deviceorientation/spec-source-orientation.html#deviceorientation](https://w3c.github.io/deviceorientation/spec-source-orientation.html#deviceorientation) and [https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html](https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html) for details.
+     */
+<span id='dr-gyro-attribute-x'>/**
+</span>        * @attribute {Number} [x=0] (readonly)
+        * The accelerometer x value
+        */
+<span id='dr-gyro-attribute-y'>/**
+</span>        * @attribute {Number} [y=0] (readonly)
+        * The accelerometer y value
+        */
+<span id='dr-gyro-attribute-z'>/**
+</span>        * @attribute {Number} [z=0] (readonly)
+        * The accelerometer z value
+        */
+<span id='dr-gyro-attribute-alpha'>/**
+</span>        * @attribute {Number} [alpha=0] (readonly)
+        * The gyro alpha value rotating around the z axis
+        */
+<span id='dr-gyro-attribute-beta'>/**
+</span>        * @attribute {Number} [beta=0] (readonly)
+        * The gyro beta value rotating around the x axis
+        */
+<span id='dr-gyro-attribute-gamma'>/**
+</span>        * @attribute {Number} [gamma=0] (readonly)
+        * The gyro gamma value rotating around the y axis
+        */
+<span id='dr-gyro-attribute-compass'>/**
+</span>        * @attribute {Number} [compass=0] (readonly)
+        * The compass orientation, see [https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html](https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html) for details.
+        */
+<span id='dr-gyro-attribute-compassaccuracy'>/**
+</span>        * @attribute {Number} [compassaccuracy=0] (readonly)
+        * The compass accuracy, see [https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html](https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html) for details.
+        */
+<span id='dr-labelbutton'>/**
+</span>     * @class dr.labelbutton
+     * @extends dr.buttonbase
+     * Button class consisting of text centered in a view. The onclick event
+     * is generated when the button is clicked. The visual state of the 
+     * button changes during onmousedown/onmouseup.
+     *
+     *     @example
+     *     &lt;simplelayout axis=&quot;y&quot;&gt;&lt;/simplelayout&gt;
+     *
+     *     &lt;labelbutton text=&quot;click me&quot; defaultcolor=&quot;plum&quot; selectcolor=&quot;orchid&quot;&gt;
+     *       &lt;handler event=&quot;onclick&quot;&gt;
+     *         hello.setAttribute(&#39;text&#39;, &#39;Hello Universe!&#39;);
+     *       &lt;/handler&gt;
+     *     &lt;/labelbutton&gt;
+     *
+     *     &lt;text id=&quot;hello&quot;&gt;&lt;/text&gt;
+     */
+<span id='dr-labeltoggle'>/**
+</span>     * @class dr.labeltoggle
+     * @extends dr.labelbutton
+     * Button class consisting of text centered in a view. The state of the
+     * button changes each time the button is clicked. The select property
+     * holds the current state of the button. The onselected event
+     * is generated when the button is the selected state.
+     */
+<span id='dr-logger'>/**
+</span>     * @class dr.logger
+     * @extends dr.node
+     * Logs all attribute setting behavior
+     *
+     * This example shows how to log all setAttribute() calls for a replicator to console.log():
+     *
+     *     @example
+     *     &lt;dataset name=&quot;topmovies&quot; url=&quot;/top_movies.json&quot;&gt;&lt;/dataset&gt;
+     *     &lt;replicator datapath=&quot;$topmovies/searchResponse/results[*]/movie[take(/releaseYear,/duration,/rating)]&quot; classname=&quot;logger&quot;&gt;&lt;/replicator&gt;
+     */
+<span id='dr-rangeslider'>/**
+</span>   * @class dr.rangeslider
+   * @extends dr.view
+   * An input component whose upper and lower bounds are changed via mouse clicks or drags.
+   *
+   *     @example
+   *
+   *     &lt;rangeslider name=&quot;range&quot; width=&quot;300&quot; height=&quot;40&quot; x=&quot;10&quot; y=&quot;30&quot; lowselectcolor=&quot;#00CCFF&quot; highselectcolor=&quot;#FFCCFF&quot; outline=&quot;2px dashed #00CCFF&quot;
+   *                  lowvalue=&quot;30&quot;
+   *                  highvalue=&quot;70&quot;&gt;
+   *     &lt;/rangeslider&gt;
+   *
+   *     &lt;text name=&quot;rangeLabel&quot; color=&quot;white&quot; height=&quot;40&quot;
+   *           y=&quot;${this.parent.range.y + (this.parent.range.height / 2) - (this.height / 2)}&quot;
+   *           x=&quot;${(this.parent.range.lowvalue * 3) + (((this.parent.range.highvalue * 3) - (this.parent.range.lowvalue * 3)) / 2) - (this.width / 2)}&quot;
+   *           text=&quot;${Math.round(this.parent.range.lowvalue) + &#39; ~ &#39; + Math.round(this.parent.range.highvalue)}&quot;&gt;&lt;/text&gt;
+   *
+   *
+   * A range slider highlights the inclusive values by default, however this behavior can be reversed with `exclusive=&quot;true&quot;`.
+   * The following example demonstrates an exclusive-valued, inverted (range goes from high to low) horizontal slider.
+   *
+   *     @example
+   *
+   *     &lt;rangeslider name=&quot;range&quot; width=&quot;400&quot; x=&quot;10&quot; y=&quot;30&quot; lowselectcolor=&quot;#AACCFF&quot; highselectcolor=&quot;#FFAACC&quot;&quot;
+   *                  height=&quot;30&quot;
+   *                  lowvalue=&quot;45&quot;
+   *                  highvalue=&quot;55&quot;
+   *                  invert=&quot;true&quot;
+   *                  exclusive=&quot;true&quot;&gt;
+   *     &lt;/rangeslider&gt;
+   *
+   *     &lt;text name=&quot;highRangeLabel&quot; color=&quot;#666&quot; height=&quot;20&quot;
+   *           y=&quot;${this.parent.range.y + (this.parent.range.height / 2) - (this.height / 2)}&quot;
+   *           x=&quot;${(((this.parent.range.maxvalue * 4) - (this.parent.range.highvalue * 4)) / 2) - (this.width / 2)}&quot;
+   *           text=&quot;${this.parent.range.maxvalue + &#39; ~ &#39; + Math.round(this.parent.range.highvalue)}&quot;&gt;&lt;/text&gt;
+   *
+   *     &lt;text name=&quot;lowRangeLabel&quot; color=&quot;#666&quot; height=&quot;20&quot;
+   *           y=&quot;${this.parent.range.y + (this.parent.range.height / 2) - (this.height / 2)}&quot;
+   *           x=&quot;${(this.parent.range.width - (this.parent.range.lowvalue * 4)) + (((this.parent.range.lowvalue * 4) - (this.parent.range.minvalue * 4)) / 2) - (this.width / 2)}&quot;
+   *           text=&quot;${Math.round(this.parent.range.lowvalue) + &#39; ~ &#39; + this.parent.range.minvalue}&quot;&gt;&lt;/text&gt;
+   *
+   */
+<span id='dr-rangeslider-attribute-minvalue'>/**
+</span>      * @attribute {Number} [minvalue=0]
+      * The minimum value of the slider
+      */
+<span id='dr-rangeslider-attribute-minhighvalue'>/**
+</span>    * @attribute {Number} [minhighvalue=0]
+    * The minimum value of the right slider
+    */
+<span id='dr-rangeslider-attribute-maxvalue'>/**
+</span>      * @attribute {Number} [maxvalue=100]
+      * The maximum value of the slider
+      */
+<span id='dr-rangeslider-attribute-maxlowvalue'>/**
+</span>      * @attribute {Number} [maxlowvalue=100]
+      * The maximum value of the lower bound slider
+      */
+<span id='dr-rangeslider-attribute-axis'>/**
+</span>      * @attribute {&quot;x&quot;/&quot;y&quot;} [axis=x]
+      * The axis to track on
+      */
+<span id='dr-rangeslider-attribute-invert'>/**
+</span>      * @attribute {Boolean} [invert=false]
+      * Set to false to have the scale run lower to higher, true to run higher to lower.
+      */
+<span id='dr-rangeslider-attribute-exclusive'>/**
+</span>      * @attribute {Boolean} [exclusive=false]
+      * Set to true to highlight the outer (exclusive) values of the range, false to select the inner (inclusive) values.
+      */
+<span id='dr-rangeslider-attribute-lowvalue'>/**
+</span>      * @attribute {Number} [lowvalue=50]
+      * The current value of the left slider.
+      * Use changeLowValue() to range check the number and set the value.
+      */
+<span id='dr-rangeslider-attribute-highvalue'>/**
+</span>      * @attribute {Number} [highvalue=50]
+      * The current value of the right slider.
+      * Use changeHighValue() to range check the number and set the value.
+      */
+<span id='dr-rangeslider-method-changeLowValue'>/**
+</span>      * @method changeLowValue
+      * Given a new value for the slider position, constrain the value
+      * between minvalue and maxvalue or maxlowvalue (whichever is lower) and then calls setAttribute.
+      * @param {Number} v The new value of the component.
+      */
+<span id='dr-rangeslider-method-changeHighValue'>/**
+</span>      * @method changeHighValue
+      * Given a new value for the slider position, constrain the value
+      * between minvalue or minhighvalue (whichever is higher) and maxvalue and then calls setAttribute.
+      * @param {Number} v The new value of the component.
+      */
+<span id='dr-rangeslider-attribute-lowselectcolor'>/**
+</span>      * @attribute {String} [lowselectcolor=&quot;#a0a0a0&quot;]
+      * The selected color of the lower bound slider.
+      */
+<span id='dr-rangeslider-attribute-highselectcolor'>/**
+</span>      * @attribute {String} [highselectcolor=&quot;#a0a0a0&quot;]
+      * The selected color of the upper bound slider.
+      */
+<span id='dr-replicator'>/**
+</span>     * @class dr.replicator
+     * @extends dr.node
+     * Handles replication and data binding.
+     *
+     * This example shows the replicator to creating four text instances, each corresponding to an item in the data attribute:
+     *
+     *     @example
+     *     &lt;simplelayout&gt;&lt;/simplelayout&gt;
+     *     &lt;replicator classname=&quot;text&quot; data=&quot;[1,2,3,4]&quot;&gt;&lt;/replicator&gt;
+     *
+     * Changing the data attribute to a new array causes the replicator to create a new text for each item:
+     *
+     *     @example
+     *     &lt;simplelayout&gt;&lt;/simplelayout&gt;
+     *     &lt;text onclick=&quot;repl.setAttribute(&#39;data&#39;, [5,6,7,8]);&quot;&gt;Click to change data&lt;/text&gt;
+     *     &lt;replicator id=&quot;repl&quot; classname=&quot;text&quot; data=&quot;[1,2,3,4]&quot;&gt;&lt;/replicator&gt;
+     *
+     * This example uses a {@link #filterexpression filterexpression} to filter the data to only numbers. Clicking changes {@link #filterexpression filterexpression} to show only non-numbers in the data:
+     *
+     *     @example
+     *     &lt;simplelayout&gt;&lt;/simplelayout&gt;
+     *     &lt;text onclick=&quot;repl.setAttribute(&#39;filterexpression&#39;, &#39;[^\\d]&#39;);&quot;&gt;Click to change filter&lt;/text&gt;
+     *     &lt;replicator id=&quot;repl&quot; classname=&quot;text&quot; data=&quot;[&#39;a&#39;,1,&#39;b&#39;,2,&#39;c&#39;,3,4,5]&quot; filterexpression=&quot;\d&quot;&gt;&lt;/replicator&gt;
+     *
+     * Replicators can be used to look up {@link #datapath datapath} expressions to values in JSON data in a dr.dataset. This example looks up the color of the bicycle in the dr.dataset named bikeshop:
+     *
+     *     @example
+     *     &lt;dataset name=&quot;bikeshop&quot;&gt;
+     *      {
+     *        &quot;bicycle&quot;: {
+     *          &quot;color&quot;: &quot;red&quot;,
+     *          &quot;price&quot;: 19.95
+     *        }
+     *      }
+     *     &lt;/dataset&gt;
+     *     &lt;replicator classname=&quot;text&quot; datapath=&quot;$bikeshop/bicycle/color&quot;&gt;&lt;/replicator&gt;
+     *
+     * Matching one or more items will cause the replicator to create multiple copies:
+     *
+     *     @example
+     *     &lt;dataset name=&quot;bikeshop&quot;&gt;
+     *      {
+     *        &quot;bicycle&quot;: [
+     *          {
+     *           &quot;color&quot;: &quot;red&quot;,
+     *           &quot;price&quot;: 19.95
+     *          },
+     *          {
+     *           &quot;color&quot;: &quot;green&quot;,
+     *           &quot;price&quot;: 29.95
+     *          },
+     *          {
+     *           &quot;color&quot;: &quot;blue&quot;,
+     *           &quot;price&quot;: 59.95
+     *          }
+     *        ]
+     *      }
+     *     &lt;/dataset&gt;
+     *     &lt;simplelayout&gt;&lt;/simplelayout&gt;
+     *     &lt;replicator classname=&quot;text&quot; datapath=&quot;$bikeshop/bicycle[*]/color&quot;&gt;&lt;/replicator&gt;
+     *
+     * It&#39;s possible to select a single item on from the array using an array index. This selects the second item:
+     *
+     *     @example
+     *     &lt;dataset name=&quot;bikeshop&quot;&gt;
+     *      {
+     *        &quot;bicycle&quot;: [
+     *          {
+     *           &quot;color&quot;: &quot;red&quot;,
+     *           &quot;price&quot;: 19.95
+     *          },
+     *          {
+     *           &quot;color&quot;: &quot;green&quot;,
+     *           &quot;price&quot;: 29.95
+     *          },
+     *          {
+     *           &quot;color&quot;: &quot;blue&quot;,
+     *           &quot;price&quot;: 59.95
+     *          }
+     *        ]
+     *      }
+     *     &lt;/dataset&gt;
+     *     &lt;simplelayout&gt;&lt;/simplelayout&gt;
+     *     &lt;replicator classname=&quot;text&quot; datapath=&quot;$bikeshop/bicycle[1]/color&quot;&gt;&lt;/replicator&gt;
+     *
+     * It&#39;s also possible to replicate a range of items in the array with the [start,end,stepsize] operator. This replicates every other item:
+     *
+     *     @example
+     *     &lt;dataset name=&quot;bikeshop&quot;&gt;
+     *      {
+     *        &quot;bicycle&quot;: [
+     *          {
+     *           &quot;color&quot;: &quot;red&quot;,
+     *           &quot;price&quot;: 19.95
+     *          },
+     *          {
+     *           &quot;color&quot;: &quot;green&quot;,
+     *           &quot;price&quot;: 29.95
+     *          },
+     *          {
+     *           &quot;color&quot;: &quot;blue&quot;,
+     *           &quot;price&quot;: 59.95
+     *          }
+     *        ]
+     *      }
+     *     &lt;/dataset&gt;
+     *     &lt;simplelayout&gt;&lt;/simplelayout&gt;
+     *     &lt;replicator classname=&quot;text&quot; datapath=&quot;$bikeshop/bicycle[0,3,2]/color&quot;&gt;&lt;/replicator&gt;
+     *
+     * Sometimes it&#39;s necessary to have complete control and flexibility over filtering and transforming results. Adding a [@] operator to the end of your datapath causes {@link #filterfunction filterfunction} to be called for each result. This example shows bike colors for bikes with a price greater than 20, in reverse order:
+     *
+     *     @example
+     *     &lt;dataset name=&quot;bikeshop&quot;&gt;
+     *      {
+     *        &quot;bicycle&quot;: [
+     *          {
+     *           &quot;color&quot;: &quot;red&quot;,
+     *           &quot;price&quot;: 19.95
+     *          },
+     *          {
+     *           &quot;color&quot;: &quot;green&quot;,
+     *           &quot;price&quot;: 29.95
+     *          },
+     *          {
+     *           &quot;color&quot;: &quot;blue&quot;,
+     *           &quot;price&quot;: 59.95
+     *          }
+     *        ]
+     *      }
+     *     &lt;/dataset&gt;
+     *     &lt;simplelayout&gt;&lt;/simplelayout&gt;
+     *     &lt;replicator classname=&quot;text&quot; datapath=&quot;$bikeshop/bicycle[*][@]&quot;&gt;
+     *       &lt;method name=&quot;filterfunction&quot; args=&quot;obj, accum&quot;&gt;
+     *         // add the color to the beginning of the results if the price is greater than 20
+     *         if (obj.price &gt; 20)
+     *           accum.unshift(obj.color);
+     *         return accum
+     *       &lt;/method&gt;
+     *     &lt;/replicator&gt;
+     *
+     * See [https://github.com/flitbit/json-path](https://github.com/flitbit/json-path) for more details.
+     */
+<span id='dr-replicator-attribute-pooling'>/**
+</span>        * @attribute {Boolean} [pooling=false]
+        * If true, reuse views when replicating.
+        */
+<span id='dr-replicator-attribute-data'>/**
+</span>        * @attribute {Array} [data=[]]
+        * The list of items to replicate. If {@link #datapath datapath} is set, it is converted to an array and stored here.
+        */
+<span id='dr-replicator-attribute-classname'>/**
+</span>        * @attribute {String} classname (required)
+        * The name of the class to be replicated.
+        */
+<span id='dr-replicator-attribute-datapath'>/**
+</span>        * @attribute {String} datapath
+        * The datapath expression to be replicated.
+        * See [https://github.com/flitbit/json-path](https://github.com/flitbit/json-path) for details.
+        */
+<span id='dr-replicator-attribute-sortfield'>/**
+</span>        * @attribute {String} [sortfield=&quot;&quot;]
+        * The field in the data to use for sorting. Only sort then this 
+        */
+<span id='dr-replicator-attribute-sortasc'>/**
+</span>        * @attribute {Boolean} [sortasc=true]
+        * If true, sort ascending.
+        */
+<span id='dr-replicator-attribute-filterexpression'>/**
+</span>        * @attribute {String} [filterexpression=&quot;&quot;]
+        * If defined, data will be filtered against a [regular expression](https://developer.mozilla.org/en/docs/Web/JavaScript/Guide/Regular_Expressions). 
+        */
+<span id='dr-replicator-method-refresh'>/**
+</span>        * @method refresh
+        * Refreshes the dataset manually
+        */
+<span id='dr-replicator-method-filterfunction'>/**
+</span>        * @method filterfunction
+        * @abstract
+        * Called to filter data.
+        * @param obj An individual item to be processed.
+        * @param {Object[]} accum The array of items that have been accumulated. To keep a processed item, it must be added to the accum array.
+        * @returns {Object[]} The accum array. Must be returned otherwise results will be lost.
+        */
+<span id='dr-shim'>/**
+</span>     * @class dr.shim
+     * @extends dr.node
+     * Connects to the shared event bus. When data is sent with a given type, a corresponding event is sent. For example, send(&#39;blah&#39;, {}) sends data with the &#39;blah&#39; type, other shims will receive the object via an &#39;onblah&#39; event.
+     */
+<span id='dr-shim-attribute-connected'>/**
+</span>        * @attribute {Boolean} [connected=false] (readonly)
+        * If true, we are connected to the server
+        */
+<span id='dr-shim-attribute-pingtime'>/**
+</span>        * @attribute {Number} [pingtime=1000]
+        * The frequency used to reconnect to the server
+        */
+<span id='dr-shim-attribute-websockets'>/**
+</span>        * @attribute {Boolean} [websockets=false]
+        * If true, use websockets to connect to the server
+        */
+<span id='dr-shim-method-send'>/**
+</span>        * @method send
+        * Sends some data over the event bus.
+        * @param {String} type The type of event to be sent.
+        * @param {Object} data The data to be sent.
+        */
+<span id='dr-simplelayout'>/**
+</span>     * @class dr.simplelayout
+     * @extends dr.layout
+     * A layout that stacks views on the x or y axis.
+     *
+     *
+     *     @example
+     *     &lt;simplelayout axis=&quot;y&quot;&gt;&lt;/simplelayout&gt;
+     *
+     *     &lt;view width=&quot;100&quot; height=&quot;25&quot; bgcolor=&quot;lightpink&quot;&gt;&lt;/view&gt;
+     *     &lt;view width=&quot;100&quot; height=&quot;25&quot; bgcolor=&quot;plum&quot;&gt;&lt;/view&gt;
+     *     &lt;view width=&quot;100&quot; height=&quot;25&quot; bgcolor=&quot;lightblue&quot;&gt;&lt;/view&gt;
+     */
+<span id='dr-simplelayout-attribute-inset'>/**
+</span>        * @attribute {Number} [inset=0]
+        * Amount to inset the layout
+        */
+<span id='dr-simplelayout-attribute-spacing'>/**
+</span>        * @attribute {Number} [spacing=15]
+        * Amount of spacing between views
+        */
+<span id='dr-simplelayout-attribute-axis'>/**
+</span>        * @attribute {&quot;x&quot;/&quot;y&quot;} [axis=x]
+        * The axis to stack on
+        */
+<span id='dr-slider'>/**
+</span>     * @class dr.slider
+     * @extends dr.view
+     * An input component whose state is changed when the mouse is dragged.
+     *
+     *     @example
+     *
+     *     &lt;slider name=&quot;hslide&quot; y=&quot;5&quot; width=&quot;250&quot; height=&quot;10&quot; value=&quot;50&quot; bgcolor=&quot;#808080&quot;&gt;&lt;/slider&gt;
+     * Slider with a label:
+     *
+     *     @example
+     *     
+     *     &lt;simplelayout axis=&quot;x&quot; spacing=&quot;8&quot;&gt;&lt;/simplelayout&gt;
+     *     &lt;slider name=&quot;hslide&quot; y=&quot;5&quot; width=&quot;250&quot; height=&quot;10&quot; value=&quot;50&quot; bgcolor=&quot;#808080&quot;&gt;&lt;/slider&gt;
+     *     &lt;text text=&quot;${Math.round(this.parent.hslide.value)}&quot; y=&quot;${this.parent.hslide.y + (this.parent.hslide.height-this.height)/2}&quot;&gt;&lt;/text&gt;
+     */
+<span id='dr-slider-attribute-minvalue'>/**
+</span>        * @attribute {Number} [minvalue=0]
+        * The minimum value of the slider
+        */
+<span id='dr-slider-attribute-maxvalue'>/**
+</span>        * @attribute {Number} [maxvalue=100]
+        * The maximum value of the slider
+        */
+<span id='dr-slider-attribute-axis'>/**
+</span>        * @attribute {&quot;x&quot;/&quot;y&quot;} [axis=x]
+        * The axis to track on
+        */
+<span id='dr-slider-attribute-invert'>/**
+</span>        * @attribute {Boolean} [invert=false]
+        * Set to true to invert the direction of the slider.
+        */
+<span id='dr-slider-attribute-value'>/**
+</span>        * @attribute {Number} [value=0]
+        * The current value of the slider.
+        * Use changeValue() to range check the number and set the value.
+        */
+<span id='dr-slider-method-changeValue'>/**
+</span>        * @method changeValue
+        * Given a new value for the slider position, constrain the value
+        * between minvalue and maxvalue and then calls setAttribute.
+        * @param {Number} v The new value of the component.
+        */
+<span id='dr-slider-attribute-selectcolor'>/**
+</span>        * @attribute {String} [selectcolor=&quot;#a0a0a0&quot;]
+        * The selected color of the slider.
+        */
+<span id='dr-stats'>/**
+</span>     * @class dr.stats
+     * @extends dr.view
+     * wraps the three.js stats control which shows framerate over time
+     *
+     * This example shows how use the stats control to monitor framerate:
+     *
+     *     @example
+     *     &lt;stats&gt;&lt;/stats&gt;
+     */
+<span id='dr-touch'>/**
+</span>     * @class dr.touch
+     * @extends dr.node
+     * Receives touch and multitouch data where available.
+     */
+<span id='dr-touch-attribute-x'>/**
+</span>        * @attribute {Number} [x=0] (readonly)
+        * The touch x value for the first finger.
+        */
+<span id='dr-touch-attribute-y'>/**
+</span>        * @attribute {Number} [y=0] (readonly)
+        * The touch y value for the first finger.
+        */
+<span id='dr-touch-attribute-touches'>/**
+</span>        * @attribute {Object[]} touches (readonly)
+        * An array of x/y coordinates for all fingers, where available. See [https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Touch_events](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Touch_events) for more details
+        */
+<span id='dr-webpage'>/**
+</span>     * @class dr.webpage
+     * @extends dr.view
+     * iframe component for embedding dreem code or html in a dreem application.
+     * The size of the iframe matches the width/height of the view when the
+     * component is created. The iframe component can show a web page by
+     * using the src attribute, or to show dynamic content using the
+     * contents attribute.
+     *
+     * This example shows how to display a web page in an iframe. The 
+     * contents of the iframe are not editable:
+     *
+     *     @example
+     *     &lt;webpage src=&quot;http://en.wikipedia.org/wiki/San_Francisco&quot; width=&quot;300&quot; height=&quot;140&quot;&gt;&lt;/webpage&gt;
+     *
+     * To make the web page clickable, and to add scrolling:
+     *
+     *     @example
+     *     &lt;webpage src=&quot;http://en.wikipedia.org/wiki/San_Francisco&quot; width=&quot;300&quot; height=&quot;140&quot; scrolling=&quot;true&quot; clickable=&quot;true&quot;&gt;&lt;/webpage&gt;
+     *
+     * The content of the iframe can also be dynamically generated, including
+     * adding Dreem code:
+     *
+     *     @example
+     *     &lt;webpage width=&quot;300&quot; height=&quot;140&quot; contents=&quot;Hello&quot;&gt;&lt;/webpage&gt;
+     *
+     */
+<span id='dr-webpage-attribute-src'>/**
+</span>        * @attribute {String} [src=&quot;/iframe_stub.html&quot;]
+        * url to load inside the iframe. By default, a file is loaded that has
+        * an empty body but includes the libraries needed to support Dreem code.
+        */
+<span id='dr-webpage-attribute-scrolling'>/**
+</span>        * @attribute {Boolean} [scrolling=&quot;false&quot;]
+        * Controls scrollbar display in the iframe.
+        */
+<span id='dr-webpage-attribute-contents'>/**
+</span>        * @attribute {String} [contents=&quot;&quot;]
+        * string to write into the iframe body. This is dreem/html code
+        * that is written inside the iframe&#39;s body tag. If you want to display
+        * static web pages, specify the src attribute, but do not use contents.
+        */
+</pre>
+</body>
+</html>

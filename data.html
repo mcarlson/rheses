@@ -4,8 +4,17 @@
   <style type="text/css">
     body {
       background-color: rgb(46,36,30);
-      background-image: url(img/x2/background-r.png);
       background-size: 259px 259px;
+      font-family: 'Helvetica';
+      font-size: 14px;
+    }
+    input {
+      font-family: 'Helvetica';
+      font-size: 14px;
+    }
+    textarea {
+      font-family: 'Helvetica';
+      font-size: 14px;
     }
     @font-face {
       font-family: 'wildride';
@@ -24,7 +33,6 @@
       width:171;
       height:64;
       position: absolute;
-      background-image: url(img/x2/rheses-color.png);
       background-repeat: no-repeat;
       background-size: 171px 64px;
     }
@@ -40,19 +48,18 @@
   <script type="text/javascript" src="lib/jquery-1.9.1.min.js"></script>
   <script type="text/javascript" src="lib/acorn.js"></script>
   <script type="text/javascript" src="lib/coffee-script.js"></script>
-  <script type="text/javascript" src="lib/json-path+json-ptr-0.1.3.min.js"></script>
   <script type="text/javascript" src="layout.js"></script>
 </head>
 <body>
-  <view id="container" y="300" width="100" height="100" background-color="purple" border-radius="4px" clip="true">
-    <handler name="onclick">
+  <view id="container" y="300" width="100" height="100" bgcolor="purple" border-radius="4px" clip="true">
+    <handler event="onclick">
       if (this.bnd) this.bnd.destroy()
       this.setAttribute('clip', false)
       // console.log('onclick', this)
     </handler>
 
     <simplelayout name="lay" spacing="42" type="coffee">
-      <handler name="oninit">
+      <handler event="oninit">
         # console.log('oninit instance', this)
         this.hello('a', 'b', 'c')
       </handler>
@@ -63,40 +70,32 @@
     <boundslayout name="bnd"></boundslayout>
 
     <class name="clickresize" width="10" height="10" bgcolor="red">
-      <attribute name="data" value="null"></attribute>
-      <handler name="onclick">
+      <attribute name="data" value="null" type="expression"></attribute>
+      <handler event="onclick">
         this.animate({width: 100, height: 100})
       </handler>
     </class>
 
     <clickresize bgcolor="red"></clickresize>
-    <clickresize bgcolor="yellow" onclick="this.destroy()"></clickresize>
+    <clickresize bgcolor="yellow" onclick="this.setAttribute('visible', false)"></clickresize>
     <clickresize bgcolor="green"></clickresize>
     <clickresize bgcolor="black"></clickresize>
     <clickresize bgcolor="blue">
-      <handler name="onclick" type="coffee">
+      <simplelayout></simplelayout>
+      <replicator name="repl" classname="clickresize"></replicator>
+      <handler event="onclick" type="coffee">
         if (@subviews.length)
           #console.log('destroy', @, @destroy)
           @destroy()
         else
-          lay = new lz.simplelayout(null, {parent: @, locked: true, inset: 15})
-          for i of ([0..1000])
-            #console.log('creating', i)
-            new lz.clickresize(null, {parent: @})
-          lay.setAttribute('locked', false)
+          @repl.setAttribute('data', [0..1000])
       </handler>
     </clickresize>
     <text onclick="this.setAttribute('text', 'Hi mum this is a lot wider!')" bgcolor="yellow">Hello</text>
-    <text width="100" multiline="true" bgcolor="orange">This text should wrap at my width</text>
+    <text width="100" multiline="true" bgcolor="orange" onclick="this.setAttribute('multiline', ! this.multiline)">This text should wrap at my width. Click to toggle multiline.</text>
     <text text="${this.parent.inp.text}" bgcolor="red"></text>
-    <inputtext bgcolor="green" name="inp" onclick="this.setAttribute('text', 'Yooyoyo')">Text</inputtext>
-
-    <view width="10" height="10" bgcolor="cyan" x="${lz.mouse.x - this.parent.getAbsolute().x - (this.width * .5)}" y="${lz.mouse.y - this.parent.getAbsolute().y - (this.width * .5)}" clickable="false" ignorelayout="true">
-      <handler name="onclick" reference="lz.mouse">
-        if (this.width !== 100)
-          this.animate({width: 100, height: 100, opacity: .2}, 1000)
-      </handler>
-    </view>
+    <inputtext bgcolor="green" name="inp" onclick="this.setAttribute('text', 'Yooyoyo'); this.setAttribute('width', 150)" onfocus="console.log('focus', this)" onblur="console.log('blur', this)">Text</inputtext>
+    <inputtext bgcolor="green" name="inpmult" multiline="true" onclick="this.animate({width: 150, height: 100})" onfocus="console.log('focus', this)" onblur="console.log('blur', this)">Text</inputtext>
 
     <dataset name="storedata">
     { "store": {
@@ -131,14 +130,39 @@
       }
     }
     </dataset>
-    <dataset name="tempdata" url="http://api.openweathermap.org/data/2.5/weather?q=San+Francisco,CA&units=imperial&callback=?"></dataset>
+    <dataset name="tempdata" url="weather.json"></dataset>
+    <!-- <dataset name="tempdata" url="http://api.openweathermap.org/data/2.5/weather?q=San+Francisco,CA&units=imperial&callback=?"></dataset> -->
 
     <replicator datapath="$storedata/store/book[*]/author" classname="text"></replicator>
     <replicator datapath="$tempdata/main/temp" classname="inputtext"></replicator>
 
-    <class name="boundedview">
-      <boundslayout></boundslayout>
+    <class name="mouseview">
+      <attribute name="mouseisover" value="false" type="boolean"></attribute>
+      <attribute name="mouseisdown" value="false" type="boolean"></attribute>
+      <handler event="onmouseover">
+        this.setAttribute('mouseisover', true)
+      </handler>
+      <handler event="onmouseout">
+        this.setAttribute('mouseisover', false)
+      </handler>
+      <handler event="onmousedown">
+        this.setAttribute('mouseisdown', true)
+      </handler>
+      <handler event="onmouseup">
+        this.setAttribute('mouseisdown', false)
+      </handler>
     </class>
+
+    <mouseview bgcolor="${this.mouseisdown ? 'red' : (this.mouseisover ? 'green' : 'blue')}" width="100" height="100">
+      <dragstate bgcolor="red" applied="${this.parent.mouseisdown}" dragaxis="x">
+        <attribute name="width" value="200" type="number"></attribute>
+        <handler event="onapplied" args="applied">
+          console.log('applied state', applied, this.parent.width)
+          //this.parent.animate({width: applied ? 200 : 100}, 1000)
+        </handler>
+      </dragstate>
+    </mouseview>
+
 
     <!-- Test datapath binding through non-bound parents -->
     <class name="weather" extends="boundedview">
@@ -163,7 +187,37 @@
       </boundedview>
     </class>
     <replicator datapath="$tempdata" classname="weather2"></replicator>
-  </view
 
+    <view width="10" height="10" bgcolor="cyan" x="${dr.mouse.x - this.parent.getAbsolute().x - (this.width * .5)}" y="${dr.mouse.y - this.parent.getAbsolute().y - (this.width * .5)}" clickable="false" ignorelayout="true">
+     <!--  <handler event="onx" args="x">
+        console.log('x', dr.mouse.x, this.parent.getAbsolute().x, x)
+      </handler> -->
+      <handler event="onclick" reference="dr.mouse">
+        if (this.width !== 100)
+          this.animate({width: 100, height: 100, opacity: .2}, 1000)
+      </handler>
+    </view>
+  </view>
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
 </body>
 </html>

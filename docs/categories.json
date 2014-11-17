@@ -1,0 +1,85 @@
+[
+    {
+        "name": "Dreem Classes",
+        "groups": [
+            {
+                "name": "All Classes",
+                "classes": [
+                    "dr",
+                    "dr.*",
+                    "Eventable"
+                ]
+            },
+            {
+                "name": "Core Dreem",
+                "classes": [
+                    "dr",
+                    "Eventable",
+                    "dr.class",
+                    "dr.node",
+                    "dr.attribute",
+                    "dr.handler",
+                    "dr.method",
+                    "dr.state"
+                ]
+            },
+            {
+                "name": "UI Components",
+                "classes": [
+                    "dr.ace",
+                    "dr.art",
+                    "dr.buttonbase",
+                    "dr.checkbutton",
+                    "dr.view",
+                    "dr.text",
+                    "dr.audioplayer",
+                    "dr.bitmap",
+                    "dr.inputtext",
+                    "dr.labelbutton",
+                    "dr.labeltoggle",
+                    "dr.slider",
+                    "dr.rangeslider",
+                    "dr.dragstate",
+                    "dr.webpage"
+                ]
+            },
+            {
+                "name": "Layout",
+                "classes": [
+                    "dr.layout",
+                    "dr.simplelayout",
+                    "dr.boundslayout"
+                ]
+            },
+            {
+                "name": "Input",
+                "classes": [
+                    "dr.inputtext",
+                    "dr.keyboard",
+                    "dr.mouse",
+                    "dr.gyro",
+                    "dr.touch"
+                ]
+            },
+            {
+                "name": "Data",
+                "classes": [
+                    "dr.dataset",
+                    "dr.replicator"
+                ]
+            },
+            {
+                "name": "Util / Misc.",
+                "classes": [
+                    "dr.logger",
+                    "dr.stats",
+                    "dr.idle",
+                    "dr.shim",
+                    "dr.window"
+                ]
+            }
+        ]
+    }
+]
+
+

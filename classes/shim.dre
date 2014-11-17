@@ -1,0 +1,77 @@
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+   <!--/**
+     * @class dr.shim
+     * @extends dr.node
+     * Connects to the shared event bus. When data is sent with a given type, a corresponding event is sent. For example, send('blah', {}) sends data with the 'blah' type, other shims will receive the object via an 'onblah' event.
+     */-->
+    <class name="shim" extends="node" scriptincludes="/primus/primus.js" scriptincludeserror="In order to use dr.shim, you need to be running the Teem server">
+      <!--/**
+        * @attribute {Boolean} [connected=false] (readonly)
+        * If true, we are connected to the server
+        */-->
+      <attribute name="connected" value="false" type="boolean"></attribute>
+      <!--/**
+        * @attribute {Number} [pingtime=1000]
+        * The frequency used to reconnect to the server
+        */-->
+      <attribute name="pingtime" value="1000" type="number"></attribute>
+      <!--/**
+        * @attribute {Boolean} [websockets=false]
+        * If true, use websockets to connect to the server
+        */-->
+      <attribute name="websockets" value="false" type="boolean"></attribute>
+      <handler event="oninit">
+        var url = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '') + '/';
+        if (! window['Primus']) return;
+        this.primus = new Primus(url, {ping: this.pingtime, pong: this.pingtime, websockets: this.websockets});
+        var _this = this;
+        this.primus.on('data', function shim$data(data) {
+          // console.log('message', data)
+          _this.setAttribute(data.type, data.data);
+        });
+        this.primus.on('open', function shim$open() {
+          // console.log('opened')
+          _this.setAttribute('connected', true);
+        });
+        this.primus.on('error', function shim$error(err) {
+          // console.error('error', err)
+          _this.setAttribute('connected', false);
+          _this.sendEvent('error', err);
+        });
+      </handler>
+      <!--/**
+        * @method send
+        * Sends some data over the event bus.
+        * @param {String} type The type of event to be sent.
+        * @param {Object} data The data to be sent.
+        */-->
+      <method name="send" args="type, data">
+        if (this.connected) {
+          var json = {'type': type || 'data', data: data};
+          // console.log('sending', json)
+          this.primus.write(json)
+        } else {
+          this.setAttribute(type, data);
+        }
+      </hander>
+    </class>
