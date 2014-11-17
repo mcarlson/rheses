@@ -1698,7 +1698,7 @@ window.dr = do ->
               # load load class extends
               names[el.attributes.extends.value] = el
             # track inline class declaration so we don't attempt to load it later
-            inlineclasses[el.attributes.name.value] = true
+            inlineclasses[el.attributes.name?.value] = true
           else if name == 'replicator'
             # load class instance for tag
             names[name] = el

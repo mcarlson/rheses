@@ -2203,7 +2203,7 @@
           return filerequests.push(prom);
         };
         findMissingClasses = function(names) {
-          var el, name, out, _i, _len, _ref, _ref1;
+          var el, name, out, _i, _len, _ref, _ref1, _ref2;
           if (names == null) {
             names = {};
           }
@@ -2215,12 +2215,12 @@
               if (el.attributes["extends"]) {
                 names[el.attributes["extends"].value] = el;
               }
-              inlineclasses[el.attributes.name.value] = true;
+              inlineclasses[(_ref1 = el.attributes.name) != null ? _ref1.value : void 0] = true;
             } else if (name === 'replicator') {
               names[name] = el;
               names[el.attributes.classname.value] = el;
             } else {
-              if (_ref1 = el.parentNode.localName, __indexOf.call(specialtags, _ref1) < 0) {
+              if (_ref2 = el.parentNode.localName, __indexOf.call(specialtags, _ref2) < 0) {
                 names[name] = el;
               }
             }
