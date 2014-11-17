@@ -2667,9 +2667,9 @@ window.dr = do ->
           # console.log 'touchmove', event.touches, first, window.pageXOffset, window.pageYOffset, first.pageX, first.pageY, first.target
           over = document.elementFromPoint(first.pageX - window.pageXOffset, first.pageY - window.pageYOffset);
           if (over and over.$view)
-            if (lastTouchOver != over)
+            if (lastTouchOver and lastTouchOver != over)
               @handle({target: lastTouchOver, type: 'mouseout'}) 
-              lastTouchOver = over
+            lastTouchOver = over
             @handle({target: over, type: 'mouseover'})
             # console.log 'over', over, over.$view
 

@@ -3387,13 +3387,13 @@
           case 'touchmove':
             over = document.elementFromPoint(first.pageX - window.pageXOffset, first.pageY - window.pageYOffset);
             if (over && over.$view) {
-              if (lastTouchOver !== over) {
+              if (lastTouchOver && lastTouchOver !== over) {
                 this.handle({
                   target: lastTouchOver,
                   type: 'mouseout'
                 });
-                lastTouchOver = over;
               }
+              lastTouchOver = over;
               this.handle({
                 target: over,
                 type: 'mouseover'
