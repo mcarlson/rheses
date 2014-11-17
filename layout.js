@@ -60,7 +60,7 @@
   })();
 
   window.dr = (function() {
-    var Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, capabilities, compiler, constraintScopes, debug, dom, exports, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, querystring, showWarnings, skipEvent, triggerlock, warnings, _initConstraints;
+    var Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, capabilities, compiler, constraintScopes, debug, dom, exports, fcamelCase, hiddenAttributes, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, otherstyles, querystring, rdashAlpha, showWarnings, skipEvent, ss, ss2, stylemap, triggerlock, warnings, _initConstraints;
     mixOf = function() {
       var Mixed, base, i, method, mixin, mixins, name, _i, _ref;
       base = arguments[0], mixins = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
@@ -449,12 +449,13 @@
           return false;
         }
       })(),
-      touch: 'ontouchstart' in window || 'onmsgesturechange' in window
+      touch: 'ontouchstart' in window || 'onmsgesturechange' in window,
+      camelcss: navigator.userAgent.toLowerCase().indexOf('firefox') > -1
     };
     querystring = window.location.search;
     debug = querystring.indexOf('debug') > 0;
     compiler = (function() {
-      var cacheData, cacheKey, compile, compileCache, exports, findBindings, nocache, scriptCache, strict, transform, usecache;
+      var cacheData, cacheKey, compile, compileCache, compiledebug, exports, findBindings, nocache, scriptCache, strict, transform, usecache;
       nocache = querystring.indexOf('nocache') > 0;
       strict = querystring.indexOf('strict') > 0;
       if (!nocache) {
@@ -544,7 +545,7 @@
         };
       })();
       scriptCache = {};
-      compile = function(script, args, name) {
+      compiledebug = function(script, args, name) {
         var argstring, e, func, key;
         if (script == null) {
           script = '';
@@ -561,10 +562,10 @@
           return scriptCache[key];
         }
         try {
-          if (debug && name) {
-            if (strict) {
-              script = "\"use strict\"\n" + script;
-            }
+          if (strict) {
+            script = "\"use strict\"\n" + script;
+          }
+          if (name) {
             func = new Function("return function " + name + "(" + argstring + "){" + script + "}")();
           } else {
             func = new Function(args, script);
@@ -575,8 +576,26 @@
           return console.error('failed to compile', e.toString(), args, script);
         }
       };
+      compile = function(script, args, name) {
+        var argstring, key;
+        if (script == null) {
+          script = '';
+        }
+        if (args == null) {
+          args = [];
+        }
+        if (name == null) {
+          name = '';
+        }
+        argstring = args.join();
+        key = script + argstring + name;
+        if (key in scriptCache) {
+          return scriptCache[key];
+        }
+        return scriptCache[key] = new Function(args, script);
+      };
       return exports = {
-        compile: compile,
+        compile: debug ? compiledebug : compile,
         transform: transform,
         findBindings: findBindings
       };
@@ -1133,6 +1152,12 @@
       return Node;
 
     })(Eventable);
+    stylemap = {
+      x: 'left',
+      y: 'top',
+      bgcolor: 'backgroundColor',
+      visible: 'display'
+    };
 
     /**
      * @class Sprite
@@ -1140,16 +1165,9 @@
      * Abstracts the underlying visual primitives (currently HTML) from dreem's view system.
      */
     Sprite = (function() {
-      var fcamelCase, lastTouchDown, noop, rdashAlpha, stylemap, styleval;
+      var noop, styleval;
 
       noop = function() {};
-
-      stylemap = {
-        x: 'left',
-        y: 'top',
-        bgcolor: 'backgroundColor',
-        visible: 'display'
-      };
 
       styleval = {
         display: function(isVisible) {
@@ -1158,21 +1176,21 @@
           } else {
             return 'none';
           }
+        },
+        cursor: function(clickable) {
+          if (clickable) {
+            return 'pointer';
+          } else {
+            return '';
+          }
         }
       };
-
-      fcamelCase = function(all, letter) {
-        return letter.toUpperCase();
-      };
-
-      rdashAlpha = /-([\da-z])/gi;
 
       function Sprite(jqel, view, tagname) {
         if (tagname == null) {
           tagname = 'div';
         }
         this.handle = __bind(this.handle, this);
-        this.touchHandler = __bind(this.touchHandler, this);
         this.animate = __bind(this.animate, this);
         if (jqel == null) {
           this.el = document.createElement(tagname);
@@ -1196,11 +1214,6 @@
         }
         if (name in styleval) {
           value = styleval[name](value);
-        } else if (name.match(rdashAlpha)) {
-          name = name.replace(rdashAlpha, fcamelCase);
-          if (debug && !internal) {
-            console.warn("Setting unknown CSS property " + name + " = " + value + " on ", this.el.$view);
-          }
         }
         return el.style[name] = value;
       };
@@ -1232,48 +1245,10 @@
         return this.jqel.animate.apply(this.jqel, arguments);
       };
 
-      Sprite.prototype.sendMouseEvent = function(type, first) {
-        var simulatedEvent;
-        simulatedEvent = document.createEvent('MouseEvent');
-        simulatedEvent.initMouseEvent(type, true, true, window, 1, first.pageX, first.pageY, first.clientX, first.clientY, false, false, false, false, 0, null);
-        first.target.dispatchEvent(simulatedEvent);
-        if (first.target.$view && first.target.$view.$tagname !== 'inputtext') {
-          return event.preventDefault();
-        }
-      };
-
-      lastTouchDown = null;
-
-      Sprite.prototype.touchHandler = function(event) {
-        var first, touches;
-        touches = event.changedTouches;
-        first = touches[0];
-        switch (event.type) {
-          case 'touchstart':
-            this.sendMouseEvent('mouseover', first);
-            this.sendMouseEvent('mousedown', first);
-            return lastTouchDown = first.target;
-          case 'touchmove':
-            return this.sendMouseEvent('mousemove', first);
-          case 'touchend':
-            this.sendMouseEvent('mouseup', first);
-            if (lastTouchDown === first.target) {
-              this.sendMouseEvent('click', first);
-              return lastTouchDown = null;
-            }
-        }
-      };
-
       Sprite.prototype.set_clickable = function(clickable) {
         this.__clickable = clickable;
         this.__updatePointerEvents();
-        this.setStyle('cursor', (clickable ? 'pointer' : ''), true);
-        if (capabilities.touch) {
-          document.addEventListener('touchstart', this.touchHandler, true);
-          document.addEventListener('touchmove', this.touchHandler, true);
-          document.addEventListener('touchend', this.touchHandler, true);
-          return document.addEventListener('touchcancel', this.touchHandler, true);
-        }
+        return this.setStyle('cursor', clickable, true);
       };
 
       Sprite.prototype.set_clip = function(clip) {
@@ -1288,11 +1263,11 @@
       };
 
       Sprite.prototype.__updateOverflow = function() {
-        return this.setStyle('overflow', this.__scrollable ? 'auto' : this.__clip ? 'hidden' : '');
+        return this.setStyle('overflow', this.__scrollable ? 'auto' : this.__clip ? 'hidden' : '', true);
       };
 
       Sprite.prototype.__updatePointerEvents = function() {
-        return this.setStyle('pointer-events', (this.__clickable || this.__scrollable ? 'auto' : 'none'), true);
+        return this.setStyle('pointer-events', this.__clickable || this.__scrollable ? 'auto' : '', true);
       };
 
       Sprite.prototype.destroy = function() {
@@ -1327,17 +1302,15 @@
 
       Sprite.prototype.measureTextSize = function(multiline, width, resize) {
         if (multiline) {
-          this.setStyle('width', width);
-          this.setStyle('height', 'auto');
-          this.setStyle('whiteSpace', 'normal');
+          this.setStyle('width', width, true);
+          this.setStyle('height', 'auto', true);
+          this.setStyle('whiteSpace', 'normal', true);
         } else {
           if (resize) {
-            this.setStyle('width', 'auto');
+            this.setStyle('width', 'auto', true);
+            this.setStyle('height', 'auto', true);
           }
-          if (resize) {
-            this.setStyle('height', 'auto');
-          }
-          this.setStyle('whiteSpace', '');
+          this.setStyle('whiteSpace', '', true);
         }
         return {
           width: this.el.clientWidth,
@@ -1396,8 +1369,8 @@
         }
         pos = this.jqel.offset();
         return {
-          x: pos.left,
-          y: pos.top
+          x: pos.left - window.pageXOffset,
+          y: pos.top - window.pageYOffset
         };
       };
 
@@ -1408,6 +1381,35 @@
       return Sprite;
 
     })();
+    if (capabilities.camelcss) {
+      ss = Sprite.prototype.setStyle;
+      fcamelCase = function(all, letter) {
+        return letter.toUpperCase();
+      };
+      rdashAlpha = /-([\da-z])/gi;
+      Sprite.prototype.setStyle = function(name, value, internal, el) {
+        if (el == null) {
+          el = this.el;
+        }
+        if (name.match(rdashAlpha)) {
+          name = name.replace(rdashAlpha, fcamelCase);
+        }
+        return ss(name, value, internal, el);
+      };
+    }
+    if (debug) {
+      otherstyles = ['width', 'height', 'background-color'];
+      ss2 = Sprite.prototype.setStyle;
+      Sprite.prototype.setStyle = function(name, value, internal, el) {
+        if (el == null) {
+          el = this.el;
+        }
+        if (!internal && !(name in stylemap) && !(__indexOf.call(otherstyles, name) >= 0)) {
+          console.warn("Setting unknown CSS property " + name + " = " + value + " on ", this.el.$view, stylemap, internal);
+        }
+        return ss2(name, value, internal, el);
+      };
+    }
     ignoredAttributes = {
       parent: true,
       id: true,
@@ -1717,7 +1719,7 @@
 
       View.prototype.setAttribute = function(name, value, skipstyle) {
         value = this._coerceType(name, value);
-        if (!(skipstyle || name in ignoredAttributes || this[name] === value)) {
+        if (!(skipstyle || name in ignoredAttributes || name in hiddenAttributes || this[name] === value)) {
           this.sprite.setStyle(name, value);
         }
         return View.__super__.setAttribute.call(this, name, value, true);
@@ -2090,6 +2092,20 @@
       pre.textContent = out;
       document.body.insertBefore(pre, document.body.firstChild);
       return console.error(out);
+    };
+    hiddenAttributes = {
+      text: true,
+      $tagname: true,
+      data: true,
+      replicator: true,
+      "class": true,
+      clip: true,
+      clickable: true,
+      scrollable: true,
+      $textcontent: true,
+      resize: true,
+      multiline: true,
+      ignorelayout: true
     };
     dom = (function() {
       var builtinTags, checkRequiredAttributes, exports, findAutoIncludes, flattenattributes, getChildren, htmlDecode, initAllElements, initElement, initFromElement, processSpecialTags, requiredAttributes, sendInit, specialtags, writeCSS;
@@ -2592,6 +2608,9 @@
               name = name.toLowerCase();
               classattributes[name] = attributes.value;
               classattributes.$types[name] = attributes.type;
+              if ('visual' in attributes) {
+                hiddenAttributes[name] = attributes.visual === 'false';
+              }
           }
         }
         return children;
@@ -3281,6 +3300,8 @@
      *
      */
     Mouse = (function(_super) {
+      var lastTouchDown, lastTouchOver;
+
       __extends(Mouse, _super);
 
 
@@ -3321,16 +3342,71 @@
       function Mouse() {
         this.sender = __bind(this.sender, this);
         this.handle = __bind(this.handle, this);
+        this.touchHandler = __bind(this.touchHandler, this);
         this.x = 0;
         this.y = 0;
         this.docSelector = $(document);
         this.docSelector.on(mouseEvents.join(' '), this.handle);
         this.docSelector.on("mousemove", this.handle).one("mouseout", this.stopEvent);
+        if (capabilities.touch) {
+          document.addEventListener('touchstart', this.touchHandler, true);
+          document.addEventListener('touchmove', this.touchHandler, true);
+          document.addEventListener('touchend', this.touchHandler, true);
+          document.addEventListener('touchcancel', this.touchHandler, true);
+        }
       }
 
       Mouse.prototype.startEventTest = function() {
         var _ref, _ref1, _ref2;
         return ((_ref = this.events['mousemove']) != null ? _ref.length : void 0) || ((_ref1 = this.events['x']) != null ? _ref1.length : void 0) || ((_ref2 = this.events['y']) != null ? _ref2.length : void 0);
+      };
+
+      Mouse.prototype.sendMouseEvent = function(type, first) {
+        var simulatedEvent;
+        simulatedEvent = document.createEvent('MouseEvent');
+        simulatedEvent.initMouseEvent(type, true, true, window, 1, first.pageX, first.pageY, first.clientX, first.clientY, false, false, false, false, 0, null);
+        first.target.dispatchEvent(simulatedEvent);
+        if (first.target.$view && first.target.$view.$tagname !== 'inputtext') {
+          return event.preventDefault();
+        }
+      };
+
+      lastTouchDown = null;
+
+      lastTouchOver = null;
+
+      Mouse.prototype.touchHandler = function(event) {
+        var first, over, touches;
+        touches = event.changedTouches;
+        first = touches[0];
+        switch (event.type) {
+          case 'touchstart':
+            this.sendMouseEvent('mouseover', first);
+            this.sendMouseEvent('mousedown', first);
+            return lastTouchDown = first.target;
+          case 'touchmove':
+            over = document.elementFromPoint(first.pageX - window.pageXOffset, first.pageY - window.pageYOffset);
+            if (over && over.$view) {
+              if (lastTouchOver !== over) {
+                this.handle({
+                  target: lastTouchOver,
+                  type: 'mouseout'
+                });
+                lastTouchOver = over;
+              }
+              this.handle({
+                target: over,
+                type: 'mouseover'
+              });
+            }
+            return this.sendMouseEvent('mousemove', first);
+          case 'touchend':
+            this.sendMouseEvent('mouseup', first);
+            if (lastTouchDown === first.target) {
+              this.sendMouseEvent('click', first);
+              return lastTouchDown = null;
+            }
+        }
       };
 
       Mouse.prototype.handle = function(event) {
@@ -3879,6 +3955,11 @@
     /**
      * @attribute {String} value (required)
      * The initial value for the attribute
+     */
+
+    /**
+     * @attribute {Boolean} [visible=true]
+     * Set to false if an attribute shouldn't affect a view's visual appearence
      */
   })();
 
