@@ -906,10 +906,13 @@ window.dr = do ->
       @_removeFromParent('subnodes') unless skipevents
 
   stylemap =
-    x: 'left'
-    y: 'top'
+    x: 'marginLeft'
+    y: 'marginTop'
     bgcolor: 'backgroundColor'
     visible: 'display'
+    border: 'borderWidth'
+    borderstyle: 'borderStyle'
+    bordercolor: 'borderColor'
   ###*
   # @class Sprite
   # @private
@@ -975,8 +978,6 @@ window.dr = do ->
           delete arguments[0][name]
       # console.log 'sprite animate', arguments[0], @jqel
       @jqel.animate.apply(@jqel, arguments)
-
-
 
     set_clickable: (clickable) ->
       @__clickable = clickable
@@ -1079,12 +1080,6 @@ window.dr = do ->
       input.$view = @el.$view
       $(input).on('focus blur', @handle)
       @input = input
-
-    getInputtextHeight: () ->
-      h = parseInt($(@input).css('height'))
-      borderH = parseInt($(@el).css('border-top-width')) + parseInt($(@el).css('border-bottom-width'))
-      paddingH = parseInt($(@el).css('padding-top')) + parseInt($(@el).css('padding-bottom'))
-      return h + borderH + paddingH
 
     getAbsolute: () ->
       @jqel ?= $(@el)
@@ -1289,32 +1284,23 @@ window.dr = do ->
       ###
 
       @subviews = []
-      types = {x: 'number', y: 'number', width: 'number', height: 'number', clickable: 'boolean', clip: 'boolean', scrollable: 'boolean', visible: 'boolean', 'border': 'number', padding: 'number'}
-      defaults = {x:0, y:0, width:0, height:0, clickable:false, clip:false, scrollable:false, visible:true, bordercolor:'transparent', borderstyle:'solid', border:0, padding:0}
+      types = {
+        x: 'number', y: 'number', width: 'number', height: 'number', 
+        clickable: 'boolean', clip: 'boolean', scrollable: 'boolean', visible: 'boolean', 
+        border: 'number', padding: 'number'
+      }
+      defaults = {
+        x:0, y:0, width:0, height:0, 
+        clickable:false, clip:false, scrollable:false, visible:true, 
+        bordercolor:'transparent', borderstyle:'solid', border:0, 
+        padding:0
+      }
 
       for key, type of attributes.$types
         types[key] = type
       attributes.$types = types
 
       @_setDefaults(attributes, defaults)
-
-      attributes['width'] = @_sizeConstraint(attributes['width'], "width") if @_isPercent(attributes['width'])
-      attributes['height'] = @_sizeConstraint(attributes['height'], "height") if @_isPercent(attributes['height'])
-
-      if (attributes['parent'].padding)
-        attributes['x'] += attributes['parent'].padding
-        attributes['y'] += attributes['parent'].padding
-
-      attributes['border-width'] = attributes['border']
-      delete attributes['border'] #so it doesn't get passed through to the sprite
-
-#      so these do get passed through to the sprite with the correct css names
-      attributes['border-color'] = attributes['bordercolor']
-      attributes['border-style'] = attributes['borderstyle']
-      attributes['padding-left'] = attributes['padding'] if 'padding-left' of attributes
-      attributes['padding-right'] = attributes['padding'] if 'padding-right' of attributes
-      attributes['padding-top'] = attributes['padding'] if 'padding-top' of attributes
-      attributes['padding-bottom'] = attributes['padding'] if 'padding-bottom' of attributes
 
       if (el instanceof View)
         el = el.sprite
@@ -1327,22 +1313,72 @@ window.dr = do ->
     _isPercent: (value) ->
       typeof value == 'string' && value.indexOf('%') > -1;
 
-    innerSize: (percent, dim) ->
-      return (@[dim] * parseInt(percent)/100.0) - @['border-width']*2 - @padding*2
-
-    _sizeConstraint: (percent, dim) ->
-      return "${this.parent.innerSize ? this.parent.innerSize('#{percent}', '#{dim}') : $(this.parent).#{dim}()}"
-
     _createSprite: (el, attributes) ->
       @sprite = new Sprite(el, @, attributes.$tagname)
 
-    setAttribute: (name, value, skipstyle) ->
+    setAttribute: (name, value, skipstyle, skipConstraintSetup) ->
+      # catch percent constraints
+      if (!skipConstraintSetup)
+        switch name
+          when 'width','x'
+            if @__setupPercentConstraint(name, value, 'innerwidth') then return
+          when 'height','y'
+            if @__setupPercentConstraint(name, value, 'innerheight') then return
+      
       value = @_coerceType(name, value)
+      
+      # Protect from invalid values
+      switch name
+        when 'width','height','border','padding'
+          value = Math.max(0, value)
+      
       if not (skipstyle or name of ignoredAttributes or name of hiddenAttributes or @[name] == value)
         # console.log 'setting style', name, value, @
         @sprite.setStyle(name, value)
       super(name, value, true)
-
+    
+    __setupPercentConstraint: (name, value, axis) ->
+      funcKey = '__percentFunc' + name
+      oldFunc = @[funcKey]
+      parent = @parent
+      
+      # Handle rootview case using dr.window
+      if !(parent instanceof Node)
+        parent = dr.window
+        axis = axis.substring(5)
+      
+      if oldFunc
+        @stopListening(parent, axis, oldFunc)
+        delete @[funcKey]
+      if @_isPercent(value)
+        self = @
+        func = @[funcKey] = () ->
+          self.setAttribute(name, parent[axis] * (parseInt(value)/100), false, true)
+        @listenTo(parent, axis, func)
+        func.call()
+        return true
+    
+    set_width: (width) ->
+      @setAttribute('innerwidth', width - 2*(@border + @padding), true)
+    
+    set_height: (height) ->
+      @setAttribute('innerheight', height - 2*(@border + @padding), true)
+    
+    set_border: (border) ->
+      @__updateInnerMeasures(2*(border + @padding))
+    
+    set_padding: (padding) ->
+      @__updateInnerMeasures(2*(@border + padding))
+      
+    __updateInnerMeasures: (inset) ->
+      # Ensures innerwidth and innerheight will both be correct before 
+      # oninnerwidth and oninnerheight fire. Needed by wrappinglayout.
+      @innerwidth = @width - inset
+      @innerheight = @height - inset
+      
+      @setAttribute('innerwidth', @width - inset, true)
+      @setAttribute('innerheight', @height - inset, true)
+    
     set_clickable: (clickable) ->
       @sprite.set_clickable(clickable)
       # super?(clickable)
@@ -1527,18 +1563,21 @@ window.dr = do ->
 
       super
 
-      @setAttribute('height', @sprite.getInputtextHeight()) unless @height
+      @setAttribute('height', @_getDefaultHeight()) unless @height
 
       @listenTo(@, 'change', @_handleChange)
 
-      @listenTo(@, 'width',
-        (w) ->
-          @sprite.setStyle('width', @innerSize('100%', 'width'), true, @sprite.input);
+      @listenTo(@, 'innerwidth',
+        (iw) ->
+          @sprite.setStyle('width', iw, true, @sprite.input)
       )
-      @listenTo(@, 'height',
-        (h) ->
-          @sprite.setStyle('height', @innerSize('100%', 'height'), true, @sprite.input);
+      @sprite.setStyle('width', @innerwidth, true, @sprite.input)
+      @listenTo(@, 'innerheight',
+        (ih) ->
+          @sprite.setStyle('height', ih, true, @sprite.input)
       )
+      @sprite.setStyle('height', @innerheight, true, @sprite.input)
+      
       # fixes spec/inputext_spec.rb 'can be clicked into' by forwarding user-generated click events
       # a click() without focus() wasn't enough... See http://stackoverflow.com/questions/210643/in-javascript-can-i-make-a-click-event-fire-programmatically-for-a-file-input
       @listenTo(@, 'click',
@@ -1551,12 +1590,15 @@ window.dr = do ->
       attributes.text ||= @sprite.getText(true)
       @sprite.setText('')
       multiline = @_coerceType('multiline', attributes.multiline, 'boolean')
-      p = attributes['padding'] || 0
-      b = attributes['border-width'] || 0
-      w = attributes.width - p*2 - b*2
-      h = attributes.height - p*2 - b*2
-      @sprite.createInputtextElement('', multiline, w, h)
+      @sprite.createInputtextElement('', multiline, attributes.width, attributes.height)
 
+    _getDefaultHeight: () ->
+      h = parseInt($(@sprite.input).css('height'))
+      domElem = $(@sprite.el)
+      borderH = parseInt(domElem.css('border-top-width')) + parseInt(domElem.css('border-bottom-width'))
+      paddingH = parseInt(domElem.css('padding-top')) + parseInt(domElem.css('padding-bottom'))
+      return h + borderH + paddingH
+      
     _handleChange: () ->
       return unless @replicator
       # attempt to coerce to the current type if it was a boolean or number (bad idea?)
@@ -1740,7 +1782,7 @@ window.dr = do ->
     $textcontent: true,
     resize: true,
     multiline: true,
-    ignorelayout: true,
+    ignorelayout: true
   }
   dom = do ->
     getChildren = (el) ->

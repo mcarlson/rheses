@@ -34,11 +34,13 @@
       assert.equal($('#hiddenview').css('display'), 'none')
     </handler>
   </view>
+  
   <view id="visibleview" bgcolor="lightpink" width="100" height="50" visible="true">
     <handler event="oninit">
       assert.equal($('#visibleview').css('display'), 'block')
     </handler>
   </view>
+  
   <view id="visibleview" bgcolor="thistle" width="100" height="50">
     <handler event="oninit">
       assert.equal($('#visibleview').css('display'), 'block')
@@ -48,25 +50,24 @@
   <!-- Relative width/height -->
   <view bgcolor="lightgrey" width="100" height="50">
     <view name="inner" width="100%" height="100%" bgcolor="thistle"></view>
-
     <handler event="oninit">
       assert.equal(this.inner.width, 100)
       assert.equal(this.inner.height, 50)
     </handler>
   </view>
+  
   <view bgcolor="lightgrey" width="100" height="50">
     <view name="inner" width="80%" height="70%" bgcolor="lightpink"></view>
-
     <handler event="oninit">
       assert.equal(this.inner.width, 80)
       assert.equal(this.inner.height, 35)
-      assert.equal($(this.inner.sprite.el).css('left'), '0px')
-      assert.equal($(this.inner.sprite.el).css('top'), '0px')
+      assert.equal($(this.inner.sprite.el).css('marginLeft'), '0px')
+      assert.equal($(this.inner.sprite.el).css('marginTop'), '0px')
     </handler>
   </view>
+  
   <view bgcolor="lightgrey" width="100" height="50">
     <view name="inner" width="${this.parent.width}" height="${this.parent.height}" bgcolor="thistle"></view>
-
     <handler event="oninit">
       assert.equal(this.inner.width, 100)
       assert.equal(this.inner.height, 50)
@@ -76,137 +77,61 @@
   <!-- Border and padding -->
   <view bgcolor="lightgrey" width="100" height="50">
     <view name="inner" width="100%" height="100%" bgcolor="lightyellow"></view>
-    
     <handler event="oninit">
+      assert.equal(this.width, 100)
+      assert.equal(this.height, 50)
+      assert.equal(this.innerwidth, 100)
+      assert.equal(this.innerheight, 50)
+      
       assert.equal(this.inner.width, 100)
       assert.equal(this.inner.height, 50)
     </handler>
   </view>
+  
   <view bgcolor="lightgrey" width="100" height="50" border="2">
     <view name="inner" width="100%" height="100%" bgcolor="lightgreen"></view>
-
     <handler event="oninit">
+      assert.equal(this.width, 100)
+      assert.equal(this.height, 50)
+      assert.equal(this.innerwidth, 96)
+      assert.equal(this.innerheight, 46)
+      
       assert.equal(this.inner.width, 96)
       assert.equal(this.inner.height, 46)
-      assert.equal($(this.inner.sprite.el).css('left'), '0px')
-      assert.equal($(this.inner.sprite.el).css('top'), '0px')
+      assert.equal($(this.inner.sprite.el).css('marginLeft'), '0px')
+      assert.equal($(this.inner.sprite.el).css('marginTop'), '0px')
     </handler>
   </view>
+  
   <view bgcolor="lightgrey" width="100" height="50" border="2" padding="3">
     <view name="inner" width="100%" height="100%" bgcolor="lightblue"></view>
-
     <handler event="oninit">
+      assert.equal(this.width, 100)
+      assert.equal(this.height, 50)
+      assert.equal(this.innerwidth, 90)
+      assert.equal(this.innerheight, 40)
+      
       assert.equal(this.inner.width, 90)
       assert.equal(this.inner.height, 40)
-      assert.equal($(this.inner.sprite.el).css('left'), '3px')
-      assert.equal($(this.inner.sprite.el).css('top'), '3px')
+      assert.equal($(this.inner.sprite.el).css('marginLeft'), '0px')
+      assert.equal($(this.inner.sprite.el).css('marginTop'), '0px')
     </handler>
   </view>
+  
   <view bgcolor="lightgrey" width="100" height="50" border="4" padding="2">
     <view name="inner" width="80%" height="70%" bgcolor="lightpink"></view>
-
     <handler event="oninit">
-      assert.equal(this.inner.width, 68)
-      assert.equal(this.inner.height, 23)
-      assert.equal($(this.inner.sprite.el).css('left'), '2px')
-      assert.equal($(this.inner.sprite.el).css('top'), '2px')
+      assert.equal(this.width, 100)
+      assert.equal(this.height, 50)
+      assert.equal(this.innerwidth, 88)
+      assert.equal(this.innerheight, 38)
+      
+      assert.closeTo(this.inner.width, 70.4, 0.1)
+      assert.closeTo(this.inner.height, 26.6, 0.1)
+      assert.equal($(this.inner.sprite.el).css('marginLeft'), '0px')
+      assert.equal($(this.inner.sprite.el).css('marginTop'), '0px')
     </handler>
   </view>
-  <!-- Not sure how to deal with these constraints, what is the appropriate behavior? Could special case this.parent.width
-   and turn it into this.parnet.innerSize('width'), but what if that's not whats desired? Also, this constraint could be written differently
-   how to catch all instances of this? -->
-  <!--<view bgcolor="lightgrey" width="100" height="50" border="4" padding="2">-->
-    <!--<view name="inner" width="${this.parent.width}" height="${this.parent.height}" bgcolor="thistle"></view>-->
-
-    <!--<handler event="oninit">-->
-      <!--assert.equal(this.inner.width, 68)-->
-      <!--assert.equal(this.inner.height, 23)-->
-      <!--assert.equal($(this.inner.sprite.el).css('left'), '2px')-->
-      <!--assert.equal($(this.inner.sprite.el).css('top'), '2px')-->
-    <!--</handler>-->
-  <!--</view>-->
-
-  <!-- Relative width/height -->
-  <view bgcolor="lightgrey" width="100" height="50">
-    <view name="inner" width="100%" height="100%" bgcolor="thistle"></view>
-
-    <handler event="oninit">
-      assert.equal(this.inner.width, 100)
-      assert.equal(this.inner.height, 50)
-    </handler>
-  </view>
-  <view bgcolor="lightgrey" width="100" height="50">
-    <view name="inner" width="80%" height="70%" bgcolor="lightpink"></view>
-
-    <handler event="oninit">
-      assert.equal(this.inner.width, 80)
-      assert.equal(this.inner.height, 35)
-      assert.equal($(this.inner.sprite.el).css('left'), '0px')
-      assert.equal($(this.inner.sprite.el).css('top'), '0px')
-    </handler>
-  </view>
-  <view bgcolor="lightgrey" width="100" height="50">
-    <view name="inner" width="${this.parent.width}" height="${this.parent.height}" bgcolor="thistle"></view>
-
-    <handler event="oninit">
-      assert.equal(this.inner.width, 100)
-      assert.equal(this.inner.height, 50)
-    </handler>
-  </view>
-
-  <!-- Border and padding -->
-  <view bgcolor="lightgrey" width="100" height="50">
-    <view name="inner" width="100%" height="100%" bgcolor="lightyellow"></view>
-
-    <handler event="oninit">
-      assert.equal(this.inner.width, 100)
-      assert.equal(this.inner.height, 50)
-    </handler>
-  </view>
-  <view bgcolor="lightgrey" width="100" height="50" border="2">
-    <view name="inner" width="100%" height="100%" bgcolor="lightgreen"></view>
-
-    <handler event="oninit">
-      assert.equal(this.inner.width, 96)
-      assert.equal(this.inner.height, 46)
-      assert.equal($(this.inner.sprite.el).css('left'), '0px')
-      assert.equal($(this.inner.sprite.el).css('top'), '0px')
-    </handler>
-  </view>
-  <view bgcolor="lightgrey" width="100" height="50" border="2" padding="3">
-    <view name="inner" width="100%" height="100%" bgcolor="lightblue"></view>
-
-    <handler event="oninit">
-      assert.equal(this.inner.width, 90)
-      assert.equal(this.inner.height, 40)
-      assert.equal($(this.inner.sprite.el).css('left'), '3px')
-      assert.equal($(this.inner.sprite.el).css('top'), '3px')
-    </handler>
-  </view>
-  <view bgcolor="lightgrey" width="100" height="50" border="4" padding="2">
-    <view name="inner" width="80%" height="70%" bgcolor="lightpink"></view>
-
-    <handler event="oninit">
-      assert.equal(this.inner.width, 68)
-      assert.equal(this.inner.height, 23)
-      assert.equal($(this.inner.sprite.el).css('left'), '2px')
-      assert.equal($(this.inner.sprite.el).css('top'), '2px')
-    </handler>
-  </view>
-  <!-- Not sure how to deal with these constraints, what is the appropriate behavior? Could special case this.parent.width
-   and turn it into this.parnet.innerSize('width'), but what if that's not whats desired? Also, this constraint could be written differently
-   how to catch all instances of this? -->
-  <!--<view bgcolor="lightgrey" width="100" height="50" border="4" padding="2">-->
-    <!--<view name="inner" width="${this.parent.width}" height="${this.parent.height}" bgcolor="thistle"></view>-->
-
-    <!--<handler event="oninit">-->
-      <!--assert.equal(this.inner.width, 68)-->
-      <!--assert.equal(this.inner.height, 23)-->
-      <!--assert.equal($(this.inner.sprite.el).css('left'), '2px')-->
-      <!--assert.equal($(this.inner.sprite.el).css('top'), '2px')-->
-    <!--</handler>-->
-  <!--</view>-->
-
 </view>
 <!-- The MIT License (MIT)
 

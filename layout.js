@@ -1197,10 +1197,13 @@
 
     })(Eventable);
     stylemap = {
-      x: 'left',
-      y: 'top',
+      x: 'marginLeft',
+      y: 'marginTop',
       bgcolor: 'backgroundColor',
-      visible: 'display'
+      visible: 'display',
+      border: 'borderWidth',
+      borderstyle: 'borderStyle',
+      bordercolor: 'borderColor'
     };
 
     /**
@@ -1396,14 +1399,6 @@
         input.$view = this.el.$view;
         $(input).on('focus blur', this.handle);
         return this.input = input;
-      };
-
-      Sprite.prototype.getInputtextHeight = function() {
-        var borderH, h, paddingH;
-        h = parseInt($(this.input).css('height'));
-        borderH = parseInt($(this.el).css('border-top-width')) + parseInt($(this.el).css('border-bottom-width'));
-        paddingH = parseInt($(this.el).css('padding-top')) + parseInt($(this.el).css('padding-bottom'));
-        return h + borderH + paddingH;
       };
 
       Sprite.prototype.getAbsolute = function() {
@@ -1688,7 +1683,7 @@
           clip: 'boolean',
           scrollable: 'boolean',
           visible: 'boolean',
-          'border': 'number',
+          border: 'number',
           padding: 'number'
         };
         defaults = {
@@ -1712,32 +1707,6 @@
         }
         attributes.$types = types;
         this._setDefaults(attributes, defaults);
-        if (this._isPercent(attributes['width'])) {
-          attributes['width'] = this._sizeConstraint(attributes['width'], "width");
-        }
-        if (this._isPercent(attributes['height'])) {
-          attributes['height'] = this._sizeConstraint(attributes['height'], "height");
-        }
-        if (attributes['parent'].padding) {
-          attributes['x'] += attributes['parent'].padding;
-          attributes['y'] += attributes['parent'].padding;
-        }
-        attributes['border-width'] = attributes['border'];
-        delete attributes['border'];
-        attributes['border-color'] = attributes['bordercolor'];
-        attributes['border-style'] = attributes['borderstyle'];
-        if ('padding-left' in attributes) {
-          attributes['padding-left'] = attributes['padding'];
-        }
-        if ('padding-right' in attributes) {
-          attributes['padding-right'] = attributes['padding'];
-        }
-        if ('padding-top' in attributes) {
-          attributes['padding-top'] = attributes['padding'];
-        }
-        if ('padding-bottom' in attributes) {
-          attributes['padding-bottom'] = attributes['padding'];
-        }
         if (el instanceof View) {
           el = el.sprite;
         }
@@ -1749,24 +1718,85 @@
         return typeof value === 'string' && value.indexOf('%') > -1;
       };
 
-      View.prototype.innerSize = function(percent, dim) {
-        return (this[dim] * parseInt(percent) / 100.0) - this['border-width'] * 2 - this.padding * 2;
-      };
-
-      View.prototype._sizeConstraint = function(percent, dim) {
-        return "${this.parent.innerSize ? this.parent.innerSize('" + percent + "', '" + dim + "') : $(this.parent)." + dim + "()}";
-      };
-
       View.prototype._createSprite = function(el, attributes) {
         return this.sprite = new Sprite(el, this, attributes.$tagname);
       };
 
-      View.prototype.setAttribute = function(name, value, skipstyle) {
+      View.prototype.setAttribute = function(name, value, skipstyle, skipConstraintSetup) {
+        if (!skipConstraintSetup) {
+          switch (name) {
+            case 'width':
+            case 'x':
+              if (this.__setupPercentConstraint(name, value, 'innerwidth')) {
+                return;
+              }
+              break;
+            case 'height':
+            case 'y':
+              if (this.__setupPercentConstraint(name, value, 'innerheight')) {
+                return;
+              }
+          }
+        }
         value = this._coerceType(name, value);
+        switch (name) {
+          case 'width':
+          case 'height':
+          case 'border':
+          case 'padding':
+            value = Math.max(0, value);
+        }
         if (!(skipstyle || name in ignoredAttributes || name in hiddenAttributes || this[name] === value)) {
           this.sprite.setStyle(name, value);
         }
         return View.__super__.setAttribute.call(this, name, value, true);
+      };
+
+      View.prototype.__setupPercentConstraint = function(name, value, axis) {
+        var func, funcKey, oldFunc, parent, self;
+        funcKey = '__percentFunc' + name;
+        oldFunc = this[funcKey];
+        parent = this.parent;
+        if (!(parent instanceof Node)) {
+          parent = dr.window;
+          axis = axis.substring(5);
+        }
+        if (oldFunc) {
+          this.stopListening(parent, axis, oldFunc);
+          delete this[funcKey];
+        }
+        if (this._isPercent(value)) {
+          self = this;
+          func = this[funcKey] = function() {
+            return self.setAttribute(name, parent[axis] * (parseInt(value) / 100), false, true);
+          };
+          this.listenTo(parent, axis, func);
+          func.call();
+          return true;
+        }
+      };
+
+      View.prototype.set_width = function(width) {
+        return this.setAttribute('innerwidth', width - 2 * (this.border + this.padding), true);
+      };
+
+      View.prototype.set_height = function(height) {
+        return this.setAttribute('innerheight', height - 2 * (this.border + this.padding), true);
+      };
+
+      View.prototype.set_border = function(border) {
+        return this.__updateInnerMeasures(2 * (border + this.padding));
+      };
+
+      View.prototype.set_padding = function(padding) {
+        return this.__updateInnerMeasures(2 * (this.border + padding));
+      };
+
+      View.prototype.__updateInnerMeasures = function(inset) {
+        this.innerwidth = this.width - inset;
+        this.innerheight = this.height - inset;
+        this.setAttribute('innerwidth', this.width - inset, true);
+        return this.setAttribute('innerheight', this.height - inset, true);
       };
 
       View.prototype.set_clickable = function(clickable) {
@@ -1998,31 +2028,38 @@
         this._setDefaults(attributes, defaults);
         InputText.__super__.constructor.apply(this, arguments);
         if (!this.height) {
-          this.setAttribute('height', this.sprite.getInputtextHeight());
+          this.setAttribute('height', this._getDefaultHeight());
         }
         this.listenTo(this, 'change', this._handleChange);
-        this.listenTo(this, 'width', function(w) {
-          return this.sprite.setStyle('width', this.innerSize('100%', 'width'), true, this.sprite.input);
+        this.listenTo(this, 'innerwidth', function(iw) {
+          return this.sprite.setStyle('width', iw, true, this.sprite.input);
         });
-        this.listenTo(this, 'height', function(h) {
-          return this.sprite.setStyle('height', this.innerSize('100%', 'height'), true, this.sprite.input);
+        this.sprite.setStyle('width', this.innerwidth, true, this.sprite.input);
+        this.listenTo(this, 'innerheight', function(ih) {
+          return this.sprite.setStyle('height', ih, true, this.sprite.input);
         });
+        this.sprite.setStyle('height', this.innerheight, true, this.sprite.input);
         this.listenTo(this, 'click', function() {
           return this.sprite.input.focus();
         });
       }
 
       InputText.prototype._createSprite = function(el, attributes) {
-        var b, h, multiline, p, w;
+        var multiline;
         InputText.__super__._createSprite.apply(this, arguments);
         attributes.text || (attributes.text = this.sprite.getText(true));
         this.sprite.setText('');
         multiline = this._coerceType('multiline', attributes.multiline, 'boolean');
-        p = attributes['padding'] || 0;
-        b = attributes['border-width'] || 0;
-        w = attributes.width - p * 2 - b * 2;
-        h = attributes.height - p * 2 - b * 2;
-        return this.sprite.createInputtextElement('', multiline, w, h);
+        return this.sprite.createInputtextElement('', multiline, attributes.width, attributes.height);
+      };
+
+      InputText.prototype._getDefaultHeight = function() {
+        var borderH, domElem, h, paddingH;
+        h = parseInt($(this.sprite.input).css('height'));
+        domElem = $(this.sprite.el);
+        borderH = parseInt(domElem.css('border-top-width')) + parseInt(domElem.css('border-bottom-width'));
+        paddingH = parseInt(domElem.css('padding-top')) + parseInt(domElem.css('padding-bottom'));
+        return h + borderH + paddingH;
       };
 
       InputText.prototype._handleChange = function() {
