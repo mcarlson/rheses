@@ -359,9 +359,8 @@
 
       eventlock = {};
 
-      Eventable.prototype._coerceType = function(name, value) {
-        var type;
-        type = this.types[name];
+      Eventable.prototype._coerceType = function(name, value, type) {
+        type || (type = this.types[name]);
         if (type) {
           if (!typemappings[type]) {
             showWarnings([&quot;Invalid type &#39;&quot; + type + &quot;&#39; for attribute &#39;&quot; + name + &quot;&#39;, must be one of: &quot; + (Object.keys(typemappings).join(&#39;, &#39;))]);
@@ -792,7 +791,7 @@
       }
 
       Node.prototype.installMethods = function(methods, tagname, scope, callbackscope) {
-        var allocation, args, method, methodlist, name, _i, _len, _ref;
+        var allocation, args, invokeSuper, method, methodlist, name, _i, _len, _ref;
         if (scope == null) {
           scope = this;
         }
@@ -802,8 +801,8 @@
         for (name in methods) {
           methodlist = methods[name];
           for (_i = 0, _len = methodlist.length; _i &lt; _len; _i++) {
-            _ref = methodlist[_i], method = _ref.method, args = _ref.args, allocation = _ref.allocation;
-            _installMethod(scope, name, compiler.compile(method, args, &quot;&quot; + tagname + &quot;$&quot; + name).bind(callbackscope), allocation);
+            _ref = methodlist[_i], method = _ref.method, args = _ref.args, allocation = _ref.allocation, invokeSuper = _ref.invokeSuper;
+            _installMethod(scope, name, compiler.compile(method, args, &quot;&quot; + tagname + &quot;$&quot; + name).bind(callbackscope), allocation, invokeSuper);
           }
         }
       };
@@ -903,14 +902,32 @@
         };
       };
 
-      _installMethod = function(scope, methodname, method, allocation) {
+      _installMethod = function(scope, methodname, method, allocation, invokeSuper) {
         var meth, supr;
         if (methodname in scope) {
           supr = scope[methodname];
           meth = method;
           return scope[methodname] = function() {
-            supr.apply(scope, arguments);
-            return meth.apply(scope, arguments);
+            var prevOwn, prevValue;
+            if (invokeSuper === &#39;after&#39;) {
+              meth.apply(scope, arguments);
+              return supr.apply(scope, arguments);
+            } else if (invokeSuper === &#39;inside&#39;) {
+              prevValue = scope[&#39;super&#39;];
+              prevOwn = scope.hasOwnProperty(&#39;super&#39;);
+              scope[&#39;super&#39;] = function(args) {
+                return supr.apply(scope, args);
+              };
+              meth.apply(scope, arguments);
+              if (prevOwn) {
+                return scope[&#39;super&#39;] = prevValue;
+              } else {
+                return delete scope.callSuper;
+              }
+            } else {
+              supr.apply(scope, arguments);
+              return meth.apply(scope, arguments);
+            }
           };
         } else {
           return scope[methodname] = method;
@@ -1803,10 +1820,12 @@
       }
 
       InputText.prototype._createSprite = function(el, attributes) {
+        var multiline;
         InputText.__super__._createSprite.apply(this, arguments);
         attributes.text || (attributes.text = this.sprite.getText(true));
         this.sprite.setText(&#39;&#39;);
-        return this.sprite.createInputtextElement(&#39;&#39;, attributes.multiline, attributes.width, attributes.height);
+        multiline = this._coerceType(&#39;multiline&#39;, attributes.multiline, &#39;boolean&#39;);
+        return this.sprite.createInputtextElement(&#39;&#39;, multiline, attributes.width, attributes.height);
       };
 
       InputText.prototype._handleChange = function() {
@@ -2472,20 +2491,24 @@
               classattributes.$methods[name].push({
                 method: compiler.transform(script, type),
                 args: args,
-                allocation: attributes.allocation
+                allocation: attributes.allocation,
+                invokeSuper: attributes.invokesuper
               });
               break;
             case &#39;setter&#39;:
+              name = name.toLowerCase();
               if ((_base1 = classattributes.$methods)[_name = &#39;set_&#39; + name] == null) {
                 _base1[_name] = [];
               }
               classattributes.$methods[&#39;set_&#39; + name].push({
                 method: compiler.transform(script, type),
                 args: args,
-                allocation: attributes.allocation
+                allocation: attributes.allocation,
+                invokeSuper: attributes.invokesuper
               });
               break;
             case &#39;attribute&#39;:
+              name = name.toLowerCase();
               classattributes[name] = attributes.value;
               classattributes.$types[name] = attributes.type;
           }
@@ -2731,7 +2754,7 @@
         if (classattributes == null) {
           classattributes = {};
         }
-        name = classattributes.name;
+        name = (classattributes.name ? classattributes.name.toLowerCase() : classattributes.name);
         extend = classattributes[&quot;extends&quot;] != null ? classattributes[&quot;extends&quot;] : classattributes[&quot;extends&quot;] = &#39;view&#39;;
         compilertype = classattributes.type;
         for (ignored in ignoredAttributes) {

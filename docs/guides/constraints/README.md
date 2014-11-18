@@ -1,5 +1,7 @@
 # Dynamically Constraining Attributes with JavaScript Expressions
 
+[//]: # This introduction to attribute constraints and explains how to get started using them in Dreem.
+
 The attributes of {@link dr.node} tags (and any subclass of {@link dr.node}, such as {@link dr.view}) don't have to be declared at runtime.  Instead, they can be generated dynamically in a number of ways with with JavaScript expressions.
 
 It is often convenient to constrain the size of {@link dr.view subviews} to fit within the bounds of their parent, so that you don't have to calculate exact sizes by hand.  This is very easy to accomplish using the `${inline javascript}` syntax  For example, if you needed to create two columns and ensure that they fit within a parent view, regardless of it's size, you could accomplish this by ensuring the width of each column is proportional to the number of columns that are being added (i.e. `parent.width / parent.subviews.length`):  
