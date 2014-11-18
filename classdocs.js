@@ -1,31 +1,4 @@
 /**
-     * @class dr.abstractart
-     * @extends dr.view
-     * Component wrapper for object tag.
-     * The size of the object matches the width/height of the view when the
-     * component is created. dr.abstractart is usually used as a base class
-     * for art, but it can be directly to embed svg files into dreem.
-     *
-     */
-/**
-        * @attribute {String} [data=""]
-        * url to be used by the object.
-        * Same meaning as the data attribute in the html object tag.
-        */
-/**
-        * @attribute {String} [type=""]
-        * media type of the data specified in the data attribute
-        * Same meaning as the type attribute in the html object tag.
-        */
-/**
-        * @method getDom
-        * Returns the base of the object dom
-        */
-/**
-        * @event onload 
-        * Fired when the object is loaded.
-        */
-/**
      * @class dr.ace
      * @extends dr.view
      * Ace editor component.
@@ -67,20 +40,99 @@
         * @param {dr.ace} view The dr.ace that fired the event
         */
 /**
+      * @class dr.alignlayout
+      * @extends dr.variablelayout
+      * A variablelayout that aligns each view vertically or horizontally
+      * relative to all the other views.
+      *
+      *     @example
+      *     <alignlayout align="middle" collapseparent="true">
+      *     </alignlayout>
+      *
+      *     <view width="100" height="35" bgcolor="plum"></view>
+      *     <view width="100" height="25" bgcolor="lightpink"></view>
+      *     <view width="100" height="15" bgcolor="lightblue"></view>
+      */
+/**
+    * @attribute {String} [align='middle']
+    * Determines which way the views are aligned. Supported values are 
+    * 'left', 'center', 'right' and 'top', 'middle' and 'bottom'.
+    */
+/**
+    * @method doBeforeUpdate
+    * Determine the maximum subview width/height according to the alignment.
+    */
+/**
      * @class dr.art
-     * @extends dr.abstractart
+     * @extends dr.view
      * Vector graphics support using svg.
      *
-     * This example shows how to include some svg art inline
+     * This example shows how to load an existing svg
      *
      *     @example
-     *     <art data="/images/cursorshapes.svg" type="image/svg+xml" width="100" height="100" x="10" y="10"></art>
+     *     <art width="100" height="100" src="/images/siemens-clock.svg"></art>
+     *
+     * Paths within an svg can be selected using the path attribute
+     *
+     *     @example
+     *     <art width="100" height="100" src="/images/cursorshapes.svg" path="0"></art>
+     *
+     * Attributes are automatically passed through to the SVG. Here, the fill color is changed
+     *
+     *     @example
+     *     <art width="100" height="100" src="/images/cursorshapes.svg" path="0" fill="coral"></art>
+     *
+     * Setting the path attribute animates between paths. This example animates when the mouse is clicked
+     *
+     *     @example
+     *     <art width="100" height="100" src="/images/cursorshapes.svg" path="0" fill="coral">
+     *       <handler event="onclick">
+     *         this.setAttribute('path', this.path ^ 1);
+     *       </handler>
+     *     </art>
+     *
+     * By default, the SVG's aspect ratio is preserved. Set the stretches attribute to true to change this behavior.
+     *
+     *     @example
+     *     <art width="200" height="100" src="/images/cursorshapes.svg" path="0" fill="coral" stretches="true">
+     *       <handler event="onclick">
+     *         this.setAttribute('path', this.path ^ 1);
+     *         this.animate({width: (this.width == 200 ? 100 : 200)});
+     *       </handler>
+     *     </art>
      *
      */
 /**
-        * @method resizeToView
-        * Modify the embedded svg object to use the size of the view.
-        * Called in response to the onload event.
+        * @attribute {Boolean} [inline=false]
+        * Set to true if the svg contents is found inline, as a comment
+        */
+/**
+        * @attribute {Boolean} stretches [stretches=false]
+        * Set to true to stretch the svg to fill the view.
+        */
+/**
+        * @attribute {String} src
+        * The svg contents to load
+        */
+/**
+        * @attribute {String|Number} path
+        * The svg path element to display. Can either be the name of the &lt;g&gt; element containing the path or a 0-based index.
+        */
+/**
+        * @attribute {Number} [animationspeed=400]
+        * The number of milliseconds to use when animating between paths
+        */
+/**
+        * @attribute {"linear"/"easeout"/"easein"/"easeinout"/"backin"/"backout"/"elastic"/"bounce"} [animationcurve="linear"]
+        * The name of the curve to use when animating between paths
+        */
+/**
+        * @event onready
+        * Fired when the art is loaded and ready
+        */
+/**
+        * @event ontween
+        * Fired when the art has animated its path to the next position
         */
 /**
      * @class dr.audioplayer
@@ -90,7 +142,7 @@
      * This example shows how to load and play an mp3 audio file from the server:
      *
      *     @example
-     *     <audioplayer url="music/YACHT_-_09_-_Im_In_Love_With_A_Ripper_Party_Mix_Instrumental.mp3" playing="true"></audioplayer>
+     *     <audioplayer url="/music/YACHT_-_09_-_Im_In_Love_With_A_Ripper_Party_Mix_Instrumental.mp3" playing="true"></audioplayer>
      */
 /**
         * @attribute {String} url
@@ -266,6 +318,27 @@
      *
      */
 /**
+      * @class dr.constantlayout
+      * @extends dr.layoot
+      * A layout that sets the target attribute name to the target value for 
+      * each subview.
+      *
+      *     @example
+      *     <constantlayout attribute="y" value="10"></constantlayout>
+      *
+      *     <view width="100" height="25" bgcolor="lightpink"></view>
+      *     <view width="100" height="25" bgcolor="plum"></view>
+      *     <view width="100" height="25" bgcolor="lightblue"></view>
+      */
+/**
+    * @attribute {String} [attribute=x]
+    * The name of the attribute to update on each subview.
+    */
+/**
+    * @attribute {*} [value=0]
+    * The value to set the attribute to.
+    */
+/**
      * @class dr.dataset
      * @extends dr.node
      * Datasets hold onto a set of JSON data, either inline or loaded from a URL.
@@ -376,48 +449,6 @@
         * The axes to drag on.
         */
 /**
-     * @class dr.dreem_iframe
-     * @extends dr.view
-     * iframe component for embedding dreem code or html in a dreem application.
-     * The size of the iframe matches the width/height of the view when the
-     * component is created. The iframe component can show a web page by
-     * using the src attribute, or to show dynamic content using the
-     * contents attribute.
-     *
-     * This example shows how to display a web page in an iframe. The 
-     * contents of the iframe are not editable:
-     *
-     *     @example
-     *     <dreem_iframe src="http://en.wikipedia.org/wiki/San_Francisco" width="300" height="140"></dreem_iframe>
-     *
-     * To make the web page clickable, and to add scrolling:
-     *
-     *     @example
-     *     <dreem_iframe src="http://en.wikipedia.org/wiki/San_Francisco" width="300" height="140" scrolling="true" clickable="true"></dreem_iframe>
-     *
-     * The content of the iframe can also be dynamically generated, including
-     * adding Dreem code:
-     *
-     *     @example
-     *     <dreem_iframe width="300" height="140" contents="Hello"></dreem_iframe>
-     *
-     */
-/**
-        * @attribute {String} [src="/iframe_stub.html"]
-        * url to load inside the iframe. By default, a file is loaded that has
-        * an empty body but includes the libraries needed to support Dreem code.
-        */
-/**
-        * @attribute {Boolean} [scrolling="false"]
-        * Controls scrollbar display in the iframe.
-        */
-/**
-        * @attribute {String} [contents=""]
-        * string to write into the iframe body. This is dreem/html code
-        * that is written inside the iframe's body tag. If you want to display
-        * static web pages, specify the src attribute, but do not use contents.
-        */
-/**
      * @class dr.gyro
      * @extends dr.node
      * Receives gyroscope and compass data where available. See [https://w3c.github.io/deviceorientation/spec-source-orientation.html#deviceorientation](https://w3c.github.io/deviceorientation/spec-source-orientation.html#deviceorientation) and [https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html](https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html) for details.
@@ -487,6 +518,7 @@
      *
      * This example shows how to log all setAttribute() calls for a replicator to console.log():
      *
+     *     @example
      *     <dataset name="topmovies" url="/top_movies.json"></dataset>
      *     <replicator datapath="$topmovies/searchResponse/results[*]/movie[take(/releaseYear,/duration,/rating)]" classname="logger"></replicator>
      */
@@ -775,6 +807,19 @@
         * @returns {Object[]} The accum array. Must be returned otherwise results will be lost.
         */
 /**
+      * @class dr.resizelayout
+      * @extends dr.spacedlayout
+      * Resizes one or more views to fill in any remaining space.
+      *
+      *     @example
+      *     <resizelayout spacing="2" inset="5" outset="5">
+      *     </resizelayout>
+      *
+      *     <view height="25" bgcolor="lightpink"></view>
+      *     <view height="35" bgcolor="plum" layouthint="1"></view>
+      *     <view height="15" bgcolor="lightblue"></view>
+      */
+/**
      * @class dr.shim
      * @extends dr.node
      * Connects to the shared event bus. When data is sent with a given type, a corresponding event is sent. For example, send('blah', {}) sends data with the 'blah' type, other shims will receive the object via an 'onblah' event.
@@ -797,6 +842,40 @@
         * @param {String} type The type of event to be sent.
         * @param {Object} data The data to be sent.
         */
+/**
+      * @class dr.shrinktofit
+      * @extends dr.layoot
+      * A special "layout" that resizes the parent to fit the children 
+      * rather than laying out the children.
+      *
+      *     @example
+      *     <shrinktofit axis="both" xpad="5" ypad="10"></shrinktofit>
+      *
+      *     <view width="100" height="25" bgcolor="lightpink"></view>
+      *     <view width="100" height="25" bgcolor="plum"></view>
+      *     <view width="100" height="25" bgcolor="lightblue"></view>
+      */
+/**
+    * @attribute {String} [axis=x]
+    * The axis along which to resize this view to fit its children. 
+    * Supported values are 'x', 'y' and 'both'.
+    */
+/**
+    * @attribute {Number} [xpad=0]
+    * Additional space added on the child extent along the x-axis.
+    */
+/**
+    * @attribute {Number} [ypad=0]
+    * Additional space added on the child extent along the y-axis.
+    */
+/**
+    * @method __updateMonitoringSubview 
+    * Wrapped by startMonitoringSubview and stopMonitoringSubview.
+    * @param {dr.view} view
+    * @param {Function} func
+    * @return {void}
+    * @private
+    */
 /**
      * @class dr.simplelayout
      * @extends dr.layout
@@ -870,6 +949,38 @@
         * The selected color of the slider.
         */
 /**
+      * @class dr.spacedlayout
+      * @extends dr.variablelayout
+      * A variableLayout that positions views along an axis using an inset, 
+      * outset and spacing value.
+      *
+      *     @example
+      *     <spacedlayout axis="y" spacing="2" inset="5" outset="5">
+      *     </spacedlayout>
+      *
+      *     <view width="100" height="25" bgcolor="lightpink"></view>
+      *     <view width="100" height="35" bgcolor="plum"></view>
+      *     <view width="100" height="15" bgcolor="lightblue"></view>
+      */
+/**
+    * @attribute {Number} [spacing=0]
+    * The spacing between views.
+    */
+/**
+    * @attribute {Number} [outset=0]
+    * Space after the last view. Only used when collapseparent is true.
+    */
+/**
+    * @attribute {Number} [inset=0]
+    * Space before the first view.
+    */
+/**
+    * @attribute {String} [axis='x']
+    * The orientation of the layout. Supported values are 'x' and 'y'.
+    * A value of 'x' will orient the views horizontally and a value of 'y'
+    * will orient them vertically.
+    */
+/**
      * @class dr.stats
      * @extends dr.view
      * wraps the three.js stats control which shows framerate over time
@@ -896,3 +1007,170 @@
         * @attribute {Object[]} touches (readonly)
         * An array of x/y coordinates for all fingers, where available. See [https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Touch_events](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Touch_events) for more details
         */
+/**
+      * @class dr.variablelayout
+      * @extends dr.constantlayout
+      * Allows for variation based on the index and subview. An updateSubview 
+      * method is provided that can be overriden to provide variable behavior.
+      *
+      *     @example
+      *     <variablelayout attribute="x" value="10">
+      *     </variablelayout>
+      *
+      *     <view width="100" height="25" bgcolor="lightpink"></view>
+      *     <view width="100" height="25" bgcolor="plum"></view>
+      *     <view width="100" height="25" bgcolor="lightblue"></view>
+      */
+/**
+    * @attribute {boolean} [collapseparent=false]
+    * If true the updateParent method will be called. The updateParent method 
+    * will typically resize the parent to fit the newly layed out child views.
+    */
+/**
+    * @attribute {boolean} [reverse=false]
+    * If true the layout will position the items in the opposite order. For 
+    * example, right to left instead of left to right.
+    */
+/**
+    * @method doBeforeUpdate
+    * Called by update before any processing is done. Gives subviews a
+    * chance to do any special setup before update is processed.
+    * @return {void}
+    */
+/**
+    * @method doAfterUpdate
+    * Called by update after any processing is done but before the optional
+    * collapsing of parent is done. Gives subviews a chance to do any 
+    * special teardown after update is processed.
+    * @return {void}
+    */
+/**
+    * @method startMonitoringSubview
+    * Provides a default implementation that calls update when the
+    * visibility of a subview changes.
+    * @param {dr.view} view
+    */
+/**
+    * @method stopMonitoringSubview
+    * Provides a default implementation that calls update when the
+    * visibility of a subview changes.
+    * @param {dr.view} view
+    */
+/**
+    * @method updateSubview
+    * Called for each subview in the layout.
+    * @param {Number} count The number of subviews that have been layed out
+    *   including the current one. i.e. count will be 1 for the first
+    *   subview layed out.
+    * @param {dr.view} view The subview being layed out.
+    * @param {String} attribute The name of the attribute to update.
+    * @param {*} value The value to set on the subview.
+    * @return {*} The value to use for the next subview.
+    */
+/**
+    * @method skipSubview
+    * Called for each subview in the layout to determine if the view should
+    * be updated or not. The default implementation returns true if the 
+    * subview is not visible.
+    * @param {dr.view} view The subview to check.
+    * @return {Boolean} True if the subview should be skipped during 
+    *   layout updates.
+    */
+/**
+    * @method updateParent
+    * Called if the collapseparent attribute is true. Subclasses should 
+    * implement this if they want to modify the parent view.
+    * @param {String} attribute The name of the attribute to update.
+    * @param {*} value The value to set on the parent.
+    * @return {void}
+    */
+/**
+     * @class dr.webpage
+     * @extends dr.view
+     * iframe component for embedding dreem code or html in a dreem application.
+     * The size of the iframe matches the width/height of the view when the
+     * component is created. The iframe component can show a web page by
+     * using the src attribute, or to show dynamic content using the
+     * contents attribute.
+     *
+     * This example shows how to display a web page in an iframe. The 
+     * contents of the iframe are not editable:
+     *
+     *     @example
+     *     <webpage src="http://en.wikipedia.org/wiki/San_Francisco" width="300" height="140"></webpage>
+     *
+     * To make the web page clickable, and to add scrolling:
+     *
+     *     @example
+     *     <webpage src="http://en.wikipedia.org/wiki/San_Francisco" width="300" height="140" scrolling="true" clickable="true"></webpage>
+     *
+     * The content of the iframe can also be dynamically generated, including
+     * adding Dreem code:
+     *
+     *     @example
+     *     <webpage width="300" height="140" contents="Hello"></webpage>
+     *
+     */
+/**
+        * @attribute {String} [src="/iframe_stub.html"]
+        * url to load inside the iframe. By default, a file is loaded that has
+        * an empty body but includes the libraries needed to support Dreem code.
+        */
+/**
+        * @attribute {Boolean} [scrolling="false"]
+        * Controls scrollbar display in the iframe.
+        */
+/**
+        * @attribute {String} [contents=""]
+        * string to write into the iframe body. This is dreem/html code
+        * that is written inside the iframe's body tag. If you want to display
+        * static web pages, specify the src attribute, but do not use contents.
+        */
+/**
+      * @class dr.wrappinglayout
+      * @extends dr.variablelayout
+      * An extension of VariableLayout that positions views along an axis using
+      * an inset, outset and spacing value. Views will be wrapped when they
+      * overflow the available space.
+      *
+      * Supported Layout Hints:
+      *   break:string Will force the subview to start a new line/column.
+      *
+      *     @example
+      *     <wrappinglayout axis="y" spacing="2" inset="5" outset="5" lineinset="10" linespacing="5" lineoutset="10">
+      *     </wrappinglayout>
+      *
+      *     <view width="100" height="25" bgcolor="lightpink"></view>
+      *     <view width="100" height="35" bgcolor="plum"></view>
+      *     <view width="100" height="15" bgcolor="lightblue"></view>
+      */
+/**
+    * @attribute {Number} [spacing=0]
+    * The spacing between views.
+    */
+/**
+    * @attribute {Number} [outset=0]
+    * Space after the last view.
+    */
+/**
+    * @attribute {Number} [inset=0]
+    * Space before the first view.
+    */
+/**
+    * @attribute {Number} [linespacing=0]
+    * The spacing between each line of views.
+    */
+/**
+    * @attribute {Number} [lineoutset=0]
+    * Space after the last line of views. Only used when collapseparent is true.
+    */
+/**
+    * @attribute {Number} [lineinset=0]
+    * Space before the first line of views.
+    */
+/**
+    * @attribute {String} [axis='x']
+    * The orientation of the layout. Supported values are 'x' and 'y'.
+    * A value of 'x' will orient the views horizontally and a value of 'y'
+    * will orient them vertically.
+    */

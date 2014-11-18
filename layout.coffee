@@ -59,6 +59,7 @@ window.dr = do ->
   # A lightweight event system, used internally.
   ###
   # based on https://github.com/spine/spine/tree/dev/src
+  triggerlock = null
   Events =
     ###*
     # Binds an event to the current scope
@@ -87,14 +88,24 @@ window.dr = do ->
     # Fires an event
     # @param {String} ev the name of the event to fire
     ###
-    trigger: (args...) ->
-      ev = args.shift()
+    trigger: (ev, args...) ->
       list = @hasOwnProperty('events') and @events?[ev]
       return unless list
+      if triggerlock and triggerlock.scope == @ and triggerlock.ev == ev
+        return @
+      unless triggerlock
+        triggerlock = {
+          ev: ev
+          scope: @
+        }
+        # console.log triggerlock
+      # else
+      #   console.log 'old', triggerlock
       # if list then console.log 'trigger', ev, list
       for callback in list
         if callback.apply(@, args) is false
           break
+      triggerlock = null
       @
     ###*
     # Listens for an event on a specific scope
@@ -258,17 +269,9 @@ window.dr = do ->
     # @param value the value to send with the event
     ###
     sendEvent: (name, value) ->
-      lockkey = "c#{name}"
-      if eventlock[name] == @ and eventlock[lockkey]++ > 0
-        # don't send events more than once per setAttribute() for a given object/name
-        return @
-
       # send event
-      if @events?[name] and eventlock[name] != @
-        eventlock[name] = @
-        eventlock[lockkey] = 0
+      if @events?[name]
         @trigger(name, value, @) 
-        eventlock = {}
       # else
         # console.log 'no event named', name, @events, @
       @
@@ -293,10 +296,12 @@ window.dr = do ->
         return false
     # detect touchhttp://stackoverflow.com/questions/4817029/whats-the-best-way-to-detect-a-touch-screen-device-using-javascript
     touch: 'ontouchstart' of window || 'onmsgesturechange' of window # deal with ie10
+    camelcss: navigator.userAgent.toLowerCase().indexOf('firefox') > -1
   }
 
   querystring = window.location.search
   debug = querystring.indexOf('debug') > 0
+  test = querystring.indexOf('test') > 0
   compiler = do ->
     nocache = querystring.indexOf('nocache') > 0
     strict = querystring.indexOf('strict') > 0
@@ -374,26 +379,33 @@ window.dr = do ->
 
     # cache compiled scripts to speed up instantiation
     scriptCache = {}
-    # compile a string into a function
-    compile = (script='', args=[], name='') ->
+    compiledebug = (script='', args=[], name='') ->
       argstring = args.join()
       key = script + argstring + name
       return scriptCache[key] if key of scriptCache
       # console.log 'compiling', args, script
       try
-        # console.log scriptCache
-        if debug and name
-          script = "\"use strict\"\n" + script if strict
+        script = "\"use strict\"\n" + script if strict
+        if name
           func = new Function("return function #{name}(#{argstring}){#{script}}")()
-        else
+        else 
           func = new Function(args, script)
         # console.log 'compiled', func
         scriptCache[key] = func
       catch e
         console.error 'failed to compile', e.toString(), args, script
 
+    # compile a string into a function
+    compile = (script='', args=[], name='') ->
+      argstring = args.join()
+      key = script + argstring + name
+      return scriptCache[key] if key of scriptCache
+      # console.log 'compiling', key, args, script
+      scriptCache[key] = new Function(args, script)
+      # console.log 'compiled', scriptCache
+
     exports =
-      compile: compile
+      compile: if debug then compiledebug else compile
       transform: transform
       findBindings: findBindings
 
@@ -484,8 +496,9 @@ window.dr = do ->
     # An error to show if scriptincludes fail to load
     ###
     matchConstraint = /\${(.+)}/
-    # parent must be set before name
-    earlyattributes = ['parent', 'name']
+    # name should be set before parent so that when subnode events fire the 
+    # nodes can be identified
+    earlyattributes = ['name', 'parent']
     # data must be set after text
     lateattributes = ['data']
 
@@ -539,6 +552,28 @@ window.dr = do ->
       for name, value of attributes
         continue if name in lateattributes or name in earlyattributes
         @bindAttribute(name, value, attributes.$tagname)
+      
+      # Need to fire subnode added events after attributes have been set since
+      # we aren't fully configured until now so listeners may be notified
+      # before the node is actually ready. Doing this in set_parent specificaly
+      # causes problems in layouts when a view is added after initialization
+      # since the layout will set a value such as x,y before the x,y setters
+      # of the node itself have run.
+      parent = @parent
+      if (parent and parent instanceof Node)
+        ###*
+        # @event onsubnodes
+        # Fired when this node's subnodes array has changed
+        # @param {dr.node} node The dr.node that fired the event
+        ###
+        ###*
+        # @event subnodeAdded
+        # Fired when a subnode is added to this node.
+        # @param {dr.node} node The dr.node that was added
+        ###
+        parent.sendEvent('subnodes', @)
+        parent.sendEvent('subnodeAdded', @)
+        parent.doSubnodeAdded(@)
 
       for name in lateattributes
         @bindAttribute(name, attributes[name], attributes.$tagname) if name of attributes
@@ -653,20 +688,21 @@ window.dr = do ->
         scope[methodname] = ->
           # console.log 'applying overridden method', methodname, arguments
           if invokeSuper == 'after'
-            meth.apply(scope, arguments)
+            retval = meth.apply(scope, arguments)
             supr.apply(scope, arguments)
           else if invokeSuper == 'inside'
             prevValue = scope['super'];
             prevOwn = scope.hasOwnProperty('super');
             scope['super'] = (args) -> supr.apply(scope, args)
-            meth.apply(scope, arguments)
+            retval = meth.apply(scope, arguments)
             if prevOwn
               scope['super'] = prevValue;
             else
               delete scope.callSuper;
           else # before (default)
             supr.apply(scope, arguments)
-            meth.apply(scope, arguments)
+            retval = meth.apply(scope, arguments)
+          return retval
         # console.log('overrode method', methodname, scope, supr, meth)
       else
         scope[methodname] = method
@@ -736,7 +772,7 @@ window.dr = do ->
         else
           # console.log('binding to scope', scope, ev)
           scope.bind(ev, callback)
-          scope.sendEvent(ev, scope[ev]) if scope[ev]
+          scope.sendEvent(ev, scope[ev]) if ev of scope
 
       # if bindings need to be deferred, try again later
       if defer.length
@@ -765,22 +801,16 @@ window.dr = do ->
       `}).bind(this)`
 
     set_parent: (parent) ->
-#      console.log 'set_parent', parent, @
+      # console.log 'set_parent', parent, @
       # normalize to jQuery object
       if parent instanceof Node
         # store references to parent and children
         parent[@name] = @ if @name
         parent.subnodes.push(@)
-        ###*
-        # @event onsubnodes
-        # Fired when this node's subnodes array has changed
-        # @param {dr.node} node The dr.node that fired the event
-        ###
-        parent.sendEvent('subnodes', @)
 
     set_name: (name) ->
       # console.log 'set_name', name, @
-      @parent[name] = @
+      @parent[name] = @ if @parent and name
 
     set_id: (id) ->
       window[id] = @
@@ -790,9 +820,18 @@ window.dr = do ->
       arr = @parent[name]
       index = arr.indexOf(@)
       if (index != -1)
+        removedNode = arr[index]
         arr.splice(index, 1)
         # console.log('_removeFromParent', index, name, arr.length, arr, @)
-        @parent.sendEvent(name, arr[index])
+        @parent.sendEvent(name, removedNode)
+        if name == 'subnodes'
+          ###*
+          # @event subnodeRemoved
+          # Fired when a subnode is removed from this node.
+          # @param {dr.node} node The dr.node that was removed
+          ###
+          @parent.sendEvent('subnodeRemoved', removedNode)
+          @parent.doSubnodeRemoved(removedNode)
       return
 
     # find all parents with an attribute set to a specific value. Used in updateSize to deal with invisible parents.
@@ -813,6 +852,26 @@ window.dr = do ->
           # console.log 'found in parent', name, p
           return p[name]
         p = p.parent
+
+    ###*
+    # Called when a subnode is added to this node. Provides a hook for
+    # subclasses. No need for subclasses to call super. Do not call this
+    # method to add a subnode. Instead call setParent.
+    # @param {dr.node} node The subnode that was added.
+    # @return {void}
+    ###
+    doSubnodeAdded: (node) ->
+      # Empty implementation by default
+
+    ###*
+    # Called when a subnode is removed from this node. Provides a hook for
+    # subclasses. No need for subclasses to call super. Do not call this
+    # method to remove a subnode. Instead call _removeFromParent.
+    # @param {dr.node} node The subnode that was removed.
+    # @return {void}
+    ###
+    doSubnodeRemoved: (node) ->
+      # Empty implementation by default
 
     ###*
     # @method destroy
@@ -846,6 +905,11 @@ window.dr = do ->
 
       @_removeFromParent('subnodes') unless skipevents
 
+  stylemap =
+    x: 'left'
+    y: 'top'
+    bgcolor: 'backgroundColor'
+    visible: 'display'
   ###*
   # @class Sprite
   # @private
@@ -854,19 +918,12 @@ window.dr = do ->
   class Sprite
 #    guid = 0
     noop = () ->
-    stylemap =
-      x: 'left'
-      y: 'top'
-      bgcolor: 'backgroundColor'
-      visible: 'display'
     styleval =
       display: (isVisible) ->
         if isVisible then '' else 'none'
+      cursor: (clickable) ->
+        if clickable then 'pointer' else ''
         
-    fcamelCase = ( all, letter ) ->
-      letter.toUpperCase()
-    rdashAlpha = /-([\da-z])/gi
-
     constructor: (jqel, view, tagname = 'div') ->
       # console.log 'new sprite', jqel, view, tagname
       if not jqel?
@@ -885,18 +942,11 @@ window.dr = do ->
 #      guid++
 #      jqel.attr('id', 'jqel-' + guid) if not jqel.attr('id')
       @el.setAttribute('class', 'sprite')
-      # @jqel = $(@el)
 
     setStyle: (name, value, internal, el=@el) ->
       value ?= ''
-      if name of stylemap
-        name = stylemap[name]
-      if name of styleval
-        value = styleval[name](value)
-      else if name.match(rdashAlpha)
-        # console.log "replacing #{name}"
-        name = name.replace(rdashAlpha, fcamelCase)
-        console.warn "Setting unknown CSS property #{name} = #{value} on ", @el.$view if debug and not internal
+      name = stylemap[name] if name of stylemap
+      value = styleval[name](value) if name of styleval
       # console.log('setStyle', name, value, @el)
       el.style[name] = value
       # @jqel.css(name, value)
@@ -926,44 +976,12 @@ window.dr = do ->
       # console.log 'sprite animate', arguments[0], @jqel
       @jqel.animate.apply(@jqel, arguments)
 
-    sendMouseEvent: (type, first) ->
-      simulatedEvent = document.createEvent('MouseEvent')
-      simulatedEvent.initMouseEvent(type, true, true, window, 1,
-                                first.pageX, first.pageY,
-                                first.clientX, first.clientY, false,
-                                false, false, false, 0, null)
-      first.target.dispatchEvent(simulatedEvent)
-      if first.target.$view and first.target.$view.$tagname isnt 'inputtext'
-        event.preventDefault()
 
-    lastTouchDown = null
-    touchHandler: (event) =>
-      touches = event.changedTouches
-      first = touches[0]
-
-      switch event.type
-        when 'touchstart'
-          @sendMouseEvent('mouseover', first)
-          @sendMouseEvent('mousedown', first)
-          lastTouchDown = first.target
-        when 'touchmove'
-          @sendMouseEvent('mousemove', first)
-        when 'touchend'
-          @sendMouseEvent('mouseup', first)
-          if (lastTouchDown == first.target)
-            @sendMouseEvent('click', first)
-            lastTouchDown = null
 
     set_clickable: (clickable) ->
       @__clickable = clickable
       @__updatePointerEvents()
-      @setStyle('cursor', (if clickable then 'pointer' else ''), true)
-
-      if capabilities.touch
-        document.addEventListener('touchstart', @touchHandler, true)
-        document.addEventListener('touchmove', @touchHandler, true)
-        document.addEventListener('touchend', @touchHandler, true)
-        document.addEventListener('touchcancel', @touchHandler, true)
+      @setStyle('cursor', clickable, true)
 
       # TODO: retrigger the event for the element below for IE and Opera? See http://stackoverflow.com/questions/3680429/click-through-a-div-to-underlying-elements
       # el = $(event.target)
@@ -990,15 +1008,15 @@ window.dr = do ->
           'hidden'
         else
           ''
-      )
+      , true)
 
     __updatePointerEvents: () ->
-      @setStyle('pointer-events', (
+      @setStyle('pointer-events', 
         if @__clickable || @__scrollable
           'auto'
         else
-          'none'
-      ), true)
+          ''
+      , true)
 
     destroy: ->
       @el.parentNode.removeChild(@el)
@@ -1023,13 +1041,14 @@ window.dr = do ->
 
     measureTextSize: (multiline, width, resize) ->
       if multiline
-        @setStyle('width', width)
-        @setStyle('height', 'auto')
-        @setStyle('whiteSpace', 'normal')
+        @setStyle('width', width, true)
+        @setStyle('height', 'auto', true)
+        @setStyle('whiteSpace', 'normal', true)
       else
-        @setStyle('width', 'auto') if resize
-        @setStyle('height', 'auto') if resize
-        @setStyle('whiteSpace', '')
+        if resize
+          @setStyle('width', 'auto', true)
+          @setStyle('height', 'auto', true)
+        @setStyle('whiteSpace', '', true)
       {width: @el.clientWidth, height: @el.clientHeight}
 
     handle: (event) =>
@@ -1070,12 +1089,32 @@ window.dr = do ->
     getAbsolute: () ->
       @jqel ?= $(@el)
       pos = @jqel.offset()
-      {x: pos.left, y: pos.top}
+      {x: pos.left - window.pageXOffset, y: pos.top - window.pageYOffset}
 
     set_class: (classname) ->
       # console.log('setid', @id)
       @el.setAttribute('class', classname)
 
+  if (capabilities.camelcss)
+    # handle camelCasing CSS styles, e.g. background-color -> backgroundColor - not needed for webkit
+    ss = Sprite::setStyle
+    fcamelCase = ( all, letter ) ->
+      letter.toUpperCase()
+    rdashAlpha = /-([\da-z])/gi
+    Sprite::setStyle = (name, value, internal, el=@el) ->
+      if name.match(rdashAlpha)
+        # console.log "replacing #{name}"
+        name = name.replace(rdashAlpha, fcamelCase)
+      ss(name, value, internal, el)
+
+  if (debug)
+    # add warnings for unknown CSS properties
+    otherstyles = ['width', 'height', 'background-color']
+    ss2 = Sprite::setStyle
+    Sprite::setStyle = (name, value, internal, el=@el) ->
+      if not internal and not (name of stylemap) and not (name in otherstyles)
+        console.warn "Setting unknown CSS property #{name} = #{value} on ", @el.$view, stylemap, internal
+      ss2(name, value, internal, el)
 
   # internal attributes ignored by class declarations and view styles
   ignoredAttributes = {parent: true, id: true, name: true, extends: true, type: true, scriptincludes: true}
@@ -1181,6 +1220,22 @@ window.dr = do ->
     # @attribute {String} bgcolor
     # Sets this view's background color
     ###
+    ###*
+    # @attribute {String} bordercolor
+    # Sets this view's border color
+    ###
+    ###*
+    # @attribute {String} borderstyle
+    # Sets this view's border style (can be any css border-style value)
+    ###
+    ###*
+    # @attribute {Number} border
+    # Sets this view's border width
+    ###
+    ###*
+    # @attribute {Number} padding
+    # Sets this view's padding
+    ###
 
     ###*
     # @event onclick
@@ -1232,18 +1287,34 @@ window.dr = do ->
       # @property {Boolean} ignorelayout
       # If true, layouts should ignore this view
       ###
+
       @subviews = []
-      types = {x: 'number', y: 'number', width: 'number', height: 'number', clickable: 'boolean', clip: 'boolean', scrollable: 'boolean', visible: 'boolean'}
-      defaults = {x:0, y:0, width:0, height:0, clickable:false, clip:false, scrollable:false, visible:true}
+      types = {x: 'number', y: 'number', width: 'number', height: 'number', clickable: 'boolean', clip: 'boolean', scrollable: 'boolean', visible: 'boolean', 'border': 'number', padding: 'number'}
+      defaults = {x:0, y:0, width:0, height:0, clickable:false, clip:false, scrollable:false, visible:true, bordercolor:'transparent', borderstyle:'solid', border:0, padding:0}
 
       for key, type of attributes.$types
         types[key] = type
       attributes.$types = types
 
-      attributes['width'] = @_sizeFromPercent(attributes['width'], "width") if @_isPercent(attributes['width'])
-      attributes['height'] = @_sizeFromPercent(attributes['height'], "height") if @_isPercent(attributes['height'])
-
       @_setDefaults(attributes, defaults)
+
+      attributes['width'] = @_sizeConstraint(attributes['width'], "width") if @_isPercent(attributes['width'])
+      attributes['height'] = @_sizeConstraint(attributes['height'], "height") if @_isPercent(attributes['height'])
+
+      if (attributes['parent'].padding)
+        attributes['x'] += attributes['parent'].padding
+        attributes['y'] += attributes['parent'].padding
+
+      attributes['border-width'] = attributes['border']
+      delete attributes['border'] #so it doesn't get passed through to the sprite
+
+#      so these do get passed through to the sprite with the correct css names
+      attributes['border-color'] = attributes['bordercolor']
+      attributes['border-style'] = attributes['borderstyle']
+      attributes['padding-left'] = attributes['padding'] if 'padding-left' of attributes
+      attributes['padding-right'] = attributes['padding'] if 'padding-right' of attributes
+      attributes['padding-top'] = attributes['padding'] if 'padding-top' of attributes
+      attributes['padding-bottom'] = attributes['padding'] if 'padding-bottom' of attributes
 
       if (el instanceof View)
         el = el.sprite
@@ -1256,15 +1327,18 @@ window.dr = do ->
     _isPercent: (value) ->
       typeof value == 'string' && value.indexOf('%') > -1;
 
-    _sizeFromPercent: (percent, dim) ->
-      return "${this.parent.#{dim} ? this.parent.#{dim}*#{parseFloat(percent)/100.0} : $(this.parent).#{dim}()}"
+    innerSize: (percent, dim) ->
+      return (@[dim] * parseInt(percent)/100.0) - @['border-width']*2 - @padding*2
+
+    _sizeConstraint: (percent, dim) ->
+      return "${this.parent.innerSize ? this.parent.innerSize('#{percent}', '#{dim}') : $(this.parent).#{dim}()}"
 
     _createSprite: (el, attributes) ->
       @sprite = new Sprite(el, @, attributes.$tagname)
 
     setAttribute: (name, value, skipstyle) ->
       value = @_coerceType(name, value)
-      if not (skipstyle or name of ignoredAttributes or @[name] == value)
+      if not (skipstyle or name of ignoredAttributes or name of hiddenAttributes or @[name] == value)
         # console.log 'setting style', name, value, @
         @sprite.setStyle(name, value)
       super(name, value, true)
@@ -1304,6 +1378,90 @@ window.dr = do ->
 
     set_scrollable: (scrollable) ->
       @sprite.set_scrollable(scrollable)
+
+    ###*
+    # Calls doSubviewAdded/doLayoutAdded if the added subnode is a view or
+    # layout respectively. Subclasses should call super.
+    ###
+    doSubnodeAdded: (node) ->
+      if node instanceof View
+        ###*
+        # @event subviewAdded
+        # Fired when a subview is added to this view.
+        # @param {dr.view} view The dr.view that was added
+        ###
+        @sendEvent('subviewAdded', node)
+        @doSubviewAdded(node);
+      else if node instanceof Layout
+        ###*
+        # @event layoutAdded
+        # Fired when a layout is added to this view.
+        # @param {dr.layout} layout The dr.layout that was added
+        ###
+        @sendEvent('layoutAdded', node)
+        @doLayoutAdded(node);
+
+    ###*
+    # Calls doSubviewRemoved/doLayoutRemoved if the removed subnode is a view or
+    # layout respectively. Subclasses should call super.
+    ###
+    doSubnodeRemoved: (node) ->
+      if node instanceof View
+        ###*
+        # @event subviewRemoved
+        # Fired when a subview is removed from this view.
+        # @param {dr.view} view The dr.view that was removed
+        ###
+        @sendEvent('subviewRemoved', node)
+        @doSubviewRemoved(node);
+      else if node instanceof Layout
+        ###*
+        # @event layoutRemoved
+        # Fired when a layout is removed from this view.
+        # @param {dr.layout} layout The dr.layout that was removed
+        ###
+        @sendEvent('layoutRemoved', node)
+        @doLayoutRemoved(node);
+
+    ###*
+    # Called when a subview is added to this view. Provides a hook for
+    # subclasses. No need for subclasses to call super. Do not call this
+    # method to add a subview. Instead call setParent.
+    # @param {dr.view} sv The subview that was added.
+    # @return {void}
+    ###
+    doSubviewAdded: (sv) ->
+      # Empty implementation by default
+    
+    ###*
+    # Called when a subview is removed from this view. Provides a hook for
+    # subclasses. No need for subclasses to call super. Do not call this
+    # method to remove a subview. Instead call _removeFromParent.
+    # @param {dr.view} sv The subview that was removed.
+    # @return {void}
+    ###
+    doSubviewRemoved: (sv) ->
+      # Empty implementation by default
+
+    ###*
+    # Called when a layout is added to this view. Provides a hook for
+    # subclasses. No need for subclasses to call super. Do not call this
+    # method to add a layout. Instead call setParent.
+    # @param {dr.layout} layout The layout that was added.
+    # @return {void}
+    ###
+    doLayoutAdded: (layout) ->
+      # Empty implementation by default
+    
+    ###*
+    # Called when a layout is removed from this view. Provides a hook for
+    # subclasses. No need for subclasses to call super. Do not call this
+    # method to remove a layout. Instead call _removeFromParent.
+    # @param {dr.layout} layout The layout that was removed.
+    # @return {void}
+    ###
+    doLayoutRemoved: (layout) ->
+      # Empty implementation by default
 
     destroy: (skipevents) ->
       # console.log 'destroy view', @
@@ -1375,11 +1533,11 @@ window.dr = do ->
 
       @listenTo(@, 'width',
         (w) ->
-          @sprite.setStyle('width', w, true, @sprite.input);
+          @sprite.setStyle('width', @innerSize('100%', 'width'), true, @sprite.input);
       )
       @listenTo(@, 'height',
         (h) ->
-          @sprite.setStyle('height', h, true, @sprite.input);
+          @sprite.setStyle('height', @innerSize('100%', 'height'), true, @sprite.input);
       )
 
     _createSprite: (el, attributes) ->
@@ -1387,7 +1545,11 @@ window.dr = do ->
       attributes.text ||= @sprite.getText(true)
       @sprite.setText('')
       multiline = @_coerceType('multiline', attributes.multiline, 'boolean')
-      @sprite.createInputtextElement('', multiline, attributes.width, attributes.height)
+      p = attributes['padding'] || 0
+      b = attributes['border-width'] || 0
+      w = attributes.width - p*2 - b*2
+      h = attributes.height - p*2 - b*2
+      @sprite.createInputtextElement('', multiline, w, h)
 
     _handleChange: () ->
       return unless @replicator
@@ -1559,6 +1721,21 @@ window.dr = do ->
     console.error out
 
 
+  # a collection of attributes that shouldn't be applied visually.
+  hiddenAttributes = {
+    text: true,
+    $tagname: true,
+    data: true,
+    replicator: true,
+    class: true,
+    clip: true,
+    clickable: true,
+    scrollable: true,
+    $textcontent: true,
+    resize: true,
+    multiline: true,
+    ignorelayout: true,
+  }
   dom = do ->
     getChildren = (el) ->
       child for child in el.childNodes when child.nodeType == 1 and child.localName in specialtags
@@ -1588,9 +1765,8 @@ window.dr = do ->
         sendInit()
       )
 
-    findAutoIncludes = (parentel, callback) ->
+    findAutoIncludes = (parentel, finalcallback) ->
       jqel = $(parentel)
-      includerequests = []
 
       includedScripts = {}
       loadqueue = []
@@ -1610,8 +1786,8 @@ window.dr = do ->
           script.type = 'text/javascript'
           $('head').append(script)
           script.onload = cb
-          script.onerror = () ->
-            console.error(error)
+          script.onerror = (err) ->
+            console.error(error, err)
             cb()
           script.src = url
 
@@ -1626,72 +1802,90 @@ window.dr = do ->
 
         appendScript(url, appendcallback, error)
 
+      # classes declared inline with the class tag
       inlineclasses = {}
+      # current list of jquery promises for outstanding requests
       filerequests = []
+      # hash of files and classes loaded already
       fileloaded = {}
-      loadLZX = (name, el) ->
-        return if name of dr or name of fileloaded or name in specialtags or name of inlineclasses or name in builtinTags
-        # don't autoload elements found inside specialtags, e.g. setter
-        return if el.parentNode.localName in specialtags
-        fileloaded[name] = true
-        url = '/classes/' + name + '.dre'
-        # console.log 'loading dre', name, url, el
+
+      loadInclude = (url, el) ->
+        return if url of fileloaded
+        fileloaded[url] = el
+        # console.log "Loading #{url}", el
         prom = $.get(url)
         prom.url = url
         prom.el = el
         filerequests.push(prom)
 
+      findMissingClasses = (names={}) ->
+        # look for class declarations and unloaded classes for tags
+        for el in jqel.find('*')
+          name = el.localName
+          if name == 'class'
+            if el.attributes.extends
+              # load load class extends
+              names[el.attributes.extends.value] = el
+            # track inline class declaration so we don't attempt to load it later
+            inlineclasses[el.attributes.name?.value] = true
+          else if name == 'replicator'
+            # load class instance for tag
+            names[name] = el
+            # load classname instance as well
+            names[el.attributes.classname.value] = el
+          else
+            # don't autoload elements found inside specialtags, e.g. setter
+            unless el.parentNode.localName in specialtags
+              # load class instance for tag
+              names[name] = el 
+
+        # filter out classnames that may have already been loaded or should otherwise be ignored
+        out = {}
+        for name, el of names
+          unless name of dr or name of fileloaded or name in specialtags or name of inlineclasses or name in builtinTags
+            out[name] = el
+        out
+
+      findIncludeURLs = (urls={}) ->
+        for el in jqel.find('include')
+          url = el.attributes.href.value
+          el.parentNode.removeChild(el)
+          urls[url] = el
+          # console.log('found include', url)
+        urls
+
       loadIncludes = (callback) ->
         # load includes
-        for jel in jqel.find('include')
-          url = jel.attributes.href.value
-          jel.parentNode.removeChild(jel)
-          unless fileloaded[url]
-            # console.log('loading include', url, fileloaded[url])
-            fileloaded[url] = true
-            includerequests.push($.get(url)) 
+        for url, el of findIncludeURLs()
+          # console.log 'include url', url
+          loadInclude(url, el)
 
         # wait for all includes to load
-        $.when.apply($, includerequests).done((args...) ->
+        $.when.apply($, filerequests).done((args...) ->
           # append includes
-          args = [args] if (includerequests.length == 1)
-          includerequests = []
-          # console.log('loading includes', args)
+          args = [args] if (filerequests.length == 1)
+          filerequests = []
+          # console.log('loaded includes', args)
 
           includeRE = /<[\/]*library>/gi
-          initONE = true
           for xhr in args
             # remove any library tags found
             html = xhr[0].replace(includeRE, '')
             # console.log 'inserting include', html
             jqel.prepend(html)
 
-          # look for class declarations and unloaded classes for tags
-          for el in jqel.find('*')
-            name = el.localName
-            if name == 'class'
-              if el.attributes.extends
-                extendz = el.attributes.extends.value
-                # load load class extends
-                loadLZX(extendz, el)
-                # initONE = true if extendz = 'state'
-              # track inline class declaration so we don't load it again later
-              inlineclasses[el.attributes.name.value] = true
-            else if name == 'state'
-              initONE = true
-            else if name == 'replicator'
-              # load class instance for tag
-              loadLZX(name, el)
-              # load classname instance as well
-              loadLZX(el.attributes.classname.value, el)
-            else
-              # load class instance for tag
-              loadLZX(name, el)
+          # load missing classes
+          for name, el of findMissingClasses()
+            fileloaded[name] = true
+            loadInclude("/classes/#{name}.dre", el)
+            # console.log 'loading dre', name, url, el
 
           # console.log(filerequests, fileloaded, inlineclasses)
           # wait for all dre files to finish loading
           $.when.apply($, filerequests).done((args...) ->
             args = [args] if (filerequests.length == 1)
+            filerequests = []
+
             for xhr in args
               # console.log 'inserting html', args, xhr[0]
               jqel.prepend(xhr[0])
@@ -1701,60 +1895,81 @@ window.dr = do ->
                     $(this).remove()
                 )
 
+            includes = findMissingClasses(findIncludeURLs())
+            if Object.keys(includes).length > 0
+              # console.warn("missing includes", includes)
+              loadIncludes(callback)
+              return;
+
             # find class script includes and load them in lexical order
-            scriptsloading = false
-            if (initONE)
-              # initialize ONE integration
-              scriptsloading = loadScript('/lib/one_base.js', () ->
-                ONE.base_.call(Eventable::)
-                # hide builtin keys from learn()
-                Eventable::enumfalse(Eventable::keys())
-                Node::enumfalse(Node::keys())
-                View::enumfalse(View::keys())
-                Layout::enumfalse(Layout::keys())
-                callback()
-              )
 
-            for el in jqel.find('[scriptincludes]')
-              for url in el.attributes.scriptincludes.value.split(',')
-                scriptsloading = loadScript(url.trim(), callback, el.attributes.scriptincludeserror?.value.toString())
+            # initialize ONE integration
+            oneurl = '/lib/one_base.js'
+            $.ajax({
+              dataType: "script",
+              cache: true,
+              url: oneurl
+            }).done(() ->
+              # init one_base
+              ONE.base_.call(Eventable::)
+              # hide builtin keys from learn()
+              Eventable::enumfalse(Eventable::keys())
+              Node::enumfalse(Node::keys())
+              View::enumfalse(View::keys())
+              Layout::enumfalse(Layout::keys())
 
-            # done loading
-            filerequests = []
-
-            # no class script includes found, execute callback immediately
-            unless scriptsloading
-              callback()
+              # load scriptincludes
+              scriptloaded = false
+              for el in jqel.find('[scriptincludes]')
+                for url in el.attributes.scriptincludes.value.split(',')
+                  scriptloaded = loadScript(url.trim(), callback, el.attributes.scriptincludeserror?.value.toString())
+              callback() unless scriptloaded
+            ).fail(() ->
+              console.warn("failed to load #{oneurl}")
+            )
           ).fail((args...) ->
             args = [args] if (args.length == 1)
             for xhr in args
               showWarnings(["failed to load #{xhr.url} for element #{xhr.el.outerHTML}"])
             return
           )
+        ).fail((args...) ->
+          args = [args] if (args.length == 1)
+          for xhr in args
+            showWarnings(["failed to load #{xhr.url} for element #{xhr.el.outerHTML}"])
+          return
         )
 
-      validator = ->
-        url = '/validate/'
-        # data = '<html>' + document.getElementsByTagName('html')[0].innerHTML + '</html>'
-        # console.log(url, data)
-        prom = $.ajax({
-          # type: 'POST'
-          url: url,
+      filereloader = ->
+        # console.log('listen for changes watching')
+        $.ajax({
+          url: '/watchfile/',
+          datatype: 'text',
           data: {url: window.location.pathname},
-          # processData: false
           success: (data) ->
+            # console.log('got data...', data)
+            if data == window.location.pathname
+              # alert('reload')
+              window.location.reload()
+        }).done((data) ->
+          # console.log('file reloaded', data)
+          filereloader()
+        );
+
+      validator = ->
+        $.ajax({
+          url: '/validate/',
+          data: {url: window.location.pathname},
+          success: (data) ->
+            # we have a teem server!
             showWarnings(data) if (data.length)
-        })
+            filereloader()
+          error: (err) ->
+            console.warn('Validation requires the Teem server')
+        }).always(finalcallback)
 
-        callback()
-
-      # must do this thrice to catch autoinclude autoincludes, see https://github.com/teem2/dreem/issues/6 and https://www.pivotaltracker.com/story/show/77941122
-      cb2 = () ->
-        # console.log 'loading dre', name, url, el
-        loadIncludes(validator)
-      cb = () ->
-        loadIncludes(cb2)
-      loadIncludes(cb)
+      # call the validator after everything loads
+      loadIncludes(if test then finalcallback else validator)
 
     specialtags = ['handler', 'method', 'attribute', 'setter', 'include']
     # tags built into the browser that should be ignored, from http://www.w3.org/TR/html-markup/elements.html
@@ -1931,6 +2146,9 @@ window.dr = do ->
             name = name.toLowerCase()
             classattributes[name] = attributes.value
             classattributes.$types[name] = attributes.type
+            if 'visual' of attributes 
+              # allow non-visual attributes to be added
+              hiddenAttributes[name] = attributes.visual == 'false'
             # console.log 'added attribute', attributes, classattributes
 
       # console.log('processSpecialTags', classattributes)
@@ -2407,6 +2625,142 @@ window.dr = do ->
       # console.log 'set_locked', locked
       @update() if (changed and not locked)
 
+  ###*
+  # @class dr.layoot
+  # @extends dr.node
+  # The base class for all layouts. 
+  ###
+  class Layoot extends Node
+    constructor: (el, attributes = {}) ->
+      @locked = true
+      @subviews = []
+      
+      super
+      
+      # listen for changes in the parent
+      @listenTo(@parent, 'subviewAdded', @addSubview.bind(@))
+      @listenTo(@parent, 'subviewRemoved', @removeSubview.bind(@))
+      @listenTo(@parent, 'init', @update)
+      
+      # Store ourself in the parent layouts
+      @parent.layouts ?= []
+      @parent.layouts.push(@)
+      
+      # Start monitoring existing subviews
+      subviews = @parent.subviews
+      if subviews
+        for subview in subviews
+          @addSubview(subview)
+      
+      @locked = false
+      
+      @update()
+    
+    destroy: (skipevents) ->
+      @locked = true
+      # console.log 'destroy layout', @
+      super
+      @_removeFromParent('layouts') unless skipevents
+    
+    ###*
+    # Adds the provided view to the subviews array of this layout.
+    # @param {dr.view} view The view to add to this layout.
+    # @return {void}
+    ###
+    addSubview: (view) ->
+      if @ignore(view)
+        return
+      
+      @subviews.push(view)
+      @startMonitoringSubview(view)
+      if !@locked
+        @update()
+    
+    ###*
+    # Removes the provided View from the subviews array of this Layout.
+    # @param {dr.view} view The view to remove from this layout.
+    # @return {number} the index of the removed subview or -1 if not removed.
+    ###
+    removeSubview: (view) ->
+      if @ignore(view)
+        return -1
+      
+      idx = @subviews.indexOf(view)
+      if idx != -1
+        @stopMonitoringSubview(view)
+        @subviews.splice(idx, 1)
+        if !@locked
+          @update()
+      return idx
+    
+    ###*
+    # Checks if a subview can be added to this Layout or not. The default 
+    # implementation returns the 'ignorelayout' attributes of the subview.
+    # @param {dr.view} view The view to check.
+    # @return {boolean} True means the subview will be skipped, false otherwise.
+    ###
+    ignore: (view) ->
+      return view.ignorelayout
+    
+    ###*
+    # Subclasses should implement this method to start listening to
+    # events from the subview that should trigger the update method.
+    # @param {dr.view} view The view to start monitoring for changes.
+    # @return {void}
+    ###
+    startMonitoringSubview: (view) ->
+      # Empty implementation by default
+    
+    ###*
+    # Calls startMonitoringSubview for all views. Used by layout 
+    # implementations when a change occurs to the layout that requires
+    # refreshing all the subview monitoring.
+    # @return {void}
+    ###
+    startMonitoringAllSubviews: ->
+      svs = @subviews
+      i = svs.length
+      while (i)
+        @startMonitoringSubview(svs[--i])
+    
+    ###*
+    # Subclasses should implement this method to stop listening to
+    # events from the subview that would trigger the update method. This
+    # should remove all listeners that were setup in startMonitoringSubview.
+    # @param {dr.view} view The view to stop monitoring for changes.
+    # @return {void}
+    ###
+    stopMonitoringSubview: (view) ->
+      # Empty implementation by default
+    
+    ###*
+    # Calls stopMonitoringSubview for all views. Used by Layout 
+    # implementations when a change occurs to the layout that requires
+    # refreshing all the subview monitoring.
+    # @return {void}
+    ###
+    stopMonitoringAllSubviews: ->
+      svs = @subviews
+      i = svs.length
+      while (i)
+        @stopMonitoringSubview(svs[--i])
+    
+    ###*
+    # Checks if the layout is locked or not. Should be called by the
+    # "update" method of each layout to check if it is OK to do the update.
+    # @return {boolean} true if not locked, false otherwise.
+    ###
+    canUpdate: ->
+      return !@locked and @parent.inited
+    
+    ###*
+    # Updates the layout. Subclasses should call canUpdate to check lock state
+    # before doing anything.
+    # @return {void}
+    ###
+    update: ->
+      # Empty implementation by default
+
   idle = do ->
     requestAnimationFrame = (()->
       return  window.requestAnimationFrame       or
@@ -2501,6 +2855,15 @@ window.dr = do ->
 
   # singleton that listens for mouse events. Holds data about the most recent left and top mouse coordinates
   mouseEvents = ['click', 'mouseover', 'mouseout', 'mousedown', 'mouseup']
+  skipEvent = (e) ->
+    if e.stopPropagation
+      e.stopPropagation()
+    if e.preventDefault  
+      e.preventDefault()
+    e.cancelBubble = true
+    e.returnValue = false
+    return false;
+
   ###*
   # @class dr.mouse
   # @extends Eventable
@@ -2555,9 +2918,53 @@ window.dr = do ->
       @docSelector.on(mouseEvents.join(' '), @handle)
       @docSelector.on("mousemove", @handle).one("mouseout", @stopEvent)
 
+      if capabilities.touch
+        document.addEventListener('touchstart', @touchHandler, true)
+        document.addEventListener('touchmove', @touchHandler, true)
+        document.addEventListener('touchend', @touchHandler, true)
+        document.addEventListener('touchcancel', @touchHandler, true)
+
     startEventTest: () ->
       @events['mousemove']?.length or @events['x']?.length or @events['y']?.length
 
+    sendMouseEvent: (type, first) ->
+      simulatedEvent = document.createEvent('MouseEvent')
+      simulatedEvent.initMouseEvent(type, true, true, window, 1,
+                                first.pageX, first.pageY,
+                                first.clientX, first.clientY, false,
+                                false, false, false, 0, null)
+      first.target.dispatchEvent(simulatedEvent)
+      if first.target.$view and first.target.$view.$tagname isnt 'inputtext'
+        event.preventDefault()
+
+    lastTouchDown = null
+    lastTouchOver = null
+    touchHandler: (event) =>
+      touches = event.changedTouches
+      first = touches[0]
+
+      switch event.type
+        when 'touchstart'
+          @sendMouseEvent('mouseover', first)
+          @sendMouseEvent('mousedown', first)
+          lastTouchDown = first.target
+        when 'touchmove'
+          # console.log 'touchmove', event.touches, first, window.pageXOffset, window.pageYOffset, first.pageX, first.pageY, first.target
+          over = document.elementFromPoint(first.pageX - window.pageXOffset, first.pageY - window.pageYOffset);
+          if (over and over.$view)
+            if (lastTouchOver and lastTouchOver != over)
+              @handle({target: lastTouchOver, type: 'mouseout'}) 
+            lastTouchOver = over
+            @handle({target: over, type: 'mouseover'})
+            # console.log 'over', over, over.$view
+
+          @sendMouseEvent('mousemove', first)
+        when 'touchend'
+          @sendMouseEvent('mouseup', first)
+          if (lastTouchDown == first.target)
+            @sendMouseEvent('click', first)
+            lastTouchDown = null
+            
     handle: (event) =>
       view = event.target.$view
       type = event.type
@@ -2565,6 +2972,8 @@ window.dr = do ->
       if view
         if type is 'mousedown'
           @_lastMouseDown = view
+          skipEvent(event)
+      
       if type is 'mouseup' and @_lastMouseDown and @_lastMouseDown != view
         # send onmouseup and onmouseupoutside to the view that the mouse originally went down
         @sendEvent('mouseup', @_lastMouseDown)
@@ -2791,6 +3200,7 @@ window.dr = do ->
     keyboard: new Keyboard()
     window: new Window()
     layout: Layout
+    layoot: Layoot
     idle: new Idle()
     state: State
     ###*
@@ -3039,6 +3449,10 @@ window.dr = do ->
   ###*
   # @attribute {String} value (required)
   # The initial value for the attribute
+  ###
+  ###*
+  # @attribute {Boolean} [visible=true]
+  # Set to false if an attribute shouldn't affect a view's visual appearence
   ###
 
 dr.writeCSS()

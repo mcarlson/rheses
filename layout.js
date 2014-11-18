@@ -60,7 +60,7 @@
   })();
 
   window.dr = (function() {
-    var Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, capabilities, compiler, constraintScopes, debug, dom, exports, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, querystring, showWarnings, warnings, _initConstraints;
+    var Class, Eventable, Events, Idle, InputText, Keyboard, Layoot, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, capabilities, compiler, constraintScopes, debug, dom, exports, fcamelCase, hiddenAttributes, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, otherstyles, querystring, rdashAlpha, showWarnings, skipEvent, ss, ss2, stylemap, test, triggerlock, warnings, _initConstraints;
     mixOf = function() {
       var Mixed, base, i, method, mixin, mixins, name, _i, _ref;
       base = arguments[0], mixins = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
@@ -90,6 +90,7 @@
      * @private
      * A lightweight event system, used internally.
      */
+    triggerlock = null;
     Events = {
 
       /**
@@ -130,11 +131,19 @@
        */
       trigger: function() {
         var args, callback, ev, list, _i, _len, _ref;
-        args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-        ev = args.shift();
+        ev = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
         list = this.hasOwnProperty('events') && ((_ref = this.events) != null ? _ref[ev] : void 0);
         if (!list) {
           return;
+        }
+        if (triggerlock && triggerlock.scope === this && triggerlock.ev === ev) {
+          return this;
+        }
+        if (!triggerlock) {
+          triggerlock = {
+            ev: ev,
+            scope: this
+          };
         }
         for (_i = 0, _len = list.length; _i < _len; _i++) {
           callback = list[_i];
@@ -142,6 +151,7 @@
             break;
           }
         }
+        triggerlock = null;
         return this;
       },
 
@@ -401,16 +411,9 @@
        */
 
       Eventable.prototype.sendEvent = function(name, value) {
-        var lockkey, _ref;
-        lockkey = "c" + name;
-        if (eventlock[name] === this && eventlock[lockkey]++ > 0) {
-          return this;
-        }
-        if (((_ref = this.events) != null ? _ref[name] : void 0) && eventlock[name] !== this) {
-          eventlock[name] = this;
-          eventlock[lockkey] = 0;
+        var _ref;
+        if ((_ref = this.events) != null ? _ref[name] : void 0) {
           this.trigger(name, value, this);
-          eventlock = {};
         }
         return this;
       };
@@ -446,12 +449,14 @@
           return false;
         }
       })(),
-      touch: 'ontouchstart' in window || 'onmsgesturechange' in window
+      touch: 'ontouchstart' in window || 'onmsgesturechange' in window,
+      camelcss: navigator.userAgent.toLowerCase().indexOf('firefox') > -1
     };
     querystring = window.location.search;
     debug = querystring.indexOf('debug') > 0;
+    test = querystring.indexOf('test') > 0;
     compiler = (function() {
-      var cacheData, cacheKey, compile, compileCache, exports, findBindings, nocache, scriptCache, strict, transform, usecache;
+      var cacheData, cacheKey, compile, compileCache, compiledebug, exports, findBindings, nocache, scriptCache, strict, transform, usecache;
       nocache = querystring.indexOf('nocache') > 0;
       strict = querystring.indexOf('strict') > 0;
       if (!nocache) {
@@ -541,7 +546,7 @@
         };
       })();
       scriptCache = {};
-      compile = function(script, args, name) {
+      compiledebug = function(script, args, name) {
         var argstring, e, func, key;
         if (script == null) {
           script = '';
@@ -558,10 +563,10 @@
           return scriptCache[key];
         }
         try {
-          if (debug && name) {
-            if (strict) {
-              script = "\"use strict\"\n" + script;
-            }
+          if (strict) {
+            script = "\"use strict\"\n" + script;
+          }
+          if (name) {
             func = new Function("return function " + name + "(" + argstring + "){" + script + "}")();
           } else {
             func = new Function(args, script);
@@ -572,8 +577,26 @@
           return console.error('failed to compile', e.toString(), args, script);
         }
       };
+      compile = function(script, args, name) {
+        var argstring, key;
+        if (script == null) {
+          script = '';
+        }
+        if (args == null) {
+          args = [];
+        }
+        if (name == null) {
+          name = '';
+        }
+        argstring = args.join();
+        key = script + argstring + name;
+        if (key in scriptCache) {
+          return scriptCache[key];
+        }
+        return scriptCache[key] = new Function(args, script);
+      };
       return exports = {
-        compile: compile,
+        compile: debug ? compiledebug : compile,
         transform: transform,
         findBindings: findBindings
       };
@@ -676,12 +699,12 @@
 
       matchConstraint = /\${(.+)}/;
 
-      earlyattributes = ['parent', 'name'];
+      earlyattributes = ['name', 'parent'];
 
       lateattributes = ['data'];
 
       function Node(el, attributes) {
-        var args, deferbindings, ev, method, name, reference, script, skiponinit, value, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
+        var args, deferbindings, ev, method, name, parent, reference, script, skiponinit, value, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
         if (attributes == null) {
           attributes = {};
         }
@@ -740,6 +763,24 @@
             continue;
           }
           this.bindAttribute(name, value, attributes.$tagname);
+        }
+        parent = this.parent;
+        if (parent && parent instanceof Node) {
+
+          /**
+           * @event onsubnodes
+           * Fired when this node's subnodes array has changed
+           * @param {dr.node} node The dr.node that fired the event
+           */
+
+          /**
+           * @event subnodeAdded
+           * Fired when a subnode is added to this node.
+           * @param {dr.node} node The dr.node that was added
+           */
+          parent.sendEvent('subnodes', this);
+          parent.sendEvent('subnodeAdded', this);
+          parent.doSubnodeAdded(this);
         }
         for (_k = 0, _len2 = lateattributes.length; _k < _len2; _k++) {
           name = lateattributes[_k];
@@ -891,26 +932,27 @@
           supr = scope[methodname];
           meth = method;
           return scope[methodname] = function() {
-            var prevOwn, prevValue;
+            var prevOwn, prevValue, retval;
             if (invokeSuper === 'after') {
-              meth.apply(scope, arguments);
-              return supr.apply(scope, arguments);
+              retval = meth.apply(scope, arguments);
+              supr.apply(scope, arguments);
             } else if (invokeSuper === 'inside') {
               prevValue = scope['super'];
               prevOwn = scope.hasOwnProperty('super');
               scope['super'] = function(args) {
                 return supr.apply(scope, args);
               };
-              meth.apply(scope, arguments);
+              retval = meth.apply(scope, arguments);
               if (prevOwn) {
-                return scope['super'] = prevValue;
+                scope['super'] = prevValue;
               } else {
-                return delete scope.callSuper;
+                delete scope.callSuper;
               }
             } else {
               supr.apply(scope, arguments);
-              return meth.apply(scope, arguments);
+              retval = meth.apply(scope, arguments);
             }
+            return retval;
           };
         } else {
           return scope[methodname] = method;
@@ -992,7 +1034,7 @@
             }
           } else {
             scope.bind(ev, callback);
-            if (scope[ev]) {
+            if (ev in scope) {
               scope.sendEvent(ev, scope[ev]);
             }
           }
@@ -1028,19 +1070,14 @@
           if (this.name) {
             parent[this.name] = this;
           }
-          parent.subnodes.push(this);
-
-          /**
-           * @event onsubnodes
-           * Fired when this node's subnodes array has changed
-           * @param {dr.node} node The dr.node that fired the event
-           */
-          return parent.sendEvent('subnodes', this);
+          return parent.subnodes.push(this);
         }
       };
 
       Node.prototype.set_name = function(name) {
-        return this.parent[name] = this;
+        if (this.parent && name) {
+          return this.parent[name] = this;
+        }
       };
 
       Node.prototype.set_id = function(id) {
@@ -1048,15 +1085,26 @@
       };
 
       Node.prototype._removeFromParent = function(name) {
-        var arr, index;
+        var arr, index, removedNode;
         if (!this.parent) {
           return;
         }
         arr = this.parent[name];
         index = arr.indexOf(this);
         if (index !== -1) {
+          removedNode = arr[index];
           arr.splice(index, 1);
-          this.parent.sendEvent(name, arr[index]);
+          this.parent.sendEvent(name, removedNode);
+          if (name === 'subnodes') {
+
+            /**
+             * @event subnodeRemoved
+             * Fired when a subnode is removed from this node.
+             * @param {dr.node} node The dr.node that was removed
+             */
+            this.parent.sendEvent('subnodeRemoved', removedNode);
+            this.parent.doSubnodeRemoved(removedNode);
+          }
         }
       };
 
@@ -1083,6 +1131,28 @@
           p = p.parent;
         }
       };
+
+
+      /**
+       * Called when a subnode is added to this node. Provides a hook for
+       * subclasses. No need for subclasses to call super. Do not call this
+       * method to add a subnode. Instead call setParent.
+       * @param {dr.node} node The subnode that was added.
+       * @return {void}
+       */
+
+      Node.prototype.doSubnodeAdded = function(node) {};
+
+
+      /**
+       * Called when a subnode is removed from this node. Provides a hook for
+       * subclasses. No need for subclasses to call super. Do not call this
+       * method to remove a subnode. Instead call _removeFromParent.
+       * @param {dr.node} node The subnode that was removed.
+       * @return {void}
+       */
+
+      Node.prototype.doSubnodeRemoved = function(node) {};
 
 
       /**
@@ -1126,6 +1196,12 @@
       return Node;
 
     })(Eventable);
+    stylemap = {
+      x: 'left',
+      y: 'top',
+      bgcolor: 'backgroundColor',
+      visible: 'display'
+    };
 
     /**
      * @class Sprite
@@ -1133,16 +1209,9 @@
      * Abstracts the underlying visual primitives (currently HTML) from dreem's view system.
      */
     Sprite = (function() {
-      var fcamelCase, lastTouchDown, noop, rdashAlpha, stylemap, styleval;
+      var noop, styleval;
 
       noop = function() {};
-
-      stylemap = {
-        x: 'left',
-        y: 'top',
-        bgcolor: 'backgroundColor',
-        visible: 'display'
-      };
 
       styleval = {
         display: function(isVisible) {
@@ -1151,21 +1220,21 @@
           } else {
             return 'none';
           }
+        },
+        cursor: function(clickable) {
+          if (clickable) {
+            return 'pointer';
+          } else {
+            return '';
+          }
         }
       };
-
-      fcamelCase = function(all, letter) {
-        return letter.toUpperCase();
-      };
-
-      rdashAlpha = /-([\da-z])/gi;
 
       function Sprite(jqel, view, tagname) {
         if (tagname == null) {
           tagname = 'div';
         }
         this.handle = __bind(this.handle, this);
-        this.touchHandler = __bind(this.touchHandler, this);
         this.animate = __bind(this.animate, this);
         if (jqel == null) {
           this.el = document.createElement(tagname);
@@ -1189,11 +1258,6 @@
         }
         if (name in styleval) {
           value = styleval[name](value);
-        } else if (name.match(rdashAlpha)) {
-          name = name.replace(rdashAlpha, fcamelCase);
-          if (debug && !internal) {
-            console.warn("Setting unknown CSS property " + name + " = " + value + " on ", this.el.$view);
-          }
         }
         return el.style[name] = value;
       };
@@ -1225,48 +1289,10 @@
         return this.jqel.animate.apply(this.jqel, arguments);
       };
 
-      Sprite.prototype.sendMouseEvent = function(type, first) {
-        var simulatedEvent;
-        simulatedEvent = document.createEvent('MouseEvent');
-        simulatedEvent.initMouseEvent(type, true, true, window, 1, first.pageX, first.pageY, first.clientX, first.clientY, false, false, false, false, 0, null);
-        first.target.dispatchEvent(simulatedEvent);
-        if (first.target.$view && first.target.$view.$tagname !== 'inputtext') {
-          return event.preventDefault();
-        }
-      };
-
-      lastTouchDown = null;
-
-      Sprite.prototype.touchHandler = function(event) {
-        var first, touches;
-        touches = event.changedTouches;
-        first = touches[0];
-        switch (event.type) {
-          case 'touchstart':
-            this.sendMouseEvent('mouseover', first);
-            this.sendMouseEvent('mousedown', first);
-            return lastTouchDown = first.target;
-          case 'touchmove':
-            return this.sendMouseEvent('mousemove', first);
-          case 'touchend':
-            this.sendMouseEvent('mouseup', first);
-            if (lastTouchDown === first.target) {
-              this.sendMouseEvent('click', first);
-              return lastTouchDown = null;
-            }
-        }
-      };
-
       Sprite.prototype.set_clickable = function(clickable) {
         this.__clickable = clickable;
         this.__updatePointerEvents();
-        this.setStyle('cursor', (clickable ? 'pointer' : ''), true);
-        if (capabilities.touch) {
-          document.addEventListener('touchstart', this.touchHandler, true);
-          document.addEventListener('touchmove', this.touchHandler, true);
-          document.addEventListener('touchend', this.touchHandler, true);
-          return document.addEventListener('touchcancel', this.touchHandler, true);
-        }
+        return this.setStyle('cursor', clickable, true);
       };
 
       Sprite.prototype.set_clip = function(clip) {
@@ -1281,11 +1307,11 @@
       };
 
       Sprite.prototype.__updateOverflow = function() {
-        return this.setStyle('overflow', this.__scrollable ? 'auto' : this.__clip ? 'hidden' : '');
+        return this.setStyle('overflow', this.__scrollable ? 'auto' : this.__clip ? 'hidden' : '', true);
       };
 
       Sprite.prototype.__updatePointerEvents = function() {
-        return this.setStyle('pointer-events', (this.__clickable || this.__scrollable ? 'auto' : 'none'), true);
+        return this.setStyle('pointer-events', this.__clickable || this.__scrollable ? 'auto' : '', true);
       };
 
       Sprite.prototype.destroy = function() {
@@ -1320,17 +1346,15 @@
 
       Sprite.prototype.measureTextSize = function(multiline, width, resize) {
         if (multiline) {
-          this.setStyle('width', width);
-          this.setStyle('height', 'auto');
-          this.setStyle('whiteSpace', 'normal');
+          this.setStyle('width', width, true);
+          this.setStyle('height', 'auto', true);
+          this.setStyle('whiteSpace', 'normal', true);
         } else {
           if (resize) {
-            this.setStyle('width', 'auto');
+            this.setStyle('width', 'auto', true);
+            this.setStyle('height', 'auto', true);
           }
-          if (resize) {
-            this.setStyle('height', 'auto');
-          }
-          this.setStyle('whiteSpace', '');
+          this.setStyle('whiteSpace', '', true);
         }
         return {
           width: this.el.clientWidth,
@@ -1389,8 +1413,8 @@
         }
         pos = this.jqel.offset();
         return {
-          x: pos.left,
-          y: pos.top
+          x: pos.left - window.pageXOffset,
+          y: pos.top - window.pageYOffset
         };
       };
 
@@ -1401,6 +1425,35 @@
       return Sprite;
 
     })();
+    if (capabilities.camelcss) {
+      ss = Sprite.prototype.setStyle;
+      fcamelCase = function(all, letter) {
+        return letter.toUpperCase();
+      };
+      rdashAlpha = /-([\da-z])/gi;
+      Sprite.prototype.setStyle = function(name, value, internal, el) {
+        if (el == null) {
+          el = this.el;
+        }
+        if (name.match(rdashAlpha)) {
+          name = name.replace(rdashAlpha, fcamelCase);
+        }
+        return ss(name, value, internal, el);
+      };
+    }
+    if (debug) {
+      otherstyles = ['width', 'height', 'background-color'];
+      ss2 = Sprite.prototype.setStyle;
+      Sprite.prototype.setStyle = function(name, value, internal, el) {
+        if (el == null) {
+          el = this.el;
+        }
+        if (!internal && !(name in stylemap) && !(__indexOf.call(otherstyles, name) >= 0)) {
+          console.warn("Setting unknown CSS property " + name + " = " + value + " on ", this.el.$view, stylemap, internal);
+        }
+        return ss2(name, value, internal, el);
+      };
+    }
     ignoredAttributes = {
       parent: true,
       id: true,
@@ -1534,6 +1587,30 @@
 
 
       /**
+       * @attribute {String} bordercolor
+       * Sets this view's border color
+       */
+
+
+      /**
+       * @attribute {String} borderstyle
+       * Sets this view's border style (can be any css border-style value)
+       */
+
+
+      /**
+       * @attribute {Number} border
+       * Sets this view's border width
+       */
+
+
+      /**
+       * @attribute {Number} padding
+       * Sets this view's padding
+       */
+
+
+      /**
        * @event onclick
        * Fired when this view is clicked
        * @param {dr.view} view The dr.view that fired the event
@@ -1610,7 +1687,9 @@
           clickable: 'boolean',
           clip: 'boolean',
           scrollable: 'boolean',
-          visible: 'boolean'
+          visible: 'boolean',
+          'border': 'number',
+          padding: 'number'
         };
         defaults = {
           x: 0,
@@ -1620,7 +1699,11 @@
           clickable: false,
           clip: false,
           scrollable: false,
-          visible: true
+          visible: true,
+          bordercolor: 'transparent',
+          borderstyle: 'solid',
+          border: 0,
+          padding: 0
         };
         _ref = attributes.$types;
         for (key in _ref) {
@@ -1628,13 +1711,33 @@
           types[key] = type;
         }
         attributes.$types = types;
+        this._setDefaults(attributes, defaults);
         if (this._isPercent(attributes['width'])) {
-          attributes['width'] = this._sizeFromPercent(attributes['width'], "width");
+          attributes['width'] = this._sizeConstraint(attributes['width'], "width");
         }
         if (this._isPercent(attributes['height'])) {
-          attributes['height'] = this._sizeFromPercent(attributes['height'], "height");
+          attributes['height'] = this._sizeConstraint(attributes['height'], "height");
         }
-        this._setDefaults(attributes, defaults);
+        if (attributes['parent'].padding) {
+          attributes['x'] += attributes['parent'].padding;
+          attributes['y'] += attributes['parent'].padding;
+        }
+        attributes['border-width'] = attributes['border'];
+        delete attributes['border'];
+        attributes['border-color'] = attributes['bordercolor'];
+        attributes['border-style'] = attributes['borderstyle'];
+        if ('padding-left' in attributes) {
+          attributes['padding-left'] = attributes['padding'];
+        }
+        if ('padding-right' in attributes) {
+          attributes['padding-right'] = attributes['padding'];
+        }
+        if ('padding-top' in attributes) {
+          attributes['padding-top'] = attributes['padding'];
+        }
+        if ('padding-bottom' in attributes) {
+          attributes['padding-bottom'] = attributes['padding'];
+        }
         if (el instanceof View) {
           el = el.sprite;
         }
@@ -1646,8 +1749,12 @@
         return typeof value === 'string' && value.indexOf('%') > -1;
       };
 
-      View.prototype._sizeFromPercent = function(percent, dim) {
-        return "${this.parent." + dim + " ? this.parent." + dim + "*" + (parseFloat(percent) / 100.0) + " : $(this.parent)." + dim + "()}";
+      View.prototype.innerSize = function(percent, dim) {
+        return (this[dim] * parseInt(percent) / 100.0) - this['border-width'] * 2 - this.padding * 2;
+      };
+
+      View.prototype._sizeConstraint = function(percent, dim) {
+        return "${this.parent.innerSize ? this.parent.innerSize('" + percent + "', '" + dim + "') : $(this.parent)." + dim + "()}";
       };
 
       View.prototype._createSprite = function(el, attributes) {
@@ -1656,7 +1763,7 @@
 
       View.prototype.setAttribute = function(name, value, skipstyle) {
         value = this._coerceType(name, value);
-        if (!(skipstyle || name in ignoredAttributes || this[name] === value)) {
+        if (!(skipstyle || name in ignoredAttributes || name in hiddenAttributes || this[name] === value)) {
           this.sprite.setStyle(name, value);
         }
         return View.__super__.setAttribute.call(this, name, value, true);
@@ -1700,6 +1807,106 @@
       View.prototype.set_scrollable = function(scrollable) {
         return this.sprite.set_scrollable(scrollable);
       };
+
+
+      /**
+       * Calls doSubviewAdded/doLayoutAdded if the added subnode is a view or
+       * layout respectively. Subclasses should call super.
+       */
+
+      View.prototype.doSubnodeAdded = function(node) {
+        if (node instanceof View) {
+
+          /**
+           * @event subviewAdded
+           * Fired when a subview is added to this view.
+           * @param {dr.view} view The dr.view that was added
+           */
+          this.sendEvent('subviewAdded', node);
+          return this.doSubviewAdded(node);
+        } else if (node instanceof Layout) {
+
+          /**
+           * @event layoutAdded
+           * Fired when a layout is added to this view.
+           * @param {dr.layout} layout The dr.layout that was added
+           */
+          this.sendEvent('layoutAdded', node);
+          return this.doLayoutAdded(node);
+        }
+      };
+
+
+      /**
+       * Calls doSubviewRemoved/doLayoutRemoved if the removed subnode is a view or
+       * layout respectively. Subclasses should call super.
+       */
+
+      View.prototype.doSubnodeRemoved = function(node) {
+        if (node instanceof View) {
+
+          /**
+           * @event subviewRemoved
+           * Fired when a subview is removed from this view.
+           * @param {dr.view} view The dr.view that was removed
+           */
+          this.sendEvent('subviewRemoved', node);
+          return this.doSubviewRemoved(node);
+        } else if (node instanceof Layout) {
+
+          /**
+           * @event layoutRemoved
+           * Fired when a layout is removed from this view.
+           * @param {dr.layout} layout The dr.layout that was removed
+           */
+          this.sendEvent('layoutRemoved', node);
+          return this.doLayoutRemoved(node);
+        }
+      };
+
+
+      /**
+       * Called when a subview is added to this view. Provides a hook for
+       * subclasses. No need for subclasses to call super. Do not call this
+       * method to add a subview. Instead call setParent.
+       * @param {dr.view} sv The subview that was added.
+       * @return {void}
+       */
+
+      View.prototype.doSubviewAdded = function(sv) {};
+
+
+      /**
+       * Called when a subview is removed from this view. Provides a hook for
+       * subclasses. No need for subclasses to call super. Do not call this
+       * method to remove a subview. Instead call _removeFromParent.
+       * @param {dr.view} sv The subview that was removed.
+       * @return {void}
+       */
+
+      View.prototype.doSubviewRemoved = function(sv) {};
+
+
+      /**
+       * Called when a layout is added to this view. Provides a hook for
+       * subclasses. No need for subclasses to call super. Do not call this
+       * method to add a layout. Instead call setParent.
+       * @param {dr.layout} layout The layout that was added.
+       * @return {void}
+       */
+
+      View.prototype.doLayoutAdded = function(layout) {};
+
+
+      /**
+       * Called when a layout is removed from this view. Provides a hook for
+       * subclasses. No need for subclasses to call super. Do not call this
+       * method to remove a layout. Instead call _removeFromParent.
+       * @param {dr.layout} layout The layout that was removed.
+       * @return {void}
+       */
+
+      View.prototype.doLayoutRemoved = function(layout) {};
 
       View.prototype.destroy = function(skipevents) {
         View.__super__.destroy.apply(this, arguments);
@@ -1795,20 +2002,24 @@
         }
         this.listenTo(this, 'change', this._handleChange);
         this.listenTo(this, 'width', function(w) {
-          return this.sprite.setStyle('width', w, true, this.sprite.input);
+          return this.sprite.setStyle('width', this.innerSize('100%', 'width'), true, this.sprite.input);
         });
         this.listenTo(this, 'height', function(h) {
-          return this.sprite.setStyle('height', h, true, this.sprite.input);
+          return this.sprite.setStyle('height', this.innerSize('100%', 'height'), true, this.sprite.input);
         });
       }
 
       InputText.prototype._createSprite = function(el, attributes) {
-        var multiline;
+        var b, h, multiline, p, w;
         InputText.__super__._createSprite.apply(this, arguments);
         attributes.text || (attributes.text = this.sprite.getText(true));
         this.sprite.setText('');
         multiline = this._coerceType('multiline', attributes.multiline, 'boolean');
-        return this.sprite.createInputtextElement('', multiline, attributes.width, attributes.height);
+        p = attributes['padding'] || 0;
+        b = attributes['border-width'] || 0;
+        w = attributes.width - p * 2 - b * 2;
+        h = attributes.height - p * 2 - b * 2;
+        return this.sprite.createInputtextElement('', multiline, w, h);
       };
 
       InputText.prototype._handleChange = function() {
@@ -2026,6 +2237,20 @@
       document.body.insertBefore(pre, document.body.firstChild);
       return console.error(out);
     };
+    hiddenAttributes = {
+      text: true,
+      $tagname: true,
+      data: true,
+      replicator: true,
+      "class": true,
+      clip: true,
+      clickable: true,
+      scrollable: true,
+      $textcontent: true,
+      resize: true,
+      multiline: true,
+      ignorelayout: true
+    };
     dom = (function() {
       var builtinTags, checkRequiredAttributes, exports, findAutoIncludes, flattenattributes, getChildren, htmlDecode, initAllElements, initElement, initFromElement, processSpecialTags, requiredAttributes, sendInit, specialtags, writeCSS;
       getChildren = function(el) {
@@ -2065,10 +2290,9 @@
           return sendInit();
         });
       };
-      findAutoIncludes = function(parentel, callback) {
-        var cb, cb2, fileloaded, filerequests, includedScripts, includerequests, inlineclasses, jqel, loadIncludes, loadLZX, loadScript, loadqueue, scriptloading, validator;
+      findAutoIncludes = function(parentel, finalcallback) {
+        var fileloaded, filereloader, filerequests, findIncludeURLs, findMissingClasses, includedScripts, inlineclasses, jqel, loadInclude, loadIncludes, loadScript, loadqueue, scriptloading, validator;
         jqel = $(parentel);
-        includerequests = [];
         includedScripts = {};
         loadqueue = [];
         scriptloading = false;
@@ -2092,8 +2316,8 @@
             script.type = 'text/javascript';
             $('head').append(script);
             script.onload = cb;
-            script.onerror = function() {
-              console.error(error);
+            script.onerror = function(err) {
+              console.error(error, err);
               return cb();
             };
             return script.src = url;
@@ -2111,74 +2335,98 @@
         inlineclasses = {};
         filerequests = [];
         fileloaded = {};
-        loadLZX = function(name, el) {
-          var prom, url, _ref;
-          if (name in dr || name in fileloaded || __indexOf.call(specialtags, name) >= 0 || name in inlineclasses || __indexOf.call(builtinTags, name) >= 0) {
+        loadInclude = function(url, el) {
+          var prom;
+          if (url in fileloaded) {
             return;
           }
-          if (_ref = el.parentNode.localName, __indexOf.call(specialtags, _ref) >= 0) {
-            return;
-          }
-          fileloaded[name] = true;
-          url = '/classes/' + name + '.dre';
+          fileloaded[url] = el;
           prom = $.get(url);
           prom.url = url;
           prom.el = el;
           return filerequests.push(prom);
         };
-        loadIncludes = function(callback) {
-          var jel, url, _i, _len, _ref;
-          _ref = jqel.find('include');
+        findMissingClasses = function(names) {
+          var el, name, out, _i, _len, _ref, _ref1, _ref2;
+          if (names == null) {
+            names = {};
+          }
+          _ref = jqel.find('*');
           for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            jel = _ref[_i];
-            url = jel.attributes.href.value;
-            jel.parentNode.removeChild(jel);
-            if (!fileloaded[url]) {
-              fileloaded[url] = true;
-              includerequests.push($.get(url));
+            el = _ref[_i];
+            name = el.localName;
+            if (name === 'class') {
+              if (el.attributes["extends"]) {
+                names[el.attributes["extends"].value] = el;
+              }
+              inlineclasses[(_ref1 = el.attributes.name) != null ? _ref1.value : void 0] = true;
+            } else if (name === 'replicator') {
+              names[name] = el;
+              names[el.attributes.classname.value] = el;
+            } else {
+              if (_ref2 = el.parentNode.localName, __indexOf.call(specialtags, _ref2) < 0) {
+                names[name] = el;
+              }
             }
           }
-          return $.when.apply($, includerequests).done(function() {
-            var args, el, extendz, html, includeRE, initONE, name, xhr, _j, _k, _len1, _len2, _ref1;
+          out = {};
+          for (name in names) {
+            el = names[name];
+            if (!(name in dr || name in fileloaded || __indexOf.call(specialtags, name) >= 0 || name in inlineclasses || __indexOf.call(builtinTags, name) >= 0)) {
+              out[name] = el;
+            }
+          }
+          return out;
+        };
+        findIncludeURLs = function(urls) {
+          var el, url, _i, _len, _ref;
+          if (urls == null) {
+            urls = {};
+          }
+          _ref = jqel.find('include');
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            el = _ref[_i];
+            url = el.attributes.href.value;
+            el.parentNode.removeChild(el);
+            urls[url] = el;
+          }
+          return urls;
+        };
+        loadIncludes = function(callback) {
+          var el, url, _ref;
+          _ref = findIncludeURLs();
+          for (url in _ref) {
+            el = _ref[url];
+            loadInclude(url, el);
+          }
+          return $.when.apply($, filerequests).done(function() {
+            var args, html, includeRE, name, xhr, _i, _len, _ref1;
             args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-            if (includerequests.length === 1) {
+            if (filerequests.length === 1) {
               args = [args];
             }
-            includerequests = [];
+            filerequests = [];
             includeRE = /<[\/]*library>/gi;
-            initONE = true;
-            for (_j = 0, _len1 = args.length; _j < _len1; _j++) {
-              xhr = args[_j];
+            for (_i = 0, _len = args.length; _i < _len; _i++) {
+              xhr = args[_i];
               html = xhr[0].replace(includeRE, '');
               jqel.prepend(html);
             }
-            _ref1 = jqel.find('*');
-            for (_k = 0, _len2 = _ref1.length; _k < _len2; _k++) {
-              el = _ref1[_k];
-              name = el.localName;
-              if (name === 'class') {
-                if (el.attributes["extends"]) {
-                  extendz = el.attributes["extends"].value;
-                  loadLZX(extendz, el);
-                }
-                inlineclasses[el.attributes.name.value] = true;
-              } else if (name === 'state') {
-                initONE = true;
-              } else if (name === 'replicator') {
-                loadLZX(name, el);
-                loadLZX(el.attributes.classname.value, el);
-              } else {
-                loadLZX(name, el);
-              }
+            _ref1 = findMissingClasses();
+            for (name in _ref1) {
+              el = _ref1[name];
+              fileloaded[name] = true;
+              loadInclude("/classes/" + name + ".dre", el);
             }
             return $.when.apply($, filerequests).done(function() {
-              var args, scriptsloading, _l, _len3, _len4, _len5, _m, _n, _ref2, _ref3, _ref4;
+              var args, includes, oneurl, _j, _len1;
               args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
               if (filerequests.length === 1) {
                 args = [args];
               }
-              for (_l = 0, _len3 = args.length; _l < _len3; _l++) {
-                xhr = args[_l];
+              filerequests = [];
+              for (_j = 0, _len1 = args.length; _j < _len1; _j++) {
+                xhr = args[_j];
                 jqel.prepend(xhr[0]);
                 if (debug) {
                   jqel.contents().each(function() {
@@ -2188,66 +2436,96 @@
                   });
                 }
               }
-              scriptsloading = false;
-              if (initONE) {
-                scriptsloading = loadScript('/lib/one_base.js', function() {
-                  ONE.base_.call(Eventable.prototype);
-                  Eventable.prototype.enumfalse(Eventable.prototype.keys());
-                  Node.prototype.enumfalse(Node.prototype.keys());
-                  View.prototype.enumfalse(View.prototype.keys());
-                  Layout.prototype.enumfalse(Layout.prototype.keys());
-                  return callback();
-                });
+              includes = findMissingClasses(findIncludeURLs());
+              if (Object.keys(includes).length > 0) {
+                loadIncludes(callback);
+                return;
               }
-              _ref2 = jqel.find('[scriptincludes]');
-              for (_m = 0, _len4 = _ref2.length; _m < _len4; _m++) {
-                el = _ref2[_m];
-                _ref3 = el.attributes.scriptincludes.value.split(',');
-                for (_n = 0, _len5 = _ref3.length; _n < _len5; _n++) {
-                  url = _ref3[_n];
-                  scriptsloading = loadScript(url.trim(), callback, (_ref4 = el.attributes.scriptincludeserror) != null ? _ref4.value.toString() : void 0);
+              oneurl = '/lib/one_base.js';
+              return $.ajax({
+                dataType: "script",
+                cache: true,
+                url: oneurl
+              }).done(function() {
+                var scriptloaded, _k, _l, _len2, _len3, _ref2, _ref3, _ref4;
+                ONE.base_.call(Eventable.prototype);
+                Eventable.prototype.enumfalse(Eventable.prototype.keys());
+                Node.prototype.enumfalse(Node.prototype.keys());
+                View.prototype.enumfalse(View.prototype.keys());
+                Layout.prototype.enumfalse(Layout.prototype.keys());
+                scriptloaded = false;
+                _ref2 = jqel.find('[scriptincludes]');
+                for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
+                  el = _ref2[_k];
+                  _ref3 = el.attributes.scriptincludes.value.split(',');
+                  for (_l = 0, _len3 = _ref3.length; _l < _len3; _l++) {
+                    url = _ref3[_l];
+                    scriptloaded = loadScript(url.trim(), callback, (_ref4 = el.attributes.scriptincludeserror) != null ? _ref4.value.toString() : void 0);
+                  }
                 }
-              }
-              filerequests = [];
-              if (!scriptsloading) {
-                return callback();
-              }
+                if (!scriptloaded) {
+                  return callback();
+                }
+              }).fail(function() {
+                return console.warn("failed to load " + oneurl);
+              });
             }).fail(function() {
-              var args, _l, _len3;
+              var args, _j, _len1;
               args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
               if (args.length === 1) {
                 args = [args];
               }
-              for (_l = 0, _len3 = args.length; _l < _len3; _l++) {
-                xhr = args[_l];
+              for (_j = 0, _len1 = args.length; _j < _len1; _j++) {
+                xhr = args[_j];
                 showWarnings(["failed to load " + xhr.url + " for element " + xhr.el.outerHTML]);
               }
             });
+          }).fail(function() {
+            var args, xhr, _i, _len;
+            args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+            if (args.length === 1) {
+              args = [args];
+            }
+            for (_i = 0, _len = args.length; _i < _len; _i++) {
+              xhr = args[_i];
+              showWarnings(["failed to load " + xhr.url + " for element " + xhr.el.outerHTML]);
+            }
+          });
+        };
+        filereloader = function() {
+          return $.ajax({
+            url: '/watchfile/',
+            datatype: 'text',
+            data: {
+              url: window.location.pathname
+            },
+            success: function(data) {
+              if (data === window.location.pathname) {
+                return window.location.reload();
+              }
+            }
+          }).done(function(data) {
+            return filereloader();
           });
         };
         validator = function() {
-          var prom, url;
-          url = '/validate/';
-          prom = $.ajax({
-            url: url,
+          return $.ajax({
+            url: '/validate/',
             data: {
               url: window.location.pathname
             },
             success: function(data) {
               if (data.length) {
-                return showWarnings(data);
+                showWarnings(data);
               }
+              return filereloader();
+            },
+            error: function(err) {
+              return console.warn('Validation requires the Teem server');
             }
-          });
-          return callback();
+          }).always(finalcallback);
         };
-        cb2 = function() {
-          return loadIncludes(validator);
-        };
-        cb = function() {
-          return loadIncludes(cb2);
-        };
-        return loadIncludes(cb);
+        return loadIncludes(test ? finalcallback : validator);
       };
       specialtags = ['handler', 'method', 'attribute', 'setter', 'include'];
       builtinTags = ['a', 'abbr', 'address', 'area', 'article', 'aside', 'audio', 'b', 'base', 'bdi', 'bdo', 'blockquote', 'body', 'br', 'button', 'canvas', 'caption', 'cite', 'code', 'col', 'colgroup', 'command', 'datalist', 'dd', 'del', 'details', 'dfn', 'div', 'dl', 'dt', 'em', 'embed', 'fieldset', 'figcaption', 'figure', 'footer', 'form', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'head', 'header', 'hgroup', 'hr', 'html', 'i', 'iframe', 'img', 'image', 'input', 'ins', 'kbd', 'keygen', 'label', 'legend', 'li', 'link', 'map', 'mark', 'menu', 'meta', 'meter', 'nav', 'noscript', 'object', 'ol', 'optgroup', 'option', 'output', 'p', 'param', 'pre', 'progress', 'q', 'rp', 'rt', 'ruby', 's', 'samp', 'script', 'section', 'select', 'small', 'source', 'span', 'strong', 'style', 'sub', 'summary', 'sup', 'table', 'tbody', 'td', 'textarea', 'tfoot', 'th', 'thead', 'time', 'title', 'tr', 'track', 'u', 'ul', 'var', 'video', 'wbr'];
@@ -2494,6 +2772,9 @@
               name = name.toLowerCase();
               classattributes[name] = attributes.value;
               classattributes.$types[name] = attributes.type;
+              if ('visual' in attributes) {
+                hiddenAttributes[name] = attributes.visual === 'false';
+              }
           }
         }
         return children;
@@ -3027,6 +3308,184 @@
       return Layout;
 
     })(Node);
+
+    /**
+     * @class dr.layoot
+     * @extends dr.node
+     * The base class for all layouts.
+     */
+    Layoot = (function(_super) {
+      __extends(Layoot, _super);
+
+      function Layoot(el, attributes) {
+        var subview, subviews, _base, _i, _len;
+        if (attributes == null) {
+          attributes = {};
+        }
+        this.locked = true;
+        this.subviews = [];
+        Layoot.__super__.constructor.apply(this, arguments);
+        this.listenTo(this.parent, 'subviewAdded', this.addSubview.bind(this));
+        this.listenTo(this.parent, 'subviewRemoved', this.removeSubview.bind(this));
+        this.listenTo(this.parent, 'init', this.update);
+        if ((_base = this.parent).layouts == null) {
+          _base.layouts = [];
+        }
+        this.parent.layouts.push(this);
+        subviews = this.parent.subviews;
+        if (subviews) {
+          for (_i = 0, _len = subviews.length; _i < _len; _i++) {
+            subview = subviews[_i];
+            this.addSubview(subview);
+          }
+        }
+        this.locked = false;
+        this.update();
+      }
+
+      Layoot.prototype.destroy = function(skipevents) {
+        this.locked = true;
+        Layoot.__super__.destroy.apply(this, arguments);
+        if (!skipevents) {
+          return this._removeFromParent('layouts');
+        }
+      };
+
+
+      /**
+       * Adds the provided view to the subviews array of this layout.
+       * @param {dr.view} view The view to add to this layout.
+       * @return {void}
+       */
+
+      Layoot.prototype.addSubview = function(view) {
+        if (this.ignore(view)) {
+          return;
+        }
+        this.subviews.push(view);
+        this.startMonitoringSubview(view);
+        if (!this.locked) {
+          return this.update();
+        }
+      };
+
+
+      /**
+       * Removes the provided View from the subviews array of this Layout.
+       * @param {dr.view} view The view to remove from this layout.
+       * @return {number} the index of the removed subview or -1 if not removed.
+       */
+
+      Layoot.prototype.removeSubview = function(view) {
+        var idx;
+        if (this.ignore(view)) {
+          return -1;
+        }
+        idx = this.subviews.indexOf(view);
+        if (idx !== -1) {
+          this.stopMonitoringSubview(view);
+          this.subviews.splice(idx, 1);
+          if (!this.locked) {
+            this.update();
+          }
+        }
+        return idx;
+      };
+
+
+      /**
+       * Checks if a subview can be added to this Layout or not. The default 
+       * implementation returns the 'ignorelayout' attributes of the subview.
+       * @param {dr.view} view The view to check.
+       * @return {boolean} True means the subview will be skipped, false otherwise.
+       */
+
+      Layoot.prototype.ignore = function(view) {
+        return view.ignorelayout;
+      };
+
+
+      /**
+       * Subclasses should implement this method to start listening to
+       * events from the subview that should trigger the update method.
+       * @param {dr.view} view The view to start monitoring for changes.
+       * @return {void}
+       */
+
+      Layoot.prototype.startMonitoringSubview = function(view) {};
+
+
+      /**
+       * Calls startMonitoringSubview for all views. Used by layout 
+       * implementations when a change occurs to the layout that requires
+       * refreshing all the subview monitoring.
+       * @return {void}
+       */
+
+      Layoot.prototype.startMonitoringAllSubviews = function() {
+        var i, svs, _results;
+        svs = this.subviews;
+        i = svs.length;
+        _results = [];
+        while (i) {
+          _results.push(this.startMonitoringSubview(svs[--i]));
+        }
+        return _results;
+      };
+
+
+      /**
+       * Subclasses should implement this method to stop listening to
+       * events from the subview that would trigger the update method. This
+       * should remove all listeners that were setup in startMonitoringSubview.
+       * @param {dr.view} view The view to stop monitoring for changes.
+       * @return {void}
+       */
+
+      Layoot.prototype.stopMonitoringSubview = function(view) {};
+
+
+      /**
+       * Calls stopMonitoringSubview for all views. Used by Layout 
+       * implementations when a change occurs to the layout that requires
+       * refreshing all the subview monitoring.
+       * @return {void}
+       */
+
+      Layoot.prototype.stopMonitoringAllSubviews = function() {
+        var i, svs, _results;
+        svs = this.subviews;
+        i = svs.length;
+        _results = [];
+        while (i) {
+          _results.push(this.stopMonitoringSubview(svs[--i]));
+        }
+        return _results;
+      };
+
+
+      /**
+       * Checks if the layout is locked or not. Should be called by the
+       * "update" method of each layout to check if it is OK to do the update.
+       * @return {boolean} true if not locked, false otherwise.
+       */
+
+      Layoot.prototype.canUpdate = function() {
+        return !this.locked && this.parent.inited;
+      };
+
+
+      /**
+       * Updates the layout. Subclasses should call canUpdate to check lock state
+       * before doing anything.
+       * @return {void}
+       */
+
+      Layoot.prototype.update = function() {};
+
+      return Layoot;
+
+    })(Node);
     idle = (function() {
       var doTick, requestAnimationFrame, tickEvents, ticking;
       requestAnimationFrame = (function() {
@@ -3150,6 +3609,17 @@
 
     })(StartEventable);
     mouseEvents = ['click', 'mouseover', 'mouseout', 'mousedown', 'mouseup'];
+    skipEvent = function(e) {
+      if (e.stopPropagation) {
+        e.stopPropagation();
+      }
+      if (e.preventDefault) {
+        e.preventDefault();
+      }
+      e.cancelBubble = true;
+      e.returnValue = false;
+      return false;
+    };
 
     /**
      * @class dr.mouse
@@ -3172,6 +3642,8 @@
      *
      */
     Mouse = (function(_super) {
+      var lastTouchDown, lastTouchOver;
+
       __extends(Mouse, _super);
 
 
@@ -3212,16 +3684,71 @@
       function Mouse() {
         this.sender = __bind(this.sender, this);
         this.handle = __bind(this.handle, this);
+        this.touchHandler = __bind(this.touchHandler, this);
         this.x = 0;
         this.y = 0;
         this.docSelector = $(document);
         this.docSelector.on(mouseEvents.join(' '), this.handle);
         this.docSelector.on("mousemove", this.handle).one("mouseout", this.stopEvent);
+        if (capabilities.touch) {
+          document.addEventListener('touchstart', this.touchHandler, true);
+          document.addEventListener('touchmove', this.touchHandler, true);
+          document.addEventListener('touchend', this.touchHandler, true);
+          document.addEventListener('touchcancel', this.touchHandler, true);
+        }
       }
 
       Mouse.prototype.startEventTest = function() {
         var _ref, _ref1, _ref2;
         return ((_ref = this.events['mousemove']) != null ? _ref.length : void 0) || ((_ref1 = this.events['x']) != null ? _ref1.length : void 0) || ((_ref2 = this.events['y']) != null ? _ref2.length : void 0);
+      };
+
+      Mouse.prototype.sendMouseEvent = function(type, first) {
+        var simulatedEvent;
+        simulatedEvent = document.createEvent('MouseEvent');
+        simulatedEvent.initMouseEvent(type, true, true, window, 1, first.pageX, first.pageY, first.clientX, first.clientY, false, false, false, false, 0, null);
+        first.target.dispatchEvent(simulatedEvent);
+        if (first.target.$view && first.target.$view.$tagname !== 'inputtext') {
+          return event.preventDefault();
+        }
+      };
+
+      lastTouchDown = null;
+
+      lastTouchOver = null;
+
+      Mouse.prototype.touchHandler = function(event) {
+        var first, over, touches;
+        touches = event.changedTouches;
+        first = touches[0];
+        switch (event.type) {
+          case 'touchstart':
+            this.sendMouseEvent('mouseover', first);
+            this.sendMouseEvent('mousedown', first);
+            return lastTouchDown = first.target;
+          case 'touchmove':
+            over = document.elementFromPoint(first.pageX - window.pageXOffset, first.pageY - window.pageYOffset);
+            if (over && over.$view) {
+              if (lastTouchOver && lastTouchOver !== over) {
+                this.handle({
+                  target: lastTouchOver,
+                  type: 'mouseout'
+                });
+              }
+              lastTouchOver = over;
+              this.handle({
+                target: over,
+                type: 'mouseover'
+              });
+            }
+            return this.sendMouseEvent('mousemove', first);
+          case 'touchend':
+            this.sendMouseEvent('mouseup', first);
+            if (lastTouchDown === first.target) {
+              this.sendMouseEvent('click', first);
+              return lastTouchDown = null;
+            }
+        }
       };
 
       Mouse.prototype.handle = function(event) {
@@ -3231,6 +3758,7 @@
         if (view) {
           if (type === 'mousedown') {
             this._lastMouseDown = view;
+            skipEvent(event);
           }
         }
         if (type === 'mouseup' && this._lastMouseDown && this._lastMouseDown !== view) {
@@ -3505,6 +4033,7 @@
       keyboard: new Keyboard(),
       window: new Window(),
       layout: Layout,
+      layoot: Layoot,
       idle: new Idle(),
       state: State,
 
@@ -3769,6 +4298,11 @@
     /**
      * @attribute {String} value (required)
      * The initial value for the attribute
+     */
+
+    /**
+     * @attribute {Boolean} [visible=true]
+     * Set to false if an attribute shouldn't affect a view's visual appearence
      */
   })();
 
