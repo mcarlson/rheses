@@ -301,6 +301,7 @@ window.dr = do ->
 
   querystring = window.location.search
   debug = querystring.indexOf('debug') > 0
+  test = querystring.indexOf('test') > 0
   compiler = do ->
     nocache = querystring.indexOf('nocache') > 0
     strict = querystring.indexOf('strict') > 0
@@ -1968,7 +1969,7 @@ window.dr = do ->
         }).always(finalcallback)
 
       # call the validator after everything loads
-      loadIncludes(validator)
+      loadIncludes(if test then finalcallback else validator)
 
     specialtags = ['handler', 'method', 'attribute', 'setter', 'include']
     # tags built into the browser that should be ignored, from http://www.w3.org/TR/html-markup/elements.html

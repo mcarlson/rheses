@@ -62,7 +62,7 @@ var runTest = function (file, callback) {
     out.push(msg)
     console.log(msg)
   };
-  page.open('http://127.0.0.1:8080' + path + file);
+  page.open('http://127.0.0.1:8080' + path + file + '?test');
 }
 
 var loadNext = function() {
