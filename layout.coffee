@@ -1939,12 +1939,12 @@ window.dr = do ->
           return
         )
 
-
-      reloader = ->
+      filereloader = ->
         # console.log('listen for changes watching')
         $.ajax({
-          url: '/watchfile/?url=/_reloader_',
-          datatype: 'text'
+          url: '/watchfile/',
+          datatype: 'text',
+          data: {url: window.location.pathname},
           success: (data) ->
             # console.log('got data...', data)
             if data == window.location.pathname
@@ -1952,16 +1952,8 @@ window.dr = do ->
               window.location.reload()
         }).done((data) ->
           # console.log('file reloaded', data)
-          reloader()
+          filereloader()
         );
-
-      filereloader = ->
-        $.ajax({
-          url: '/watchfile/',
-          data: {url: window.location.pathname},
-        }).done(
-          reloader
-        )
 
       validator = ->
         $.ajax({

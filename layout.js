@@ -2290,7 +2290,7 @@
         });
       };
       findAutoIncludes = function(parentel, finalcallback) {
-        var fileloaded, filereloader, filerequests, findIncludeURLs, findMissingClasses, includedScripts, inlineclasses, jqel, loadInclude, loadIncludes, loadScript, loadqueue, reloader, scriptloading, validator;
+        var fileloaded, filereloader, filerequests, findIncludeURLs, findMissingClasses, includedScripts, inlineclasses, jqel, loadInclude, loadIncludes, loadScript, loadqueue, scriptloading, validator;
         jqel = $(parentel);
         includedScripts = {};
         loadqueue = [];
@@ -2491,26 +2491,21 @@
             }
           });
         };
-        reloader = function() {
+        filereloader = function() {
           return $.ajax({
-            url: '/watchfile/?url=/_reloader_',
+            url: '/watchfile/',
             datatype: 'text',
+            data: {
+              url: window.location.pathname
+            },
             success: function(data) {
               if (data === window.location.pathname) {
                 return window.location.reload();
               }
             }
           }).done(function(data) {
-            return reloader();
+            return filereloader();
           });
-        };
-        filereloader = function() {
-          return $.ajax({
-            url: '/watchfile/',
-            data: {
-              url: window.location.pathname
-            }
-          }).done(reloader);
         };
         validator = function() {
           return $.ajax({
