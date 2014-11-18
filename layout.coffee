@@ -1903,21 +1903,28 @@ window.dr = do ->
             # find class script includes and load them in lexical order
 
             # initialize ONE integration
-            $.getScript('/lib/one_base.js', () ->
+            oneurl = '/lib/one_base.js'
+            $.ajax({
+              dataType: "script",
+              cache: true,
+              url: oneurl
+            }).done(() ->
+              # init one_base
               ONE.base_.call(Eventable::)
               # hide builtin keys from learn()
               Eventable::enumfalse(Eventable::keys())
               Node::enumfalse(Node::keys())
               View::enumfalse(View::keys())
               Layout::enumfalse(Layout::keys())
-            ).done(() ->
+
+              # load scriptincludes
               scriptloaded = false
               for el in jqel.find('[scriptincludes]')
                 for url in el.attributes.scriptincludes.value.split(',')
                   scriptloaded = loadScript(url.trim(), callback, el.attributes.scriptincludeserror?.value.toString())
               callback() unless scriptloaded
             ).fail(() ->
-              console.warn('failed to load /lib/one_base.js')
+              console.warn("failed to load #{oneurl}")
             )
           ).fail((args...) ->
             args = [args] if (args.length == 1)
@@ -1932,20 +1939,41 @@ window.dr = do ->
           return
         )
 
-      validator = ->
-        url = '/validate/'
-        # data = '<html>' + document.getElementsByTagName('html')[0].innerHTML + '</html>'
-        # console.log(url, data)
-        prom = $.ajax({
-          # type: 'POST'
-          url: url,
-          data: {url: window.location.pathname},
-          # processData: false
+
+      reloader = ->
+        # console.log('listen for changes watching')
+        $.ajax({
+          url: '/watchfile/?url=/_reloader_',
+          datatype: 'text'
           success: (data) ->
-            showWarnings(data) if (data.length)
-        }).always(() ->
-          finalcallback()
+            # console.log('got data...', data)
+            if data == window.location.pathname
+              # alert('reload')
+              window.location.reload()
+        }).done((data) ->
+          # console.log('file reloaded', data)
+          reloader()
+        );
+
+      filereloader = ->
+        $.ajax({
+          url: '/watchfile/',
+          data: {url: window.location.pathname},
+        }).done(
+          reloader
         )
+
+      validator = ->
+        $.ajax({
+          url: '/validate/',
+          data: {url: window.location.pathname},
+          success: (data) ->
+            # we have a teem server!
+            showWarnings(data) if (data.length)
+            filereloader()
+          error: (err) ->
+            console.warn('Validation requires the Teem server')
+        }).always(finalcallback)
 
       # call the validator after everything loads
       loadIncludes(validator)

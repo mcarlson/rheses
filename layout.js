@@ -2290,7 +2290,7 @@
         });
       };
       findAutoIncludes = function(parentel, finalcallback) {
-        var fileloaded, filerequests, findIncludeURLs, findMissingClasses, includedScripts, inlineclasses, jqel, loadInclude, loadIncludes, loadScript, loadqueue, scriptloading, validator;
+        var fileloaded, filereloader, filerequests, findIncludeURLs, findMissingClasses, includedScripts, inlineclasses, jqel, loadInclude, loadIncludes, loadScript, loadqueue, reloader, scriptloading, validator;
         jqel = $(parentel);
         includedScripts = {};
         loadqueue = [];
@@ -2418,7 +2418,7 @@
               loadInclude("/classes/" + name + ".dre", el);
             }
             return $.when.apply($, filerequests).done(function() {
-              var args, includes, _j, _len1;
+              var args, includes, oneurl, _j, _len1;
               args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
               if (filerequests.length === 1) {
                 args = [args];
@@ -2440,14 +2440,18 @@
                 loadIncludes(callback);
                 return;
               }
-              return $.getScript('/lib/one_base.js', function() {
+              oneurl = '/lib/one_base.js';
+              return $.ajax({
+                dataType: "script",
+                cache: true,
+                url: oneurl
+              }).done(function() {
+                var scriptloaded, _k, _l, _len2, _len3, _ref2, _ref3, _ref4;
                 ONE.base_.call(Eventable.prototype);
                 Eventable.prototype.enumfalse(Eventable.prototype.keys());
                 Node.prototype.enumfalse(Node.prototype.keys());
                 View.prototype.enumfalse(View.prototype.keys());
-                return Layout.prototype.enumfalse(Layout.prototype.keys());
-              }).done(function() {
-                var scriptloaded, _k, _l, _len2, _len3, _ref2, _ref3, _ref4;
+                Layout.prototype.enumfalse(Layout.prototype.keys());
                 scriptloaded = false;
                 _ref2 = jqel.find('[scriptincludes]');
                 for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
@@ -2462,7 +2466,7 @@
                   return callback();
                 }
               }).fail(function() {
-                return console.warn('failed to load /lib/one_base.js');
+                return console.warn("failed to load " + oneurl);
               });
             }).fail(function() {
               var args, _j, _len1;
@@ -2487,22 +2491,43 @@
             }
           });
         };
+        reloader = function() {
+          return $.ajax({
+            url: '/watchfile/?url=/_reloader_',
+            datatype: 'text',
+            success: function(data) {
+              if (data === window.location.pathname) {
+                return window.location.reload();
+              }
+            }
+          }).done(function(data) {
+            return reloader();
+          });
+        };
+        filereloader = function() {
+          return $.ajax({
+            url: '/watchfile/',
+            data: {
+              url: window.location.pathname
+            }
+          }).done(reloader);
+        };
         validator = function() {
-          var prom, url;
-          url = '/validate/';
-          return prom = $.ajax({
-            url: url,
+          return $.ajax({
+            url: '/validate/',
             data: {
               url: window.location.pathname
             },
             success: function(data) {
               if (data.length) {
-                return showWarnings(data);
+                showWarnings(data);
               }
+              return filereloader();
+            },
+            error: function(err) {
+              return console.warn('Validation requires the Teem server');
             }
-          }).always(function() {
-            return finalcallback();
-          });
+          }).always(finalcallback);
         };
         return loadIncludes(validator);
       };
