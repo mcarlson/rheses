@@ -11,8 +11,11 @@
   <script type="text/javascript" src="/lib/jquery-1.9.1.min.js"></script>
   <script type="text/javascript" src="/lib/acorn.js"></script>
   <script type="text/javascript" src="/lib/coffee-script.js"></script>
-  <script type="text/javascript" src="/lib/assert.js"></script>
   <script type="text/javascript" src="/layout.js"></script>
+  <script type="text/javascript" src="/lib/chai.js"></script>
+  <script>
+    var assert = chai.assert
+  </script>
 </head>
 <body>
 <view id="all" width="100%" height="100%" clip="true">
@@ -40,7 +43,6 @@
   <!-- Attaching by reference -->
   <checkbutton id="greenbox" text="green" selectcolor="lightgreen" defaultcolor="lightgrey" bgcolor="white"></checkbutton>
   <handler event="onselected" args="value" reference="greenbox">
-    console.log('onselected fired with value:', value);
     window.hasBeenSelected = true
   </handler>
   <handler event="oninit">
