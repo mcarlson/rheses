@@ -1824,7 +1824,7 @@
            */
           this.sendEvent('subviewAdded', node);
           return this.doSubviewAdded(node);
-        } else if (node instanceof Layout) {
+        } else if (node instanceof Layoot) {
 
           /**
            * @event layoutAdded
@@ -1852,7 +1852,7 @@
            */
           this.sendEvent('subviewRemoved', node);
           return this.doSubviewRemoved(node);
-        } else if (node instanceof Layout) {
+        } else if (node instanceof Layoot) {
 
           /**
            * @event layoutRemoved
@@ -2453,6 +2453,7 @@
                 Node.prototype.enumfalse(Node.prototype.keys());
                 View.prototype.enumfalse(View.prototype.keys());
                 Layout.prototype.enumfalse(Layout.prototype.keys());
+                Layoot.prototype.enumfalse(Layoot.prototype.keys());
                 scriptloaded = false;
                 _ref2 = jqel.find('[scriptincludes]');
                 for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {

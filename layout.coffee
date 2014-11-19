@@ -1392,7 +1392,7 @@ window.dr = do ->
         ###
         @sendEvent('subviewAdded', node)
         @doSubviewAdded(node);
-      else if node instanceof Layout
+      else if node instanceof Layoot
         ###*
         # @event layoutAdded
         # Fired when a layout is added to this view.
@@ -1414,7 +1414,7 @@ window.dr = do ->
         ###
         @sendEvent('subviewRemoved', node)
         @doSubviewRemoved(node);
-      else if node instanceof Layout
+      else if node instanceof Layoot
         ###*
         # @event layoutRemoved
         # Fired when a layout is removed from this view.
@@ -1917,6 +1917,7 @@ window.dr = do ->
               Node::enumfalse(Node::keys())
               View::enumfalse(View::keys())
               Layout::enumfalse(Layout::keys())
+              Layoot::enumfalse(Layoot::keys())
 
               # load scriptincludes
               scriptloaded = false
