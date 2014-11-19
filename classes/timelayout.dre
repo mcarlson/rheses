@@ -37,6 +37,9 @@ SOFTWARE. -->
         else
           @sendEvent('axis', @axis);
       </setter>
+      <method name="project" args="value">
+        return (value - @inset) * @scale
+      </method>
       <method name="update" args="value, sender">
         # console.log('skip', @skip(), @locked)
         return if @skip()
@@ -45,7 +48,8 @@ SOFTWARE. -->
         for subview, index in @parent.subviews
           continue if subview.ignorelayout or not subview.visible
           # console.log 'subview', subview
-          pos = (subview.data?[@startfieldname] - @inset) * @scale
+          data = subview.data?[@startfieldname]
+          pos = @project(data)
           subview.setAttribute @axis, pos if subview[@axis] != pos
 
         @locked = locked
