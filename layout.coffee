@@ -1015,7 +1015,7 @@ window.dr = do ->
         if @__clickable || @__scrollable
           'auto'
         else
-          ''
+          'none'
       , true)
 
     destroy: ->

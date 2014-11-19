@@ -1311,7 +1311,7 @@
       };
 
       Sprite.prototype.__updatePointerEvents = function() {
-        return this.setStyle('pointer-events', this.__clickable || this.__scrollable ? 'auto' : '', true);
+        return this.setStyle('pointer-events', this.__clickable || this.__scrollable ? 'auto' : 'none', true);
       };
 
       Sprite.prototype.destroy = function() {
