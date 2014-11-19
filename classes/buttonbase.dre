@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. -->
 
   <!--/**
-     * @class dr.buttonbase
+     * @class dr.buttonbase {UI Components}
      * @extends dr.view
      * Base class for button components. Buttons share common elements, 
      * including their ability to be selected, a visual element to display

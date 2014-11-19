@@ -324,7 +324,7 @@
     })();
 
 <span id='Eventable'>    /**
-</span>     * @class Eventable
+</span>     * @class Eventable {Core Dreem}
      * @extends Module
      * The baseclass used by everything in dreem. Adds higher level event APIs.
      */
@@ -629,7 +629,7 @@
     };
 
 <span id='dr-node'>    /**
-</span>     * @class dr.node
+</span>     * @class dr.node {Core Dreem}
      * @extends Eventable
      * The nonvisual base class for everything in dreem. Handles parent/child relationships between tags.
      *
@@ -1482,7 +1482,7 @@
 
 <span id='dr-view'>    /**
 </span>     * @aside guide constraints
-     * @class dr.view
+     * @class dr.view {UI Components}
      * @extends dr.node
      * The visual base class for everything in dreem. Views extend dr.node to add the ability to set and animate visual attributes, and interact with the mouse.
      *
@@ -1947,7 +1947,7 @@
     })(Node);
 
 <span id='dr-inputtext'>    /**
-</span>     * @class dr.inputtext
+</span>     * @class dr.inputtext {UI Components, Input}
      * @extends dr.view
      * Provides an editable input text field.
      *
@@ -2072,7 +2072,7 @@
     })(View);
 
 <span id='dr-text'>    /**
-</span>     * @class dr.text
+</span>     * @class dr.text {UI Components}
      * @extends dr.view
      * Text component that supports single and multi-line text.
      *
@@ -2804,7 +2804,7 @@
       };
 
 <span id='dr-state'>      /**
-</span>         * @class dr.state
+</span>         * @class dr.state {Core Dreem}
          * @extends dr.node
          * Allows a group of attributes, methods, handlers and instances to be removed and applied as a group.
          * 
@@ -2956,7 +2956,7 @@
     })(Node);
 
 <span id='dr-class'>    /**
-</span>     * @class dr.class
+</span>     * @class dr.class {Core Dreem}
      * Allows new tags to be created. Classes only be created with the &amp;lt;class&gt;&amp;lt;/class&gt; tag syntax. 
      * 
      * Classes can extend any other class, and they extend dr.view by default. 
@@ -3160,7 +3160,7 @@
     })();
 
 <span id='dr-layout'>    /**
-</span>     * @class dr.layout
+</span>     * @class dr.layout {Layout}
      * @extends dr.node
      * The base class for all layouts. 
      *
@@ -3327,7 +3327,7 @@
     })(Node);
 
 <span id='dr-layoot'>    /**
-</span>     * @class dr.layoot
+</span>     * @class dr.layoot {Layout}
      * @extends dr.node
      * The base class for all layouts.
      */
@@ -3572,7 +3572,7 @@
     })(Eventable);
 
 <span id='dr-idle'>    /**
-</span>     * @class dr.idle
+</span>     * @class dr.idle {Util}
      * @extends Eventable
      * Sends onidle events when the application is active and idle.
      *
@@ -3639,7 +3639,7 @@
     };
 
 <span id='dr-mouse'>    /**
-</span>     * @class dr.mouse
+</span>     * @class dr.mouse {Input}
      * @extends Eventable
      * Sends mouse events. Often used to listen to onmouseover/x/y events to follow the mouse position.
      *
@@ -3852,7 +3852,7 @@
     })(StartEventable);
 
 <span id='dr-window'>    /**
-</span>     * @class dr.window
+</span>     * @class dr.window {UI Components}
      * @extends Eventable
      * Sends window resize events. Often used to dynamically reposition views as the window size changes.
      *
@@ -3932,7 +3932,7 @@
     })(StartEventable);
 
 <span id='dr-keyboard'>    /**
-</span>     * @class dr.keyboard
+</span>     * @class dr.keyboard {Input}
      * @extends Eventable
      * Sends keyboard events.
      *
@@ -4035,7 +4035,7 @@
     })(Eventable);
 
 <span id='dr'>    /**
-</span>     * @class dr
+</span>     * @class dr {Core Dreem}
      * Holds builtin and user-created classes and public APIs.
      * 
      * All classes listed here can be invoked with the declarative syntax, e.g. &amp;lt;node&gt;&amp;lt;/node&gt; or &amp;lt;view&gt;&amp;lt;/view&gt;
@@ -4068,7 +4068,7 @@
     };
 
 <span id='dr-method'>    /**
-</span>     * @class dr.method
+</span>     * @class dr.method {Core Dreem}
      * Declares a member function in a node, view, class or other class instance. Methods can only be created with the &amp;lt;method&gt;&amp;lt;/method&gt; tag syntax.
      * 
      * If a method overrides an existing method, any existing (super) method(s) will be called first automatically.
@@ -4172,7 +4172,7 @@
      */
 
 <span id='dr-handler'>    /**
-</span>     * @class dr.handler
+</span>     * @class dr.handler {Core Dreem}
      * Declares a handler in a node, view, class or other class instance. Handlers can only be created with the `&lt;handler&gt;&lt;/handler&gt;` tag syntax.
      *
      * Handlers are called when an event fires with new value, if available.
@@ -4248,7 +4248,7 @@
      */
 
 <span id='dr-attribute'>    /**
-</span>     * @class dr.attribute
+</span>     * @class dr.attribute {Core Dreem}
      * Adds a variable to a node, view, class or other class instance. Attributes can only be created with the &amp;lt;attribute&gt;&amp;lt;/attribute&gt; tag syntax.
      * 
      * Attributes allow classes to declare new variables with a specific type and default value. 

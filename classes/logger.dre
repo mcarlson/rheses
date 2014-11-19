@@ -1,5 +1,5 @@
   <!--/**
-     * @class dr.logger
+     * @class dr.logger {Util}
      * @extends dr.node
      * Logs all attribute setting behavior
      *

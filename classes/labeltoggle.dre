@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. -->
 
   <!--/**
-     * @class dr.labeltoggle
+     * @class dr.labeltoggle {UI Components}
      * @extends dr.labelbutton
      * Button class consisting of text centered in a view. The state of the
      * button changes each time the button is clicked. The select property

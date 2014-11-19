@@ -20,7 +20,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. -->
 <!--/**
-      * @class dr.variablelayout
+      * @class dr.variablelayout {Layout}
       * @extends dr.constantlayout
       * Allows for variation based on the index and subview. An updateSubview 
       * method is provided that can be overriden to provide variable behavior.

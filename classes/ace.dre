@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. -->
 
   <!--/**
-     * @class dr.ace
+     * @class dr.ace {UI Components}
      * @extends dr.view
      * Ace editor component.
      *

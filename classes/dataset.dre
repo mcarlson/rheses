@@ -20,7 +20,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. -->
    <!--/**
-     * @class dr.dataset
+     * @class dr.dataset {Data}
      * @extends dr.node
      * Datasets hold onto a set of JSON data, either inline or loaded from a URL.
      * They are used with lz.replicator for data binding.

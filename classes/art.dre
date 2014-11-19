@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. -->
 
   <!--/**
-     * @class dr.art
+     * @class dr.art {UI Components}
      * @extends dr.view
      * Vector graphics support using svg.
      *
