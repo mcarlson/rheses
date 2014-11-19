@@ -43,7 +43,7 @@
     </class>
 
     <class name="genrestrip">
-      <timelayout scale="14" inset="1900" startfieldname="releaseYear"></timelayout>
+      <timelayout scale="14" inset="1900" startfieldname="releaseYear" id="tl"></timelayout>
       <replicator datapath="$topmovies/searchResponse/results[*]/movie[@]" lazycount="0" classname="genreyear">
         <handler event="oninit">
           var genrename = this.parent.parent.data.name;
@@ -118,6 +118,10 @@
     <view id="thumbnailstrip" width="${dr.window.width}" height="248" bgcolor="silver" clip="true" position="fixed" z-index="100000">
       <handler event="onmovie" args="movie" reference="bus">
         this.setAttribute('data', movie)
+        if (tl.project) {
+          x = tl.project(movie.releaseYear) - window.pageXOffset
+          cursor.setAttribute('x', x)
+        }
       </handler>
       <handler event="ondata" args="data">
         this.year.setAttribute('text', data.releaseYear)
