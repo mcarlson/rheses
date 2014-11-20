@@ -2856,14 +2856,6 @@ window.dr = do ->
 
   # singleton that listens for mouse events. Holds data about the most recent left and top mouse coordinates
   mouseEvents = ['click', 'mouseover', 'mouseout', 'mousedown', 'mouseup']
-  skipEvent = (e) ->
-    if e.stopPropagation
-      e.stopPropagation()
-    if e.preventDefault  
-      e.preventDefault()
-    e.cancelBubble = true
-    e.returnValue = false
-    return false;
 
   ###*
   # @class dr.mouse {Input}
@@ -2925,6 +2917,15 @@ window.dr = do ->
         document.addEventListener('touchend', @touchHandler, true)
         document.addEventListener('touchcancel', @touchHandler, true)
 
+    skipEvent = (e) ->
+      if e.stopPropagation
+        e.stopPropagation()
+      if e.preventDefault  
+        e.preventDefault()
+      e.cancelBubble = true
+      e.returnValue = false
+      return false;
+
     startEventTest: () ->
       @events['mousemove']?.length or @events['x']?.length or @events['y']?.length
 
@@ -2935,8 +2936,8 @@ window.dr = do ->
                                 first.clientX, first.clientY, false,
                                 false, false, false, 0, null)
       first.target.dispatchEvent(simulatedEvent)
-      if first.target.$view and first.target.$view.$tagname isnt 'inputtext'
-        event.preventDefault()
+      if first.target.$view
+        skipEvent(event) unless first.target.$view instanceof InputText
 
     lastTouchDown = null
     lastTouchOver = null
@@ -2973,7 +2974,7 @@ window.dr = do ->
       if view
         if type is 'mousedown'
           @_lastMouseDown = view
-          skipEvent(event)
+          skipEvent(event) unless view instanceof InputText
       
       if type is 'mouseup' and @_lastMouseDown and @_lastMouseDown != view
         # send onmouseup and onmouseupoutside to the view that the mouse originally went down
