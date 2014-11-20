@@ -23,4 +23,10 @@ describe 'inputtext', :type => :feature, :js => true do
     find('#heightbtn').click
     expect(find("#nameinput").find('input').native.css_value('height')).to eq "#{page.evaluate_script('nameinput.height')-2}px"
   end
+
+  it 'can be clicked into' do
+    find('#nameinput').click
+    page.evaluate_script("$('#nameinput').find('input').attr('id', 'testid')")
+    expect(page.evaluate_script("document.activeElement.id")).to eq "testid"
+  end
 end
