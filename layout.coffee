@@ -207,7 +207,7 @@ window.dr = do ->
       @
 
   ###*
-  # @class Eventable
+  # @class Eventable {Core Dreem}
   # @extends Module
   # The baseclass used by everything in dreem. Adds higher level event APIs.
   ###
@@ -418,7 +418,7 @@ window.dr = do ->
       constraint._bindConstraints()
     constraintScopes = []
   ###*
-  # @class dr.node
+  # @class dr.node {Core Dreem}
   # @extends Eventable
   # The nonvisual base class for everything in dreem. Handles parent/child relationships between tags.
   #
@@ -1120,7 +1120,7 @@ window.dr = do ->
   ignoredAttributes = {parent: true, id: true, name: true, extends: true, type: true, scriptincludes: true}
   ###*
   # @aside guide constraints
-  # @class dr.view
+  # @class dr.view {UI Components}
   # @extends dr.node
   # The visual base class for everything in dreem. Views extend dr.node to add the ability to set and animate visual attributes, and interact with the mouse.
   #
@@ -1478,7 +1478,7 @@ window.dr = do ->
       @sprite.set_class(classname)
 
   ###*
-  # @class dr.inputtext
+  # @class dr.inputtext {UI Components, Input}
   # @extends dr.view
   # Provides an editable input text field.
   #
@@ -1572,7 +1572,7 @@ window.dr = do ->
       @sprite.value(text)
 
   ###*
-  # @class dr.text
+  # @class dr.text {UI Components}
   # @extends dr.view
   # Text component that supports single and multi-line text.
   #
@@ -2162,7 +2162,7 @@ window.dr = do ->
       writeCSS: writeCSS
 
     ###*
-  # @class dr.state
+  # @class dr.state {Core Dreem}
   # @extends dr.node
   # Allows a group of attributes, methods, handlers and instances to be removed and applied as a group.
   # 
@@ -2306,7 +2306,7 @@ window.dr = do ->
 
 
   ###*
-  # @class dr.class
+  # @class dr.class {Core Dreem}
   # Allows new tags to be created. Classes only be created with the &lt;class>&lt;/class> tag syntax. 
   # 
   # Classes can extend any other class, and they extend dr.view by default. 
@@ -2486,7 +2486,7 @@ window.dr = do ->
         return parent
 
   ###*
-  # @class dr.layout
+  # @class dr.layout {Layout}
   # @extends dr.node
   # The base class for all layouts. 
   #
@@ -2627,7 +2627,7 @@ window.dr = do ->
       @update() if (changed and not locked)
 
   ###*
-  # @class dr.layoot
+  # @class dr.layoot {Layout}
   # @extends dr.node
   # The base class for all layouts. 
   ###
@@ -2815,7 +2815,7 @@ window.dr = do ->
       # console.log 'stop'
 
   ###*
-  # @class dr.idle
+  # @class dr.idle {Util}
   # @extends Eventable
   # Sends onidle events when the application is active and idle.
   #
@@ -2866,7 +2866,7 @@ window.dr = do ->
     return false;
 
   ###*
-  # @class dr.mouse
+  # @class dr.mouse {Input}
   # @extends Eventable
   # Sends mouse events. Often used to listen to onmouseover/x/y events to follow the mouse position.
   #
@@ -3033,7 +3033,7 @@ window.dr = do ->
 
 
   ###*
-  # @class dr.window
+  # @class dr.window {Util}
   # @extends Eventable
   # Sends window resize events. Often used to dynamically reposition views as the window size changes.
   #
@@ -3102,7 +3102,7 @@ window.dr = do ->
 
 
   ###*
-  # @class dr.keyboard
+  # @class dr.keyboard {Input}
   # @extends Eventable
   # Sends keyboard events.
   #
@@ -3186,7 +3186,7 @@ window.dr = do ->
       # console.log 'handleKeyboard', type, target, out, event
 
   ###*
-  # @class dr
+  # @class dr {Core Dreem}
   # Holds builtin and user-created classes and public APIs.
   # 
   # All classes listed here can be invoked with the declarative syntax, e.g. &lt;node>&lt;/node> or &lt;view>&lt;/view>
@@ -3217,7 +3217,7 @@ window.dr = do ->
 
   # virtual classes declared for documentation purposes
   ###*
-  # @class dr.method
+  # @class dr.method {Core Dreem}
   # Declares a member function in a node, view, class or other class instance. Methods can only be created with the &lt;method>&lt;/method> tag syntax.
   # 
   # If a method overrides an existing method, any existing (super) method(s) will be called first automatically.
@@ -3315,7 +3315,7 @@ window.dr = do ->
   ###
 
   ###*
-  # @class dr.handler
+  # @class dr.handler {Core Dreem}
   # Declares a handler in a node, view, class or other class instance. Handlers can only be created with the `<handler></handler>` tag syntax.
   #
   # Handlers are called when an event fires with new value, if available.
@@ -3386,7 +3386,7 @@ window.dr = do ->
   ###
 
   ###*
-  # @class dr.attribute
+  # @class dr.attribute {Core Dreem}
   # Adds a variable to a node, view, class or other class instance. Attributes can only be created with the &lt;attribute>&lt;/attribute> tag syntax.
   # 
   # Attributes allow classes to declare new variables with a specific type and default value. 

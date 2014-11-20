@@ -20,7 +20,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. -->
 <!--/**
-      * @class dr.constantlayout
+      * @class dr.constantlayout {Layout}
       * @extends dr.layoot
       * A layout that sets the target attribute name to the target value for 
       * each subview.

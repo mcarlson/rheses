@@ -1,5 +1,6 @@
 git reset ./docs/api/
 rm -rf docs/api/
+./docs/lib/config.rb
 coffee -mo ./ -c *.coffee
 node ./bin/finddoccomments.js > ./classdocs.js
 jsduck layout.js classdocs.js --tags ./docs/lib/custom_tags.rb --guides=./docs/guides.json --categories=./docs/categories.json --output=./docs/api/ --eg-iframe=jsduck_iframe.html --title="Dreem API documentation" --footer="Copyright (c) 2014 Teem2 LLC"

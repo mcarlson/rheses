@@ -1,5 +1,5 @@
 /**
-     * @class dr.ace
+     * @class dr.ace {UI Components}
      * @extends dr.view
      * Ace editor component.
      *
@@ -40,7 +40,7 @@
         * @param {dr.ace} view The dr.ace that fired the event
         */
 /**
-      * @class dr.alignlayout
+      * @class dr.alignlayout {Layout}
       * @extends dr.variablelayout
       * A variablelayout that aligns each view vertically or horizontally
       * relative to all the other views.
@@ -63,7 +63,7 @@
     * Determine the maximum subview width/height according to the alignment.
     */
 /**
-     * @class dr.art
+     * @class dr.art {UI Components}
      * @extends dr.view
      * Vector graphics support using svg.
      *
@@ -135,7 +135,7 @@
         * Fired when the art has animated its path to the next position
         */
 /**
-     * @class dr.audioplayer
+     * @class dr.audioplayer {UI Components}
      * @extends dr.node
      * audioplayer wraps the web audio APIs to provide a declarative interface to play audio.
      *
@@ -194,7 +194,7 @@
         * An array of numbers representing the FFT analysis of the audio as it's playing.
         */
 /**
-     * @class dr.bitmap
+     * @class dr.bitmap {UI Components}
      * @extends dr.view
      * Loads an image from a URL.
      *
@@ -215,7 +215,7 @@
              * Fired when there is an error loading the bitmap
              */
 /**
-     * @class dr.boundslayout
+     * @class dr.boundslayout {Layout}
      * @extends dr.layout
      * Sets the parent view's size to match the bounds of its children.
      *
@@ -248,7 +248,7 @@
         * Optionally skip bounds calculations for a specific axis.
         */
 /**
-     * @class dr.buttonbase
+     * @class dr.buttonbase {UI Components}
      * @extends dr.view
      * Base class for button components. Buttons share common elements, 
      * including their ability to be selected, a visual element to display
@@ -284,7 +284,7 @@
         * Button text.
         */
 /**
-     * @class dr.checkbutton
+     * @class dr.checkbutton {UI Components}
      * @extends dr.buttonbase
      * Button class consisting of text and a visual element to show the
      * current state of the component. The state of the
@@ -318,7 +318,7 @@
      *
      */
 /**
-      * @class dr.constantlayout
+      * @class dr.constantlayout {Layout}
       * @extends dr.layoot
       * A layout that sets the target attribute name to the target value for 
       * each subview.
@@ -339,7 +339,7 @@
     * The value to set the attribute to.
     */
 /**
-     * @class dr.dataset
+     * @class dr.dataset {Data}
      * @extends dr.node
      * Datasets hold onto a set of JSON data, either inline or loaded from a URL.
      * They are used with lz.replicator for data binding.
@@ -408,7 +408,7 @@
         * The url to load JSON data from.
         */
 /**
-     * @class dr.dragstate
+     * @class dr.dragstate {UI Components}
      * @extends dr.state
      * Allows views to be dragged by the mouse.
      *
@@ -449,7 +449,7 @@
         * The axes to drag on.
         */
 /**
-     * @class dr.gyro
+     * @class dr.gyro {Input}
      * @extends dr.node
      * Receives gyroscope and compass data where available. See [https://w3c.github.io/deviceorientation/spec-source-orientation.html#deviceorientation](https://w3c.github.io/deviceorientation/spec-source-orientation.html#deviceorientation) and [https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html](https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html) for details.
      */
@@ -486,7 +486,7 @@
         * The compass accuracy, see [https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html](https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html) for details.
         */
 /**
-     * @class dr.labelbutton
+     * @class dr.labelbutton {UI Components}
      * @extends dr.buttonbase
      * Button class consisting of text centered in a view. The onclick event
      * is generated when the button is clicked. The visual state of the 
@@ -504,7 +504,7 @@
      *     <text id="hello"></text>
      */
 /**
-     * @class dr.labeltoggle
+     * @class dr.labeltoggle {UI Components}
      * @extends dr.labelbutton
      * Button class consisting of text centered in a view. The state of the
      * button changes each time the button is clicked. The select property
@@ -512,7 +512,7 @@
      * is generated when the button is the selected state.
      */
 /**
-     * @class dr.logger
+     * @class dr.logger {Util}
      * @extends dr.node
      * Logs all attribute setting behavior
      *
@@ -523,7 +523,7 @@
      *     <replicator datapath="$topmovies/searchResponse/results[*]/movie[take(/releaseYear,/duration,/rating)]" classname="logger"></replicator>
      */
 /**
-   * @class dr.rangeslider
+   * @class dr.rangeslider {UI Components}
    * @extends dr.view
    * An input component whose upper and lower bounds are changed via mouse clicks or drags.
    *
@@ -623,7 +623,7 @@
       * The selected color of the upper bound slider.
       */
 /**
-     * @class dr.replicator
+     * @class dr.replicator {Data}
      * @extends dr.node
      * Handles replication and data binding.
      *
@@ -807,7 +807,7 @@
         * @returns {Object[]} The accum array. Must be returned otherwise results will be lost.
         */
 /**
-      * @class dr.resizelayout
+      * @class dr.resizelayout {Layout}
       * @extends dr.spacedlayout
       * Resizes one or more views to fill in any remaining space.
       *
@@ -820,7 +820,7 @@
       *     <view height="15" bgcolor="lightblue"></view>
       */
 /**
-     * @class dr.shim
+     * @class dr.shim {Util}
      * @extends dr.node
      * Connects to the shared event bus. When data is sent with a given type, a corresponding event is sent. For example, send('blah', {}) sends data with the 'blah' type, other shims will receive the object via an 'onblah' event.
      */
@@ -843,7 +843,7 @@
         * @param {Object} data The data to be sent.
         */
 /**
-      * @class dr.shrinktofit
+      * @class dr.shrinktofit {Layout}
       * @extends dr.layoot
       * A special "layout" that resizes the parent to fit the children 
       * rather than laying out the children.
@@ -877,7 +877,7 @@
     * @private
     */
 /**
-     * @class dr.simplelayout
+     * @class dr.simplelayout {Layout}
      * @extends dr.layout
      * A layout that stacks views on the x or y axis.
      *
@@ -902,7 +902,7 @@
         * The axis to stack on
         */
 /**
-     * @class dr.slider
+     * @class dr.slider {UI Components}
      * @extends dr.view
      * An input component whose state is changed when the mouse is dragged.
      *
@@ -949,7 +949,7 @@
         * The selected color of the slider.
         */
 /**
-      * @class dr.spacedlayout
+      * @class dr.spacedlayout {Layout}
       * @extends dr.variablelayout
       * A variableLayout that positions views along an axis using an inset, 
       * outset and spacing value.
@@ -981,7 +981,7 @@
     * will orient them vertically.
     */
 /**
-     * @class dr.stats
+     * @class dr.stats {Util}
      * @extends dr.view
      * wraps the three.js stats control which shows framerate over time
      *
@@ -991,7 +991,7 @@
      *     <stats></stats>
      */
 /**
-     * @class dr.touch
+     * @class dr.touch {Input}
      * @extends dr.node
      * Receives touch and multitouch data where available.
      */
@@ -1008,7 +1008,7 @@
         * An array of x/y coordinates for all fingers, where available. See [https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Touch_events](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Touch_events) for more details
         */
 /**
-      * @class dr.variablelayout
+      * @class dr.variablelayout {Layout}
       * @extends dr.constantlayout
       * Allows for variation based on the index and subview. An updateSubview 
       * method is provided that can be overriden to provide variable behavior.
@@ -1085,7 +1085,7 @@
     * @return {void}
     */
 /**
-     * @class dr.webpage
+     * @class dr.webpage {UI Components}
      * @extends dr.view
      * iframe component for embedding dreem code or html in a dreem application.
      * The size of the iframe matches the width/height of the view when the
@@ -1127,7 +1127,7 @@
         * static web pages, specify the src attribute, but do not use contents.
         */
 /**
-      * @class dr.wrappinglayout
+      * @class dr.wrappinglayout {Layout}
       * @extends dr.variablelayout
       * An extension of VariableLayout that positions views along an axis using
       * an inset, outset and spacing value. Views will be wrapped when they

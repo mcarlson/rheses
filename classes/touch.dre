@@ -20,7 +20,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. -->
     <!--/**
-     * @class dr.touch
+     * @class dr.touch {Input}
      * @extends dr.node
      * Receives touch and multitouch data where available.
      */-->

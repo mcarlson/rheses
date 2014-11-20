@@ -20,7 +20,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. -->
 <!--/**
-      * @class dr.alignlayout
+      * @class dr.alignlayout {Layout}
       * @extends dr.variablelayout
       * A variablelayout that aligns each view vertically or horizontally
       * relative to all the other views.

@@ -77,7 +77,7 @@
   })();
 
   window.dr = (function() {
-    var Class, Eventable, Events, Idle, InputText, Keyboard, Layoot, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, capabilities, compiler, constraintScopes, debug, dom, exports, fcamelCase, hiddenAttributes, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, otherstyles, querystring, rdashAlpha, showWarnings, skipEvent, ss, ss2, stylemap, triggerlock, warnings, _initConstraints;
+    var Class, Eventable, Events, Idle, InputText, Keyboard, Layoot, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, capabilities, compiler, constraintScopes, debug, dom, exports, fcamelCase, hiddenAttributes, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, otherstyles, querystring, rdashAlpha, showWarnings, skipEvent, ss, ss2, stylemap, test, triggerlock, warnings, _initConstraints;
     mixOf = function() {
       var Mixed, base, i, method, mixin, mixins, name, _i, _ref;
       base = arguments[0], mixins = 2 &lt;= arguments.length ? __slice.call(arguments, 1) : [];
@@ -324,7 +324,7 @@
     })();
 
 <span id='Eventable'>    /**
-</span>     * @class Eventable
+</span>     * @class Eventable {Core Dreem}
      * @extends Module
      * The baseclass used by everything in dreem. Adds higher level event APIs.
      */
@@ -471,6 +471,7 @@
     };
     querystring = window.location.search;
     debug = querystring.indexOf(&#39;debug&#39;) &gt; 0;
+    test = querystring.indexOf(&#39;test&#39;) &gt; 0;
     compiler = (function() {
       var cacheData, cacheKey, compile, compileCache, compiledebug, exports, findBindings, nocache, scriptCache, strict, transform, usecache;
       nocache = querystring.indexOf(&#39;nocache&#39;) &gt; 0;
@@ -628,7 +629,7 @@
     };
 
 <span id='dr-node'>    /**
-</span>     * @class dr.node
+</span>     * @class dr.node {Core Dreem}
      * @extends Eventable
      * The nonvisual base class for everything in dreem. Handles parent/child relationships between tags.
      *
@@ -1481,7 +1482,7 @@
 
 <span id='dr-view'>    /**
 </span>     * @aside guide constraints
-     * @class dr.view
+     * @class dr.view {UI Components}
      * @extends dr.node
      * The visual base class for everything in dreem. Views extend dr.node to add the ability to set and animate visual attributes, and interact with the mouse.
      *
@@ -1946,7 +1947,7 @@
     })(Node);
 
 <span id='dr-inputtext'>    /**
-</span>     * @class dr.inputtext
+</span>     * @class dr.inputtext {UI Components, Input}
      * @extends dr.view
      * Provides an editable input text field.
      *
@@ -2071,7 +2072,7 @@
     })(View);
 
 <span id='dr-text'>    /**
-</span>     * @class dr.text
+</span>     * @class dr.text {UI Components}
      * @extends dr.view
      * Text component that supports single and multi-line text.
      *
@@ -2307,7 +2308,7 @@
         });
       };
       findAutoIncludes = function(parentel, finalcallback) {
-        var fileloaded, filerequests, findIncludeURLs, findMissingClasses, includedScripts, inlineclasses, jqel, loadInclude, loadIncludes, loadScript, loadqueue, scriptloading, validator;
+        var fileloaded, filereloader, filerequests, findIncludeURLs, findMissingClasses, includedScripts, inlineclasses, jqel, loadInclude, loadIncludes, loadScript, loadqueue, scriptloading, validator;
         jqel = $(parentel);
         includedScripts = {};
         loadqueue = [];
@@ -2435,7 +2436,7 @@
               loadInclude(&quot;/classes/&quot; + name + &quot;.dre&quot;, el);
             }
             return $.when.apply($, filerequests).done(function() {
-              var args, includes, _j, _len1;
+              var args, includes, oneurl, _j, _len1;
               args = 1 &lt;= arguments.length ? __slice.call(arguments, 0) : [];
               if (filerequests.length === 1) {
                 args = [args];
@@ -2457,14 +2458,18 @@
                 loadIncludes(callback);
                 return;
               }
-              return $.getScript(&#39;/lib/one_base.js&#39;, function() {
+              oneurl = &#39;/lib/one_base.js&#39;;
+              return $.ajax({
+                dataType: &quot;script&quot;,
+                cache: true,
+                url: oneurl
+              }).done(function() {
+                var scriptloaded, _k, _l, _len2, _len3, _ref2, _ref3, _ref4;
                 ONE.base_.call(Eventable.prototype);
                 Eventable.prototype.enumfalse(Eventable.prototype.keys());
                 Node.prototype.enumfalse(Node.prototype.keys());
                 View.prototype.enumfalse(View.prototype.keys());
-                return Layout.prototype.enumfalse(Layout.prototype.keys());
-              }).done(function() {
-                var scriptloaded, _k, _l, _len2, _len3, _ref2, _ref3, _ref4;
+                Layout.prototype.enumfalse(Layout.prototype.keys());
                 scriptloaded = false;
                 _ref2 = jqel.find(&#39;[scriptincludes]&#39;);
                 for (_k = 0, _len2 = _ref2.length; _k &lt; _len2; _k++) {
@@ -2479,7 +2484,7 @@
                   return callback();
                 }
               }).fail(function() {
-                return console.warn(&#39;failed to load /lib/one_base.js&#39;);
+                return console.warn(&quot;failed to load &quot; + oneurl);
               });
             }).fail(function() {
               var args, _j, _len1;
@@ -2504,24 +2509,40 @@
             }
           });
         };
+        filereloader = function() {
+          return $.ajax({
+            url: &#39;/watchfile/&#39;,
+            datatype: &#39;text&#39;,
+            data: {
+              url: window.location.pathname
+            },
+            success: function(data) {
+              if (data === window.location.pathname) {
+                return window.location.reload();
+              }
+            }
+          }).done(function(data) {
+            return filereloader();
+          });
+        };
         validator = function() {
-          var prom, url;
-          url = &#39;/validate/&#39;;
-          return prom = $.ajax({
-            url: url,
+          return $.ajax({
+            url: &#39;/validate/&#39;,
             data: {
               url: window.location.pathname
             },
             success: function(data) {
               if (data.length) {
-                return showWarnings(data);
+                showWarnings(data);
               }
+              return filereloader();
+            },
+            error: function(err) {
+              return console.warn(&#39;Validation requires the Teem server&#39;);
             }
-          }).always(function() {
-            return finalcallback();
-          });
+          }).always(finalcallback);
         };
-        return loadIncludes(validator);
+        return loadIncludes(test ? finalcallback : validator);
       };
       specialtags = [&#39;handler&#39;, &#39;method&#39;, &#39;attribute&#39;, &#39;setter&#39;, &#39;include&#39;];
       builtinTags = [&#39;a&#39;, &#39;abbr&#39;, &#39;address&#39;, &#39;area&#39;, &#39;article&#39;, &#39;aside&#39;, &#39;audio&#39;, &#39;b&#39;, &#39;base&#39;, &#39;bdi&#39;, &#39;bdo&#39;, &#39;blockquote&#39;, &#39;body&#39;, &#39;br&#39;, &#39;button&#39;, &#39;canvas&#39;, &#39;caption&#39;, &#39;cite&#39;, &#39;code&#39;, &#39;col&#39;, &#39;colgroup&#39;, &#39;command&#39;, &#39;datalist&#39;, &#39;dd&#39;, &#39;del&#39;, &#39;details&#39;, &#39;dfn&#39;, &#39;div&#39;, &#39;dl&#39;, &#39;dt&#39;, &#39;em&#39;, &#39;embed&#39;, &#39;fieldset&#39;, &#39;figcaption&#39;, &#39;figure&#39;, &#39;footer&#39;, &#39;form&#39;, &#39;h1&#39;, &#39;h2&#39;, &#39;h3&#39;, &#39;h4&#39;, &#39;h5&#39;, &#39;h6&#39;, &#39;head&#39;, &#39;header&#39;, &#39;hgroup&#39;, &#39;hr&#39;, &#39;html&#39;, &#39;i&#39;, &#39;iframe&#39;, &#39;img&#39;, &#39;image&#39;, &#39;input&#39;, &#39;ins&#39;, &#39;kbd&#39;, &#39;keygen&#39;, &#39;label&#39;, &#39;legend&#39;, &#39;li&#39;, &#39;link&#39;, &#39;map&#39;, &#39;mark&#39;, &#39;menu&#39;, &#39;meta&#39;, &#39;meter&#39;, &#39;nav&#39;, &#39;noscript&#39;, &#39;object&#39;, &#39;ol&#39;, &#39;optgroup&#39;, &#39;option&#39;, &#39;output&#39;, &#39;p&#39;, &#39;param&#39;, &#39;pre&#39;, &#39;progress&#39;, &#39;q&#39;, &#39;rp&#39;, &#39;rt&#39;, &#39;ruby&#39;, &#39;s&#39;, &#39;samp&#39;, &#39;script&#39;, &#39;section&#39;, &#39;select&#39;, &#39;small&#39;, &#39;source&#39;, &#39;span&#39;, &#39;strong&#39;, &#39;style&#39;, &#39;sub&#39;, &#39;summary&#39;, &#39;sup&#39;, &#39;table&#39;, &#39;tbody&#39;, &#39;td&#39;, &#39;textarea&#39;, &#39;tfoot&#39;, &#39;th&#39;, &#39;thead&#39;, &#39;time&#39;, &#39;title&#39;, &#39;tr&#39;, &#39;track&#39;, &#39;u&#39;, &#39;ul&#39;, &#39;var&#39;, &#39;video&#39;, &#39;wbr&#39;];
@@ -2783,7 +2804,7 @@
       };
 
 <span id='dr-state'>      /**
-</span>         * @class dr.state
+</span>         * @class dr.state {Core Dreem}
          * @extends dr.node
          * Allows a group of attributes, methods, handlers and instances to be removed and applied as a group.
          * 
@@ -2935,7 +2956,7 @@
     })(Node);
 
 <span id='dr-class'>    /**
-</span>     * @class dr.class
+</span>     * @class dr.class {Core Dreem}
      * Allows new tags to be created. Classes only be created with the &amp;lt;class&gt;&amp;lt;/class&gt; tag syntax. 
      * 
      * Classes can extend any other class, and they extend dr.view by default. 
@@ -3139,7 +3160,7 @@
     })();
 
 <span id='dr-layout'>    /**
-</span>     * @class dr.layout
+</span>     * @class dr.layout {Layout}
      * @extends dr.node
      * The base class for all layouts. 
      *
@@ -3306,7 +3327,7 @@
     })(Node);
 
 <span id='dr-layoot'>    /**
-</span>     * @class dr.layoot
+</span>     * @class dr.layoot {Layout}
      * @extends dr.node
      * The base class for all layouts.
      */
@@ -3551,7 +3572,7 @@
     })(Eventable);
 
 <span id='dr-idle'>    /**
-</span>     * @class dr.idle
+</span>     * @class dr.idle {Util}
      * @extends Eventable
      * Sends onidle events when the application is active and idle.
      *
@@ -3618,7 +3639,7 @@
     };
 
 <span id='dr-mouse'>    /**
-</span>     * @class dr.mouse
+</span>     * @class dr.mouse {Input}
      * @extends Eventable
      * Sends mouse events. Often used to listen to onmouseover/x/y events to follow the mouse position.
      *
@@ -3831,7 +3852,7 @@
     })(StartEventable);
 
 <span id='dr-window'>    /**
-</span>     * @class dr.window
+</span>     * @class dr.window {Util}
      * @extends Eventable
      * Sends window resize events. Often used to dynamically reposition views as the window size changes.
      *
@@ -3911,7 +3932,7 @@
     })(StartEventable);
 
 <span id='dr-keyboard'>    /**
-</span>     * @class dr.keyboard
+</span>     * @class dr.keyboard {Input}
      * @extends Eventable
      * Sends keyboard events.
      *
@@ -4014,7 +4035,7 @@
     })(Eventable);
 
 <span id='dr'>    /**
-</span>     * @class dr
+</span>     * @class dr {Core Dreem}
      * Holds builtin and user-created classes and public APIs.
      * 
      * All classes listed here can be invoked with the declarative syntax, e.g. &amp;lt;node&gt;&amp;lt;/node&gt; or &amp;lt;view&gt;&amp;lt;/view&gt;
@@ -4047,7 +4068,7 @@
     };
 
 <span id='dr-method'>    /**
-</span>     * @class dr.method
+</span>     * @class dr.method {Core Dreem}
      * Declares a member function in a node, view, class or other class instance. Methods can only be created with the &amp;lt;method&gt;&amp;lt;/method&gt; tag syntax.
      * 
      * If a method overrides an existing method, any existing (super) method(s) will be called first automatically.
@@ -4151,7 +4172,7 @@
      */
 
 <span id='dr-handler'>    /**
-</span>     * @class dr.handler
+</span>     * @class dr.handler {Core Dreem}
      * Declares a handler in a node, view, class or other class instance. Handlers can only be created with the `&lt;handler&gt;&lt;/handler&gt;` tag syntax.
      *
      * Handlers are called when an event fires with new value, if available.
@@ -4227,7 +4248,7 @@
      */
 
 <span id='dr-attribute'>    /**
-</span>     * @class dr.attribute
+</span>     * @class dr.attribute {Core Dreem}
      * Adds a variable to a node, view, class or other class instance. Attributes can only be created with the &amp;lt;attribute&gt;&amp;lt;/attribute&gt; tag syntax.
      * 
      * Attributes allow classes to declare new variables with a specific type and default value. 

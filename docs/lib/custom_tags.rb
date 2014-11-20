@@ -73,6 +73,27 @@ class Attribute < JsDuck::Tag::MemberTag
 
 end
 
+module JsDuck::Tag
+  class Class < Tag
+
+    def parse_doc(p, pos)
+      name = p.ident_chain
+      category =if p.look(/\s*\{.*\}.*$/)
+        p.match(/\s*\{/)
+        p.match(/[^\}]+/)
+        p.match(/\}/)
+      end
+
+      {
+          tagname: :class,
+          name: name,
+          category: category
+      }
+    end
+
+  end
+end
+
 class License < JsDuck::Tag::Tag
   def initialize
     @tagname = :license
