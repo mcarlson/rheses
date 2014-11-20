@@ -3032,7 +3032,7 @@ window.dr = do ->
 
 
   ###*
-  # @class dr.window {UI Components}
+  # @class dr.window {Util}
   # @extends Eventable
   # Sends window resize events. Often used to dynamically reposition views as the window size changes.
   #
