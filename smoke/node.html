@@ -26,42 +26,42 @@
     <method name="getTestArray">return this.testArr || (this.testArr = []);</method>
     
     <handler event="onsubnodeAdded" args="node">
-      console.log("EVENT subnodeAdded", node.name);
+      //console.log("EVENT subnodeAdded", node.name);
     </handler>
     <handler event="onsubnodeRemoved" args="node">
-      console.log("EVENT subnodeRemoved", node.name);
+      //console.log("EVENT subnodeRemoved", node.name);
     </handler>
     <method name="doSubnodeAdded" args="node" invokesuper="after">
-      console.log("subnodeAdded", node.name);
+      //console.log("subnodeAdded", node.name);
     </method>
     <method name="doSubnodeRemoved" args="node" invokesuper="after">
-      console.log("subnodeRemoved", node.name);
+      //console.log("subnodeRemoved", node.name);
     </method>
     
     <handler event="onsubviewAdded" args="sv">
-      console.log("EVENT subviewAdded", sv.name);
+      //console.log("EVENT subviewAdded", sv.name);
     </handler>
     <handler event="onsubviewRemoved" args="sv">
-      console.log("EVENT subviewRemoved", sv.name);
+      //console.log("EVENT subviewRemoved", sv.name);
     </handler>
     <method name="doSubviewAdded" args="sv">
-      console.log("subviewAdded", sv.name);
+      //console.log("subviewAdded", sv.name);
     </method>
     <method name="doSubviewRemoved" args="sv">
-      console.log("subviewRemoved", sv.name);
+      //console.log("subviewRemoved", sv.name);
     </method>
     
     <handler event="onlayoutAdded" args="layout">
-      console.log("EVENT layoutAdded", layout.name);
+      //console.log("EVENT layoutAdded", layout.name);
     </handler>
     <handler event="onlayoutRemoved" args="layout">
-      console.log("EVENT layoutRemoved", layout.name);
+      //console.log("EVENT layoutRemoved", layout.name);
     </handler>
     <method name="doLayoutAdded" args="layout">
-      console.log("layoutAdded", layout.name);
+      //console.log("layoutAdded", layout.name);
     </method>
     <method name="doLayoutRemoved" args="layout">
-      console.log("layoutRemoved", layout.name);
+      //console.log("layoutRemoved", layout.name);
     </method>
     
     <node name="foo">
