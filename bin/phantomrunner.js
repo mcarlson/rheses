@@ -21,8 +21,6 @@ for(var i = 0; i < list.length; i++){
 var expected = fs.read('./bin/expected.txt')
 var out = []
 
-var page = require('webpage').create();
-
 var runTest = function (file, callback) {
   var tId;
   var updateTimer = function(ms) {
@@ -30,6 +28,7 @@ var runTest = function (file, callback) {
     if (tId) clearTimeout(tId) 
     tId = setTimeout(callback, ms);
   }
+  var page = require('webpage').create();
   page.onError = function(msg, trace) {
     var msgStack = ['ERROR: ' + msg];
     if (trace && trace.length) {
