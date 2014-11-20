@@ -1675,6 +1675,12 @@
        */
 
 
+<span id='dr-view-attribute-opacity'>      /**
+</span>       * @attribute {String} [opacity=1.0]
+       * Sets this view&#39;s opacity, values can be a float from 0.0 ~ 1.0, or a percentage from 0% to 100%
+       */
+
+
 <span id='dr-view-event-onclick'>      /**
 </span>       * @event onclick
        * Fired when this view is clicked
@@ -1819,55 +1825,7 @@
         if (!(skipstyle || name in ignoredAttributes || name in hiddenAttributes || this[name] === value)) {
           this.sprite.setStyle(name, value);
         }
-        return View.__super__.setAttribute.call(this, name, value, true, skipConstraintSetup, skipconstraintunregistration);
-      };
-
-      View.prototype.__setupPercentConstraint = function(name, value, axis) {
-        var func, funcKey, oldFunc, parent, scale, self;
-        funcKey = &#39;__percentFunc&#39; + name;
-        oldFunc = this[funcKey];
-        parent = this.parent;
-        if (!(parent instanceof Node)) {
-          parent = dr.window;
-          axis = axis.substring(5);
-        }
-        if (oldFunc) {
-          this.stopListening(parent, axis, oldFunc);
-          delete this[funcKey];
-        }
-        if (this._isPercent(value)) {
-          self = this;
-          scale = parseInt(value) / 100;
-          func = this[funcKey] = function() {
-            return self.setAttribute(name, parent[axis] * scale, false, true);
-          };
-          this.listenTo(parent, axis, func);
-          func.call();
-          return true;
-        }
-      };
-
-      View.prototype.set_width = function(width) {
-        return this.setAttribute(&#39;innerwidth&#39;, width - 2 * (this.border + this.padding), true);
-      };
-
-      View.prototype.set_height = function(height) {
-        return this.setAttribute(&#39;innerheight&#39;, height - 2 * (this.border + this.padding), true);
-      };
-
-      View.prototype.set_border = function(border) {
-        return this.__updateInnerMeasures(2 * (border + this.padding));
-      };
-
-      View.prototype.set_padding = function(padding) {
-        return this.__updateInnerMeasures(2 * (this.border + padding));
-      };
-
-      View.prototype.__updateInnerMeasures = function(inset) {
-        this.innerwidth = this.width - inset;
-        this.innerheight = this.height - inset;
-        this.setAttribute(&#39;innerwidth&#39;, this.width - inset, true);
-        return this.setAttribute(&#39;innerheight&#39;, this.height - inset, true);
+        return View.__super__.setAttribute.call(this, name, value, true);
       };
 
       View.prototype.set_clickable = function(clickable) {
@@ -1887,6 +1845,31 @@
       View.prototype.set_id = function(id) {
         View.__super__.set_id.apply(this, arguments);
         return this.sprite.set_id(id);
+      };
+
+      View.prototype.set_ignorelayout = function(ignorelayout) {
+        var layout, layouts, _i, _j, _len, _len1, _results, _results1;
+        if (this.inited &amp;&amp; ignorelayout !== this.ignorelayout) {
+          layouts = this.parent.layouts;
+          if (layouts) {
+            if (ignorelayout) {
+              _results = [];
+              for (_i = 0, _len = layouts.length; _i &lt; _len; _i++) {
+                layout = layouts[_i];
+                _results.push(layout.removeSubview(this));
+              }
+              return _results;
+            } else {
+              this.ignorelayout = ignorelayout;
+              _results1 = [];
+              for (_j = 0, _len1 = layouts.length; _j &lt; _len1; _j++) {
+                layout = layouts[_j];
+                _results1.push(layout.addSubview(this));
+              }
+              return _results1;
+            }
+          }
+        }
       };
 
 

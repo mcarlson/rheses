@@ -179,6 +179,27 @@
       assert.equal(window.logdefaults, 'x:0,y:0,width:0,height:0,clickable:false,clip:false,scrollable:false,visible:true,bordercolor:transparent,borderstyle:solid,border:0,padding:0')
     </handler>
   </view>
+  <!-- Not sure how to deal with these constraints, what is the appropriate behavior? Could special case this.parent.width
+   and turn it into this.parnet.innerSize('width'), but what if that's not whats desired? Also, this constraint could be written differently
+   how to catch all instances of this? -->
+  <!--<view bgcolor="lightgrey" width="100" height="50" border="4" padding="2">-->
+    <!--<view name="inner" width="${this.parent.width}" height="${this.parent.height}" bgcolor="thistle"></view>-->
+
+    <!--<handler event="oninit">-->
+      <!--assert.equal(this.inner.width, 68)-->
+      <!--assert.equal(this.inner.height, 23)-->
+      <!--assert.equal($(this.inner.sprite.el).css('left'), '2px')-->
+      <!--assert.equal($(this.inner.sprite.el).css('top'), '2px')-->
+    <!--</handler>-->
+  <!--</view>-->
+
+  <!-- ensure that opacity passes float vales through unchanged -->
+    <view bgcolor="red" width="100" height="50" opacity="0.22">
+        <!-- Note: the Math.round is due to floating point errors not matching 0.22 with 0.22 -->
+        <handler event="oninit">
+            assert.equal(Math.round($(this.sprite.el).css('opacity') * 100), 22)
+        </handler>
+    </view>
   
 </view>
 <!-- The MIT License (MIT)
