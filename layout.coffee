@@ -1539,6 +1539,12 @@ window.dr = do ->
         (h) ->
           @sprite.setStyle('height', @innerSize('100%', 'height'), true, @sprite.input);
       )
+      # fixes spec/inputext_spec.rb 'can be clicked into' by forwarding user-generated click events
+      # a click() without focus() wasn't enough... See http://stackoverflow.com/questions/210643/in-javascript-can-i-make-a-click-event-fire-programmatically-for-a-file-input
+      @listenTo(@, 'click',
+        () ->
+          @sprite.input.focus()
+      )
 
     _createSprite: (el, attributes) ->
       super
