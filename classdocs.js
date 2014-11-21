@@ -510,6 +510,13 @@
      * button changes each time the button is clicked. The select property
      * holds the current state of the button. The onselected event
      * is generated when the button is the selected state.
+     *
+     *     @example
+     *     <simplelayout axis="y"></simplelayout>
+     *
+     *     <labeltoggle id="toggle" text="Click me to toggle" defaultcolor="plum" selectcolor="orchid"></labeltoggle>
+     *
+     *     <text text="${toggle.selected ? 'selected' : 'not selected'}"></text>
      */
 /**
      * @class dr.logger {Util}

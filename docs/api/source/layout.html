@@ -77,7 +77,7 @@
   })();
 
   window.dr = (function() {
-    var Class, Eventable, Events, Idle, InputText, Keyboard, Layoot, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, capabilities, compiler, constraintScopes, debug, dom, exports, fcamelCase, hiddenAttributes, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, otherstyles, querystring, rdashAlpha, showWarnings, skipEvent, ss, ss2, stylemap, test, triggerlock, warnings, _initConstraints;
+    var Class, Eventable, Events, Idle, InputText, Keyboard, Layoot, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, capabilities, compiler, constraintScopes, debug, dom, exports, fcamelCase, hiddenAttributes, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, otherstyles, querystring, rdashAlpha, showWarnings, ss, ss2, stylemap, test, triggerlock, warnings, _initConstraints;
     mixOf = function() {
       var Mixed, base, i, method, mixin, mixins, name, _i, _ref;
       base = arguments[0], mixins = 2 &lt;= arguments.length ? __slice.call(arguments, 1) : [];
@@ -1328,7 +1328,7 @@
       };
 
       Sprite.prototype.__updatePointerEvents = function() {
-        return this.setStyle(&#39;pointer-events&#39;, this.__clickable || this.__scrollable ? &#39;auto&#39; : &#39;&#39;, true);
+        return this.setStyle(&#39;pointer-events&#39;, this.__clickable || this.__scrollable ? &#39;auto&#39; : &#39;none&#39;, true);
       };
 
       Sprite.prototype.destroy = function() {
@@ -1841,7 +1841,7 @@
            */
           this.sendEvent(&#39;subviewAdded&#39;, node);
           return this.doSubviewAdded(node);
-        } else if (node instanceof Layout) {
+        } else if (node instanceof Layoot) {
 
 <span id='dr-view-event-layoutAdded'>          /**
 </span>           * @event layoutAdded
@@ -1869,7 +1869,7 @@
            */
           this.sendEvent(&#39;subviewRemoved&#39;, node);
           return this.doSubviewRemoved(node);
-        } else if (node instanceof Layout) {
+        } else if (node instanceof Layoot) {
 
 <span id='dr-view-event-layoutRemoved'>          /**
 </span>           * @event layoutRemoved
@@ -2470,6 +2470,7 @@
                 Node.prototype.enumfalse(Node.prototype.keys());
                 View.prototype.enumfalse(View.prototype.keys());
                 Layout.prototype.enumfalse(Layout.prototype.keys());
+                Layoot.prototype.enumfalse(Layoot.prototype.keys());
                 scriptloaded = false;
                 _ref2 = jqel.find(&#39;[scriptincludes]&#39;);
                 for (_k = 0, _len2 = _ref2.length; _k &lt; _len2; _k++) {
@@ -3626,17 +3627,6 @@
 
     })(StartEventable);
     mouseEvents = [&#39;click&#39;, &#39;mouseover&#39;, &#39;mouseout&#39;, &#39;mousedown&#39;, &#39;mouseup&#39;];
-    skipEvent = function(e) {
-      if (e.stopPropagation) {
-        e.stopPropagation();
-      }
-      if (e.preventDefault) {
-        e.preventDefault();
-      }
-      e.cancelBubble = true;
-      e.returnValue = false;
-      return false;
-    };
 
 <span id='dr-mouse'>    /**
 </span>     * @class dr.mouse {Input}
@@ -3659,7 +3649,7 @@
      *
      */
     Mouse = (function(_super) {
-      var lastTouchDown, lastTouchOver;
+      var lastTouchDown, lastTouchOver, skipEvent;
 
       __extends(Mouse, _super);
 
@@ -3715,6 +3705,18 @@
         }
       }
 
+      skipEvent = function(e) {
+        if (e.stopPropagation) {
+          e.stopPropagation();
+        }
+        if (e.preventDefault) {
+          e.preventDefault();
+        }
+        e.cancelBubble = true;
+        e.returnValue = false;
+        return false;
+      };
+
       Mouse.prototype.startEventTest = function() {
         var _ref, _ref1, _ref2;
         return ((_ref = this.events[&#39;mousemove&#39;]) != null ? _ref.length : void 0) || ((_ref1 = this.events[&#39;x&#39;]) != null ? _ref1.length : void 0) || ((_ref2 = this.events[&#39;y&#39;]) != null ? _ref2.length : void 0);
@@ -3725,8 +3727,10 @@
         simulatedEvent = document.createEvent(&#39;MouseEvent&#39;);
         simulatedEvent.initMouseEvent(type, true, true, window, 1, first.pageX, first.pageY, first.clientX, first.clientY, false, false, false, false, 0, null);
         first.target.dispatchEvent(simulatedEvent);
-        if (first.target.$view &amp;&amp; first.target.$view.$tagname !== &#39;inputtext&#39;) {
-          return event.preventDefault();
+        if (first.target.$view) {
+          if (!(first.target.$view instanceof InputText)) {
+            return skipEvent(event);
+          }
         }
       };
 
@@ -3775,7 +3779,9 @@
         if (view) {
           if (type === &#39;mousedown&#39;) {
             this._lastMouseDown = view;
-            skipEvent(event);
+            if (!(view instanceof InputText)) {
+              skipEvent(event);
+            }
           }
         }
         if (type === &#39;mouseup&#39; &amp;&amp; this._lastMouseDown &amp;&amp; this._lastMouseDown !== view) {
