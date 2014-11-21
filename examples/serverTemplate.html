@@ -1,0 +1,100 @@
+<html>
+<head>
+  <title>dr33m | Template Workshop 2nd</title>
+  <link rel="stylesheet" href="./css/example.css"/>
+  <script type="text/javascript" src="../lib/jquery-1.9.1.js"></script>
+  <script type="text/javascript" src="../lib/acorn.js"></script>
+  <script type="text/javascript" src="../lib/coffee-script.js"></script>
+  <script type="text/javascript" src="../layout.js"></script>
+  <style type="text/css">
+    body {
+      background-color: white;
+      font-family: 'Helvetica';
+      font-size: 40px;
+      margin: 0px;
+      padding: 0px;
+    }
+    input {
+      font-family: 'Helvetica';
+      font-size: 14px;
+      margin: 0px;
+      padding: 0px;
+      width: 100px;
+    }
+  </style>
+</head>
+<body>
+<view>
+  <shim>
+    <handler event="ongenre" args="genre">
+      console.log('do something with', genre)
+      genrename.setAttribute('text', genre.name)
+    </handler>
+  </shim>
+  <spacedlayout axis="y"></spacedlayout>
+  <text id="genrename"></text>
+  <text id="gyroX"></text>
+  <text id="gyroY"></text>
+  <text id="gyroZ"></text>
+  
+  <text id="accX"></text>
+  <text id="accY"></text>
+  <text id="accZ"></text>
+
+  <text id="touchX"></text>
+  <text id="touchY"></text>
+
+  <gyro id="gyrodata">
+    <handler event="onalpha" args="alpha">
+      gyroX.setAttribute('text', 'gyro yaw : ' + parseInt(alpha));
+    </handler>
+    <handler event="onbeta" args="beta">
+      gyroY.setAttribute('text', 'gyro pitch : ' + parseInt(beta));
+    </handler>
+    <handler event="ongamma" args="gamma">
+      gyroZ.setAttribute('text', 'gyro roll : ' + parseInt(gamma));
+    </handler>
+    <handler event="onx" args="x">
+      accX.setAttribute('text', 'acc x : ' + parseInt(x));
+    </handler>
+    <handler event="ony" args="y">
+      if(y < 20) accY.setAttribute('text', 'acc y : ' + parseInt(y));
+    </handler>
+    <handler event="onz" args="z">
+      accZ.setAttribute('text', 'acc z : ' + parseInt(z));
+    </handler>
+  </gyro>
+
+  <touch>
+    <handler event="onx" args="x">
+      touchX.setAttribute('text', 'touch x : ' + parseInt(x));
+    </handler>
+
+    <handler event="ony" args="y">
+      touchY.setAttribute('text', 'touch y : ' + parseInt(y));
+    </handler>
+  </touch>
+</view>
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+</body>
+</html>

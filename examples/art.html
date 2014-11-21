@@ -1,16 +1,15 @@
 <html>
 <head>
-  <title>Examples of art</title>
-  <script type="text/javascript" src="/lib/jquery-1.9.1.min.js"></script>
-  <script type="text/javascript" src="/lib/acorn.js"></script>
-  <script type="text/javascript" src="/lib/coffee-script.js"></script>
-  <script type="text/javascript" src="/layout.js"></script>
+  <title>dr33m | Art Examples</title>
+  <link rel="stylesheet" href="./css/example.css"/>
+  <script type="text/javascript" src="../lib/jquery-1.9.1.js"></script>
+  <script type="text/javascript" src="../lib/acorn.js"></script>
+  <script type="text/javascript" src="../lib/coffee-script.js"></script>
+  <script type="text/javascript" src="../layout.js"></script>
 </head>
 <body>
-
-<view id="all" width="100%" height="100%" clip="true">
-
-  <simplelayout axis="y"></simplelayout>
+<view id="all" width="100%" height="100%" scrollable="true">
+  <spacedlayout axis="y"></spacedlayout>
 
   <labelbutton text="Animate">
     <!-- Scale the object by the specified zoom factor -->
@@ -36,7 +35,7 @@
     </handler>
   </labelbutton>
 
-  <art id="art_1" width="100" height="100" src="/images/cursorshapes.svg" path="0" stroke="coral" fill="coral" stretches="true" animationcurve="bounce" animationspeed="2000">
+  <art id="art_1" width="100" height="100" src="./img/cursorshapes.svg" path="0" stroke="coral" fill="coral" stretches="true" animationcurve="bounce" animationspeed="2000">
     <handler event="onready">
       console.log("onready");
     </handler>
@@ -50,10 +49,10 @@
     </handler>
   </art>
 
-  <art id="art_2" width="100" height="100" src="/images/siemens-clock.svg">
+  <art id="art_2" width="100" height="100" src="./img/siemens-clock.svg">
   </art>
 
-  <art id="art_3" width="100" height="100" src="/images/button.svg">
+  <art id="art_3" width="100" height="100" src="./img/button.svg">
   </art>
 
   <art id="art_4" width="100" height="100" inline="true"><!--<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events" version="1.1" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" stroke="blue" stroke-width="2" fill="red" /></svg>-->
@@ -61,9 +60,6 @@
       console.log("onclick circle")
     </handler>
   </art>
-
-
 </view>
-
 </body>
 </html>

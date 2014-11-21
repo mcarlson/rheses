@@ -1,27 +1,27 @@
 <html>
 <head>
-  <title>rhes.es</title>
-  <script type="text/javascript" src="/lib/jquery-1.9.1.min.js"></script>
-  <script type="text/javascript" src="/lib/acorn.js"></script>
-  <script type="text/javascript" src="/lib/coffee-script.js"></script>
-  <script type="text/javascript" src="/layout.js"></script>
-  <script type="text/javascript" src="/lib/chai.js"></script>
-  <script>
-    var assert = chai.assert
+  <title>dr33m | Test</title>
+  <link rel="stylesheet" href="./css/example.css"/>
+  <script type="text/javascript" src="../lib/jquery-1.9.1.js"></script>
+  <script type="text/javascript" src="../lib/acorn.js"></script>
+  <script type="text/javascript" src="../lib/coffee-script.js"></script>
+  <script type="text/javascript" src="../layout.js"></script>
+  <script type="text/javascript">
+    var data = {foo: 100};
   </script>
+  <style type="text/css">
+    body {
+        margin: 0;
+        overflow: hidden;
+    }
+  </style>
 </head>
 <body>
-  <view id="container">
-    <text></text>
-
-    <dataset name="tempdata" url="../examples/data/weather.json"></dataset>
-
-    <class name="replclass">
-      <replicator datapath="$tempdata/weather[0]/main" classname="text"></replicator>
-    </class>
-
-    <replclass onsubviews="assert.equal(this.subviews.length, 1)"></replclass>
-  </view>
+<div r-style="top: parent.height - this.height; left: parent.width - this.width; width: parent.width * .5" style="position: relative; background-color: yellow;">
+<div id="testdiv" r-style="top: parent.height - testdiv2.height - this.height; left: parent.width - this.width - 100; width: Math.round(parent.width * .3);" style="position: relative; background-color: red;">Text</div>
+<div id="testdiv2" r-style="left: data.foo//testdiv.left + Math.round(Math.random() * 100); top: testdiv.top; width: window.width * .1" style="position: relative; background-color: green;">Text</div>
+Hello
+</div>
 <!-- The MIT License (MIT)
 
 Copyright ( c ) 2014 Teem2 LLC

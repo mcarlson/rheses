@@ -1,127 +1,122 @@
 <html>
 <head>
   <title>dr33m | Layout Examples</title>
-  <style type="text/css">
-    body {
-      font-family:Arial, Helvetica, sans-serif;
-      font-size:14px;
-    }
-  </style>
+  <link rel="stylesheet" href="./css/example.css"/>
   <script type="text/javascript" src="../lib/jquery-1.9.1.js"></script>
   <script type="text/javascript" src="../lib/acorn.js"></script>
   <script type="text/javascript" src="../lib/coffee-script.js"></script>
   <script type="text/javascript" src="../layout.js"></script>
 </head>
 <body>
-  <view bgcolor="#cccccc" scrollable="true">
-      <class name="item" extends="view" height="15" width="100" bgcolor="red">
-        <handler event="onclick" type="coffee">
-          @count ?= 0
-          @count++
-          
-          switch @count
-            when 1
-              @setAttribute('width', 2 * @width)
-              @setAttribute('height', 2 * @height)
-            when 2
-              @setAttribute('width', @width / 2)
-              @setAttribute('height', @height / 2)
-            when 3
-              new dr.item(null, {parent:@parent, width:50, height:50, bgcolor:'purple'})
-            when 4
-              @destroy()
-        </handler>
-      </class>
+<view bgcolor="#cccccc" scrollable="true">
+  <class name="item" extends="view" height="15" width="100" bgcolor="red">
+    <handler event="onclick" type="coffee">
+      @count ?= 0
+      @count++
       
-      <class name="item2" extends="item" height="20" width="40" bgcolor="red"></class>
-      
-      <constantlayout value="25"></constantlayout>
-      <shrinktofit axis="x" xpad="25"></shrinktofit>
-      <spacedlayout axis="y" inset="25" spacing="5" outset="25" collapseparent="true"></spacedlayout>
-      
-      <view width="300" height="20" bgcolor="#999999">
-        <item width="10" height="20" bgcolor="green"></item>
-        <item height="20" layouthint="1"></item>
-        <item layouthint="2" height="20" bgcolor="purple"></item>
-        <item height="20" layouthint="1"></item>
-        <item width="10" height="20" bgcolor="yellow"></item>
-        
-        <resizelayout spacing="1" inset="1" outset="1"></resizelayout>
-      </view>
-      
-      <view bgcolor="#999999" width="300" id="foo">
-        <item2 bgcolor="green"></item2>
-        <item2 layouthint="break"></item2>
-        <item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2>
-        <item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2>
-        <item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2>
-        <item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2>
-        <item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2>
-        <item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2>
-        <item2 bgcolor="yellow"></item2>
-        
-        <wrappinglayout id="bar" inset="5" outset="10" spacing="1" lineinset="2" lineoutset="8" linespacing="4" collapseparent="true"></wrappinglayout>
-      </view>
-      
-      <view bgcolor="#999999">
-        <item bgcolor="green"></item>
-        <item></item>
-        <item></item>
-        <item></item>
-        <item></item>
-        <item></item>
-        <item ignorelayout="true" bgcolor="black"></item>
-        <item></item>
-        <item bgcolor="yellow"></item>
-        
-        <constantlayout value="20"></constantlayout>
-        
-        <variablelayout attribute="y" value="10" collapseparent="true">
-          <method name="updateSubview" args="count, view, attribute, value">
-            view.setAttribute(attribute, value)
-            return value + view.height + 5
-          </method>
-          <method name="updateParent" args="attribute, value">
-            this.parent.setAttribute(attribute === 'x' ? 'width' : 'height', value + 5)
-          </method>
-        </variablelayout>
-        
-        <shrinktofit axis="x" xpad="4"></shrinktofit>
-      </view>
-      
-      <view width="200" bgcolor="#999999">
-        <item width="10" height="100" bgcolor="green"></item>
-        <item width="20" height="50"></item>
-        <item width="30" height="90"></item>
-        <item width="40" height="20"></item>
-        <item width="50" height="75" bgcolor="yellow"></item>
-        
-        <alignlayout align="top" collapseparent="true"></alignlayout>
-        <spacedlayout></spacedlayout>
-      </view>
-      
-      <view bgcolor="#999999">
-        <item width="10" height="100" bgcolor="green"></item>
-        <item width="20" height="50"></item>
-        <item width="30" height="90"></item>
-        <item width="40" height="20"></item>
-        <item width="50" height="75" bgcolor="yellow"></item>
-        
-        <alignlayout collapseparent="true"></alignlayout>
-        <spacedlayout axis="x" inset="5" spacing="1" outset="10" reverse="true" collapseparent="true"></spacedlayout>
-      </view>
-      
-      <view bgcolor="#999999">
-        <item width="10" height="100" bgcolor="green"></item>
-        <item width="20" height="50"></item>
-        <item width="30" height="90"></item>
-        <item width="40" height="20"></item>
-        <item width="50" height="75" bgcolor="yellow"></item>
-        
-        <alignlayout align="bottom" collapseparent="true"></alignlayout>
-        <spacedlayout axis="x" inset="5" spacing="1" outset="10" collapseparent="true"></spacedlayout>
-      </view>
+      switch @count
+        when 1
+          @setAttribute('width', 2 * @width)
+          @setAttribute('height', 2 * @height)
+        when 2
+          @setAttribute('width', @width / 2)
+          @setAttribute('height', @height / 2)
+        when 3
+          new dr.item(null, {parent:@parent, width:50, height:50, bgcolor:'purple'})
+        when 4
+          @destroy()
+    </handler>
+  </class>
+  
+  <class name="item2" extends="item" height="20" width="40" bgcolor="red"></class>
+  
+  <constantlayout value="25"></constantlayout>
+  <shrinktofit axis="x" xpad="25"></shrinktofit>
+  <spacedlayout axis="y" inset="25" spacing="5" outset="25" collapseparent="true"></spacedlayout>
+  
+  <view width="300" height="20" bgcolor="#999999">
+    <item width="10" height="20" bgcolor="green"></item>
+    <item height="20" layouthint="1"></item>
+    <item layouthint="2" height="20" bgcolor="purple"></item>
+    <item height="20" layouthint="1"></item>
+    <item width="10" height="20" bgcolor="yellow"></item>
+    
+    <resizelayout spacing="1" inset="1" outset="1"></resizelayout>
   </view>
+  
+  <view bgcolor="#999999" width="300" id="foo">
+    <item2 bgcolor="green"></item2>
+    <item2 layouthint="break"></item2>
+    <item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2>
+    <item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2>
+    <item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2>
+    <item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2>
+    <item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2>
+    <item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2>
+    <item2 bgcolor="yellow"></item2>
+    
+    <wrappinglayout id="bar" inset="5" outset="10" spacing="1" lineinset="2" lineoutset="8" linespacing="4" collapseparent="true"></wrappinglayout>
+  </view>
+  
+  <view bgcolor="#999999">
+    <item bgcolor="green"></item>
+    <item></item>
+    <item></item>
+    <item></item>
+    <item></item>
+    <item></item>
+    <item ignorelayout="true" bgcolor="black"></item>
+    <item></item>
+    <item bgcolor="yellow"></item>
+    
+    <constantlayout value="20"></constantlayout>
+    
+    <variablelayout attribute="y" value="10" collapseparent="true">
+      <method name="updateSubview" args="count, view, attribute, value">
+        view.setAttribute(attribute, value)
+        return value + view.height + 5
+      </method>
+      <method name="updateParent" args="attribute, value">
+        this.parent.setAttribute(attribute === 'x' ? 'width' : 'height', value + 5)
+      </method>
+    </variablelayout>
+    
+    <shrinktofit axis="x" xpad="4"></shrinktofit>
+  </view>
+  
+  <view width="200" bgcolor="#999999">
+    <item width="10" height="100" bgcolor="green"></item>
+    <item width="20" height="50"></item>
+    <item width="30" height="90"></item>
+    <item width="40" height="20"></item>
+    <item width="50" height="75" bgcolor="yellow"></item>
+    
+    <alignlayout align="top" collapseparent="true"></alignlayout>
+    <spacedlayout></spacedlayout>
+  </view>
+  
+  <view bgcolor="#999999">
+    <item width="10" height="100" bgcolor="green"></item>
+    <item width="20" height="50"></item>
+    <item width="30" height="90"></item>
+    <item width="40" height="20"></item>
+    <item width="50" height="75" bgcolor="yellow"></item>
+    
+    <alignlayout collapseparent="true"></alignlayout>
+    <spacedlayout axis="x" inset="5" spacing="1" outset="10" reverse="true" collapseparent="true"></spacedlayout>
+  </view>
+  
+  <view bgcolor="#999999">
+    <item width="10" height="100" bgcolor="green"></item>
+    <item width="20" height="50"></item>
+    <item width="30" height="90"></item>
+    <item width="40" height="20"></item>
+    <item width="50" height="75" bgcolor="yellow"></item>
+    
+    <alignlayout align="bottom" collapseparent="true"></alignlayout>
+    <spacedlayout axis="x" inset="5" spacing="1" outset="10" collapseparent="true"></spacedlayout>
+  </view>
+</view>
 <!-- The MIT License (MIT)
 
 Copyright ( c ) 2014 Teem2 LLC

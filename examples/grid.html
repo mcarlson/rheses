@@ -1,24 +1,30 @@
 <html>
 <head>
-	<script type="text/javascript" src="lib/jquery-1.9.1.min.js"></script>
-	<script type="text/javascript" src="lib/acorn.js"></script>
-	<script type="text/javascript" src="rheses.min.js"></script>
-	<script type="text/javascript">
-	var data = {foo: 100};
-	</script>
-	<style type="text/css">
-	body {
-		margin: 0;
-		overflow: hidden;
-	}
-	</style>
+  <title>dr33m | Grid Example</title>
+  <link rel="stylesheet" href="./css/example.css"/>
+  <script type="text/javascript" src="../lib/jquery-1.9.1.js"></script>
+  <script type="text/javascript" src="../lib/acorn.js"></script>
+  <script type="text/javascript" src="../lib/coffee-script.js"></script>
+  <script type="text/javascript" src="../layout.js"></script>
+  <style type="text/css">
+    input {
+      font-family: 'Helvetica';
+      font-size: 14px;
+      margin: 0px;
+      padding: 0px;
+      width: 100px;
+    }
+  </style>
 </head>
 <body>
-<div r-style="top: parent.height - this.height; left: parent.width - this.width; width: parent.width * .5" style="position: relative; background-color: yellow;">
-<div id="testdiv" r-style="top: parent.height - testdiv2.height - this.height; left: parent.width - this.width - 100; width: Math.round(parent.width * .3);" style="position: relative; background-color: red;">Text</div>
-<div id="testdiv2" r-style="left: data.foo//testdiv.left + Math.round(Math.random() * 100); top: testdiv.top; width: window.width * .1" style="position: relative; background-color: green;">Text</div>
-Hello
-</div>
+<view id="container" width="${dr.window.width}" height="1000" bgcolor="gray" clip="true">
+  <dataset name="genres" url="./data/moviegenres.json"></dataset>
+
+  <class name="colortext" bgcolor="silver" extends="text" height="${16 + (Math.random() * 40)}" transition="all .2s"></class>
+
+  <wrappinglayout spacing="5" linespacing="10"></wrappinglayout>
+  <replicator datapath="$genres/genres[*]/name" classname="colortext"></replicator>
+</view>
 <!-- The MIT License (MIT)
 
 Copyright ( c ) 2014 Teem2 LLC
