@@ -1659,6 +1659,18 @@
 
 
       /**
+       * @attribute {Number} [scale=1.0]
+       * Sets this view's height and width scale
+       */
+
+
+      /**
+       * @attribute {String} [rotation=0deg]
+       * Sets this view's rotation in degrees or radians (i.e. '40deg' or '1.25rad')
+       */
+
+
+      /**
        * @attribute {String} [opacity=1.0]
        * Sets this view's opacity, values can be a float from 0.0 ~ 1.0
        */
@@ -1861,6 +1873,22 @@
 
       View.prototype.set_clickable = function(clickable) {
         return this.sprite.set_clickable(clickable);
+      };
+
+      View.prototype.set_scale = function(scale) {
+        var transform;
+        scale = 'scale3d(' + scale + ', ' + scale + ', 1.0)';
+        transform = this.sprite.el.style['transform'];
+        transform.replace(/scale3d\([^\)]*\)/, '');
+        return this.sprite.setStyle('transform', transform + ' ' + scale);
+      };
+
+      View.prototype.set_rotation = function(rotation) {
+        var transform;
+        rotation = 'rotate3d(0, 0, 1.0, ' + rotation + ')';
+        transform = this.sprite.el.style['transform'];
+        transform.replace(/rotate3d\([^\)]*\)/, '');
+        return this.sprite.setStyle('transform', transform + ' ' + rotation);
       };
 
       View.prototype.set_parent = function(parent) {
