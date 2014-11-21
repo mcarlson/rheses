@@ -2007,6 +2007,9 @@
         this.listenTo(this, 'height', function(h) {
           return this.sprite.setStyle('height', this.innerSize('100%', 'height'), true, this.sprite.input);
         });
+        this.listenTo(this, 'click', function() {
+          return this.sprite.input.focus();
+        });
       }
 
       InputText.prototype._createSprite = function(el, attributes) {
