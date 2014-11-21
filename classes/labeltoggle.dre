@@ -29,7 +29,7 @@ SOFTWARE. -->
      * is generated when the button is the selected state.
      *
      *     @example
-     *     <simplelayout axis="y"></simplelayout>
+     *     <spacedlayout axis="y"></spacedlayout>
      *
      *     <labeltoggle id="toggle" text="Click me to toggle" defaultcolor="plum" selectcolor="orchid"></labeltoggle>
      *

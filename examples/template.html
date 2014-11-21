@@ -8,18 +8,7 @@
   <script type="text/javascript" src="../layout.js"></script>
   <style type="text/css">
     body {
-      background-color: white;
-      font-family: 'Helvetica';
       font-size: 40px;
-      margin: 0px;
-      padding: 0px;
-    }
-    input {
-      font-family: 'Helvetica';
-      font-size: 14px;
-      margin: 0px;
-      padding: 0px;
-      width: 100px;
     }
   </style>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -32,7 +21,7 @@
     </handler>
   </shim>
 
-  <simplelayout axis="y"></simplelayout>
+  <spacedlayout axis="y" spacing="2"></spacedlayout>
   <dataset name="genres" url="./data/moviegenres.json"></dataset>
 
   <class name="highlight" x="30" extends="text">
@@ -45,8 +34,8 @@
   <highlight>A single instance of highlight</highlight>
 
   <class name="genreview">
-    <boundslayout></boundslayout>
-    <simplelayout axis="y"></simplelayout>
+    <shrinktofit axis="both"></shrinktofit>
+    <spacedlayout axis="y" spacing="2"></spacedlayout>
     <replicator classname="text" datapath="/name"></replicator>
     <replicator classname="highlight" datapath="/subgenres[*]/name[@]">
       <method name="filterfunction" args="obj, accum, sel">

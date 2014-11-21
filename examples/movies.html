@@ -22,7 +22,7 @@
   <dataset name="topmovies" url="./data/top_movies.json"></dataset>
   <dataset name="actor"></dataset>
 
-  <class name="castmember" extends="text" font-size="60" font-weight="bold" color="white" text-shadow="0px 0px 5px rgba(173, 173, 173, 1)" z-index="10000">
+  <class name="castmember" extends="text" font-size="40" font-weight="bold" color="white" text-shadow="0px 0px 5px rgba(173, 173, 173, 1)" z-index="10000">
     <handler event="onmouseover">
       this.setAttribute('color', 'pink')
     </handler>
@@ -35,7 +35,7 @@
       //console.log('click', url, dr.datasets)
       dr.datasets.actor.setAttribute('url', url);
       //console.log('clicked cast member', this.parent, this.replicator)
-      this.replicator.clear();
+      this.replicator.destroy();
     </handler>
   </class>
 
@@ -47,14 +47,17 @@
       this.setAttribute('border-width', 0);
     </handler>
     <handler event="onclick">
-      new dr.replicator(null, {datapath: "/cast[0..4]/name", classname: "castmember", parent: this})
+      if @myRep
+        @myRep.destroy()
+      else
+        new dr.replicator(null, {name:"myRep", datapath: "/cast[0..4]/name", classname: "castmember", parent: this})
     </handler>
     <handler event="ondata" args="data">
       if data.images
         for image in data.images
-          continue if image.width > 120 or image.width < 0
+          continue if image.width > 120 or 0 > image.width
 
-        return if image.width > 120 or image.width < 20
+        return if image.width > 120 or 20 > image.width
 
         this.setAttribute('width', image.width * 2);
         this.setAttribute('height', image.height * 2);
@@ -68,11 +71,12 @@
         # console.log('genre color', color);
     </handler>
 
-    <simplelayout axis="y" spacing="1"></simplelayout>
+    <spacedlayout axis="y" spacing="1"></spacedlayout>
     <!-- <replicator datapath="/cast[0..5]/name" classname="castmember"></replicator> -->
   </class>
 
-  <simplelayout></simplelayout>
+  <spacedlayout spacing="2"></spacedlayout>
+
   <view width="${dr.window.width - this.parent.actors.width - 10}">
     <handler event="onx" reference="dr.mouse" args="x">
       //this.setAttribute('width', dr.mouse.x)
@@ -83,25 +87,25 @@
   </view>
 
   <view name="actors" x="${dr.window.width - this.width}" height="${dr.window.height}" bgcolor="white" transition="width .2s" position="fixed">
-    <boundslayout ignoreattr="height"></boundslayout>
-    <simplelayout axis="y" spacing="1"></simplelayout>
+    <shrinktofit axis="x"></shrinktofit>
+    <spacedlayout axis="y" spacing="1"></spacedlayout>
     <replicator datapath="$actor/searchResponse/results[0..10]/name/filmography[*]/title" classname="text"></replicator>
   </view>
 
   <!-- <dataset name="movies" url="/api/search/v2.1/amgvideo/filterbrowse?entitytype=movie&filter=editorialrating%3E8&filter=releaseyear%3E1500&&include=cast,images&size=1&facet=genre"></dataset> -->
 
-  <class name="facet">
+<!--<class name="facet">
     <handler event="ondata" args="r">
       console.log('facet data', r);
     </handler>
-    <boundslayout></boundslayout>
-    <simplelayout spacing="1"></simplelayout>
+    <shrinktofit></shrinktofit>
+    <spacedlayout spacing="1"></spacedlayout>
     <replicator datapath="/count" classname="text"></replicator>
     <replicator datapath="/name" classname="text"></replicator>
   </class>
 
-  <simplelayout axis="y" spacing="1"></simplelayout>
-<!--     <replicator datapath="$movies/searchResponse/facetCounts[0]/facetCount[*]" classname="facet">
+  <spacedlayout axis="y" spacing="1"></spacedlayout>
+     <replicator datapath="$movies/searchResponse/facetCounts[0]/facetCount[*]" classname="facet">
     <handler event="ondata" args="r">
       console.log('replicator data', r, this, this.parent);
     </handler>

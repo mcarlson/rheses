@@ -28,7 +28,7 @@
   <view id="all" width="${dr.window.width}" height="${dr.window.height}" clip="true">
 
     <view name="lesson" width="${this.parent.width/4}" height="${this.parent.height}" bgcolor="#e0e0e0">
-      <simplelayout axis="y" spacing="10"></simplelayout>
+      <spacedlayout axis="y" spacing="10"></spacedlayout>
       
 <!--   Executing is now automatic
       <labelbutton text="Execute button">
@@ -42,7 +42,7 @@
       </text>
 
       <view name="lesson_buttons">
-        <simplelayout axis="x" spacing="8"></simplelayout>
+        <spacedlayout spacing="8"></spacedlayout>
         <labelbutton name="next" text="Next Lesson" visible="false">
           <handler event="onclick">
             //topview = this.parent.parent.parent;

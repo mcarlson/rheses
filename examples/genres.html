@@ -57,12 +57,11 @@
       }
     </method>
 
-    <boundslayout ignoreattr="width"></boundslayout>
-    <simplelayout axis="y" spacing="0"></simplelayout>
+    <spacedlayout axis="y" spacing="0" collapseparent="true"></spacedlayout>
     <replicator datapath="/name" classname="genre"></replicator>
   </class>
 
-  <simplelayout axis="y" spacing="1"></simplelayout>
+  <spacedlayout axis="y" spacing="1"></spacedlayout>
   <replicator datapath="$genres/genres[*]" classname="genrecontainer"></replicator>
 </view>
 <!-- The MIT License (MIT)

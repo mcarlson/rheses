@@ -3,23 +3,6 @@
   <title>dr33m | Audio Examples</title>
   <link rel="stylesheet" href="./css/example.css"/>
   <link href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet"></link>
-  <style type="text/css">
-    body {
-      background-color: white;
-      font-family: 'Helvetica';
-      font-size: 36px;
-      margin: 0px;
-      padding: 0px;
-      font-size: 14px;
-    }
-    input {
-      font-family: 'Helvetica';
-      font-size: 14px;
-      margin: 0px;
-      padding: 0px;
-      width: 100px;
-    }
-  </style>
   <script type="text/javascript" src="../lib/jquery-1.9.1.js"></script>
   <script type="text/javascript" src="../lib/acorn.js"></script>
   <script type="text/javascript" src="../lib/coffee-script.js"></script>
@@ -29,7 +12,7 @@
 <view>
   <shim id="bus"></shim>
 
-  <audioplayer id="audio" url="./music/YACHT_-_09_-_Im_In_Love_With_A_Ripper_Party_Mix_Instrumental.mp3" fftsize="1024" fftsmoothing="0" playing="true">
+  <audioplayer id="audio" url="./music/YACHT_-_09_-_Im_In_Love_With_A_Ripper_Party_Mix_Instrumental.mp3" fftsize="512" fftsmoothing="0" playing="true">
     <handler event="onfft" args="fft">
       // Deal with JSON.stringify() issues by converting to a regular array
       var copy = Array.apply([], fft);
@@ -49,11 +32,20 @@
     </method>
   </class>
 
-  <view bgcolor="${audio.playing ? 'green' : 'gray'}" opacity="${audio.loaded ? 1 : .8}" width="${(audio.loadprogress * audio.fftsize * .5)}" height="20">
-    <view name="playhead" bgcolor="red" width="${(audio.time / audio.duration) * this.parent.width}" height="20"></view>
-    <view y="3" x="${this.parent.playhead.width}" width="${this.parent.width - this.x}">
-      <simplelayout spacing="2"></simplelayout>
-      <view width="16" class="fa fa-spin fa-spinner">
+  <view name="controls"
+    bgcolor="${audio.playing ? 'green' : 'gray'}" 
+    opacity="${audio.loaded ? 1 : .8}" 
+    width="${1 + (audio.loadprogress * audio.fftsize * 1.5)}" height="20"
+  >
+    <view name="playhead" x="2" y="2" bgcolor="red"
+      width="${(audio.time / audio.duration) * (this.parent.width - 4)}" height="16"
+    ></view>
+    
+    <view y="3">
+      <spacedlayout axis="x" inset="4" spacing="4" collapseparent="true"></spacedlayout>
+      
+      <view width="16" height="16">
+        <text name="txt" class="fa fa-spin fa-spinner"></text>
         <handler event="onclick">
           if (audio.playing) {
             audio.setAttribute('paused', ! audio.paused);
@@ -63,31 +55,36 @@
         </handler>
         <method name="updateState">
           if (audio.loaded) {
-            this.setAttribute('class', 'fa fa-play')
+            this.txt.setAttribute('class', 'fa fa-play')
             if (audio.playing && ! audio.paused) {
-              this.setAttribute('class', 'fa fa-pause')
+              this.txt.setAttribute('class', 'fa fa-pause')
             } else {
-              this.setAttribute('class', 'fa fa-play')
+              this.txt.setAttribute('class', 'fa fa-play')
             }
           } else {
-            this.setAttribute('class', 'fa fa-spin fa-spinner')
+            this.txt.setAttribute('class', 'fa fa-spin fa-spinner')
           }
         </method>
         <handler event="onloaded" method="updateState" reference="audio"></handler>
         <handler event="onpaused" method="updateState" reference="audio"></handler>
         <handler event="onplaying" method="updateState" reference="audio"></handler>
       </view>
-      <view width="16" class="fa fa-stop" onclick="audio.setAttribute('playing', false);"></view>
+      
+      <view width="16" height="16" onclick="audio.setAttribute('playing', false);">
+        <text name="txt" class="fa fa-stop"></text>
+      </view>
+      
       <timetext y="-1" text="${audio.time}"></timetext>
+      
       <text y="-1">/</text>
+      
       <timetext y="-1" text="${audio.duration}"></timetext>
     </view>
   </view>
 
-  <class name="bar" width="1" bgcolor="red" height="${this.data}"></class>
-
-  <view height="256">
-    <simplelayout spacing="0"></simplelayout>
+  <class name="bar" width="2" y="1" bgcolor="red" height="${this.data}"></class>
+  <view width="${this.parent.controls.width}" height="257" bgcolor="black">
+    <spacedlayout inset="1" spacing="1"></spacedlayout>
     <replicator name="foo" classname="bar" data="${audio.fft}" pooling="true"></replicator>
   </view>
 </view>

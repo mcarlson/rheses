@@ -30,7 +30,7 @@ SOFTWARE. -->
      * is generated when the button is the selected state.
      *
      *     @example
-     *     <simplelayout axis="y"></simplelayout>
+     *     <spacedlayout axis="y"></spacedlayout>
      *
      *     <checkbutton text="pink" selectcolor="pink" defaultcolor="lightgrey" bgcolor="white"></checkbutton>
      *     <checkbutton text="blue" selectcolor="lightblue" defaultcolor="lightgrey" bgcolor="white"></checkbutton>
@@ -39,7 +39,7 @@ SOFTWARE. -->
      * Here we listen for the onselected event on a checkbox and print the value that is passed to the handler.
      *
      *     @example
-     *     <simplelayout axis="y"></simplelayout>
+     *     <spacedlayout axis="y"></spacedlayout>
      *
      *     <checkbutton text="green" selectcolor="lightgreen" defaultcolor="lightgrey" bgcolor="white">
      *       <handler event="onselected" args="value">
@@ -48,7 +48,7 @@ SOFTWARE. -->
      *     </checkbutton>
      *
      *     <view>
-     *       <simplelayout axis="x"></simplelayout>
+     *       <spacedlayout></spacedlayout>
      *       <text text="Selected:"></text>
      *       <text id="displayselected"></text>
      *     </view>

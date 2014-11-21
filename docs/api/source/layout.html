@@ -681,7 +681,7 @@
      *
      *     &lt;inchesconverter id=&quot;conv&quot; inchesval=&quot;2&quot;&gt;&lt;/inchesconverter&gt;
      *
-     *     &lt;simplelayout axis=&quot;y&quot;&gt;&lt;/simplelayout&gt;
+     *     &lt;spacedlayout axis=&quot;y&quot;&gt;&lt;/spacedlayout&gt;
      *     &lt;text text=&quot;${conv.inchesval + &#39; inches&#39;}&quot;&gt;&lt;/text&gt;
      *     &lt;text text=&quot;${conv.centimetersval() + &#39; cm&#39;}&quot;&gt;&lt;/text&gt;
      *     &lt;text text=&quot;${conv.metersval() + &#39; m&#39;}&quot;&gt;&lt;/text&gt;
@@ -1952,7 +1952,7 @@
      * Provides an editable input text field.
      *
      *     @example
-     *     &lt;simplelayout axis=&quot;y&quot;&gt;&lt;/simplelayout&gt;
+     *     &lt;spacedlayout axis=&quot;y&quot;&gt;&lt;/spacedlayout&gt;
      *
      *     &lt;text text=&quot;Enter your name&quot;&gt;&lt;/text&gt;
      *
@@ -2814,7 +2814,7 @@
          * Currently, states must end with the string &#39;state&#39; in their name to work properly.
          *
          *     @example
-         *     &lt;simplelayout axis=&quot;y&quot;&gt;&lt;/simplelayout&gt;
+         *     &lt;spacedlayout axis=&quot;y&quot;&gt;&lt;/spacedlayout&gt;
          *     &lt;view id=&quot;square&quot; width=&quot;100&quot; height=&quot;100&quot; bgcolor=&quot;lightgrey&quot;&gt;
          *       &lt;attribute name=&quot;ispink&quot; type=&quot;boolean&quot; value=&quot;false&quot;&gt;&lt;/attribute&gt;
          *       &lt;state name=&quot;pinkstate&quot; applied=&quot;${this.parent.ispink}&quot;&gt;
@@ -2975,7 +2975,7 @@
      *
      *     &lt;tile&gt;&lt;/tile&gt;
      *
-     * Now we&#39;ll extend the tile class with a class called &#39;labeltile&#39;, which contains a label inside of the box. We&#39;ll declare one each of tile and labeltile, and position them with a simplelayout.
+     * Now we&#39;ll extend the tile class with a class called &#39;labeltile&#39;, which contains a label inside of the box. We&#39;ll declare one each of tile and labeltile, and position them with a spacedlayout.
      *
      *     @example
      *     &lt;class name=&quot;tile&quot; extends=&quot;view&quot; bgcolor=&quot;thistle&quot; width=&quot;100&quot; height=&quot;100&quot;&gt;&lt;/class&gt;
@@ -2984,7 +2984,7 @@
      *       &lt;text text=&quot;Tile&quot;&gt;&lt;/text&gt;
      *     &lt;/class&gt;
      *
-     *     &lt;simplelayout axis=&quot;x&quot;&gt;&lt;/simplelayout&gt;
+     *     &lt;spacedlayout&gt;&lt;/spacedlayout&gt;
      *     &lt;tile&gt;&lt;/tile&gt;
      *     &lt;labeltile&gt;&lt;/labeltile&gt;
      *
@@ -2998,7 +2998,7 @@
      *       &lt;text text=&quot;${this.parent.label}&quot;&gt;&lt;/text&gt;
      *     &lt;/class&gt;
      *
-     *     &lt;simplelayout axis=&quot;x&quot;&gt;&lt;/simplelayout&gt;
+     *     &lt;spacedlayout&gt;&lt;/spacedlayout&gt;
      *     &lt;tile&gt;&lt;/tile&gt;
      *     &lt;labeltile label=&quot;The Tile&quot;&gt;&lt;/labeltile&gt;
      *
@@ -3167,14 +3167,14 @@
      *
      * When a new layout is added, it will automatically create and add itself to a layouts array in its parent. In addition, an onlayouts event is fired in the parent when the layouts array changes. This allows the parent to access the layout(s) later.
      *
-     * Here is a view that contains both a simplelayout and a boundslayout.
+     * Here is a view that contains both a spacedlayout and a boundslayout.
      *
      *     @example
-     *     &lt;simplelayout axis=&quot;y&quot;&gt;&lt;/simplelayout&gt;
+     *     &lt;spacedlayout axis=&quot;y&quot;&gt;&lt;/spacedlayout&gt;
      *     &lt;view bgcolor=&quot;oldlace&quot;&gt;
      *       &lt;boundslayout&gt;&lt;/boundslayout&gt;
      *
-     *       &lt;simplelayout axis=&quot;x&quot;&gt;&lt;/simplelayout&gt;
+     *       &lt;spacedlayout&gt;&lt;/spacedlayout&gt;
      *
      *       &lt;view width=&quot;50&quot; height=&quot;50&quot; bgcolor=&quot;lightpink&quot; opacity=&quot;.3&quot;&gt;&lt;/view&gt;
      *       &lt;view width=&quot;50&quot; height=&quot;50&quot; bgcolor=&quot;plum&quot; opacity=&quot;.3&quot;&gt;&lt;/view&gt;
@@ -3582,7 +3582,7 @@
      *       milis.setAttribute(&#39;text&#39;, idleStatus);
      *     &lt;/handler&gt;
      *
-     *     &lt;simplelayout axis=&quot;x&quot;&gt;&lt;/simplelayout&gt;
+     *     &lt;spacedlayout&gt;&lt;/spacedlayout&gt;
      *     &lt;text text=&quot;Miliseconds since app started: &quot;&gt;&lt;/text&gt;
      *     &lt;text id=&quot;milis&quot;&gt;&lt;/text&gt;
      */
@@ -3945,7 +3945,7 @@
      * You might want to track specific keyboard events when text is being entered into an input box. In this example we listen for the enter key and display the value.
      *
      *     @example
-     *     &lt;simplelayout axis=&quot;y&quot; spacing=&quot;25&quot;&gt;&lt;/simplelayout&gt;
+     *     &lt;spacedlayout axis=&quot;y&quot; spacing=&quot;25&quot;&gt;&lt;/spacedlayout&gt;
      *     &lt;inputtext id=&quot;nameinput&quot; bgcolor=&quot;lightgrey&quot;&gt;&lt;/inputtext&gt;
      *     &lt;text id=&quot;keycode&quot; text=&quot;Key Code:&quot;&gt;&lt;/text&gt;
      *     &lt;text id=&quot;entered&quot;&gt;&lt;/text&gt;
@@ -4125,7 +4125,7 @@
      *       &lt;/method&gt;
      *     &lt;/class&gt;
      *
-     *     &lt;simplelayout axis=&quot;x&quot;&gt;&lt;/simplelayout&gt;
+     *     &lt;spacedlayout&gt;&lt;/spacedlayout&gt;
      *
      *     &lt;square id=&quot;square1&quot;&gt;&lt;/square&gt;
      *     &lt;bluesquare id=&quot;square2&quot;&gt;&lt;/bluesquare&gt;
@@ -4284,7 +4284,7 @@
      *       &lt;/handler&gt;
      *     &lt;/class&gt;
      * 
-     *     &lt;simplelayout&gt;&lt;/simplelayout&gt;
+     *     &lt;spacedlayout&gt;&lt;/spacedlayout&gt;
      *     &lt;person&gt;&lt;/person&gt;
      *     &lt;person mood=&quot;sad&quot;&gt;&lt;/person&gt;
      *
@@ -4303,7 +4303,7 @@
      *       &lt;attribute name=&quot;size&quot; type=&quot;number&quot; value=&quot;20&quot;&gt;&lt;/attribute&gt;
      *     &lt;/class&gt;
      * 
-     *     &lt;simplelayout&gt;&lt;/simplelayout&gt;
+     *     &lt;spacedlayout&gt;&lt;/spacedlayout&gt;
      *     &lt;person&gt;&lt;/person&gt;
      *     &lt;person mood=&quot;sad&quot; size=&quot;50&quot;&gt;&lt;/person&gt;
      */

@@ -8,18 +8,16 @@
 </head>
 <body>
 <view id="all" width="100%" height="100%" clip="true">
-
-	<simplelayout axis="x" spacing="10"></simplelayout>
-	<view name="v1" width="50" height="50" bgcolor="green" clickable="true"></view>
-	<view name="v2" width="50" height="50" bgcolor="green" clickable="true">
-		<handler event="onclick" reference="this.parent.v1">
-			console.log("You clicked v1");
-		</handler>
-		<handler event="onclick">
-			console.log("You clicked v2");
-		</handler>
-	</view>
-
+  <spacedlayout spacing="10"></spacedlayout>
+  <view name="v1" width="50" height="50" bgcolor="green" clickable="true"></view>
+  <view name="v2" width="50" height="50" bgcolor="green" clickable="true">
+    <handler event="onclick" reference="this.parent.v1">
+      console.log("You clicked v1");
+    </handler>
+    <handler event="onclick">
+      console.log("You clicked v2");
+    </handler>
+  </view>
 </view> 
 <!-- The MIT License (MIT)
 

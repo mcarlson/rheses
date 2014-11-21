@@ -27,20 +27,20 @@ SOFTWARE. -->
      * This example shows the replicator to creating four text instances, each corresponding to an item in the data attribute:
      *
      *     @example
-     *     <simplelayout></simplelayout>
+     *     <spacedlayout></spacedlayout>
      *     <replicator classname="text" data="[1,2,3,4]"></replicator>
      *
      * Changing the data attribute to a new array causes the replicator to create a new text for each item:
      *
      *     @example
-     *     <simplelayout></simplelayout>
+     *     <spacedlayout></spacedlayout>
      *     <text onclick="repl.setAttribute('data', [5,6,7,8]);">Click to change data</text>
      *     <replicator id="repl" classname="text" data="[1,2,3,4]"></replicator>
      *
      * This example uses a {@link #filterexpression filterexpression} to filter the data to only numbers. Clicking changes {@link #filterexpression filterexpression} to show only non-numbers in the data:
      *
      *     @example
-     *     <simplelayout></simplelayout>
+     *     <spacedlayout></spacedlayout>
      *     <text onclick="repl.setAttribute('filterexpression', '[^\\d]');">Click to change filter</text>
      *     <replicator id="repl" classname="text" data="['a',1,'b',2,'c',3,4,5]" filterexpression="\d"></replicator>
      *
@@ -78,7 +78,7 @@ SOFTWARE. -->
      *        ]
      *      }
      *     </dataset>
-     *     <simplelayout></simplelayout>
+     *     <spacedlayout></spacedlayout>
      *     <replicator classname="text" datapath="$bikeshop/bicycle[*]/color"></replicator>
      *
      * It's possible to select a single item on from the array using an array index. This selects the second item:
@@ -102,7 +102,7 @@ SOFTWARE. -->
      *        ]
      *      }
      *     </dataset>
-     *     <simplelayout></simplelayout>
+     *     <spacedlayout></spacedlayout>
      *     <replicator classname="text" datapath="$bikeshop/bicycle[1]/color"></replicator>
      *
      * It's also possible to replicate a range of items in the array with the [start,end,stepsize] operator. This replicates every other item:
@@ -126,7 +126,7 @@ SOFTWARE. -->
      *        ]
      *      }
      *     </dataset>
-     *     <simplelayout></simplelayout>
+     *     <spacedlayout></spacedlayout>
      *     <replicator classname="text" datapath="$bikeshop/bicycle[0,3,2]/color"></replicator>
      *
      * Sometimes it's necessary to have complete control and flexibility over filtering and transforming results. Adding a [@] operator to the end of your datapath causes {@link #filterfunction filterfunction} to be called for each result. This example shows bike colors for bikes with a price greater than 20, in reverse order:
@@ -150,7 +150,7 @@ SOFTWARE. -->
      *        ]
      *      }
      *     </dataset>
-     *     <simplelayout></simplelayout>
+     *     <spacedlayout></spacedlayout>
      *     <replicator classname="text" datapath="$bikeshop/bicycle[*][@]">
      *       <method name="filterfunction" args="obj, accum">
      *         // add the color to the beginning of the results if the price is greater than 20
@@ -399,6 +399,7 @@ SOFTWARE. -->
         if @parent.layouts
           for layout in @parent.layouts
             layout.setAttribute('locked', false)
+            layout.update()
 
         @locked = locked        
       </method>

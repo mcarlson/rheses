@@ -6,22 +6,6 @@
   <script type="text/javascript" src="../lib/acorn.js"></script>
   <script type="text/javascript" src="../lib/coffee-script.js"></script>
   <script type="text/javascript" src="../layout.js"></script>
-  <style type="text/css">
-    body {
-      background-color: white;
-      font-family: 'Helvetica';
-      font-size: 40px;
-      margin: 0px;
-      padding: 0px;
-    }
-    input {
-      font-family: 'Helvetica';
-      font-size: 14px;
-      margin: 0px;
-      padding: 0px;
-      width: 100px;
-    }
-  </style>
   <script type="text/javascript" src="../lib/md5.js"></script>
 </head>
 <body>
@@ -66,8 +50,8 @@
     </replicator>
   </class>
 
-  <class name="genre" font-size="60" font-weight="bold" color="silver">
-    <boundslayout></boundslayout>
+  <class name="genre" font-size="51" font-weight="bold" color="silver">
+    <shrinktofit axis="both"></shrinktofit>
     <replicator datapath="/name[@]" classname="text">
       <method name="filterfunction" args="obj, accum, sel">
         // console.log('filterfunction', obj, accum)
@@ -115,8 +99,9 @@
   <dataset name="topmovies" url="./data/top_movies.json"></dataset>
 
   <!-- TODO: remove redundant attributes -->
-  <simplelayout axis="y" spacing="1"></simplelayout>
-  <view id="thumbnailstrip" width="${dr.window.width}" height="248" bgcolor="silver" clip="true" position="fixed" z-index="100000">
+  <spacedlayout axis="y" spacing="1"></spacedlayout>
+  
+  <view id="thumbnailstrip" width="${dr.window.width}" height="248" bgcolor="silver" scrollable="true" position="fixed" z-index="100000">
     <handler event="onmovie" args="movie" reference="bus">
       this.setAttribute('data', movie)
       if (tl.project) {
@@ -130,8 +115,7 @@
       this.repl.applyData();
     </handler>
 
-    <!-- <boundslayout ignoreattr="width"></boundslayout> -->
-    <wraplayout></wraplayout>
+    <wrappinglayout inset="2" spacing="2" lineinset="2" linespacing="2"></wrappinglayout>
 
     <text name="year" font-size="210px" color="white" opacity=".6" font-weight="bold" ignorelayout="true" z-index="1000" x="${this.parent.width - this.width - 10}" text-shadow="0px 0px 10px black"></text>
     <replicator name="repl" datapath="$topmovies/searchResponse/results[*]/movie[@]" classname="thumbnail" filterfield="releaseYear">
@@ -145,7 +129,7 @@
   </view>
 
   <view>
-    <simplelayout axis="y" spacing="1"></simplelayout>
+    <spacedlayout axis="y" spacing="1"></spacedlayout>
     <replicator datapath="$topmovies/searchResponse/facetCounts[0]/facetCount[*][@]" classname="genre" sortfield="count" sortasc="false" lazycount="0">
       <method name="filterfunction" args="obj, accum, sel">
         // console.log('filterfunction', obj, accum)

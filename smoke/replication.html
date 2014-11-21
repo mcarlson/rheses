@@ -12,7 +12,7 @@
 </head>
 <body>
 <view id="all" width="100%" height="100%" clip="true">
-  <simplelayout axis="y"></simplelayout>
+  <spacedlayout axis="y" spacing="15"></spacedlayout>
 
   <!-- Test datapath binding through non-bound parents -->
   <view>
@@ -60,11 +60,11 @@
     </dataset>
 
     <boundslayout></boundslayout>
-    <simplelayout axis="y"></simplelayout>
+    <spacedlayout axis="y" spacing="15"></spacedlayout>
     <class name="weather" extends="boundedview" bgcolor="lightblue">
       <view>
-        <simplelayout></simplelayout>
-        <boundslayout></boundslayout>
+        <spacedlayout spacing="15"></spacedlayout>
+        <shrinktofit axis="both"></shrinktofit>
         <replicator datapath="/weather[0]/main" classname="text"></replicator>
         <replicator datapath="/main/temp" classname="text"></replicator>
         <replicator datapath="/wind/speed" classname="text"></replicator>
@@ -72,10 +72,10 @@
       </view>
     </class>
     <replicator datapath="$tempdata" classname="weather"></replicator>
-  
+    
     <class name="weather2" extends="boundedview" bgcolor="lightgreen">
       <boundedview>
-        <simplelayout></simplelayout>
+        <spacedlayout spacing="15"></spacedlayout>
         <replicator datapath="/weather[0]/main" classname="text"></replicator>
         <replicator datapath="/main/temp" classname="text"></replicator>
         <replicator datapath="/wind/speed" classname="text"></replicator>
@@ -83,9 +83,9 @@
       </boundedview>
     </class>
     <replicator datapath="$tempdata" classname="weather2"></replicator>
-  
+    
     <replicator datapath="$tempdata/main/temp" classname="inputtext"></replicator>
-  
+    
     <handler event="oninit">
       assert.equal(this.subviews.length, 3)
       assert.equal(this.subnodes.length, 9)
@@ -95,7 +95,7 @@
   
   <!-- Filtering -->
   <view>
-    <simplelayout axis="x"></simplelayout>
+    <spacedlayout spacing="15"></spacedlayout>
     <replicator id="repl" classname="text" data="['a',1,'b',2,'c',3,4,5]" filterexpression="\d"></replicator>
     <handler event="oninit">
       assert.deepEqual(repl.data, [1,2,3,4,5]);
@@ -110,7 +110,7 @@
     
     <class name="bar" width="10" bgcolor="thistle" height="${this.data}"></class>
     
-    <simplelayout axis="x"></simplelayout>
+    <spacedlayout spacing="15"></spacedlayout>
     <replicator classname="bar" data="${v_rep_constraint.dataarray}" pooling="true"></replicator>
     
     <handler event="oninit">
@@ -123,8 +123,6 @@
       assert.equal(50, this.subviews[2].height)
     </handler>
   </view>
-
-
 </view>
 <!-- The MIT License (MIT)
 

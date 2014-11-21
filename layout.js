@@ -664,7 +664,7 @@
      *
      *     <inchesconverter id="conv" inchesval="2"></inchesconverter>
      *
-     *     <simplelayout axis="y"></simplelayout>
+     *     <spacedlayout axis="y"></spacedlayout>
      *     <text text="${conv.inchesval + ' inches'}"></text>
      *     <text text="${conv.centimetersval() + ' cm'}"></text>
      *     <text text="${conv.metersval() + ' m'}"></text>
@@ -1935,7 +1935,7 @@
      * Provides an editable input text field.
      *
      *     @example
-     *     <simplelayout axis="y"></simplelayout>
+     *     <spacedlayout axis="y"></spacedlayout>
      *
      *     <text text="Enter your name"></text>
      *
@@ -2797,7 +2797,7 @@
          * Currently, states must end with the string 'state' in their name to work properly.
          *
          *     @example
-         *     <simplelayout axis="y"></simplelayout>
+         *     <spacedlayout axis="y"></spacedlayout>
          *     <view id="square" width="100" height="100" bgcolor="lightgrey">
          *       <attribute name="ispink" type="boolean" value="false"></attribute>
          *       <state name="pinkstate" applied="${this.parent.ispink}">
@@ -2958,7 +2958,7 @@
      *
      *     <tile></tile>
      *
-     * Now we'll extend the tile class with a class called 'labeltile', which contains a label inside of the box. We'll declare one each of tile and labeltile, and position them with a simplelayout.
+     * Now we'll extend the tile class with a class called 'labeltile', which contains a label inside of the box. We'll declare one each of tile and labeltile, and position them with a spacedlayout.
      *
      *     @example
      *     <class name="tile" extends="view" bgcolor="thistle" width="100" height="100"></class>
@@ -2967,7 +2967,7 @@
      *       <text text="Tile"></text>
      *     </class>
      *
-     *     <simplelayout axis="x"></simplelayout>
+     *     <spacedlayout></spacedlayout>
      *     <tile></tile>
      *     <labeltile></labeltile>
      *
@@ -2981,7 +2981,7 @@
      *       <text text="${this.parent.label}"></text>
      *     </class>
      *
-     *     <simplelayout axis="x"></simplelayout>
+     *     <spacedlayout></spacedlayout>
      *     <tile></tile>
      *     <labeltile label="The Tile"></labeltile>
      *
@@ -3150,14 +3150,14 @@
      *
      * When a new layout is added, it will automatically create and add itself to a layouts array in its parent. In addition, an onlayouts event is fired in the parent when the layouts array changes. This allows the parent to access the layout(s) later.
      *
-     * Here is a view that contains both a simplelayout and a boundslayout.
+     * Here is a view that contains both a spacedlayout and a boundslayout.
      *
      *     @example
-     *     <simplelayout axis="y"></simplelayout>
+     *     <spacedlayout axis="y"></spacedlayout>
      *     <view bgcolor="oldlace">
      *       <boundslayout></boundslayout>
      *
-     *       <simplelayout axis="x"></simplelayout>
+     *       <spacedlayout></spacedlayout>
      *
      *       <view width="50" height="50" bgcolor="lightpink" opacity=".3"></view>
      *       <view width="50" height="50" bgcolor="plum" opacity=".3"></view>
@@ -3565,7 +3565,7 @@
      *       milis.setAttribute('text', idleStatus);
      *     </handler>
      *
-     *     <simplelayout axis="x"></simplelayout>
+     *     <spacedlayout></spacedlayout>
      *     <text text="Miliseconds since app started: "></text>
      *     <text id="milis"></text>
      */
@@ -3928,7 +3928,7 @@
      * You might want to track specific keyboard events when text is being entered into an input box. In this example we listen for the enter key and display the value.
      *
      *     @example
-     *     <simplelayout axis="y" spacing="25"></simplelayout>
+     *     <spacedlayout axis="y" spacing="25"></spacedlayout>
      *     <inputtext id="nameinput" bgcolor="lightgrey"></inputtext>
      *     <text id="keycode" text="Key Code:"></text>
      *     <text id="entered"></text>
@@ -4108,7 +4108,7 @@
      *       </method>
      *     </class>
      *
-     *     <simplelayout axis="x"></simplelayout>
+     *     <spacedlayout></spacedlayout>
      *
      *     <square id="square1"></square>
      *     <bluesquare id="square2"></bluesquare>
@@ -4267,7 +4267,7 @@
      *       </handler>
      *     </class>
      * 
-     *     <simplelayout></simplelayout>
+     *     <spacedlayout></spacedlayout>
      *     <person></person>
      *     <person mood="sad"></person>
      *
@@ -4286,7 +4286,7 @@
      *       <attribute name="size" type="number" value="20"></attribute>
      *     </class>
      * 
-     *     <simplelayout></simplelayout>
+     *     <spacedlayout></spacedlayout>
      *     <person></person>
      *     <person mood="sad" size="50"></person>
      */

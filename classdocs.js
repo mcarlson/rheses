@@ -219,11 +219,11 @@
      * @extends dr.layout
      * Sets the parent view's size to match the bounds of its children.
      *
-     * Here is a view that contains three sub views that are positioned with a simplelayout. The parent view has a grey background color. Notice that the subviews are visible because they overflow the parent view, but the parent view itself takes up no space.
+     * Here is a view that contains three sub views that are positioned with a spacedlayout. The parent view has a grey background color. Notice that the subviews are visible because they overflow the parent view, but the parent view itself takes up no space.
      *
      *     @example
      *     <view bgcolor="darkgrey">
-     *       <simplelayout axis="y"></simplelayout>
+     *       <spacedlayout axis="y"></spacedlayout>
      *
      *       <view width="100" height="25" bgcolor="lightpink" opacity=".3"></view>
      *       <view width="100" height="25" bgcolor="plum" opacity=".3"></view>
@@ -236,7 +236,7 @@
      *     <view bgcolor="darkgrey">
      *       <boundslayout></boundslayout>
      *
-     *       <simplelayout axis="y"></simplelayout>
+     *       <spacedlayout axis="y"></spacedlayout>
      *
      *       <view width="100" height="25" bgcolor="lightpink" opacity=".3"></view>
      *       <view width="100" height="25" bgcolor="plum" opacity=".3"></view>
@@ -293,7 +293,7 @@
      * is generated when the button is the selected state.
      *
      *     @example
-     *     <simplelayout axis="y"></simplelayout>
+     *     <spacedlayout axis="y"></spacedlayout>
      *
      *     <checkbutton text="pink" selectcolor="pink" defaultcolor="lightgrey" bgcolor="white"></checkbutton>
      *     <checkbutton text="blue" selectcolor="lightblue" defaultcolor="lightgrey" bgcolor="white"></checkbutton>
@@ -302,7 +302,7 @@
      * Here we listen for the onselected event on a checkbox and print the value that is passed to the handler.
      *
      *     @example
-     *     <simplelayout axis="y"></simplelayout>
+     *     <spacedlayout axis="y"></spacedlayout>
      *
      *     <checkbutton text="green" selectcolor="lightgreen" defaultcolor="lightgrey" bgcolor="white">
      *       <handler event="onselected" args="value">
@@ -311,7 +311,7 @@
      *     </checkbutton>
      *
      *     <view>
-     *       <simplelayout axis="x"></simplelayout>
+     *       <spacedlayout></spacedlayout>
      *       <text text="Selected:"></text>
      *       <text id="displayselected"></text>
      *     </view>
@@ -385,14 +385,14 @@
      *        }
      *      }
      *     </dataset>
-     *     <simplelayout></simplelayout>
+     *     <spacedlayout></spacedlayout>
      *     <replicator classname="text" datapath="$example/store/book[*]/title"></replicator>
      *
      * Data can be loaded from a URL when your backend server is ready, or reloaded to show changes over time:
      *
      *     @example wide
      *     <dataset name="example" url="/example.json"></dataset>
-     *     <simplelayout></simplelayout>
+     *     <spacedlayout></spacedlayout>
      *     <replicator classname="text" datapath="$example/store/book[*]/title"></replicator>
      */
 /**
@@ -493,7 +493,7 @@
      * button changes during onmousedown/onmouseup.
      *
      *     @example
-     *     <simplelayout axis="y"></simplelayout>
+     *     <spacedlayout axis="y"></spacedlayout>
      *
      *     <labelbutton text="click me" defaultcolor="plum" selectcolor="orchid">
      *       <handler event="onclick">
@@ -512,7 +512,7 @@
      * is generated when the button is the selected state.
      *
      *     @example
-     *     <simplelayout axis="y"></simplelayout>
+     *     <spacedlayout axis="y"></spacedlayout>
      *
      *     <labeltoggle id="toggle" text="Click me to toggle" defaultcolor="plum" selectcolor="orchid"></labeltoggle>
      *
@@ -637,20 +637,20 @@
      * This example shows the replicator to creating four text instances, each corresponding to an item in the data attribute:
      *
      *     @example
-     *     <simplelayout></simplelayout>
+     *     <spacedlayout></spacedlayout>
      *     <replicator classname="text" data="[1,2,3,4]"></replicator>
      *
      * Changing the data attribute to a new array causes the replicator to create a new text for each item:
      *
      *     @example
-     *     <simplelayout></simplelayout>
+     *     <spacedlayout></spacedlayout>
      *     <text onclick="repl.setAttribute('data', [5,6,7,8]);">Click to change data</text>
      *     <replicator id="repl" classname="text" data="[1,2,3,4]"></replicator>
      *
      * This example uses a {@link #filterexpression filterexpression} to filter the data to only numbers. Clicking changes {@link #filterexpression filterexpression} to show only non-numbers in the data:
      *
      *     @example
-     *     <simplelayout></simplelayout>
+     *     <spacedlayout></spacedlayout>
      *     <text onclick="repl.setAttribute('filterexpression', '[^\\d]');">Click to change filter</text>
      *     <replicator id="repl" classname="text" data="['a',1,'b',2,'c',3,4,5]" filterexpression="\d"></replicator>
      *
@@ -688,7 +688,7 @@
      *        ]
      *      }
      *     </dataset>
-     *     <simplelayout></simplelayout>
+     *     <spacedlayout></spacedlayout>
      *     <replicator classname="text" datapath="$bikeshop/bicycle[*]/color"></replicator>
      *
      * It's possible to select a single item on from the array using an array index. This selects the second item:
@@ -712,7 +712,7 @@
      *        ]
      *      }
      *     </dataset>
-     *     <simplelayout></simplelayout>
+     *     <spacedlayout></spacedlayout>
      *     <replicator classname="text" datapath="$bikeshop/bicycle[1]/color"></replicator>
      *
      * It's also possible to replicate a range of items in the array with the [start,end,stepsize] operator. This replicates every other item:
@@ -736,7 +736,7 @@
      *        ]
      *      }
      *     </dataset>
-     *     <simplelayout></simplelayout>
+     *     <spacedlayout></spacedlayout>
      *     <replicator classname="text" datapath="$bikeshop/bicycle[0,3,2]/color"></replicator>
      *
      * Sometimes it's necessary to have complete control and flexibility over filtering and transforming results. Adding a [@] operator to the end of your datapath causes {@link #filterfunction filterfunction} to be called for each result. This example shows bike colors for bikes with a price greater than 20, in reverse order:
@@ -760,7 +760,7 @@
      *        ]
      *      }
      *     </dataset>
-     *     <simplelayout></simplelayout>
+     *     <spacedlayout></spacedlayout>
      *     <replicator classname="text" datapath="$bikeshop/bicycle[*][@]">
      *       <method name="filterfunction" args="obj, accum">
      *         // add the color to the beginning of the results if the price is greater than 20
@@ -884,31 +884,6 @@
     * @private
     */
 /**
-     * @class dr.simplelayout {Layout}
-     * @extends dr.layout
-     * A layout that stacks views on the x or y axis.
-     *
-     *
-     *     @example
-     *     <simplelayout axis="y"></simplelayout>
-     *
-     *     <view width="100" height="25" bgcolor="lightpink"></view>
-     *     <view width="100" height="25" bgcolor="plum"></view>
-     *     <view width="100" height="25" bgcolor="lightblue"></view>
-     */
-/**
-        * @attribute {Number} [inset=0]
-        * Amount to inset the layout
-        */
-/**
-        * @attribute {Number} [spacing=15]
-        * Amount of spacing between views
-        */
-/**
-        * @attribute {"x"/"y"} [axis=x]
-        * The axis to stack on
-        */
-/**
      * @class dr.slider {UI Components}
      * @extends dr.view
      * An input component whose state is changed when the mouse is dragged.
@@ -920,7 +895,7 @@
      *
      *     @example
      *     
-     *     <simplelayout axis="x" spacing="8"></simplelayout>
+     *     <spacedlayout spacing="8"></spacedlayout>
      *     <slider name="hslide" y="5" width="250" height="10" value="50" bgcolor="#808080"></slider>
      *     <text text="${Math.round(this.parent.hslide.value)}" y="${this.parent.hslide.y + (this.parent.hslide.height-this.height)/2}"></text>
      */

@@ -9,15 +9,8 @@
   <style type="text/css">
     body {
       background-color: rgb(46,36,30);
-      background-size: 259px 259px;
-      font-family: 'Helvetica';
-      font-size: 14px;
     }
-    input {
-      font-family: 'Helvetica';
-      font-size: 14px;
-    }
-    textarea {
+    input, textarea {
       font-family: 'Helvetica';
       font-size: 14px;
     }
@@ -33,26 +26,10 @@
       height: 80%;
       display:none;
     }
-    #logo {
-      background-repeat: no-repeat;
-      width:171;
-      height:64;
-      position: absolute;
-      background-repeat: no-repeat;
-      background-size: 171px 64px;
-    }
-    #slogan {
-      font-family: wildride;
-      white-space: nowrap;
-      color: rgb(154,123,75);
-      font-size: 72px;
-      position: absolute;
-      text-shadow: 0px 0px 4px rgb(46,36,30);
-    }
   </style>
 </head>
 <body>
-<view id="container" y="300" width="100" height="100" bgcolor="purple" border-radius="4px" clip="true">
+<view id="container" y="300" width="100" height="100" bgcolor="purple" border-radius="4px" scrollable="true">
   <handler event="onclick">
     if (this.bnd) this.bnd.destroy()
     this.setAttribute('clip', false)
@@ -82,7 +59,7 @@
   <clickresize bgcolor="green"></clickresize>
   <clickresize bgcolor="black"></clickresize>
   <clickresize bgcolor="blue">
-    <simplelayout></simplelayout>
+    <spacedlayout spacing="4"></spacedlayout>
     <replicator name="repl" classname="clickresize"></replicator>
     <handler event="onclick" type="coffee">
       if (@subviews.length)
@@ -99,37 +76,37 @@
   <inputtext bgcolor="green" name="inpmult" multiline="true" onclick="this.animate({width: 150, height: 100})" onfocus="console.log('focus', this)" onblur="console.log('blur', this)">Text</inputtext>
 
   <dataset name="storedata">
-  { "store": {
-      "book": [ 
-        { "category": "reference",
-          "author": "Nigel Rees",
-          "title": "Sayings of the Century",
-          "price": 8.95
-        },
-        { "category": "fiction",
-          "author": "Evelyn Waugh",
-          "title": "Sword of Honour",
-          "price": 12.99
-        },
-        { "category": "fiction",
-          "author": "Herman Melville",
-          "title": "Moby Dick",
-          "isbn": "0-553-21311-3",
-          "price": 8.99
-        },
-        { "category": "fiction",
-          "author": "J. R. R. Tolkien",
-          "title": "The Lord of the Rings",
-          "isbn": "0-395-19395-8",
-          "price": 22.99
+    { "store": {
+        "book": [
+          { "category": "reference",
+            "author": "Nigel Rees",
+            "title": "Sayings of the Century",
+            "price": 8.95
+          },
+          { "category": "fiction",
+            "author": "Evelyn Waugh",
+            "title": "Sword of Honour",
+            "price": 12.99
+          },
+          { "category": "fiction",
+            "author": "Herman Melville",
+            "title": "Moby Dick",
+            "isbn": "0-553-21311-3",
+            "price": 8.99
+          },
+          { "category": "fiction",
+            "author": "J. R. R. Tolkien",
+            "title": "The Lord of the Rings",
+            "isbn": "0-395-19395-8",
+            "price": 22.99
+          }
+        ],
+        "bicycle": {
+          "color": "red",
+          "price": 19.95
         }
-      ],
-      "bicycle": {
-        "color": "red",
-        "price": 19.95
       }
     }
-  }
   </dataset>
   <dataset name="tempdata" url="./data/weather.json"></dataset>
   <!-- <dataset name="tempdata" url="http://api.openweathermap.org/data/2.5/weather?q=San+Francisco,CA&units=imperial&callback=?"></dataset> -->

@@ -32,7 +32,7 @@ SOFTWARE. -->
      *
      *     @example
      *     
-     *     <simplelayout axis="x" spacing="8"></simplelayout>
+     *     <spacedlayout spacing="8"></spacedlayout>
      *     <slider name="hslide" y="5" width="250" height="10" value="50" bgcolor="#808080"></slider>
      *     <text text="${Math.round(this.parent.hslide.value)}" y="${this.parent.hslide.y + (this.parent.hslide.height-this.height)/2}"></text>
      */-->    

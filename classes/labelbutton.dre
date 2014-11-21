@@ -28,7 +28,7 @@ SOFTWARE. -->
      * button changes during onmousedown/onmouseup.
      *
      *     @example
-     *     <simplelayout axis="y"></simplelayout>
+     *     <spacedlayout axis="y"></spacedlayout>
      *
      *     <labelbutton text="click me" defaultcolor="plum" selectcolor="orchid">
      *       <handler event="onclick">
