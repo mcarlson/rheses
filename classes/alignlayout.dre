@@ -103,6 +103,8 @@ SOFTWARE. -->
   </method>
   
   <method name="updateParent" args="attribute, value" invokesuper="inside">
-    @parent.setAttribute(@measureAttrName, value)
+    parent = @parent
+    man = @measureAttrName
+    parent.setAttribute(man, value + parent[man] - parent['inner' + man])
   </method>
 </class>

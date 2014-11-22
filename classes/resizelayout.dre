@@ -37,9 +37,14 @@ SOFTWARE. -->
     # collapseparent attribute is unused in resizelayout.
   </setter>
   
+  <method name="stopMonitoringAllSubviews" args="view" invokesuper="inside">
+    @super(arguments)
+    @stopListening(@parent, 'inner' + @measureAttrName, @update)
+  </method>
+  
   <method name="startMonitoringAllSubviews" args="view" invokesuper="inside">
     @super(arguments)
-    @listenTo(@parent, @measureAttrName, @update)
+    @listenTo(@parent, 'inner' + @measureAttrName, @update)
   </method>
   
   <method name="startMonitoringSubview" args="view" invokesuper="inside">
@@ -61,7 +66,7 @@ SOFTWARE. -->
   <method name="doBeforeUpdate" invokesuper="inside">
     # Get size to fill
     measureAttrName = @measureAttrName
-    remainder = @parent[measureAttrName]
+    remainder = @parent['inner' + measureAttrName]
     
     # Calculate minimum required size
     remainder -= @value + @outset

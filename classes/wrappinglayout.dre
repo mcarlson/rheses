@@ -113,9 +113,18 @@ SOFTWARE. -->
   </setter>
   <handler event="onattribute">
     @startMonitoringAllSubviews()
-    @listenTo(@parent, @measureAttrName, @update)
     @update()
   </handler>
+  
+  <method name="stopMonitoringAllSubviews" args="view" invokesuper="inside">
+    @super(arguments)
+    @stopListening(@parent, 'inner' + @measureAttrName, @update)
+  </method>
+  
+  <method name="startMonitoringAllSubviews" args="view" invokesuper="inside">
+    @super(arguments)
+    @listenTo(@parent, 'inner' + @measureAttrName, @update)
+  </method>
   
   <method name="startMonitoringSubview" args="view" invokesuper="inside">
     @super(arguments)
@@ -146,7 +155,7 @@ SOFTWARE. -->
     
     # The size of the parent view. Needed to determine when to wrap. The
     # outset is already subtracted as a performance optimization.
-    @parentSizeLessOutset = @parent[@measureAttrName] - @outset
+    @parentSizeLessOutset = @parent['inner' + @measureAttrName] - @outset
   </method>
   
   <method name="updateSubview" args="count, view, attribute, value" invokesuper="inside">
@@ -174,6 +183,8 @@ SOFTWARE. -->
   </method>
   
   <method name="updateParent" args="attribute, value" invokesuper="inside">
-    @parent.setAttribute(@otherMeasureAttrName, @linePos + @lineSize + @lineoutset)
+    parent = @parent
+    oman = @otherMeasureAttrName
+    parent.setAttribute(oman, @linePos + @lineSize + @lineoutset + parent[oman] - parent['inner' + oman])
   </method>
 </class>

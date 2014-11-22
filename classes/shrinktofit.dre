@@ -118,6 +118,7 @@ SOFTWARE. -->
       svs = @subviews
       len = svs.length
       maxFunc = Math.max
+      parent = @parent
       
       if @axis != 'y'
         max = 0
@@ -125,7 +126,7 @@ SOFTWARE. -->
         while i
           sv = svs[--i]
           if sv.visible then max = maxFunc(max, sv.x + maxFunc(0, sv.width))
-        @parent.setAttribute('width', max + @xpad)
+        parent.setAttribute('width', max + @xpad + parent.width - parent.innerwidth)
         
       if @axis != 'x'
         max = 0
@@ -133,7 +134,7 @@ SOFTWARE. -->
         while i
           sv = svs[--i]
           if sv.visible then max = maxFunc(max, sv.y + maxFunc(0, sv.height))
-        @parent.setAttribute('height', max + @ypad)
+        parent.setAttribute('height', max + @ypad + parent.height - parent.innerheight)
       
       @locked = false
   </method>

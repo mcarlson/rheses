@@ -34,7 +34,7 @@
   <shrinktofit axis="x" xpad="25"></shrinktofit>
   <spacedlayout axis="y" inset="25" spacing="5" outset="25" collapseparent="true"></spacedlayout>
   
-  <view width="300" height="20" bgcolor="#999999">
+  <view width="300" bgcolor="#999999" padding="2" border="1" bordercolor="black">
     <item width="10" height="20" bgcolor="green"></item>
     <item height="20" layouthint="1"></item>
     <item layouthint="2" height="20" bgcolor="purple"></item>
@@ -42,9 +42,10 @@
     <item width="10" height="20" bgcolor="yellow"></item>
     
     <resizelayout spacing="1" inset="1" outset="1"></resizelayout>
+    <shrinktofit axis="y" ypad="3"></shrinktofit>
   </view>
   
-  <view bgcolor="#999999" width="300" id="foo">
+  <view bgcolor="#999999" width="300" id="foo" padding="10" border="2" bordercolor="#99ff33">
     <item2 bgcolor="green"></item2>
     <item2 layouthint="break"></item2>
     <item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2>
@@ -95,7 +96,7 @@
     <spacedlayout></spacedlayout>
   </view>
   
-  <view bgcolor="#999999">
+  <view bgcolor="#999999" padding="2" border="1" bordercolor="black">
     <item width="10" height="100" bgcolor="green"></item>
     <item width="20" height="50"></item>
     <item width="30" height="90"></item>
@@ -103,7 +104,7 @@
     <item width="50" height="75" bgcolor="yellow"></item>
     
     <alignlayout collapseparent="true"></alignlayout>
-    <spacedlayout axis="x" inset="5" spacing="1" outset="10" reverse="true" collapseparent="true"></spacedlayout>
+    <spacedlayout axis="x" inset="1" spacing="1" outset="2" reverse="true" collapseparent="true"></spacedlayout>
   </view>
   
   <view bgcolor="#999999">
