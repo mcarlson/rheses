@@ -60,7 +60,7 @@
   })();
 
   window.dr = (function() {
-    var Class, Eventable, Events, Idle, InputText, Keyboard, Layoot, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, capabilities, compiler, constraintScopes, debug, dom, exports, fcamelCase, hiddenAttributes, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, otherstyles, querystring, rdashAlpha, showWarnings, ss, ss2, stylemap, test, triggerlock, warnings, _initConstraints;
+    var Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, capabilities, compiler, constraintScopes, debug, dom, exports, fcamelCase, hiddenAttributes, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, otherstyles, querystring, rdashAlpha, showWarnings, ss, ss2, stylemap, test, triggerlock, warnings, _initConstraints;
     mixOf = function() {
       var Mixed, base, i, method, mixin, mixins, name, _i, _ref;
       base = arguments[0], mixins = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
@@ -1824,7 +1824,7 @@
            */
           this.sendEvent('subviewAdded', node);
           return this.doSubviewAdded(node);
-        } else if (node instanceof Layoot) {
+        } else if (node instanceof Layout) {
 
           /**
            * @event layoutAdded
@@ -1852,7 +1852,7 @@
            */
           this.sendEvent('subviewRemoved', node);
           return this.doSubviewRemoved(node);
-        } else if (node instanceof Layoot) {
+        } else if (node instanceof Layout) {
 
           /**
            * @event layoutRemoved
@@ -2456,7 +2456,6 @@
                 Node.prototype.enumfalse(Node.prototype.keys());
                 View.prototype.enumfalse(View.prototype.keys());
                 Layout.prototype.enumfalse(Layout.prototype.keys());
-                Layoot.prototype.enumfalse(Layoot.prototype.keys());
                 scriptloaded = false;
                 _ref2 = jqel.find('[scriptincludes]');
                 for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
@@ -3173,45 +3172,6 @@
      *
      *     <text id="output" multiline="true" width="300"></text>
      *
-     * Here we create diagonlayout, a subclass of layout that lays out the subviews in a diagonal formation. The update method sets the positions of the subview, and the onsubview handler attaches event listeners to the subviews as they are added so update is called if their dimensions or visibility are updated.
-     *
-     *     @example
-     *     <class name="diagonlayout" extends="layout">
-     *       <handler event="onsubview" args="subview">
-     *         this.listenTo(subview, 'visible', this.update);
-     *         this.listenTo(subview, 'width', this.update);
-     *         this.listenTo(subview, 'height', this.update);
-     *       </handler>
-     *       <method name="update" args="value, sender">
-     *         var posX = 0;
-     *         var posY = 0;
-     *         for (var i=0, l = this.parent.subviews.length; i < l; i++) {
-     *           var subview = this.parent.subviews[i];
-     *           if (subview.ignorelayout || !subview.visible) {
-     *             continue;
-     *           }
-     *
-     *           subview.setAttribute('x', posX);
-     *           subview.setAttribute('y', posY);
-     *
-     *           posX += subview.width;
-     *           posY += subview.height;
-     *         }
-     *       </method>
-     *     </class>
-     *
-     *     <diagonlayout></diagonlayout>
-     *     <view id="v1" width="50" height="50" bgcolor="Aqua"></view>
-     *     <view id="v2" width="50" height="50" bgcolor="HotPink"></view>
-     *     <view id="v3" width="50" height="50" bgcolor="MediumPurple"></view>
-     *
-     *     <labelbutton text="click me">
-     *       <handler event="onclick">
-     *         v1.setAttribute('width', 100);
-     *         v2.setAttribute('height', 150);
-     *       </handler>
-     *     </labelbutton>
-     *
      *
      */
     Layout = (function(_super) {
@@ -3222,113 +3182,9 @@
         if (attributes == null) {
           attributes = {};
         }
-        this._added = __bind(this._added, this);
-        this.locked = true;
-        Layout.__super__.constructor.apply(this, arguments);
-        this.listenTo(this.parent, 'subviews', this._added);
-        this.listenTo(this.parent, 'init', this.update);
-        if ((_base = this.parent).layouts == null) {
-          _base.layouts = [];
-        }
-        this.parent.layouts.push(this);
-        this.parent.sendEvent('layouts', this.parent.layouts);
-        subviews = this.parent.subviews;
-        if (subviews) {
-          for (_i = 0, _len = subviews.length; _i < _len; _i++) {
-            subview = subviews[_i];
-            this._added(subview);
-          }
-        }
-        this.locked = false;
-        this.update();
-      }
-
-      Layout.prototype._added = function(child) {
-        if (child) {
-
-          /**
-           * @event onsubview 
-           * Fired when the layout has a new subview. Used to listen for events on the view that the layout cares about.
-           * @param {dr.view} child The subview that was added
-           */
-          if (!child.ignorelayout) {
-            this.sendEvent('subview', child);
-          }
-        }
-        return this.update(null, child);
-      };
-
-
-      /**
-       * @method update
-       * @abstract
-       * Called when the layout should be updated. Must be implemented to update the position of the subviews
-       * @param value The value received from the node that updated
-       * @param {dr.node} sender The node that updated
-       */
-
-
-      /**
-       * Determines if a layout should be updated or not, usually called from update
-       * @returns {Boolean} If true, skip updating the layout
-       */
-
-      Layout.prototype.skip = function() {
-        var _ref;
-        if (this.locked || (!this.inited) || (!((_ref = this.parent) != null ? _ref.subviews : void 0)) || (this.parent.subviews.length === 0)) {
-          return true;
-        }
-      };
-
-      Layout.prototype.destroy = function(skipevents) {
-        this.locked = true;
-        Layout.__super__.destroy.apply(this, arguments);
-        if (!skipevents) {
-          return this._removeFromParent('layouts');
-        }
-      };
-
-      Layout.prototype.set_locked = function(locked) {
-        var changed;
-        changed = this.locked !== locked;
-
-        /**
-         * @property {Boolean} locked
-         * If true, this layout will not update
-         */
-        this.locked = locked;
-
-        /**
-         * @event onlocked 
-         * Fired when the layout is locked
-         * @param {Boolean} locked If true, the layout is locked
-         */
-        this.sendEvent('locked', locked);
-        if (changed && !locked) {
-          return this.update();
-        }
-      };
-
-      return Layout;
-
-    })(Node);
-
-    /**
-     * @class dr.layoot {Layout}
-     * @extends dr.node
-     * The base class for all layouts.
-     */
-    Layoot = (function(_super) {
-      __extends(Layoot, _super);
-
-      function Layoot(el, attributes) {
-        var subview, subviews, _base, _i, _len;
-        if (attributes == null) {
-          attributes = {};
-        }
         this.locked = true;
         this.subviews = [];
-        Layoot.__super__.constructor.apply(this, arguments);
+        Layout.__super__.constructor.apply(this, arguments);
         this.listenTo(this.parent, 'subviewAdded', this.addSubview.bind(this));
         this.listenTo(this.parent, 'subviewRemoved', this.removeSubview.bind(this));
         this.listenTo(this.parent, 'init', this.update);
@@ -3347,9 +3203,9 @@
         this.update();
       }
 
-      Layoot.prototype.destroy = function(skipevents) {
+      Layout.prototype.destroy = function(skipevents) {
         this.locked = true;
-        Layoot.__super__.destroy.apply(this, arguments);
+        Layout.__super__.destroy.apply(this, arguments);
         if (!skipevents) {
           return this._removeFromParent('layouts');
         }
@@ -3362,7 +3218,7 @@
        * @return {void}
        */
 
-      Layoot.prototype.addSubview = function(view) {
+      Layout.prototype.addSubview = function(view) {
         if (this.ignore(view)) {
           return;
         }
@@ -3380,7 +3236,7 @@
        * @return {number} the index of the removed subview or -1 if not removed.
        */
 
-      Layoot.prototype.removeSubview = function(view) {
+      Layout.prototype.removeSubview = function(view) {
         var idx;
         if (this.ignore(view)) {
           return -1;
@@ -3404,7 +3260,7 @@
        * @return {boolean} True means the subview will be skipped, false otherwise.
        */
 
-      Layoot.prototype.ignore = function(view) {
+      Layout.prototype.ignore = function(view) {
         return view.ignorelayout;
       };
 
@@ -3416,7 +3272,7 @@
        * @return {void}
        */
 
-      Layoot.prototype.startMonitoringSubview = function(view) {};
+      Layout.prototype.startMonitoringSubview = function(view) {};
 
 
       /**
@@ -3426,7 +3282,7 @@
        * @return {void}
        */
 
-      Layoot.prototype.startMonitoringAllSubviews = function() {
+      Layout.prototype.startMonitoringAllSubviews = function() {
         var i, svs, _results;
         svs = this.subviews;
         i = svs.length;
@@ -3446,7 +3302,7 @@
        * @return {void}
        */
 
-      Layoot.prototype.stopMonitoringSubview = function(view) {};
+      Layout.prototype.stopMonitoringSubview = function(view) {};
 
 
       /**
@@ -3456,7 +3312,7 @@
        * @return {void}
        */
 
-      Layoot.prototype.stopMonitoringAllSubviews = function() {
+      Layout.prototype.stopMonitoringAllSubviews = function() {
         var i, svs, _results;
         svs = this.subviews;
         i = svs.length;
@@ -3474,7 +3330,7 @@
        * @return {boolean} true if not locked, false otherwise.
        */
 
-      Layoot.prototype.canUpdate = function() {
+      Layout.prototype.canUpdate = function() {
         return !this.locked && this.parent.inited;
       };
 
@@ -3485,9 +3341,9 @@
        * @return {void}
        */
 
-      Layoot.prototype.update = function() {};
+      Layout.prototype.update = function() {};
 
-      return Layoot;
+      return Layout;
 
     })(Node);
     idle = (function() {
@@ -4042,7 +3898,6 @@
       keyboard: new Keyboard(),
       window: new Window(),
       layout: Layout,
-      layoot: Layoot,
       idle: new Idle(),
       state: State,
 

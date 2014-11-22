@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. -->
 <!--/**
       * @class dr.shrinktofit {Layout}
-      * @extends dr.layoot
+      * @extends dr.layout
       * A special "layout" that resizes the parent to fit the children 
       * rather than laying out the children.
       *
@@ -50,7 +50,7 @@ SOFTWARE. -->
       *       <view width="100" height="25" bgcolor="lightblue" opacity=".3"></view>
       *     </view>
       */-->
-<class name="shrinktofit" extends="layoot" type="coffee">
+<class name="shrinktofit" extends="layout" type="coffee">
   <!--/**
     * @attribute {String} [axis=x]
     * The axis along which to resize this view to fit its children. 

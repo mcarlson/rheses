@@ -286,7 +286,7 @@
      */
 /**
       * @class dr.constantlayout {Layout}
-      * @extends dr.layoot
+      * @extends dr.layout
       * A layout that sets the target attribute name to the target value for 
       * each subview.
       *
@@ -818,7 +818,7 @@
         */
 /**
       * @class dr.shrinktofit {Layout}
-      * @extends dr.layoot
+      * @extends dr.layout
       * A special "layout" that resizes the parent to fit the children 
       * rather than laying out the children.
       *

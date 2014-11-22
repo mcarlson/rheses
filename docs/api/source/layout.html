@@ -77,7 +77,7 @@
   })();
 
   window.dr = (function() {
-    var Class, Eventable, Events, Idle, InputText, Keyboard, Layoot, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, capabilities, compiler, constraintScopes, debug, dom, exports, fcamelCase, hiddenAttributes, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, otherstyles, querystring, rdashAlpha, showWarnings, ss, ss2, stylemap, test, triggerlock, warnings, _initConstraints;
+    var Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, capabilities, compiler, constraintScopes, debug, dom, exports, fcamelCase, hiddenAttributes, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, otherstyles, querystring, rdashAlpha, showWarnings, ss, ss2, stylemap, test, triggerlock, warnings, _initConstraints;
     mixOf = function() {
       var Mixed, base, i, method, mixin, mixins, name, _i, _ref;
       base = arguments[0], mixins = 2 &lt;= arguments.length ? __slice.call(arguments, 1) : [];
@@ -1841,7 +1841,7 @@
            */
           this.sendEvent(&#39;subviewAdded&#39;, node);
           return this.doSubviewAdded(node);
-        } else if (node instanceof Layoot) {
+        } else if (node instanceof Layout) {
 
 <span id='dr-view-event-layoutAdded'>          /**
 </span>           * @event layoutAdded
@@ -1869,7 +1869,7 @@
            */
           this.sendEvent(&#39;subviewRemoved&#39;, node);
           return this.doSubviewRemoved(node);
-        } else if (node instanceof Layoot) {
+        } else if (node instanceof Layout) {
 
 <span id='dr-view-event-layoutRemoved'>          /**
 </span>           * @event layoutRemoved
@@ -2473,7 +2473,6 @@
                 Node.prototype.enumfalse(Node.prototype.keys());
                 View.prototype.enumfalse(View.prototype.keys());
                 Layout.prototype.enumfalse(Layout.prototype.keys());
-                Layoot.prototype.enumfalse(Layoot.prototype.keys());
                 scriptloaded = false;
                 _ref2 = jqel.find(&#39;[scriptincludes]&#39;);
                 for (_k = 0, _len2 = _ref2.length; _k &lt; _len2; _k++) {
@@ -3190,45 +3189,6 @@
      *
      *     &lt;text id=&quot;output&quot; multiline=&quot;true&quot; width=&quot;300&quot;&gt;&lt;/text&gt;
      *
-     * Here we create diagonlayout, a subclass of layout that lays out the subviews in a diagonal formation. The update method sets the positions of the subview, and the onsubview handler attaches event listeners to the subviews as they are added so update is called if their dimensions or visibility are updated.
-     *
-     *     @example
-     *     &lt;class name=&quot;diagonlayout&quot; extends=&quot;layout&quot;&gt;
-     *       &lt;handler event=&quot;onsubview&quot; args=&quot;subview&quot;&gt;
-     *         this.listenTo(subview, &#39;visible&#39;, this.update);
-     *         this.listenTo(subview, &#39;width&#39;, this.update);
-     *         this.listenTo(subview, &#39;height&#39;, this.update);
-     *       &lt;/handler&gt;
-     *       &lt;method name=&quot;update&quot; args=&quot;value, sender&quot;&gt;
-     *         var posX = 0;
-     *         var posY = 0;
-     *         for (var i=0, l = this.parent.subviews.length; i &lt; l; i++) {
-     *           var subview = this.parent.subviews[i];
-     *           if (subview.ignorelayout || !subview.visible) {
-     *             continue;
-     *           }
-     *
-     *           subview.setAttribute(&#39;x&#39;, posX);
-     *           subview.setAttribute(&#39;y&#39;, posY);
-     *
-     *           posX += subview.width;
-     *           posY += subview.height;
-     *         }
-     *       &lt;/method&gt;
-     *     &lt;/class&gt;
-     *
-     *     &lt;diagonlayout&gt;&lt;/diagonlayout&gt;
-     *     &lt;view id=&quot;v1&quot; width=&quot;50&quot; height=&quot;50&quot; bgcolor=&quot;Aqua&quot;&gt;&lt;/view&gt;
-     *     &lt;view id=&quot;v2&quot; width=&quot;50&quot; height=&quot;50&quot; bgcolor=&quot;HotPink&quot;&gt;&lt;/view&gt;
-     *     &lt;view id=&quot;v3&quot; width=&quot;50&quot; height=&quot;50&quot; bgcolor=&quot;MediumPurple&quot;&gt;&lt;/view&gt;
-     *
-     *     &lt;labelbutton text=&quot;click me&quot;&gt;
-     *       &lt;handler event=&quot;onclick&quot;&gt;
-     *         v1.setAttribute(&#39;width&#39;, 100);
-     *         v2.setAttribute(&#39;height&#39;, 150);
-     *       &lt;/handler&gt;
-     *     &lt;/labelbutton&gt;
-     *
      *
      */
     Layout = (function(_super) {
@@ -3239,113 +3199,9 @@
         if (attributes == null) {
           attributes = {};
         }
-        this._added = __bind(this._added, this);
-        this.locked = true;
-        Layout.__super__.constructor.apply(this, arguments);
-        this.listenTo(this.parent, &#39;subviews&#39;, this._added);
-        this.listenTo(this.parent, &#39;init&#39;, this.update);
-        if ((_base = this.parent).layouts == null) {
-          _base.layouts = [];
-        }
-        this.parent.layouts.push(this);
-        this.parent.sendEvent(&#39;layouts&#39;, this.parent.layouts);
-        subviews = this.parent.subviews;
-        if (subviews) {
-          for (_i = 0, _len = subviews.length; _i &lt; _len; _i++) {
-            subview = subviews[_i];
-            this._added(subview);
-          }
-        }
-        this.locked = false;
-        this.update();
-      }
-
-      Layout.prototype._added = function(child) {
-        if (child) {
-
-<span id='dr-layout-event-onsubview'>          /**
-</span>           * @event onsubview 
-           * Fired when the layout has a new subview. Used to listen for events on the view that the layout cares about.
-           * @param {dr.view} child The subview that was added
-           */
-          if (!child.ignorelayout) {
-            this.sendEvent(&#39;subview&#39;, child);
-          }
-        }
-        return this.update(null, child);
-      };
-
-
-<span id='dr-layout-method-update'>      /**
-</span>       * @method update
-       * @abstract
-       * Called when the layout should be updated. Must be implemented to update the position of the subviews
-       * @param value The value received from the node that updated
-       * @param {dr.node} sender The node that updated
-       */
-
-
-<span id='dr-layout-method-skip'>      /**
-</span>       * Determines if a layout should be updated or not, usually called from update
-       * @returns {Boolean} If true, skip updating the layout
-       */
-
-      Layout.prototype.skip = function() {
-        var _ref;
-        if (this.locked || (!this.inited) || (!((_ref = this.parent) != null ? _ref.subviews : void 0)) || (this.parent.subviews.length === 0)) {
-          return true;
-        }
-      };
-
-      Layout.prototype.destroy = function(skipevents) {
-        this.locked = true;
-        Layout.__super__.destroy.apply(this, arguments);
-        if (!skipevents) {
-          return this._removeFromParent(&#39;layouts&#39;);
-        }
-      };
-
-      Layout.prototype.set_locked = function(locked) {
-        var changed;
-        changed = this.locked !== locked;
-
-<span id='dr-layout-property-locked'>        /**
-</span>         * @property {Boolean} locked
-         * If true, this layout will not update
-         */
-        this.locked = locked;
-
-<span id='dr-layout-event-onlocked'>        /**
-</span>         * @event onlocked 
-         * Fired when the layout is locked
-         * @param {Boolean} locked If true, the layout is locked
-         */
-        this.sendEvent(&#39;locked&#39;, locked);
-        if (changed &amp;&amp; !locked) {
-          return this.update();
-        }
-      };
-
-      return Layout;
-
-    })(Node);
-
-<span id='dr-layoot'>    /**
-</span>     * @class dr.layoot {Layout}
-     * @extends dr.node
-     * The base class for all layouts.
-     */
-    Layoot = (function(_super) {
-      __extends(Layoot, _super);
-
-      function Layoot(el, attributes) {
-        var subview, subviews, _base, _i, _len;
-        if (attributes == null) {
-          attributes = {};
-        }
         this.locked = true;
         this.subviews = [];
-        Layoot.__super__.constructor.apply(this, arguments);
+        Layout.__super__.constructor.apply(this, arguments);
         this.listenTo(this.parent, &#39;subviewAdded&#39;, this.addSubview.bind(this));
         this.listenTo(this.parent, &#39;subviewRemoved&#39;, this.removeSubview.bind(this));
         this.listenTo(this.parent, &#39;init&#39;, this.update);
@@ -3364,22 +3220,22 @@
         this.update();
       }
 
-      Layoot.prototype.destroy = function(skipevents) {
+      Layout.prototype.destroy = function(skipevents) {
         this.locked = true;
-        Layoot.__super__.destroy.apply(this, arguments);
+        Layout.__super__.destroy.apply(this, arguments);
         if (!skipevents) {
           return this._removeFromParent(&#39;layouts&#39;);
         }
       };
 
 
-<span id='dr-layoot-method-addSubview'>      /**
+<span id='dr-layout-method-addSubview'>      /**
 </span>       * Adds the provided view to the subviews array of this layout.
        * @param {dr.view} view The view to add to this layout.
        * @return {void}
        */
 
-      Layoot.prototype.addSubview = function(view) {
+      Layout.prototype.addSubview = function(view) {
         if (this.ignore(view)) {
           return;
         }
@@ -3391,13 +3247,13 @@
       };
 
 
-<span id='dr-layoot-method-removeSubview'>      /**
+<span id='dr-layout-method-removeSubview'>      /**
 </span>       * Removes the provided View from the subviews array of this Layout.
        * @param {dr.view} view The view to remove from this layout.
        * @return {number} the index of the removed subview or -1 if not removed.
        */
 
-      Layoot.prototype.removeSubview = function(view) {
+      Layout.prototype.removeSubview = function(view) {
         var idx;
         if (this.ignore(view)) {
           return -1;
@@ -3414,36 +3270,36 @@
       };
 
 
-<span id='dr-layoot-method-ignore'>      /**
+<span id='dr-layout-method-ignore'>      /**
 </span>       * Checks if a subview can be added to this Layout or not. The default 
        * implementation returns the &#39;ignorelayout&#39; attributes of the subview.
        * @param {dr.view} view The view to check.
        * @return {boolean} True means the subview will be skipped, false otherwise.
        */
 
-      Layoot.prototype.ignore = function(view) {
+      Layout.prototype.ignore = function(view) {
         return view.ignorelayout;
       };
 
 
-<span id='dr-layoot-method-startMonitoringSubview'>      /**
+<span id='dr-layout-method-startMonitoringSubview'>      /**
 </span>       * Subclasses should implement this method to start listening to
        * events from the subview that should trigger the update method.
        * @param {dr.view} view The view to start monitoring for changes.
        * @return {void}
        */
 
-      Layoot.prototype.startMonitoringSubview = function(view) {};
+      Layout.prototype.startMonitoringSubview = function(view) {};
 
 
-<span id='dr-layoot-method-startMonitoringAllSubviews'>      /**
+<span id='dr-layout-method-startMonitoringAllSubviews'>      /**
 </span>       * Calls startMonitoringSubview for all views. Used by layout 
        * implementations when a change occurs to the layout that requires
        * refreshing all the subview monitoring.
        * @return {void}
        */
 
-      Layoot.prototype.startMonitoringAllSubviews = function() {
+      Layout.prototype.startMonitoringAllSubviews = function() {
         var i, svs, _results;
         svs = this.subviews;
         i = svs.length;
@@ -3455,7 +3311,7 @@
       };
 
 
-<span id='dr-layoot-method-stopMonitoringSubview'>      /**
+<span id='dr-layout-method-stopMonitoringSubview'>      /**
 </span>       * Subclasses should implement this method to stop listening to
        * events from the subview that would trigger the update method. This
        * should remove all listeners that were setup in startMonitoringSubview.
@@ -3463,17 +3319,17 @@
        * @return {void}
        */
 
-      Layoot.prototype.stopMonitoringSubview = function(view) {};
+      Layout.prototype.stopMonitoringSubview = function(view) {};
 
 
-<span id='dr-layoot-method-stopMonitoringAllSubviews'>      /**
+<span id='dr-layout-method-stopMonitoringAllSubviews'>      /**
 </span>       * Calls stopMonitoringSubview for all views. Used by Layout 
        * implementations when a change occurs to the layout that requires
        * refreshing all the subview monitoring.
        * @return {void}
        */
 
-      Layoot.prototype.stopMonitoringAllSubviews = function() {
+      Layout.prototype.stopMonitoringAllSubviews = function() {
         var i, svs, _results;
         svs = this.subviews;
         i = svs.length;
@@ -3485,26 +3341,26 @@
       };
 
 
-<span id='dr-layoot-method-canUpdate'>      /**
+<span id='dr-layout-method-canUpdate'>      /**
 </span>       * Checks if the layout is locked or not. Should be called by the
        * &quot;update&quot; method of each layout to check if it is OK to do the update.
        * @return {boolean} true if not locked, false otherwise.
        */
 
-      Layoot.prototype.canUpdate = function() {
+      Layout.prototype.canUpdate = function() {
         return !this.locked &amp;&amp; this.parent.inited;
       };
 
 
-<span id='dr-layoot-method-update'>      /**
+<span id='dr-layout-method-update'>      /**
 </span>       * Updates the layout. Subclasses should call canUpdate to check lock state
        * before doing anything.
        * @return {void}
        */
 
-      Layoot.prototype.update = function() {};
+      Layout.prototype.update = function() {};
 
-      return Layoot;
+      return Layout;
 
     })(Node);
     idle = (function() {
@@ -4059,7 +3915,6 @@
       keyboard: new Keyboard(),
       window: new Window(),
       layout: Layout,
-      layoot: Layoot,
       idle: new Idle(),
       state: State,
 

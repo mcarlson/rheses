@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. -->
 <!--/**
       * @class dr.constantlayout {Layout}
-      * @extends dr.layoot
+      * @extends dr.layout
       * A layout that sets the target attribute name to the target value for 
       * each subview.
       *
@@ -32,7 +32,7 @@ SOFTWARE. -->
       *     <view width="100" height="25" bgcolor="plum"></view>
       *     <view width="100" height="25" bgcolor="lightblue"></view>
       */-->
-<class name="constantlayout" extends="layoot" type="coffee">
+<class name="constantlayout" extends="layout" type="coffee">
   <!--/**
     * @attribute {String} [attribute=x]
     * The name of the attribute to update on each subview.

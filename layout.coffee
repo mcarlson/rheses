@@ -1392,7 +1392,7 @@ window.dr = do ->
         ###
         @sendEvent('subviewAdded', node)
         @doSubviewAdded(node);
-      else if node instanceof Layoot
+      else if node instanceof Layout
         ###*
         # @event layoutAdded
         # Fired when a layout is added to this view.
@@ -1414,7 +1414,7 @@ window.dr = do ->
         ###
         @sendEvent('subviewRemoved', node)
         @doSubviewRemoved(node);
-      else if node instanceof Layoot
+      else if node instanceof Layout
         ###*
         # @event layoutRemoved
         # Fired when a layout is removed from this view.
@@ -1923,7 +1923,6 @@ window.dr = do ->
               Node::enumfalse(Node::keys())
               View::enumfalse(View::keys())
               Layout::enumfalse(Layout::keys())
-              Layoot::enumfalse(Layoot::keys())
 
               # load scriptincludes
               scriptloaded = false
@@ -2518,126 +2517,9 @@ window.dr = do ->
   #
   #     <text id="output" multiline="true" width="300"></text>
   #
-  # Here we create diagonlayout, a subclass of layout that lays out the subviews in a diagonal formation. The update method sets the positions of the subview, and the onsubview handler attaches event listeners to the subviews as they are added so update is called if their dimensions or visibility are updated.
-  #
-  #     @example
-  #     <class name="diagonlayout" extends="layout">
-  #       <handler event="onsubview" args="subview">
-  #         this.listenTo(subview, 'visible', this.update);
-  #         this.listenTo(subview, 'width', this.update);
-  #         this.listenTo(subview, 'height', this.update);
-  #       </handler>
-  #       <method name="update" args="value, sender">
-  #         var posX = 0;
-  #         var posY = 0;
-  #         for (var i=0, l = this.parent.subviews.length; i < l; i++) {
-  #           var subview = this.parent.subviews[i];
-  #           if (subview.ignorelayout || !subview.visible) {
-  #             continue;
-  #           }
-  #
-  #           subview.setAttribute('x', posX);
-  #           subview.setAttribute('y', posY);
-  #
-  #           posX += subview.width;
-  #           posY += subview.height;
-  #         }
-  #       </method>
-  #     </class>
-  #
-  #     <diagonlayout></diagonlayout>
-  #     <view id="v1" width="50" height="50" bgcolor="Aqua"></view>
-  #     <view id="v2" width="50" height="50" bgcolor="HotPink"></view>
-  #     <view id="v3" width="50" height="50" bgcolor="MediumPurple"></view>
-  #
-  #     <labelbutton text="click me">
-  #       <handler event="onclick">
-  #         v1.setAttribute('width', 100);
-  #         v2.setAttribute('height', 150);
-  #       </handler>
-  #     </labelbutton>
-  #
   #
   ###
   class Layout extends Node
-    constructor: (el, attributes = {}) ->
-      @locked = true
-      super
-      # listen for new subviews
-      @listenTo(@parent, 'subviews', @_added)
-      @listenTo(@parent, 'init', @update)
-      @parent.layouts ?= []
-      @parent.layouts.push(@)
-      @parent.sendEvent('layouts', @parent.layouts)
-
-      # iterate through subviews that already exist
-      subviews = @parent.subviews
-      if subviews
-        for subview in subviews
-          @_added(subview)
-      @locked = false
-      @update()
-      # console.log('layout', attributes, @)
-
-    # called when a new subview is added to the parent view
-    _added: (child) =>
-      # console.log 'added layout', child, @
-      if child
-        ###*
-        # @event onsubview 
-        # Fired when the layout has a new subview. Used to listen for events on the view that the layout cares about.
-        # @param {dr.view} child The subview that was added
-        ###
-        @sendEvent('subview', child) unless child.ignorelayout
-      @update(null, child)
-
-    # 
-    ###*
-    # @method update
-    # @abstract
-    # Called when the layout should be updated. Must be implemented to update the position of the subviews
-    # @param value The value received from the node that updated
-    # @param {dr.node} sender The node that updated
-    ###
-    # update: (value, sender) =>
-      # console.log 'update layout', sender
-      # return if @skip()
-    
-    ###*
-    # Determines if a layout should be updated or not, usually called from update
-    # @returns {Boolean} If true, skip updating the layout
-    ###
-    skip: ->
-      true if @locked or (not @inited) or (not @parent?.subviews) or (@parent.subviews.length == 0)
-
-    destroy: (skipevents) ->
-      @locked = true
-      # console.log 'destroy layout', @
-      super
-      @_removeFromParent('layouts') unless skipevents
-
-    set_locked: (locked) ->
-      changed = @locked != locked
-      ###*
-      # @property {Boolean} locked
-      # If true, this layout will not update
-      ###
-      @locked = locked
-      ###*
-      # @event onlocked 
-      # Fired when the layout is locked
-      # @param {Boolean} locked If true, the layout is locked
-      ###
-      @sendEvent('locked', locked)
-      # console.log 'set_locked', locked
-      @update() if (changed and not locked)
-
-  ###*
-  # @class dr.layoot {Layout}
-  # @extends dr.node
-  # The base class for all layouts. 
-  ###
-  class Layoot extends Node
     constructor: (el, attributes = {}) ->
       @locked = true
       @subviews = []
@@ -3208,7 +3090,6 @@ window.dr = do ->
     keyboard: new Keyboard()
     window: new Window()
     layout: Layout
-    layoot: Layoot
     idle: new Idle()
     state: State
     ###*
