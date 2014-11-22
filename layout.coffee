@@ -2498,12 +2498,12 @@ window.dr = do ->
   #
   # When a new layout is added, it will automatically create and add itself to a layouts array in its parent. In addition, an onlayouts event is fired in the parent when the layouts array changes. This allows the parent to access the layout(s) later.
   #
-  # Here is a view that contains both a spacedlayout and a boundslayout.
+  # Here is a view that contains both a spacedlayout and a shrinktofit.
   #
   #     @example
   #     <spacedlayout axis="y"></spacedlayout>
   #     <view bgcolor="oldlace">
-  #       <boundslayout></boundslayout>
+  #       <shrinktofit axis="both"></shrinktofit>
   #
   #       <spacedlayout></spacedlayout>
   #

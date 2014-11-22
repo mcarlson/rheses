@@ -215,39 +215,6 @@
              * Fired when there is an error loading the bitmap
              */
 /**
-     * @class dr.boundslayout {Layout}
-     * @extends dr.layout
-     * Sets the parent view's size to match the bounds of its children.
-     *
-     * Here is a view that contains three sub views that are positioned with a spacedlayout. The parent view has a grey background color. Notice that the subviews are visible because they overflow the parent view, but the parent view itself takes up no space.
-     *
-     *     @example
-     *     <view bgcolor="darkgrey">
-     *       <spacedlayout axis="y"></spacedlayout>
-     *
-     *       <view width="100" height="25" bgcolor="lightpink" opacity=".3"></view>
-     *       <view width="100" height="25" bgcolor="plum" opacity=".3"></view>
-     *       <view width="100" height="25" bgcolor="lightblue" opacity=".3"></view>
-     *     </view>
-     *
-     * Now we'll add a boundlayout to the parent view. Notice that now the parent view does take up space, and you can see it through the semi-transparent subviews.
-     *
-     *     @example
-     *     <view bgcolor="darkgrey">
-     *       <boundslayout></boundslayout>
-     *
-     *       <spacedlayout axis="y"></spacedlayout>
-     *
-     *       <view width="100" height="25" bgcolor="lightpink" opacity=".3"></view>
-     *       <view width="100" height="25" bgcolor="plum" opacity=".3"></view>
-     *       <view width="100" height="25" bgcolor="lightblue" opacity=".3"></view>
-     *     </view>
-     */
-/**
-        * @attribute {""/"width"/"height"} [ignoreattr=""]
-        * Optionally skip bounds calculations for a specific axis.
-        */
-/**
      * @class dr.buttonbase {UI Components}
      * @extends dr.view
      * Base class for button components. Buttons share common elements, 
@@ -855,12 +822,30 @@
       * A special "layout" that resizes the parent to fit the children 
       * rather than laying out the children.
       *
-      *     @example
-      *     <shrinktofit axis="both" xpad="5" ypad="10"></shrinktofit>
       *
-      *     <view width="100" height="25" bgcolor="lightpink"></view>
-      *     <view width="100" height="25" bgcolor="plum"></view>
-      *     <view width="100" height="25" bgcolor="lightblue"></view>
+      * Here is a view that contains three sub views that are positioned with a spacedlayout. The parent view has a grey background color. Notice that the subviews are visible because they overflow the parent view, but the parent view itself takes up no space.
+      *
+      *     @example
+      *     <view bgcolor="darkgrey">
+      *       <spacedlayout axis="y"></spacedlayout>
+      *
+      *       <view width="100" height="25" bgcolor="lightpink" opacity=".3"></view>
+      *       <view width="100" height="25" bgcolor="plum" opacity=".3"></view>
+      *       <view width="100" height="25" bgcolor="lightblue" opacity=".3"></view>
+      *     </view>
+      *
+      * Now we'll add a shrinktofit to the parent view. Notice that now the parent view does take up space, and you can see it through the semi-transparent subviews.
+      *
+      *     @example
+      *     <view bgcolor="darkgrey">
+      *       <shrinktofit axis="both" xpad="5" ypad="10"></shrinktofit>
+      *
+      *       <spacedlayout axis="y"></spacedlayout>
+      *
+      *       <view width="100" height="25" bgcolor="lightpink" opacity=".3"></view>
+      *       <view width="100" height="25" bgcolor="plum" opacity=".3"></view>
+      *       <view width="100" height="25" bgcolor="lightblue" opacity=".3"></view>
+      *     </view>
       */
 /**
     * @attribute {String} [axis=x]

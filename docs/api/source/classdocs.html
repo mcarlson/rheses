@@ -231,39 +231,6 @@
 </span>             * @event onerror 
              * Fired when there is an error loading the bitmap
              */
-<span id='dr-boundslayout'>/**
-</span>     * @class dr.boundslayout {Layout}
-     * @extends dr.layout
-     * Sets the parent view&#39;s size to match the bounds of its children.
-     *
-     * Here is a view that contains three sub views that are positioned with a spacedlayout. The parent view has a grey background color. Notice that the subviews are visible because they overflow the parent view, but the parent view itself takes up no space.
-     *
-     *     @example
-     *     &lt;view bgcolor=&quot;darkgrey&quot;&gt;
-     *       &lt;spacedlayout axis=&quot;y&quot;&gt;&lt;/spacedlayout&gt;
-     *
-     *       &lt;view width=&quot;100&quot; height=&quot;25&quot; bgcolor=&quot;lightpink&quot; opacity=&quot;.3&quot;&gt;&lt;/view&gt;
-     *       &lt;view width=&quot;100&quot; height=&quot;25&quot; bgcolor=&quot;plum&quot; opacity=&quot;.3&quot;&gt;&lt;/view&gt;
-     *       &lt;view width=&quot;100&quot; height=&quot;25&quot; bgcolor=&quot;lightblue&quot; opacity=&quot;.3&quot;&gt;&lt;/view&gt;
-     *     &lt;/view&gt;
-     *
-     * Now we&#39;ll add a boundlayout to the parent view. Notice that now the parent view does take up space, and you can see it through the semi-transparent subviews.
-     *
-     *     @example
-     *     &lt;view bgcolor=&quot;darkgrey&quot;&gt;
-     *       &lt;boundslayout&gt;&lt;/boundslayout&gt;
-     *
-     *       &lt;spacedlayout axis=&quot;y&quot;&gt;&lt;/spacedlayout&gt;
-     *
-     *       &lt;view width=&quot;100&quot; height=&quot;25&quot; bgcolor=&quot;lightpink&quot; opacity=&quot;.3&quot;&gt;&lt;/view&gt;
-     *       &lt;view width=&quot;100&quot; height=&quot;25&quot; bgcolor=&quot;plum&quot; opacity=&quot;.3&quot;&gt;&lt;/view&gt;
-     *       &lt;view width=&quot;100&quot; height=&quot;25&quot; bgcolor=&quot;lightblue&quot; opacity=&quot;.3&quot;&gt;&lt;/view&gt;
-     *     &lt;/view&gt;
-     */
-<span id='dr-boundslayout-attribute-ignoreattr'>/**
-</span>        * @attribute {&quot;&quot;/&quot;width&quot;/&quot;height&quot;} [ignoreattr=&quot;&quot;]
-        * Optionally skip bounds calculations for a specific axis.
-        */
 <span id='dr-buttonbase'>/**
 </span>     * @class dr.buttonbase {UI Components}
      * @extends dr.view
@@ -872,12 +839,30 @@
       * A special &quot;layout&quot; that resizes the parent to fit the children 
       * rather than laying out the children.
       *
-      *     @example
-      *     &lt;shrinktofit axis=&quot;both&quot; xpad=&quot;5&quot; ypad=&quot;10&quot;&gt;&lt;/shrinktofit&gt;
       *
-      *     &lt;view width=&quot;100&quot; height=&quot;25&quot; bgcolor=&quot;lightpink&quot;&gt;&lt;/view&gt;
-      *     &lt;view width=&quot;100&quot; height=&quot;25&quot; bgcolor=&quot;plum&quot;&gt;&lt;/view&gt;
-      *     &lt;view width=&quot;100&quot; height=&quot;25&quot; bgcolor=&quot;lightblue&quot;&gt;&lt;/view&gt;
+      * Here is a view that contains three sub views that are positioned with a spacedlayout. The parent view has a grey background color. Notice that the subviews are visible because they overflow the parent view, but the parent view itself takes up no space.
+      *
+      *     @example
+      *     &lt;view bgcolor=&quot;darkgrey&quot;&gt;
+      *       &lt;spacedlayout axis=&quot;y&quot;&gt;&lt;/spacedlayout&gt;
+      *
+      *       &lt;view width=&quot;100&quot; height=&quot;25&quot; bgcolor=&quot;lightpink&quot; opacity=&quot;.3&quot;&gt;&lt;/view&gt;
+      *       &lt;view width=&quot;100&quot; height=&quot;25&quot; bgcolor=&quot;plum&quot; opacity=&quot;.3&quot;&gt;&lt;/view&gt;
+      *       &lt;view width=&quot;100&quot; height=&quot;25&quot; bgcolor=&quot;lightblue&quot; opacity=&quot;.3&quot;&gt;&lt;/view&gt;
+      *     &lt;/view&gt;
+      *
+      * Now we&#39;ll add a shrinktofit to the parent view. Notice that now the parent view does take up space, and you can see it through the semi-transparent subviews.
+      *
+      *     @example
+      *     &lt;view bgcolor=&quot;darkgrey&quot;&gt;
+      *       &lt;shrinktofit axis=&quot;both&quot; xpad=&quot;5&quot; ypad=&quot;10&quot;&gt;&lt;/shrinktofit&gt;
+      *
+      *       &lt;spacedlayout axis=&quot;y&quot;&gt;&lt;/spacedlayout&gt;
+      *
+      *       &lt;view width=&quot;100&quot; height=&quot;25&quot; bgcolor=&quot;lightpink&quot; opacity=&quot;.3&quot;&gt;&lt;/view&gt;
+      *       &lt;view width=&quot;100&quot; height=&quot;25&quot; bgcolor=&quot;plum&quot; opacity=&quot;.3&quot;&gt;&lt;/view&gt;
+      *       &lt;view width=&quot;100&quot; height=&quot;25&quot; bgcolor=&quot;lightblue&quot; opacity=&quot;.3&quot;&gt;&lt;/view&gt;
+      *     &lt;/view&gt;
       */
 <span id='dr-shrinktofit-attribute-axis'>/**
 </span>    * @attribute {String} [axis=x]

@@ -1,9 +1,9 @@
 require 'spec_helper'
 
-describe 'boundslayout', :type => :feature, :js => true do
+describe 'shrinktofit', :type => :feature, :js => true do
 
   before :each do
-    visit '/spec/features/boundslayout.html'
+    visit '/spec/features/shrinktofit.html'
     wait_for_javascript_event 'dreemInited'
   end
 

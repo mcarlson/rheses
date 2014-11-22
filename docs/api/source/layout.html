@@ -2024,6 +2024,9 @@
         this.listenTo(this, &#39;height&#39;, function(h) {
           return this.sprite.setStyle(&#39;height&#39;, this.innerSize(&#39;100%&#39;, &#39;height&#39;), true, this.sprite.input);
         });
+        this.listenTo(this, &#39;click&#39;, function() {
+          return this.sprite.input.focus();
+        });
       }
 
       InputText.prototype._createSprite = function(el, attributes) {
@@ -3167,12 +3170,12 @@
      *
      * When a new layout is added, it will automatically create and add itself to a layouts array in its parent. In addition, an onlayouts event is fired in the parent when the layouts array changes. This allows the parent to access the layout(s) later.
      *
-     * Here is a view that contains both a spacedlayout and a boundslayout.
+     * Here is a view that contains both a spacedlayout and a shrinktofit.
      *
      *     @example
      *     &lt;spacedlayout axis=&quot;y&quot;&gt;&lt;/spacedlayout&gt;
      *     &lt;view bgcolor=&quot;oldlace&quot;&gt;
-     *       &lt;boundslayout&gt;&lt;/boundslayout&gt;
+     *       &lt;shrinktofit axis=&quot;both&quot;&gt;&lt;/shrinktofit&gt;
      *
      *       &lt;spacedlayout&gt;&lt;/spacedlayout&gt;
      *
