@@ -16,25 +16,33 @@
     </handler>
   </shim>
 
-  <class name="genreyear" width="14" height="60" opacity=".13">
+  <class name="genreyear" width="15" height="60" opacity=".15">
     <handler event="onmouseover">
       bus.send('movie', this.data)
       cursor.setAttribute('x', this.getAbsolute().x)
     </handler>
     <handler event="oninit">
-      var color = '#' + md5(this.parent.parent.data.name).substring(0,6)
-      this.setAttribute('background-color', color);
+      this.setAttribute('background-color', '#' + md5(this.parent.parent.data.name).substring(0,6));
     </handler>
   </class>
 
-  <class name="genrestrip">
-    <timelayout scale="14" inset="1900" startfieldname="releaseYear" id="tl"></timelayout>
-    <replicator datapath="$topmovies/searchResponse/results[*]/movie[@]" lazycount="0" classname="genreyear">
-      <handler event="oninit">
-        var genrename = this.parent.parent.data.name;
-        // TODO: add states to handle this
-        this.filterfunction = function(obj, accum, sel) {
-          // console.log('filterfunction', obj, accum, genrename)
+  <class name="genre" height="60">
+    <text x="6" font-size="48" font-weight="bold" color="silver"
+      text="${this.parent.data.name}"
+    ></text>
+    
+    <view height="60">
+      <variablelayout id="tl" type="coffee">
+        <method name="updateSubview" args="count, view, attribute, value">
+          view.setAttribute(attribute, (view.data.releaseYear - 1900) * 16)
+        </method>
+      </variablelayout>
+      
+      <replicator datapath="$topmovies/searchResponse/results[*]/movie[@]"
+        classname="genreyear" lazycount="0"
+      >
+        <method name="filterfunction" args="obj, accum, sel">
+          var genrename = this.parent.parent.data.name;
           if (obj.genres) {
             obj.genres.forEach(function (genre) {
             if (genre.name === genrename)
@@ -42,31 +50,15 @@
             });
           }
           return accum;
-        }
-        this.applyData();
-      </handler>
-      <method name="filterfunction" args="obj, accum, sel">
-      </method>
-    </replicator>
+        </method>
+      </replicator>
+    </view>
   </class>
 
-  <class name="genre" font-size="51" font-weight="bold" color="silver">
-    <shrinktofit axis="both"></shrinktofit>
-    <replicator datapath="/name[@]" classname="text">
-      <method name="filterfunction" args="obj, accum, sel">
-        // console.log('filterfunction', obj, accum)
-        obj = obj.replace('[nf]', '');
-        accum.push(obj);
-        return accum
-      </method>
-    </replicator>
-
-    <genrestrip y="9" z-index="1000"></genrestrip>
-  </class>
-
-  <class name="thumbtitle" extends="text" multiline="true" width="50" color="silver" font-weight="bold"></class>
-
-  <class name="thumbnail" extends="bitmap" background-size="cover" border-style="solid" border-width="0" border-color="white" width="180" height="240" bgcolor="white" clip="true">
+  <class name="thumbnail" extends="bitmap" background-size="cover"
+    border="0" bordercolor="white"
+    width="180" height="240" bgcolor="white" clip="true"
+  >
     <attribute name="title" type="string" value="" visual="false"></attribute>
     <handler event="onmouseover">
       this.setAttribute('border-width', 3);
@@ -84,42 +76,44 @@
     <handler event="ondata" args="data" type="coffee">
       if data.images
         for image in data.images
-          if image.width > 100 and image.width < 140
+          if image.width > 100 and 140 > image.width
             height = image.height * 1.6
-
+            
             this.setAttribute('width', image.width * 1.6);
-            this.setAttribute('height', height);
             this.setAttribute('src', image.url);
             break
       this.setAttribute('title', data.title);
     </handler>
-    <text multiline="true" width="50" color="silver" font-weight="bold" text="${this.parent.title}">Title</text>
+    <text multiline="true" x="4" y="4" width="160"
+      color="silver" font-weight="bold" text="${this.parent.title}"
+    ></text>
   </class>
 
   <dataset name="topmovies" url="./data/top_movies.json"></dataset>
 
-  <!-- TODO: remove redundant attributes -->
-  <spacedlayout axis="y" spacing="1"></spacedlayout>
-  
-  <view id="thumbnailstrip" width="${dr.window.width}" height="248" bgcolor="silver" scrollable="true" position="fixed" z-index="100000">
+  <view id="thumbnailstrip"
+    width="${dr.window.width}" height="248" bgcolor="silver" scrollable="true"
+  >
     <handler event="onmovie" args="movie" reference="bus">
       this.setAttribute('data', movie)
-      if (tl.project) {
-        x = tl.project(movie.releaseYear) - window.pageXOffset
-        cursor.setAttribute('x', x)
-      }
     </handler>
     <handler event="ondata" args="data">
       this.year.setAttribute('text', data.releaseYear)
       // TODO: fix this
       this.repl.applyData();
     </handler>
-
-    <wrappinglayout inset="2" spacing="2" lineinset="2" linespacing="2"></wrappinglayout>
-
-    <text name="year" font-size="210px" color="white" opacity=".6" font-weight="bold" ignorelayout="true" z-index="1000" x="${this.parent.width - this.width - 10}" text-shadow="0px 0px 10px black"></text>
-    <replicator name="repl" datapath="$topmovies/searchResponse/results[*]/movie[@]" classname="thumbnail" filterfield="releaseYear">
-    <!-- TODO: can't specify a custom filter function in a path, e.g. @filt -->
+    
+    <wrappinglayout inset="4" spacing="4" lineinset="4" linespacing="4"></wrappinglayout>
+    
+    <text name="year" font-size="210px" color="white" opacity=".6" font-weight="bold"
+      ignorelayout="true" z-index="1" x="${this.parent.width - this.width - 10}"
+      text-shadow="0px 0px 10px black"
+    ></text>
+    
+    <replicator name="repl" datapath="$topmovies/searchResponse/results[*]/movie[@]"
+      classname="thumbnail" filterfield="releaseYear"
+    >
+      <!-- TODO: can't specify a custom filter function in a path, e.g. @filt -->
       <method name="filterfunction" args="obj, accum, sel">
         if (this.parent.data && this.parent.data.releaseYear == obj.releaseYear)
           accum.push(obj);
@@ -128,9 +122,14 @@
     </replicator>
   </view>
 
-  <view>
+  <view y="${thumbnailstrip.y + thumbnailstrip.height}"
+    width="${dr.window.width}" height="${dr.window.height - this.y}" scrollable="true"
+  >
     <spacedlayout axis="y" spacing="1"></spacedlayout>
-    <replicator datapath="$topmovies/searchResponse/facetCounts[0]/facetCount[*][@]" classname="genre" sortfield="count" sortasc="false" lazycount="0">
+    
+    <replicator datapath="$topmovies/searchResponse/facetCounts[0]/facetCount[*][@]"
+      classname="genre" sortfield="count" sortasc="false" lazycount="0"
+    >
       <method name="filterfunction" args="obj, accum, sel">
         // console.log('filterfunction', obj, accum)
         if (obj.count > 0 && obj.name.indexOf('Culture') == -1)
@@ -140,7 +139,10 @@
     </replicator>
   </view>
 
-  <view id="cursor" width="14" height="${dr.window.height}" bgcolor="silver" opacity=".4" position="fixed"></view>
+  <view id="cursor" y="${thumbnailstrip.y + thumbnailstrip.height}"
+    width="15" height="${dr.window.height - this.y}" 
+    bgcolor="silver" opacity=".4" position="fixed"
+  ></view>
 </view>
 <!-- The MIT License (MIT)
 
