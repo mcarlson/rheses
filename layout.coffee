@@ -22,20 +22,38 @@
 # SOFTWARE.
 ###
 
+# Maps attribute names to CSS style names.
+stylemap =
+  x: 'marginLeft'
+  y: 'marginTop'
+  bgcolor: 'backgroundColor'
+  visible: 'display'
+  border: 'borderWidth'
+  borderstyle: 'borderStyle'
+  bordercolor: 'borderColor'
+
 hackstyle = do ->
   # hack jQuery to send a style event when CSS changes
-  stylemap= {left: 'x', top: 'y', 'background-color': 'bgcolor'}
+  monitoredJQueryStyleProps = {}
+  for prop, value of stylemap
+    monitoredJQueryStyleProps[value] = prop
+  
   origstyle = $.style
   styletap = (elem, name, value) ->
-    returnval = origstyle.apply(@, arguments)
-    name = stylemap[name] or name
+    attrName = monitoredJQueryStyleProps[name]
+    if !attrName?
+      # Normalize style names to camel case names by removing '-' and upper
+      # casing the subsequent character.
+      attrName = monitoredJQueryStyleProps[name.replace(/-([a-z])/i, (m) -> m[1].toUpperCase())]
+      monitoredJQueryStyleProps[name] = if attrName then attrName else name
+    
     view = elem.$view
-    if view[name] != value
+    if view[attrName] != value
     # if (view[name] != value and view?.events?[name])
       # console.log('sending style', name, elem.$view._locked) if sendstyle
-      view.setAttribute(name, value, true)
+      view.setAttribute(attrName, value, true)
 
-    returnval
+    origstyle.apply(@, arguments)
 
   return (active) ->
     if active
@@ -218,6 +236,7 @@ window.dr = do ->
     ###
     @include Events
 
+    # A mapping of type coercion functions by attribute type.
     typemappings=
       number: parseFloat
       boolean: (val) -> (if (typeof val == 'string') then val == 'true' else (!! val))
@@ -905,14 +924,6 @@ window.dr = do ->
 
       @_removeFromParent('subnodes') unless skipevents
 
-  stylemap =
-    x: 'marginLeft'
-    y: 'marginTop'
-    bgcolor: 'backgroundColor'
-    visible: 'display'
-    border: 'borderWidth'
-    borderstyle: 'borderStyle'
-    bordercolor: 'borderColor'
   ###*
   # @class Sprite
   # @private
@@ -1111,8 +1122,34 @@ window.dr = do ->
         console.warn "Setting unknown CSS property #{name} = #{value} on ", @el.$view, stylemap, internal
       ss2(name, value, internal, el)
 
-  # internal attributes ignored by class declarations and view styles
-  ignoredAttributes = {parent: true, id: true, name: true, extends: true, type: true, scriptincludes: true}
+  # Attributes that shouldn't be applied visually and will thus not be
+  # set on the sprite.
+  hiddenAttributes = {
+    text: true,
+    $tagname: true,
+    data: true,
+    replicator: true,
+    class: true,
+    clip: true,
+    clickable: true,
+    scrollable: true,
+    $textcontent: true,
+    resize: true,
+    multiline: true,
+    ignorelayout: true
+  }
+
+  # Internal attributes ignored by class declarations and view styles
+  ignoredAttributes = {
+    parent: true, 
+    id: true, 
+    name: true, 
+    extends: true, 
+    type: true, 
+    scriptincludes: true
+  }
+
+
   ###*
   # @aside guide constraints
   # @class dr.view {UI Components}
@@ -1769,21 +1806,6 @@ window.dr = do ->
     console.error out
 
 
-  # a collection of attributes that shouldn't be applied visually.
-  hiddenAttributes = {
-    text: true,
-    $tagname: true,
-    data: true,
-    replicator: true,
-    class: true,
-    clip: true,
-    clickable: true,
-    scrollable: true,
-    $textcontent: true,
-    resize: true,
-    multiline: true,
-    ignorelayout: true
-  }
   dom = do ->
     getChildren = (el) ->
       child for child in el.childNodes when child.nodeType == 1 and child.localName in specialtags
