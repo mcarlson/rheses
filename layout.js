@@ -25,30 +25,45 @@
  */
 
 (function() {
-  var hackstyle,
+  var hackstyle, stylemap,
     __slice = [].slice,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
+  stylemap = {
+    x: 'marginLeft',
+    y: 'marginTop',
+    bgcolor: 'backgroundColor',
+    visible: 'display',
+    border: 'borderWidth',
+    borderstyle: 'borderStyle',
+    bordercolor: 'borderColor'
+  };
+
   hackstyle = (function() {
-    var origstyle, stylemap, styletap;
-    stylemap = {
-      left: 'x',
-      top: 'y',
-      'background-color': 'bgcolor'
-    };
+    var monitoredJQueryStyleProps, origstyle, prop, styletap, value;
+    monitoredJQueryStyleProps = {};
+    for (prop in stylemap) {
+      value = stylemap[prop];
+      monitoredJQueryStyleProps[value] = prop;
+    }
     origstyle = $.style;
     styletap = function(elem, name, value) {
-      var returnval, view;
-      returnval = origstyle.apply(this, arguments);
-      name = stylemap[name] || name;
-      view = elem.$view;
-      if (view[name] !== value) {
-        view.setAttribute(name, value, true);
+      var attrName, view;
+      attrName = monitoredJQueryStyleProps[name];
+      if (attrName == null) {
+        attrName = monitoredJQueryStyleProps[name.replace(/-([a-z])/i, function(m) {
+          return m[1].toUpperCase();
+        })];
+        monitoredJQueryStyleProps[name] = attrName ? attrName : name;
       }
-      return returnval;
+      view = elem.$view;
+      if (view[attrName] !== value) {
+        view.setAttribute(attrName, value, true);
+      }
+      return origstyle.apply(this, arguments);
     };
     return function(active) {
       if (active) {
@@ -60,7 +75,7 @@
   })();
 
   window.dr = (function() {
-    var Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, capabilities, compiler, constraintScopes, debug, dom, exports, fcamelCase, hiddenAttributes, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, otherstyles, querystring, rdashAlpha, showWarnings, ss, ss2, stylemap, test, triggerlock, warnings, _initConstraints;
+    var Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, capabilities, compiler, constraintScopes, debug, dom, exports, fcamelCase, hiddenAttributes, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, otherstyles, querystring, rdashAlpha, showWarnings, ss, ss2, test, triggerlock, warnings, _initConstraints;
     mixOf = function() {
       var Mixed, base, i, method, mixin, mixins, name, _i, _ref;
       base = arguments[0], mixins = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
@@ -1196,15 +1211,6 @@
       return Node;
 
     })(Eventable);
-    stylemap = {
-      x: 'marginLeft',
-      y: 'marginTop',
-      bgcolor: 'backgroundColor',
-      visible: 'display',
-      border: 'borderWidth',
-      borderstyle: 'borderStyle',
-      bordercolor: 'borderColor'
-    };
 
     /**
      * @class Sprite
@@ -1449,6 +1455,20 @@
         return ss2(name, value, internal, el);
       };
     }
+    hiddenAttributes = {
+      text: true,
+      $tagname: true,
+      data: true,
+      replicator: true,
+      "class": true,
+      clip: true,
+      clickable: true,
+      scrollable: true,
+      $textcontent: true,
+      resize: true,
+      multiline: true,
+      ignorelayout: true
+    };
     ignoredAttributes = {
       parent: true,
       id: true,
@@ -2276,20 +2296,6 @@
       pre.textContent = out;
       document.body.insertBefore(pre, document.body.firstChild);
       return console.error(out);
-    };
-    hiddenAttributes = {
-      text: true,
-      $tagname: true,
-      data: true,
-      replicator: true,
-      "class": true,
-      clip: true,
-      clickable: true,
-      scrollable: true,
-      $textcontent: true,
-      resize: true,
-      multiline: true,
-      ignorelayout: true
     };
     dom = (function() {
       var builtinTags, checkRequiredAttributes, exports, findAutoIncludes, flattenattributes, getChildren, htmlDecode, initAllElements, initElement, initFromElement, processSpecialTags, requiredAttributes, sendInit, specialtags, writeCSS;
