@@ -1,5 +1,0 @@
-Unrecognized class goodbye <goodbye></goodbye>
-attribute.value must be defined on <attribute name="fullName" type="string"></attribute> inside <class name="contact" extends="view" bgcolor="red" width="300" height="300">
-    <attribute name="fullName" type="string"></attribute>
-  </class>
-Invalid type 'text' for attribute 'something', must be one of: number, boolean, string, json, expression
