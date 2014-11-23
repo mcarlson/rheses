@@ -9,6 +9,9 @@
   <style type="text/css">
     body {
       background-color: rgb(46,36,30);
+      background-size: 259px 259px;
+      font-family: 'Helvetica';
+      font-size: 14px;
     }
     input, textarea {
       font-family: 'Helvetica';
@@ -47,17 +50,17 @@
   </spacedlayout>
   <shrinktofit name="bnd" axis="both"></shrinktofit>
 
-  <class name="clickresize" width="10" height="10" bgcolor="red">
+  <class name="clickresize" width="10" height="${this.width}" bgcolor="red">
     <attribute name="data" value="null" type="expression"></attribute>
     <handler event="onclick">
-      this.animate({width: 100, height: 100})
+      this.animate({width: 100})
     </handler>
   </class>
 
   <clickresize bgcolor="red"></clickresize>
   <clickresize bgcolor="yellow" onclick="this.setAttribute('visible', false)"></clickresize>
   <clickresize bgcolor="green"></clickresize>
-  <clickresize bgcolor="black"></clickresize>
+  <clickresize bgcolor="black" onclick="this.destroy()"></clickresize>
   <clickresize bgcolor="blue">
     <spacedlayout spacing="4"></spacedlayout>
     <replicator name="repl" classname="clickresize"></replicator>
