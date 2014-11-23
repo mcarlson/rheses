@@ -273,9 +273,13 @@ window.dr = do ->
     # @param {String} name the name of the attribute to set
     # @param value the value to set to
     ###
-    setAttribute: (name, value, skipcoercion) ->
+    setAttribute: (name, value, skipcoercion, skipConstraintSetup, skipconstraintunregistration) ->
       # TODO: add support for dynamic constraints
       value = @_coerceType(name, value) unless skipcoercion
+
+      unless skipconstraintunregistration
+        if @constraints? and name of @constraints
+          @_unbindConstraint(name)
 
       @["set_#{name}"]?(value)
       @[name] = value
@@ -666,12 +670,12 @@ window.dr = do ->
           scope.unbind(ev, handler.callback)
       return
 
-    # Bind an attribute to an event expression, handler, or fall back to setAttribute()
+    # Bind an attribute to a constraint, event expression/handler or fall back to setAttribute()
     bindAttribute: (name, value, tagname) ->
       constraint = value.match?(matchConstraint) if value
       if constraint
         # console.log('applying constraint', name, constraint[1])
-        @_applyConstraint(name, constraint[1])
+        @setConstraint(name, constraint[1], true)
       else if name.indexOf('on') == 0
         name = name.substr(2)
         # console.log('binding to event expression', name, value, @)
@@ -679,7 +683,7 @@ window.dr = do ->
       else
         @setAttribute(name, value)
 
-    # public API to initialize constraints
+    # public API to initialize constraints for a group of nodes, used by replicator
     initConstraints: ->
       _initConstraints()
       @
@@ -727,10 +731,16 @@ window.dr = do ->
         scope[methodname] = method
       # console.log('installed method', methodname, scope, scope[methodname])
 
-    # applies a constraint, must call _initConstraints for constraints to be bound
-    _applyConstraint: (property, expression) ->
-      @constraints ?= {}
+    # sets a constraint, binding it immediately unless skipbinding is true.
+    # If skipbinding is true, call _bindConstraints() or _initConstraints()
+    # to bind constraints later.
+    setConstraint: (property, expression, skipbinding) ->
       # console.log 'adding constraint', property, expression, @
+      if @constraints?
+        @_unbindConstraint(property) if property of @constraints
+      else
+        @constraints = {}
+
       @constraints[property] =
         expression: expression
         bindings: {}
@@ -744,30 +754,49 @@ window.dr = do ->
         bindings[bindexpression].push(scope)
         # console.log 'applied', scope.property, bindexpression, 'for', @
 
+      @_bindConstraints() unless skipbinding
       # console.log 'matched constraint', property, @, expression
       return
 
+    # compiles a function that looks bindexpression up later in the local scope
     _valueLookup: (bindexpression) ->
       compiler.compile('return ' + bindexpression).bind(@)
+
+    # remove a constraint, unbinding from all its dependencies
+    _unbindConstraint: (property) ->
+      return unless property of @constraints
+      constraint = @constraints[property]
+      {callback, callbackbindings} = constraint
+      # console.log "removing constraint for #{property}", constraint, callback, callbackbindings
+
+      for prop, i in callbackbindings by 2
+        scope = callbackbindings[i + 1]
+        # console.log "removing binding", prop, scope, callback
+        scope.unbind?(prop, callback)
+
+      @constraints[property] = null
+      return
 
     _bindConstraints: ->
       for name, constraint of @constraints
         {bindings, expression} = constraint
+        constraint.callbackbindings ?= []
         fn = @_valueLookup(expression)
         # console.log 'binding constraint', name, expression, @
-        constraint = @_constraintCallback(name, fn)
+        constraint.callback = @_constraintCallback(name, fn)
         for bindexpression, bindinglist of bindings
           boundref = @_valueLookup(bindexpression)()
-          if not boundref
-            showWarnings(["Could not bind constraint #{bindexpression}"])
+          if not boundref or not boundref.bind?
+            showWarnings(["Could not bind to #{bindexpression} of constraint #{expression} for #{@$tagname}#{if @id then '#' + @id else if @name then '.' + name else ''}"])
             continue
-          boundref ?= boundref.$view
+
           for binding in bindinglist
             property = binding.property
             # console.log 'binding to', property, 'on', boundref
-            boundref.bind?(property, constraint)
+            boundref.bind(property, constraint.callback)
+            constraint.callbackbindings.push(property, boundref)
 
-        @setAttribute(name, fn())
+        @setAttribute(name, fn(), false, false, true)
       return
 
     _bindHandlers: (isLate) ->
@@ -816,7 +845,7 @@ window.dr = do ->
       # console.log('binding to constraint function', name, fn, @)
       return `(function constraintCallback(){`
       # console.log 'setting', name, fn(), @
-      @.setAttribute(name, fn())
+      @.setAttribute(name, fn(), false, false, true)
       `}).bind(this)`
 
     set_parent: (parent) ->
@@ -909,6 +938,12 @@ window.dr = do ->
       ###
       @sendEvent('destroy', @)
 
+      # unbind constraints
+      if @constraints
+        for property of @constraints
+          @_unbindConstraint(property)
+
+      # stop events
       if @listeningTo
         @stopListening()
       @unbind()
@@ -1353,7 +1388,7 @@ window.dr = do ->
     _createSprite: (el, attributes) ->
       @sprite = new Sprite(el, @, attributes.$tagname)
 
-    setAttribute: (name, value, skipstyle, skipConstraintSetup) ->
+    setAttribute: (name, value, skipstyle, skipConstraintSetup, skipconstraintunregistration) ->
       # catch percent constraints
       if (!skipConstraintSetup)
         switch name
@@ -1372,7 +1407,7 @@ window.dr = do ->
       if not (skipstyle or name of ignoredAttributes or name of hiddenAttributes or @[name] == value)
         # console.log 'setting style', name, value, @
         @sprite.setStyle(name, value)
-      super(name, value, true)
+      super(name, value, true, skipConstraintSetup, skipconstraintunregistration)
     
     __setupPercentConstraint: (name, value, axis) ->
       funcKey = '__percentFunc' + name

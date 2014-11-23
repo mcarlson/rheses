@@ -405,10 +405,15 @@
        * @param value the value to set to
        */
 
-      Eventable.prototype.setAttribute = function(name, value, skipcoercion) {
+      Eventable.prototype.setAttribute = function(name, value, skipcoercion, skipConstraintSetup, skipconstraintunregistration) {
         var _name;
         if (!skipcoercion) {
           value = this._coerceType(name, value);
+        }
+        if (!skipconstraintunregistration) {
+          if ((this.constraints != null) && name in this.constraints) {
+            this._unbindConstraint(name);
+          }
         }
         if (typeof this[_name = "set_" + name] === "function") {
           this[_name](value);
@@ -905,7 +910,7 @@
           constraint = typeof value.match === "function" ? value.match(matchConstraint) : void 0;
         }
         if (constraint) {
-          return this._applyConstraint(name, constraint[1]);
+          return this.setConstraint(name, constraint[1], true);
         } else if (name.indexOf('on') === 0) {
           name = name.substr(2);
           return this.bind(name, _eventCallback(name, value, this, tagname));
@@ -974,9 +979,13 @@
         }
       };
 
-      Node.prototype._applyConstraint = function(property, expression) {
+      Node.prototype.setConstraint = function(property, expression, skipbinding) {
         var bindexpression, bindings, scope, scopes, _i, _len;
-        if (this.constraints == null) {
+        if (this.constraints != null) {
+          if (property in this.constraints) {
+            this._unbindConstraint(property);
+          }
+        } else {
           this.constraints = {};
         }
         this.constraints[property] = {
@@ -993,10 +1002,30 @@
           }
           bindings[bindexpression].push(scope);
         }
+        if (!skipbinding) {
+          this._bindConstraints();
+        }
       };
 
       Node.prototype._valueLookup = function(bindexpression) {
         return compiler.compile('return ' + bindexpression).bind(this);
+      };
+
+      Node.prototype._unbindConstraint = function(property) {
+        var callback, callbackbindings, constraint, i, prop, scope, _i, _len;
+        if (!(property in this.constraints)) {
+          return;
+        }
+        constraint = this.constraints[property];
+        callback = constraint.callback, callbackbindings = constraint.callbackbindings;
+        for (i = _i = 0, _len = callbackbindings.length; _i < _len; i = _i += 2) {
+          prop = callbackbindings[i];
+          scope = callbackbindings[i + 1];
+          if (typeof scope.unbind === "function") {
+            scope.unbind(prop, callback);
+          }
+        }
+        this.constraints[property] = null;
       };
 
       Node.prototype._bindConstraints = function() {
@@ -1005,27 +1034,26 @@
         for (name in _ref) {
           constraint = _ref[name];
           bindings = constraint.bindings, expression = constraint.expression;
+          if (constraint.callbackbindings == null) {
+            constraint.callbackbindings = [];
+          }
           fn = this._valueLookup(expression);
-          constraint = this._constraintCallback(name, fn);
+          constraint.callback = this._constraintCallback(name, fn);
           for (bindexpression in bindings) {
             bindinglist = bindings[bindexpression];
             boundref = this._valueLookup(bindexpression)();
-            if (!boundref) {
-              showWarnings(["Could not bind constraint " + bindexpression]);
+            if (!boundref || (boundref.bind == null)) {
+              showWarnings(["Could not bind to " + bindexpression + " of constraint " + expression + " for " + this.$tagname + (this.id ? '#' + this.id : this.name ? '.' + name : '')]);
               continue;
-            }
-            if (boundref == null) {
-              boundref = boundref.$view;
             }
             for (_i = 0, _len = bindinglist.length; _i < _len; _i++) {
               binding = bindinglist[_i];
               property = binding.property;
-              if (typeof boundref.bind === "function") {
-                boundref.bind(property, constraint);
-              }
+              boundref.bind(property, constraint.callback);
+              constraint.callbackbindings.push(property, boundref);
             }
           }
-          this.setAttribute(name, fn());
+          this.setAttribute(name, fn(), false, false, true);
         }
       };
 
@@ -1076,7 +1104,7 @@
 
       Node.prototype._constraintCallback = function(name, fn) {
         return (function constraintCallback(){;
-        this.setAttribute(name, fn());
+        this.setAttribute(name, fn(), false, false, true);
         return }).bind(this);
       };
 
@@ -1187,8 +1215,13 @@
          * Fired when this node and all its children are about to be destroyed
          * @param {dr.node} node The dr.node that fired the event
          */
-        var subnode, _i, _len, _ref, _ref1;
+        var property, subnode, _i, _len, _ref, _ref1;
         this.sendEvent('destroy', this);
+        if (this.constraints) {
+          for (property in this.constraints) {
+            this._unbindConstraint(property);
+          }
+        }
         if (this.listeningTo) {
           this.stopListening();
         }
@@ -1742,7 +1775,7 @@
         return this.sprite = new Sprite(el, this, attributes.$tagname);
       };
 
-      View.prototype.setAttribute = function(name, value, skipstyle, skipConstraintSetup) {
+      View.prototype.setAttribute = function(name, value, skipstyle, skipConstraintSetup, skipconstraintunregistration) {
         if (!skipConstraintSetup) {
           switch (name) {
             case 'width':
@@ -1769,7 +1802,7 @@
         if (!(skipstyle || name in ignoredAttributes || name in hiddenAttributes || this[name] === value)) {
           this.sprite.setStyle(name, value);
         }
-        return View.__super__.setAttribute.call(this, name, value, true);
+        return View.__super__.setAttribute.call(this, name, value, true, skipConstraintSetup, skipconstraintunregistration);
       };
 
       View.prototype.__setupPercentConstraint = function(name, value, axis) {

@@ -161,6 +161,31 @@ overwriting class foo
     assert.equal(main.width, $('body').width())
   </handler>
 
+  <!-- Binding to the same attribute with a different constraint value unregisters the previous constraint -->
+  <view x="${this.fifty}" bgcolor="pink" width="10" height="10">
+    <attribute name="fifty" type="number" value="50"></attribute>
+    <attribute name="thirty" type="number" value="30"></attribute>
+    <handler event="oninit">
+      // Should already be registered for fifty with the constraint above
+      assert.equal(this.events.fifty.length, 1)
+      assert.equal(this.x, 50)
+      // Change the constraint
+      this.setConstraint('x', 'this.thirty')
+      // Was fifty unregistered?
+      assert.equal(this.events.fifty.length, 0)
+      assert.equal(this.events.thirty.length, 1)
+      assert.equal(this.x, 30)
+      this.setAttribute('thirty', 40)
+      assert.equal(this.x, 40)
+      // Should this unregister the constraint?
+      this.setAttribute('x', 20)
+      assert.equal(this.x, 20)
+      this.setAttribute('thirty', 40)
+      assert.equal(this.thirty, 40)
+      assert.equal(this.x, 20)
+    </handler>
+  </view>
+
 </view>
 <!-- The MIT License (MIT)
 
