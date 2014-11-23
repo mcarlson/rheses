@@ -1,0 +1,221 @@
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+   <!--/**
+     * @class dr.audioplayer {UI Components}
+     * @extends dr.node
+     * audioplayer wraps the web audio APIs to provide a declarative interface to play audio.
+     *
+     * This example shows how to load and play an mp3 audio file from the server:
+     *
+     *     @example
+     *     <audioplayer url="/music/YACHT_-_09_-_Im_In_Love_With_A_Ripper_Party_Mix_Instrumental.mp3" playing="true"></audioplayer>
+     */-->
+    <class name="audioplayer" extends="node">
+      <!--/**
+        * @attribute {String} url
+        * The URL to an audio file to play
+        */-->
+      <attribute name="url" value="" type="string"></attribute>
+      <!--/**
+        * @attribute {Number} loadprogress
+        * @readonly
+        * A Number between 0 and 1 representing load progress
+        */-->
+      <attribute name="loadprogress" value="0" type="number"></attribute>
+      <!--/**
+        * @attribute {Boolean} loaded
+        * @readonly
+        * If true, the audio is done loading
+        */-->
+      <attribute name="loaded" value="false" type="boolean"></attribute>
+      <setter name="loaded" args="loaded">
+        if (loaded) {
+          if (this.playing && ! this.paused) {
+            this.setAttribute('playing', true);
+          }
+        }
+      </setter>
+      <!--/**
+        * @attribute {Boolean} playing
+        * If true, the audio is playing.
+        */-->
+      <attribute name="playing" value="false" type="boolean"></attribute>
+      <setter name="playing" args="playing">
+        if (playing) {
+          this.play()
+        } else {
+          this.stop()
+        }
+      </setter>
+      <!--/**
+        * @attribute {Boolean} paused
+        * If true, the audio is paused.
+        */-->
+      <attribute name="paused" value="false" type="boolean"></attribute>
+      <setter name="paused" args="paused">
+        if (paused) {
+          this.pause()
+        } else {
+          this.setAttribute('playing', true)
+        }
+      </setter>
+      <!--/**
+        * @attribute {Boolean} loop
+        * If true, the audio will play continuously.
+        */-->
+      <attribute name="loop" value="false" type="boolean"></attribute>
+      <setter name="loop" args="loop">
+        if (this.source)
+          this.source.loop = loop;
+      </setter>
+      <!--/**
+        * @attribute {Number} time
+        * @readonly
+        * The number of seconds the file has played, with 0 being the start.
+        */-->
+      <attribute name="time" value="0" type="number"></attribute>
+      <!--/**
+        * @attribute {Number} duration
+        * @readonly
+        * The duration in seconds.
+        */-->
+      <attribute name="duration" value="0" type="number"></attribute>
+      <!--/**
+        * @attribute {Number} fftsize
+        * The number of fft frames to use when setting {@link #fft fft}. Must be a non-zero power of two in the range 32 to 2048.
+        */-->
+      <attribute name="fftsize" value="0" type="number"></attribute>
+      <!--/**
+        * @attribute {Number} [fftsmoothing=0.8]
+        * The amount of smoothing to apply to the FFT analysis. A value from 0 -> 1 where 0 represents no time averaging with the last FFT analysis frame.
+        */-->
+      <attribute name="fftsmoothing" value="0.8" type="number"></attribute>
+      <!--/**
+        * @attribute {Number[]} fft
+        * @readonly
+        * An array of numbers representing the FFT analysis of the audio as it's playing.
+        */-->
+      <attribute name="fft" value="[]" type="expression"></attribute>
+      <handler event="onurl" args="url">
+        if (! url) return;
+        var _this = this;
+        function updateProgress(evt) {
+          if (evt.lengthComputable) {  
+            var percentComplete = (evt.loaded / evt.total);  
+            _this.setAttribute('loadprogress', percentComplete);
+          } 
+        }
+
+        this.sendEvent('loading', url);
+        var request = new XMLHttpRequest();
+        this.setAttribute('loaded', false);
+        request.open('GET', url, true);
+        request.onprogress=updateProgress;
+        request.responseType = 'arraybuffer';
+
+        // Decode asynchronously
+        request.onload = function() {
+          _this.context.decodeAudioData(request.response, function(buffer) {
+            _this.buffer = buffer;
+            _this.setAttribute('duration', buffer.duration);
+            _this.setAttribute('loaded', true);
+          });
+        }
+        this.buffer = null;
+        request.send();
+      </handler>
+      <handler event="oninit">
+        // Fix up prefixing
+        window.AudioContext = window.AudioContext || window.webkitAudioContext;
+        this.context = new AudioContext();
+        var _this = this;
+        this.context.oncomplete = function() {
+          _this.setAttribute('playing', false);
+        }
+        this.gain = null;
+        this.fftNode = null;
+        this.buffer = null;
+        this.startOffset = 0;
+        this.startTime = 0;
+      </handler>
+      <method name="play">
+        if (! this.buffer) return;
+
+        // track the time when playback started
+        this.startTime = this.context.currentTime;
+        // creates a sound source
+        this.source = this.context.createBufferSource(); 
+        this.source.loop = this.loop;
+        // tell the source which sound to play
+        this.source.buffer = this.buffer;                    
+        // Create a gain node.
+        //this.gain = this.context.createGain();
+        // Create fft     
+        this.fftNode = this.context.createAnalyser();     
+        if (this.fftsize) {
+          this.fftNode.fftSize = this.fftsize;
+          this.fftNode.smoothingTimeConstant = this.fftsmoothing;
+        }
+
+        // Connect the source to the gain node.
+        this.source.connect(this.fftNode);
+        // Connect the gain node to the destination.
+        this.fftNode.connect(this.context.destination);
+        // play the source now
+        if (!this.source.start)
+          this.source.start = source.noteOn;
+        this.source.start(0, this.startOffset % this.duration);                           
+      </method>
+      <method name="stop">
+        if (! this.source) return;
+        if (!this.source.stop)
+          this.source.stop = source.noteOff;
+        this.source.stop(0);
+        this.setAttribute('time', 0);
+        this.startTime = this.startOffset = 0;
+        this.paused = false;
+      </method>
+      <method name="pause">
+        if (! this.source) return;
+        if (!this.source.stop)
+          this.source.stop = source.noteOff;
+        this.source.stop();
+        this.startOffset += (this.context.currentTime - this.startTime);
+      </method>
+      <handler event="onidle" reference="dr.idle">
+        if (! (this.fftNode && this.playing && ! this.paused)) return;
+
+        var time = this.context.currentTime - this.startTime + this.startOffset;
+        if (time > this.duration) {
+          this.stop();
+        }
+        // bypass the setter
+        this.time = time % this.duration;
+        this.sendEvent('time', time);
+
+        if (this.fftsize) {
+          var data = new Uint8Array(this.fftsize);
+          this.fftNode.getByteFrequencyData(data); 
+          this.setAttribute('fft', data)
+        }
+      </handler>
+    </class>

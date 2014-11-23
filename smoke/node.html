@@ -1,0 +1,140 @@
+<html>
+<head>
+  <style type="text/css">
+    body {
+      font-family: 'Helvetica';
+      font-size: 14px;
+    }
+  </style>
+
+  <title>Dr33m - Node Smoke Tests</title>
+  <script type="text/javascript" src="/lib/jquery-1.9.1.min.js"></script>
+  <script type="text/javascript" src="/lib/acorn.js"></script>
+  <script type="text/javascript" src="/lib/coffee-script.js"></script>
+  <script type="text/javascript" src="/layout.js"></script>
+  <script type="text/javascript" src="/lib/chai.js"></script>
+  <script>
+    var assert = chai.assert
+  </script>
+</head>
+<body>
+<view id="all" width="100%" height="100%" clip="true">
+  <class name="item" x="5" width="10" height="10" bgcolor="#cccccc" clickable="true">
+  </class>
+  
+  <view name="outer" width="200" height="200" bgcolor="green">
+    <method name="getTestArray">return this.testArr || (this.testArr = []);</method>
+    
+    <handler event="onsubnodeAdded" args="node">
+      //console.log("EVENT subnodeAdded", node.name);
+    </handler>
+    <handler event="onsubnodeRemoved" args="node">
+      //console.log("EVENT subnodeRemoved", node.name);
+    </handler>
+    <method name="doSubnodeAdded" args="node" invokesuper="after">
+      //console.log("subnodeAdded", node.name);
+    </method>
+    <method name="doSubnodeRemoved" args="node" invokesuper="after">
+      //console.log("subnodeRemoved", node.name);
+    </method>
+    
+    <handler event="onsubviewAdded" args="sv">
+      //console.log("EVENT subviewAdded", sv.name);
+    </handler>
+    <handler event="onsubviewRemoved" args="sv">
+      //console.log("EVENT subviewRemoved", sv.name);
+    </handler>
+    <method name="doSubviewAdded" args="sv">
+      //console.log("subviewAdded", sv.name);
+    </method>
+    <method name="doSubviewRemoved" args="sv">
+      //console.log("subviewRemoved", sv.name);
+    </method>
+    
+    <handler event="onlayoutAdded" args="layout">
+      //console.log("EVENT layoutAdded", layout.name);
+    </handler>
+    <handler event="onlayoutRemoved" args="layout">
+      //console.log("EVENT layoutRemoved", layout.name);
+    </handler>
+    <method name="doLayoutAdded" args="layout">
+      //console.log("layoutAdded", layout.name);
+    </method>
+    <method name="doLayoutRemoved" args="layout">
+      //console.log("layoutRemoved", layout.name);
+    </method>
+    
+    <node name="foo">
+      <handler event="oninit">
+        var testArr = this.parent.getTestArray();
+        testArr.push(this.name + '.oninit.handler');
+      </handler>
+    </node>
+    
+    <view name="bar" width="100" height="100" bgcolor="red">
+      <handler event="oninit">
+        var testArr = this.parent.getTestArray();
+        testArr.push(this.name + '.oninit.handler');
+      </handler>
+    </view>
+    
+    <spacedlayout name="baz" axis="y">
+      <handler event="oninit">
+        var testArr = this.parent.getTestArray();
+        testArr.push(this.name + '.oninit.handler');
+      </handler>
+    </spacedlayout>
+    
+    <item name="hey">
+      <handler event="oninit">
+        var testArr = this.parent.getTestArray();
+        testArr.push(this.name + '.oninit.handler');
+      </handler>
+    </item>
+    
+    <item name="there">
+      <handler event="oninit">
+        var testArr = this.parent.getTestArray();
+        testArr.push(this.name + '.oninit.handler');
+      </handler>
+    </item>
+    
+    <handler event="oninit">
+      var testArr = this.getTestArray();
+      testArr.push(this.name + '.oninit.handler');
+      
+      var matchArr = [
+        'foo.oninit.handler',
+        'bar.oninit.handler',
+        'baz.oninit.handler',
+        'hey.oninit.handler',
+        'there.oninit.handler',
+        'outer.oninit.handler'
+      ];
+      assert.equal(matchArr.join(','), testArr.join(','));
+    </handler>
+  </view>
+</view>
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+</body>
+</html>

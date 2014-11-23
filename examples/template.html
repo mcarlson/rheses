@@ -1,0 +1,132 @@
+<html>
+<head>
+  <title>dr33m | Template</title>
+  <link rel="stylesheet" href="./css/example.css"/>
+  <script type="text/javascript" src="../lib/jquery-1.9.1.js"></script>
+  <script type="text/javascript" src="../lib/acorn.js"></script>
+  <script type="text/javascript" src="../lib/coffee-script.js"></script>
+  <script type="text/javascript" src="../layout.js"></script>
+  <style type="text/css">
+    body {
+      font-size: 40px;
+    }
+  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+</head>
+<body>
+<view width="${dr.window.width}">
+  <shim id="bus">
+    <handler event="onerror" args="error">
+      console.error('bus error', error)
+    </handler>
+  </shim>
+
+  <spacedlayout axis="y" spacing="2"></spacedlayout>
+  <dataset name="genres" url="./data/moviegenres.json"></dataset>
+
+  <class name="highlight" x="30" extends="text">
+    <handler event="onclick">
+      console.log('clicked', this.data, this.parent.data)
+      bus.send('genre', this.parent.data)
+    </handler>
+  </class>
+
+  <highlight>A single instance of highlight</highlight>
+
+  <class name="genreview">
+    <shrinktofit axis="both"></shrinktofit>
+    <spacedlayout axis="y" spacing="2"></spacedlayout>
+    <replicator classname="text" datapath="/name"></replicator>
+    <replicator classname="highlight" datapath="/subgenres[*]/name[@]">
+      <method name="filterfunction" args="obj, accum, sel">
+        // console.log('filterfunction', obj, accum)
+        // If the subgenre begins with the letter 'A'
+        if (obj.indexOf('A') === 0) {
+          // Save the lowercase version
+          accum.push(obj.toLowerCase());
+        }
+        return accum
+      </method>
+    </replicator>
+  </class>
+
+  <replicator classname="genreview" datapath="$genres/genres[*]"></replicator>
+
+  <view id="cursor" width="100" height="100" bgcolor="cyan" ignorelayout="true" opacity=".5">
+    <method name="clamp" args="val, min, max">
+      if (val > max) {
+        return max;
+      } else if (min > val) {
+        return min;
+      } else {
+        return val;
+      }
+    </method>
+    <handler event="onx" reference="bus" args="x">
+      var newx = this.clamp(this.x + x, 0, dr.window.width - this.width);
+      this.setAttribute('x', newx)
+    </handler>
+    <handler event="ony" reference="bus" args="y">
+      var newy = this.clamp(this.y + y, 0, dr.window.height - this.height);
+     this.setAttribute('y', newy)
+    </handler>
+    <handler event="ontx" reference="bus" args="x">
+      var newx = this.clamp(x, 0, dr.window.width - this.width);
+      this.setAttribute('x', newx)
+    </handler>
+    <handler event="onty" reference="bus" args="y">
+      var newy = this.clamp(y, 0, dr.window.height - this.height);
+      this.setAttribute('y', newy)
+    </handler>
+  </view>
+
+  <dataset name="bikeshop">
+    {
+      "bicycle": [
+        {
+          "color": "red",
+          "price": 19.95
+        },
+        {
+          "color": "green",
+          "price": 29.95
+        },
+        {
+          "color": "blue",
+          "price": 59.95
+        }
+      ]
+    }
+  </dataset>
+  <replicator classname="text" datapath="$bikeshop/bicycle[*][@]">
+  <method name="filterfunction" args="obj, accum">
+    // add the color to the beginning of the results if the price is greater than 20
+    if (obj.price > 20)
+      accum.unshift(obj.color);
+    return accum
+  </method>
+  </replicator>
+</view>
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+</body>
+</html>

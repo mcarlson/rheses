@@ -1,0 +1,138 @@
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+
+  <!--/**
+     * @class dr.webpage {UI Components}
+     * @extends dr.view
+     * iframe component for embedding dreem code or html in a dreem application.
+     * The size of the iframe matches the width/height of the view when the
+     * component is created. The iframe component can show a web page by
+     * using the src attribute, or to show dynamic content using the
+     * contents attribute.
+     *
+     * This example shows how to display a web page in an iframe. The 
+     * contents of the iframe are not editable:
+     *
+     *     @example
+     *     <webpage src="http://en.wikipedia.org/wiki/San_Francisco" width="300" height="140"></webpage>
+     *
+     * To make the web page clickable, and to add scrolling:
+     *
+     *     @example
+     *     <webpage src="http://en.wikipedia.org/wiki/San_Francisco" width="300" height="140" scrolling="true" clickable="true"></webpage>
+     *
+     * The content of the iframe can also be dynamically generated, including
+     * adding Dreem code:
+     *
+     *     @example
+     *     <webpage width="300" height="140" contents="Hello"></webpage>
+     *
+     */-->    
+
+    <class name="webpage" type="coffee">
+      <handler event="onwidth" method="handleResize"></handler>
+      <handler event="onheight" method="handleResize"></handler>
+
+      <!--/**
+        * @attribute {String} [src="/iframe_stub.html"]
+        * url to load inside the iframe. By default, a file is loaded that has
+        * an empty body but includes the libraries needed to support Dreem code.
+        */-->
+      <attribute name="src" value="/iframe_stub.html" type="string"></attribute>
+      <handler event="onsrc" method="updateFrame"></handler>
+
+      <!--/**
+        * @attribute {Boolean} [scrolling="false"]
+        * Controls scrollbar display in the iframe.
+        */-->
+      <attribute name="scrolling" value="false" type="boolean"></attribute>
+      <handler event="onscrolling" method="updateFrame"></handler>
+
+      <!--/**
+        * @attribute {String} [contents=""]
+        * string to write into the iframe body. This is dreem/html code
+        * that is written inside the iframe's body tag. If you want to display
+        * static web pages, specify the src attribute, but do not use contents.
+        */-->
+      <attribute name="contents" value="" type="string"></attribute>
+      <handler event="oncontents">
+        if @contents
+          # use new_contents flag so iframe is only touched when necessary.
+          @new_contents = true
+          @updateFrame()
+      </handler>
+
+      <handler event="oninit">
+        return if (@width == 0 || @height == 0)
+
+        @createFrame()
+      </handler>
+
+      <method name="createFrame">
+        @sprite.el.removeChild(@iframe) if @iframe
+        @iframe = document.createElement("IFRAME")
+
+        # Static attributes
+        @iframe.seamless = 'seamless'
+        @iframe.style.position = 'absolute'
+        @iframe.style.top = 0
+        @iframe.style.left = 0
+
+        # Dynamic attributes
+        @updateFrame()
+
+        # Show the iframe
+        @sprite.el.appendChild(@iframe)
+      </method>
+
+      <method name="updateFrame">
+        return if (@width == 0 || @height == 0 || !@iframe)
+
+        @iframe.src = @src unless @iframe.src == @src
+
+        if @new_contents
+          # Don't set the contents until the iframe is loaded
+          contents = @contents
+          obj = $(@iframe)
+          obj.on 'load', ->
+            #console.log('onload event fired', contents)
+            obj.contents().find('body').html(contents)
+          delete @new_contents
+
+        @iframe.style.width = @width unless @iframe.style.width == @width
+        @iframe.style.height = @height unless @iframe.style.height == @height
+
+        overflow = if @scrolling then 'auto' else 'hidden'
+        scrolling = if @scrolling then 'auto' else 'no'
+
+        @iframe.style.overflow = overflow unless @iframe.style.overflow == overflow
+        @iframe.scrolling = scrolling unless @iframe.scrolling == scrolling
+
+        @sprite.el.appendChild(@iframe)
+      </method>
+
+      <method name="handleResize">
+        if (@iframe)
+          @iframe.style.width = @width;
+          @iframe.style.height = @height;
+      </method>
+    </class>

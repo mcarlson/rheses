@@ -1,0 +1,190 @@
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+<!--/**
+      * @class dr.wrappinglayout {Layout}
+      * @extends dr.variablelayout
+      * An extension of VariableLayout that positions views along an axis using
+      * an inset, outset and spacing value. Views will be wrapped when they
+      * overflow the available space.
+      *
+      * Supported Layout Hints:
+      *   break:string Will force the subview to start a new line/column.
+      *
+      *     @example
+      *     <wrappinglayout axis="y" spacing="2" inset="5" outset="5" lineinset="10" linespacing="5" lineoutset="10">
+      *     </wrappinglayout>
+      *
+      *     <view width="100" height="25" bgcolor="lightpink"></view>
+      *     <view width="100" height="35" bgcolor="plum"></view>
+      *     <view width="100" height="15" bgcolor="lightblue"></view>
+      */-->
+<class name="wrappinglayout" extends="variablelayout" type="coffee">
+  <!--/**
+    * @attribute {Number} [spacing=0]
+    * The spacing between views.
+    */-->
+  <attribute name="spacing" type="number" value="0"></attribute>
+  <handler event="onspacing" method="update"></handler>
+  
+  <!--/**
+    * @attribute {Number} [outset=0]
+    * Space after the last view.
+    */-->
+  <attribute name="outset" type="number" value="0"></attribute>
+  <handler event="onoutset" method="update"></handler>
+  
+  <!--/**
+    * @attribute {Number} [inset=0]
+    * Space before the first view.
+    */-->
+  <attribute name="inset" type="number" value="0"></attribute>
+  <setter name="inset" args="inset">
+    # An alias for value.
+    @setAttribute('value', inset);
+  </setter>
+  
+  <!--/**
+    * @attribute {Number} [linespacing=0]
+    * The spacing between each line of views.
+    */-->
+  <attribute name="linespacing" type="number" value="0"></attribute>
+  <handler event="onlinespacing" method="update"></handler>
+  
+  <!--/**
+    * @attribute {Number} [lineoutset=0]
+    * Space after the last line of views. Only used when collapseparent is true.
+    */-->
+  <attribute name="lineoutset" type="number" value="0"></attribute>
+  <handler event="onlineoutset" method="update"></handler>
+  
+  <!--/**
+    * @attribute {Number} [lineinset=0]
+    * Space before the first line of views.
+    */-->
+  <attribute name="lineinset" type="number" value="0"></attribute>
+  <handler event="onlineinset" method="update"></handler>
+  
+  <!--/**
+    * @attribute {String} [axis='x']
+    * The orientation of the layout. Supported values are 'x' and 'y'.
+    * A value of 'x' will orient the views horizontally and a value of 'y'
+    * will orient them vertically.
+    */-->
+  <attribute name="axis" type="string" value="x"></attribute>
+  <setter name="axis" args="axis">
+    # An alias for attribute.
+    @setAttribute('attribute', axis);
+  </setter>
+  
+  <setter name="attribute" args="attribute" invokesuper="inside">
+    @measureAttrName ?= 'height'
+    @otherMeasureAttrName ?= 'width'
+    @otherAttribute ?= 'x'
+    
+    @stopMonitoringAllSubviews()
+    
+    if attribute == 'y'
+      @measureAttrName = 'height'
+      @otherMeasureAttrName = 'width'
+      @otherAttribute = 'x'
+    else
+      @measureAttrName = 'width'
+      @otherMeasureAttrName = 'height'
+      @otherAttribute = 'y'
+  </setter>
+  <handler event="onattribute">
+    @startMonitoringAllSubviews()
+    @update()
+  </handler>
+  
+  <method name="stopMonitoringAllSubviews" args="view" invokesuper="inside">
+    @super(arguments)
+    @stopListening(@parent, 'inner' + @measureAttrName, @update)
+  </method>
+  
+  <method name="startMonitoringAllSubviews" args="view" invokesuper="inside">
+    @super(arguments)
+    @listenTo(@parent, 'inner' + @measureAttrName, @update)
+  </method>
+  
+  <method name="startMonitoringSubview" args="view" invokesuper="inside">
+    @super(arguments)
+    @listenTo(view, @measureAttrName, @update)
+    @listenTo(view, @otherMeasureAttrName, @update)
+  </method>
+  
+  <method name="stopMonitoringSubview" args="view" invokesuper="inside">
+    @super(arguments)
+    @stopListening(view, @measureAttrName, @update)
+    @stopListening(view, @otherMeasureAttrName, @update)
+  </method>
+  
+  <method name="doBeforeUpdate" invokesuper="inside">
+    # The number of lines layed out.
+    @lineCount = 1
+    
+    # The maximum size achieved by any line.
+    @maxSize = 0
+    
+    # Track the maximum size of a line. Used to determine how much to
+    # update linePos by when wrapping occurs.
+    @lineSize = 0
+    
+    # The position for each subview in a line. Gets updated for each new
+    # line of subviews.
+    @linePos = @lineinset
+    
+    # The size of the parent view. Needed to determine when to wrap. The
+    # outset is already subtracted as a performance optimization.
+    @parentSizeLessOutset = @parent['inner' + @measureAttrName] - @outset
+  </method>
+  
+  <method name="updateSubview" args="count, view, attribute, value" invokesuper="inside">
+    size = view[@measureAttrName]
+    otherSize = view[@otherMeasureAttrName]
+    
+    if value + size > @parentSizeLessOutset || view.layouthint == 'break'
+      # Check for overflow
+      value = @value # Reset to inset.
+      @linePos += @lineSize + @linespacing
+      @lineSize = otherSize
+      
+      ++@lineCount
+    else if otherSize > @lineSize
+      # Update line size if this subview is larger
+      @lineSize = otherSize
+    
+    view.setAttribute(@otherAttribute, @linePos)
+    view.setAttribute(attribute, value)
+    
+    # Track max size achieved during layout.
+    @maxSize = Math.max(@maxSize, value + size + @outset)
+    
+    return value + size + @spacing
+  </method>
+  
+  <method name="updateParent" args="attribute, value" invokesuper="inside">
+    parent = @parent
+    oman = @otherMeasureAttrName
+    parent.setAttribute(oman, @linePos + @lineSize + @lineoutset + parent[oman] - parent['inner' + oman])
+  </method>
+</class>

@@ -1,0 +1,58 @@
+<html>
+<head>
+  <title>rhes.es</title>
+  <script type="text/javascript" src="/lib/jquery-1.9.1.min.js"></script>
+  <script type="text/javascript" src="/lib/acorn.js"></script>
+  <script type="text/javascript" src="/lib/coffee-script.js"></script>
+  <script type="text/javascript" src="/layout.js"></script>
+  <script type="text/javascript" src="/lib/chai.js"></script>
+  <script>
+    var assert = chai.assert
+  </script>
+</head>
+<body>
+<view id="all" width="100%" height="100%" clip="true">
+  <view bgcolor="oldlace">
+    <shrinktofit axis="both"></shrinktofit>
+
+    <spacedlayout spacing="15"></spacedlayout>
+
+    <view width="50" height="50" bgcolor="lightpink" opacity=".3"></view>
+    <view width="50" height="50" bgcolor="plum" opacity=".3"></view>
+    <view width="50" height="50" bgcolor="lightblue" opacity=".3"></view>
+
+    <handler event="onlayouts" args="layouts">
+      //console.log('onlayouts', layouts, output.text);
+      output.setAttribute('text', output.text + ' testing');
+      //console.log('set text to: ', output.text);
+    </handler>
+
+    <handler event="onidle" reference="dr.idle">
+      //console.log('onidle', output.text);
+    </handler>
+  </view>
+  <text id="output" multiline="true"></text>
+</view>
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+</body>
+</html>

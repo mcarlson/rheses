@@ -1,0 +1,115 @@
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+<!--/**
+      * @class dr.resizelayout {Layout}
+      * @extends dr.spacedlayout
+      * Resizes one or more views to fill in any remaining space.
+      *
+      *     @example
+      *     <resizelayout spacing="2" inset="5" outset="5">
+      *     </resizelayout>
+      *
+      *     <view height="25" bgcolor="lightpink"></view>
+      *     <view height="35" bgcolor="plum" layouthint="1"></view>
+      *     <view height="15" bgcolor="lightblue"></view>
+      */-->
+<class name="resizelayout" extends="spacedlayout" type="coffee">
+  <setter name="collapseparent" args="collapseparent" invokesuper="inside">
+    # collapseparent attribute is unused in resizelayout.
+  </setter>
+  
+  <method name="stopMonitoringAllSubviews" args="view" invokesuper="inside">
+    @super(arguments)
+    @stopListening(@parent, 'inner' + @measureAttrName, @update)
+  </method>
+  
+  <method name="startMonitoringAllSubviews" args="view" invokesuper="inside">
+    @super(arguments)
+    @listenTo(@parent, 'inner' + @measureAttrName, @update)
+  </method>
+  
+  <method name="startMonitoringSubview" args="view" invokesuper="inside">
+    # Don't monitor width/height of the "stretchy" subviews since this 
+    # layout resizes them so you would get an infinite loop.
+    if !(Number(view.layouthint) > 0)
+      @listenTo(view, @measureAttrName, @update)
+    @listenTo(view, 'visible', @update)
+  </method>
+  
+  <method name="stopMonitoringSubview" args="view" invokesuper="inside">
+    # Don't monitor width/height of the "stretchy" subviews since this 
+    # layout resizes them so you would get an infinite loop.
+    if !(Number(view.layouthint) > 0)
+      @stopListening(view, @measureAttrName, @update)
+    @stopListening(view, 'visible', @update)
+  </method>
+  
+  <method name="doBeforeUpdate" invokesuper="inside">
+    # Get size to fill
+    measureAttrName = @measureAttrName
+    remainder = @parent['inner' + measureAttrName]
+    
+    # Calculate minimum required size
+    remainder -= @value + @outset
+    
+    svs = @subviews
+    i = svs.length
+    count = 0
+    resizeSum = 0
+    
+    while i
+      sv = svs[--i]
+      if @skipSubview(sv) then continue
+      ++count
+      hint = Number(sv.layouthint)
+      if hint > 0
+        resizeSum += hint
+      else
+        remainder -= sv[measureAttrName]
+    
+    if count != 0
+      remainder -= (count - 1) * @spacing
+      
+      # Store for update
+      @remainder = remainder
+      @resizeSum = resizeSum
+      @scalingFactor = remainder / resizeSum
+      @resizeSumUsed = @remainderUsed = 0
+  </method>
+
+  <method name="updateSubview" args="count, view, attribute, value" invokesuper="inside">
+    hint = Number(view.layouthint)
+    if hint > 0
+      @resizeSumUsed += hint
+      
+      size = if @resizeSum == @resizeSumUsed then @remainder - @remainderUsed else Math.round(hint * @scalingFactor)
+      
+      @remainderUsed += size
+      view.setAttribute(@measureAttrName, size)
+    
+    return @super(arguments)
+  </method>
+  
+  <method name="updateParent" args="attribute, value" invokesuper="inside">
+    # No resizing of parent since this view expands to fill the parent.
+  </method>
+</class>

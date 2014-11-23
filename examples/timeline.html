@@ -1,0 +1,169 @@
+<html>
+<head>
+  <title>dr33m | Timeline</title>
+  <link rel="stylesheet" href="./css/example.css"/>
+  <script type="text/javascript" src="../lib/jquery-1.9.1.js"></script>
+  <script type="text/javascript" src="../lib/acorn.js"></script>
+  <script type="text/javascript" src="../lib/coffee-script.js"></script>
+  <script type="text/javascript" src="../layout.js"></script>
+  <script type="text/javascript" src="../lib/md5.js"></script>
+</head>
+<body>
+<view>
+  <shim id="bus">
+    <handler event="onerror" args="err">
+      console.log('err', err)
+    </handler>
+  </shim>
+
+  <class name="genreyear" width="15" height="60" opacity=".15">
+    <handler event="onmouseover">
+      bus.send('movie', this.data)
+      cursor.setAttribute('x', this.getAbsolute().x)
+    </handler>
+    <handler event="oninit">
+      this.setAttribute('background-color', '#' + md5(this.parent.parent.data.name).substring(0,6));
+    </handler>
+  </class>
+
+  <class name="genre" height="60">
+    <text x="6" font-size="48" font-weight="bold" color="silver"
+      text="${this.parent.data.name.replace('[nf]','')}"
+    ></text>
+    
+    <view height="60">
+      <variablelayout id="tl" type="coffee">
+        <method name="updateSubview" args="count, view, attribute, value">
+          view.setAttribute(attribute, (view.data.releaseYear - 1900) * 16)
+        </method>
+      </variablelayout>
+      
+      <replicator datapath="$topmovies/searchResponse/results[*]/movie[@]"
+        classname="genreyear" lazycount="0"
+      >
+        <method name="filterfunction" args="obj, accum, sel">
+          var genrename = this.parent.parent.data.name;
+          if (obj.genres) {
+            obj.genres.forEach(function (genre) {
+            if (genre.name === genrename)
+              accum.push(obj);
+            });
+          }
+          return accum;
+        </method>
+      </replicator>
+    </view>
+  </class>
+
+  <class name="thumbnail" extends="bitmap" background-size="cover"
+    border="0" bordercolor="white"
+    width="180" height="240" bgcolor="white" clip="true"
+  >
+    <attribute name="title" type="string" value="" visual="false"></attribute>
+    <handler event="onmouseover">
+      this.setAttribute('border-width', 3);
+    </handler>
+    <handler event="onmouseout">
+      this.setAttribute('border-width', 0);
+    </handler>
+    <handler event="onclick">
+      console.log('thumbnail', this.data, this)
+    </handler>
+    <handler event="onload" args="img">
+      // console.log('image load', img, this.src)
+      this.setAttribute('title', '');
+    </handler>
+    <handler event="ondata" args="data" type="coffee">
+      if data.images
+        for image in data.images
+          if image.width > 100 and 140 > image.width
+            height = image.height * 1.6
+            
+            this.setAttribute('width', image.width * 1.6);
+            this.setAttribute('src', image.url);
+            break
+      this.setAttribute('title', data.title);
+    </handler>
+    <text multiline="true" x="4" y="4" width="160"
+      color="silver" font-weight="bold" text="${this.parent.title}"
+    ></text>
+  </class>
+
+  <dataset name="topmovies" url="./data/top_movies.json"></dataset>
+
+  <view id="thumbnailstrip"
+    width="${dr.window.width}" height="248" bgcolor="silver" scrollable="true"
+  >
+    <handler event="onmovie" args="movie" reference="bus">
+      this.setAttribute('data', movie)
+    </handler>
+    <handler event="ondata" args="data">
+      this.year.setAttribute('text', data.releaseYear)
+      // TODO: fix this
+      this.repl.applyData();
+    </handler>
+    
+    <wrappinglayout inset="4" spacing="4" lineinset="4" linespacing="4"></wrappinglayout>
+    
+    <text name="year" font-size="210px" color="white" opacity=".6" font-weight="bold"
+      ignorelayout="true" z-index="1" x="${this.parent.width - this.width - 10}"
+      text-shadow="0px 0px 10px black"
+    ></text>
+    
+    <replicator name="repl" datapath="$topmovies/searchResponse/results[*]/movie[@]"
+      classname="thumbnail" filterfield="releaseYear"
+    >
+      <!-- TODO: can't specify a custom filter function in a path, e.g. @filt -->
+      <method name="filterfunction" args="obj, accum, sel">
+        if (this.parent.data && this.parent.data.releaseYear == obj.releaseYear)
+          accum.push(obj);
+        return accum
+      </method>
+    </replicator>
+  </view>
+
+  <view y="${thumbnailstrip.y + thumbnailstrip.height}"
+    width="${dr.window.width}" height="${dr.window.height - this.y}" scrollable="true"
+  >
+    <spacedlayout axis="y" spacing="1"></spacedlayout>
+    
+    <replicator datapath="$topmovies/searchResponse/facetCounts[0]/facetCount[*][@]"
+      classname="genre" sortfield="count" sortasc="false" lazycount="0"
+    >
+      <method name="filterfunction" args="obj, accum, sel">
+        // console.log('filterfunction', obj, accum)
+        if (obj.count > 0 && obj.name.indexOf('Culture') == -1)
+          accum.push(obj);
+        return accum
+      </method>
+    </replicator>
+  </view>
+
+  <view id="cursor" y="${thumbnailstrip.y + thumbnailstrip.height}"
+    width="15" height="${dr.window.height - this.y}" 
+    bgcolor="silver" opacity=".4" position="fixed"
+  ></view>
+</view>
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+</body>
+</html>

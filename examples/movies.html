@@ -1,0 +1,136 @@
+<html>
+<head>
+  <title>dr33m | Movies Example</title>
+  <link rel="stylesheet" href="./css/example.css"/>
+  <script type="text/javascript" src="../lib/jquery-1.9.1.js"></script>
+  <script type="text/javascript" src="../lib/acorn.js"></script>
+  <script type="text/javascript" src="../lib/coffee-script.js"></script>
+  <script type="text/javascript" src="../layout.js"></script>
+  <style type="text/css">
+    input {
+      font-family: 'Helvetica';
+      font-size: 14px;
+      margin: 0px;
+      padding: 0px;
+      width: 100px;
+    }
+  </style>
+  <script type="text/javascript" src="../lib/md5.js"></script>
+</head>
+<body>
+<view id="container">
+  <dataset name="topmovies" url="./data/top_movies.json"></dataset>
+  <dataset name="actor"></dataset>
+
+  <class name="castmember" extends="text" font-size="40" font-weight="bold" color="white" text-shadow="0px 0px 5px rgba(173, 173, 173, 1)" z-index="10000">
+    <handler event="onmouseover">
+      this.setAttribute('color', 'pink')
+    </handler>
+    <handler event="onmouseout">
+      this.setAttribute('color', 'white')
+    </handler>
+    <handler event="onclick">
+      var url = '/api/search/v2.1/amgvideo/search?entitytype=credit&include=filmography&size=1&query=' + this.data;
+      //var url = 'actor.json'
+      //console.log('click', url, dr.datasets)
+      dr.datasets.actor.setAttribute('url', url);
+      //console.log('clicked cast member', this.parent, this.replicator)
+      this.replicator.destroy();
+    </handler>
+  </class>
+
+  <class name="thumbnail" type="coffee" background-size="cover" transition="all .5s" border-style="solid" border-width="0" border-color="white">
+    <handler event="onmouseover">
+      this.setAttribute('border-width', 3);
+    </handler>
+    <handler event="onmouseout">
+      this.setAttribute('border-width', 0);
+    </handler>
+    <handler event="onclick">
+      if @myRep
+        @myRep.destroy()
+      else
+        new dr.replicator(null, {name:"myRep", datapath: "/cast[0..4]/name", classname: "castmember", parent: this})
+    </handler>
+    <handler event="ondata" args="data">
+      if data.images
+        for image in data.images
+          continue if image.width > 120 or 0 > image.width
+
+        return if image.width > 120 or 20 > image.width
+
+        this.setAttribute('width', image.width * 2);
+        this.setAttribute('height', image.height * 2);
+        this.setAttribute('background-image', "url('" + image.url + "')");
+
+        # console.log('image', image)
+
+      if data.genres
+        color = '#' + md5(data.genres[0].id).substring(0,6)
+        # this.setAttribute('background-color', color);
+        # console.log('genre color', color);
+    </handler>
+
+    <spacedlayout axis="y" spacing="1"></spacedlayout>
+    <!-- <replicator datapath="/cast[0..5]/name" classname="castmember"></replicator> -->
+  </class>
+
+  <spacedlayout spacing="2"></spacedlayout>
+
+  <view width="${dr.window.width - this.parent.actors.width - 10}">
+    <handler event="onx" reference="dr.mouse" args="x">
+      //this.setAttribute('width', dr.mouse.x)
+    </handler>
+
+    <wrappinglayout spacing="5" linespacing="5"></wrappinglayout>
+    <replicator datapath="$topmovies/searchResponse/results[*]/movie" classname="thumbnail"></replicator>
+  </view>
+
+  <view name="actors" x="${dr.window.width - this.width}" height="${dr.window.height}" bgcolor="white" transition="width .2s" position="fixed">
+    <shrinktofit axis="x"></shrinktofit>
+    <spacedlayout axis="y" spacing="1"></spacedlayout>
+    <replicator datapath="$actor/searchResponse/results[0..10]/name/filmography[*]/title" classname="text"></replicator>
+  </view>
+
+  <!-- <dataset name="movies" url="/api/search/v2.1/amgvideo/filterbrowse?entitytype=movie&filter=editorialrating%3E8&filter=releaseyear%3E1500&&include=cast,images&size=1&facet=genre"></dataset> -->
+
+<!--<class name="facet">
+    <handler event="ondata" args="r">
+      console.log('facet data', r);
+    </handler>
+    <shrinktofit></shrinktofit>
+    <spacedlayout spacing="1"></spacedlayout>
+    <replicator datapath="/count" classname="text"></replicator>
+    <replicator datapath="/name" classname="text"></replicator>
+  </class>
+
+  <spacedlayout axis="y" spacing="1"></spacedlayout>
+     <replicator datapath="$movies/searchResponse/facetCounts[0]/facetCount[*]" classname="facet">
+    <handler event="ondata" args="r">
+      console.log('replicator data', r, this, this.parent);
+    </handler>
+  </replicator> -->
+</view>
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+</body>
+</html>

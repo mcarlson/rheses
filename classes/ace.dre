@@ -1,0 +1,172 @@
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+
+  <!--/**
+     * @class dr.ace {UI Components}
+     * @extends dr.view
+     * Ace editor component.
+     *
+     *     @example
+     *     <ace id="editor" width="500" text='Hello World'></ace>
+     *
+     * The initial text can also be included inline, and include dreem code.
+     *
+     *     @example wide
+     *     <ace id="editor" width="500"><view width="100%" height="100%" bgcolor="thistle"></view></ace>
+     *
+     */-->    
+<!-- Don't use until dr syntax highlighter is available via cdn
+    <class name="ace" width="300" height="100" clickable="true" scriptincludes="http://cdnjs.cloudflare.com/ajax/libs/ace/1.1.3/ace.js">
+-->
+
+      <!--/**
+        * @attribute {string} [theme='ace/theme/chrome']
+        * Specify the ace theme to use.
+        */-->
+
+      <!--/**
+        * @attribute {string} [mode='ace/mode/dr']
+        * Specify the ace mode to use.
+        */-->
+
+      <!--/**
+        * @attribute {String} [text=""]
+        * Initial text for the ace editor.
+        */-->
+
+      <!--/**
+        * @event ontext
+        * Fired when the contents of the ace entry changes
+        * @param {dr.ace} view The dr.ace that fired the event
+        */-->
+
+      <!--/**
+        * @attribute {Number} [pausedelay=500]
+        * Time (msec) after user entry stops to fire onpausedelay event.
+        * 0 will disable this option.
+        */-->
+
+      <!--/**
+        * @event onpausedelay
+        * Fired when user entries stops for a period of time.
+        * @param {dr.ace} view The dr.ace that fired the event
+        */-->
+
+    <class name="ace" width="300" height="100" clickable="true" scriptincludes="/lib/ace/src-noconflict/ace.js">
+      <handler event="ondata" args="d">
+        this.setAttribute('text', d)
+      </handler>
+
+      <attribute name="theme" type="string" value="ace/theme/chrome"/>
+      <handler event="ontheme">
+        if (this.editor)
+          this.editor.setTheme(this.theme);
+      </handler>
+
+      <attribute name="mode" type="string" value="ace/mode/dr"/>
+      <handler event="onmode">
+        if (this.editor)
+          this.editor.getSession().setMode(this.mode);
+      </handler>
+
+      <setter name="text" args="text">
+        if (this.editor && this.editor.getValue() != text) {
+          // console.log('set_text', text)
+          this.editor.setValue(text);
+        }
+      </setter>
+
+      <handler event="onwidth" method="handleResize"></handler>
+      <handler event="onheight" method="handleResize"></handler>
+
+      <attribute name="pausedelay" type="number" value="500"/>
+      <handler event="onpausedelay">
+        delete this._lastkeytime;
+      </handler>
+
+      <handler event="oninit">
+        // Get initial text (match behavior of inputtext)
+        text = this.text || this.sprite.getText(false);
+        this.sprite.setText('');
+
+        // I couldn't get jquery syntax to work so directly modify the DOM.
+        var acediv = document.createElement("DIV");
+        acediv.style.position = "absolute";
+        acediv.style.width = this.width;
+        acediv.style.height = this.height;
+        this.sprite.el.appendChild(acediv);
+        acediv.$init = true;
+
+        // Keep track of original div in this.acediv, and editor in this.editor
+        this.acediv = acediv;
+        this.editor = ace.edit(acediv);
+
+        // Set a default theme and mode
+        this.editor.setTheme(this.theme);
+        this.editor.getSession().setMode(this.mode);
+
+        // Text changes immediately update this.text
+        this.editor.on("change", this.handleChange);
+
+        // To remove line numbers, enable next line
+        //this.editor.renderer.setShowGutter(false);    
+
+        this.editor.setValue(text);
+        this.text = text;
+    
+        //console.log("editor", this.editor);
+      </handler>
+
+      <handler event="onbgcolor" args="color">
+      </handler>
+
+      <method name="handleChange">
+        this.setAttribute('text', this.editor.getValue());
+        //console.log("handleChange", this.text);
+        if (this.pausedelay > 0) {
+          this._lastkeytime = new Date();
+          //console.log("lastkeytime = ", this._lastkeytime);
+        }
+      </method>
+
+      <handler event="onidle" reference="dr.idle">
+        if (this._lastkeytime) {
+          var now = new Date();
+          var elapsed = now - this._lastkeytime;
+            if (elapsed > this.pausedelay) {
+            // Editor has been silent. Show onkeypause event
+            delete this._lastkeytime;
+            this.sendEvent('keypause', this);
+          }
+        }
+      </handler>
+
+      <method name="handleResize">
+        if (this.editor) {
+          this.acediv.style.width = this.width;
+          this.acediv.style.height = this.height;
+
+          this.editor.resize();
+          //console.log("handleResize");
+        }
+      </method>
+    </class>

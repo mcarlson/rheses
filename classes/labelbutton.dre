@@ -1,0 +1,89 @@
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+
+  <!--/**
+     * @class dr.labelbutton {UI Components}
+     * @extends dr.buttonbase
+     * Button class consisting of text centered in a view. The onclick event
+     * is generated when the button is clicked. The visual state of the 
+     * button changes during onmousedown/onmouseup.
+     *
+     *     @example
+     *     <spacedlayout axis="y"></spacedlayout>
+     *
+     *     <labelbutton text="click me" defaultcolor="plum" selectcolor="orchid">
+     *       <handler event="onclick">
+     *         hello.setAttribute('text', 'Hello Universe!');
+     *       </handler>
+     *     </labelbutton>
+     *
+     *     <text id="hello"></text>
+     */-->    
+    <class name="labelbutton" type="coffee" extends="buttonbase">
+
+      <handler event="oninit">
+        #TODO Remove this hack when oninit works
+        $this = @;
+        func = () -> $this.realinit()
+        setTimeout(func, 0)
+      </handler>
+
+      <method name="realinit">
+        # visual is the object that makes a visual change when selected
+        @visual = @
+
+        @realinited = true
+
+        # Detect if the button was supplied with a size
+        @_fixedsize = true if (@width > 0 || @height > 0)
+          
+        @handleResize()
+
+        @visualize()
+      </method>
+
+      <method name="handleResize">
+        return unless @realinited  #Hack. Should be @inited
+        return if @_resize_lock
+
+        if (@label.width > 0 && @label.height > 0)
+          if @_fixedsize
+            #Fixed size button. position text in center of button
+            xoffset = (@width + @padding - @label.width)/2
+            yoffset = (@height + @padding - @label.height)/2
+            @setAttributes(textx:xoffset, texty:yoffset)
+          else
+            #Variable size button. Resize button to text
+            @_resize_lock = true
+            @setAttributes({width:@label.width + @padding*2, height:@label.height + @padding*2, textx:@padding, texty:@padding})
+            @_resize_lock = false
+      </method>
+
+      <handler event="onmousedown">
+        @visual.setAttribute('bgcolor', @selectcolor)
+      </handler>
+
+      <handler event="onmouseup">
+        @visual.setAttribute('bgcolor', @defaultcolor)
+      </handler>
+
+    </class>

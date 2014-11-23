@@ -1,0 +1,66 @@
+<html>
+<head>
+  <title>dr33m | Event Test</title>
+  <link rel="stylesheet" href="./css/example.css"/>
+  <script type="text/javascript" src="../lib/jquery-1.9.1.js"></script>
+  <script type="text/javascript" src="../lib/acorn.js"></script>
+  <script type="text/javascript" src="../lib/coffee-script.js"></script>
+  <script type="text/javascript" src="../layout.js"></script>
+  <style type="text/css">
+    input {
+      font-family: 'Helvetica';
+      font-size: 14px;
+      margin: 0px;
+      padding: 0px;
+      width: 100px;
+    }
+  </style>
+  <script type="text/javascript" src="../lib/md5.js"></script>
+</head>
+<body>
+<view>
+  <class name="mousetest" width="100" height="100" bgcolor="red" clickable="true">
+    <attribute name="eventname" type="string" value="mouseover"></attribute>
+    <handler event="oninit">
+      this.listenTo(this, this.eventname, this.callback)
+    </handler>
+    <method name="callback" args="data">
+      console.log(this.eventname, data)
+      this.setAttribute('bgcolor', 'green')
+    </method>
+    <text text="${this.parent.eventname}"></text>
+  </class>
+
+  <spacedlayout></spacedlayout>
+  <mousetest eventname="mouseover"></mousetest>
+  <mousetest eventname="mouseout"></mousetest>
+  <mousetest eventname="mousedown"></mousetest>
+  <mousetest eventname="mouseup"></mousetest>
+  <mousetest eventname="mouseupoutside"></mousetest>
+  <mousetest eventname="click"></mousetest>
+
+  <view bgcolor="purple" width="30" height="30" opacity=".3" x="${dr.mouse.x - 15}" y="${dr.mouse.y - 15}"></view>
+</view>
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+</body>
+</html>

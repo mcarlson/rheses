@@ -1,2 +1,5 @@
-
-*.map
+.idea
+**/.idea
+apidocs/
+.DS_Store
+*.marks

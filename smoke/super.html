@@ -1,0 +1,452 @@
+<html>
+<head>
+  <title>dr33m | Invoking Super Smoke Tests</title>
+  <style type="text/css">
+    html,body{
+      height:100%;
+      margin:0px;
+      padding:0px;
+      border:0px none;
+    }
+    body {
+      font-family:Arial, Helvetica, sans-serif;
+      font-size:12px;
+    }
+  </style>
+  <script type="text/javascript" src="../lib/jquery-1.9.1.js"></script>
+  <script type="text/javascript" src="../lib/acorn.js"></script>
+  <script type="text/javascript" src="../lib/coffee-script.js"></script>
+  <script type="text/javascript" src="/layout.js"></script>
+  <script type="text/javascript" src="/lib/chai.js"></script>
+  <script>
+    var assert = chai.assert
+  </script>
+</head>
+<body>
+  <view id="root"
+    width="${dr.window.width}" height="${dr.window.height}"
+    bgcolor="#eeeeee" scrollable="true"
+  >
+    <!--// CLASSES //-->
+    <class name="item" x="5" width="100" height="100" bgcolor="#cccccc" clickable="true">
+      <attribute name="selectedcolor" type="string" value="#009900"></attribute>
+      <attribute name="deselectedcolor" type="string" value="#cccccc"></attribute>
+      <attribute name="selected" type="boolean" value="false"></attribute>
+      <setter name="selected" args="selected">
+        var testArr = this.getTestArray();
+        testArr.push('item.selected_setter.start');
+        this.setAttribute('bgcolor', selected ? this.selectedcolor : this.deselectedcolor);
+        testArr.push('item.selected_setter.end');
+      </setter>
+      <handler event="onclick" method="doClick"></handler>
+      <method name="doClick">
+        // console.log('item start');
+        this.setAttribute('selected', !this.selected);
+        // console.log('item end');
+      </method>
+      <handler event="oninit" method="doInit"></handler>
+      <method name="doInit">
+        var testArr = this.getTestArray();
+        testArr.push('item.start');
+        testArr.push('item.end'); // FIXME: move after doMore and fix tests
+        this.doMore();
+      </method>
+      <method name="doMore" type="coffee">
+        testArr = @getTestArray()
+        testArr.push('item.startMore')
+        testArr.push('item.endMore')
+      </method>
+      <method name="getTestArray">return this.testArr || (this.testArr = []);</method>
+    </class>
+    
+    <class name="subitem" extends="item">
+      <attribute name="selectedcolor" type="string" value="#00ff00"></attribute>
+      <setter name="selected" args="selected" invokesuper="inside">
+        var testArr = this.getTestArray();
+        testArr.push('sub.selected_setter.start');
+        this.super(arguments);
+        testArr.push('sub.selected_setter.end');
+      </setter>
+      <method name="doClick" invokesuper="after">
+        // console.log('sub start');
+        this.setAttribute('y', this.y + 10);
+        // console.log('sub end');
+      </method>
+      <method name="doInit" invokesuper="inside">
+        var testArr = this.getTestArray();
+        testArr.push('sub.start');
+        this.super(arguments);
+        testArr.push('sub.end');
+      </method>
+      <method name="doMore" type="coffee" invokesuper="inside">
+        testArr = @getTestArray()
+        testArr.push('sub.startMore')
+        @super(arguments)
+        testArr.push('sub.endMore')
+      </method>
+    </class>
+    
+    <class name="subsubitem" extends="subitem">
+      <attribute name="selectedcolor" type="string" value="#0000ff"></attribute>
+    </class>
+    
+    
+    <!--// VIEWS //-->
+    
+    <!-- Tests default super case is "before".
+         
+         Tests that setters are called first.
+         
+         Tests that a method on an instance overrides the same method in 
+         the class definition. -->
+    <item>
+      <method name="doInit">
+        var testArr = this.getTestArray();
+        testArr.push('inst.start');
+        testArr.push('inst.end');
+        
+        var matchArr = [
+          // setters first
+          'item.selected_setter.start',
+          'item.selected_setter.end',
+          
+          // oninit handler
+          'item.start',
+          'item.end',
+          'item.startMore',
+          'item.endMore',
+          'inst.start', // invokesuper:default
+          'inst.end'
+        ];
+        assert.equal(matchArr.join(','), testArr.join(','));
+      </method>
+      <method name="doClick">
+        // console.log('instance start');
+        // console.log('instance end');
+      </method>
+    </item>
+    
+    <!-- Tests that an override of a method called from within another
+         overridden method is executed in the correct order.
+         
+         Tests that invokesuper:before on a method is executed in the 
+         correct order.
+         
+         Tests that a method of type "coffee" works with invokesuper.
+         
+         Tests that invokesuper:inside on a method is executed in the correct 
+         order for a method called from a superclass method. -->
+    <item>
+      <method name="doInit" invokesuper="before">
+        var testArr = this.getTestArray();
+        testArr.push('inst.start');
+        testArr.push('inst.end');
+        
+        var matchArr = [
+          // setters first
+          'item.selected_setter.start',
+          'item.selected_setter.end',
+          
+          // oninit handler
+          'item.start',
+          'item.end',
+          'inst.startMore',
+            'item.startMore', // invokesuper:inside
+            'item.endMore',
+          'inst.endMore',
+          'inst.start', // invokesuper:before
+          'inst.end'
+        ];
+        assert.equal(matchArr.join(','), testArr.join(','));
+      </method>
+      <method name="doMore" type="coffee" invokesuper="inside">
+        testArr = @getTestArray()
+        testArr.push('inst.startMore')
+        @super(arguments)
+        testArr.push('inst.endMore')
+      </method>
+      <method name="doClick" invokesuper="before">
+        // console.log('instance start');
+        // console.log('instance end');
+      </method>
+    </item>
+    
+    <!-- Tests that invokesuper:after on a method is executed in the 
+         correct order. -->
+    <item>
+      <method name="doInit" invokesuper="after">
+        var testArr = this.getTestArray();
+        testArr.push('inst.start');
+        testArr.push('inst.end');
+        
+        var matchArr = [
+          // setters first
+          'item.selected_setter.start',
+          'item.selected_setter.end',
+          
+          // oninit handler
+          'inst.start', // invokesuper:after so testArr gets modified after our assert
+          'inst.end'
+        ];
+        assert.equal(matchArr.join(','), testArr.join(','));
+      </method>
+      <method name="doClick" invokesuper="after">
+        // console.log('instance start');
+        // console.log('instance end');
+      </method>
+    </item>
+    
+    <!-- Tests that invokesuper:inside on a method is executed in the 
+         correct order. -->
+    <item>
+      <method name="doInit" invokesuper="inside">
+        var testArr = this.getTestArray();
+        testArr.push('inst.start');
+        this.super(arguments);
+        testArr.push('inst.end');
+        
+        var matchArr = [
+          // setters first
+          'item.selected_setter.start',
+          'item.selected_setter.end',
+          
+          // oninit handler
+          'inst.start', // invokesuper:inside
+            'item.start',
+            'item.end',
+            'item.startMore',
+            'item.endMore',
+          'inst.end'
+        ];
+        assert.equal(matchArr.join(','), testArr.join(','));
+      </method>
+      <setter name="selected" args="selected" invokeSuper="inside">
+        // console.log('setter selected instance start');
+        this.super(arguments);
+        // console.log('setter selected instance end');
+      </setter>
+      
+      <method name="doClick" invokesuper="inside">
+        this.super(arguments);
+      </method>
+    </item>
+    
+    <!-- Tests that invokesuper:inside on a method on a subclass override is 
+         executed in the correct order.
+         
+         Tests that invokesuper:inside on a setter on a subclass override is
+         executed in the correct order. -->
+    <subitem>
+      <method name="doInit">
+        var testArr = this.getTestArray();
+        testArr.push('inst.start');
+        testArr.push('inst.end');
+        
+        var matchArr = [
+          // setters first
+          'sub.selected_setter.start', // invokesuper:inside
+            'item.selected_setter.start',
+            'item.selected_setter.end',
+          'sub.selected_setter.end',
+          
+          // oninit handler
+          'sub.start', // invokesuper:inside
+            'item.start',
+            'item.end',
+            'sub.startMore', // invokesuper:inside
+              'item.startMore',
+              'item.endMore',
+            'sub.endMore',
+          'sub.end',
+          'inst.start', // invokesuper:default
+          'inst.end'
+        ];
+        assert.equal(matchArr.join(','), testArr.join(','));
+      </method>
+      <method name="doClick" invokesuper="inside">
+        this.super(arguments);
+      </method>
+    </subitem>
+    
+    <!-- Tests that invokesuper:inside on a method on multiple subclass 
+         overrides is executed in the correct order. -->
+    <subitem>
+      <method name="doInit" invokesuper="inside">
+        var testArr = this.getTestArray();
+        testArr.push('inst.start');
+        this.super(arguments);
+        testArr.push('inst.end');
+        
+        var matchArr = [
+          // setters first
+          'sub.selected_setter.start', // invokesuper:inside
+            'item.selected_setter.start',
+            'item.selected_setter.end',
+          'sub.selected_setter.end',
+          
+          // oninit handler
+          'inst.start',
+            'sub.start',
+              'item.start',
+              'item.end',
+              'sub.startMore',
+                'item.startMore',
+                'item.endMore',
+              'sub.endMore',
+            'sub.end',
+          'inst.end'
+        ];
+        assert.equal(matchArr.join(','), testArr.join(','));
+      </method>
+      <method name="doClick" invokesuper="inside">
+        // Click should not work.
+      </method>
+    </subitem>
+    
+    <!-- Tests that calling super on a method multiple times works. -->
+    <subitem>
+      <method name="doInit" invokesuper="inside">
+        var testArr = this.getTestArray();
+        testArr.push('inst.start');
+        this.super(arguments);
+        this.super(arguments);
+        testArr.push('inst.end');
+        
+        var matchArr = [
+          // setters first
+          'sub.selected_setter.start', // invokesuper:inside
+            'item.selected_setter.start',
+            'item.selected_setter.end',
+          'sub.selected_setter.end',
+          
+          // oninit handler
+          'inst.start',
+            'sub.start',
+              'item.start',
+              'item.end',
+              'sub.startMore',
+                'item.startMore',
+                'item.endMore',
+              'sub.endMore',
+            'sub.end',
+            'sub.start',
+              'item.start',
+              'item.end',
+              'sub.startMore',
+                'item.startMore',
+                'item.endMore',
+              'sub.endMore',
+            'sub.end',
+          'inst.end'
+        ];
+        assert.equal(matchArr.join(','), testArr.join(','));
+      </method>
+      <method name="doClick" invokesuper="inside">
+        this.super(arguments);
+        this.super(arguments);
+      </method>
+    </subitem>
+    
+    <!-- Tests that invokesuper on a method with multiple levels of 
+         subclassing works. -->
+    <subsubitem>
+      <method name="doInit">
+        var testArr = this.getTestArray();
+        testArr.push('inst.start');
+        testArr.push('inst.end');
+        
+        var matchArr = [
+          // setters first
+          'sub.selected_setter.start', // invokesuper:inside
+            'item.selected_setter.start',
+            'item.selected_setter.end',
+          'sub.selected_setter.end',
+          
+          // oninit handler
+          'sub.start',
+            'item.start',
+            'item.end',
+            'sub.startMore',
+              'item.startMore',
+              'item.endMore',
+            'sub.endMore',
+          'sub.end',
+          'inst.start',
+          'inst.end'
+        ];
+        assert.equal(matchArr.join(','), testArr.join(','));
+      </method>
+      <method name="doClick" invokesuper="inside">
+        this.super(arguments);
+      </method>
+    </subsubitem>
+    
+    <!-- Tests that invokesuper on a setter for an instance override
+         is executed in the correct order. -->
+    <subsubitem>
+      <setter name="selected" args="selected" invokesuper="inside">
+        var testArr = this.getTestArray();
+        testArr.push('inst.selected_setter.start');
+        this.super(arguments);
+        testArr.push('inst.selected_setter.end');
+      </setter>
+      <method name="doInit">
+        var testArr = this.getTestArray();
+        testArr.push('inst.start');
+        testArr.push('inst.end');
+        
+        var matchArr = [
+          // setters first
+          'inst.selected_setter.start', // invokesuper:inside
+            'sub.selected_setter.start', // invokesuper:inside
+              'item.selected_setter.start',
+              'item.selected_setter.end',
+            'sub.selected_setter.end',
+          'inst.selected_setter.end',
+          
+          // oninit handler
+          'sub.start',
+            'item.start',
+            'item.end',
+            'sub.startMore',
+              'item.startMore',
+              'item.endMore',
+            'sub.endMore',
+          'sub.end',
+          'inst.start',
+          'inst.end'
+        ];
+        assert.equal(matchArr.join(','), testArr.join(','));
+      </method>
+      <method name="doClick" invokesuper="inside" type="coffee">
+        @toggle = !@toggle
+        @setAttribute('x', if @toggle then @x + 25 else @x - 25)
+        @super(arguments);
+      </method>
+    </subsubitem>
+    
+    <spacedlayout inset="5" spacing="5"></spacedlayout>
+  </view>
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+</body>
+</html>

@@ -1,0 +1,65 @@
+<html>
+<head>
+  <title>dr33m | Art Examples</title>
+  <link rel="stylesheet" href="./css/example.css"/>
+  <script type="text/javascript" src="../lib/jquery-1.9.1.js"></script>
+  <script type="text/javascript" src="../lib/acorn.js"></script>
+  <script type="text/javascript" src="../lib/coffee-script.js"></script>
+  <script type="text/javascript" src="../layout.js"></script>
+</head>
+<body>
+<view id="all" width="100%" height="100%" scrollable="true">
+  <spacedlayout axis="y"></spacedlayout>
+
+  <labelbutton text="Animate">
+    <!-- Scale the object by the specified zoom factor -->
+    <method name="scale" args="obj,z">
+      obj.animate({width: z * obj.width, height: z * obj.height});
+    </method>
+
+    <handler event="onclick">
+      // Morph between the 2 paths in art_1
+      if (this.path == null) this.path = 1
+      art_1.setAttribute('path', this.path);
+      //animate_path(this.path)
+      this.path = this.path ^ 1;
+
+      if (!this.zoom) this.zoom = 2.0;
+
+      this.scale(art_1, this.zoom);
+      this.scale(art_2, this.zoom);
+      this.scale(art_3, this.zoom);
+      this.scale(art_4, this.zoom);
+
+      this.zoom = 1.0 / this.zoom;
+    </handler>
+  </labelbutton>
+
+  <art id="art_1" width="100" height="100" src="./img/cursorshapes.svg" path="0" stroke="coral" fill="coral" stretches="true" animationcurve="bounce" animationspeed="2000">
+    <handler event="onready">
+      console.log("onready");
+    </handler>
+    <handler event="ontween">
+      console.log("animation finished")
+    </handler>
+    <handler event="onclick">
+      this.setAttribute('path', this.path ^ 1);
+      size = this.width == 100 ? 200 : 100;
+      this.animate({width: size})
+    </handler>
+  </art>
+
+  <art id="art_2" width="100" height="100" src="./img/siemens-clock.svg">
+  </art>
+
+  <art id="art_3" width="100" height="100" src="./img/button.svg">
+  </art>
+
+  <art id="art_4" width="100" height="100" inline="true"><!--<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events" version="1.1" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" stroke="blue" stroke-width="2" fill="red" /></svg>-->
+    <handler event="onclick">
+      console.log("onclick circle")
+    </handler>
+  </art>
+</view>
+</body>
+</html>
