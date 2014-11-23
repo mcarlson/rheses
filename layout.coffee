@@ -1389,8 +1389,9 @@ window.dr = do ->
         delete @[funcKey]
       if @_isPercent(value)
         self = @
+        scale = parseInt(value)/100
         func = @[funcKey] = () ->
-          self.setAttribute(name, parent[axis] * (parseInt(value)/100), false, true)
+          self.setAttribute(name, parent[axis] * scale, false, true)
         @listenTo(parent, axis, func)
         func.call()
         return true

@@ -1773,7 +1773,7 @@
       };
 
       View.prototype.__setupPercentConstraint = function(name, value, axis) {
-        var func, funcKey, oldFunc, parent, self;
+        var func, funcKey, oldFunc, parent, scale, self;
         funcKey = '__percentFunc' + name;
         oldFunc = this[funcKey];
         parent = this.parent;
@@ -1787,8 +1787,9 @@
         }
         if (this._isPercent(value)) {
           self = this;
+          scale = parseInt(value) / 100;
           func = this[funcKey] = function() {
-            return self.setAttribute(name, parent[axis] * (parseInt(value) / 100), false, true);
+            return self.setAttribute(name, parent[axis] * scale, false, true);
           };
           this.listenTo(parent, axis, func);
           func.call();
