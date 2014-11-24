@@ -8,6 +8,9 @@
 </head>
 <body>
 <view id="all" width="100%" height="100%" clip="true">
+  
+  <!-- Testing html comments inside of JS code - should not throw an error, but should instead ignore the comments and process the code as usual.
+   This enables HTML markup inside of strings. -->
   <view width="200" height="200" bgcolor="red">
     <text text="Hello">
       <handler event="oninit">
