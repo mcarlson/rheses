@@ -1472,6 +1472,18 @@ window.dr = do ->
       super
       @sprite.set_id(id)
 
+    set_ignorelayout: (ignorelayout) ->
+      if @inited and ignorelayout != @ignorelayout
+        layouts = @parent.layouts
+        if layouts
+          if ignorelayout
+            for layout in layouts
+              layout.removeSubview(@)
+          else
+            @ignorelayout = ignorelayout
+            for layout in layouts
+              layout.addSubview(@)
+
     ###*
     # Animates this view's attribute(s)
     # @param {Object} obj A hash of attribute names and values to animate to

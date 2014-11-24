@@ -1872,6 +1872,31 @@
         return this.sprite.set_id(id);
       };
 
+      View.prototype.set_ignorelayout = function(ignorelayout) {
+        var layout, layouts, _i, _j, _len, _len1, _results, _results1;
+        if (this.inited && ignorelayout !== this.ignorelayout) {
+          layouts = this.parent.layouts;
+          if (layouts) {
+            if (ignorelayout) {
+              _results = [];
+              for (_i = 0, _len = layouts.length; _i < _len; _i++) {
+                layout = layouts[_i];
+                _results.push(layout.removeSubview(this));
+              }
+              return _results;
+            } else {
+              this.ignorelayout = ignorelayout;
+              _results1 = [];
+              for (_j = 0, _len1 = layouts.length; _j < _len1; _j++) {
+                layout = layouts[_j];
+                _results1.push(layout.addSubview(this));
+              }
+              return _results1;
+            }
+          }
+        }
+      };
+
 
       /**
        * Animates this view's attribute(s)
