@@ -42,30 +42,45 @@
  */
 
 (function() {
-  var hackstyle,
+  var hackstyle, stylemap,
     __slice = [].slice,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i &lt; l; i++) { if (i in this &amp;&amp; this[i] === item) return i; } return -1; },
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
+  stylemap = {
+    x: &#39;marginLeft&#39;,
+    y: &#39;marginTop&#39;,
+    bgcolor: &#39;backgroundColor&#39;,
+    visible: &#39;display&#39;,
+    border: &#39;borderWidth&#39;,
+    borderstyle: &#39;borderStyle&#39;,
+    bordercolor: &#39;borderColor&#39;
+  };
+
   hackstyle = (function() {
-    var origstyle, stylemap, styletap;
-    stylemap = {
-      left: &#39;x&#39;,
-      top: &#39;y&#39;,
-      &#39;background-color&#39;: &#39;bgcolor&#39;
-    };
+    var monitoredJQueryStyleProps, origstyle, prop, styletap, value;
+    monitoredJQueryStyleProps = {};
+    for (prop in stylemap) {
+      value = stylemap[prop];
+      monitoredJQueryStyleProps[value] = prop;
+    }
     origstyle = $.style;
     styletap = function(elem, name, value) {
-      var returnval, view;
-      returnval = origstyle.apply(this, arguments);
-      name = stylemap[name] || name;
-      view = elem.$view;
-      if (view[name] !== value) {
-        view.setAttribute(name, value, true);
+      var attrName, view;
+      attrName = monitoredJQueryStyleProps[name];
+      if (attrName == null) {
+        attrName = monitoredJQueryStyleProps[name.replace(/-([a-z])/i, function(m) {
+          return m[1].toUpperCase();
+        })];
+        monitoredJQueryStyleProps[name] = attrName ? attrName : name;
       }
-      return returnval;
+      view = elem.$view;
+      if (view[attrName] !== value) {
+        view.setAttribute(attrName, value, true);
+      }
+      return origstyle.apply(this, arguments);
     };
     return function(active) {
       if (active) {
@@ -77,7 +92,7 @@
   })();
 
   window.dr = (function() {
-    var Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, capabilities, compiler, constraintScopes, debug, dom, exports, fcamelCase, hiddenAttributes, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, otherstyles, querystring, rdashAlpha, showWarnings, ss, ss2, stylemap, test, triggerlock, warnings, _initConstraints;
+    var Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, capabilities, compiler, constraintScopes, debug, dom, exports, fcamelCase, hiddenAttributes, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, otherstyles, querystring, rdashAlpha, showWarnings, ss, ss2, test, triggerlock, warnings, _initConstraints;
     mixOf = function() {
       var Mixed, base, i, method, mixin, mixins, name, _i, _ref;
       base = arguments[0], mixins = 2 &lt;= arguments.length ? __slice.call(arguments, 1) : [];
@@ -407,10 +422,15 @@
        * @param value the value to set to
        */
 
-      Eventable.prototype.setAttribute = function(name, value, skipcoercion) {
+      Eventable.prototype.setAttribute = function(name, value, skipcoercion, skipConstraintSetup, skipconstraintunregistration) {
         var _name;
         if (!skipcoercion) {
           value = this._coerceType(name, value);
+        }
+        if (!skipconstraintunregistration) {
+          if ((this.constraints != null) &amp;&amp; name in this.constraints) {
+            this._unbindConstraint(name);
+          }
         }
         if (typeof this[_name = &quot;set_&quot; + name] === &quot;function&quot;) {
           this[_name](value);
@@ -907,7 +927,7 @@
           constraint = typeof value.match === &quot;function&quot; ? value.match(matchConstraint) : void 0;
         }
         if (constraint) {
-          return this._applyConstraint(name, constraint[1]);
+          return this.setConstraint(name, constraint[1], true);
         } else if (name.indexOf(&#39;on&#39;) === 0) {
           name = name.substr(2);
           return this.bind(name, _eventCallback(name, value, this, tagname));
@@ -976,9 +996,13 @@
         }
       };
 
-      Node.prototype._applyConstraint = function(property, expression) {
+      Node.prototype.setConstraint = function(property, expression, skipbinding) {
         var bindexpression, bindings, scope, scopes, _i, _len;
-        if (this.constraints == null) {
+        if (this.constraints != null) {
+          if (property in this.constraints) {
+            this._unbindConstraint(property);
+          }
+        } else {
           this.constraints = {};
         }
         this.constraints[property] = {
@@ -995,10 +1019,30 @@
           }
           bindings[bindexpression].push(scope);
         }
+        if (!skipbinding) {
+          this._bindConstraints();
+        }
       };
 
       Node.prototype._valueLookup = function(bindexpression) {
         return compiler.compile(&#39;return &#39; + bindexpression).bind(this);
+      };
+
+      Node.prototype._unbindConstraint = function(property) {
+        var callback, callbackbindings, constraint, i, prop, scope, _i, _len;
+        if (!(property in this.constraints)) {
+          return;
+        }
+        constraint = this.constraints[property];
+        callback = constraint.callback, callbackbindings = constraint.callbackbindings;
+        for (i = _i = 0, _len = callbackbindings.length; _i &lt; _len; i = _i += 2) {
+          prop = callbackbindings[i];
+          scope = callbackbindings[i + 1];
+          if (typeof scope.unbind === &quot;function&quot;) {
+            scope.unbind(prop, callback);
+          }
+        }
+        this.constraints[property] = null;
       };
 
       Node.prototype._bindConstraints = function() {
@@ -1007,27 +1051,26 @@
         for (name in _ref) {
           constraint = _ref[name];
           bindings = constraint.bindings, expression = constraint.expression;
+          if (constraint.callbackbindings == null) {
+            constraint.callbackbindings = [];
+          }
           fn = this._valueLookup(expression);
-          constraint = this._constraintCallback(name, fn);
+          constraint.callback = this._constraintCallback(name, fn);
           for (bindexpression in bindings) {
             bindinglist = bindings[bindexpression];
             boundref = this._valueLookup(bindexpression)();
-            if (!boundref) {
-              showWarnings([&quot;Could not bind constraint &quot; + bindexpression]);
+            if (!boundref || (boundref.bind == null)) {
+              showWarnings([&quot;Could not bind to &quot; + bindexpression + &quot; of constraint &quot; + expression + &quot; for &quot; + this.$tagname + (this.id ? &#39;#&#39; + this.id : this.name ? &#39;.&#39; + name : &#39;&#39;)]);
               continue;
-            }
-            if (boundref == null) {
-              boundref = boundref.$view;
             }
             for (_i = 0, _len = bindinglist.length; _i &lt; _len; _i++) {
               binding = bindinglist[_i];
               property = binding.property;
-              if (typeof boundref.bind === &quot;function&quot;) {
-                boundref.bind(property, constraint);
-              }
+              boundref.bind(property, constraint.callback);
+              constraint.callbackbindings.push(property, boundref);
             }
           }
-          this.setAttribute(name, fn());
+          this.setAttribute(name, fn(), false, false, true);
         }
       };
 
@@ -1078,7 +1121,7 @@
 
       Node.prototype._constraintCallback = function(name, fn) {
         return (function constraintCallback(){;
-        this.setAttribute(name, fn());
+        this.setAttribute(name, fn(), false, false, true);
         return }).bind(this);
       };
 
@@ -1189,8 +1232,13 @@
          * Fired when this node and all its children are about to be destroyed
          * @param {dr.node} node The dr.node that fired the event
          */
-        var subnode, _i, _len, _ref, _ref1;
+        var property, subnode, _i, _len, _ref, _ref1;
         this.sendEvent(&#39;destroy&#39;, this);
+        if (this.constraints) {
+          for (property in this.constraints) {
+            this._unbindConstraint(property);
+          }
+        }
         if (this.listeningTo) {
           this.stopListening();
         }
@@ -1213,12 +1261,6 @@
       return Node;
 
     })(Eventable);
-    stylemap = {
-      x: &#39;left&#39;,
-      y: &#39;top&#39;,
-      bgcolor: &#39;backgroundColor&#39;,
-      visible: &#39;display&#39;
-    };
 
 <span id='Sprite'>    /**
 </span>     * @class Sprite
@@ -1415,14 +1457,6 @@
         return this.input = input;
       };
 
-      Sprite.prototype.getInputtextHeight = function() {
-        var borderH, h, paddingH;
-        h = parseInt($(this.input).css(&#39;height&#39;));
-        borderH = parseInt($(this.el).css(&#39;border-top-width&#39;)) + parseInt($(this.el).css(&#39;border-bottom-width&#39;));
-        paddingH = parseInt($(this.el).css(&#39;padding-top&#39;)) + parseInt($(this.el).css(&#39;padding-bottom&#39;));
-        return h + borderH + paddingH;
-      };
-
       Sprite.prototype.getAbsolute = function() {
         var pos;
         if (this.jqel == null) {
@@ -1471,6 +1505,20 @@
         return ss2(name, value, internal, el);
       };
     }
+    hiddenAttributes = {
+      text: true,
+      $tagname: true,
+      data: true,
+      replicator: true,
+      &quot;class&quot;: true,
+      clip: true,
+      clickable: true,
+      scrollable: true,
+      $textcontent: true,
+      resize: true,
+      multiline: true,
+      ignorelayout: true
+    };
     ignoredAttributes = {
       parent: true,
       id: true,
@@ -1705,7 +1753,7 @@
           clip: &#39;boolean&#39;,
           scrollable: &#39;boolean&#39;,
           visible: &#39;boolean&#39;,
-          &#39;border&#39;: &#39;number&#39;,
+          border: &#39;number&#39;,
           padding: &#39;number&#39;
         };
         defaults = {
@@ -1729,32 +1777,6 @@
         }
         attributes.$types = types;
         this._setDefaults(attributes, defaults);
-        if (this._isPercent(attributes[&#39;width&#39;])) {
-          attributes[&#39;width&#39;] = this._sizeConstraint(attributes[&#39;width&#39;], &quot;width&quot;);
-        }
-        if (this._isPercent(attributes[&#39;height&#39;])) {
-          attributes[&#39;height&#39;] = this._sizeConstraint(attributes[&#39;height&#39;], &quot;height&quot;);
-        }
-        if (attributes[&#39;parent&#39;].padding) {
-          attributes[&#39;x&#39;] += attributes[&#39;parent&#39;].padding;
-          attributes[&#39;y&#39;] += attributes[&#39;parent&#39;].padding;
-        }
-        attributes[&#39;border-width&#39;] = attributes[&#39;border&#39;];
-        delete attributes[&#39;border&#39;];
-        attributes[&#39;border-color&#39;] = attributes[&#39;bordercolor&#39;];
-        attributes[&#39;border-style&#39;] = attributes[&#39;borderstyle&#39;];
-        if (&#39;padding-left&#39; in attributes) {
-          attributes[&#39;padding-left&#39;] = attributes[&#39;padding&#39;];
-        }
-        if (&#39;padding-right&#39; in attributes) {
-          attributes[&#39;padding-right&#39;] = attributes[&#39;padding&#39;];
-        }
-        if (&#39;padding-top&#39; in attributes) {
-          attributes[&#39;padding-top&#39;] = attributes[&#39;padding&#39;];
-        }
-        if (&#39;padding-bottom&#39; in attributes) {
-          attributes[&#39;padding-bottom&#39;] = attributes[&#39;padding&#39;];
-        }
         if (el instanceof View) {
           el = el.sprite;
         }
@@ -1766,24 +1788,86 @@
         return typeof value === &#39;string&#39; &amp;&amp; value.indexOf(&#39;%&#39;) &gt; -1;
       };
 
-      View.prototype.innerSize = function(percent, dim) {
-        return (this[dim] * parseInt(percent) / 100.0) - this[&#39;border-width&#39;] * 2 - this.padding * 2;
-      };
-
-      View.prototype._sizeConstraint = function(percent, dim) {
-        return &quot;${this.parent.innerSize ? this.parent.innerSize(&#39;&quot; + percent + &quot;&#39;, &#39;&quot; + dim + &quot;&#39;) : $(this.parent).&quot; + dim + &quot;()}&quot;;
-      };
-
       View.prototype._createSprite = function(el, attributes) {
         return this.sprite = new Sprite(el, this, attributes.$tagname);
       };
 
-      View.prototype.setAttribute = function(name, value, skipstyle) {
+      View.prototype.setAttribute = function(name, value, skipstyle, skipConstraintSetup, skipconstraintunregistration) {
+        if (!skipConstraintSetup) {
+          switch (name) {
+            case &#39;width&#39;:
+            case &#39;x&#39;:
+              if (this.__setupPercentConstraint(name, value, &#39;innerwidth&#39;)) {
+                return;
+              }
+              break;
+            case &#39;height&#39;:
+            case &#39;y&#39;:
+              if (this.__setupPercentConstraint(name, value, &#39;innerheight&#39;)) {
+                return;
+              }
+          }
+        }
         value = this._coerceType(name, value);
+        switch (name) {
+          case &#39;width&#39;:
+          case &#39;height&#39;:
+          case &#39;border&#39;:
+          case &#39;padding&#39;:
+            value = Math.max(0, value);
+        }
         if (!(skipstyle || name in ignoredAttributes || name in hiddenAttributes || this[name] === value)) {
           this.sprite.setStyle(name, value);
         }
-        return View.__super__.setAttribute.call(this, name, value, true);
+        return View.__super__.setAttribute.call(this, name, value, true, skipConstraintSetup, skipconstraintunregistration);
+      };
+
+      View.prototype.__setupPercentConstraint = function(name, value, axis) {
+        var func, funcKey, oldFunc, parent, scale, self;
+        funcKey = &#39;__percentFunc&#39; + name;
+        oldFunc = this[funcKey];
+        parent = this.parent;
+        if (!(parent instanceof Node)) {
+          parent = dr.window;
+          axis = axis.substring(5);
+        }
+        if (oldFunc) {
+          this.stopListening(parent, axis, oldFunc);
+          delete this[funcKey];
+        }
+        if (this._isPercent(value)) {
+          self = this;
+          scale = parseInt(value) / 100;
+          func = this[funcKey] = function() {
+            return self.setAttribute(name, parent[axis] * scale, false, true);
+          };
+          this.listenTo(parent, axis, func);
+          func.call();
+          return true;
+        }
+      };
+
+      View.prototype.set_width = function(width) {
+        return this.setAttribute(&#39;innerwidth&#39;, width - 2 * (this.border + this.padding), true);
+      };
+
+      View.prototype.set_height = function(height) {
+        return this.setAttribute(&#39;innerheight&#39;, height - 2 * (this.border + this.padding), true);
+      };
+
+      View.prototype.set_border = function(border) {
+        return this.__updateInnerMeasures(2 * (border + this.padding));
+      };
+
+      View.prototype.set_padding = function(padding) {
+        return this.__updateInnerMeasures(2 * (this.border + padding));
+      };
+
+      View.prototype.__updateInnerMeasures = function(inset) {
+        this.innerwidth = this.width - inset;
+        this.innerheight = this.height - inset;
+        this.setAttribute(&#39;innerwidth&#39;, this.width - inset, true);
+        return this.setAttribute(&#39;innerheight&#39;, this.height - inset, true);
       };
 
       View.prototype.set_clickable = function(clickable) {
@@ -2015,31 +2099,38 @@
         this._setDefaults(attributes, defaults);
         InputText.__super__.constructor.apply(this, arguments);
         if (!this.height) {
-          this.setAttribute(&#39;height&#39;, this.sprite.getInputtextHeight());
+          this.setAttribute(&#39;height&#39;, this._getDefaultHeight());
         }
         this.listenTo(this, &#39;change&#39;, this._handleChange);
-        this.listenTo(this, &#39;width&#39;, function(w) {
-          return this.sprite.setStyle(&#39;width&#39;, this.innerSize(&#39;100%&#39;, &#39;width&#39;), true, this.sprite.input);
+        this.listenTo(this, &#39;innerwidth&#39;, function(iw) {
+          return this.sprite.setStyle(&#39;width&#39;, iw, true, this.sprite.input);
         });
-        this.listenTo(this, &#39;height&#39;, function(h) {
-          return this.sprite.setStyle(&#39;height&#39;, this.innerSize(&#39;100%&#39;, &#39;height&#39;), true, this.sprite.input);
+        this.sprite.setStyle(&#39;width&#39;, this.innerwidth, true, this.sprite.input);
+        this.listenTo(this, &#39;innerheight&#39;, function(ih) {
+          return this.sprite.setStyle(&#39;height&#39;, ih, true, this.sprite.input);
         });
+        this.sprite.setStyle(&#39;height&#39;, this.innerheight, true, this.sprite.input);
         this.listenTo(this, &#39;click&#39;, function() {
           return this.sprite.input.focus();
         });
       }
 
       InputText.prototype._createSprite = function(el, attributes) {
-        var b, h, multiline, p, w;
+        var multiline;
         InputText.__super__._createSprite.apply(this, arguments);
         attributes.text || (attributes.text = this.sprite.getText(true));
         this.sprite.setText(&#39;&#39;);
         multiline = this._coerceType(&#39;multiline&#39;, attributes.multiline, &#39;boolean&#39;);
-        p = attributes[&#39;padding&#39;] || 0;
-        b = attributes[&#39;border-width&#39;] || 0;
-        w = attributes.width - p * 2 - b * 2;
-        h = attributes.height - p * 2 - b * 2;
-        return this.sprite.createInputtextElement(&#39;&#39;, multiline, w, h);
+        return this.sprite.createInputtextElement(&#39;&#39;, multiline, attributes.width, attributes.height);
+      };
+
+      InputText.prototype._getDefaultHeight = function() {
+        var borderH, domElem, h, paddingH;
+        h = parseInt($(this.sprite.input).css(&#39;height&#39;));
+        domElem = $(this.sprite.el);
+        borderH = parseInt(domElem.css(&#39;border-top-width&#39;)) + parseInt(domElem.css(&#39;border-bottom-width&#39;));
+        paddingH = parseInt(domElem.css(&#39;padding-top&#39;)) + parseInt(domElem.css(&#39;padding-bottom&#39;));
+        return h + borderH + paddingH;
       };
 
       InputText.prototype._handleChange = function() {
@@ -2256,20 +2347,6 @@
       pre.textContent = out;
       document.body.insertBefore(pre, document.body.firstChild);
       return console.error(out);
-    };
-    hiddenAttributes = {
-      text: true,
-      $tagname: true,
-      data: true,
-      replicator: true,
-      &quot;class&quot;: true,
-      clip: true,
-      clickable: true,
-      scrollable: true,
-      $textcontent: true,
-      resize: true,
-      multiline: true,
-      ignorelayout: true
     };
     dom = (function() {
       var builtinTags, checkRequiredAttributes, exports, findAutoIncludes, flattenattributes, getChildren, htmlDecode, initAllElements, initElement, initFromElement, processSpecialTags, requiredAttributes, sendInit, specialtags, writeCSS;

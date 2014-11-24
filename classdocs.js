@@ -215,6 +215,11 @@
              * Fired when there is an error loading the bitmap
              */
 /**
+      * @class dr.boundslayout {Deprecated}
+      * @extends dr.layout
+      * boundslayout has been deprecated, use dr.shrinktofit instead
+      */
+/**
      * @class dr.buttonbase {UI Components}
      * @extends dr.view
      * Base class for button components. Buttons share common elements, 
@@ -415,6 +420,11 @@
         * @attribute {"x"/"y"/"both"} [dragaxis="both"]
         * The axes to drag on.
         */
+/**
+     * @class dr.dreem_iframe {Deprecated}
+     * @extends dr.view
+     * dreem_iframe has been deprecated, use dr.webpage instead
+     */
 /**
      * @class dr.gyro {Input}
      * @extends dr.node
@@ -868,6 +878,11 @@
     * @return {void}
     * @private
     */
+/**
+      * @class dr.simplelayout {Deprecated}
+      * @extends dr.layout
+      * simplelayout has been deprecated, use dr.spacedlayout instead
+      */
 /**
      * @class dr.slider {UI Components}
      * @extends dr.view
