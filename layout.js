@@ -1659,6 +1659,12 @@
 
 
       /**
+       * @attribute {String} [opacity=1.0]
+       * Sets this view's opacity, values can be a float from 0.0 ~ 1.0
+       */
+
+
+      /**
        * @event onclick
        * Fired when this view is clicked
        * @param {dr.view} view The dr.view that fired the event
