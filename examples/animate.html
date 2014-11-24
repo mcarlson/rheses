@@ -131,7 +131,7 @@
 					},
 					function(){
 						var anim = Animate.createAnimator()
-						anim.play({ease:'bret', 100:1 })
+						anim.play({ease:'bret', 100:1, control:[1.0,0.01] })
 						plot_curve("Brets easing:", anim)
 					},
 					function(){
@@ -191,8 +191,8 @@
 					},
 					function(){				
 						var anim = Animate.createAnimator()
-						anim.play({bezier:[0.2,.8,0.8,.1], 100:1 })
-						plot_curve("Bezier:", anim, {points: anim.current.bezier.points})
+						anim.play({control:[0.2,.8,0.8,.1], 100:1 })
+						plot_curve("Bezier:", anim, {points: anim.current.control.points})
 					},
 					function(){
 						// lets update the track
