@@ -1,24 +1,50 @@
 <html>
 <head>
-  <title>rhes.es</title>
+  <style type="text/css">
+    html,body{
+      height:100%;
+      margin:0px;
+      padding:0px;
+      border:0px none;
+    }
+    body {
+      font-family: 'Helvetica';
+      font-size: 14px;
+    }
+  </style>
+
+  <title>dr33m - Animation Smoke Tests</title>
   <script type="text/javascript" src="/lib/jquery-1.9.1.min.js"></script>
   <script type="text/javascript" src="/lib/acorn.js"></script>
   <script type="text/javascript" src="/lib/coffee-script.js"></script>
   <script type="text/javascript" src="/layout.js"></script>
+  <script type="text/javascript" src="/lib/chai.js"></script>
+  <script>
+    var assert = chai.assert
+  </script>
 </head>
 <body>
-<view id="all" width="100%" height="100%" clip="true">
-
+<view id="main" width="100%" height="100%" clip="true">
   <view width="50" height="50" bgcolor="#808080" clickable="true">
-    <handler event="onclick">
-      this.animate({x: this.x+5, y: this.y+5, width: this.width+5, height: this.height+5});
-      //this.setAttributes({x: this.x+5, y: this.y+5, width: this.width+5, height: this.height+5});
+    <handler event="oninit" type="coffee">
+      this.animate({x: this.x+5, y: this.y+5, width: this.width+5, height: this.height+5}, 100)
 
+      setTimeout(() =>
+        assert((@x > 0) && (@x < 5), 'x should be between 0 and 5')
+        assert((@y > 0) && (@y < 5), 'y should be between 0 and 5')
+        assert((@width > 50) && (@width < 55), 'width should be between 50 and 55')
+        assert((@height > 50) && (@height < 55), 'height should be between 50 and 55')
+      , 50)
+      
+      setTimeout(() =>
+        assert.equal(@x, 5)
+        assert.equal(@y, 5)
+        assert.equal(@width, 55)
+        assert.equal(@height, 55)
+      , 110)
     </handler>
   </view>
-
 </view>
-</body>
 <!-- The MIT License (MIT)
 
 Copyright ( c ) 2014 Teem2 LLC
@@ -40,4 +66,5 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. -->
+</body>
 </html>
