@@ -8,6 +8,9 @@ attribute.value must be defined on <attribute name="fullName" type="string"></at
     <attribute name="fullName" type="string"></attribute>
   </view>
 -->
+<!--
+Invalid type 'text' for attribute 'something', must be one of: number, boolean, string, json, expression
+-->
 </expectedoutput>
 <head>
   <style type="text/css">
@@ -191,8 +194,14 @@ attribute.value must be defined on <attribute name="fullName" type="string"></at
     </handler>
   </view>
   
+  <!-- attribute with no value -->
   <view>
     <attribute name="fullName" type="string"></attribute>
+  </view>
+  
+  <!-- attribute with invalid type -->
+  <view>
+    <attribute name="something" type="text" value=""></attribute>
   </view>
 
 </view>
