@@ -1660,7 +1660,7 @@
 
       /**
        * @attribute {String} [opacity=1.0]
-       * Sets this view's opacity, values can be a float from 0.0 ~ 1.0, or a percentage from 0% to 100%
+       * Sets this view's opacity, values can be a float from 0.0 ~ 1.0
        */
 
 
@@ -1808,7 +1808,55 @@
         if (!(skipstyle || name in ignoredAttributes || name in hiddenAttributes || this[name] === value)) {
           this.sprite.setStyle(name, value);
         }
-        return View.__super__.setAttribute.call(this, name, value, true);
+        return View.__super__.setAttribute.call(this, name, value, true, skipConstraintSetup, skipconstraintunregistration);
+      };
+
+      View.prototype.__setupPercentConstraint = function(name, value, axis) {
+        var func, funcKey, oldFunc, parent, scale, self;
+        funcKey = '__percentFunc' + name;
+        oldFunc = this[funcKey];
+        parent = this.parent;
+        if (!(parent instanceof Node)) {
+          parent = dr.window;
+          axis = axis.substring(5);
+        }
+        if (oldFunc) {
+          this.stopListening(parent, axis, oldFunc);
+          delete this[funcKey];
+        }
+        if (this._isPercent(value)) {
+          self = this;
+          scale = parseInt(value) / 100;
+          func = this[funcKey] = function() {
+            return self.setAttribute(name, parent[axis] * scale, false, true);
+          };
+          this.listenTo(parent, axis, func);
+          func.call();
+          return true;
+        }
+      };
+
+      View.prototype.set_width = function(width) {
+        return this.setAttribute('innerwidth', width - 2 * (this.border + this.padding), true);
+      };
+
+      View.prototype.set_height = function(height) {
+        return this.setAttribute('innerheight', height - 2 * (this.border + this.padding), true);
+      };
+
+      View.prototype.set_border = function(border) {
+        return this.__updateInnerMeasures(2 * (border + this.padding));
+      };
+
+      View.prototype.set_padding = function(padding) {
+        return this.__updateInnerMeasures(2 * (this.border + padding));
+      };
+
+      View.prototype.__updateInnerMeasures = function(inset) {
+        this.innerwidth = this.width - inset;
+        this.innerheight = this.height - inset;
+        this.setAttribute('innerwidth', this.width - inset, true);
+        return this.setAttribute('innerheight', this.height - inset, true);
       };
 
       View.prototype.set_clickable = function(clickable) {

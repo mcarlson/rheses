@@ -1305,7 +1305,7 @@ window.dr = do ->
     ###
     ###*
     # @attribute {String} [opacity=1.0]
-    # Sets this view's opacity, values can be a float from 0.0 ~ 1.0, or a percentage from 0% to 100%
+    # Sets this view's opacity, values can be a float from 0.0 ~ 1.0
     ###
 
     ###*
@@ -1411,7 +1411,50 @@ window.dr = do ->
       if not (skipstyle or name of ignoredAttributes or name of hiddenAttributes or @[name] == value)
         # console.log 'setting style', name, value, @
         @sprite.setStyle(name, value)
-      super(name, value, true)
+      super(name, value, true, skipConstraintSetup, skipconstraintunregistration)
+
+    __setupPercentConstraint: (name, value, axis) ->
+      funcKey = '__percentFunc' + name
+      oldFunc = @[funcKey]
+      parent = @parent
+
+      # Handle rootview case using dr.window
+      if !(parent instanceof Node)
+        parent = dr.window
+        axis = axis.substring(5)
+
+      if oldFunc
+        @stopListening(parent, axis, oldFunc)
+        delete @[funcKey]
+      if @_isPercent(value)
+        self = @
+        scale = parseInt(value)/100
+        func = @[funcKey] = () ->
+          self.setAttribute(name, parent[axis] * scale, false, true)
+        @listenTo(parent, axis, func)
+        func.call()
+        return true
+
+    set_width: (width) ->
+      @setAttribute('innerwidth', width - 2*(@border + @padding), true)
+
+    set_height: (height) ->
+      @setAttribute('innerheight', height - 2*(@border + @padding), true)
+
+    set_border: (border) ->
+      @__updateInnerMeasures(2*(border + @padding))
+
+    set_padding: (padding) ->
+      @__updateInnerMeasures(2*(@border + padding))
+
+    __updateInnerMeasures: (inset) ->
+      # Ensures innerwidth and innerheight will both be correct before
+      # oninnerwidth and oninnerheight fire. Needed by wrappinglayout.
+      @innerwidth = @width - inset
+      @innerheight = @height - inset
+
+      @setAttribute('innerwidth', @width - inset, true)
+      @setAttribute('innerheight', @height - inset, true)
 
     set_clickable: (clickable) ->
       @sprite.set_clickable(clickable)
