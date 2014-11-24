@@ -10,4 +10,9 @@ describe 'view', :type => :feature, :js => true do
   it 'height and width include padding (box-sizing should be border-box)' do
     expect(find("#v1").native.css_value('box-sizing')).to eq 'border-box'
   end
+  
+  it 'responds to set attribute changes at runtime' do
+    find("#v2").click
+    expect(page.evaluate_script("v2.bgcolor")).to eq 'AntiqueWhite'
+  end
 end

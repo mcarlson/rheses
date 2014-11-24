@@ -20,7 +20,11 @@
   <spacedlayout axis="y" inset="3" spacing="15"></spacedlayout>
 
   <view id="v1" bgcolor="thistle" width="50%" height="30" padding="10"></view>
-  <view id="v2" bgcolor="pink" width="100" height="30" padding="10"></view>
+  <view id="v2" bgcolor="pink" width="100" height="30" padding="10">
+    <handler event="onclick">
+      this.setAttribute('bgcolor', 'AntiqueWhite');
+    </handler>
+  </view>
   <view id="v3" bgcolor="MediumTurquoise" width="100" height="30" padding="10"></view>
 </view>
 </body>
