@@ -3,6 +3,11 @@
 <!--
 overwriting class foo
 -->
+<!--
+attribute.value must be defined on <attribute name="fullName" type="string"></attribute> inside <view>
+    <attribute name="fullName" type="string"></attribute>
+  </view>
+-->
 </expectedoutput>
 <head>
   <style type="text/css">
@@ -184,6 +189,10 @@ overwriting class foo
       assert.equal(this.thirty, 40)
       assert.equal(this.x, 20)
     </handler>
+  </view>
+  
+  <view>
+    <attribute name="fullName" type="string"></attribute>
   </view>
 
 </view>
