@@ -1,0 +1,81 @@
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+    <class name="animate" scriptincludes="/lib/animate.js">
+    <!--
+        attribute
+        duration
+        from
+        motion
+        paused
+        process
+        relative
+        repeat
+        start
+        target
+        to
+        -->
+
+      <attribute name="from" value="" type="string"/>
+      <attribute name="to" value="0" type="string"/>
+      <attribute name="duration" value = "1000" type = "number"/>
+      <attribute name="prop" value="x" type="string"/>
+      <attribute name="target" value="x" type="string"/>
+      <attribute name="paused" value="false" type="boolean"/>
+      <attribute name="relative" value="false" type="boolean"/>
+      <attribute name="easing" value="bret" type="string"/>
+      <attribute name="repeat" value="1" type="number"/>
+  
+      <setter name="prop" args="prop">
+      </setter>
+    
+      <handler event="onidle" reference="dr.idle">
+      </handler>
+
+      <handler event="oninit"> 
+        setTimeout(function(){ // otherwise my target has no $view
+          var target = document.getElementById(this.target)
+          if(!target) throw new Error('Cannot find animation target '+this.target)
+          var view = target.$view
+          if(!view) throw new Error('Animation target does not have a $view '+this.target)
+
+          // lets create the animator
+          this.animator = Animate.createAnimator()
+          // we should start playing it, and then in time we interpolate and assign it to a property.
+          var track = {}
+          // allright we mapped the api
+          track[0] = this.from === ""? view[this.prop]: this.from
+          track[this.duration] = this.to
+          track.repeat = this.repeat
+          track.easing = this.easing
+
+          this.animator.play(track)
+          // the animator works with timelines, so lets set up our timeline from the childlist.
+          var t = dr.idle.bind('idle', function(time){
+            // and call timestep
+            var value = this.animator.timestep(time)
+            view.setAttribute(this.prop, value)
+
+          }.bind(this))
+
+        }.bind(this),0)
+      </handler>
+    </class>

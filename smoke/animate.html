@@ -1,0 +1,61 @@
+<html>
+<head>
+  <title>template-workshop 2nd</title>
+  <style type="text/css">
+    body {
+      background-color: white;
+      font-family: 'Helvetica';
+      font-size: 40px;
+      margin: 0px;
+      padding: 0px;
+    }
+    input {
+      font-family: 'Helvetica';
+      font-size: 14px;
+      margin: 0px;
+      padding: 0px;
+      width: 100px;
+    }
+  </style>
+  <script type="text/javascript" src="/lib/jquery-1.9.1.js"></script>
+  <script type="text/javascript" src="/lib/acorn.js"></script>
+  <script type="text/javascript" src="/lib/coffee-script.js"></script>
+  <script type="text/javascript" src="/lib/assert.js"></script>
+  <script type="text/javascript" src="/layout.js"></script>
+</head>
+<body>
+    <view> 
+      <animate target="koala1" prop="x" to="300" duration="1000" easing="bounceInOut" repeat="10000"/>
+      <bitmap id="koala1" x="100" y="0" width="200" height="200" src="./shoarma.jpg"></bitmap>
+
+      <animate target="koala2" prop="x" to="300" duration="1000" easing="bret" repeat="10000"/>
+      <bitmap id="koala2" x="100" y="200" width="200" height="200" src="./shoarma.jpg"></bitmap>
+
+      <animate target="koala3" prop="x" to="300" duration="1000" easing="linear" repeat="10000"/>
+      <bitmap id="koala3" x="100" y="400" width="200" height="200" src="./shoarma.jpg"></bitmap>
+
+      <handler event="oninit">
+      </handler>
+    </view>
+<!-- The MIT License (MIT)
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+</body>
+</html>
