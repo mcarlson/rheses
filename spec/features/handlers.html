@@ -1,0 +1,34 @@
+<html lang="en">
+<head>
+  <title>Method Examples</title>
+  <script type="text/javascript" src="/lib/jquery-1.9.1.min.js"></script>
+  <script type="text/javascript" src="/lib/acorn.js"></script>
+  <script type="text/javascript" src="/lib/coffee-script.js"></script>
+  <script type="text/javascript" src="/layout.js"></script>
+
+  <style type="text/css">
+    html {
+      height: 100%;
+    }
+    body {
+      min-height: 100%;
+    }
+  </style>
+</head>
+<body>
+<view id="main" width="100%" height="100%" clip="true">
+  <spacedlayout spacing="10"></spacedlayout>
+  <view id="v1" name="v1" width="50" height="50" bgcolor="green" clickable="true"></view>
+  <view id="v2" name="v2" width="50" height="50" bgcolor="green" clickable="true">
+    <handler event="onclick" reference="v1">
+      window.v1clicked = true
+      console.log("You clicked v1");
+    </handler>
+    <handler event="onclick">
+      window.v2clicked = true
+      console.log("You clicked v2");
+    </handler>
+  </view>
+</view>
+</body>
+</html>
