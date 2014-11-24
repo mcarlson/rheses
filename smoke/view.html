@@ -132,6 +132,54 @@
       assert.equal($(this.inner.sprite.el).css('marginTop'), '0px')
     </handler>
   </view>
+  
+  <!-- Default attribute value events -->
+  <!--clickable:false, clip:false, scrollable:false, visible:true, 
+        bordercolor:'transparent', borderstyle:'solid', border:0, 
+        padding:0-->
+  <view>
+    <handler event="onx" args="arg">
+      window.logdefaults = "x:" + arg;
+    </handler>
+    <handler event="ony" args="arg">
+      window.logdefaults += ",y:" + arg;
+    </handler>
+    <handler event="onwidth" args="arg">
+      window.logdefaults += ",width:" + arg;
+    </handler>
+    <handler event="onheight" args="arg">
+      window.logdefaults += ",height:" + arg;
+    </handler>
+    <handler event="onclickable" args="arg">
+      window.logdefaults += ",clickable:" + arg;
+    </handler>
+    <handler event="onclip" args="arg">
+      window.logdefaults += ",clip:" + arg;
+    </handler>
+    <handler event="onscrollable" args="arg">
+      window.logdefaults += ",scrollable:" + arg;
+    </handler>
+    <handler event="onvisible" args="arg">
+      window.logdefaults += ",visible:" + arg;
+    </handler>
+    <handler event="onbordercolor" args="arg">
+      window.logdefaults += ",bordercolor:" + arg;
+    </handler>
+    <handler event="onborderstyle" args="arg">
+      window.logdefaults += ",borderstyle:" + arg;
+    </handler>
+    <handler event="onborder" args="arg">
+      window.logdefaults += ",border:" + arg;
+    </handler>
+    <handler event="onpadding" args="arg">
+      window.logdefaults += ",padding:" + arg;
+    </handler>
+    
+    <handler event="oninit">
+      assert.equal(window.logdefaults, 'x:0,y:0,width:0,height:0,clickable:false,clip:false,scrollable:false,visible:true,bordercolor:transparent,borderstyle:solid,border:0,padding:0')
+    </handler>
+  </view>
+  
 </view>
 <!-- The MIT License (MIT)
 
