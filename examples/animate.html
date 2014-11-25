@@ -136,24 +136,24 @@
 						// alright lets test looping.
 							// lets make a little canvas
 						var anim = Animate.createAnimator(0)
-						anim.play({easing:'linear',  repeat:-2, 500:1})
+						anim.play({motion:'linear',  repeat:-2, 500:1})
 						plot_curve("Bounce looping", anim, {end:1000})
 					},
 					function(){
 						// lets make a little canvas
 						var anim = Animate.createAnimator(.5)
-						anim.play({easing:'linear', 100:1, 250:0, 300:.65, 350:0.5 })
+						anim.play({motion:'linear', 100:1, 250:0, 300:.65, 350:0.5 })
 						plot_curve("Keyframes", anim)
 					},
 					function(){
 						var anim = Animate.createAnimator()
-						anim.play({easing:'bret', 100:1, control:[1.0,0.01] })
-						plot_curve("Brets easing:", anim)
+						anim.play({motion:'bret', 100:1, control:[1.0,0.01] })
+						plot_curve("Brets motion:", anim)
 					},
 					function(){
 						// reversing the animation
 						var anim = Animate.createAnimator()
-						anim.play({easing:'linear', 100:1})
+						anim.play({motion:'linear', 100:1})
 						plot_curve("Reversing:", anim, {yscale:1., callback:function(time){
 							// ok so, at time 5 we are going to reverse the playback.
 							if(time>50 && !anim.reversed){
@@ -168,8 +168,8 @@
 					},
 					function(){
 						var anim = Animate.createAnimator()
-						anim.play({easing:'inOutExpo', 100:1})
-						plot_curve("Reversing with easing:", anim, {yscale:1., callback:function(time){
+						anim.play({motion:'inOutExpo', 100:1})
+						plot_curve("Reversing with motion:", anim, {yscale:1., callback:function(time){
 							// ok so, at time 5 we are going to reverse the playback.
 							if(time>50 && !anim.reversed){
 								anim.reversed = 1
@@ -184,25 +184,25 @@
 					function(){
 						// allright now the play control through the anim controller
 						var anim = Animate.createAnimator()
-						anim.play({easing:'linear', 0:'red',100:'green',300:'blue',400:'yellow'})
+						anim.play({motion:'linear', 0:'red',100:'green',300:'blue',400:'yellow'})
 						plot_gradient("Color interpolation:", anim)
 					},
 					function(){
-						// color interp with easing
+						// color interp with motion
 						var anim = Animate.createAnimator()
-						anim.play({easing:'inOutExpo', 0:'red',100:'green',300:'blue',400:'yellow'})
+						anim.play({motion:'inOutExpo', 0:'red',100:'green',300:'blue',400:'yellow'})
 						plot_gradient("Eased colors:", anim)
 					},
 					function(){
 						// allright now the play control through the anim controller
 						var anim = Animate.createAnimator()
-						anim.play({easing:'cubic', 0:[0,0],10:[1,1],20:[0.62,0,2]})
+						anim.play({motion:'cubic', 0:[0,0],10:[1,1],20:[0.62,0,2]})
 						plot_points("Array interpolation:", anim, {steps:40})
 					},
 					function(){
 						// allright now the play control through the anim controller
 						var anim = Animate.createAnimator()
-						anim.play({easing:'inOutExpo', 0:[0,0.2],10:[1,1],20:[0.62,0,2]})
+						anim.play({motion:'inOutExpo', 0:[0,0.2],10:[1,1],20:[0.62,0,2]})
 						plot_points("Eased array interpolation:", anim, {steps:140})
 					},
 					function(){
@@ -213,12 +213,12 @@
 					function(){
 						// lets update the track
 						var anim = Animate.createAnimator()
-						anim.play({easing:'inOutExpo', 100:1})
+						anim.play({motion:'inOutExpo', 100:1})
 						plot_curve("Updating a track midflight (for editing):", anim, {yscale:1., callback:function(time){
 							// ok so, at time 5 we are going to reverse the playback.
 							if(time>50 && !anim.updated){
 								anim.updated = true
-								anim.update({easing:'linear',100:.5})
+								anim.update({motion:'linear',100:.5})
 							}
 						}})
 					},
