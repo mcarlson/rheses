@@ -1304,26 +1304,22 @@ window.dr = do ->
     # Sets this view's padding
     ###
     ###*
-    # @attribute {Number} [scale=1.0]
-    # Sets this view's height and width scale
-    ###
-    ###*
-    # @attribute {Number} [scaleX=1.0]
+    # @attribute {Number} [xscale=1.0]
     # Sets this view's width scale
     ###
     ###*
-    # @attribute {Number} [scaleY=1.0]
+    # @attribute {Number} [yscale=1.0]
     # Sets this view's height scale
     ###
     ###*
     # @attribute {Number} [z=0]
-    # Sets this view's z position (higher values are on top of other windows)
+    # Sets this view's z position (higher values are on top of other views)
     #
     # *(note: setting a `z` value for a view implicitly sets its parent's `transform-style` to `preserve-3d`)*
     ###
     ###*
-    # @attribute {String/Number} [rotation=0]
-    # Sets this view's rotation in degrees or radians (i.e. '40deg' or '1.25rad').  If not indicated, the default rotation scale is 'degrees'.
+    # @attribute {Number} [rotation=0]
+    # Sets this view's rotation in degrees.
     ###
     ###*
     # @attribute {String} [perspective=none]
@@ -1331,7 +1327,7 @@ window.dr = do ->
     # When this value is set, items further from the camera will appear smaller, and closer items will be larger.
     ###
     ###*
-    # @attribute {String} [opacity=1.0]
+    # @attribute {Number} [opacity=1.0]
     # Sets this view's opacity, values can be a float from 0.0 ~ 1.0
     ###
 
@@ -1390,7 +1386,7 @@ window.dr = do ->
       types = {
         x: 'number', y: 'number', z: 'number',
         xscale: 'number', yscale: 'number',
-        rotation: 'string',
+        rotation: 'string', opacity: 'number',
         width: 'number', height: 'number',
         clickable: 'boolean', clip: 'boolean', scrollable: 'boolean', visible: 'boolean', 
         border: 'number', padding: 'number'
@@ -1398,6 +1394,7 @@ window.dr = do ->
       defaults = {
         x:0, y:0,
         width:0, height:0,
+        opacity: 1,
         clickable:false, clip:false, scrollable:false, visible:true, 
         bordercolor:'transparent', borderstyle:'solid', border:0, 
         padding:0
@@ -1506,18 +1503,11 @@ window.dr = do ->
       if @xscale * @yscale != 1
         transform += ' scale3d(' + @xscale + ', ' + @yscale + ', 1.0)'
 
-      @rotation ||= '0deg'
-      rotation   = @rotation
-      rotation   = rotation.toString() unless typeof @rotation == 'string'
-      rotation  += 'deg' if /^\d+$/.test(rotation)
-      if rotation != '0deg'
-        transform += ' rotate3d(0, 0, 1.0, ' + rotation + ')'
+      @rotation ||= 0
+      if @rotation != 0
+        transform += ' rotate3d(0, 0, 1.0, ' + @rotation + 'deg)'
 
       @sprite.setStyle('transform', transform)
-
-    set_scale: (scale) ->
-      @xscale = @yscale = scale
-      @__updateTransform()
 
     set_xscale: (xscale) ->
       @xscale = xscale

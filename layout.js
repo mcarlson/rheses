@@ -1659,34 +1659,28 @@
 
 
       /**
-       * @attribute {Number} [scale=1.0]
-       * Sets this view's height and width scale
-       */
-
-
-      /**
-       * @attribute {Number} [scaleX=1.0]
+       * @attribute {Number} [xscale=1.0]
        * Sets this view's width scale
        */
 
 
       /**
-       * @attribute {Number} [scaleY=1.0]
+       * @attribute {Number} [yscale=1.0]
        * Sets this view's height scale
        */
 
 
       /**
        * @attribute {Number} [z=0]
-       * Sets this view's z position (higher values are on top of other windows)
+       * Sets this view's z position (higher values are on top of other views)
        *
        * *(note: setting a `z` value for a view implicitly sets its parent's `transform-style` to `preserve-3d`)*
        */
 
 
       /**
-       * @attribute {String/Number} [rotation=0]
-       * Sets this view's rotation in degrees or radians (i.e. '40deg' or '1.25rad').  If not indicated, the default rotation scale is 'degrees'.
+       * @attribute {Number} [rotation=0]
+       * Sets this view's rotation in degrees.
        */
 
 
@@ -1698,7 +1692,7 @@
 
 
       /**
-       * @attribute {String} [opacity=1.0]
+       * @attribute {Number} [opacity=1.0]
        * Sets this view's opacity, values can be a float from 0.0 ~ 1.0
        */
 
@@ -1779,6 +1773,7 @@
           xscale: 'number',
           yscale: 'number',
           rotation: 'string',
+          opacity: 'number',
           width: 'number',
           height: 'number',
           clickable: 'boolean',
@@ -1793,6 +1788,7 @@
           y: 0,
           width: 0,
           height: 0,
+          opacity: 1,
           clickable: false,
           clip: false,
           scrollable: false,
@@ -1907,7 +1903,7 @@
       };
 
       View.prototype.__updateTransform = function() {
-        var rotation, transform, xlate;
+        var transform, xlate;
         transform = '';
         this.z || (this.z = 0);
         xlate = 'translate3d(0, 0, ' + this.z + 'px)';
@@ -1920,23 +1916,11 @@
         if (this.xscale * this.yscale !== 1) {
           transform += ' scale3d(' + this.xscale + ', ' + this.yscale + ', 1.0)';
         }
-        this.rotation || (this.rotation = '0deg');
-        rotation = this.rotation;
-        if (typeof this.rotation !== 'string') {
-          rotation = rotation.toString();
-        }
-        if (/^\d+$/.test(rotation)) {
-          rotation += 'deg';
-        }
-        if (rotation !== '0deg') {
-          transform += ' rotate3d(0, 0, 1.0, ' + rotation + ')';
+        this.rotation || (this.rotation = 0);
+        if (this.rotation !== 0) {
+          transform += ' rotate3d(0, 0, 1.0, ' + this.rotation + 'deg)';
         }
         return this.sprite.setStyle('transform', transform);
-      };
-
-      View.prototype.set_scale = function(scale) {
-        this.xscale = this.yscale = scale;
-        return this.__updateTransform();
       };
 
       View.prototype.set_xscale = function(xscale) {
