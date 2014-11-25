@@ -1318,17 +1318,18 @@ window.dr = do ->
     ###*
     # @attribute {Number} [z=0]
     # Sets this view's z position (higher values are on top of other windows)
+    #
+    # *(note: setting a `z` value for a view implicitly sets its parent's `transform-style` to `preserve-3d`)*
     ###
     ###*
     # @attribute {String/Number} [rotation=0]
     # Sets this view's rotation in degrees or radians (i.e. '40deg' or '1.25rad').  If not indicated, the default rotation scale is 'degrees'.
     ###
     ###*
-    # @attribute {String} [perspective=0]
+    # @attribute {String} [perspective=none]
     # Sets this view's perspective depth along the z access, values in pixels.
     # When this value is set, items further from the camera will appear smaller, and closer items will be larger.
     ###
-
     ###*
     # @attribute {String} [opacity=1.0]
     # Sets this view's opacity, values can be a float from 0.0 ~ 1.0

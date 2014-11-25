@@ -1681,9 +1681,36 @@
        */
 
 
+<span id='dr-view-attribute-scaleX'>      /**
+</span>       * @attribute {Number} [scaleX=1.0]
+       * Sets this view&#39;s width scale
+       */
+
+
+<span id='dr-view-attribute-scaleY'>      /**
+</span>       * @attribute {Number} [scaleY=1.0]
+       * Sets this view&#39;s height scale
+       */
+
+
+<span id='dr-view-attribute-z'>      /**
+</span>       * @attribute {Number} [z=0]
+       * Sets this view&#39;s z position (higher values are on top of other windows)
+       *
+       * *(note: setting a `z` value for a view implicitly sets its parent&#39;s `transform-style` to `preserve-3d`)*
+       */
+
+
 <span id='dr-view-attribute-rotation'>      /**
 </span>       * @attribute {String/Number} [rotation=0]
        * Sets this view&#39;s rotation in degrees or radians (i.e. &#39;40deg&#39; or &#39;1.25rad&#39;).  If not indicated, the default rotation scale is &#39;degrees&#39;.
+       */
+
+
+<span id='dr-view-attribute-perspective'>      /**
+</span>       * @attribute {String} [perspective=none]
+       * Sets this view&#39;s perspective depth along the z access, values in pixels.
+       * When this value is set, items further from the camera will appear smaller, and closer items will be larger.
        */
 
 
@@ -1765,6 +1792,10 @@
         types = {
           x: &#39;number&#39;,
           y: &#39;number&#39;,
+          z: &#39;number&#39;,
+          xscale: &#39;number&#39;,
+          yscale: &#39;number&#39;,
+          rotation: &#39;string&#39;,
           width: &#39;number&#39;,
           height: &#39;number&#39;,
           clickable: &#39;boolean&#39;,
@@ -1892,20 +1923,95 @@
         return this.sprite.set_clickable(clickable);
       };
 
+      View.prototype.__updateTransform = function() {
+        var rotation, transform, xlate;
+        transform = &#39;&#39;;
+        this.z || (this.z = 0);
+        xlate = &#39;translate3d(0, 0, &#39; + this.z + &#39;px)&#39;;
+        if (this.z !== 0) {
+          transform = xlate;
+          this.parent.sprite.setStyle(&#39;transform-style&#39;, &#39;preserve-3d&#39;);
+        }
+        this.xscale || (this.xscale = 1);
+        this.yscale || (this.yscale = 1);
+        if (this.xscale * this.yscale !== 1) {
+          transform += &#39; scale3d(&#39; + this.xscale + &#39;, &#39; + this.yscale + &#39;, 1.0)&#39;;
+        }
+        this.rotation || (this.rotation = &#39;0deg&#39;);
+        rotation = this.rotation;
+        if (typeof this.rotation !== &#39;string&#39;) {
+          rotation = rotation.toString();
+        }
+        if (/^\d+$/.test(rotation)) {
+          rotation += &#39;deg&#39;;
+        }
+        if (rotation !== &#39;0deg&#39;) {
+          transform += &#39; rotate3d(0, 0, 1.0, &#39; + rotation + &#39;)&#39;;
+        }
+        return this.sprite.setStyle(&#39;transform&#39;, transform);
+      };
+
       View.prototype.set_scale = function(scale) {
-        var transform;
-        scale = &#39;scale3d(&#39; + scale + &#39;, &#39; + scale + &#39;, 1.0)&#39;;
-        transform = this.sprite.el.style[&#39;transform&#39;];
-        transform.replace(/scale3d\([^\)]*\)/, &#39;&#39;);
-        return this.sprite.setStyle(&#39;transform&#39;, transform + &#39; &#39; + scale);
+        this.xscale = this.yscale = scale;
+        return this.__updateTransform();
+      };
+
+      View.prototype.set_xscale = function(xscale) {
+        this.xscale = xscale;
+        return this.__updateTransform();
+      };
+
+      View.prototype.set_yscale = function(yscale) {
+        this.yscale = yscale;
+        return this.__updateTransform();
       };
 
       View.prototype.set_rotation = function(rotation) {
-        var transform;
-        rotation = &#39;rotate3d(0, 0, 1.0, &#39; + rotation + &#39;)&#39;;
-        transform = this.sprite.el.style[&#39;transform&#39;];
-        transform.replace(/rotate3d\([^\)]*\)/, &#39;&#39;);
-        return this.sprite.setStyle(&#39;transform&#39;, transform + &#39; &#39; + rotation);
+        this.rotation = rotation;
+        return this.__updateTransform();
+      };
+
+      View.prototype.set_z = function(depth) {
+        this.z = depth;
+        return this.__updateTransform();
+      };
+
+      View.prototype.moveToFront = function() {
+        var subview, _i, _len, _ref;
+        _ref = this.parent.subviews;
+        for (_i = 0, _len = _ref.length; _i &lt; _len; _i++) {
+          subview = _ref[_i];
+          if (this.z &lt;= subview.z) {
+            this.z = subview.z + 1;
+          }
+        }
+        return this.__updateTransform();
+      };
+
+      View.prototype.moveToBack = function() {
+        var subview, _i, _len, _ref;
+        _ref = this.parent.subviews;
+        for (_i = 0, _len = _ref.length; _i &lt; _len; _i++) {
+          subview = _ref[_i];
+          if (this.z &gt;= subview.z) {
+            this.z = subview.z - 1;
+          }
+        }
+        return this.__updateTransform();
+      };
+
+      View.prototype.moveInFrontOf = function(otherView) {
+        if (otherView &amp;&amp; otherView.z) {
+          this.z = otherView.z + 1;
+          return this.__updateTransform();
+        }
+      };
+
+      View.prototype.moveBehind = function(otherView) {
+        if (otherView &amp;&amp; otherView.z) {
+          this.z = otherView.z - 1;
+          return this.__updateTransform();
+        }
       };
 
       View.prototype.set_parent = function(parent) {

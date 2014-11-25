@@ -1679,6 +1679,8 @@
       /**
        * @attribute {Number} [z=0]
        * Sets this view's z position (higher values are on top of other windows)
+       *
+       * *(note: setting a `z` value for a view implicitly sets its parent's `transform-style` to `preserve-3d`)*
        */
 
 
@@ -1689,7 +1691,7 @@
 
 
       /**
-       * @attribute {String} [perspective=0]
+       * @attribute {String} [perspective=none]
        * Sets this view's perspective depth along the z access, values in pixels.
        * When this value is set, items further from the camera will appear smaller, and closer items will be larger.
        */
