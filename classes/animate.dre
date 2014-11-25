@@ -36,15 +36,26 @@ SOFTWARE. -->
 
       <attribute name="from" value="" type="string"/>
       <attribute name="to" value="0" type="string"/>
+
       <attribute name="duration" value = "1000" type = "number"/>
-      <attribute name="prop" value="x" type="string"/>
+      <attribute name="attribute" value="" type="string"/>
       <attribute name="target" value="" type="string"/>
       <attribute name="paused" value="false" type="boolean"/>
-      <attribute name="relative" value="false" type="boolean"/>
-      <attribute name="easing" value="bret" type="string"/>
+      <attribute name="motion" value="bret" type="string"/>
+      <attribute name="control" value="" type="string"/>
       <attribute name="repeat" value="1" type="number"/>
+
+      <!--relative is not implemented yet-->
+      <attribute name="relative" value="false" type="boolean"/>
+
   
-      <setter name="prop" args="prop">
+      <setter name="paused" args="paused">
+        if(paused){
+          if(this.animator)this.animator.pause()
+        }
+        else{
+          if(this.animator)this.animator.resume()
+        }
       </setter>
     
       <handler event="onidle" reference="dr.idle">
@@ -52,6 +63,9 @@ SOFTWARE. -->
 
       <handler event="oninit"> 
         setTimeout(function(){ // otherwise my target has no $view
+          
+          this.sendEvent('start')
+
           if(!this.target){
             var target = this.parent
           }
@@ -65,11 +79,18 @@ SOFTWARE. -->
           this.animator = Animate.createAnimator()
           // we should start playing it, and then in time we interpolate and assign it to a property.
           var track = {}
-          // allright we mapped the api
-          track[0] = this.from === ""? target[this.prop]: this.from
+
+          //map the bezier api
+          if(this.control){
+            track.control = this.control.split(',').map(function(v){
+              return parseFloat(v)
+            })
+          }
+
+          track[0] = this.from === ""? target[this.attribute]: this.from
           track[this.duration] = this.to
           track.repeat = this.repeat
-          track.easing = this.easing
+          track.motion = this.motion
 
           this.animator.play(track)
           var ended = false
@@ -77,7 +98,7 @@ SOFTWARE. -->
           var t = dr.idle.bind('idle', function(time){
             // and call timestep
             var value = this.animator.timestep(time)
-            target.setAttribute(this.prop, value)
+            target.setAttribute(this.attribute, value)
             if(this.animator.ended){
               if(!ended) this.sendEvent('end')
               ended = true
