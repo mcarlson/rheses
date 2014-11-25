@@ -38,7 +38,7 @@ SOFTWARE. -->
       <attribute name="to" value="0" type="string"/>
       <attribute name="duration" value = "1000" type = "number"/>
       <attribute name="prop" value="x" type="string"/>
-      <attribute name="target" value="x" type="string"/>
+      <attribute name="target" value="" type="string"/>
       <attribute name="paused" value="false" type="boolean"/>
       <attribute name="relative" value="false" type="boolean"/>
       <attribute name="easing" value="bret" type="string"/>
@@ -52,17 +52,21 @@ SOFTWARE. -->
 
       <handler event="oninit"> 
         setTimeout(function(){ // otherwise my target has no $view
-          var target = document.getElementById(this.target)
-          if(!target) throw new Error('Cannot find animation target '+this.target)
-          var view = target.$view
-          if(!view) throw new Error('Animation target does not have a $view '+this.target)
-
+          if(!this.target){
+            var target = this.parent
+          }
+          else{
+            var node = document.getElementById(this.target)
+            if(!node) throw new Error('Cannot find animation target '+this.target)
+            var target = node.$view
+            if(!target) throw new Error('Animation target does not have a $view '+this.target)
+          }
           // lets create the animator
           this.animator = Animate.createAnimator()
           // we should start playing it, and then in time we interpolate and assign it to a property.
           var track = {}
           // allright we mapped the api
-          track[0] = this.from === ""? view[this.prop]: this.from
+          track[0] = this.from === ""? target[this.prop]: this.from
           track[this.duration] = this.to
           track.repeat = this.repeat
           track.easing = this.easing
@@ -72,7 +76,7 @@ SOFTWARE. -->
           var t = dr.idle.bind('idle', function(time){
             // and call timestep
             var value = this.animator.timestep(time)
-            view.setAttribute(this.prop, value)
+            target.setAttribute(this.prop, value)
 
           }.bind(this))
 
