@@ -43,7 +43,7 @@
     <bitmap x="100" y="400" width="200" height="200" src="./shoarma.jpg">
       <animate attribute="x" to="300" duration="1000" motion="linear" repeat="-2">
         <handler event="onend">
-          assert.equal(koala2.x, 100)
+          assert.equal(this.parent.x, 100)
         </handler>
       </animate>
     </bitmap>
