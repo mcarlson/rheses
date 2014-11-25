@@ -46,7 +46,7 @@
       assert.equal($('#visibleview').css('display'), 'block')
     </handler>
   </view>
-  
+
   <!-- Relative width/height -->
   <view bgcolor="lightgrey" width="100" height="50">
     <view name="inner" width="100%" height="100%" bgcolor="thistle"></view>
@@ -73,7 +73,7 @@
       assert.equal(this.inner.height, 50)
     </handler>
   </view>
-  
+
   <!-- Border and padding -->
   <view bgcolor="lightgrey" width="100" height="50">
     <view name="inner" width="100%" height="100%" bgcolor="lightyellow"></view>
@@ -179,6 +179,7 @@
       assert.equal(window.logdefaults, 'x:0,y:0,width:0,height:0,clickable:false,clip:false,scrollable:false,visible:true,bordercolor:transparent,borderstyle:solid,border:0,padding:0')
     </handler>
   </view>
+
   <!-- Not sure how to deal with these constraints, what is the appropriate behavior? Could special case this.parent.width
    and turn it into this.parnet.innerSize('width'), but what if that's not whats desired? Also, this constraint could be written differently
    how to catch all instances of this? -->
@@ -193,23 +194,55 @@
     <!--</handler>-->
   <!--</view>-->
 
-  <!-- ensure that opacity passes float vales through unchanged -->
-    <view bgcolor="red" width="100" height="50" opacity="0.22">
-        <!-- Note: the Math.round is due to floating point errors not matching 0.22 with 0.22 -->
-        <handler event="oninit">
-            assert.equal(Math.round($(this.sprite.el).css('opacity') * 100), 22)
-        </handler>
-    </view>
+  <!-- z, rotation & scale -->
+  <view                                                width="100" height="50" border="2px" bordercolor="lightblue" perspective="5px">
+      <view name="topView"               x="10" y="10" width="5"  height="5" bgcolor="orange"
 
-  <!-- rotation & scale -->
-  <view bgcolor="lightgreen" width="100" height="50">
-      <view name="rotateView"      x="10" y="10" width="30" height="30" bgcolor="red"   rotation="1.5rad"></view>
-      <view name="scaleView"       x="10" y="10" width="30" height="30" bgcolor="green" scale="0.5"></view>
-      <view name="scaleRotateView" x="50" y="20" width="20" height="20" bgcolor="blue"  rotation="115deg" scale="1.5"></view>
+                   z="1">
+
+      </view>
+      <view name="rotateView"            x="10" y="10" width="30" height="30" bgcolor="red"
+
+            rotation="1.5rad">
+
+      </view>
+      <view name="rotateViewDeg"         x="80" y="10" width="15" height="15" bgcolor="yellow"
+
+            rotation="45">
+
+      </view>
+      <view name="scaleView"             x="10" y="10" width="30" height="30" bgcolor="green"
+
+               scale="0.5">
+
+      </view>
+      <view name="xScaleView"            x="75" y="20" width="20" height="20" bgcolor="darkgreen"
+
+              xscale="0.1">
+
+      </view>
+      <view name="yScaleView"            x="75" y="20" width="20" height="20" bgcolor="lightgreen"
+
+              yscale="0.2">
+
+      </view>
+      <view id="xmz" name="scaleRotateBottomView" x="50" y="20" width="20" height="20" bgcolor="blue"
+
+                   z="-10"
+            rotation="-115deg"
+               scale="10.5">
+
+      </view>
+
       <handler event="oninit">
-          assert.equal(this.rotateView.sprite.el.style['transform'], 'rotate3d(0, 0, 1, 1.5rad)')
-          assert.equal(this.scaleView.sprite.el.style['transform'], 'scale3d(0.5, 0.5, 1)')
-          assert.equal(this.scaleRotateView.sprite.el.style['transform'], 'rotate3d(0, 0, 1, 115deg) scale3d(1.5, 1.5, 1)')
+          slf = this
+          assert.equal(this.topView.sprite.el.style['transform'],               'translate3d(0px, 0px, 1px)')
+          assert.equal(this.rotateView.sprite.el.style['transform'],            'rotate3d(0, 0, 1, 1.5rad)')
+          assert.equal(this.rotateViewDeg.sprite.el.style['transform'],         'rotate3d(0, 0, 1, 45deg)')
+          assert.equal(this.scaleView.sprite.el.style['transform'],             'scale3d(0.5, 0.5, 1)')
+          assert.equal(this.xScaleView.sprite.el.style['transform'],            'scale3d(0.1, 1, 1)')
+          assert.equal(this.yScaleView.sprite.el.style['transform'],            'scale3d(1, 0.2, 1)')
+          assert.equal(this.scaleRotateBottomView.sprite.el.style['transform'], 'translate3d(0px, 0px, -10px) scale3d(10.5, 10.5, 1) rotate3d(0, 0, 1, -115deg)')
       </handler>
   </view>
 

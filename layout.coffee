@@ -1308,14 +1308,31 @@ window.dr = do ->
     # Sets this view's height and width scale
     ###
     ###*
-    # @attribute {String} [rotation=0deg]
-    # Sets this view's rotation in degrees or radians (i.e. '40deg' or '1.25rad')
+    # @attribute {Number} [scaleX=1.0]
+    # Sets this view's width scale
     ###
+    ###*
+    # @attribute {Number} [scaleY=1.0]
+    # Sets this view's height scale
+    ###
+    ###*
+    # @attribute {Number} [z=0]
+    # Sets this view's z position (higher values are on top of other windows)
+    ###
+    ###*
+    # @attribute {String/Number} [rotation=0]
+    # Sets this view's rotation in degrees or radians (i.e. '40deg' or '1.25rad').  If not indicated, the default rotation scale is 'degrees'.
+    ###
+    ###*
+    # @attribute {String} [perspective=0]
+    # Sets this view's perspective depth along the z access, values in pixels.
+    # When this value is set, items further from the camera will appear smaller, and closer items will be larger.
+    ###
+
     ###*
     # @attribute {String} [opacity=1.0]
     # Sets this view's opacity, values can be a float from 0.0 ~ 1.0
     ###
-
 
     ###*
     # @event onclick
@@ -1370,12 +1387,16 @@ window.dr = do ->
 
       @subviews = []
       types = {
-        x: 'number', y: 'number', width: 'number', height: 'number', 
+        x: 'number', y: 'number', z: 'number',
+        xscale: 'number', yscale: 'number',
+        rotation: 'string',
+        width: 'number', height: 'number',
         clickable: 'boolean', clip: 'boolean', scrollable: 'boolean', visible: 'boolean', 
         border: 'number', padding: 'number'
       }
       defaults = {
-        x:0, y:0, width:0, height:0, 
+        x:0, y:0,
+        width:0, height:0,
         clickable:false, clip:false, scrollable:false, visible:true, 
         bordercolor:'transparent', borderstyle:'solid', border:0, 
         padding:0
@@ -1469,17 +1490,69 @@ window.dr = do ->
       @sprite.set_clickable(clickable)
       # super?(clickable)
 
+    __updateTransform: () ->
+
+      transform = ''
+
+      @z ||= 0
+      xlate = 'translate3d(0, 0, ' + @z + 'px)'
+      if @z != 0
+        transform = xlate
+        @parent.sprite.setStyle('transform-style', 'preserve-3d')
+
+      @xscale ||= 1
+      @yscale ||= 1
+      if @xscale * @yscale != 1
+        transform += ' scale3d(' + @xscale + ', ' + @yscale + ', 1.0)'
+
+      @rotation ||= '0deg'
+      rotation   = @rotation
+      rotation   = rotation.toString() unless typeof @rotation == 'string'
+      rotation  += 'deg' if /^\d+$/.test(rotation)
+      if rotation != '0deg'
+        transform += ' rotate3d(0, 0, 1.0, ' + rotation + ')'
+
+      @sprite.setStyle('transform', transform)
+
     set_scale: (scale) ->
-      scale = 'scale3d(' + scale + ', ' + scale + ', 1.0)'
-      transform = @sprite.el.style['transform']
-      transform.replace(/scale3d\([^\)]*\)/, '')
-      @sprite.setStyle('transform', transform + ' ' + scale)
+      @xscale = @yscale = scale
+      @__updateTransform()
+
+    set_xscale: (xscale) ->
+      @xscale = xscale
+      @__updateTransform()
+
+    set_yscale: (yscale) ->
+      @yscale = yscale
+      @__updateTransform()
 
     set_rotation: (rotation) ->
-      rotation = 'rotate3d(0, 0, 1.0, ' + rotation + ')'
-      transform = @sprite.el.style['transform']
-      transform.replace(/rotate3d\([^\)]*\)/, '')
-      @sprite.setStyle('transform', transform + ' ' + rotation)
+      @rotation = rotation
+      @__updateTransform()
+
+    set_z: (depth) ->
+      @z = depth
+      @__updateTransform()
+
+    moveToFront: () ->
+      for subview in @parent.subviews
+        @z = subview.z + 1 if @z <= subview.z
+      @__updateTransform()
+
+    moveToBack: () ->
+      for subview in @parent.subviews
+        @z = subview.z - 1 if @z >= subview.z
+      @__updateTransform()
+
+    moveInFrontOf: (otherView) ->
+      if otherView && otherView.z
+        @z = otherView.z + 1
+        @__updateTransform()
+
+    moveBehind: (otherView) ->
+      if otherView && otherView.z
+        @z = otherView.z - 1
+        @__updateTransform()
 
     set_parent: (parent) ->
       # console.log 'view set_parent', parent, @
