@@ -19,7 +19,7 @@ Capybara.app_host = 'http://127.0.0.1:8080'
 
 #call with: "wait_for_javascript_event 'dreemInited'" if needed
 def wait_for_javascript_event event_name
-  selenium_bridge.setScriptTimeout(Capybara.default_wait_time * 1000)
+  selenium_bridge.setScriptTimeout(Capybara.default_wait_time * 3000)
 
   #puts "waiting for event #{event_name}"
   selenium_driver.execute_async_script(
