@@ -26,14 +26,14 @@
 <body>
   <view> 
     <bitmap id="koala1" x="100" y="0" width="200" height="200" src="./shoarma.jpg">
-      <animate prop="x" to="300" duration="1000" easing="outBounce" repeat="1">
+      <animate attribute="x" to="300" duration="1000" motion="outBounce" repeat="1">
         <handler event="onend">
           assert.equal(this.parent.x, 300)
         </handler>
       </animate>
     </bitmap>
 
-    <animate target="koala2" prop="x" to="300" duration="1000" easing="bret" repeat="-2">
+    <animate target="koala2" attribute="x" to="300" duration="1000" control='0.01,1.0'  motion="bret" repeat="-2">
       <handler event="onend">
         assert.equal(koala2.x, 100)
       </handler>
@@ -41,12 +41,12 @@
     <bitmap id="koala2" x="100" y="200" width="200" height="200" src="./shoarma.jpg"></bitmap>
     
     <bitmap x="100" y="400" width="200" height="200" src="./shoarma.jpg">
-      <animate prop="x" to="300" duration="1000" easing="linear" repeat="-2">
+      <animate attribute="x" to="300" duration="1000" motion="linear" repeat="-2">
         <handler event="onend">
           assert.equal(koala2.x, 100)
         </handler>
       </animate>
-    </bitmap-->
+    </bitmap>
 
     <handler event="oninit">
     </handler>
