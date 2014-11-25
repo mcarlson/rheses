@@ -34,19 +34,19 @@
       assert.equal($('#hiddenview').css('display'), 'none')
     </handler>
   </view>
-  
+
   <view id="visibleview" bgcolor="lightpink" width="100" height="50" visible="true">
     <handler event="oninit">
       assert.equal($('#visibleview').css('display'), 'block')
     </handler>
   </view>
-  
+
   <view id="visibleview" bgcolor="thistle" width="100" height="50">
     <handler event="oninit">
       assert.equal($('#visibleview').css('display'), 'block')
     </handler>
   </view>
-  
+
   <!-- Relative width/height -->
   <view bgcolor="lightgrey" width="100" height="50">
     <view name="inner" width="100%" height="100%" bgcolor="thistle"></view>
@@ -55,7 +55,7 @@
       assert.equal(this.inner.height, 50)
     </handler>
   </view>
-  
+
   <view bgcolor="lightgrey" width="100" height="50">
     <view name="inner" width="80%" height="70%" bgcolor="lightpink"></view>
     <handler event="oninit">
@@ -65,7 +65,7 @@
       assert.equal($(this.inner.sprite.el).css('marginTop'), '0px')
     </handler>
   </view>
-  
+
   <view bgcolor="lightgrey" width="100" height="50">
     <view name="inner" width="${this.parent.width}" height="${this.parent.height}" bgcolor="thistle"></view>
     <handler event="oninit">
@@ -73,7 +73,7 @@
       assert.equal(this.inner.height, 50)
     </handler>
   </view>
-  
+
   <!-- Border and padding -->
   <view bgcolor="lightgrey" width="100" height="50">
     <view name="inner" width="100%" height="100%" bgcolor="lightyellow"></view>
@@ -82,12 +82,12 @@
       assert.equal(this.height, 50)
       assert.equal(this.innerwidth, 100)
       assert.equal(this.innerheight, 50)
-      
+
       assert.equal(this.inner.width, 100)
       assert.equal(this.inner.height, 50)
     </handler>
   </view>
-  
+
   <view bgcolor="lightgrey" width="100" height="50" border="2">
     <view name="inner" width="100%" height="100%" bgcolor="lightgreen"></view>
     <handler event="oninit">
@@ -95,14 +95,14 @@
       assert.equal(this.height, 50)
       assert.equal(this.innerwidth, 96)
       assert.equal(this.innerheight, 46)
-      
+
       assert.equal(this.inner.width, 96)
       assert.equal(this.inner.height, 46)
       assert.equal($(this.inner.sprite.el).css('marginLeft'), '0px')
       assert.equal($(this.inner.sprite.el).css('marginTop'), '0px')
     </handler>
   </view>
-  
+
   <view bgcolor="lightgrey" width="100" height="50" border="2" padding="3">
     <view name="inner" width="100%" height="100%" bgcolor="lightblue"></view>
     <handler event="oninit">
@@ -110,14 +110,14 @@
       assert.equal(this.height, 50)
       assert.equal(this.innerwidth, 90)
       assert.equal(this.innerheight, 40)
-      
+
       assert.equal(this.inner.width, 90)
       assert.equal(this.inner.height, 40)
       assert.equal($(this.inner.sprite.el).css('marginLeft'), '0px')
       assert.equal($(this.inner.sprite.el).css('marginTop'), '0px')
     </handler>
   </view>
-  
+
   <view bgcolor="lightgrey" width="100" height="50" border="4" padding="2">
     <view name="inner" width="80%" height="70%" bgcolor="lightpink"></view>
     <handler event="oninit">
@@ -125,17 +125,17 @@
       assert.equal(this.height, 50)
       assert.equal(this.innerwidth, 88)
       assert.equal(this.innerheight, 38)
-      
+
       assert.closeTo(this.inner.width, 70.4, 0.1)
       assert.closeTo(this.inner.height, 26.6, 0.1)
       assert.equal($(this.inner.sprite.el).css('marginLeft'), '0px')
       assert.equal($(this.inner.sprite.el).css('marginTop'), '0px')
     </handler>
   </view>
-  
+
   <!-- Default attribute value events -->
-  <!--clickable:false, clip:false, scrollable:false, visible:true, 
-        bordercolor:'transparent', borderstyle:'solid', border:0, 
+  <!--clickable:false, clip:false, scrollable:false, visible:true,
+        bordercolor:'transparent', borderstyle:'solid', border:0,
         padding:0-->
   <view>
     <handler event="onx" args="arg">
@@ -174,11 +174,12 @@
     <handler event="onpadding" args="arg">
       window.logdefaults += ",padding:" + arg;
     </handler>
-    
+
     <handler event="oninit">
       assert.equal(window.logdefaults, 'x:0,y:0,width:0,height:0,clickable:false,clip:false,scrollable:false,visible:true,bordercolor:transparent,borderstyle:solid,border:0,padding:0')
     </handler>
   </view>
+
   <!-- Not sure how to deal with these constraints, what is the appropriate behavior? Could special case this.parent.width
    and turn it into this.parnet.innerSize('width'), but what if that's not whats desired? Also, this constraint could be written differently
    how to catch all instances of this? -->
@@ -193,14 +194,54 @@
     <!--</handler>-->
   <!--</view>-->
 
+  <!-- z, rotation & scale -->
+  <view                                                width="100" height="50" border="2px" bordercolor="lightblue" perspective="5px">
+      <view name="topView"               x="10" y="10" width="5"  height="5" bgcolor="orange"
+
+                   z="1">
+
+      </view>
+      <view name="rotateViewDeg"         x="80" y="10" width="15" height="15" bgcolor="pink"
+
+            rotation="45">
+
+      </view>
+      <view name="xScaleView"            x="75" y="20" width="20" height="20" bgcolor="darkgreen"
+
+              xscale="0.1">
+
+      </view>
+      <view name="yScaleView"            x="75" y="20" width="20" height="20" bgcolor="red"
+
+              yscale="0.2">
+
+      </view>
+      <view id="xmz" name="scaleRotateBottomView" x="50" y="20" width="20" height="20" bgcolor="blue"
+
+                   z="-10"
+            rotation="-115"
+               xscale="10.5"
+               yscale="10.4">
+
+      </view>
+
+      <handler event="oninit">
+          assert.equal(this.topView.sprite.el.style['transform'],               'translate3d(0px, 0px, 1px)')
+          assert.equal(this.rotateViewDeg.sprite.el.style['transform'],         'rotate3d(0, 0, 1, 45deg)')
+          assert.equal(this.xScaleView.sprite.el.style['transform'],            'scale3d(0.1, 1, 1)')
+          assert.equal(this.yScaleView.sprite.el.style['transform'],            'scale3d(1, 0.2, 1)')
+          assert.equal(this.scaleRotateBottomView.sprite.el.style['transform'], 'translate3d(0px, 0px, -10px) scale3d(10.5, 10.4, 1) rotate3d(0, 0, 1, -115deg)')
+      </handler>
+  </view>
+
   <!-- ensure that opacity passes float vales through unchanged -->
-    <view bgcolor="red" width="100" height="50" opacity="0.22">
-        <!-- Note: the Math.round is due to floating point errors not matching 0.22 with 0.22 -->
-        <handler event="oninit">
-            assert.equal(Math.round($(this.sprite.el).css('opacity') * 100), 22)
-        </handler>
-    </view>
-  
+  <view bgcolor="red" width="100" height="50" opacity="0.22">
+      <!-- Note: the Math.round is due to floating point errors not matching 0.22 with 0.22 -->
+      <handler event="oninit">
+          assert.equal(Math.round($(this.sprite.el).css('opacity') * 100), 22)
+      </handler>
+  </view>
+
 </view>
 <!-- The MIT License (MIT)
 

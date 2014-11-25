@@ -1304,7 +1304,30 @@ window.dr = do ->
     # Sets this view's padding
     ###
     ###*
-    # @attribute {String} [opacity=1.0]
+    # @attribute {Number} [xscale=1.0]
+    # Sets this view's width scale
+    ###
+    ###*
+    # @attribute {Number} [yscale=1.0]
+    # Sets this view's height scale
+    ###
+    ###*
+    # @attribute {Number} [z=0]
+    # Sets this view's z position (higher values are on top of other views)
+    #
+    # *(note: setting a `z` value for a view implicitly sets its parent's `transform-style` to `preserve-3d`)*
+    ###
+    ###*
+    # @attribute {Number} [rotation=0]
+    # Sets this view's rotation in degrees.
+    ###
+    ###*
+    # @attribute {String} [perspective=none]
+    # Sets this view's perspective depth along the z access, values in pixels.
+    # When this value is set, items further from the camera will appear smaller, and closer items will be larger.
+    ###
+    ###*
+    # @attribute {Number} [opacity=1.0]
     # Sets this view's opacity, values can be a float from 0.0 ~ 1.0
     ###
 
@@ -1361,12 +1384,17 @@ window.dr = do ->
 
       @subviews = []
       types = {
-        x: 'number', y: 'number', width: 'number', height: 'number', 
+        x: 'number', y: 'number', z: 'number',
+        xscale: 'number', yscale: 'number',
+        rotation: 'string', opacity: 'number',
+        width: 'number', height: 'number',
         clickable: 'boolean', clip: 'boolean', scrollable: 'boolean', visible: 'boolean', 
         border: 'number', padding: 'number'
       }
       defaults = {
-        x:0, y:0, width:0, height:0, 
+        x:0, y:0,
+        width:0, height:0,
+        opacity: 1,
         clickable:false, clip:false, scrollable:false, visible:true, 
         bordercolor:'transparent', borderstyle:'solid', border:0, 
         padding:0
@@ -1459,6 +1487,63 @@ window.dr = do ->
     set_clickable: (clickable) ->
       @sprite.set_clickable(clickable)
       # super?(clickable)
+
+    __updateTransform: () ->
+
+      transform = ''
+
+      @z ||= 0
+      xlate = 'translate3d(0, 0, ' + @z + 'px)'
+      if @z != 0
+        transform = xlate
+        @parent.sprite.setStyle('transform-style', 'preserve-3d')
+
+      @xscale ||= 1
+      @yscale ||= 1
+      if @xscale * @yscale != 1
+        transform += ' scale3d(' + @xscale + ', ' + @yscale + ', 1.0)'
+
+      @rotation ||= 0
+      if @rotation != 0
+        transform += ' rotate3d(0, 0, 1.0, ' + @rotation + 'deg)'
+
+      @sprite.setStyle('transform', transform)
+
+    set_xscale: (xscale) ->
+      @xscale = xscale
+      @__updateTransform()
+
+    set_yscale: (yscale) ->
+      @yscale = yscale
+      @__updateTransform()
+
+    set_rotation: (rotation) ->
+      @rotation = rotation
+      @__updateTransform()
+
+    set_z: (depth) ->
+      @z = depth
+      @__updateTransform()
+
+    moveToFront: () ->
+      for subview in @parent.subviews
+        @z = subview.z + 1 if @z <= subview.z
+      @__updateTransform()
+
+    moveToBack: () ->
+      for subview in @parent.subviews
+        @z = subview.z - 1 if @z >= subview.z
+      @__updateTransform()
+
+    moveInFrontOf: (otherView) ->
+      if otherView && otherView.z
+        @z = otherView.z + 1
+        @__updateTransform()
+
+    moveBehind: (otherView) ->
+      if otherView && otherView.z
+        @z = otherView.z - 1
+        @__updateTransform()
 
     set_parent: (parent) ->
       # console.log 'view set_parent', parent, @
