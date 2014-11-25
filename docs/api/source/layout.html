@@ -1675,35 +1675,29 @@
        */
 
 
-<span id='dr-view-attribute-scale'>      /**
-</span>       * @attribute {Number} [scale=1.0]
-       * Sets this view&#39;s height and width scale
-       */
-
-
-<span id='dr-view-attribute-scaleX'>      /**
-</span>       * @attribute {Number} [scaleX=1.0]
+<span id='dr-view-attribute-xscale'>      /**
+</span>       * @attribute {Number} [xscale=1.0]
        * Sets this view&#39;s width scale
        */
 
 
-<span id='dr-view-attribute-scaleY'>      /**
-</span>       * @attribute {Number} [scaleY=1.0]
+<span id='dr-view-attribute-yscale'>      /**
+</span>       * @attribute {Number} [yscale=1.0]
        * Sets this view&#39;s height scale
        */
 
 
 <span id='dr-view-attribute-z'>      /**
 </span>       * @attribute {Number} [z=0]
-       * Sets this view&#39;s z position (higher values are on top of other windows)
+       * Sets this view&#39;s z position (higher values are on top of other views)
        *
        * *(note: setting a `z` value for a view implicitly sets its parent&#39;s `transform-style` to `preserve-3d`)*
        */
 
 
 <span id='dr-view-attribute-rotation'>      /**
-</span>       * @attribute {String/Number} [rotation=0]
-       * Sets this view&#39;s rotation in degrees or radians (i.e. &#39;40deg&#39; or &#39;1.25rad&#39;).  If not indicated, the default rotation scale is &#39;degrees&#39;.
+</span>       * @attribute {Number} [rotation=0]
+       * Sets this view&#39;s rotation in degrees.
        */
 
 
@@ -1715,7 +1709,7 @@
 
 
 <span id='dr-view-attribute-opacity'>      /**
-</span>       * @attribute {String} [opacity=1.0]
+</span>       * @attribute {Number} [opacity=1.0]
        * Sets this view&#39;s opacity, values can be a float from 0.0 ~ 1.0
        */
 
@@ -1796,6 +1790,7 @@
           xscale: &#39;number&#39;,
           yscale: &#39;number&#39;,
           rotation: &#39;string&#39;,
+          opacity: &#39;number&#39;,
           width: &#39;number&#39;,
           height: &#39;number&#39;,
           clickable: &#39;boolean&#39;,
@@ -1810,6 +1805,7 @@
           y: 0,
           width: 0,
           height: 0,
+          opacity: 1,
           clickable: false,
           clip: false,
           scrollable: false,
@@ -1924,7 +1920,7 @@
       };
 
       View.prototype.__updateTransform = function() {
-        var rotation, transform, xlate;
+        var transform, xlate;
         transform = &#39;&#39;;
         this.z || (this.z = 0);
         xlate = &#39;translate3d(0, 0, &#39; + this.z + &#39;px)&#39;;
@@ -1937,23 +1933,11 @@
         if (this.xscale * this.yscale !== 1) {
           transform += &#39; scale3d(&#39; + this.xscale + &#39;, &#39; + this.yscale + &#39;, 1.0)&#39;;
         }
-        this.rotation || (this.rotation = &#39;0deg&#39;);
-        rotation = this.rotation;
-        if (typeof this.rotation !== &#39;string&#39;) {
-          rotation = rotation.toString();
-        }
-        if (/^\d+$/.test(rotation)) {
-          rotation += &#39;deg&#39;;
-        }
-        if (rotation !== &#39;0deg&#39;) {
-          transform += &#39; rotate3d(0, 0, 1.0, &#39; + rotation + &#39;)&#39;;
+        this.rotation || (this.rotation = 0);
+        if (this.rotation !== 0) {
+          transform += &#39; rotate3d(0, 0, 1.0, &#39; + this.rotation + &#39;deg)&#39;;
         }
         return this.sprite.setStyle(&#39;transform&#39;, transform);
-      };
-
-      View.prototype.set_scale = function(scale) {
-        this.xscale = this.yscale = scale;
-        return this.__updateTransform();
       };
 
       View.prototype.set_xscale = function(xscale) {
