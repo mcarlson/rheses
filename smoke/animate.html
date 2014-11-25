@@ -24,19 +24,22 @@
   <script type="text/javascript" src="/layout.js"></script>
 </head>
 <body>
-    <view> 
-      <animate target="koala1" prop="x" to="300" duration="1000" easing="outBounce" repeat="10000"/>
-      <bitmap id="koala1" x="100" y="0" width="200" height="200" src="./shoarma.jpg"></bitmap>
+  <view> 
+    <bitmap id="koala1" x="100" y="0" width="200" height="200" src="./shoarma.jpg">
+      <animate prop="x" to="300" duration="1000" easing="outBounce" repeat="-12"/
+    </bitmap>
 
-      <animate target="koala2" prop="x" to="300" duration="1000" easing="bret" repeat="10000"/>
-      <bitmap id="koala2" x="100" y="200" width="200" height="200" src="./shoarma.jpg"></bitmap>
+    <animate target="koala2" prop="x" to="300" duration="1000" easing="bret" repeat="1"/>
+    <bitmap id="koala2" x="100" y="200" width="200" height="200" src="./shoarma.jpg"></bitmap>
 
-      <animate target="koala3" prop="x" to="300" duration="1000" easing="linear" repeat="10000"/>
-      <bitmap id="koala3" x="100" y="400" width="200" height="200" src="./shoarma.jpg"></bitmap>
+    
+    <bitmap x="100" y="400" width="200" height="200" src="./shoarma.jpg">
+      <animate prop="x" to="300" duration="1000" easing="linear" repeat="-2"/>
+    </bitmap>
 
-      <handler event="oninit">
-      </handler>
-    </view>
+    <handler event="oninit">
+    </handler>
+  </view>
 <!-- The MIT License (MIT)
 Copyright ( c ) 2014 Teem2 LLC
 
