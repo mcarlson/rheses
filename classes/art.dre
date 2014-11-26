@@ -28,31 +28,44 @@ SOFTWARE. -->
      * This example shows how to load an existing svg
      *
      *     @example
-     *     <art width="100" height="100" src="/images/siemens-clock.svg"></art>
+     *     <art width="100" height="100" src="/examples/img/siemens-clock.svg"></art>
      *
      * Paths within an svg can be selected using the path attribute
      *
      *     @example
-     *     <art width="100" height="100" src="/images/cursorshapes.svg" path="0"></art>
+     *     <art width="100" height="100" src="/examples/img/cursorshapes.svg" path="0"></art>
      *
      * Attributes are automatically passed through to the SVG. Here, the fill color is changed
      *
      *     @example
-     *     <art width="100" height="100" src="/images/cursorshapes.svg" path="0" fill="coral"></art>
+     *     <art width="100" height="100" src="/examples/img/cursorshapes.svg" path="0" fill="coral"></art>
      *
      * Setting the path attribute animates between paths. This example animates when the mouse is clicked
      *
      *     @example
-     *     <art width="100" height="100" src="/images/cursorshapes.svg" path="0" fill="coral">
+     *     <art width="100" height="100" src="/examples/img/cursorshapes.svg" path="0" fill="coral">
      *       <handler event="onclick">
      *         this.setAttribute('path', this.path ^ 1);
+     *       </handler>
+     *     </art>
+     *
+     * The animationframe attribute controls which frame is displayed. The
+     * value is a floating point number to display a frame between two
+     * keyframes. For example, 1.4 will display the frame 40% between
+     * paths 1 and 2. This example will animate between keyframes 0, 1, 2.
+     *
+     *     @example
+     *     <art id="art_3" width="100" height="100" src="/examples/img/cursorshapes.svg" path="0" fill="coral" animationspeed="1000" animationcurve="linear">
+     *       <handler event="onclick">
+     *         this.setAttribute('animationframe', 0);
+     *         this.animate({animationframe: 2}, 1000);
      *       </handler>
      *     </art>
      *
      * By default, the SVG's aspect ratio is preserved. Set the stretches attribute to true to change this behavior.
      *
      *     @example
-     *     <art width="200" height="100" src="/images/cursorshapes.svg" path="0" fill="coral" stretches="true">
+     *     <art width="200" height="100" src="/examples/img/cursorshapes.svg" path="0" fill="coral" stretches="true">
      *       <handler event="onclick">
      *         this.setAttribute('path', this.path ^ 1);
      *         this.animate({width: (this.width == 200 ? 100 : 200)});
@@ -87,6 +100,11 @@ SOFTWARE. -->
         */-->
 
       <!--/**
+        * @attribute {Number} [animationframe=0]
+        * The current animation frame
+        */-->
+
+      <!--/**
         * @attribute {"linear"/"easeout"/"easein"/"easeinout"/"backin"/"backout"/"elastic"/"bounce"} [animationcurve="linear"]
         * The name of the curve to use when animating between paths
         */-->
@@ -106,6 +124,17 @@ SOFTWARE. -->
       <attribute name="src" value="" type="string"></attribute>
       <attribute name="animationspeed" value="400" type="number"></attribute>
       <attribute name="animationcurve" value="linear" type="string"></attribute>
+
+      <attribute name="animationframe" value="-1" type="number"></attribute>
+      <handler event="onanimationframe">
+        return if @_drawing or @animationframe < 0
+
+        start_path = Math.floor(@animationframe)
+        frame = @animationframe - start_path
+        end_path = if frame == 0 then start_path else start_path + 1
+
+        @show_frame(start_path, end_path, frame)
+      </handler>
 
       <attribute name="stretches" value="false" type="boolean"></attribute>
       <handler event="onstretches" method="resizeArt"></handler>
@@ -136,7 +165,7 @@ SOFTWARE. -->
         # If debug=true, show attributes that pass through to the svg
         debug = window.location.search.indexOf('debug') > 0
         if debug
-          @expectedAttr = ['x','y','width','height','parent','clip','id','scrollable','clickable','visible','$textcontent','$tagname','inline','src','path','stretches','animationspeed','animationcurve'] unless @expectedAttr
+          @expectedAttr = ['x','y','width','height','parent','clip','id','scrollable','clickable','visible','$textcontent','$tagname','borderstyle','padding','border-width','border-color','border-style','inline','src','path','stretches','animationspeed','animationcurve','animationframe'] unless @expectedAttr
           unless name in @expectedAttr
             console.warn('Passing attribute', name, 'to svg')
       </method>
@@ -145,12 +174,27 @@ SOFTWARE. -->
       <method name="show_path" args="name">
         # Retrieve an svg path given its name, or index
         path = @get_path(name)
-        if path
+        if path and path.length > 0
           d1 = path[0].getAttribute('d')
           @createSnap()
           @snappath = @snap.path(d1)
       </method>
 
+
+      <method name="get_path_frame" args="name, params">
+        # Construct a start or stop animation state using the specified
+        # path, and optional other animation parameters
+
+        curve = mina[@animationcurve] or mina.linear
+        params = {} if !params
+        return params if !@snap
+
+        path = @get_path(name)
+        if path and path.length > 0
+          d1 = path[0].getAttribute('d')
+          params['d'] = d1
+        return params
+      </method>
 
       <method name="animate_path" args="name, params">
         # Animate the path, as well as specified params
@@ -161,13 +205,50 @@ SOFTWARE. -->
 
         # Animate to a given path, by name, or id
         path = @get_path(name)
+        basepath = parseInt(name, 10)
+        basepath = 0 unless basepath?
         if path
           d1 = path[0].getAttribute('d')
           params['d'] = d1
-          @snappath.animate params, @animationspeed, curve, =>
+          @_drawing = true
+          @setAttribute('animationframe', basepath)
+          @snappath.animate params, @animationspeed, curve, ( =>
+            delete @_drawing
             @sendEvent('tween')
+          ), ( (progress) =>
+            @setAttribute('animationframe', basepath + progress)
+          )
       </method>
 
+      <method name="show_frame" args="start_path, end_path, frame, start_params, end_params">
+        # Called when animationframe changes. This can also be used to display
+        # a frame between any two keyframes.
+        frame = 0 if frame < 0
+        frame = 1 if frame > 1
+
+        # Show a specific frame between a start_path and end_path. Other
+        # parameters can also be animated using start_params, end_params.
+        @show_path(start_path) if !@snap
+        return unless @snap
+
+        start_params = {} if !start_params
+        end_params = {} if !end_params
+
+        startframe = @get_path_frame(start_path, start_params)
+        endframe = @get_path_frame(end_path, end_params)
+
+        # Show a specific frame (0.0,1.0) from the animation
+        curve = mina[@animationcurve] or mina.linear
+
+        basepath = parseInt(start_path, 10)
+        basepath = 0 unless basepath?
+
+        # Move to a specific frame in the animation
+        @snappath.frame_to startframe, endframe, curve, frame
+        @_drawing = true
+        @setAttribute('animationframe', basepath + frame)
+        delete @_drawing
+      </method>
 
 
       <method name="createDOM">
