@@ -9,7 +9,15 @@
 </head>
 <body>
 <view id="all" width="100%" height="100%" scrollable="true">
-  <spacedlayout axis="y"></spacedlayout>
+
+  <class name="centertext2" extends="text" color="white" height="40" x="${this.parent.width/2-this.width/2}" y="${this.parent.height/2-this.height/2}">
+    <method name="format" args="value">
+      if (value < 0.0) return '';
+      return value.toFixed(2);
+    </method>
+  </class>
+
+  <spacedlayout axis="y" spacing="10"></spacedlayout>
 
   <labelbutton text="Animate">
     <!-- Scale the object by the specified zoom factor -->
@@ -52,8 +60,25 @@
   <art id="art_2" width="100" height="100" src="./img/siemens-clock.svg">
   </art>
 
-  <art id="art_3" width="100" height="100" src="./img/button.svg">
-  </art>
+  <boundedview>
+    <spacedlayout axis="x" spacing="10"></spacedlayout>
+
+    <art id="art_3" width="100" height="100" src="./img/cursorshapes.svg" path="0" fill="coral" animationspeed="1000" animationcurve="linear">
+      <centertext2 text="${this.parent.animationframe}"></centertext2>
+      <handler event="onclick">
+      this.setAttribute('path', this.path ^ 1);
+      </handler>
+    </art>
+
+
+    <text y="${art_3.y + art_3.height/2 - this.height/2}">Frame:</text>
+    <slider width="200" height="10" y="${art_3.y + art_3.height/2 - this.height/2}" bgcolor="#808080" selectcolor="coral">
+      <handler event="onvalue">
+        frame = 2 * this.value / (this.maxvalue - this.minvalue)
+        art_3.setAttribute('animationframe', frame);
+      </handler>
+    </slider>
+  </boundedview>
 
   <art id="art_4" width="100" height="100" inline="true"><!--<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events" version="1.1" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" stroke="blue" stroke-width="2" fill="red" /></svg>-->
     <handler event="onclick">
