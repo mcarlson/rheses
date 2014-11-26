@@ -1781,7 +1781,8 @@
           scrollable: 'boolean',
           visible: 'boolean',
           border: 'number',
-          padding: 'number'
+          padding: 'number',
+          ignorelayout: 'boolean'
         };
         defaults = {
           x: 0,
@@ -1796,7 +1797,8 @@
           bordercolor: 'transparent',
           borderstyle: 'solid',
           border: 0,
-          padding: 0
+          padding: 0,
+          ignorelayout: false
         };
         _ref = attributes.$types;
         for (key in _ref) {
@@ -3404,9 +3406,18 @@
       __extends(Layout, _super);
 
       function Layout(el, attributes) {
-        var subview, subviews, _base, _i, _len;
+        var attrLocked, defaults, subview, subviews, types, _base, _i, _len;
         if (attributes == null) {
           attributes = {};
+        }
+        types = {
+          locked: 'boolean'
+        };
+        defaults = {
+          locked: false
+        };
+        if (attributes.locked != null) {
+          attrLocked = attributes.locked === 'true' ? true : false;
         }
         this.locked = true;
         this.subviews = [];
@@ -3425,7 +3436,11 @@
             this.addSubview(subview);
           }
         }
-        this.locked = false;
+        if (attrLocked != null) {
+          this.locked = attrLocked;
+        } else {
+          this.locked = false;
+        }
         this.update();
       }
 

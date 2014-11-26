@@ -1,0 +1,251 @@
+<html>
+<head>
+  <title>dr33m | Layout and constantlayout Smoke Tests</title>
+  <link rel="stylesheet" href="../examples/css/example.css"/>
+  <script type="text/javascript" src="../lib/jquery-1.9.1.js"></script>
+  <script type="text/javascript" src="../lib/acorn.js"></script>
+  <script type="text/javascript" src="../lib/coffee-script.js"></script>
+  <script type="text/javascript" src="../layout.js"></script>
+  <script type="text/javascript" src="../lib/chai.js"></script>
+  <script>
+    var assert = chai.assert
+    
+    // Global update counters
+    var UC_X = 0, UC_Y = 0;
+  </script>
+</head>
+<body>
+  <view width="100%" height="100%" bgcolor="#cccccc">
+    <class name="item" width="50" height="10" bgcolor="#666666"></class>
+    
+    <!-- Test standard layout initialization.
+         Test runtime modification of layouts.
+         Test two layouts that work on different attributes works. -->
+    <view name="container" width="100" height="100" bgcolor="#999999">
+      <!-- Test that a layout declared before works. -->
+      <constantlayout name="layoutX" attribute="x" value="10" locked="false"></constantlayout>
+      
+      <!-- Test locked layout is not applied. -->
+      <constantlayout name="layoutBgcolor" attribute="bgcolor" value="'#00ff00'" locked="true"></constantlayout>
+      
+      <item name="v1"></item>
+      <item name="v2"></item>
+      <!-- Test ignorelayout:true causes a view to be ignored -->
+      <item name="v3" ignorelayout="true"></item>
+      <!-- Test ignorelayout:false does not cause a view to be ignored. -->
+      <item name="v4" ignorelayout="false"></item>
+      
+      <!-- Test layout declared after views works. -->
+      <constantlayout name="layoutY" attribute="y" value="5"></constantlayout>
+    </view>
+    
+    <!-- Test update method only gets called once during the 
+         standard initialization sequence. -->
+    <view name="container2" width="100" height="100" bgcolor="#999999">
+      <!-- The extra layer isolates the test from initialization of the root
+           view since update happens oninit of the layout's parent -->
+      <view name="inner">
+        <constantlayout name="layoutX" attribute="x" value="10" locked="false">
+          <method name="update" invokesuper="inside">
+            if (this.canUpdate()) window.UC_X++;
+            this.super(arguments);
+          </method>
+        </constantlayout>
+        
+        <item name="v1"></item>
+        <item name="v2"></item>
+        <item name="v3"></item>
+        <item name="v4"></item>
+        
+        <constantlayout name="layoutY" attribute="y" value="5">
+          <method name="update" invokesuper="inside">
+            if (this.canUpdate()) window.UC_Y++;
+            this.super(arguments);
+          </method>
+        </constantlayout>
+      </view>
+    </view>
+    
+    <handler event="oninit">
+      var container = this.container,
+          layoutX = container.layoutX,
+          layoutY = container.layoutY,
+          layoutBgcolor = container.layoutBgcolor,
+          v1 = container.v1,
+          v2 = container.v2,
+          v3 = container.v3,
+          v4 = container.v4;
+      
+      // Verify update was only called once
+      assert.equal(1, UC_X, 'The early declaration layout was only updated once.');
+      assert.equal(1, UC_Y, 'The late declaration layout was only updated once.');
+      assert.equal(10, this.container2.inner.v1.x, 'First view should have an x value of 10');
+      assert.equal(5, this.container2.inner.v1.y, 'First view should have a y value of 5');
+      
+      // Test ignorelayout gets set with the correct type.
+      assert.equal(false, v1.ignorelayout, 'The ignorelayout attribute should default to boolean false.');
+      assert.equal(true, v3.ignorelayout, 'Third view should have ignorelayout equal to boolean true.');
+      assert.equal(false, v4.ignorelayout, 'Fourth view should have ignorelayout equal to boolean false.');
+      
+      // Test ignore method
+      assert.equal(false, layoutX.ignore(v1), 'Calling the ignore method should be false for a view with the default ignorelayout.');
+      assert.equal(true, layoutX.ignore(v3), 'Calling the ignore method should be true for a view with ignorelayout:true.');
+      assert.equal(false, layoutX.ignore(v4), 'Calling the ignore method should be false for a view with ignorelayout:false.');
+      
+      // Test initial update
+      assert.equal(10, v1.x, 'First view should have an x value of 10');
+      assert.equal(10, v2.x, 'Second view should have an x value of 10');
+      assert.equal(0, v3.x, 'Third view, with ignorelayout true, should not be updated.');
+      assert.equal(10, v4.x, 'Fourth view should have an x value of 10');
+      
+      assert.equal(5, v1.y, 'Each view should have an y value of 5');
+      assert.equal(5, v2.y, 'Each view should have an y value of 5');
+      assert.equal(0, v3.y, 'Views with ignorelayout true should not be updated.');
+      assert.equal(5, v4.y, 'Each view should have an y value of 5');
+      
+      // Test that layouts are stored in a layouts array on their parent node.
+      assert.equal(3, container.layouts.length, 'Two layouts should exist.');
+      
+      // Test that layout locked values are set
+      assert.equal(false, layoutX.locked, 'By default layouts are not locked.');
+      assert.equal(true, layoutBgcolor.locked, 'The locked attribute is a boolean.');
+      
+      // Test that the managed views are stored in a subviews array on the layout.
+      assert.equal(3, layoutX.subviews.length, 'Three views should be managed.');
+      assert.equal(3, layoutY.subviews.length, 'Three views should be managed.');
+      assert.equal(3, layoutBgcolor.subviews.length, 'Three views should be managed.');
+      
+      // Test changing ignorelayout to true removes a managed view
+      v4.setAttribute('ignorelayout', true);
+      assert.equal(2, layoutX.subviews.length, 'Two views should be managed.');
+      assert.equal(2, layoutY.subviews.length, 'Two views should be managed.');
+      assert.equal(2, layoutBgcolor.subviews.length, 'Two views should be managed.');
+      
+      // Test updating the layout value gets applied to the managed views
+      layoutX.setAttribute('value', 7);
+      assert.equal(7, v1.x, 'First view should have an x value of 7');
+      assert.equal(7, v2.x, 'Second view should have an x value of 7');
+      assert.equal(0, v3.x, 'Third view should have an x value of 0 since it was never managed.');
+      assert.equal(10, v4.x, 'Fourth view should have an x value of 10 since it is no longer managed');
+      
+      // Test changing ignorelayout to false and/or back to false adds a managed view
+      v3.setAttribute('ignorelayout', false);
+      v4.setAttribute('ignorelayout', false);
+      assert.equal(4, layoutX.subviews.length, 'Four views should be managed.');
+      assert.equal(4, layoutY.subviews.length, 'Four views should be managed.');
+      assert.equal(4, layoutBgcolor.subviews.length, 'Four views should be managed.');
+      assert.equal(7, v3.x, 'Third view should now have an x value of 7.');
+      assert.equal(7, v4.x, 'Fourth view should now have an x value of 7.');
+      assert.equal(5, v3.y, 'Third view should now have a y value of 5.');
+      
+      // Destroying a view should unmanage it
+      v4.destroy();
+      assert.equal(3, layoutX.subviews.length, 'Three views should be managed.');
+      assert.equal(3, layoutY.subviews.length, 'Three views should be managed.');
+      assert.equal(3, layoutBgcolor.subviews.length, 'Three views should be managed.');
+      
+      // Creating a view should manage it
+      var v5 = new dr.item(null, {parent:container, name:'v5'});
+      assert.equal(4, layoutX.subviews.length, 'Four views should be managed.');
+      assert.equal(4, layoutY.subviews.length, 'Four views should be managed.');
+      assert.equal(4, layoutBgcolor.subviews.length, 'Four views should be managed.');
+      assert.equal(7, v5.x, 'Fifth view should now have an x value of 7.');
+      assert.equal(5, v5.y, 'Fifth view should now have a y value of 5.');
+      
+      // Creating a view with ignorelayout:true should leave it unmanaged
+      var v6 = new dr.item(null, {parent:container, name:'v6', ignorelayout:true});
+      assert.equal(4, layoutX.subviews.length, 'Four views should be managed.');
+      assert.equal(4, layoutY.subviews.length, 'Four views should be managed.');
+      assert.equal(4, layoutBgcolor.subviews.length, 'Four views should be managed.');
+      assert.equal(0, v6.x, 'Sixth view should now have an x value of 0 since it is unmanaged.');
+      assert.equal(0, v6.y, 'Sixth view should now have a y value of 0 since it is unmanaged.');
+      
+      // Destroying a layout should work
+      layoutY.destroy();
+      assert.equal(2, container.layouts.length, 'One layouts should exist.');
+      v6.setAttribute('ignorelayout', false);
+      assert.equal(5, layoutX.subviews.length, 'Five views should be managed.');
+      assert.equal(7, v6.x, 'Sixth view should now have an x value of 7 since it is managed.');
+      assert.equal(0, v6.y, 'Sixth view should still have a y of 0 since there is no layout to manage it.');
+      
+      // Changing the attribute of a layout should work
+      assert.equal(50, v1.width, 'First view should have a width of 50.');
+      assert.equal(50, v2.width, 'Second view should have a width of 50.');
+      assert.equal(50, v3.width, 'Third view should have a width of 50.');
+      assert.equal(50, v5.width, 'Fourth view should have a width of 50.');
+      assert.equal(50, v6.width, 'Sixth view should have a width of 50.');
+      layoutX.setAttribute('attribute', 'width');
+      assert.equal(7, v1.width, 'First view should have a width of 7.');
+      assert.equal(7, v2.width, 'Second view should have a width of 7.');
+      assert.equal(7, v3.width, 'Third view should have a width of 7.');
+      assert.equal(7, v5.width, 'Fourth view should have a width of 7.');
+      assert.equal(7, v6.width, 'Sixth view should have a width of 7.');
+      
+      // Changing the value of the layout should only update the current attribute
+      layoutX.setAttribute('value', 25);
+      assert.equal(7, v1.x, 'First view should have an x of 7.');
+      assert.equal(7, v2.x, 'Second view should have an x of 7.');
+      assert.equal(7, v3.x, 'Third view should have an x of 7.');
+      assert.equal(7, v5.x, 'Fourth view should have an x of 7.');
+      assert.equal(7, v6.x, 'Sixth view should have an x of 7.');
+      assert.equal(25, v1.width, 'First view should have a width of 25.');
+      assert.equal(25, v2.width, 'Second view should have a width of 25.');
+      assert.equal(25, v3.width, 'Third view should have a width of 25.');
+      assert.equal(25, v5.width, 'Fourth view should have a width of 25.');
+      assert.equal(25, v6.width, 'Sixth view should have a width of 25.');
+      
+      // Adding a new layout should work
+      assert.equal(10, v1.height, 'First view should have a height of 10.');
+      assert.equal(10, v2.height, 'Second view should have a height of 10.');
+      assert.equal(10, v3.height, 'Third view should have a height of 10.');
+      assert.equal(10, v5.height, 'Fourth view should have a height of 10.');
+      assert.equal(10, v6.height, 'Sixth view should have a height of 10.');
+      var layoutH = new dr.constantlayout(null, {parent:container, name:'layoutH', attribute:'height', value:8});
+      assert.equal(3, container.layouts.length, 'Two layouts should exist.');
+      assert.equal(5, layoutH.subviews.length, 'Five views should be managed.');
+      assert.equal(8, v1.height, 'First view should have a width of 8.');
+      assert.equal(8, v2.height, 'Second view should have a width of 8.');
+      assert.equal(8, v3.height, 'Third view should have a width of 8.');
+      assert.equal(8, v5.height, 'Fourth view should have a width of 8.');
+      assert.equal(8, v6.height, 'Sixth view should have a width of 8.');
+      
+      // Calling update on a locked layout should not update
+      assert.equal(false, layoutBgcolor.canUpdate(), 'The canUpdate method should return false.');
+      assert.equal('#666666', v1.bgcolor, 'First view should have a bgcolor of #666666.');
+      layoutBgcolor.update();
+      assert.equal('#666666', v1.bgcolor, 'First view should have a bgcolor of #666666.');
+      
+      // Unlocking a layout should not update
+      layoutBgcolor.setAttribute('locked', false);
+      assert.equal(true, layoutBgcolor.canUpdate(), 'The canUpdate method should return true.');
+      assert.equal(false, layoutBgcolor.locked, 'Layout should now be unlocked.');
+      assert.equal('#666666', v1.bgcolor, 'First view should have a bgcolor of #666666.');
+      
+      // Calling update after unlocking should now work
+      layoutBgcolor.update();
+      assert.equal('#00ff00', v1.bgcolor, 'First view should have a bgcolor of #00ff00.');
+    </handler>
+  </view>
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+</body>
+</html>

@@ -1389,7 +1389,7 @@ window.dr = do ->
         rotation: 'string', opacity: 'number',
         width: 'number', height: 'number',
         clickable: 'boolean', clip: 'boolean', scrollable: 'boolean', visible: 'boolean', 
-        border: 'number', padding: 'number'
+        border: 'number', padding: 'number', ignorelayout:'boolean'
       }
       defaults = {
         x:0, y:0,
@@ -1397,7 +1397,7 @@ window.dr = do ->
         opacity: 1,
         clickable:false, clip:false, scrollable:false, visible:true, 
         bordercolor:'transparent', borderstyle:'solid', border:0, 
-        padding:0
+        padding:0, ignorelayout:false
       }
 
       for key, type of attributes.$types
@@ -2722,6 +2722,12 @@ window.dr = do ->
   ###
   class Layout extends Node
     constructor: (el, attributes = {}) ->
+      types = {locked:'boolean'}
+      defaults = {locked:false}
+      
+      if attributes.locked?
+        attrLocked = if attributes.locked == 'true' then true else false
+      
       @locked = true
       @subviews = []
       
@@ -2742,7 +2748,10 @@ window.dr = do ->
         for subview in subviews
           @addSubview(subview)
       
-      @locked = false
+      if attrLocked?
+        @locked = attrLocked
+      else
+        @locked = false
       
       @update()
     
