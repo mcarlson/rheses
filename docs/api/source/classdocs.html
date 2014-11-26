@@ -79,6 +79,120 @@
 </span>    * @method doBeforeUpdate
     * Determine the maximum subview width/height according to the alignment.
     */
+<span id='dr-animator'>/**
+</span>    * @class dr.animator {Animation}
+    * @extends dr.node
+    * Animator class that can animate keys on other objects
+    *
+    *     @example nested
+    *     &lt;view bgcolor=&quot;red&quot; x=&quot;0&quot; y=&quot;0&quot; width=&quot;100&quot; height=&quot;100&quot;&gt;
+    *       &lt;animator start=&quot;100&quot; attribute=&quot;x&quot; to=&quot;200&quot; duration=&quot;1000&quot; motion=&quot;outBounce&quot; repeat=&quot;1&quot;&gt;
+    *         &lt;handler event=&quot;onend&quot;&gt;
+    *           console.log(&#39;it ended&#39;)
+    *         &lt;/handler&gt;
+    *       &lt;/animator&gt;
+    *     &lt;/view&gt;
+    */
+<span id='dr-animator-attribute-start'>/**
+</span>        * @attribute {String} start
+        * The start time of the animation
+        */
+<span id='dr-animator-attribute-form'>/**
+</span>        * @attribute {String} form
+        * The value to start the animation from, if not specified is read from the target attribute
+        */
+<span id='dr-animator-attribute-to'>/**
+</span>        * @attribute {String} to
+        * The value to animate to. Is identical to specifying a &lt;keyframe at=&#39;{duration}&#39;&gt;{to}&lt;/keyframe&gt;
+        */
+<span id='dr-animator-attribute-duration'>/**
+</span>        * @attribute {number} duration
+        * The duration of the animation. Is identical to specifying a &lt;keyframe at=&#39;{duration}&#39;&gt;{to}&lt;/keyframe&gt;
+        */
+<span id='dr-animator-attribute-attribute'>/**
+</span>        * @attribute {string} attribute
+        * The name of the attribute this animator is animating
+        */
+<span id='dr-animator-attribute-target'>/**
+</span>        * @attribute {string} target
+        * Name of the target object id, not needed if animator is used as a child tag in the target node
+        */
+<span id='dr-animator-attribute-paused'>/**
+</span>        * @attribute {boolean} paused
+        * wether or not the animator is paused
+        */
+<span id='dr-animator-attribute-motion'>/** 
+</span>        * @attribute {string} motion
+        * name of the motion the animation is following
+        * valid values are:
+        * &#39;bezier&#39; use a cubic bezier motion function
+        *   use control points in control=&#39;x1,y1,x2,y2&#39; 
+        *   for example control=&#39;0,0,1,1&#39;
+        *   bezier control points work the same as the CSS3 cubic-bezier easing
+        * &#39;bret&#39; uses brets animation function, has 2 control points
+        *   control=&#39;start,end&#39; value near 0 (0.01) will produce a curved line
+        *   where values near 1.0 will produce a straight line
+        *   this way you can control the &#39;easing&#39; from &#39;smooth&#39; (0.01) to &#39;hard&#39; (1.0)
+        *   on each side start / end of the animation
+        *   for example control=&#39;0.01,1.00&#39; produces an animation with a smooth start and a hard end 
+        * &#39;linear&#39; simple linear motion
+        * the following curves can be seen here http://api.jqueryui.com/easings/
+        * &#39;inQuad&#39; use a t^2 curve
+        * &#39;outQuad&#39; t^2 curve on out
+        * &#39;inOutQuad&#39; mix of inQuad and outQuad
+        * &#39;inCubic&#39; use a t^3 curve
+        * &#39;outCubic&#39; t^3 curve on out
+        * &#39;inOutCubic&#39; mix of inCubic and outCubic
+        * &#39;inQuart&#39; t^4 curve
+        * &#39;outQuart&#39; t^4 curve on out
+        * &#39;inOutQuart&#39; mix of inQuart and outQuart
+        * &#39;inQuint&#39; t^5 curve
+        * &#39;outQuint&#39; t^5 curve on out
+        * &#39;inOutQuint&#39; mix of inQuint and outQuint
+        * &#39;inSine&#39; sin(t) curve
+        * &#39;outSine&#39; sin(t) on out
+        * &#39;inOutSine&#39; mix of inSine and outSine
+        * &#39;inExpo&#39; e^t curve
+        * &#39;outExpo&#39; e^t curve on end
+        * &#39;inOutExpo&#39; mix of inExpo and outExpo
+        * &#39;inElastic&#39; elastic (like bounce, but overshoots) curve
+        * &#39;outElastic&#39; elastic on end
+        * &#39;inOutElastic&#39; mix of inElastic and outElastic
+        * &#39;inBack&#39; overshooting curve
+        * &#39;outBack&#39; overshooting on end
+        * &#39;inOutBack&#39; mix of inBack and outBack
+        * &#39;inBounce&#39; Bouncing curve
+        * &#39;outBounce&#39; Bouncing curve on end
+        * &#39;inOutBounce&#39; mix of inBounce and outBounce
+        */
+<span id='dr-animator-attribute-control'>/**
+</span>        * @attribute {string} control
+        * control points for the bret and bezier motions
+        */
+<span id='dr-animator-attribute-repeat'>/**
+</span>        * @attribute {number} repeat
+        * how many times to repeat the loop (repeat 2 runs something twice)
+        */
+<span id='dr-animator-attribute-bounce'>/**
+</span>        * @attribute {boolean} bounce
+        * turn on bounce looping
+        */
+<span id='dr-animator-attribute-relative'>/**
+</span>        * @attribute {boolean} relative
+        * animation is relative to original value
+        */
+<span id='dr-animator-event-onstart'>/**
+</span>        * @event onstart
+        * Fired when animation starts
+        */
+<span id='dr-animator-event-onend'>/**
+</span>        * @event onend
+        * Fired when animation ends
+        */
+<span id='dr-animator-event-ontick'>/**
+</span>        * @event ontick
+        * Fired every step of the animation
+        */
 <span id='dr-art'>/**
 </span>     * @class dr.art {UI Components}
      * @extends dr.view
