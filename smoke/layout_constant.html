@@ -215,14 +215,10 @@
       layoutBgcolor.update();
       assert.equal('#666666', v1.bgcolor, 'First view should have a bgcolor of #666666.');
       
-      // Unlocking a layout should not update
+      // Unlocking a layout should update
       layoutBgcolor.setAttribute('locked', false);
       assert.equal(true, layoutBgcolor.canUpdate(), 'The canUpdate method should return true.');
       assert.equal(false, layoutBgcolor.locked, 'Layout should now be unlocked.');
-      assert.equal('#666666', v1.bgcolor, 'First view should have a bgcolor of #666666.');
-      
-      // Calling update after unlocking should now work
-      layoutBgcolor.update();
       assert.equal('#00ff00', v1.bgcolor, 'First view should have a bgcolor of #00ff00.');
     </handler>
   </view>

@@ -2859,6 +2859,12 @@ window.dr = do ->
     ###
     update: ->
       # Empty implementation by default
+    
+    set_locked: (v) ->
+      # Update the layout immediately if changing to false
+      if @locked != v and v == false
+        @locked = false
+        @update()
 
   idle = do ->
     requestAnimationFrame = (()->

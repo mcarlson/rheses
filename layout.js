@@ -3584,6 +3584,13 @@
 
       Layout.prototype.update = function() {};
 
+      Layout.prototype.set_locked = function(v) {
+        if (this.locked !== v && v === false) {
+          this.locked = false;
+          return this.update();
+        }
+      };
+
       return Layout;
 
     })(Node);
