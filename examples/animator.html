@@ -1,0 +1,239 @@
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name='apple-mobile-web-app-status-bar-style' content='black-translucent'>	
+		<meta name="format-detection" content="telephone=no">
+		<title>OneJS</title>
+
+		<style>
+			body {height:100%;overflow:hidden;margin:0;-webkit-overflow-scrolling: none;background-color:#000;color:white;}
+		</style>
+		<script src='../lib/animator.js'></script>
+		<script>
+			function reloader(){
+				var rtime = Date.now()
+				var x = new XMLHttpRequest()
+				x.onreadystatechange = function(){
+					if(x.readyState != 4) return
+					if(x.status == 200){
+						return location.reload()
+					}
+					setTimeout(reloader, (Date.now() - rtime) < 1000?500:0)
+				}
+				x.open('GET', "/_reloader_")
+				x.send()
+			}
+
+			function create_canvas(title){
+				var width = 350
+				var height = 75
+
+				var div = document.createElement("div")
+				var span = document.createElement("span")
+				div.style.margin = '2 0 0 0'
+				span.innerHTML = title
+				span.style.width = 150
+				span.style.padding = parseInt(height / 2 - 8)+' 20 0 10'
+				span.style.display = 'inline-block'
+				span.style.verticalAlign = 'top'
+				cvs = document.createElement('canvas')
+				cvs.style.display = 'inline-block'
+				cvs.style.border = '1px solid gray'
+
+				var ctx = cvs.getContext('2d')
+				ctx.width = cvs.width = width
+				ctx.height = cvs.height = height
+				document.body.appendChild(div)
+				div.appendChild(span)
+				div.appendChild(cvs)
+
+				return ctx
+			}
+
+			function plot_curve(title, anim, options){
+				var start = 0
+				if(!options) options = {}
+				if(options.yscale === undefined) options.yscale = 1.0
+
+				var end = options.end || anim.current.last_time
+				var ctx = create_canvas(title)
+
+				ctx.strokeStyle = 'red'
+				ctx.lineWidth = 3
+				ctx.beginPath()
+
+				var t = start, dt = (end - start) / ctx.width
+				for(var i = 0; i < ctx.width; i++, t += dt){
+					var y = anim.timestep(t, anim.first_value)
+					y = ((y - 0.5) * options.yscale + 0.5) * ctx.height
+					ctx.lineTo(i, y)
+					if(options.callback) options.callback(t)
+				}
+				ctx.stroke()
+				if(options.points){
+					ctx.fillStyle = 'green'
+					for(var i = 0; i < options.points.length; i+=2){
+						ctx.fillRect(options.points[i]*ctx.width-5, options.points[i+1]*ctx.height-5, 10,10)
+					}
+				}
+
+				return ctx
+			}
+		
+			function plot_gradient(title, anim, options){
+				var start = 0
+
+				var end = anim.current.last_time
+
+				var ctx = create_canvas(title)
+
+				var t = start, dt = (end - start) / ctx.width
+				for(var i = 0; i < ctx.width; i++, t += dt){
+					var col = anim.timestep(t, anim.first_value)
+					console.log(col)
+					ctx.strokeStyle = col
+					ctx.lineWidth = 3
+					ctx.beginPath()
+					ctx.moveTo(i, 0)
+					ctx.lineTo(i, ctx.height)
+					ctx.stroke()
+				}
+
+				return ctx
+			}
+
+			function plot_points(title, anim, options){
+				var start = 0
+
+				var end = anim.current.last_time
+
+				var ctx = create_canvas(title)
+
+				var t = start, dt = (end - start) / options.steps
+				ctx.fillStyle = 'red'
+				for(var i = 0; i < options.steps; i++, t += dt){
+					var col = anim.timestep(t, anim.first_value)
+					ctx.fillStyle = 'rgb('+parseInt((t/end)*255)+','+parseInt((1-t/end)*255)+',0)'
+					ctx.fillRect(col[0]*ctx.width-5, col[1]*ctx.height-5, 10,10)
+				}
+
+				return ctx
+			}
+			window.onload = function(){
+				var run_tests = -1
+				var tests = [
+					function(){
+						// alright animation groups!
+						//var anim = Animate.createAnimator(0)
+						//var group = Animate.createGroup()
+						// ok so . groups can be serial or parallel.
+						// its like layout. all you need is a 'length'
+						// and groups compute their length from their child anims/groups
+
+					},
+					function(){
+						// alright lets test looping.
+							// lets make a little canvas
+						var anim = Animator.createAnimator(0)
+						anim.play({motion:'linear',  repeat:2, bounce:true, 500:1})
+						plot_curve("Bounce looping", anim, {end:1000})
+					},
+					function(){
+						// lets make a little canvas
+						var anim = Animator.createAnimator(.5)
+						anim.play({motion:'linear', 100:1, 250:0, 300:.65, 350:0.5 })
+						plot_curve("Keyframes", anim)
+					},
+					function(){
+						var anim = Animator.createAnimator()
+						anim.play({motion:'bret', 100:1, control:[1.0,0.01] })
+						plot_curve("Brets motion:", anim)
+					},
+					function(){
+						// reversing the animation
+						var anim = Animator.createAnimator()
+						anim.play({motion:'linear', 100:1})
+						plot_curve("Reversing:", anim, {yscale:1., callback:function(time){
+							// ok so, at time 5 we are going to reverse the playback.
+							if(time>50 && !anim.reversed){
+								anim.reversed = 1
+								anim.reverse()
+							}
+							if(time>75 && anim.reversed == 1){
+								anim.reverse()
+								anim.reversed = 2
+							}
+						}})
+					},
+					function(){
+						var anim = Animator.createAnimator()
+						anim.play({motion:'inOutExpo', 100:1})
+						plot_curve("Reversing with motion:", anim, {yscale:1., callback:function(time){
+							// ok so, at time 5 we are going to reverse the playback.
+							if(time>50 && !anim.reversed){
+								anim.reversed = 1
+								anim.reverse()
+							}
+							if(time>75 && anim.reversed == 1){
+								anim.reverse()
+								anim.reversed = 2
+							}
+						}})
+					},
+					function(){
+						// allright now the play control through the anim controller
+						var anim = Animator.createAnimator()
+						anim.play({motion:'linear', 0:'red',100:'green',300:'blue',400:'yellow'})
+						plot_gradient("Color interpolation:", anim)
+					},
+					function(){
+						// color interp with motion
+						var anim = Animator.createAnimator()
+						anim.play({motion:'inOutExpo', 0:'red',100:'green',300:'blue',400:'yellow'})
+						plot_gradient("Eased colors:", anim)
+					},
+					function(){
+						// allright now the play control through the anim controller
+						var anim = Animator.createAnimator()
+						anim.play({motion:'cubic', 0:[0,0],10:[1,1],20:[0.62,0,2]})
+						plot_points("Array interpolation:", anim, {steps:40})
+					},
+					function(){
+						// allright now the play control through the anim controller
+						var anim = Animator.createAnimator()
+						anim.play({motion:'inOutExpo', 0:[0,0.2],10:[1,1],20:[0.62,0,2]})
+						plot_points("Eased array interpolation:", anim, {steps:140})
+					},
+					function(){
+						var anim = Animator.createAnimator()
+						anim.play({control:[0.2,.8,0.8,.1], 100:1 })
+						plot_curve("Bezier:", anim, {points: anim.current.control.points})
+					},
+					function(){
+						// lets update the track
+						var anim = Animator.createAnimator()
+						anim.play({motion:'inOutExpo', 100:1})
+						plot_curve("Updating a track midflight (for editing):", anim, {yscale:1., callback:function(time){
+							// ok so, at time 5 we are going to reverse the playback.
+							if(time>50 && !anim.updated){
+								anim.updated = true
+								anim.update({motion:'linear',100:.5})
+							}
+						}})
+					},
+				]
+				
+				if(run_tests == -1) for(var i = 0;i<tests.length;i++){
+					tests[i]()
+				}
+				else tests[run_tests]()
+
+				if(location.href.indexOf('file:')!=0) reloader()
+			}	
+		</script>
+	</head>
+	<body>
+	</body>
+</html>
