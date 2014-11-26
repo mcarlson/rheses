@@ -2,6 +2,7 @@ var fs = require('fs');
 
 var timeout = 60;
 var path = "/smoke/";
+var exitCode = 0;
 
 var system = require('system');
 var args = system.args;
@@ -60,6 +61,7 @@ var runTest = function (file, callback) {
     }
     console.error(msgStack.join('\n'));
     updateTimer();
+    exitCode = 1;
   };
   page.onInitialized = function () {
     // this is executed 'after the web page is created but before a URL is loaded.
@@ -91,7 +93,7 @@ var loadNext = function() {
     console.log("RUNNING TEST: ", file)
     runTest(file, loadNext);
   } else {
-    phantom.exit();
+    phantom.exit(exitCode);
   }
 }
 

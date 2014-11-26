@@ -8,7 +8,7 @@ describe 'view', :type => :feature, :js => true do
   end
 
   it 'height and width include padding (box-sizing should be border-box)' do
-    expect(find("#v1").native.css_value('box-sizing')).to eq 'border-box'
+    expect(page.evaluate_script("$('#v1').css('box-sizing')")).to eq 'border-box'
   end
   
   it 'responds to set attribute changes at runtime' do
