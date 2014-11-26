@@ -26,13 +26,13 @@ SOFTWARE. -->
     * Animator class that can animate keys on other objects
     *
     *     @example nested
-    *     <bitmap id="koala1" x="100" y="0" width="200" height="200" src="./shoarma.jpg">
-    *       <animator start='500' attribute="x" to="300" duration="1000" motion="outBounce" repeat="1">
+    *     <view bgcolor="red" x="0" y="0" width="100" height="100">
+    *       <animator start="100" attribute="x" to="200" duration="1000" motion="outBounce" repeat="1">
     *         <handler event="onend">
     *           console.log('it ended')
     *         </handler>
     *       </animator>
-    *     </bitmap>
+    *     </view>
     */-->
     <class name="animator" extends='node' scriptincludes="/lib/animator.js">
       <!--/**
