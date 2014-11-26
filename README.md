@@ -40,7 +40,10 @@ The API docs are built with [https://github.com/senchalabs/jsduck](). Install js
 
     gem install bundler
     bundle install
-    
+
+If you are on mac 10.9.x and you get an error concerning nokogiri, try this
+    sudo gem install nokogiri -- --with-iconv-dir=/usr/lib
+
 If you are using rvm or similar your gems will be installed in a gemset called 'dreem'.
 
 With jsduck installed run:
