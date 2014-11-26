@@ -8,7 +8,7 @@
       font-size: 40px;
       margin: 0px;
       padding: 0px;
-    }
+    } 
     input {
       font-family: 'Helvetica';
       font-size: 14px;
@@ -26,26 +26,28 @@
 <body>
   <view> 
     <bitmap id="koala1" x="100" y="0" width="200" height="200" src="./shoarma.jpg">
-      <animate attribute="x" to="300" duration="1000" motion="outBounce" repeat="1">
+      <animator start='500' attribute="x" to="300" duration="1000" motion="outBounce" repeat="1">
         <handler event="onend">
           chai.assert.equal(this.parent.x, 300)
         </handler>
-      </animate>
+      </animator>
     </bitmap>
 
-    <animate target="koala2" attribute="x" to="300" duration="1000" control='0.01,1.0'  motion="bret" repeat="-2">
+    <animator target="koala2" attribute="x" to="300" duration="1000" control='0.01,1.0'  motion="bret" repeat="2" bounce="true">
+      <handler event='ontick'>
+      </handler>
       <handler event="onend">
         chai.assert.equal(koala2.x, 100)
-      </handler>
-    </animate>
+      </handler> 
+    </animator>
     <bitmap id="koala2" x="100" y="200" width="200" height="200" src="./shoarma.jpg"></bitmap>
     
     <bitmap x="100" y="400" width="200" height="200" src="./shoarma.jpg">
-      <animate attribute="x" to="300" duration="1000" motion="linear" repeat="-2">
+      <animator attribute="x" to="300" duration="1000" motion="linear" repeat="2" bounce="true">
         <handler event="onend">
           chai.assert.equal(this.parent.x, 100)
         </handler>
-      </animate>
+      </animator>
     </bitmap>
 
     <handler event="oninit">
