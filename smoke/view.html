@@ -226,11 +226,11 @@
       </view>
 
       <handler event="oninit">
-          assert.equal(this.topView.sprite.el.style['transform'],               'translate3d(0px, 0px, 1px)')
-          assert.equal(this.rotateViewDeg.sprite.el.style['transform'],         'rotate3d(0, 0, 1, 45deg)')
-          assert.equal(this.xScaleView.sprite.el.style['transform'],            'scale3d(0.1, 1, 1)')
-          assert.equal(this.yScaleView.sprite.el.style['transform'],            'scale3d(1, 0.2, 1)')
-          assert.equal(this.scaleRotateBottomView.sprite.el.style['transform'], 'translate3d(0px, 0px, -10px) scale3d(10.5, 10.4, 1) rotate3d(0, 0, 1, -115deg)')
+          assert.equal(this.topView.sprite.el.style['transform'],               'translate3d(0, 0, 1px)')
+          assert.equal(this.rotateViewDeg.sprite.el.style['transform'],         ' rotate3d(0, 0, 1.0, 45deg)')
+          assert.equal(this.xScaleView.sprite.el.style['transform'],            ' scale3d(0.1, 1, 1.0)')
+          assert.equal(this.yScaleView.sprite.el.style['transform'],            ' scale3d(1, 0.2, 1.0)')
+          assert.equal(this.scaleRotateBottomView.sprite.el.style['transform'], 'translate3d(0, 0, -10px) scale3d(10.5, 10.4, 1.0) rotate3d(0, 0, 1.0, -115deg)')
       </handler>
   </view>
 
