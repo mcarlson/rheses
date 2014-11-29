@@ -368,6 +368,68 @@
                * Fired when there is an error loading the bitmap
                */
 /**
+ * @class dr.bitmapbutton {UI Components}
+ * @extends dr.view
+ * A button that may be configured with three images for the default states (default, over, and down), or can be configured
+ * with custom states, and custom interactive behavior.
+ *
+ * You can configure the default, over, and down image explicitly with the defaultsrc, oversrc, and downsrc attributes
+ *
+ *     @example
+ *     <bitmapbutton width="100" height="100" defaultsrc="../api-examples-resources/default.png" oversrc="../api-examples-resources/over.png" downsrc="../api-examples-resources/down.png"></bitmapbutton>
+ *
+ * Or you can set the images using the srcs attribute
+ *
+ *     @example
+ *     <bitmapbutton width="100" height="100" srcs='["../api-examples-resources/default.png", "../api-examples-resources/over.png", "../api-examples-resources/down.png"]'></bitmapbutton>
+ *
+ * Setting the interactive attribute to false disables the default hover and down state changes. This enables you to set your own custom state change behavior.
+ *
+ *     @example
+ *     <bitmapbutton width="100" height="100" interactive="false" srcs='["../api-examples-resources/default.png", "../api-examples-resources/over.png", "../api-examples-resources/down.png"]'></bitmapbutton>
+ *
+ * You can configure custom states like so, which will set the interactive flag to false, and then add your own custom state changes
+ *
+ *     @example
+ *     <bitmapbutton width="100" height="100" states='["one", "two", "three", "four"]' srcs='["../api-examples-resources/default.png", "../api-examples-resources/over.png", "../api-examples-resources/down.png", "../api-examples-resources/shasta.jpg"]'>
+ *       <attribute name="statetracker" type="number" value="0"></attribute>
+ *       <handler event="onclick">
+ *         var newStateIndex = this.statetracker + 1;
+ *         if (newStateIndex == 4) newStateIndex = 0;
+ *         this.setAttribute('statetracker', newStateIndex)
+ *         this.setAttribute('state', this.states[newStateIndex])
+ *       </handler>
+ *     </bitmapbutton>
+ */
+/**
+    * @attribute {String} [state="default"]
+    * The currently active state.
+    */
+/**
+    * @attribute {String} [states="default, over, down"]
+    * The states that have been configured for this button. If left as the default states, default, over, and down states are applied automatically based on mouse/touch interactions.
+    */
+/**
+    * @attribute {String} [srcs=""]
+    * Use this to configure the image sources for the states (in order of default, over, down). 
+    */
+/**
+    * @attribute {String} [defaultsrc=""]
+    * The source of the default image. 
+    */
+/**
+    * @attribute {String} [oversrc=""]
+    * The source of the over image. 
+    */
+/**
+    * @attribute {String} [downsrc=""]
+    * The source of the down image. 
+    */
+/**
+    * @attribute {Boolean} [interactive="true"]
+    * When true default, over, and down states are applied automatically based on mouse/touch interactions. Set to false to disable the default behavior.
+    */
+/**
       * @class dr.boundslayout {Deprecated}
       * @extends dr.layout
       * boundslayout has been deprecated, use dr.shrinktofit instead
