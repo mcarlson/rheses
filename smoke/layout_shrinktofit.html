@@ -1,0 +1,148 @@
+<html>
+<head>
+  <title>dr33m | shrinktofit Smoke Tests</title>
+  <link rel="stylesheet" href="../examples/css/example.css"/>
+  <script type="text/javascript" src="../lib/jquery-1.9.1.js"></script>
+  <script type="text/javascript" src="../lib/acorn.js"></script>
+  <script type="text/javascript" src="../lib/coffee-script.js"></script>
+  <script type="text/javascript" src="../layout.js"></script>
+  <script type="text/javascript" src="../lib/chai.js"></script>
+  <script>
+    var assert = chai.assert
+  </script>
+</head>
+<body>
+  <view width="100%" height="100%" bgcolor="#cccccc">
+    <class name="item" width="10" height="10" bgcolor="#666666"></class>
+    
+    <view name="container" padding="2" border="1" bordercolor="black" bgcolor="#999999">
+      <shrinktofit name="layout" axis="both" xpad="5" ypad="4"></shrinktofit>
+      
+      <item name="v1" x="5" y="5" width="10" height="10"></item>
+      <item name="v2" x="50" y="20" width="20" height="20"></item>
+      <item name="v3" x="10" y="30" width="30" height="30"></item>
+    </view>
+    
+    <!-- Verify percent sizes combined with shrinktofit don't create a 
+         catastrophic error. -->
+    <view name="container2" y="70" width="50" height="50" bgcolor="#999999">
+      <shrinktofit name="layout" axis="both"></shrinktofit>
+      <item name="v1" width="100%" height="100%"></item>
+    </view>
+    
+    <!-- This is a valid combination of percent sizes combined with shrinktofit. -->
+    <view name="container3" y="130" padding="2" border="1" bordercolor="black" bgcolor="#999999">
+      <shrinktofit name="layout" axis="both" xpad="5" ypad="4"></shrinktofit>
+      
+      <item name="v1" width="100%" height="100%" ignorelayout="true"></item>
+      <item name="v2" x="25" y="25" width="10" height="10" bgcolor="#00ff00"></item>
+    </view>
+    
+    <handler event="oninit">
+      var container = this.container,
+          layout = container.layout,
+          v1 = container.v1,
+          v2 = container.v2,
+          v3 = container.v3;
+      
+      // Verify collapseparent works
+      assert.equal(70 + 6 + 5, container.width, 'Container should have a width of 81.');
+      assert.equal(60 + 6 + 4, container.height, 'Container should have a height of 70.');
+      
+      // Move a view
+      v1.setAttribute('x', 100);
+      assert.equal(110 + 6 + 5, container.width, 'Container should have a width of 121.');
+      assert.equal(60 + 6 + 4, container.height, 'Container should have a height of 70.');
+      
+      // Resize a view
+      v3.setAttribute('height', 40);
+      assert.equal(110 + 6 + 5, container.width, 'Container should have a width of 121.');
+      assert.equal(70 + 6 + 4, container.height, 'Container should have a height of 80.');
+      
+      // Add a view
+      var v4 = new dr.item(null, {parent:container, name:'v4', x:5, y:100, width:20, height:10});
+      assert.equal(110 + 6 + 5, container.width, 'Container should have a width of 121.');
+      assert.equal(110 + 6 + 4, container.height, 'Container should have a height of 120.');
+      
+      // Destroy a view
+      v1.destroy();
+      assert.equal(70 + 6 + 5, container.width, 'Container should have a width of 81.');
+      assert.equal(110 + 6 + 4, container.height, 'Container should have a height of 120.');
+      
+      // Hide a view
+      v4.setAttribute('visible', false);
+      assert.equal(70 + 6 + 5, container.width, 'Container should have a width of 81.');
+      assert.equal(70 + 6 + 4, container.height, 'Container should have a height of 80.');
+      
+      // Change xpad
+      layout.setAttribute('xpad', 6);
+      assert.equal(70 + 6 + 6, container.width, 'Container should have a width of 82.');
+      assert.equal(70 + 6 + 4, container.height, 'Container should have a height of 80.');
+      
+      // Change ypad
+      layout.setAttribute('ypad', 3);
+      assert.equal(70 + 6 + 6, container.width, 'Container should have a width of 82.');
+      assert.equal(70 + 6 + 3, container.height, 'Container should have a height of 79.');
+      
+      // Change axis to x
+      layout.setAttribute('axis', 'x');
+      assert.equal(70 + 6 + 6, container.width, 'Container should have a width of 82.');
+      assert.equal(70 + 6 + 3, container.height, 'Container should have a height of 79.');
+      v2.setAttribute('width', 10);
+      v3.setAttribute('y', 10);
+      assert.equal(60 + 6 + 6, container.width, 'Container should have a width of 72.');
+      assert.equal(70 + 6 + 3, container.height, 'Container should still have a height of 79.');
+      
+      // Change axis to y
+      layout.setAttribute('axis', 'y');
+      assert.equal(60 + 6 + 6, container.width, 'Container should have a width of 72.');
+      assert.equal(50 + 6 + 3, container.height, 'Container should still have a height of 59.');
+      
+      // Check percent combined with shrinktofit
+      container = this.container2;
+      layout = container.layout;
+      v1 = container.v1;
+      
+      // The behavior for this is very dependent on the order of events that
+      // occur before the event loop is caught. The test for a value of '50'
+      // is really to verify that an error did not occur.
+      assert.equal(50, container.width, 'Container should still have the hard coded width.');
+      assert.equal(50, container.height, 'Container should still have the hard coded height.');
+      assert.equal(50, v1.width, 'View should have been sized once to the hard coded container width.');
+      assert.equal(50, v1.height, 'View should have been sized once to the hard coded container height.');
+      
+      // Check valid case of percent combined with shrinktofit
+      container = this.container3;
+      layout = container.layout;
+      v1 = container.v1;
+      v2 = container.v2;
+      
+      assert.equal(35 + 6 + 5, container.width, 'Container should have a width of 46.');
+      assert.equal(35 + 6 + 4, container.height, 'Container should have a height of 45.');
+      assert.equal(container.innerwidth, v1.width, 'The percent sized view have the same width as the container innerwidth.');
+      assert.equal(container.innerheight, v1.height, 'The percent sized view have the same height as the container innerheight.');
+    </handler>
+  </view>
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+</body>
+</html>
