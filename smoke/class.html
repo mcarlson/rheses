@@ -73,6 +73,19 @@
   <!-- Loading classes from server -->
   <!-- Can load a class from the components directory. Will throw an error if broken -->
   <checkbutton text="Check"></checkbutton>
+  
+  <!-- Classes defined inline only fire oninit once -->
+  <class name="onlyinitonce">
+    <handler event="oninit">
+      window.inlineClassInitCount = !!window.inlineClassInitCount ? window.inlineClassInitCount+1 : 1
+
+      window.setTimeout(function() {
+        assert.equal(1, window.inlineClassInitCount, 'oninit handler should only fire once')
+      }, 1);
+    </handler>
+  </class>
+  
+  <onlyinitonce></onlyinitonce>
 
 
 </view>
