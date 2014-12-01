@@ -11,6 +11,7 @@
      */-->
   <class name="logger" extends="node">
     <method name="setAttribute" args="name, value">
+      this.super(arguments);
       console.log('setAttribute', name, value, 'on', this)
     </method>
   </class>

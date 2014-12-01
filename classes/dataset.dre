@@ -101,6 +101,8 @@ SOFTWARE. -->
       </handler>
       <handler event="onurl" method="loadURL"></handler>
       <method name="loadURL" args="url">
+        @super(arguments);
+
         # console.log('loading url', url)
         type = 'json'
         if (url.indexOf('callback=?') != -1)
@@ -116,6 +118,8 @@ SOFTWARE. -->
         );
       </method>
       <method name="updateData" args="path, data">
+        @super(arguments);
+
         # find the scope and property to be updated
         re = /\/([^\/]+)$/
         property = path.match(re)

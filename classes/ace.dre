@@ -141,6 +141,7 @@ SOFTWARE. -->
       </handler>
 
       <method name="handleChange">
+        this.super(arguments);
         this.setAttribute('text', this.editor.getValue());
         //console.log("handleChange", this.text);
         if (this.pausedelay > 0) {
@@ -162,6 +163,7 @@ SOFTWARE. -->
       </handler>
 
       <method name="handleResize">
+        this.super(arguments);
         if (this.editor) {
           this.acediv.style.width = this.width;
           this.acediv.style.height = this.height;

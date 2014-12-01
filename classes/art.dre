@@ -162,7 +162,7 @@ SOFTWARE. -->
         @animate_path(@path)
       </handler>
 
-      <setter name="src" args="src" invokesuper="inside">
+      <setter name="src" args="src">
         return if !src
         return if @src == src
         @src = src
@@ -180,6 +180,7 @@ SOFTWARE. -->
       </handler>
 
       <method name="setAttribute" args="name, value">
+        @super(arguments);
         # If debug=true, show attributes that pass through to the svg
         debug = window.location.search.indexOf('debug') > 0
         if debug
@@ -190,6 +191,7 @@ SOFTWARE. -->
 
 
       <method name="show_path" args="name">
+        @super(arguments);
         # Retrieve an svg path given its name, or index
         path = @get_path(name)
         if path and path.length > 0
@@ -200,6 +202,7 @@ SOFTWARE. -->
 
 
       <method name="get_path_frame" args="name, params">
+        @super(arguments);
         # Construct a start or stop animation state using the specified
         # path, and optional other animation parameters
 
@@ -215,6 +218,8 @@ SOFTWARE. -->
       </method>
 
       <method name="animate_path" args="name, params">
+        @super(arguments);
+
         # Animate the path, as well as specified params
         return @show_path(name) if !@snap
 
@@ -239,6 +244,8 @@ SOFTWARE. -->
       </method>
 
       <method name="show_frame" args="start_path, end_path, frame, start_params, end_params">
+        @super(arguments);
+
         # Called when animationframe changes. This can also be used to display
         # a frame between any two keyframes.
         frame = 0 if frame < 0
@@ -270,6 +277,8 @@ SOFTWARE. -->
 
 
       <method name="createDOM">
+        @super(arguments);
+
         # Create a div to handle resizing of the graphics
         return if @container      
 
@@ -280,6 +289,8 @@ SOFTWARE. -->
       </method>
 
       <method name="createSnap">
+        @super(arguments);
+
         return if @snap
         @snap = Snap()
 
@@ -313,6 +324,8 @@ SOFTWARE. -->
 
 
       <method name="hide_art", args="fixed">
+        @super(arguments);
+
         # Hide either fixed art (fixed=true or missing) or snap (false)
         fixed = true if not fixed?
         $(@container).hide() if @container and fixed
@@ -320,6 +333,7 @@ SOFTWARE. -->
       </method>
 
       <method name="get_path" args="name">
+        @super(arguments);
         # Read the path information from the svg using id and then index
         return null if !@container
 
@@ -338,6 +352,8 @@ SOFTWARE. -->
       </method>
 
       <method name="get_paths">
+        @super(arguments);
+
         # Get every path specified in the svg
         dom = @container
         return null if !dom
@@ -347,6 +363,8 @@ SOFTWARE. -->
       </method>
 
       <method name="get_bounding_box">
+        @super(arguments);
+
         # Get the bounding box of all the paths
         paths = @get_paths()
         for path, index in paths
@@ -375,6 +393,8 @@ SOFTWARE. -->
       <handler event="onready" method="normalizeArt"></handler>
 
       <method name="normalizeArt">
+        @super(arguments);
+
         return unless @container
 
         # Normalize the svg by setting width and height to 100%, and
@@ -418,6 +438,8 @@ SOFTWARE. -->
       </method>
 
       <method name="resizeArt">
+        @super(arguments);
+
         # Resize the art, if needed, for changes in container size
 
         # Apply stretches to the static svg
@@ -440,6 +462,8 @@ SOFTWARE. -->
       </method>
 
       <method name="loadInline">
+        @super(arguments);
+
         # Load inline svg
         @createDOM()
 
@@ -462,6 +486,8 @@ SOFTWARE. -->
       </method>
 
       <method name="loadFromFile">
+        @super(arguments);
+
         # Load an svg file
         @createDOM()
 

@@ -65,7 +65,7 @@ hackstyle = do ->
 window.dr = do ->
   # Common noop function
   noop = () ->
-  
+
   # from http://coffeescriptcookbook.com/chapters/classes_and_objects/mixins
   mixOf = (base, mixins...) ->
     class Mixed extends base
@@ -713,45 +713,53 @@ window.dr = do ->
 
     _installMethod = (scope, methodname, method, allocation, invokeSuper) ->
       # TODO: add class methods when allocation == 'class'
+
+      if invokeSuper
+        console.warn('invokeSuper has been deprecated and will be removed soon, the default is now "inside".  Use @super(arguments) to invoke the overridden implementation')
+
       if methodname of scope
         # Cheesy override
-        supr = scope[methodname]
-        
+        supr = scope[methodname] || noop
+
         # console.log 'applying overridden method', methodname, arguments
         if invokeSuper is 'after'
           scope[methodname] = ->
             retval = method.apply(scope, arguments)
             supr.apply(scope, arguments)
             return retval
-        else if invokeSuper is 'inside'
+        else if invokeSuper is 'before'
+          scope[methodname] = ->
+            supr.apply(scope, arguments)
+            retval = method.apply(scope, arguments)
+            return retval
+        else # inside (default)
           scope[methodname] = ->
             prevValue = scope['super'];
             prevOwn = scope.hasOwnProperty('super');
-            scope['super'] = (args) -> supr.apply(scope, args)
+            scope['super'] = (args) -> supr.apply(scope, args);
             retval = method.apply(scope, arguments)
             if prevOwn
               scope['super'] = prevValue;
             else
               delete scope['super'];
             return retval
-        else # before (default)
-          scope[methodname] = ->
-            supr.apply(scope, arguments)
-            retval = method.apply(scope, arguments)
-            return retval
         # console.log('overrode method', methodname, scope, supr, meth)
       else
         # Provide error protection when calling super where no super method
         # exists.
-        if invokeSuper is 'inside'
-          supr = scope[methodname]
+        if invokeSuper == 'after' || invokeSuper == 'before'
+          scope[methodname] = method
+        else
           scope[methodname] = ->
+            prevValue = scope['super'];
+            prevOwn = scope.hasOwnProperty('super');
             scope['super'] = noop
             retval = method.apply(scope, arguments)
-            delete scope['super'];
+            if prevOwn
+              scope['super'] = prevValue;
+            else
+              delete scope['super'];
             return retval
-        else
-          scope[methodname] = method
       # console.log('installed method', methodname, scope, scope[methodname])
 
     # sets a constraint, binding it immediately unless skipbinding is true.
@@ -1465,7 +1473,7 @@ window.dr = do ->
       existing = @[name]
       super(name, value, true, skipConstraintSetup, skipconstraintunregistration)
       value = @[name]
-      
+
       if not (skipstyle or name of ignoredAttributes or name of hiddenAttributes or existing == value)
         # console.log 'setting style', name, value, @
         @sprite.setStyle(name, value)
@@ -2525,7 +2533,7 @@ window.dr = do ->
     set_applied: (applied) ->
       if @parent and @applied != applied
         @applied = applied
-        
+
         # console.log('set_applied', applied, @, @parent)
         if applied
           @parent.learn @
@@ -2539,7 +2547,7 @@ window.dr = do ->
           if @stateattributes.$handlers
             # console.log('removing handlers', @stateattributes.$handlers)
             @parent.removeHandlers(@stateattributes.$handlers, @parent.$tagname, @parent)
-  
+
         parentname = @parent.$tagname
         # Hack to set attributes for now - not needed when using signals
         for name of @applyattributes

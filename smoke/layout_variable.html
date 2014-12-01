@@ -21,13 +21,13 @@
           this.beforeCallCount = 0;
           this.afterCallCount = 0;
         </handler>
-        <method name="doBeforeUpdate" invokesuper="inside">
+        <method name="doBeforeUpdate">
           this.beforeCallCount++;
         </method>
-        <method name="updateSubview" args="count, view, attribute, value" invokesuper="inside">
+        <method name="updateSubview" args="count, view, attribute, value">
           return this.super(arguments) + count + view.width;
         </method>
-        <method name="doAfterUpdate" invokesuper="inside">
+        <method name="doAfterUpdate">
           this.afterCallCount++;
         </method>
         <method name="updateParent" args="attribute, value">
@@ -47,10 +47,10 @@
       <item name="v6" visible="false"></item>
       
       <variablelayout name="layoutY" attribute="y" value="5" collapseparent="true">
-        <method name="updateSubview" args="count, view, attribute, value" invokesuper="inside">
+        <method name="updateSubview" args="count, view, attribute, value">
           return this.super(arguments) + count + view.height;
         </method>
-        <method name="skipSubview" args="view" invokesuper="inside">
+        <method name="skipSubview" args="view">
           return 5 >= view.height || this.super(arguments)
         </method>
         <method name="updateParent" args="attribute, value">
