@@ -40,10 +40,11 @@ SOFTWARE. -->
         * The start time of the animation
         */-->
       <attribute name="start" value="0" type="number"/>
-      <setter name="start" args="start">
+      <setter name="start" args="start" invokesuper="inside">
         if(!this.track)this.track = {}
         this.track.start = start
-        if(this.animator) this.animator.update(this.track)      
+        if(this.animator) this.animator.update(this.track)
+        return start
       </setter>
 
       <!--/**
@@ -51,12 +52,13 @@ SOFTWARE. -->
         * The value to start the animation from, if not specified is read from the target attribute
         */-->
       <attribute name="from" value="" type="string"/>
-      <setter name="from" args="from">
+      <setter name="from" args="from" invokesuper="inside">
         if(!this.track)this.track = {}
         if(this.animator){
           this.track[0] = this.from === ""? this.target_obj[this.attribute]: this.from
           this.animator.update(this.track)
         }
+        return from
       </setter>
 
       <!--/**
@@ -64,25 +66,27 @@ SOFTWARE. -->
         * The value to animate to. Is identical to specifying a <keyframe at='{duration}'>{to}</keyframe>
         */-->
       <attribute name="to" value="0" type="string"/>
-      <setter name="to" args="to">
+      <setter name="to" args="to" invokesuper="inside">
         if(!this.track)this.track = {}
         if(this.duration !== undefined){
           this.track[this.duration] = to
         }
         if(this.animator) this.animator.update(this.track)
+        return to
       </setter>
 
       <!--/**
         * @attribute {number} duration
         * The duration of the animation. Is identical to specifying a <keyframe at='{duration}'>{to}</keyframe>
         */-->
-      <attribute name="duration" value = "1000" type = "number"/>
-      <setter name="duration" args="duration">
+      <attribute name="duration" value="1000" type="number"/>
+      <setter name="duration" args="duration" invokesuper="inside">
         if(!this.track)this.track = {}
         if(this.to !== undefined){
           this.track[duration] = this.to
         }
         if(this.animator) this.animator.update(this.track)
+        return duration
       </setter>
 
       <!--/**
@@ -95,7 +99,7 @@ SOFTWARE. -->
         * Name of the target object id, not needed if animator is used as a child tag in the target node
         */-->
       <attribute name="target" value="" type="string"/>
-      <setter name="target" args="target">
+      <setter name="target" args="target" invokesuper="inside">
         if(this.animator){
           if(!target){
             this.target_obj = this.parent
@@ -108,13 +112,14 @@ SOFTWARE. -->
             if(!target) throw new Error('Animation target does not have a $view '+this.target)
           }
         }
+        return target
       </setter>
       <!--/**
         * @attribute {boolean} paused
         * wether or not the animator is paused
         */-->
       <attribute name="paused" value="false" type="boolean"/>
-      <setter name="paused" args="paused">
+      <setter name="paused" args="paused" invokesuper="inside">
         if(!this.track) this.track = {}
         this.track.paused = paused // to make sure it starts paused
         if(paused){
@@ -123,7 +128,8 @@ SOFTWARE. -->
         else{
           if(this.animator)this.animator.resume()
         }
-      </setter>      
+        return paused
+      </setter>
       <!--/** 
         * @attribute {string} motion
         * name of the motion the animation is following
@@ -169,22 +175,24 @@ SOFTWARE. -->
         * 'inOutBounce' mix of inBounce and outBounce
         */-->
       <attribute name="motion" value="bret" type="string"/>
-      <setter name="motion" args="motion">
+      <setter name="motion" args="motion" invokesuper="inside">
         if(!this.track)this.track = {}
         this.track.motion = motion
         if(this.animator) this.animator.update(this.track)
+        return motion
       </setter>
       <!--/**
         * @attribute {string} control
         * control points for the bret and bezier motions
         */-->
       <attribute name="control" value="" type="string"/>
-      <setter name="control" args="control">
+      <setter name="control" args="control" invokesuper="inside">
         if(!this.track)this.track = {}
         this.track.control = control.split(',').map(function(v){
           return parseFloat(v)
         })
         if(this.animator) this.animator.update(this.track)
+        return control
       </setter>
 
       <!--/**
@@ -192,10 +200,11 @@ SOFTWARE. -->
         * how many times to repeat the loop (repeat 2 runs something twice)
         */-->
       <attribute name="repeat" value="1" type="number"/>
-      <setter name="repeat" args="repeat">
+      <setter name="repeat" args="repeat" invokesuper="inside">
         if(!this.track)this.track = {}
         this.track.repeat = repeat
         if(this.animator) this.animator.update(this.track)
+        return repeat
       </setter>
 
       <!--/**
@@ -203,10 +212,11 @@ SOFTWARE. -->
         * turn on bounce looping
         */-->
       <attribute name="bounce" value="false" type="boolean"/>
-      <setter name="bounce" args="bounce">
+      <setter name="bounce" args="bounce" invokesuper="inside">
         if(!this.track)this.track = {}
         this.track.bounce = bounce
         if(this.animator) this.animator.update(this.track)
+        return bounce
       </setter>
       
       <!--/**

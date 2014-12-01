@@ -47,45 +47,49 @@ SOFTWARE. -->
         * If true, the audio is done loading
         */-->
       <attribute name="loaded" value="false" type="boolean"></attribute>
-      <setter name="loaded" args="loaded">
+      <setter name="loaded" args="loaded" invokesuper="inside">
         if (loaded) {
           if (this.playing && ! this.paused) {
             this.setAttribute('playing', true);
           }
         }
+        return loaded
       </setter>
       <!--/**
         * @attribute {Boolean} playing
         * If true, the audio is playing.
         */-->
       <attribute name="playing" value="false" type="boolean"></attribute>
-      <setter name="playing" args="playing">
+      <setter name="playing" args="playing" invokesuper="inside">
         if (playing) {
           this.play()
         } else {
           this.stop()
         }
+        return playing
       </setter>
       <!--/**
         * @attribute {Boolean} paused
         * If true, the audio is paused.
         */-->
       <attribute name="paused" value="false" type="boolean"></attribute>
-      <setter name="paused" args="paused">
+      <setter name="paused" args="paused" invokesuper="inside">
         if (paused) {
           this.pause()
         } else {
           this.setAttribute('playing', true)
         }
+        return paused
       </setter>
       <!--/**
         * @attribute {Boolean} loop
         * If true, the audio will play continuously.
         */-->
       <attribute name="loop" value="false" type="boolean"></attribute>
-      <setter name="loop" args="loop">
+      <setter name="loop" args="loop" invokesuper="inside">
         if (this.source)
           this.source.loop = loop;
+        return loop
       </setter>
       <!--/**
         * @attribute {Number} time

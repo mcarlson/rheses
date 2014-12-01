@@ -145,10 +145,11 @@ SOFTWARE. -->
         @animate_path(@path)
       </handler>
 
-      <setter name="src" args="src">
+      <setter name="src" args="src" invokesuper="inside">
         return if !src
         return if @src == src
         @src = src
+        return src
       </setter>
 
       <handler event="oninit">

@@ -58,14 +58,16 @@ SOFTWARE. -->
       when 'top', 'middle', 'bottom'
         @measureAttrName = 'height'
         @setterAttrName = 'y'
+    return align
   </setter>
   <handler event="onalign">
     @startMonitoringAllSubviews()
     @update()
   </handler>
   
-  <setter name="collapseparent" args="collapseparent">
+  <setter name="collapseparent" args="collapseparent" invokesuper="inside">
     @stopMonitoringAllSubviews()
+    return collapseparent
   </setter>
   <handler event="oncollapseparent">
     @startMonitoringAllSubviews()

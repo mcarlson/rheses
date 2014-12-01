@@ -183,37 +183,40 @@ SOFTWARE. -->
         * The datapath expression to be replicated.
         * See [https://github.com/flitbit/json-path](https://github.com/flitbit/json-path) for details.
         */-->
-      <setter name="datapath" args="datapath">
-        return unless datapath
-        # console.log('evaluating datapath', datapath)
-        re = /^\$([^\/]+)/
-        match = datapath.match(re)
-        if match and match[1]
-          # absolute datapath
-          @setAttribute('_dataset', match[1])
-          datapath = datapath.replace(re, '')
-
-        @datapath = datapath
-        @sendEvent('datapath', datapath)
-
-        @parsedpath = JsonPath.parseSelector(datapath)
-        # console.log('evaluated datapath', datapath, @parsedpath)
+      <setter name="datapath" args="datapath" invokesuper="inside">
+        orig = datapath
+        if datapath
+          # console.log('evaluating datapath', datapath)
+          re = /^\$([^\/]+)/
+          match = datapath.match(re)
+          if match and match[1]
+            # absolute datapath
+            @setAttribute('_dataset', match[1])
+            datapath = datapath.replace(re, '')
+  
+          @datapath = datapath
+          @sendEvent('datapath', datapath)
+  
+          @parsedpath = JsonPath.parseSelector(datapath)
+          # console.log('evaluated datapath', datapath, @parsedpath)
+        return orig
       </setter>
       <!-- TODO: why can't this attribute/setter be named _dataset? -->
 <!--       TODO: attribute value is overwritten by "" later!!!
       <attribute name="_dataset" value="" type="string"></attribute> -->
-      <setter name="_dataset" args="dataset">
-        return unless dataset
-        @dataset = dr.datasets[dataset]
-        @_dataset = dataset
-
-        # console.log('listening to dataset', dataset, dr.datasets, @dataset, @_dataset)
-        @listenTo(@dataset, 'data', (data) =>
-          # console.log('callback', @, data)
-          @data = data
-          @applyData()
-        )
-        @sendEvent('dataset', @dataset)
+      <setter name="_dataset" args="dataset" invokesuper="inside">
+        if dataset
+          @dataset = dr.datasets[dataset]
+          @_dataset = dataset
+  
+          # console.log('listening to dataset', dataset, dr.datasets, @dataset, @_dataset)
+          @listenTo(@dataset, 'data', (data) =>
+            # console.log('callback', @, data)
+            @data = data
+            @applyData()
+          )
+          @sendEvent('dataset', @dataset)
+        return dataset
       </setter>
       <!-- TODO: make this a relative datapath -->
       <!--/**
@@ -231,12 +234,13 @@ SOFTWARE. -->
         * If defined, data will be filtered against a [regular expression](https://developer.mozilla.org/en/docs/Web/JavaScript/Guide/Regular_Expressions). 
         */-->
       <attribute name="filterexpression" value="" type="string"></attribute>
-      <setter name="filterexpression" args="regex">
+      <setter name="filterexpression" args="regex" invokesuper="inside">
         _filterexpression = new RegExp(regex)
         # console.log('filtering on', regex, _filterexpression)
         @_filterexpressionfunc = (value) ->
           return (value + '').match(_filterexpression) if (value)
         @doReplication()
+        return regex
       </setter>
       <attribute name="lazycount" value="Infinity" type="number"></attribute>
       <handler event="onsortfield">

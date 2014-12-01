@@ -35,6 +35,7 @@ SOFTWARE. -->
 <class name="resizelayout" extends="spacedlayout" type="coffee">
   <setter name="collapseparent" args="collapseparent" invokesuper="inside">
     # collapseparent attribute is unused in resizelayout.
+    return collapseparent
   </setter>
   
   <method name="stopMonitoringAllSubviews" args="view" invokesuper="inside">
