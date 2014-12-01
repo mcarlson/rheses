@@ -2269,6 +2269,7 @@ window.dr = do ->
                 # console.log 'child not initted', child, parent
                 setTimeout(checkChildren, 0)
                 return
+            return if parent.inited
             # console.log('doinit', parent)
             parent.inited = true
             parent.sendEvent('init', parent)

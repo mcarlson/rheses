@@ -2900,6 +2900,9 @@
                   return;
                 }
               }
+              if (parent.inited) {
+                return;
+              }
               parent.inited = true;
               parent.sendEvent('init', parent);
             };
