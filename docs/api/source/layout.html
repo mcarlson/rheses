@@ -92,7 +92,8 @@
   })();
 
   window.dr = (function() {
-    var Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, capabilities, compiler, constraintScopes, debug, dom, exports, fcamelCase, hiddenAttributes, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, otherstyles, querystring, rdashAlpha, showWarnings, ss, ss2, test, triggerlock, warnings, _initConstraints;
+    var Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, capabilities, compiler, constraintScopes, debug, dom, exports, fcamelCase, hiddenAttributes, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, noop, otherstyles, querystring, rdashAlpha, showWarnings, ss, ss2, test, triggerlock, warnings, _initConstraints;
+    noop = function() {};
     mixOf = function() {
       var Mixed, base, i, method, mixin, mixins, name, _i, _ref;
       base = arguments[0], mixins = 2 &lt;= arguments.length ? __slice.call(arguments, 1) : [];
@@ -423,18 +424,15 @@
        */
 
       Eventable.prototype.setAttribute = function(name, value, skipcoercion, skipConstraintSetup, skipconstraintunregistration) {
-        var _name;
+        var setterName;
         if (!skipcoercion) {
           value = this._coerceType(name, value);
         }
         if (!skipconstraintunregistration) {
-          if ((this.constraints != null) &amp;&amp; name in this.constraints) {
-            this._unbindConstraint(name);
-          }
+          this._unbindConstraint(name);
         }
-        if (typeof this[_name = &quot;set_&quot; + name] === &quot;function&quot;) {
-          this[_name](value);
-        }
+        setterName = &quot;set_&quot; + name;
+        if (typeof this[setterName] === &quot;function&quot;) value = this[setterName](value);
         this[name] = value;
         this.sendEvent(name, value);
         return this;
@@ -525,8 +523,11 @@
         bindingCache = compileCache.bindings;
         scopes = null;
         propertyBindings = {
-          MemberExpression: function(n) {
+          MemberExpression: function(n, parent) {
             var name;
+            if (parent.node.type === &#39;CallExpression&#39;) {
+              return true;
+            }
             name = n.property.name;
             n = n.object;
             scopes.push({
@@ -964,44 +965,60 @@
       };
 
       _installMethod = function(scope, methodname, method, allocation, invokeSuper) {
-        var meth, supr;
+        var supr;
         if (methodname in scope) {
           supr = scope[methodname];
-          meth = method;
-          return scope[methodname] = function() {
-            var prevOwn, prevValue, retval;
-            if (invokeSuper === &#39;after&#39;) {
-              retval = meth.apply(scope, arguments);
+          if (invokeSuper === &#39;after&#39;) {
+            return scope[methodname] = function() {
+              var retval;
+              retval = method.apply(scope, arguments);
               supr.apply(scope, arguments);
-            } else if (invokeSuper === &#39;inside&#39;) {
+              return retval;
+            };
+          } else if (invokeSuper === &#39;inside&#39;) {
+            return scope[methodname] = function() {
+              var prevOwn, prevValue, retval;
               prevValue = scope[&#39;super&#39;];
               prevOwn = scope.hasOwnProperty(&#39;super&#39;);
               scope[&#39;super&#39;] = function(args) {
                 return supr.apply(scope, args);
               };
-              retval = meth.apply(scope, arguments);
+              retval = method.apply(scope, arguments);
               if (prevOwn) {
                 scope[&#39;super&#39;] = prevValue;
               } else {
-                delete scope.callSuper;
+                delete scope[&#39;super&#39;];
               }
-            } else {
+              return retval;
+            };
+          } else {
+            return scope[methodname] = function() {
+              var retval;
               supr.apply(scope, arguments);
-              retval = meth.apply(scope, arguments);
-            }
-            return retval;
-          };
+              retval = method.apply(scope, arguments);
+              return retval;
+            };
+          }
         } else {
-          return scope[methodname] = method;
+          if (invokeSuper === &#39;inside&#39;) {
+            supr = scope[methodname];
+            return scope[methodname] = function() {
+              var retval;
+              scope[&#39;super&#39;] = noop;
+              retval = method.apply(scope, arguments);
+              delete scope[&#39;super&#39;];
+              return retval;
+            };
+          } else {
+            return scope[methodname] = method;
+          }
         }
       };
 
       Node.prototype.setConstraint = function(property, expression, skipbinding) {
         var bindexpression, bindings, scope, scopes, _i, _len;
         if (this.constraints != null) {
-          if (property in this.constraints) {
-            this._unbindConstraint(property);
-          }
+          this._unbindConstraint(property);
         } else {
           this.constraints = {};
         }
@@ -1029,18 +1046,18 @@
       };
 
       Node.prototype._unbindConstraint = function(property) {
-        var callback, callbackbindings, constraint, i, prop, scope, _i, _len;
-        if (!(property in this.constraints)) {
+        var callback, callbackbindings, i, prop, scope, _i, _len, _ref;
+        if (!(this.constraints &amp;&amp; property in this.constraints)) {
           return;
         }
-        constraint = this.constraints[property];
-        callback = constraint.callback, callbackbindings = constraint.callbackbindings;
+        _ref = this.constraints[property], callback = _ref.callback, callbackbindings = _ref.callbackbindings;
+        if (!(callback &amp;&amp; callbackbindings)) {
+          return;
+        }
         for (i = _i = 0, _len = callbackbindings.length; _i &lt; _len; i = _i += 2) {
           prop = callbackbindings[i];
           scope = callbackbindings[i + 1];
-          if (typeof scope.unbind === &quot;function&quot;) {
-            scope.unbind(prop, callback);
-          }
+          scope.unbind(prop, callback);
         }
         this.constraints[property] = null;
       };
@@ -1059,7 +1076,7 @@
           for (bindexpression in bindings) {
             bindinglist = bindings[bindexpression];
             boundref = this._valueLookup(bindexpression)();
-            if (!boundref || (boundref.bind == null)) {
+            if (!boundref || !(boundref instanceof Eventable)) {
               showWarnings([&quot;Could not bind to &quot; + bindexpression + &quot; of constraint &quot; + expression + &quot; for &quot; + this.$tagname + (this.id ? &#39;#&#39; + this.id : this.name ? &#39;.&#39; + name : &#39;&#39;)]);
               continue;
             }
@@ -1130,18 +1147,21 @@
           if (this.name) {
             parent[this.name] = this;
           }
-          return parent.subnodes.push(this);
+          parent.subnodes.push(this);
         }
+        return parent;
       };
 
       Node.prototype.set_name = function(name) {
         if (this.parent &amp;&amp; name) {
-          return this.parent[name] = this;
+          this.parent[name] = this;
         }
+        return name;
       };
 
       Node.prototype.set_id = function(id) {
-        return window[id] = this;
+        window[id] = this;
+        return id;
       };
 
       Node.prototype._removeFromParent = function(name) {
@@ -1268,9 +1288,7 @@
      * Abstracts the underlying visual primitives (currently HTML) from dreem&#39;s view system.
      */
     Sprite = (function() {
-      var noop, styleval;
-
-      noop = function() {};
+      var styleval;
 
       styleval = {
         display: function(isVisible) {
@@ -1840,6 +1858,7 @@
       };
 
       View.prototype.setAttribute = function(name, value, skipstyle, skipConstraintSetup, skipconstraintunregistration) {
+        var existing;
         if (!skipConstraintSetup) {
           switch (name) {
             case &#39;width&#39;:
@@ -1863,10 +1882,12 @@
           case &#39;padding&#39;:
             value = Math.max(0, value);
         }
-        if (!(skipstyle || name in ignoredAttributes || name in hiddenAttributes || this[name] === value)) {
-          this.sprite.setStyle(name, value);
+        existing = this[name];
+        View.__super__.setAttribute.call(this, name, value, true, skipConstraintSetup, skipconstraintunregistration);
+        value = this[name];
+        if (!(skipstyle || name in ignoredAttributes || name in hiddenAttributes || existing === value)) {
+          return this.sprite.setStyle(name, value);
         }
-        return View.__super__.setAttribute.call(this, name, value, true, skipConstraintSetup, skipconstraintunregistration);
       };
 
       View.prototype.__setupPercentConstraint = function(name, value, axis) {
@@ -1895,19 +1916,23 @@
       };
 
       View.prototype.set_width = function(width) {
-        return this.setAttribute(&#39;innerwidth&#39;, width - 2 * (this.border + this.padding), true);
+        this.setAttribute(&#39;innerwidth&#39;, width - 2 * (this.border + this.padding), true);
+        return width;
       };
 
       View.prototype.set_height = function(height) {
-        return this.setAttribute(&#39;innerheight&#39;, height - 2 * (this.border + this.padding), true);
+        this.setAttribute(&#39;innerheight&#39;, height - 2 * (this.border + this.padding), true);
+        return height;
       };
 
       View.prototype.set_border = function(border) {
-        return this.__updateInnerMeasures(2 * (border + this.padding));
+        this.__updateInnerMeasures(2 * (border + this.padding));
+        return border;
       };
 
       View.prototype.set_padding = function(padding) {
-        return this.__updateInnerMeasures(2 * (this.border + padding));
+        this.__updateInnerMeasures(2 * (this.border + padding));
+        return padding;
       };
 
       View.prototype.__updateInnerMeasures = function(inset) {
@@ -1918,7 +1943,8 @@
       };
 
       View.prototype.set_clickable = function(clickable) {
-        return this.sprite.set_clickable(clickable);
+        this.sprite.set_clickable(clickable);
+        return clickable;
       };
 
       View.prototype.__updateTransform = function() {
@@ -1944,22 +1970,26 @@
 
       View.prototype.set_xscale = function(xscale) {
         this.xscale = xscale;
-        return this.__updateTransform();
+        this.__updateTransform();
+        return xscale;
       };
 
       View.prototype.set_yscale = function(yscale) {
         this.yscale = yscale;
-        return this.__updateTransform();
+        this.__updateTransform();
+        return yscale;
       };
 
       View.prototype.set_rotation = function(rotation) {
         this.rotation = rotation;
-        return this.__updateTransform();
+        this.__updateTransform();
+        return rotation;
       };
 
       View.prototype.set_z = function(depth) {
         this.z = depth;
-        return this.__updateTransform();
+        this.__updateTransform();
+        return depth;
       };
 
       View.prototype.moveToFront = function() {
@@ -2001,43 +2031,44 @@
       };
 
       View.prototype.set_parent = function(parent) {
-        View.__super__.set_parent.apply(this, arguments);
+        var retval;
+        retval = View.__super__.set_parent.apply(this, arguments);
         if (parent instanceof View) {
           parent.subviews.push(this);
           parent.sendEvent(&#39;subviews&#39;, this);
           parent = parent.sprite;
         }
-        return this.sprite.set_parent(parent);
+        this.sprite.set_parent(parent);
+        return retval;
       };
 
       View.prototype.set_id = function(id) {
-        View.__super__.set_id.apply(this, arguments);
-        return this.sprite.set_id(id);
+        var retval;
+        retval = View.__super__.set_id.apply(this, arguments);
+        this.sprite.set_id(id);
+        return retval;
       };
 
       View.prototype.set_ignorelayout = function(ignorelayout) {
-        var layout, layouts, _i, _j, _len, _len1, _results, _results1;
+        var layout, layouts, _i, _j, _len, _len1;
         if (this.inited &amp;&amp; ignorelayout !== this.ignorelayout) {
           layouts = this.parent.layouts;
           if (layouts) {
             if (ignorelayout) {
-              _results = [];
               for (_i = 0, _len = layouts.length; _i &lt; _len; _i++) {
                 layout = layouts[_i];
-                _results.push(layout.removeSubview(this));
+                layout.removeSubview(this);
               }
-              return _results;
             } else {
               this.ignorelayout = ignorelayout;
-              _results1 = [];
               for (_j = 0, _len1 = layouts.length; _j &lt; _len1; _j++) {
                 layout = layouts[_j];
-                _results1.push(layout.addSubview(this));
+                layout.addSubview(this);
               }
-              return _results1;
             }
           }
         }
+        return ignorelayout;
       };
 
 
@@ -2053,11 +2084,13 @@
       };
 
       View.prototype.set_clip = function(clip) {
-        return this.sprite.set_clip(clip);
+        this.sprite.set_clip(clip);
+        return clip;
       };
 
       View.prototype.set_scrollable = function(scrollable) {
-        return this.sprite.set_scrollable(scrollable);
+        this.sprite.set_scrollable(scrollable);
+        return scrollable;
       };
 
 
@@ -2174,7 +2207,8 @@
       };
 
       View.prototype.set_class = function(classname) {
-        return this.sprite.set_class(classname);
+        this.sprite.set_class(classname);
+        return classname;
       };
 
       return View;
@@ -2305,11 +2339,13 @@
       };
 
       InputText.prototype.set_data = function(d) {
-        return this.setAttribute(&#39;text&#39;, d, true);
+        this.setAttribute(&#39;text&#39;, d, true);
+        return d;
       };
 
       InputText.prototype.set_text = function(text) {
-        return this.sprite.value(text);
+        this.sprite.value(text);
+        return text;
       };
 
       return InputText;
@@ -2475,14 +2511,16 @@
       };
 
       Text.prototype.set_data = function(d) {
-        return this.setAttribute(&#39;text&#39;, d, true);
+        this.setAttribute(&#39;text&#39;, d, true);
+        return d;
       };
 
       Text.prototype.set_text = function(text) {
         if (text !== this.text) {
           this.sprite.setText(this.format(text));
-          return this.updateSize();
+          this.updateSize();
         }
+        return text;
       };
 
       return Text;
@@ -2917,6 +2955,9 @@
                   return;
                 }
               }
+              if (parent.inited) {
+                return;
+              }
               parent.inited = true;
               parent.sendEvent(&#39;init&#39;, parent);
             };
@@ -3139,35 +3180,32 @@
 
       State.prototype.set_applied = function(applied) {
         var name, parentname, val;
-        if (!this.parent) {
-          return;
-        }
-        if (this.applied === applied) {
-          return;
-        }
-        this.applied = applied;
-        if (applied) {
-          this.parent.learn(this);
-          if (this.stateattributes.$handlers) {
-            this.parent.installHandlers(this.stateattributes.$handlers, this.parent.$tagname, this.parent);
-            this.parent._bindHandlers();
-            this.parent._bindHandlers(true);
+        if (this.parent &amp;&amp; this.applied !== applied) {
+          this.applied = applied;
+          if (applied) {
+            this.parent.learn(this);
+            if (this.stateattributes.$handlers) {
+              this.parent.installHandlers(this.stateattributes.$handlers, this.parent.$tagname, this.parent);
+              this.parent._bindHandlers();
+              this.parent._bindHandlers(true);
+            }
+          } else {
+            this.parent.forget(this);
+            if (this.stateattributes.$handlers) {
+              this.parent.removeHandlers(this.stateattributes.$handlers, this.parent.$tagname, this.parent);
+            }
           }
-        } else {
-          this.parent.forget(this);
-          if (this.stateattributes.$handlers) {
-            this.parent.removeHandlers(this.stateattributes.$handlers, this.parent.$tagname, this.parent);
+          parentname = this.parent.$tagname;
+          for (name in this.applyattributes) {
+            val = this.parent[name];
+            if (val === void 0) {
+              continue;
+            }
+            this.parent[name] = !val;
+            this.parent.bindAttribute(name, val, parentname);
           }
         }
-        parentname = this.parent.$tagname;
-        for (name in this.applyattributes) {
-          val = this.parent[name];
-          if (val === void 0) {
-            continue;
-          }
-          this.parent[name] = !val;
-          this.parent.bindAttribute(name, val, parentname);
-        }
+        return applied;
       };
 
       State.prototype.apply = function() {
@@ -3604,8 +3642,9 @@
       Layout.prototype.set_locked = function(v) {
         if (this.locked !== v &amp;&amp; v === false) {
           this.locked = false;
-          return this.update();
+          this.update();
         }
+        return v;
       };
 
       return Layout;

@@ -72,6 +72,23 @@ SOFTWARE. -->
      *       </handler>
      *     </art>
      *
+     * The art component can work with the animator component to control which
+     * frame is displayed. For example, this will animate the graphic between
+     * frames 0, 1, 2, 3, and display the frame inside the component.
+     *
+     *     @example
+     *     <class name="centertext2" extends="text" color="white" height="40" x="${this.parent.width/2-this.width/2}" y="${this.parent.height/2-this.height/2}">
+     *       <method name="format" args="value">
+     *         if (value < 0.0) return '';
+     *         return value.toFixed(2);
+     *       </method>
+     *     </class>
+     *     <art id="art_1" width="100" height="100" src="/examples/img/cursorshapes.svg" path="0" stroke="coral" fill="coral" stretches="true">
+     *       <centertext2 text="${this.parent.animationframe}"></centertext2>
+     *       <animator start="0" from="0" to="3" attribute="animationframe" duration="4000" motion = "outBounce" repeat="1">
+     *       </animator>
+     *     </art>
+     *
      */-->    
 
       <!--/**
@@ -310,10 +327,11 @@ SOFTWARE. -->
         path = $(@container).find('svg').find('g#'+name).find('path')
         return path if path.length == 1
 
-        # Try using name as an index
+        # Try using name as an index (take the first child that is a path)
         index = parseInt(name)
         return null if isNaN(index)
-        elements = $(@container).find('svg').find('g').find('path')
+        elements = $(@container).find('svg').find('path:nth-child(1)')
+        # console.log('get_path', name, elements)
         return null if (elements.length-1) < index
 
         return $(elements[index])

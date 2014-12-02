@@ -48,7 +48,7 @@ SOFTWARE. -->
       </setter>
 
       <!--/**
-        * @attribute {String} form
+        * @attribute {String} from
         * The value to start the animation from, if not specified is read from the target attribute
         */-->
       <attribute name="from" value="" type="string"/>

@@ -45,6 +45,11 @@
       * A variablelayout that aligns each view vertically or horizontally
       * relative to all the other views.
       *
+      * If collapseparent is true the parent will be sized to fit the
+      * aligned views such that the view with the greatest extent will have
+      * a position of 0. If instead collapseparent is false the views will
+      * be aligned within the inner extent of the parent view.
+      *
       *     @example
       *     <alignlayout align="middle" collapseparent="true">
       *     </alignlayout>
@@ -81,7 +86,7 @@
         * The start time of the animation
         */
 /**
-        * @attribute {String} form
+        * @attribute {String} from
         * The value to start the animation from, if not specified is read from the target attribute
         */
 /**
@@ -184,35 +189,65 @@
      * This example shows how to load an existing svg
      *
      *     @example
-     *     <art width="100" height="100" src="/images/siemens-clock.svg"></art>
+     *     <art width="100" height="100" src="/examples/img/siemens-clock.svg"></art>
      *
      * Paths within an svg can be selected using the path attribute
      *
      *     @example
-     *     <art width="100" height="100" src="/images/cursorshapes.svg" path="0"></art>
+     *     <art width="100" height="100" src="/examples/img/cursorshapes.svg" path="0"></art>
      *
      * Attributes are automatically passed through to the SVG. Here, the fill color is changed
      *
      *     @example
-     *     <art width="100" height="100" src="/images/cursorshapes.svg" path="0" fill="coral"></art>
+     *     <art width="100" height="100" src="/examples/img/cursorshapes.svg" path="0" fill="coral"></art>
      *
      * Setting the path attribute animates between paths. This example animates when the mouse is clicked
      *
      *     @example
-     *     <art width="100" height="100" src="/images/cursorshapes.svg" path="0" fill="coral">
+     *     <art width="100" height="100" src="/examples/img/cursorshapes.svg" path="0" fill="coral">
      *       <handler event="onclick">
      *         this.setAttribute('path', this.path ^ 1);
+     *       </handler>
+     *     </art>
+     *
+     * The animationframe attribute controls which frame is displayed. The
+     * value is a floating point number to display a frame between two
+     * keyframes. For example, 1.4 will display the frame 40% between
+     * paths 1 and 2. This example will animate between keyframes 0, 1, 2.
+     *
+     *     @example
+     *     <art id="art_3" width="100" height="100" src="/examples/img/cursorshapes.svg" path="0" fill="coral" animationspeed="1000" animationcurve="linear">
+     *       <handler event="onclick">
+     *         this.setAttribute('animationframe', 0);
+     *         this.animate({animationframe: 2}, 1000);
      *       </handler>
      *     </art>
      *
      * By default, the SVG's aspect ratio is preserved. Set the stretches attribute to true to change this behavior.
      *
      *     @example
-     *     <art width="200" height="100" src="/images/cursorshapes.svg" path="0" fill="coral" stretches="true">
+     *     <art width="200" height="100" src="/examples/img/cursorshapes.svg" path="0" fill="coral" stretches="true">
      *       <handler event="onclick">
      *         this.setAttribute('path', this.path ^ 1);
      *         this.animate({width: (this.width == 200 ? 100 : 200)});
      *       </handler>
+     *     </art>
+     *
+     * The art component can work with the animator component to control which
+     * frame is displayed. For example, this will animate the graphic between
+     * frames 0, 1, 2, 3, and display the frame inside the component.
+     *
+     *     @example
+     *     <class name="centertext2" extends="text" color="white" height="40" x="${this.parent.width/2-this.width/2}" y="${this.parent.height/2-this.height/2}">
+     *       <method name="format" args="value">
+     *         if (value < 0.0) return '';
+     *         return value.toFixed(2);
+     *       </method>
+     *     </class>
+     *     <art id="art_1" width="100" height="100" src="/examples/img/cursorshapes.svg" path="0" stroke="coral" fill="coral" stretches="true">
+     *       <centertext2 text="${this.parent.animationframe}"></centertext2>
+     *       <animator start="0" from="0" to="3" attribute="animationframe" duration="4000" motion = "outBounce" repeat="1">
+     *       </animator>
      *     </art>
      *
      */
@@ -235,6 +270,10 @@
 /**
         * @attribute {Number} [animationspeed=400]
         * The number of milliseconds to use when animating between paths
+        */
+/**
+        * @attribute {Number} [animationframe=0]
+        * The current animation frame
         */
 /**
         * @attribute {"linear"/"easeout"/"easein"/"easeinout"/"backin"/"backout"/"elastic"/"bounce"} [animationcurve="linear"]
@@ -320,14 +359,14 @@
         * The bitmap URL to load
         */
 /**
-             * @event onload 
-             * Fired when the bitmap is loaded
-             * @param {Object} size An object containing the width and height
-             */
+               * @event onload 
+               * Fired when the bitmap is loaded
+               * @param {Object} size An object containing the width and height
+               */
 /**
-             * @event onerror 
-             * Fired when there is an error loading the bitmap
-             */
+               * @event onerror 
+               * Fired when there is an error loading the bitmap
+               */
 /**
       * @class dr.boundslayout {Deprecated}
       * @extends dr.layout
