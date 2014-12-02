@@ -278,8 +278,7 @@ window.dr = do ->
       value = @_coerceType(name, value) unless skipcoercion
 
       unless skipconstraintunregistration
-        if @constraints? and name of @constraints
-          @_unbindConstraint(name)
+        @_unbindConstraint(name)
 
       @["set_#{name}"]?(value)
       @[name] = value
@@ -737,7 +736,7 @@ window.dr = do ->
     setConstraint: (property, expression, skipbinding) ->
       # console.log 'adding constraint', property, expression, @
       if @constraints?
-        @_unbindConstraint(property) if property of @constraints
+        @_unbindConstraint(property)
       else
         @constraints = {}
 
@@ -764,15 +763,15 @@ window.dr = do ->
 
     # remove a constraint, unbinding from all its dependencies
     _unbindConstraint: (property) ->
-      return unless property of @constraints
-      constraint = @constraints[property]
-      {callback, callbackbindings} = constraint
-      # console.log "removing constraint for #{property}", constraint, callback, callbackbindings
+      return unless @constraints and property of @constraints
+      {callback, callbackbindings} = @constraints[property]
+      # console.log "removing constraint for #{property}", @constraints[property], callback, callbackbindings
+      return unless callback and callbackbindings
 
       for prop, i in callbackbindings by 2
         scope = callbackbindings[i + 1]
         # console.log "removing binding", prop, scope, callback
-        scope.unbind?(prop, callback)
+        scope.unbind(prop, callback)
 
       @constraints[property] = null
       return

@@ -411,9 +411,7 @@
           value = this._coerceType(name, value);
         }
         if (!skipconstraintunregistration) {
-          if ((this.constraints != null) && name in this.constraints) {
-            this._unbindConstraint(name);
-          }
+          this._unbindConstraint(name);
         }
         if (typeof this[_name = "set_" + name] === "function") {
           this[_name](value);
@@ -982,9 +980,7 @@
       Node.prototype.setConstraint = function(property, expression, skipbinding) {
         var bindexpression, bindings, scope, scopes, _i, _len;
         if (this.constraints != null) {
-          if (property in this.constraints) {
-            this._unbindConstraint(property);
-          }
+          this._unbindConstraint(property);
         } else {
           this.constraints = {};
         }
@@ -1012,18 +1008,18 @@
       };
 
       Node.prototype._unbindConstraint = function(property) {
-        var callback, callbackbindings, constraint, i, prop, scope, _i, _len;
-        if (!(property in this.constraints)) {
+        var callback, callbackbindings, i, prop, scope, _i, _len, _ref;
+        if (!(this.constraints && property in this.constraints)) {
           return;
         }
-        constraint = this.constraints[property];
-        callback = constraint.callback, callbackbindings = constraint.callbackbindings;
+        _ref = this.constraints[property], callback = _ref.callback, callbackbindings = _ref.callbackbindings;
+        if (!(callback && callbackbindings)) {
+          return;
+        }
         for (i = _i = 0, _len = callbackbindings.length; _i < _len; i = _i += 2) {
           prop = callbackbindings[i];
           scope = callbackbindings[i + 1];
-          if (typeof scope.unbind === "function") {
-            scope.unbind(prop, callback);
-          }
+          scope.unbind(prop, callback);
         }
         this.constraints[property] = null;
       };
