@@ -46,10 +46,11 @@
         // console.log('item end');
       </method>
       <handler event="oninit" method="doInit"></handler>
-      <method name="doInit">
+      <method name="doInit" invokesuper="inside">
         var testArr = this.getTestArray();
         testArr.push('item.start');
-        testArr.push('item.end'); // FIXME: move after doMore and fix tests
+        this.super(arguments); // Invoke super when none exists
+        testArr.push('item.end');
         this.doMore();
       </method>
       <method name="doMore" type="coffee">

@@ -63,6 +63,9 @@ hackstyle = do ->
 
 
 window.dr = do ->
+  # Common noop function
+  noop = () ->
+  
   # from http://coffeescriptcookbook.com/chapters/classes_and_objects/mixins
   mixOf = (base, mixins...) ->
     class Mixed extends base
@@ -709,28 +712,42 @@ window.dr = do ->
       if methodname of scope
         # Cheesy override
         supr = scope[methodname]
-        meth = method
-        scope[methodname] = ->
-          # console.log 'applying overridden method', methodname, arguments
-          if invokeSuper == 'after'
-            retval = meth.apply(scope, arguments)
+        
+        # console.log 'applying overridden method', methodname, arguments
+        if invokeSuper is 'after'
+          scope[methodname] = ->
+            retval = method.apply(scope, arguments)
             supr.apply(scope, arguments)
-          else if invokeSuper == 'inside'
+            return retval
+        else if invokeSuper is 'inside'
+          scope[methodname] = ->
             prevValue = scope['super'];
             prevOwn = scope.hasOwnProperty('super');
             scope['super'] = (args) -> supr.apply(scope, args)
-            retval = meth.apply(scope, arguments)
+            retval = method.apply(scope, arguments)
             if prevOwn
               scope['super'] = prevValue;
             else
-              delete scope.callSuper;
-          else # before (default)
+              delete scope['super'];
+            return retval
+        else # before (default)
+          scope[methodname] = ->
             supr.apply(scope, arguments)
-            retval = meth.apply(scope, arguments)
-          return retval
+            retval = method.apply(scope, arguments)
+            return retval
         # console.log('overrode method', methodname, scope, supr, meth)
       else
-        scope[methodname] = method
+        # Provide error protection when calling super where no super method
+        # exists.
+        if invokeSuper is 'inside'
+          supr = scope[methodname]
+          scope[methodname] = ->
+            scope['super'] = noop
+            retval = method.apply(scope, arguments)
+            delete scope['super'];
+            return retval
+        else
+          scope[methodname] = method
       # console.log('installed method', methodname, scope, scope[methodname])
 
     # sets a constraint, binding it immediately unless skipbinding is true.
@@ -971,7 +988,6 @@ window.dr = do ->
   ###
   class Sprite
 #    guid = 0
-    noop = () ->
     styleval =
       display: (isVisible) ->
         if isVisible then '' else 'none'

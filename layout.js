@@ -75,7 +75,8 @@
   })();
 
   window.dr = (function() {
-    var Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, capabilities, compiler, constraintScopes, debug, dom, exports, fcamelCase, hiddenAttributes, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, otherstyles, querystring, rdashAlpha, showWarnings, ss, ss2, test, triggerlock, warnings, _initConstraints;
+    var Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, capabilities, compiler, constraintScopes, debug, dom, exports, fcamelCase, hiddenAttributes, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, noop, otherstyles, querystring, rdashAlpha, showWarnings, ss, ss2, test, triggerlock, warnings, _initConstraints;
+    noop = function() {};
     mixOf = function() {
       var Mixed, base, i, method, mixin, mixins, name, _i, _ref;
       base = arguments[0], mixins = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
@@ -944,35 +945,53 @@
       };
 
       _installMethod = function(scope, methodname, method, allocation, invokeSuper) {
-        var meth, supr;
+        var supr;
         if (methodname in scope) {
           supr = scope[methodname];
-          meth = method;
-          return scope[methodname] = function() {
-            var prevOwn, prevValue, retval;
-            if (invokeSuper === 'after') {
-              retval = meth.apply(scope, arguments);
+          if (invokeSuper === 'after') {
+            return scope[methodname] = function() {
+              var retval;
+              retval = method.apply(scope, arguments);
               supr.apply(scope, arguments);
-            } else if (invokeSuper === 'inside') {
+              return retval;
+            };
+          } else if (invokeSuper === 'inside') {
+            return scope[methodname] = function() {
+              var prevOwn, prevValue, retval;
               prevValue = scope['super'];
               prevOwn = scope.hasOwnProperty('super');
               scope['super'] = function(args) {
                 return supr.apply(scope, args);
               };
-              retval = meth.apply(scope, arguments);
+              retval = method.apply(scope, arguments);
               if (prevOwn) {
                 scope['super'] = prevValue;
               } else {
-                delete scope.callSuper;
+                delete scope['super'];
               }
-            } else {
+              return retval;
+            };
+          } else {
+            return scope[methodname] = function() {
+              var retval;
               supr.apply(scope, arguments);
-              retval = meth.apply(scope, arguments);
-            }
-            return retval;
-          };
+              retval = method.apply(scope, arguments);
+              return retval;
+            };
+          }
         } else {
-          return scope[methodname] = method;
+          if (invokeSuper === 'inside') {
+            supr = scope[methodname];
+            return scope[methodname] = function() {
+              var retval;
+              scope['super'] = noop;
+              retval = method.apply(scope, arguments);
+              delete scope['super'];
+              return retval;
+            };
+          } else {
+            return scope[methodname] = method;
+          }
         }
       };
 
@@ -1249,9 +1268,7 @@
      * Abstracts the underlying visual primitives (currently HTML) from dreem's view system.
      */
     Sprite = (function() {
-      var noop, styleval;
-
-      noop = function() {};
+      var styleval;
 
       styleval = {
         display: function(isVisible) {
