@@ -280,7 +280,10 @@ window.dr = do ->
       unless skipconstraintunregistration
         @_unbindConstraint(name)
 
-      @["set_#{name}"]?(value)
+      # If a setter function exists, use its return value as the value for
+      # the attribute.
+      setterName = "set_" + name
+      `if (typeof this[setterName] === "function") value = this[setterName](value)`
       @[name] = value
       @sendEvent(name, value)
       @
@@ -854,13 +857,16 @@ window.dr = do ->
         # store references to parent and children
         parent[@name] = @ if @name
         parent.subnodes.push(@)
+      parent
 
     set_name: (name) ->
       # console.log 'set_name', name, @
       @parent[name] = @ if @parent and name
+      name
 
     set_id: (id) ->
       window[id] = @
+      id
 
     _removeFromParent: (name) ->
       return unless @parent
@@ -1435,10 +1441,14 @@ window.dr = do ->
         when 'width','height','border','padding'
           value = Math.max(0, value)
       
-      if not (skipstyle or name of ignoredAttributes or name of hiddenAttributes or @[name] == value)
+      # Do super first since setters may modify the actual value set.
+      existing = @[name]
+      super(name, value, true, skipConstraintSetup, skipconstraintunregistration)
+      value = @[name]
+      
+      if not (skipstyle or name of ignoredAttributes or name of hiddenAttributes or existing == value)
         # console.log 'setting style', name, value, @
         @sprite.setStyle(name, value)
-      super(name, value, true, skipConstraintSetup, skipconstraintunregistration)
 
     __setupPercentConstraint: (name, value, axis) ->
       funcKey = '__percentFunc' + name
@@ -1464,15 +1474,19 @@ window.dr = do ->
 
     set_width: (width) ->
       @setAttribute('innerwidth', width - 2*(@border + @padding), true)
+      width
 
     set_height: (height) ->
       @setAttribute('innerheight', height - 2*(@border + @padding), true)
+      height
 
     set_border: (border) ->
       @__updateInnerMeasures(2*(border + @padding))
+      border
 
     set_padding: (padding) ->
       @__updateInnerMeasures(2*(@border + padding))
+      padding
 
     __updateInnerMeasures: (inset) ->
       # Ensures innerwidth and innerheight will both be correct before
@@ -1486,9 +1500,9 @@ window.dr = do ->
     set_clickable: (clickable) ->
       @sprite.set_clickable(clickable)
       # super?(clickable)
+      clickable
 
     __updateTransform: () ->
-
       transform = ''
 
       @z ||= 0
@@ -1511,18 +1525,22 @@ window.dr = do ->
     set_xscale: (xscale) ->
       @xscale = xscale
       @__updateTransform()
+      xscale
 
     set_yscale: (yscale) ->
       @yscale = yscale
       @__updateTransform()
+      yscale
 
     set_rotation: (rotation) ->
       @rotation = rotation
       @__updateTransform()
+      rotation
 
     set_z: (depth) ->
       @z = depth
       @__updateTransform()
+      depth
 
     moveToFront: () ->
       for subview in @parent.subviews
@@ -1546,7 +1564,7 @@ window.dr = do ->
 
     set_parent: (parent) ->
       # console.log 'view set_parent', parent, @
-      super
+      retval = super
 
       # store references subviews
       if parent instanceof View
@@ -1555,10 +1573,12 @@ window.dr = do ->
         parent = parent.sprite
 
       @sprite.set_parent parent
+      retval
 
     set_id: (id) ->
-      super
+      retval = super
       @sprite.set_id(id)
+      retval
 
     set_ignorelayout: (ignorelayout) ->
       if @inited and ignorelayout != @ignorelayout
@@ -1571,6 +1591,7 @@ window.dr = do ->
             @ignorelayout = ignorelayout
             for layout in layouts
               layout.addSubview(@)
+      ignorelayout
 
     ###*
     # Animates this view's attribute(s)
@@ -1584,9 +1605,11 @@ window.dr = do ->
 
     set_clip: (clip) ->
       @sprite.set_clip(clip)
+      clip
 
     set_scrollable: (scrollable) ->
       @sprite.set_scrollable(scrollable)
+      scrollable
 
     ###*
     # Calls doSubviewAdded/doLayoutAdded if the added subnode is a view or
@@ -1685,6 +1708,7 @@ window.dr = do ->
 
     set_class: (classname) ->
       @sprite.set_class(classname)
+      classname
 
   ###*
   # @class dr.inputtext {UI Components, Input}
@@ -1788,9 +1812,11 @@ window.dr = do ->
 
     set_data: (d) ->
       @setAttribute('text', d, true)
+      d
 
     set_text: (text) ->
       @sprite.value(text)
+      text
 
   ###*
   # @class dr.text {UI Components}
@@ -1924,11 +1950,13 @@ window.dr = do ->
 
     set_data: (d) ->
       @setAttribute('text', d, true)
+      d
 
     set_text: (text) ->
       if (text != @text)
         @sprite.setText(@format(text))
         @updateSize()
+      text
 
 
   warnings = []
@@ -2475,34 +2503,33 @@ window.dr = do ->
     # If true, the state is applied.
     ###
     set_applied: (applied) ->
-      return unless @parent
-      return if @applied == applied
-      @applied = applied
-
-      # console.log('set_applied', applied, @, @parent)
-      if applied
-        @parent.learn @
-        if @stateattributes.$handlers
-          # console.log('installing handlers', @stateattributes.$handlers)
-          @parent.installHandlers(@stateattributes.$handlers, @parent.$tagname, @parent)
-          @parent._bindHandlers()
-          @parent._bindHandlers(true)
-      else
-        @parent.forget @
-        if @stateattributes.$handlers
-          # console.log('removing handlers', @stateattributes.$handlers)
-          @parent.removeHandlers(@stateattributes.$handlers, @parent.$tagname, @parent)
-
-      parentname = @parent.$tagname
-      # Hack to set attributes for now - not needed when using signals
-      for name of @applyattributes
-        val = @parent[name]
-        continue if val == undefined
-        # learn/forget will have set the value already. Invert to cache bust setAttribute()
-        @parent[name] = !val
-        # console.log('bindAttribute', name, val)
-        @parent.bindAttribute(name, val, parentname)
-      return
+      if @parent and @applied != applied
+        @applied = applied
+        
+        # console.log('set_applied', applied, @, @parent)
+        if applied
+          @parent.learn @
+          if @stateattributes.$handlers
+            # console.log('installing handlers', @stateattributes.$handlers)
+            @parent.installHandlers(@stateattributes.$handlers, @parent.$tagname, @parent)
+            @parent._bindHandlers()
+            @parent._bindHandlers(true)
+        else
+          @parent.forget @
+          if @stateattributes.$handlers
+            # console.log('removing handlers', @stateattributes.$handlers)
+            @parent.removeHandlers(@stateattributes.$handlers, @parent.$tagname, @parent)
+  
+        parentname = @parent.$tagname
+        # Hack to set attributes for now - not needed when using signals
+        for name of @applyattributes
+          val = @parent[name]
+          continue if val == undefined
+          # learn/forget will have set the value already. Invert to cache bust setAttribute()
+          @parent[name] = !val
+          # console.log('bindAttribute', name, val)
+          @parent.bindAttribute(name, val, parentname)
+      return applied
       
     apply: () ->
       @setAttribute('applied', true) unless @applied
@@ -2865,6 +2892,7 @@ window.dr = do ->
       if @locked != v and v == false
         @locked = false
         @update()
+      return v
 
   idle = do ->
     requestAnimationFrame = (()->

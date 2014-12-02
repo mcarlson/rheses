@@ -1,0 +1,74 @@
+<html>
+<head>
+  <title>dr33m | setter Smoke Tests</title>
+  <link rel="stylesheet" href="../examples/css/example.css"/>
+  <script type="text/javascript" src="../lib/jquery-1.9.1.js"></script>
+  <script type="text/javascript" src="../lib/acorn.js"></script>
+  <script type="text/javascript" src="../lib/coffee-script.js"></script>
+  <script type="text/javascript" src="/layout.js"></script>
+  <script type="text/javascript" src="/lib/chai.js"></script>
+  <script>
+    var assert = chai.assert
+  </script>
+</head>
+<body>
+  <view width="100%" height="100%" bgcolor="#eeeeee" scrollable="true">
+    <!-- Test a setter can modify a value. -->
+    <class name="item" width="10" height="10" bgcolor="#999999">
+      <setter name="x" args="x" invokesuper="inside">
+        return Math.round(x / 10) * 10
+      </setter>
+    </class>
+    
+    <!-- Test multiple setters can modify a value. -->
+    <class name="subitem" extends="item">
+      <setter name="x" args="x" invokesuper="inside">
+        return 2 * this.super(arguments)
+      </setter>
+    </class>
+    
+    <item name="v1" x="5" y="5" ></item>
+    <subitem name="v2" x="5" y="25" ></subitem>
+    
+    <handler event="oninit">
+      var v1 = this.v1,
+        v2 = this.v2;
+      
+      assert.equal(10, v1.x, 'View one has an x of 10.');
+      assert.equal(5, v1.y, 'View one has a y of 5.');
+      
+      assert.equal(20, v2.x, 'View one has an x of 20.');
+      assert.equal(25, v2.y, 'View one has a y of 25.');
+      
+      v1.setAttribute('x', 17);
+      
+      assert.equal(20, v1.x, 'View one has an x of 20.');
+      
+      v2.setAttribute('x', 17);
+      
+      assert.equal(40, v2.x, 'View one has an x of 40.');
+    </handler>
+  </view>
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+</body>
+</html>

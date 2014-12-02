@@ -93,6 +93,7 @@ SOFTWARE. -->
           // console.log('set_text', text)
           this.editor.setValue(text);
         }
+        return text
       </setter>
 
       <handler event="onwidth" method="handleResize"></handler>

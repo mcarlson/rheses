@@ -406,16 +406,15 @@
        */
 
       Eventable.prototype.setAttribute = function(name, value, skipcoercion, skipConstraintSetup, skipconstraintunregistration) {
-        var _name;
+        var setterName;
         if (!skipcoercion) {
           value = this._coerceType(name, value);
         }
         if (!skipconstraintunregistration) {
           this._unbindConstraint(name);
         }
-        if (typeof this[_name = "set_" + name] === "function") {
-          this[_name](value);
-        }
+        setterName = "set_" + name;
+        if (typeof this[setterName] === "function") value = this[setterName](value);
         this[name] = value;
         this.sendEvent(name, value);
         return this;
@@ -1109,18 +1108,21 @@
           if (this.name) {
             parent[this.name] = this;
           }
-          return parent.subnodes.push(this);
+          parent.subnodes.push(this);
         }
+        return parent;
       };
 
       Node.prototype.set_name = function(name) {
         if (this.parent && name) {
-          return this.parent[name] = this;
+          this.parent[name] = this;
         }
+        return name;
       };
 
       Node.prototype.set_id = function(id) {
-        return window[id] = this;
+        window[id] = this;
+        return id;
       };
 
       Node.prototype._removeFromParent = function(name) {
@@ -1819,6 +1821,7 @@
       };
 
       View.prototype.setAttribute = function(name, value, skipstyle, skipConstraintSetup, skipconstraintunregistration) {
+        var existing;
         if (!skipConstraintSetup) {
           switch (name) {
             case 'width':
@@ -1842,10 +1845,12 @@
           case 'padding':
             value = Math.max(0, value);
         }
-        if (!(skipstyle || name in ignoredAttributes || name in hiddenAttributes || this[name] === value)) {
-          this.sprite.setStyle(name, value);
+        existing = this[name];
+        View.__super__.setAttribute.call(this, name, value, true, skipConstraintSetup, skipconstraintunregistration);
+        value = this[name];
+        if (!(skipstyle || name in ignoredAttributes || name in hiddenAttributes || existing === value)) {
+          return this.sprite.setStyle(name, value);
         }
-        return View.__super__.setAttribute.call(this, name, value, true, skipConstraintSetup, skipconstraintunregistration);
       };
 
       View.prototype.__setupPercentConstraint = function(name, value, axis) {
@@ -1874,19 +1879,23 @@
       };
 
       View.prototype.set_width = function(width) {
-        return this.setAttribute('innerwidth', width - 2 * (this.border + this.padding), true);
+        this.setAttribute('innerwidth', width - 2 * (this.border + this.padding), true);
+        return width;
       };
 
       View.prototype.set_height = function(height) {
-        return this.setAttribute('innerheight', height - 2 * (this.border + this.padding), true);
+        this.setAttribute('innerheight', height - 2 * (this.border + this.padding), true);
+        return height;
       };
 
       View.prototype.set_border = function(border) {
-        return this.__updateInnerMeasures(2 * (border + this.padding));
+        this.__updateInnerMeasures(2 * (border + this.padding));
+        return border;
       };
 
       View.prototype.set_padding = function(padding) {
-        return this.__updateInnerMeasures(2 * (this.border + padding));
+        this.__updateInnerMeasures(2 * (this.border + padding));
+        return padding;
       };
 
       View.prototype.__updateInnerMeasures = function(inset) {
@@ -1897,7 +1906,8 @@
       };
 
       View.prototype.set_clickable = function(clickable) {
-        return this.sprite.set_clickable(clickable);
+        this.sprite.set_clickable(clickable);
+        return clickable;
       };
 
       View.prototype.__updateTransform = function() {
@@ -1923,22 +1933,26 @@
 
       View.prototype.set_xscale = function(xscale) {
         this.xscale = xscale;
-        return this.__updateTransform();
+        this.__updateTransform();
+        return xscale;
       };
 
       View.prototype.set_yscale = function(yscale) {
         this.yscale = yscale;
-        return this.__updateTransform();
+        this.__updateTransform();
+        return yscale;
       };
 
       View.prototype.set_rotation = function(rotation) {
         this.rotation = rotation;
-        return this.__updateTransform();
+        this.__updateTransform();
+        return rotation;
       };
 
       View.prototype.set_z = function(depth) {
         this.z = depth;
-        return this.__updateTransform();
+        this.__updateTransform();
+        return depth;
       };
 
       View.prototype.moveToFront = function() {
@@ -1980,43 +1994,44 @@
       };
 
       View.prototype.set_parent = function(parent) {
-        View.__super__.set_parent.apply(this, arguments);
+        var retval;
+        retval = View.__super__.set_parent.apply(this, arguments);
         if (parent instanceof View) {
           parent.subviews.push(this);
           parent.sendEvent('subviews', this);
           parent = parent.sprite;
         }
-        return this.sprite.set_parent(parent);
+        this.sprite.set_parent(parent);
+        return retval;
       };
 
       View.prototype.set_id = function(id) {
-        View.__super__.set_id.apply(this, arguments);
-        return this.sprite.set_id(id);
+        var retval;
+        retval = View.__super__.set_id.apply(this, arguments);
+        this.sprite.set_id(id);
+        return retval;
       };
 
       View.prototype.set_ignorelayout = function(ignorelayout) {
-        var layout, layouts, _i, _j, _len, _len1, _results, _results1;
+        var layout, layouts, _i, _j, _len, _len1;
         if (this.inited && ignorelayout !== this.ignorelayout) {
           layouts = this.parent.layouts;
           if (layouts) {
             if (ignorelayout) {
-              _results = [];
               for (_i = 0, _len = layouts.length; _i < _len; _i++) {
                 layout = layouts[_i];
-                _results.push(layout.removeSubview(this));
+                layout.removeSubview(this);
               }
-              return _results;
             } else {
               this.ignorelayout = ignorelayout;
-              _results1 = [];
               for (_j = 0, _len1 = layouts.length; _j < _len1; _j++) {
                 layout = layouts[_j];
-                _results1.push(layout.addSubview(this));
+                layout.addSubview(this);
               }
-              return _results1;
             }
           }
         }
+        return ignorelayout;
       };
 
 
@@ -2032,11 +2047,13 @@
       };
 
       View.prototype.set_clip = function(clip) {
-        return this.sprite.set_clip(clip);
+        this.sprite.set_clip(clip);
+        return clip;
       };
 
       View.prototype.set_scrollable = function(scrollable) {
-        return this.sprite.set_scrollable(scrollable);
+        this.sprite.set_scrollable(scrollable);
+        return scrollable;
       };
 
 
@@ -2153,7 +2170,8 @@
       };
 
       View.prototype.set_class = function(classname) {
-        return this.sprite.set_class(classname);
+        this.sprite.set_class(classname);
+        return classname;
       };
 
       return View;
@@ -2284,11 +2302,13 @@
       };
 
       InputText.prototype.set_data = function(d) {
-        return this.setAttribute('text', d, true);
+        this.setAttribute('text', d, true);
+        return d;
       };
 
       InputText.prototype.set_text = function(text) {
-        return this.sprite.value(text);
+        this.sprite.value(text);
+        return text;
       };
 
       return InputText;
@@ -2454,14 +2474,16 @@
       };
 
       Text.prototype.set_data = function(d) {
-        return this.setAttribute('text', d, true);
+        this.setAttribute('text', d, true);
+        return d;
       };
 
       Text.prototype.set_text = function(text) {
         if (text !== this.text) {
           this.sprite.setText(this.format(text));
-          return this.updateSize();
+          this.updateSize();
         }
+        return text;
       };
 
       return Text;
@@ -3121,35 +3143,32 @@
 
       State.prototype.set_applied = function(applied) {
         var name, parentname, val;
-        if (!this.parent) {
-          return;
-        }
-        if (this.applied === applied) {
-          return;
-        }
-        this.applied = applied;
-        if (applied) {
-          this.parent.learn(this);
-          if (this.stateattributes.$handlers) {
-            this.parent.installHandlers(this.stateattributes.$handlers, this.parent.$tagname, this.parent);
-            this.parent._bindHandlers();
-            this.parent._bindHandlers(true);
+        if (this.parent && this.applied !== applied) {
+          this.applied = applied;
+          if (applied) {
+            this.parent.learn(this);
+            if (this.stateattributes.$handlers) {
+              this.parent.installHandlers(this.stateattributes.$handlers, this.parent.$tagname, this.parent);
+              this.parent._bindHandlers();
+              this.parent._bindHandlers(true);
+            }
+          } else {
+            this.parent.forget(this);
+            if (this.stateattributes.$handlers) {
+              this.parent.removeHandlers(this.stateattributes.$handlers, this.parent.$tagname, this.parent);
+            }
           }
-        } else {
-          this.parent.forget(this);
-          if (this.stateattributes.$handlers) {
-            this.parent.removeHandlers(this.stateattributes.$handlers, this.parent.$tagname, this.parent);
+          parentname = this.parent.$tagname;
+          for (name in this.applyattributes) {
+            val = this.parent[name];
+            if (val === void 0) {
+              continue;
+            }
+            this.parent[name] = !val;
+            this.parent.bindAttribute(name, val, parentname);
           }
         }
-        parentname = this.parent.$tagname;
-        for (name in this.applyattributes) {
-          val = this.parent[name];
-          if (val === void 0) {
-            continue;
-          }
-          this.parent[name] = !val;
-          this.parent.bindAttribute(name, val, parentname);
-        }
+        return applied;
       };
 
       State.prototype.apply = function() {
@@ -3586,8 +3605,9 @@
       Layout.prototype.set_locked = function(v) {
         if (this.locked !== v && v === false) {
           this.locked = false;
-          return this.update();
+          this.update();
         }
+        return v;
       };
 
       return Layout;

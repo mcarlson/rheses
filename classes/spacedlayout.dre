@@ -53,9 +53,10 @@ SOFTWARE. -->
     * Space before the first view.
     */-->
   <attribute name="inset" type="number" value="0"></attribute>
-  <setter name="inset" args="inset">
+  <setter name="inset" args="inset" invokesuper="inside">
     # An alias for value.
     @setAttribute('value', inset);
+    return inset
   </setter>
   
   <!--/**
@@ -65,9 +66,10 @@ SOFTWARE. -->
     * will orient them vertically.
     */-->
   <attribute name="axis" type="string" value="x"></attribute>
-  <setter name="axis" args="axis">
+  <setter name="axis" args="axis" invokesuper="inside">
     # An alias for attribute.
     @setAttribute('attribute', axis);
+    return axis
   </setter>
   
   <setter name="attribute" args="attribute" invokesuper="inside">
@@ -79,6 +81,7 @@ SOFTWARE. -->
       @measureAttrName = 'height'
     else
       @measureAttrName = 'width'
+    return attribute
   </setter>
   <handler event="onattribute">
     @startMonitoringAllSubviews()
