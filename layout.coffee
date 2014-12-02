@@ -359,7 +359,11 @@ window.dr = do ->
       bindingCache = compileCache.bindings
       scopes = null
       propertyBindings =
-        MemberExpression: (n) ->
+        MemberExpression: (n, parent) ->
+          # console.log('MemberExpression', n, parent)
+          # avoid binding to CallExpression, e.g. Math.round(...) shouldn't attempt to bind to 'round' on Math
+          return true if parent.node.type is 'CallExpression'
+
           # grab the property name
           name = n.property.name
 
@@ -805,7 +809,7 @@ window.dr = do ->
         constraint.callback = @_constraintCallback(name, fn)
         for bindexpression, bindinglist of bindings
           boundref = @_valueLookup(bindexpression)()
-          if not boundref or not boundref.bind?
+          if not boundref or not (boundref instanceof Eventable)
             showWarnings(["Could not bind to #{bindexpression} of constraint #{expression} for #{@$tagname}#{if @id then '#' + @id else if @name then '.' + name else ''}"])
             continue
 

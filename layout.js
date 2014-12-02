@@ -506,8 +506,11 @@
         bindingCache = compileCache.bindings;
         scopes = null;
         propertyBindings = {
-          MemberExpression: function(n) {
+          MemberExpression: function(n, parent) {
             var name;
+            if (parent.node.type === 'CallExpression') {
+              return true;
+            }
             name = n.property.name;
             n = n.object;
             scopes.push({
@@ -1056,7 +1059,7 @@
           for (bindexpression in bindings) {
             bindinglist = bindings[bindexpression];
             boundref = this._valueLookup(bindexpression)();
-            if (!boundref || (boundref.bind == null)) {
+            if (!boundref || !(boundref instanceof Eventable)) {
               showWarnings(["Could not bind to " + bindexpression + " of constraint " + expression + " for " + this.$tagname + (this.id ? '#' + this.id : this.name ? '.' + name : '')]);
               continue;
             }
