@@ -5,5 +5,4 @@ test:
   pre:
     - python -m SimpleHTTPServer 8080:
         background: true
-    - phantomjs ./bin/phantomrunner.js
   
