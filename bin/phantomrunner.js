@@ -16,7 +16,7 @@ for(var i = 0; i < list.length; i++){
   var file = list[i]
   if (file.indexOf('.html') > 0) {
     files.unshift(file);
-  }       
+  }
 }
 
 var runTest = function (file, callback) {
@@ -46,8 +46,13 @@ var runTest = function (file, callback) {
     callback();
   }
   var updateTimer = function(ms) {
-    ms = ms || timeout
-    if (tId) clearTimeout(tId) 
+    if (ms == null) {
+      var pageTimeout = page.evaluateJavaScript(function () {
+        return $('testingtimer').contents()[0];
+      });
+      ms = pageTimeout == null ? timeout : Number(pageTimeout.nodeValue);
+    }
+    if (tId) clearTimeout(tId);
     tId = setTimeout(processOutput, ms);
   }
   var page = require('webpage').create();
@@ -60,7 +65,7 @@ var runTest = function (file, callback) {
       });
     }
     console.error(msgStack.join('\n'));
-    updateTimer();
+    updateTimer(0);
     exitCode = 1;
   };
   page.onInitialized = function () {
@@ -74,11 +79,11 @@ var runTest = function (file, callback) {
   };
   page.onResourceError = function(resourceError) {
     console.log('RESOURCE ERROR: ' + resourceError.errorString + ', URL: ' + resourceError.url + ', File: ' + file);
-    updateTimer();
+    updateTimer(0);
   };
   page.onConsoleMessage = function(msg, lineNum, sourceId) {
     if (msg === '~~DONE~~') {
-      updateTimer(timeout);
+      updateTimer();
       return;
     }
     out.push(msg)
