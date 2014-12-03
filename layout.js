@@ -25,7 +25,7 @@
  */
 
 (function() {
-  var hackstyle, stylemap,
+  var hackstyle, propmap, stylemap,
     __slice = [].slice,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -40,6 +40,11 @@
     border: 'borderWidth',
     borderstyle: 'borderStyle',
     bordercolor: 'borderColor'
+  };
+
+  propmap = {
+    scrollx: 'scrollLeft',
+    scrolly: 'scrollTop'
   };
 
   hackstyle = (function() {
@@ -75,7 +80,7 @@
   })();
 
   window.dr = (function() {
-    var Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, capabilities, compiler, constraintScopes, debug, dom, exports, fcamelCase, hiddenAttributes, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, noop, otherstyles, querystring, rdashAlpha, showWarnings, ss, ss2, test, triggerlock, warnings, _initConstraints;
+    var Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, capabilities, compiler, constraintScopes, debug, dom, domElementAttributes, exports, fcamelCase, hiddenAttributes, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, noop, otherstyles, querystring, rdashAlpha, showWarnings, ss, ss2, test, triggerlock, warnings, _initConstraints;
     noop = function() {};
     mixOf = function() {
       var Mixed, base, i, method, mixin, mixins, name, _i, _ref;
@@ -1303,6 +1308,7 @@
           tagname = 'div';
         }
         this.handle = __bind(this.handle, this);
+        this._handleScroll = __bind(this._handleScroll, this);
         this.animate = __bind(this.animate, this);
         if (jqel == null) {
           this.el = document.createElement(tagname);
@@ -1328,6 +1334,19 @@
           value = styleval[name](value);
         }
         return el.style[name] = value;
+      };
+
+      Sprite.prototype.setProperty = function(name, value, el) {
+        if (el == null) {
+          el = this.el;
+        }
+        if (value == null) {
+          value = '';
+        }
+        if (name in propmap) {
+          name = propmap[name];
+        }
+        return el[name] = value;
       };
 
       Sprite.prototype.set_parent = function(parent) {
@@ -1371,7 +1390,39 @@
       Sprite.prototype.set_scrollable = function(scrollable) {
         this.__scrollable = scrollable;
         this.__updateOverflow();
-        return this.__updatePointerEvents();
+        this.__updatePointerEvents();
+        if (scrollable) {
+          return $(this.el).on('scroll', this._handleScroll);
+        } else {
+          return $(this.el).off('scroll', this._handleScroll);
+        }
+      };
+
+      Sprite.prototype._handleScroll = function(event) {
+        var domElement, newEvt, oldEvt, target, x, y;
+        domElement = event.target;
+        target = domElement.$view;
+        if (target) {
+          x = domElement.scrollLeft;
+          y = domElement.scrollTop;
+          if (target.scrollx !== x) {
+            target.setAttribute('scrollx', x, true, true, true);
+          }
+          if (target.scrolly !== y) {
+            target.setAttribute('scrolly', y, true, true, true);
+          }
+          oldEvt = this._lastScrollEvent;
+          newEvt = {
+            scrollx: x,
+            scrolly: y,
+            scrollwidth: domElement.scrollWidth,
+            scrollheight: domElement.scrollHeight
+          };
+          if (!oldEvt || oldEvt.scrollx !== newEvt.scrollx || oldEvt.scrolly !== newEvt.scrolly || oldEvt.scrollwidth !== newEvt.scrollwidth || oldEvt.scrollheight !== newEvt.scrollheight) {
+            target.sendEvent('scroll', newEvt);
+            return this._lastScrollEvent = newEvt;
+          }
+        }
       };
 
       Sprite.prototype.__updateOverflow = function() {
@@ -1527,6 +1578,10 @@
       resize: true,
       multiline: true,
       ignorelayout: true
+    };
+    domElementAttributes = {
+      scrollx: true,
+      scrolly: true
     };
     ignoredAttributes = {
       parent: true,
@@ -1724,6 +1779,22 @@
 
 
       /**
+       * @attribute {Number} [scrollx=0]
+       * Sets the horizontal scroll position of the view. Only relevant if
+       * this.scrollable is true. Setting this value will generate both a
+       * scrollx event and a scroll event.
+       */
+
+
+      /**
+       * @attribute {Number} [scrolly=0]
+       * Sets the vertical scroll position of the view. Only relevant if
+       * this.scrollable is true. Setting this value will generate both a
+       * scrolly event and a scroll event.
+       */
+
+
+      /**
        * @event onclick
        * Fired when this view is clicked
        * @param {dr.view} view The dr.view that fired the event
@@ -1755,6 +1826,42 @@
        * @event onmouseup
        * Fired when the mouse goes up on this view
        * @param {dr.view} view The dr.view that fired the event
+       */
+
+
+      /**
+       * @event onscrollx
+       * Fired when the horizontal scroll position changes
+       * @param {number} The x value of the scroll position.
+       */
+
+
+      /**
+       * @event onscrolly
+       * Fired when the vertical scroll position changes
+       * @param {number} The y value of the scroll position.
+       */
+
+
+      /**
+       * @event onscroll
+       * Fired when the scroll position changes. Also provides information about
+       * the scroll width and scroll height though it does not refire when those
+       * values change since the DOM does not generate an event when they do. This
+       * event is typically delayed by a few millis after setting scrollx or 
+       * scrolly since the underlying DOM event fires during the next DOM refresh
+       * performed by the browser.
+       * @param {object} The following four properties are defined:
+       *     scrollx:number The horizontal scroll position.
+       *     scrolly:number The vertical scroll position.
+       *     scrollwidth:number The width of the scrollable area. Note this is
+       *       not the maximum value for scrollx since that depends on the bounds
+       *       of the scrollable view. The maximum can be calculated using this
+       *       formula: scrollwidth - view.width + 2*view.border
+       *     scrollheight:number The height of the scrollable area. Note this is
+       *       not the maximum value for scrolly since that depends on the bounds
+       *       of the scrollable view. The maximum can be calculated using this
+       *       formula: scrollheight - view.height + 2*view.border
        */
 
       function View(el, attributes) {
@@ -1808,7 +1915,9 @@
           visible: 'boolean',
           border: 'number',
           padding: 'number',
-          ignorelayout: 'boolean'
+          ignorelayout: 'boolean',
+          scrollx: 'number',
+          scrolly: 'number'
         };
         defaults = {
           x: 0,
@@ -1824,7 +1933,9 @@
           borderstyle: 'solid',
           border: 0,
           padding: 0,
-          ignorelayout: false
+          ignorelayout: false,
+          scrollx: 0,
+          scrolly: 0
         };
         _ref = attributes.$types;
         for (key in _ref) {
@@ -1848,7 +1959,7 @@
         return this.sprite = new Sprite(el, this, attributes.$tagname);
       };
 
-      View.prototype.setAttribute = function(name, value, skipstyle, skipConstraintSetup, skipconstraintunregistration) {
+      View.prototype.setAttribute = function(name, value, skipDomChange, skipConstraintSetup, skipconstraintunregistration) {
         var existing;
         if (!skipConstraintSetup) {
           switch (name) {
@@ -1872,12 +1983,22 @@
           case 'border':
           case 'padding':
             value = Math.max(0, value);
+            break;
+          case 'scrollx':
+            value = Math.max(0, Math.min(this.sprite.el.scrollWidth - this.width + 2 * this.border, value));
+            break;
+          case 'scrolly':
+            value = Math.max(0, Math.min(this.sprite.el.scrollHeight - this.height + 2 * this.border, value));
         }
         existing = this[name];
         View.__super__.setAttribute.call(this, name, value, true, skipConstraintSetup, skipconstraintunregistration);
         value = this[name];
-        if (!(skipstyle || name in ignoredAttributes || name in hiddenAttributes || existing === value)) {
-          return this.sprite.setStyle(name, value);
+        if (!(skipDomChange || name in ignoredAttributes || name in hiddenAttributes || existing === value)) {
+          if (name in domElementAttributes) {
+            return this.sprite.setProperty(name, value);
+          } else {
+            return this.sprite.setStyle(name, value);
+          }
         }
       };
 
