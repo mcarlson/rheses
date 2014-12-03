@@ -15,14 +15,14 @@
   <view width="100%" height="100%" bgcolor="#eeeeee" scrollable="true">
     <!-- Test a setter can modify a value. -->
     <class name="item" width="10" height="10" bgcolor="#999999">
-      <setter name="x" args="x" invokesuper="inside">
+      <setter name="x" args="x">
         return Math.round(x / 10) * 10
       </setter>
     </class>
     
     <!-- Test multiple setters can modify a value. -->
     <class name="subitem" extends="item">
-      <setter name="x" args="x" invokesuper="inside">
+      <setter name="x" args="x">
         return 2 * this.super(arguments)
       </setter>
     </class>

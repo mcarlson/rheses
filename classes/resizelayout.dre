@@ -33,22 +33,22 @@ SOFTWARE. -->
       *     <view height="15" bgcolor="lightblue"></view>
       */-->
 <class name="resizelayout" extends="spacedlayout" type="coffee">
-  <setter name="collapseparent" args="collapseparent" invokesuper="inside">
+  <setter name="collapseparent" args="collapseparent">
     # collapseparent attribute is unused in resizelayout.
     return collapseparent
   </setter>
   
-  <method name="stopMonitoringAllSubviews" args="view" invokesuper="inside">
+  <method name="stopMonitoringAllSubviews" args="view">
     @super(arguments)
     @stopListening(@parent, 'inner' + @measureAttrName, @update)
   </method>
   
-  <method name="startMonitoringAllSubviews" args="view" invokesuper="inside">
+  <method name="startMonitoringAllSubviews" args="view">
     @super(arguments)
     @listenTo(@parent, 'inner' + @measureAttrName, @update)
   </method>
   
-  <method name="startMonitoringSubview" args="view" invokesuper="inside">
+  <method name="startMonitoringSubview" args="view">
     # Don't monitor width/height of the "stretchy" subviews since this 
     # layout resizes them so you would get an infinite loop.
     if !(Number(view.layouthint) > 0)
@@ -56,7 +56,7 @@ SOFTWARE. -->
     @listenTo(view, 'visible', @update)
   </method>
   
-  <method name="stopMonitoringSubview" args="view" invokesuper="inside">
+  <method name="stopMonitoringSubview" args="view">
     # Don't monitor width/height of the "stretchy" subviews since this 
     # layout resizes them so you would get an infinite loop.
     if !(Number(view.layouthint) > 0)
@@ -64,7 +64,7 @@ SOFTWARE. -->
     @stopListening(view, 'visible', @update)
   </method>
   
-  <method name="doBeforeUpdate" invokesuper="inside">
+  <method name="doBeforeUpdate">
     # Get size to fill
     measureAttrName = @measureAttrName
     remainder = @parent['inner' + measureAttrName]
@@ -97,7 +97,7 @@ SOFTWARE. -->
       @resizeSumUsed = @remainderUsed = 0
   </method>
 
-  <method name="updateSubview" args="count, view, attribute, value" invokesuper="inside">
+  <method name="updateSubview" args="count, view, attribute, value">
     hint = Number(view.layouthint)
     if hint > 0
       @resizeSumUsed += hint
@@ -110,7 +110,7 @@ SOFTWARE. -->
     return @super(arguments)
   </method>
   
-  <method name="updateParent" args="attribute, value" invokesuper="inside">
+  <method name="updateParent" args="attribute, value">
     # No resizing of parent since this view expands to fill the parent.
   </method>
 </class>

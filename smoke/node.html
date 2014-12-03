@@ -31,11 +31,13 @@
     <handler event="onsubnodeRemoved" args="node">
       //console.log("EVENT subnodeRemoved", node.name);
     </handler>
-    <method name="doSubnodeAdded" args="node" invokesuper="after">
+    <method name="doSubnodeAdded" args="node">
       //console.log("subnodeAdded", node.name);
+      this.super(arguments);
     </method>
-    <method name="doSubnodeRemoved" args="node" invokesuper="after">
+    <method name="doSubnodeRemoved" args="node">
       //console.log("subnodeRemoved", node.name);
+      this.super(arguments);
     </method>
     
     <handler event="onsubviewAdded" args="sv">

@@ -32,7 +32,7 @@ SOFTWARE. -->
         * @attribute {String} src
         * The bitmap URL to load
         */-->
-      <setter name="src" args="src" invokesuper="inside">
+      <setter name="src" args="src">
         if (src && this.src != src) {
           this.setAttribute('background-image', 'url("' + src + '")');
           this.setAttribute('background-size', 'cover');

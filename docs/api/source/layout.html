@@ -966,8 +966,11 @@
 
       _installMethod = function(scope, methodname, method, allocation, invokeSuper) {
         var supr;
+        if (invokeSuper) {
+          console.warn(&#39;invokeSuper has been deprecated and will be removed soon, the default is now &quot;inside&quot;.  Use @super(arguments) to invoke the overridden implementation&#39;);
+        }
         if (methodname in scope) {
-          supr = scope[methodname];
+          supr = scope[methodname] || noop;
           if (invokeSuper === &#39;after&#39;) {
             return scope[methodname] = function() {
               var retval;
@@ -975,7 +978,14 @@
               supr.apply(scope, arguments);
               return retval;
             };
-          } else if (invokeSuper === &#39;inside&#39;) {
+          } else if (invokeSuper === &#39;before&#39;) {
+            return scope[methodname] = function() {
+              var retval;
+              supr.apply(scope, arguments);
+              retval = method.apply(scope, arguments);
+              return retval;
+            };
+          } else {
             return scope[methodname] = function() {
               var prevOwn, prevValue, retval;
               prevValue = scope[&#39;super&#39;];
@@ -991,26 +1001,24 @@
               }
               return retval;
             };
-          } else {
-            return scope[methodname] = function() {
-              var retval;
-              supr.apply(scope, arguments);
-              retval = method.apply(scope, arguments);
-              return retval;
-            };
           }
         } else {
-          if (invokeSuper === &#39;inside&#39;) {
-            supr = scope[methodname];
+          if (invokeSuper === &#39;after&#39; || invokeSuper === &#39;before&#39;) {
+            return scope[methodname] = method;
+          } else {
             return scope[methodname] = function() {
-              var retval;
+              var prevOwn, prevValue, retval;
+              prevValue = scope[&#39;super&#39;];
+              prevOwn = scope.hasOwnProperty(&#39;super&#39;);
               scope[&#39;super&#39;] = noop;
               retval = method.apply(scope, arguments);
-              delete scope[&#39;super&#39;];
+              if (prevOwn) {
+                scope[&#39;super&#39;] = prevValue;
+              } else {
+                delete scope[&#39;super&#39;];
+              }
               return retval;
             };
-          } else {
-            return scope[methodname] = method;
           }
         }
       };

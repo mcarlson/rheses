@@ -47,7 +47,7 @@ SOFTWARE. -->
         * If true, the audio is done loading
         */-->
       <attribute name="loaded" value="false" type="boolean"></attribute>
-      <setter name="loaded" args="loaded" invokesuper="inside">
+      <setter name="loaded" args="loaded">
         if (loaded) {
           if (this.playing && ! this.paused) {
             this.setAttribute('playing', true);
@@ -60,7 +60,7 @@ SOFTWARE. -->
         * If true, the audio is playing.
         */-->
       <attribute name="playing" value="false" type="boolean"></attribute>
-      <setter name="playing" args="playing" invokesuper="inside">
+      <setter name="playing" args="playing">
         if (playing) {
           this.play()
         } else {
@@ -73,7 +73,7 @@ SOFTWARE. -->
         * If true, the audio is paused.
         */-->
       <attribute name="paused" value="false" type="boolean"></attribute>
-      <setter name="paused" args="paused" invokesuper="inside">
+      <setter name="paused" args="paused">
         if (paused) {
           this.pause()
         } else {
@@ -86,7 +86,7 @@ SOFTWARE. -->
         * If true, the audio will play continuously.
         */-->
       <attribute name="loop" value="false" type="boolean"></attribute>
-      <setter name="loop" args="loop" invokesuper="inside">
+      <setter name="loop" args="loop">
         if (this.source)
           this.source.loop = loop;
         return loop
@@ -162,6 +162,8 @@ SOFTWARE. -->
         this.startTime = 0;
       </handler>
       <method name="play">
+        this.super(arguments);
+
         if (! this.buffer) return;
 
         // track the time when playback started
@@ -190,6 +192,8 @@ SOFTWARE. -->
         this.source.start(0, this.startOffset % this.duration);                           
       </method>
       <method name="stop">
+        this.super(arguments);
+
         if (! this.source) return;
         if (!this.source.stop)
           this.source.stop = source.noteOff;
@@ -199,6 +203,8 @@ SOFTWARE. -->
         this.paused = false;
       </method>
       <method name="pause">
+        this.super(arguments);
+
         if (! this.source) return;
         if (!this.source.stop)
           this.source.stop = source.noteOff;

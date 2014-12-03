@@ -133,6 +133,8 @@ SOFTWARE. -->
       * @param {Number} v The new value of the component.
       */-->
     <method name="changeLowValue" args="v">
+        @super(arguments);
+
         max = Math.min(@maxvalue, @maxlowvalue)
         if (v > max)
           v = max;
@@ -148,6 +150,8 @@ SOFTWARE. -->
       * @param {Number} v The new value of the component.
       */-->
     <method name="changeHighValue" args="v">
+        @super(arguments);
+
         min = Math.max(@minvalue, @minhighvalue)
         if (v < min)
           v = min;
@@ -178,6 +182,7 @@ SOFTWARE. -->
 
     <!-- visualize: Show the current value -->
     <method name="visualize">
+        @super(arguments);
 
         if @axis == 'x'
 
@@ -245,6 +250,8 @@ SOFTWARE. -->
 
     <!-- Move the slider in response to a change in position -->
     <method name="movePosition" args="p">
+        @super(arguments);
+
         spread = @maxvalue - @minvalue;
 
         if (@axis == 'x')

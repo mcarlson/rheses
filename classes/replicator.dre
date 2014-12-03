@@ -183,7 +183,7 @@ SOFTWARE. -->
         * The datapath expression to be replicated.
         * See [https://github.com/flitbit/json-path](https://github.com/flitbit/json-path) for details.
         */-->
-      <setter name="datapath" args="datapath" invokesuper="inside">
+      <setter name="datapath" args="datapath">
         orig = datapath
         if datapath
           # console.log('evaluating datapath', datapath)
@@ -204,7 +204,7 @@ SOFTWARE. -->
       <!-- TODO: why can't this attribute/setter be named _dataset? -->
 <!--       TODO: attribute value is overwritten by "" later!!!
       <attribute name="_dataset" value="" type="string"></attribute> -->
-      <setter name="_dataset" args="dataset" invokesuper="inside">
+      <setter name="_dataset" args="dataset">
         if dataset
           @dataset = dr.datasets[dataset]
           @_dataset = dataset
@@ -234,7 +234,7 @@ SOFTWARE. -->
         * If defined, data will be filtered against a [regular expression](https://developer.mozilla.org/en/docs/Web/JavaScript/Guide/Regular_Expressions). 
         */-->
       <attribute name="filterexpression" value="" type="string"></attribute>
-      <setter name="filterexpression" args="regex" invokesuper="inside">
+      <setter name="filterexpression" args="regex">
         _filterexpression = new RegExp(regex)
         # console.log('filtering on', regex, _filterexpression)
         @_filterexpressionfunc = (value) ->
@@ -254,6 +254,8 @@ SOFTWARE. -->
         @applyData()
       </handler>
       <method name="buildsortfunc">
+        @super(arguments);
+
         if @sortfield
           sortfield = @sortfield
           sortasc = @sortasc
@@ -279,6 +281,8 @@ SOFTWARE. -->
       <handler event="ondatapath" method="applyData"></handler>
       <handler event="ondestroy" method="clear"></handler>
       <method name="updateData" args="data">
+        @super(arguments);
+
         # remove dataset declaration
         re = /^\$([^\/]+)/
         @dataset.updateData(@datapath.replace(re, ''), data);
@@ -288,9 +292,13 @@ SOFTWARE. -->
         * Refreshes the dataset manually
         */-->
       <method name="refresh">
+        @super(arguments);
+
         this.applyData()
       </method>
       <method name="clear">
+        @super(arguments);
+
         # @parent.setAttribute('display', 'none')
         if @children
           for child in @children
@@ -308,6 +316,8 @@ SOFTWARE. -->
         * @returns {Object[]} The accum array. Must be returned otherwise results will be lost.
         */-->
       <method name="applyData">
+        @super(arguments);
+
         return unless @inited and @parent and @classname
         # console.log('applyData', @data, @classname, @parent, @children, @, @inited)
 
@@ -362,6 +372,8 @@ SOFTWARE. -->
           @doReplication()
       </method>
       <method name="doReplication">
+        @super(arguments);
+
         return unless @data and @parent
 
         locked = @locked

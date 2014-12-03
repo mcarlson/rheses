@@ -65,7 +65,7 @@ SOFTWARE. -->
     @update()
   </handler>
   
-  <setter name="collapseparent" args="collapseparent" invokesuper="inside">
+  <setter name="collapseparent" args="collapseparent">
     @stopMonitoringAllSubviews()
     return collapseparent
   </setter>
@@ -73,24 +73,24 @@ SOFTWARE. -->
     @startMonitoringAllSubviews()
   </handler>
   
-  <method name="stopMonitoringAllSubviews" args="view" invokesuper="inside">
+  <method name="stopMonitoringAllSubviews" args="view">
     @super(arguments)
     if !@collapseparent
       @stopListening(@parent, 'inner' + @measureAttrName, @update)
   </method>
   
-  <method name="startMonitoringAllSubviews" args="view" invokesuper="inside">
+  <method name="startMonitoringAllSubviews" args="view">
     @super(arguments)
     if !@collapseparent
       @listenTo(@parent, 'inner' + @measureAttrName, @update)
   </method>
   
-  <method name="startMonitoringSubview" args="view" invokesuper="inside">
+  <method name="startMonitoringSubview" args="view">
     @super(arguments)
     @listenTo(view, @measureAttrName, @update)
   </method>
   
-  <method name="stopMonitoringSubview" args="view" invokesuper="inside">
+  <method name="stopMonitoringSubview" args="view">
     @super(arguments)
     @stopListening(view, @measureAttrName, @update)
   </method>
@@ -99,7 +99,7 @@ SOFTWARE. -->
     * @method doBeforeUpdate
     * Determine the maximum subview width/height according to the alignment.
     */-->
-  <method name="doBeforeUpdate" invokesuper="inside">
+  <method name="doBeforeUpdate">
     if @collapseparent
       measureAttrName = @measureAttrName
       svs = @subviews
@@ -117,7 +117,7 @@ SOFTWARE. -->
       @setAttribute('value', value)
   </method>
   
-  <method name="updateSubview" args="count, view, attribute, value" invokesuper="inside">
+  <method name="updateSubview" args="count, view, attribute, value">
     switch @align
       when 'center','middle'
         if @collapseparent
@@ -135,7 +135,7 @@ SOFTWARE. -->
     return value
   </method>
   
-  <method name="updateParent" args="attribute, value" invokesuper="inside">
+  <method name="updateParent" args="attribute, value">
     parent = @parent
     man = @measureAttrName
     parent.setAttribute(man, value + parent[man] - parent['inner' + man])

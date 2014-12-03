@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. -->
     <class name="threejs" width="400" height="300" scriptincludes="http://threejs.org/build/three.min.js">
       <attribute name="cameranear" value="1" type="number"></attribute>
-      <setter name="cameranear" args="cameranear" invokesuper="inside">
+      <setter name="cameranear" args="cameranear">
         if (this.camera) {
           this.camera.near = cameranear;
           this.camera.updateProjectionMatrix();
@@ -29,7 +29,7 @@ SOFTWARE. -->
         return cameranear
       </setter>
       <attribute name="camerafar" value="100000" type="number"></attribute>
-      <setter name="camerafar" args="camerafar" invokesuper="inside">
+      <setter name="camerafar" args="camerafar">
         if (this.camera) {
           this.camera.far = camerafar;
           this.camera.updateProjectionMatrix();
@@ -67,6 +67,7 @@ SOFTWARE. -->
       </handler>
       
       <method name="handleResize">
+        @super(arguments);
 
         if (this.camera) {
           
@@ -82,6 +83,10 @@ SOFTWARE. -->
         }
 
       </method>
-      <method name="update" args="scene, camera"></method>
-      <method name="initScene" args="scene"></method>
+      <method name="update" args="scene, camera">
+        this.super(arguments);
+      </method>
+      <method name="initScene" args="scene">
+        this.super(arguments);
+      </method>
     </class>
