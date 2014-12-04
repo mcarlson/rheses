@@ -32,6 +32,12 @@ stylemap =
   borderstyle: 'borderStyle'
   bordercolor: 'borderColor'
 
+
+# Maps attribute names to dom element property names.
+propmap =
+  scrollx: 'scrollLeft'
+  scrolly: 'scrollTop'
+
 hackstyle = do ->
   # hack jQuery to send a style event when CSS changes
   monitoredJQueryStyleProps = {}
@@ -1032,6 +1038,11 @@ window.dr = do ->
       # console.log('setStyle', name, value, @el)
       el.style[name] = value
       # @jqel.css(name, value)
+      
+    setProperty: (name, value, el=@el) ->
+      value ?= ''
+      name = propmap[name] if name of propmap
+      el[name] = value
 
     set_parent: (parent) ->
       if parent instanceof Sprite
@@ -1079,6 +1090,26 @@ window.dr = do ->
       @__scrollable = scrollable
       @__updateOverflow()
       @__updatePointerEvents()
+      if scrollable
+        $(@el).on('scroll', @_handleScroll)
+      else
+        $(@el).off('scroll', @_handleScroll)
+    
+    _handleScroll: (event) =>
+      domElement = event.target
+      target = domElement.$view
+      if target
+        x = domElement.scrollLeft
+        y = domElement.scrollTop
+        if target.scrollx != x then target.setAttribute('scrollx', x, true, true, true)
+        if target.scrolly != y then target.setAttribute('scrolly', y, true, true, true)
+        
+        # Prevent extra events when data has not changed
+        oldEvt = @_lastScrollEvent
+        newEvt = {scrollx:x, scrolly:y, scrollwidth:domElement.scrollWidth, scrollheight:domElement.scrollHeight}
+        if !oldEvt or oldEvt.scrollx != newEvt.scrollx or oldEvt.scrolly != newEvt.scrolly or oldEvt.scrollwidth != newEvt.scrollwidth or oldEvt.scrollheight != newEvt.scrollheight
+          target.sendEvent('scroll', newEvt)
+          @_lastScrollEvent = newEvt
 
     __updateOverflow: () ->
       @setStyle('overflow',
@@ -1205,6 +1236,13 @@ window.dr = do ->
     resize: true,
     multiline: true,
     ignorelayout: true
+  }
+
+  # Attributes that should be set on the dom element directly, not the
+  # style property of the dom element
+  domElementAttributes = {
+    scrollx: true,
+    scrolly: true,
   }
 
   # Internal attributes ignored by class declarations and view styles
@@ -1363,6 +1401,18 @@ window.dr = do ->
     # @attribute {Number} [opacity=1.0]
     # Sets this view's opacity, values can be a float from 0.0 ~ 1.0
     ###
+    ###*
+    # @attribute {Number} [scrollx=0]
+    # Sets the horizontal scroll position of the view. Only relevant if
+    # this.scrollable is true. Setting this value will generate both a
+    # scrollx event and a scroll event.
+    ###
+    ###*
+    # @attribute {Number} [scrolly=0]
+    # Sets the vertical scroll position of the view. Only relevant if
+    # this.scrollable is true. Setting this value will generate both a
+    # scrolly event and a scroll event.
+    ###
 
     ###*
     # @event onclick
@@ -1388,6 +1438,36 @@ window.dr = do ->
     # @event onmouseup
     # Fired when the mouse goes up on this view
     # @param {dr.view} view The dr.view that fired the event
+    ###
+    ###*
+    # @event onscrollx
+    # Fired when the horizontal scroll position changes
+    # @param {number} The x value of the scroll position.
+    ###
+    ###*
+    # @event onscrolly
+    # Fired when the vertical scroll position changes
+    # @param {number} The y value of the scroll position.
+    ###
+    ###*
+    # @event onscroll
+    # Fired when the scroll position changes. Also provides information about
+    # the scroll width and scroll height though it does not refire when those
+    # values change since the DOM does not generate an event when they do. This
+    # event is typically delayed by a few millis after setting scrollx or 
+    # scrolly since the underlying DOM event fires during the next DOM refresh
+    # performed by the browser.
+    # @param {object} The following four properties are defined:
+    #     scrollx:number The horizontal scroll position.
+    #     scrolly:number The vertical scroll position.
+    #     scrollwidth:number The width of the scrollable area. Note this is
+    #       not the maximum value for scrollx since that depends on the bounds
+    #       of the scrollable view. The maximum can be calculated using this
+    #       formula: scrollwidth - view.width + 2*view.border
+    #     scrollheight:number The height of the scrollable area. Note this is
+    #       not the maximum value for scrolly since that depends on the bounds
+    #       of the scrollable view. The maximum can be calculated using this
+    #       formula: scrollheight - view.height + 2*view.border
     ###
     constructor: (el, attributes = {}) ->
       ###*
@@ -1422,7 +1502,8 @@ window.dr = do ->
         rotation: 'string', opacity: 'number',
         width: 'number', height: 'number',
         clickable: 'boolean', clip: 'boolean', scrollable: 'boolean', visible: 'boolean', 
-        border: 'number', padding: 'number', ignorelayout:'boolean'
+        border: 'number', padding: 'number', ignorelayout:'boolean',
+        scrollx:'number', scrolly:'number'
       }
       defaults = {
         x:0, y:0,
@@ -1430,7 +1511,8 @@ window.dr = do ->
         opacity: 1,
         clickable:false, clip:false, scrollable:false, visible:true, 
         bordercolor:'transparent', borderstyle:'solid', border:0, 
-        padding:0, ignorelayout:false
+        padding:0, ignorelayout:false,
+        scrollx:0, scrolly:0
       }
 
       for key, type of attributes.$types
@@ -1453,7 +1535,7 @@ window.dr = do ->
     _createSprite: (el, attributes) ->
       @sprite = new Sprite(el, @, attributes.$tagname)
 
-    setAttribute: (name, value, skipstyle, skipConstraintSetup, skipconstraintunregistration) ->
+    setAttribute: (name, value, skipDomChange, skipConstraintSetup, skipconstraintunregistration) ->
       # catch percent constraints
       if (!skipConstraintSetup)
         switch name
@@ -1468,15 +1550,22 @@ window.dr = do ->
       switch name
         when 'width','height','border','padding'
           value = Math.max(0, value)
+        when 'scrollx'
+          value = Math.max(0, Math.min(@sprite.el.scrollWidth - @width + 2*@border, value))
+        when 'scrolly'
+          value = Math.max(0, Math.min(@sprite.el.scrollHeight - @height + 2*@border, value))
       
       # Do super first since setters may modify the actual value set.
       existing = @[name]
       super(name, value, true, skipConstraintSetup, skipconstraintunregistration)
       value = @[name]
-
-      if not (skipstyle or name of ignoredAttributes or name of hiddenAttributes or existing == value)
+      
+      if not (skipDomChange or name of ignoredAttributes or name of hiddenAttributes or existing == value)
         # console.log 'setting style', name, value, @
-        @sprite.setStyle(name, value)
+        if name of domElementAttributes
+          @sprite.setProperty(name, value)
+        else
+          @sprite.setStyle(name, value)
 
     __setupPercentConstraint: (name, value, axis) ->
       funcKey = '__percentFunc' + name
