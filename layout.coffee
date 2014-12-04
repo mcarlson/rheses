@@ -803,7 +803,7 @@ window.dr = do ->
 
     # remove a constraint, unbinding from all its dependencies
     _unbindConstraint: (property) ->
-      return unless @constraints and property of @constraints
+      return unless @constraints and @constraints[property]?.callback
       {callback, callbackbindings} = @constraints[property]
       # console.log "removing constraint for #{property}", @constraints[property], callback, callbackbindings
       return unless callback and callbackbindings

@@ -1042,11 +1042,11 @@
       };
 
       Node.prototype._unbindConstraint = function(property) {
-        var callback, callbackbindings, i, prop, scope, _i, _len, _ref;
-        if (!(this.constraints && property in this.constraints)) {
+        var callback, callbackbindings, i, prop, scope, _i, _len, _ref, _ref1;
+        if (!(this.constraints && ((_ref = this.constraints[property]) != null ? _ref.callback : void 0))) {
           return;
         }
-        _ref = this.constraints[property], callback = _ref.callback, callbackbindings = _ref.callbackbindings;
+        _ref1 = this.constraints[property], callback = _ref1.callback, callbackbindings = _ref1.callbackbindings;
         if (!(callback && callbackbindings)) {
           return;
         }
