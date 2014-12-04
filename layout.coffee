@@ -367,8 +367,10 @@ window.dr = do ->
       propertyBindings =
         MemberExpression: (n, parent) ->
           # console.log('MemberExpression', n, parent)
-          # avoid binding to CallExpression, e.g. Math.round(...) shouldn't attempt to bind to 'round' on Math
-          return true if parent.node.type is 'CallExpression'
+          # avoid binding to CallExpressions whose parent is a function call, e.g. Math.round(...) shouldn't attempt to bind to 'round' on Math
+          if parent.node.type is 'CallExpression' and parent.sub is 'callee'
+            # console.warn(acorn.stringify parent.node, n.property.name, n.object)
+            return true 
 
           # grab the property name
           name = n.property.name

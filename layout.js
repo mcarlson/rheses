@@ -513,7 +513,7 @@
         propertyBindings = {
           MemberExpression: function(n, parent) {
             var name;
-            if (parent.node.type === 'CallExpression') {
+            if (parent.node.type === 'CallExpression' && parent.sub === 'callee') {
               return true;
             }
             name = n.property.name;

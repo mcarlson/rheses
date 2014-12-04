@@ -193,6 +193,16 @@ Invalid type 'text' for attribute 'something', must be one of: number, boolean, 
       assert.equal(this.x, 20)
     </handler>
   </view>
+
+  <!-- Constraints shouldn't attempt to bind to functions, see https://www.pivotaltracker.com/story/show/83879598 -->
+  <view x="${Math.round(this.floating)}" bgcolor="pink" width="10" height="10">
+    <attribute name="floating" type="number" value=".5"></attribute>
+    <handler event="oninit">
+      // There shouldn't be a warning and this.floating should be bound even though it's inside Math.round()
+      assert.equal(this.events.floating.length, 1)
+      assert.equal(this.x, 1)
+    </handler>
+  </view>
   
   <!-- attribute with no value -->
   <view>
