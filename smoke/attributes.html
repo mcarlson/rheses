@@ -191,6 +191,8 @@ Invalid type 'text' for attribute 'something', must be one of: number, boolean, 
       this.setAttribute('thirty', 40)
       assert.equal(this.thirty, 40)
       assert.equal(this.x, 20)
+      // this will cause the event system to attempt to unbind constraints for the noconstraint attribute which shouldn't exist. There shouldn't be an error.
+      this.setAttribute('noconstraint', 0)
     </handler>
   </view>
 

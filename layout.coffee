@@ -806,7 +806,6 @@ window.dr = do ->
       return unless @constraints and @constraints[property]?.callback
       {callback, callbackbindings} = @constraints[property]
       # console.log "removing constraint for #{property}", @constraints[property], callback, callbackbindings
-      return unless callback and callbackbindings
 
       for prop, i in callbackbindings by 2
         scope = callbackbindings[i + 1]

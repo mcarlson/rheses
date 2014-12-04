@@ -1047,9 +1047,6 @@
           return;
         }
         _ref1 = this.constraints[property], callback = _ref1.callback, callbackbindings = _ref1.callbackbindings;
-        if (!(callback && callbackbindings)) {
-          return;
-        }
         for (i = _i = 0, _len = callbackbindings.length; _i < _len; i = _i += 2) {
           prop = callbackbindings[i];
           scope = callbackbindings[i + 1];
