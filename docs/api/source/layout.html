@@ -97,7 +97,7 @@
   })();
 
   window.dr = (function() {
-    var Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, capabilities, compiler, constraintScopes, debug, dom, domElementAttributes, exports, fcamelCase, hiddenAttributes, idle, ignoredAttributes, knownstyles, mixOf, moduleKeywords, mouseEvents, noop, querystring, rdashAlpha, showWarnings, ss, ss2, test, triggerlock, warnings, _initConstraints;
+    var Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, callOnIdle, capabilities, compiler, constraintScopes, debug, dom, domElementAttributes, exports, fcamelCase, hiddenAttributes, idle, ignoredAttributes, knownstyles, mixOf, moduleKeywords, mouseEvents, noop, querystring, rdashAlpha, showWarnings, specialtags, ss, ss2, test, triggerlock, warnings, _initConstraints;
     noop = function() {};
     mixOf = function() {
       var Mixed, base, i, method, mixin, mixins, name, _i, _ref;
@@ -770,7 +770,8 @@
          * @readonly
          * Contains the textual contents of this node, if any
          */
-        if (el != null ? el.textContent : void 0) {
+        if (el != null) {
+          el.$view = this;
           attributes.$textcontent = el.textContent;
         }
         if (attributes.$methods) {
@@ -1132,11 +1133,11 @@
           } else {
             this.handlers = defer;
           }
-          setTimeout((function(_this) {
+          callOnIdle((function(_this) {
             return function() {
               return _this._bindHandlers(isLate);
             };
-          })(this), 0);
+          })(this));
           return;
         }
         if (isLate) {
@@ -1592,7 +1593,8 @@
       $textcontent: true,
       resize: true,
       multiline: true,
-      ignorelayout: true
+      ignorelayout: true,
+      initchildren: true
     };
     domElementAttributes = {
       scrollx: true,
@@ -2642,8 +2644,9 @@
       document.body.insertBefore(pre, document.body.firstChild);
       return console.error(out);
     };
+    specialtags = [&#39;handler&#39;, &#39;method&#39;, &#39;attribute&#39;, &#39;setter&#39;, &#39;include&#39;];
     dom = (function() {
-      var builtinTags, checkRequiredAttributes, exports, findAutoIncludes, flattenattributes, getChildren, htmlDecode, initAllElements, initElement, initFromElement, processSpecialTags, requiredAttributes, sendInit, specialtags, writeCSS;
+      var builtinTags, checkRequiredAttributes, exports, findAutoIncludes, flattenattributes, getChildren, htmlDecode, initAllElements, initElement, initFromElement, processSpecialTags, requiredAttributes, sendInit, writeCSS;
       getChildren = function(el) {
         var child, _i, _len, _ref, _ref1, _results;
         _ref = el.childNodes;
@@ -2918,7 +2921,6 @@
         };
         return loadIncludes(test ? finalcallback : validator);
       };
-      specialtags = [&#39;handler&#39;, &#39;method&#39;, &#39;attribute&#39;, &#39;setter&#39;, &#39;include&#39;];
       builtinTags = [&#39;a&#39;, &#39;abbr&#39;, &#39;address&#39;, &#39;area&#39;, &#39;article&#39;, &#39;aside&#39;, &#39;audio&#39;, &#39;b&#39;, &#39;base&#39;, &#39;bdi&#39;, &#39;bdo&#39;, &#39;blockquote&#39;, &#39;body&#39;, &#39;br&#39;, &#39;button&#39;, &#39;canvas&#39;, &#39;caption&#39;, &#39;cite&#39;, &#39;code&#39;, &#39;col&#39;, &#39;colgroup&#39;, &#39;command&#39;, &#39;datalist&#39;, &#39;dd&#39;, &#39;del&#39;, &#39;details&#39;, &#39;dfn&#39;, &#39;div&#39;, &#39;dl&#39;, &#39;dt&#39;, &#39;em&#39;, &#39;embed&#39;, &#39;fieldset&#39;, &#39;figcaption&#39;, &#39;figure&#39;, &#39;footer&#39;, &#39;form&#39;, &#39;h1&#39;, &#39;h2&#39;, &#39;h3&#39;, &#39;h4&#39;, &#39;h5&#39;, &#39;h6&#39;, &#39;head&#39;, &#39;header&#39;, &#39;hgroup&#39;, &#39;hr&#39;, &#39;html&#39;, &#39;i&#39;, &#39;iframe&#39;, &#39;img&#39;, &#39;image&#39;, &#39;input&#39;, &#39;ins&#39;, &#39;kbd&#39;, &#39;keygen&#39;, &#39;label&#39;, &#39;legend&#39;, &#39;li&#39;, &#39;link&#39;, &#39;map&#39;, &#39;mark&#39;, &#39;menu&#39;, &#39;meta&#39;, &#39;meter&#39;, &#39;nav&#39;, &#39;noscript&#39;, &#39;object&#39;, &#39;ol&#39;, &#39;optgroup&#39;, &#39;option&#39;, &#39;output&#39;, &#39;p&#39;, &#39;param&#39;, &#39;pre&#39;, &#39;progress&#39;, &#39;q&#39;, &#39;rp&#39;, &#39;rt&#39;, &#39;ruby&#39;, &#39;s&#39;, &#39;samp&#39;, &#39;script&#39;, &#39;section&#39;, &#39;select&#39;, &#39;small&#39;, &#39;source&#39;, &#39;span&#39;, &#39;strong&#39;, &#39;style&#39;, &#39;sub&#39;, &#39;summary&#39;, &#39;sup&#39;, &#39;table&#39;, &#39;tbody&#39;, &#39;td&#39;, &#39;textarea&#39;, &#39;tfoot&#39;, &#39;th&#39;, &#39;thead&#39;, &#39;time&#39;, &#39;title&#39;, &#39;tr&#39;, &#39;track&#39;, &#39;u&#39;, &#39;ul&#39;, &#39;var&#39;, &#39;video&#39;, &#39;wbr&#39;];
       requiredAttributes = {
         &quot;class&quot;: {
@@ -2961,7 +2963,7 @@
         return error;
       };
       initElement = function(el, parent) {
-        var attr, attributes, checkChildren, child, children, event, eventname, isClass, isState, li, skiponinit, tagname, _i, _j, _len, _len1;
+        var attr, attributes, checkChildren, child, children, event, eventname, isClass, isState, li, skiponinit, tagname, tid, _i, _j, _len, _len1;
         if (el.$init) {
           return;
         }
@@ -3025,7 +3027,7 @@
         })();
         attributes.$skiponinit = skiponinit = children.length &gt; 0;
         if (typeof dr[tagname] === &#39;function&#39;) {
-          parent = new dr[tagname](el, attributes);
+          parent = new dr[tagname](el, attributes, true);
         } else {
           showWarnings([&quot;Unrecognized class &quot; + tagname + &quot; &quot; + el.outerHTML]);
           return;
@@ -3046,17 +3048,23 @@
             }
             return _results;
           })();
-          for (_j = 0, _len1 = children.length; _j &lt; _len1; _j++) {
-            child = children[_j];
-            initElement(child, parent);
+          if (!dr[tagname].skipinitchildren) {
+            for (_j = 0, _len1 = children.length; _j &lt; _len1; _j++) {
+              child = children[_j];
+              initElement(child, parent);
+            }
           }
           if (!parent.inited) {
+            tid = null;
             checkChildren = function() {
               var _k, _len2;
               for (_k = 0, _len2 = children.length; _k &lt; _len2; _k++) {
                 child = children[_k];
                 if (!child.inited &amp;&amp; child.localName === !&#39;class&#39;) {
-                  setTimeout(checkChildren, 0);
+                  if (tid != null) {
+                    clearTimeout(tid);
+                  }
+                  tid = callOnIdle(checkChildren);
                   return;
                 }
               }
@@ -3066,7 +3074,7 @@
               parent.inited = true;
               parent.sendEvent(&#39;init&#39;, parent);
             };
-            setTimeout(checkChildren, 0);
+            tid = callOnIdle(checkChildren);
           }
         }
       };
@@ -3268,6 +3276,10 @@
         }
         this.enumfalse(this.skipattributes);
         this.enumfalse(this.keys);
+        if (el) {
+          el.$view = this;
+        }
+        this.inited = true;
       }
 
 
@@ -3392,6 +3404,11 @@
 </span>       * @attribute {&quot;js&quot;/&quot;coffee&quot;} [type=js] 
        * The default compiler to use for methods, setters and handlers. Either &#39;js&#39; or &#39;coffee&#39;
        */
+
+<span id='dr-class-attribute-initchildren'>      /**
+</span>       * @attribute {Boolean} [initchildren=true]
+       * If false, class instances won&#39;t initialize their children.
+       */
       var clone;
 
       clone = function(obj) {
@@ -3405,13 +3422,14 @@
       };
 
       function Class(el, classattributes) {
-        var child, compilertype, extend, haschildren, ignored, instancebody, name, oldbody, processedChildren, _i, _len;
+        var child, compilertype, extend, haschildren, ignored, instancebody, name, oldbody, processedChildren, skipinitchildren, _i, _len;
         if (classattributes == null) {
           classattributes = {};
         }
         name = (classattributes.name ? classattributes.name.toLowerCase() : classattributes.name);
         extend = classattributes[&quot;extends&quot;] != null ? classattributes[&quot;extends&quot;] : classattributes[&quot;extends&quot;] = &#39;view&#39;;
         compilertype = classattributes.type;
+        skipinitchildren = classattributes.initchildren === &#39;false&#39;;
         for (ignored in ignoredAttributes) {
           delete classattributes[ignored];
         }
@@ -3440,8 +3458,8 @@
         if (name in dr) {
           console.warn(&#39;overwriting class&#39;, name);
         }
-        dr[name] = function(instanceel, instanceattributes) {
-          var attributes, checkChildren, children, key, parent, propname, sendInit, val, value, viewel, _j, _len1, _ref;
+        dr[name] = function(instanceel, instanceattributes, internal, skipchildren) {
+          var attributes, checkChildren, children, key, parent, propname, sendInit, tid, val, value, viewel, _j, _len1, _ref;
           attributes = clone(classattributes);
           for (key in instanceattributes) {
             value = instanceattributes[key];
@@ -3470,63 +3488,76 @@
           }
           attributes.$skiponinit = true;
           attributes.$deferbindings = haschildren;
-          parent = new dr[extend](instanceel, attributes);
+          parent = new dr[extend](instanceel, attributes, true, true);
           viewel = (_ref = parent.sprite) != null ? _ref.el : void 0;
           if (instanceel) {
             if (!viewel) {
               instanceel.setAttribute(&#39;class&#39;, &#39;hidden&#39;);
             }
           }
-          if (instancebody &amp;&amp; viewel) {
+          if (viewel) {
             if (viewel.innerHTML) {
               viewel.innerHTML = instancebody + viewel.innerHTML;
             } else {
               viewel.innerHTML = instancebody;
             }
-            children = (function() {
-              var _j, _len1, _ref1, _results;
-              _ref1 = viewel.childNodes;
-              _results = [];
-              for (_j = 0, _len1 = _ref1.length; _j &lt; _len1; _j++) {
-                child = _ref1[_j];
-                if (child.nodeType === 1) {
-                  _results.push(child);
+            if (!skipchildren) {
+              children = (function() {
+                var _j, _len1, _ref1, _ref2, _results;
+                _ref1 = viewel.childNodes;
+                _results = [];
+                for (_j = 0, _len1 = _ref1.length; _j &lt; _len1; _j++) {
+                  child = _ref1[_j];
+                  if (child.nodeType === 1 &amp;&amp; (_ref2 = child.localName, __indexOf.call(specialtags, _ref2) &lt; 0)) {
+                    _results.push(child);
+                  }
+                }
+                return _results;
+              })();
+              if (!skipinitchildren) {
+                for (_j = 0, _len1 = children.length; _j &lt; _len1; _j++) {
+                  child = children[_j];
+                  dom.initElement(child, parent);
                 }
               }
-              return _results;
-            })();
-            for (_j = 0, _len1 = children.length; _j &lt; _len1; _j++) {
-              child = children[_j];
-              dom.initElement(child, parent);
             }
           }
-          sendInit = function() {
-            if (parent.inited) {
-              return;
-            }
-            parent._bindHandlers();
-            parent._bindHandlers(true);
-            parent.inited = true;
-            return parent.sendEvent(&#39;init&#39;, parent);
-          };
-          if (children != null ? children.length : void 0) {
-            checkChildren = function() {
-              var _k, _len2;
-              for (_k = 0, _len2 = children.length; _k &lt; _len2; _k++) {
-                child = children[_k];
-                if (!child.inited &amp;&amp; child.localName === !&#39;class&#39;) {
-                  setTimeout(checkChildren, 0);
-                  return;
-                }
+          if (!skipchildren) {
+            sendInit = function() {
+              if (parent.inited) {
+                return;
               }
-              return sendInit();
+              parent._bindHandlers();
+              parent._bindHandlers(true);
+              parent.inited = true;
+              return parent.sendEvent(&#39;init&#39;, parent);
             };
-            setTimeout(checkChildren, 0);
-          } else {
-            sendInit();
+            if (children != null ? children.length : void 0) {
+              tid = null;
+              checkChildren = function() {
+                var _k, _len2;
+                for (_k = 0, _len2 = children.length; _k &lt; _len2; _k++) {
+                  child = children[_k];
+                  if ((!child.$view) || (!child.$view.inited)) {
+                    if (tid != null) {
+                      clearTimeout(tid);
+                    }
+                    tid = callOnIdle(checkChildren);
+                    return;
+                  }
+                }
+                return sendInit();
+              };
+              tid = callOnIdle(checkChildren);
+            } else if (internal) {
+              callOnIdle(sendInit);
+            } else {
+              sendInit();
+            }
           }
           return parent;
         };
+        dr[name].skipinitchildren = skipinitchildren;
       }
 
       return Class;
@@ -3777,9 +3808,27 @@
       return function(key, callback) {
         if (!ticking) {
           requestAnimationFrame(doTick);
+          ticking = true;
         }
-        ticking = true;
         return tickEvents[key] = callback;
+      };
+    })();
+    callOnIdle = (function() {
+      var callback, queue;
+      queue = [];
+      callback = function(time) {
+        var cb, _i, _len;
+        if (queue.length) {
+          for (_i = 0, _len = queue.length; _i &lt; _len; _i++) {
+            cb = queue[_i];
+            cb(time);
+          }
+          return queue = [];
+        }
+      };
+      return function(cb) {
+        queue.push(cb);
+        idle(2, callback);
       };
     })();
     StartEventable = (function(_super) {
@@ -3834,13 +3883,14 @@
      *     &lt;/handler&gt;
      *
      *     &lt;spacedlayout&gt;&lt;/spacedlayout&gt;
-     *     &lt;text text=&quot;Miliseconds since app started: &quot;&gt;&lt;/text&gt;
+     *     &lt;text text=&quot;Milliseconds since app started: &quot;&gt;&lt;/text&gt;
      *     &lt;text id=&quot;milis&quot;&gt;&lt;/text&gt;
      */
     Idle = (function(_super) {
       __extends(Idle, _super);
 
       function Idle() {
+        this.callOnIdle = __bind(this.callOnIdle, this);
         this.sender = __bind(this.sender, this);
         this.startEvent = __bind(this.startEvent, this);
         return Idle.__super__.constructor.apply(this, arguments);
@@ -3856,7 +3906,7 @@
 
       Idle.prototype.startEvent = function(event) {
         Idle.__super__.startEvent.apply(this, arguments);
-        return idle(1, this.sender);
+        idle(1, this.sender);
       };
 
       Idle.prototype.sender = function(time) {
@@ -3872,6 +3922,16 @@
             return idle(1, _this.sender);
           };
         })(this), 0);
+
+<span id='dr-idle-method-callOnIdle'>        /**
+</span>         * @method callOnIdle
+         * Calls a function on the next idle event.
+         * @param {Function} callback A function to be called on the next idle event
+         */
+      };
+
+      Idle.prototype.callOnIdle = function(callback) {
+        return callOnIdle(callback);
       };
 
       return Idle;
@@ -4060,9 +4120,9 @@
          */
         this.y = event.pageY;
         if (this.eventStarted &amp;&amp; type === &#39;mousemove&#39;) {
-          return idle(0, this.sender);
+          idle(0, this.sender);
         } else {
-          return this.sendEvent(type, view);
+          this.sendEvent(type, view);
         }
       };
 

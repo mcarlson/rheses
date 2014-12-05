@@ -21,14 +21,13 @@
     <view width="50" height="50" bgcolor="plum" opacity=".3"></view>
     <view width="50" height="50" bgcolor="lightblue" opacity=".3"></view>
 
-    <handler event="onlayouts" args="layouts">
-      //console.log('onlayouts', layouts, output.text);
+    <handler event="oninit" args="layouts">
       output.setAttribute('text', output.text + ' testing');
-      //console.log('set text to: ', output.text);
+      console.log('set text to: ', output.text);
     </handler>
 
     <handler event="onidle" reference="dr.idle">
-      //console.log('onidle', output.text);
+      console.log('onidle', output.text);
     </handler>
   </view>
   <text id="output" multiline="true"></text>

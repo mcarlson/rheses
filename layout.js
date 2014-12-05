@@ -80,7 +80,7 @@
   })();
 
   window.dr = (function() {
-    var Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, capabilities, compiler, constraintScopes, debug, dom, domElementAttributes, exports, fcamelCase, hiddenAttributes, idle, ignoredAttributes, knownstyles, mixOf, moduleKeywords, mouseEvents, noop, querystring, rdashAlpha, showWarnings, specialtags, ss, ss2, test, triggerlock, warnings, _initConstraints;
+    var Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, callOnIdle, capabilities, compiler, constraintScopes, debug, dom, domElementAttributes, exports, fcamelCase, hiddenAttributes, idle, ignoredAttributes, knownstyles, mixOf, moduleKeywords, mouseEvents, noop, querystring, rdashAlpha, showWarnings, specialtags, ss, ss2, test, triggerlock, warnings, _initConstraints;
     noop = function() {};
     mixOf = function() {
       var Mixed, base, i, method, mixin, mixins, name, _i, _ref;
@@ -1116,11 +1116,11 @@
           } else {
             this.handlers = defer;
           }
-          setTimeout((function(_this) {
+          callOnIdle((function(_this) {
             return function() {
               return _this._bindHandlers(isLate);
             };
-          })(this), 0);
+          })(this));
           return;
         }
         if (isLate) {
@@ -3047,7 +3047,7 @@
                   if (tid != null) {
                     clearTimeout(tid);
                   }
-                  tid = setTimeout(checkChildren, 0);
+                  tid = callOnIdle(checkChildren);
                   return;
                 }
               }
@@ -3057,7 +3057,7 @@
               parent.inited = true;
               parent.sendEvent('init', parent);
             };
-            tid = setTimeout(checkChildren, 0);
+            tid = callOnIdle(checkChildren);
           }
         }
       };
@@ -3525,15 +3525,15 @@
                     if (tid != null) {
                       clearTimeout(tid);
                     }
-                    tid = setTimeout(checkChildren, 0);
+                    tid = callOnIdle(checkChildren);
                     return;
                   }
                 }
                 return sendInit();
               };
-              tid = setTimeout(checkChildren, 0);
+              tid = callOnIdle(checkChildren);
             } else if (internal) {
-              setTimeout(sendInit, 0);
+              callOnIdle(sendInit);
             } else {
               sendInit();
             }
@@ -3791,9 +3791,27 @@
       return function(key, callback) {
         if (!ticking) {
           requestAnimationFrame(doTick);
+          ticking = true;
         }
-        ticking = true;
         return tickEvents[key] = callback;
+      };
+    })();
+    callOnIdle = (function() {
+      var callback, queue;
+      queue = [];
+      callback = function(time) {
+        var cb, _i, _len;
+        if (queue.length) {
+          for (_i = 0, _len = queue.length; _i < _len; _i++) {
+            cb = queue[_i];
+            cb(time);
+          }
+          return queue = [];
+        }
+      };
+      return function(cb) {
+        queue.push(cb);
+        idle(2, callback);
       };
     })();
     StartEventable = (function(_super) {
@@ -3848,13 +3866,14 @@
      *     </handler>
      *
      *     <spacedlayout></spacedlayout>
-     *     <text text="Miliseconds since app started: "></text>
+     *     <text text="Milliseconds since app started: "></text>
      *     <text id="milis"></text>
      */
     Idle = (function(_super) {
       __extends(Idle, _super);
 
       function Idle() {
+        this.callOnIdle = __bind(this.callOnIdle, this);
         this.sender = __bind(this.sender, this);
         this.startEvent = __bind(this.startEvent, this);
         return Idle.__super__.constructor.apply(this, arguments);
@@ -3870,7 +3889,7 @@
 
       Idle.prototype.startEvent = function(event) {
         Idle.__super__.startEvent.apply(this, arguments);
-        return idle(1, this.sender);
+        idle(1, this.sender);
       };
 
       Idle.prototype.sender = function(time) {
@@ -3886,6 +3905,16 @@
             return idle(1, _this.sender);
           };
         })(this), 0);
+
+        /**
+         * @method callOnIdle
+         * Calls a function on the next idle event.
+         * @param {Function} callback A function to be called on the next idle event
+         */
+      };
+
+      Idle.prototype.callOnIdle = function(callback) {
+        return callOnIdle(callback);
       };
 
       return Idle;
@@ -4074,9 +4103,9 @@
          */
         this.y = event.pageY;
         if (this.eventStarted && type === 'mousemove') {
-          return idle(0, this.sender);
+          idle(0, this.sender);
         } else {
-          return this.sendEvent(type, view);
+          this.sendEvent(type, view);
         }
       };
 

@@ -80,6 +80,8 @@ window.dr = do ->
         Mixed::[name] = method
     Mixed
 
+
+
   ###*
   # @class Events
   # @private
@@ -869,9 +871,9 @@ window.dr = do ->
         else 
           @handlers = defer
         # console.log 'found deferred bindings', defer
-        setTimeout(() =>
+        callOnIdle(() =>
           @_bindHandlers(isLate)
-        , 0)
+        )
         return
 
       if isLate 
@@ -2423,14 +2425,14 @@ window.dr = do ->
               if not child.inited and child.localName is not 'class'
                 # console.log 'child not initted', child, parent
                 clearTimeout(tid) if tid?
-                tid = setTimeout(checkChildren, 0)
+                tid = callOnIdle(checkChildren)
                 return
             return if parent.inited
             # console.log('doinit', parent)
             parent.inited = true
             parent.sendEvent('init', parent)
             return
-          tid = setTimeout(checkChildren, 0)
+          tid = callOnIdle(checkChildren)
 
       return
 
@@ -2854,12 +2856,12 @@ window.dr = do ->
                 if (not child.$view) or (not child.$view.inited)
                   # console.log 'child not initted', child, child.$view, child.$view?.inited, parent
                   clearTimeout(tid) if tid?
-                  tid = setTimeout(checkChildren, 0)
+                  tid = callOnIdle(checkChildren)
                   return
               sendInit()
-            tid = setTimeout(checkChildren, 0)
+            tid = callOnIdle(checkChildren)
           else if internal
-            setTimeout(sendInit, 0)
+            callOnIdle(sendInit)
           else
             # the user called dr[foo]() directly, init immediately
             sendInit()
@@ -3069,11 +3071,28 @@ window.dr = do ->
     (key, callback) ->
       # console.log('idle', key, callback)
       # console.log('hit', key) if (tickEvents[key] != null) 
-      if !ticking
+      unless ticking
         requestAnimationFrame(doTick)
-      ticking = true
+        ticking = true
       tickEvents[key] = callback
 
+  callOnIdle = do ->
+    queue = []
+  
+    callback = (time) ->
+      # console.log('callback', time, queue)
+      if queue.length
+        for cb in queue
+          # console.log('callback', _cb)
+          cb(time)
+        queue = []
+
+    (cb) ->
+      # setTimeout(cb, 0)
+      queue.push(cb)
+      # console.log('callOnIdle', queue)
+      idle(2, callback)
+      return
 
   class StartEventable extends Eventable
     bind: (ev, callback) ->
@@ -3107,7 +3126,7 @@ window.dr = do ->
   #     </handler>
   #
   #     <spacedlayout></spacedlayout>
-  #     <text text="Miliseconds since app started: "></text>
+  #     <text text="Milliseconds since app started: "></text>
   #     <text id="milis"></text>
   ###
   class Idle extends StartEventable
@@ -3122,6 +3141,7 @@ window.dr = do ->
     startEvent: (event) =>
       super
       idle(1, @sender)
+      return
 
     sender: (time) =>
       ###*
@@ -3135,6 +3155,13 @@ window.dr = do ->
         idle(1, @sender)
       ,0)
 
+      ###*
+      # @method callOnIdle
+      # Calls a function on the next idle event.
+      # @param {Function} callback A function to be called on the next idle event
+      ###
+    callOnIdle: (callback) =>
+      callOnIdle(callback)
 
   # singleton that listens for mouse events. Holds data about the most recent left and top mouse coordinates
   mouseEvents = ['click', 'mouseover', 'mouseout', 'mousedown', 'mouseup']
@@ -3286,6 +3313,7 @@ window.dr = do ->
         idle(0, @sender) 
       else 
         @sendEvent(type, view)
+      return
 
     sender: =>
       ###*
