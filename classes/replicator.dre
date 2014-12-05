@@ -184,38 +184,38 @@ SOFTWARE. -->
         * See [https://github.com/flitbit/json-path](https://github.com/flitbit/json-path) for details.
         */-->
       <setter name="datapath" args="datapath">
+        return unless datapath
         orig = datapath
-        if datapath
-          # console.log('evaluating datapath', datapath)
-          re = /^\$([^\/]+)/
-          match = datapath.match(re)
-          if match and match[1]
-            # absolute datapath
-            @setAttribute('_dataset', match[1])
-            datapath = datapath.replace(re, '')
-  
-          @datapath = datapath
-          @sendEvent('datapath', datapath)
-  
-          @parsedpath = JsonPath.parseSelector(datapath)
-          # console.log('evaluated datapath', datapath, @parsedpath)
+        # console.log('evaluating datapath', datapath)
+        re = /^\$([^\/]+)/
+        match = datapath.match(re)
+        if match and match[1]
+          # absolute datapath
+          @setAttribute('_dataset', match[1])
+          datapath = datapath.replace(re, '')
+
+        @datapath = datapath
+        @sendEvent('datapath', datapath)
+
+        @parsedpath = JsonPath.parseSelector(datapath)
+        # console.log('evaluated datapath', datapath, @parsedpath)
         return orig
       </setter>
       <!-- TODO: why can't this attribute/setter be named _dataset? -->
 <!--       TODO: attribute value is overwritten by "" later!!!
       <attribute name="_dataset" value="" type="string"></attribute> -->
       <setter name="_dataset" args="dataset">
-        if dataset
-          @dataset = dr.datasets[dataset]
-          @_dataset = dataset
-  
-          # console.log('listening to dataset', dataset, dr.datasets, @dataset, @_dataset)
-          @listenTo(@dataset, 'data', (data) =>
-            # console.log('callback', @, data)
-            @data = data
-            @applyData()
-          )
-          @sendEvent('dataset', @dataset)
+        return dataset unless dataset and dr.datasets?[dataset]
+        @dataset = dr.datasets[dataset]
+        @_dataset = dataset
+
+        # console.log('listening to dataset', dataset, dr.datasets, @dataset, @_dataset)
+        @listenTo(@dataset, 'data', (data) =>
+          # console.log('callback', @, data)
+          @data = data
+          @applyData()
+        )
+        @sendEvent('dataset', @dataset)
         return dataset
       </setter>
       <!-- TODO: make this a relative datapath -->
@@ -275,7 +275,10 @@ SOFTWARE. -->
         else
           @sortfunc = null
       </method>
-      <handler event="oninit" method="applyData"></handler>
+      <handler event="oninit">
+        @setAttribute('_dataset', @_dataset) unless @dataset
+        @applyData();
+      </handler>
       <handler event="onclassname" method="applyData"></handler>
       <handler event="ondata" method="applyData"></handler>
       <handler event="ondatapath" method="applyData"></handler>

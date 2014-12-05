@@ -563,8 +563,10 @@ window.dr = do ->
       # @readonly
       # Contains the textual contents of this node, if any
       ###
-      # store textual content
-      if el?.textContent
+      if el?
+        # store a reference so others can find out when we're initted
+        el.$view = @
+        # store textual content
         attributes.$textcontent = el.textContent
 
       if attributes.$methods
@@ -1238,7 +1240,8 @@ window.dr = do ->
     $textcontent: true,
     resize: true,
     multiline: true,
-    ignorelayout: true
+    ignorelayout: true,
+    initchildren: true
   }
 
   # Attributes that should be set on the dom element directly, not the
@@ -2092,6 +2095,7 @@ window.dr = do ->
     document.body.insertBefore(pre, document.body.firstChild);
     console.error out
 
+  specialtags = ['handler', 'method', 'attribute', 'setter', 'include']
 
   dom = do ->
     getChildren = (el) ->
@@ -2328,7 +2332,6 @@ window.dr = do ->
       # call the validator after everything loads
       loadIncludes(if test then finalcallback else validator)
 
-    specialtags = ['handler', 'method', 'attribute', 'setter', 'include']
     # tags built into the browser that should be ignored, from http://www.w3.org/TR/html-markup/elements.html
     builtinTags = ['a', 'abbr', 'address', 'area', 'article', 'aside', 'audio', 'b', 'base', 'bdi', 'bdo', 'blockquote', 'body', 'br', 'button', 'canvas', 'caption', 'cite', 'code', 'col', 'colgroup', 'command', 'datalist', 'dd', 'del', 'details', 'dfn', 'div', 'dl', 'dt', 'em', 'embed', 'fieldset', 'figcaption', 'figure', 'footer', 'form', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'head', 'header', 'hgroup', 'hr', 'html', 'i', 'iframe', 'img', 'image', 'input', 'ins', 'kbd', 'keygen', 'label', 'legend', 'li', 'link', 'map', 'mark', 'menu', 'meta', 'meter', 'nav', 'noscript', 'object', 'ol', 'optgroup', 'option', 'output', 'p', 'param', 'pre', 'progress', 'q', 'rp', 'rt', 'ruby', 's', 'samp', 'script', 'section', 'select', 'small', 'source', 'span', 'strong', 'style', 'sub', 'summary', 'sup', 'table', 'tbody', 'td', 'textarea', 'tfoot', 'th', 'thead', 'time', 'title', 'tr', 'track', 'u', 'ul', 'var', 'video', 'wbr']
     # found by running './bin/builddocs' followed by 'node ./bin/findrequired.js'
@@ -2396,7 +2399,7 @@ window.dr = do ->
       attributes.$skiponinit = skiponinit = children.length > 0
 
       if typeof dr[tagname] is 'function'
-        parent = new dr[tagname](el, attributes)
+        parent = new dr[tagname](el, attributes, true)
       else
         showWarnings(["Unrecognized class #{tagname} #{el.outerHTML}"])
         return
@@ -2406,25 +2409,28 @@ window.dr = do ->
       unless isClass or isState
 #        grab children again in case any were added when the parent was instantiated
         children = (child for child in el.childNodes when child.nodeType == 1)
-        # create children now
-        for child in children
-          # console.log 'initting class child', child.localName
-          initElement(child, parent)
+        # create children now, unless the class told us not to
+        unless dr[tagname].skipinitchildren
+          for child in children
+            # console.log 'initting class child', child.localName
+            initElement(child, parent)
 
         unless parent.inited
           # console.log('skiponinit', parent, parent.subnodes.length)
+          tid = null
           checkChildren = ->
             for child in children
               if not child.inited and child.localName is not 'class'
                 # console.log 'child not initted', child, parent
-                setTimeout(checkChildren, 0)
+                clearTimeout(tid) if tid?
+                tid = setTimeout(checkChildren, 0)
                 return
             return if parent.inited
             # console.log('doinit', parent)
             parent.inited = true
             parent.sendEvent('init', parent)
             return
-          setTimeout(checkChildren, 0)
+          tid = setTimeout(checkChildren, 0)
 
       return
 
@@ -2615,6 +2621,9 @@ window.dr = do ->
       # hide local properties we don't want applied to the parent by learn()
       @enumfalse(@skipattributes)
       @enumfalse(@keys)
+
+      el.$view = @ if el
+      @inited = true
  
     ###*
     # @event onapplied 
@@ -2721,6 +2730,10 @@ window.dr = do ->
     # @attribute {"js"/"coffee"} [type=js] 
     # The default compiler to use for methods, setters and handlers. Either 'js' or 'coffee'
     ###
+    ###*
+    # @attribute {Boolean} [initchildren=true]
+    # If false, class instances won't initialize their children.
+    ###
     clone = (obj) ->
       newobj = {}
       for name, val of obj
@@ -2731,6 +2744,7 @@ window.dr = do ->
       name = (if classattributes.name then classattributes.name.toLowerCase() else classattributes.name)
       extend = classattributes.extends ?= 'view'
       compilertype = classattributes.type
+      skipinitchildren = classattributes.initchildren == 'false'
       # only class instances should specify these
       for ignored of ignoredAttributes
         delete classattributes[ignored]
@@ -2757,7 +2771,7 @@ window.dr = do ->
       console.warn 'overwriting class', name if name of dr
 
       # class instance constructor
-      dr[name] = (instanceel, instanceattributes) ->
+      dr[name] = (instanceel, instanceattributes, internal, skipchildren) ->
         # override class attributes with instance attributes
         attributes = clone(classattributes)
         for key, value of instanceattributes
@@ -2794,7 +2808,8 @@ window.dr = do ->
         attributes.$deferbindings = haschildren
 
         # console.log 'creating class instance', name, attributes.$tagname, instanceel, extend, attributes
-        parent = new dr[extend](instanceel, attributes)
+        # call with the fourth argument as true to prevent creating children for the class we are extending
+        parent = new dr[extend](instanceel, attributes, true, true)
         # console.log 'created class instance', name, extend, parent
 
         viewel = parent.sprite?.el
@@ -2804,7 +2819,7 @@ window.dr = do ->
           instanceel.setAttribute('class', 'hidden') unless viewel
 
         # unpack instance children
-        if instancebody and viewel
+        if viewel
           if viewel.innerHTML
             # Append class children on instances instead of replacing them
             viewel.innerHTML = instancebody + viewel.innerHTML
@@ -2813,33 +2828,45 @@ window.dr = do ->
             # console.log 'normal'
             viewel.innerHTML = instancebody
 
-          children = (child for child in viewel.childNodes when child.nodeType == 1)
-          for child in children
-            # console.log 'creating class child in parent', child, parent
-            dom.initElement(child, parent)
+          unless skipchildren
+            children = (child for child in viewel.childNodes when child.nodeType == 1 and child.localName not in specialtags)
+            unless skipinitchildren
+              for child in children
+                # console.log 'creating class child in parent', child, parent, attributes
+                dom.initElement(child, parent)
 
-        sendInit = () ->
-          return if parent.inited
-          parent._bindHandlers()
-          parent._bindHandlers(true)
-          parent.inited = true
-          parent.sendEvent('init', parent)
+        unless skipchildren
+          sendInit = () ->
+            # console.log('sendInit', parent.inited, parent)
+            return if parent.inited
+            parent._bindHandlers()
+            parent._bindHandlers(true)
+            parent.inited = true
+            parent.sendEvent('init', parent)
 
-        if children?.length
-          # console.log 'delaying init', parent, children
-          checkChildren = ->
-            for child in children
-              if not child.inited and child.localName is not 'class'
-                # console.log 'child not initted', child, parent
-                setTimeout(checkChildren, 0)
-                return
-            # console.log('class doinit', parent)
+          if children?.length
+            # console.log 'delaying init', parent, children
+            tid = null
+            checkChildren = ->
+              for child in children
+                # console.log('checking child', child, child.$view?.inited)
+
+                if (not child.$view) or (not child.$view.inited)
+                  # console.log 'child not initted', child, child.$view, child.$view?.inited, parent
+                  clearTimeout(tid) if tid?
+                  tid = setTimeout(checkChildren, 0)
+                  return
+              sendInit()
+            tid = setTimeout(checkChildren, 0)
+          else if internal
+            setTimeout(sendInit, 0)
+          else
+            # the user called dr[foo]() directly, init immediately
             sendInit()
-          setTimeout(checkChildren, 0)
-        else
-          # console.log 'class init', parent
-          sendInit()
         return parent
+
+      # remember this for later when we're instantiating instances
+      dr[name].skipinitchildren = skipinitchildren
 
   ###*
   # @class dr.layout {Layout}
