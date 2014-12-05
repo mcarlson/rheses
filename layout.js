@@ -80,7 +80,7 @@
   })();
 
   window.dr = (function() {
-    var Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, capabilities, compiler, constraintScopes, debug, dom, domElementAttributes, exports, fcamelCase, hiddenAttributes, idle, ignoredAttributes, knownstyles, mixOf, moduleKeywords, mouseEvents, noop, querystring, rdashAlpha, showWarnings, ss, ss2, test, triggerlock, warnings, _initConstraints;
+    var Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, capabilities, compiler, constraintScopes, debug, dom, domElementAttributes, exports, fcamelCase, hiddenAttributes, idle, ignoredAttributes, knownstyles, mixOf, moduleKeywords, mouseEvents, noop, querystring, rdashAlpha, showWarnings, specialtags, ss, ss2, test, triggerlock, warnings, _initConstraints;
     noop = function() {};
     mixOf = function() {
       var Mixed, base, i, method, mixin, mixins, name, _i, _ref;
@@ -753,7 +753,8 @@
          * @readonly
          * Contains the textual contents of this node, if any
          */
-        if (el != null ? el.textContent : void 0) {
+        if (el != null) {
+          el.$view = this;
           attributes.$textcontent = el.textContent;
         }
         if (attributes.$methods) {
@@ -1575,7 +1576,8 @@
       $textcontent: true,
       resize: true,
       multiline: true,
-      ignorelayout: true
+      ignorelayout: true,
+      initchildren: true
     };
     domElementAttributes = {
       scrollx: true,
@@ -2625,8 +2627,9 @@
       document.body.insertBefore(pre, document.body.firstChild);
       return console.error(out);
     };
+    specialtags = ['handler', 'method', 'attribute', 'setter', 'include'];
     dom = (function() {
-      var builtinTags, checkRequiredAttributes, exports, findAutoIncludes, flattenattributes, getChildren, htmlDecode, initAllElements, initElement, initFromElement, processSpecialTags, requiredAttributes, sendInit, specialtags, writeCSS;
+      var builtinTags, checkRequiredAttributes, exports, findAutoIncludes, flattenattributes, getChildren, htmlDecode, initAllElements, initElement, initFromElement, processSpecialTags, requiredAttributes, sendInit, writeCSS;
       getChildren = function(el) {
         var child, _i, _len, _ref, _ref1, _results;
         _ref = el.childNodes;
@@ -2901,7 +2904,6 @@
         };
         return loadIncludes(test ? finalcallback : validator);
       };
-      specialtags = ['handler', 'method', 'attribute', 'setter', 'include'];
       builtinTags = ['a', 'abbr', 'address', 'area', 'article', 'aside', 'audio', 'b', 'base', 'bdi', 'bdo', 'blockquote', 'body', 'br', 'button', 'canvas', 'caption', 'cite', 'code', 'col', 'colgroup', 'command', 'datalist', 'dd', 'del', 'details', 'dfn', 'div', 'dl', 'dt', 'em', 'embed', 'fieldset', 'figcaption', 'figure', 'footer', 'form', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'head', 'header', 'hgroup', 'hr', 'html', 'i', 'iframe', 'img', 'image', 'input', 'ins', 'kbd', 'keygen', 'label', 'legend', 'li', 'link', 'map', 'mark', 'menu', 'meta', 'meter', 'nav', 'noscript', 'object', 'ol', 'optgroup', 'option', 'output', 'p', 'param', 'pre', 'progress', 'q', 'rp', 'rt', 'ruby', 's', 'samp', 'script', 'section', 'select', 'small', 'source', 'span', 'strong', 'style', 'sub', 'summary', 'sup', 'table', 'tbody', 'td', 'textarea', 'tfoot', 'th', 'thead', 'time', 'title', 'tr', 'track', 'u', 'ul', 'var', 'video', 'wbr'];
       requiredAttributes = {
         "class": {
@@ -2944,7 +2946,7 @@
         return error;
       };
       initElement = function(el, parent) {
-        var attr, attributes, checkChildren, child, children, event, eventname, isClass, isState, li, skiponinit, tagname, _i, _j, _len, _len1;
+        var attr, attributes, checkChildren, child, children, event, eventname, isClass, isState, li, skiponinit, tagname, tid, _i, _j, _len, _len1;
         if (el.$init) {
           return;
         }
@@ -3029,17 +3031,23 @@
             }
             return _results;
           })();
-          for (_j = 0, _len1 = children.length; _j < _len1; _j++) {
-            child = children[_j];
-            initElement(child, parent);
+          if (!dr[tagname].skipinitchildren) {
+            for (_j = 0, _len1 = children.length; _j < _len1; _j++) {
+              child = children[_j];
+              initElement(child, parent);
+            }
           }
           if (!parent.inited) {
+            tid = null;
             checkChildren = function() {
               var _k, _len2;
               for (_k = 0, _len2 = children.length; _k < _len2; _k++) {
                 child = children[_k];
                 if (!child.inited && child.localName === !'class') {
-                  setTimeout(checkChildren, 0);
+                  if (tid != null) {
+                    clearTimeout(tid);
+                  }
+                  tid = setTimeout(checkChildren, 0);
                   return;
                 }
               }
@@ -3049,7 +3057,7 @@
               parent.inited = true;
               parent.sendEvent('init', parent);
             };
-            setTimeout(checkChildren, 0);
+            tid = setTimeout(checkChildren, 0);
           }
         }
       };
@@ -3251,6 +3259,10 @@
         }
         this.enumfalse(this.skipattributes);
         this.enumfalse(this.keys);
+        if (el) {
+          el.$view = this;
+        }
+        this.inited = true;
       }
 
 
@@ -3375,6 +3387,11 @@
        * @attribute {"js"/"coffee"} [type=js] 
        * The default compiler to use for methods, setters and handlers. Either 'js' or 'coffee'
        */
+
+      /**
+       * @attribute {Boolean} [initchildren=true]
+       * If false, class instances won't initialize their children.
+       */
       var clone;
 
       clone = function(obj) {
@@ -3388,13 +3405,14 @@
       };
 
       function Class(el, classattributes) {
-        var child, compilertype, extend, haschildren, ignored, instancebody, name, oldbody, processedChildren, _i, _len;
+        var child, compilertype, extend, haschildren, ignored, instancebody, name, oldbody, processedChildren, skipinitchildren, _i, _len;
         if (classattributes == null) {
           classattributes = {};
         }
         name = (classattributes.name ? classattributes.name.toLowerCase() : classattributes.name);
         extend = classattributes["extends"] != null ? classattributes["extends"] : classattributes["extends"] = 'view';
         compilertype = classattributes.type;
+        skipinitchildren = classattributes.initchildren === 'false';
         for (ignored in ignoredAttributes) {
           delete classattributes[ignored];
         }
@@ -3423,8 +3441,8 @@
         if (name in dr) {
           console.warn('overwriting class', name);
         }
-        dr[name] = function(instanceel, instanceattributes) {
-          var attributes, checkChildren, children, key, parent, propname, sendInit, val, value, viewel, _j, _len1, _ref;
+        dr[name] = function(instanceel, instanceattributes, skipchildren) {
+          var attributes, checkChildren, children, key, parent, propname, sendInit, tid, val, value, viewel, _j, _len1, _ref;
           attributes = clone(classattributes);
           for (key in instanceattributes) {
             value = instanceattributes[key];
@@ -3453,63 +3471,74 @@
           }
           attributes.$skiponinit = true;
           attributes.$deferbindings = haschildren;
-          parent = new dr[extend](instanceel, attributes);
+          parent = new dr[extend](instanceel, attributes, true);
           viewel = (_ref = parent.sprite) != null ? _ref.el : void 0;
           if (instanceel) {
             if (!viewel) {
               instanceel.setAttribute('class', 'hidden');
             }
           }
-          if (instancebody && viewel) {
+          if (viewel) {
             if (viewel.innerHTML) {
               viewel.innerHTML = instancebody + viewel.innerHTML;
             } else {
               viewel.innerHTML = instancebody;
             }
-            children = (function() {
-              var _j, _len1, _ref1, _results;
-              _ref1 = viewel.childNodes;
-              _results = [];
-              for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-                child = _ref1[_j];
-                if (child.nodeType === 1) {
-                  _results.push(child);
+            if (!skipchildren) {
+              children = (function() {
+                var _j, _len1, _ref1, _ref2, _results;
+                _ref1 = viewel.childNodes;
+                _results = [];
+                for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+                  child = _ref1[_j];
+                  if (child.nodeType === 1 && (_ref2 = child.localName, __indexOf.call(specialtags, _ref2) < 0)) {
+                    _results.push(child);
+                  }
+                }
+                return _results;
+              })();
+              if (!skipinitchildren) {
+                for (_j = 0, _len1 = children.length; _j < _len1; _j++) {
+                  child = children[_j];
+                  dom.initElement(child, parent);
                 }
               }
-              return _results;
-            })();
-            for (_j = 0, _len1 = children.length; _j < _len1; _j++) {
-              child = children[_j];
-              dom.initElement(child, parent);
             }
           }
-          sendInit = function() {
-            if (parent.inited) {
-              return;
-            }
-            parent._bindHandlers();
-            parent._bindHandlers(true);
-            parent.inited = true;
-            return parent.sendEvent('init', parent);
-          };
-          if (children != null ? children.length : void 0) {
-            checkChildren = function() {
-              var _k, _len2;
-              for (_k = 0, _len2 = children.length; _k < _len2; _k++) {
-                child = children[_k];
-                if (!child.inited && child.localName === !'class') {
-                  setTimeout(checkChildren, 0);
-                  return;
-                }
+          if (!skipchildren) {
+            sendInit = function() {
+              if (parent.inited) {
+                return;
               }
-              return sendInit();
+              parent._bindHandlers();
+              parent._bindHandlers(true);
+              parent.inited = true;
+              return parent.sendEvent('init', parent);
             };
-            setTimeout(checkChildren, 0);
-          } else {
-            sendInit();
+            if (children != null ? children.length : void 0) {
+              tid = null;
+              checkChildren = function() {
+                var _k, _len2;
+                for (_k = 0, _len2 = children.length; _k < _len2; _k++) {
+                  child = children[_k];
+                  if ((!child.$view) || (!child.$view.inited)) {
+                    if (tid != null) {
+                      clearTimeout(tid);
+                    }
+                    tid = setTimeout(checkChildren, 0);
+                    return;
+                  }
+                }
+                return sendInit();
+              };
+              tid = setTimeout(checkChildren, 0);
+            } else {
+              sendInit();
+            }
           }
           return parent;
         };
+        dr[name].skipinitchildren = skipinitchildren;
       }
 
       return Class;
