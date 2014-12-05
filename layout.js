@@ -80,7 +80,7 @@
   })();
 
   window.dr = (function() {
-    var Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, capabilities, compiler, constraintScopes, debug, dom, domElementAttributes, exports, fcamelCase, hiddenAttributes, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, noop, otherstyles, querystring, rdashAlpha, showWarnings, ss, ss2, test, triggerlock, warnings, _initConstraints;
+    var Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, capabilities, compiler, constraintScopes, debug, dom, domElementAttributes, exports, fcamelCase, hiddenAttributes, idle, ignoredAttributes, knownstyles, mixOf, moduleKeywords, mouseEvents, noop, querystring, rdashAlpha, showWarnings, ss, ss2, test, triggerlock, warnings, _initConstraints;
     noop = function() {};
     mixOf = function() {
       var Mixed, base, i, method, mixin, mixins, name, _i, _ref;
@@ -1551,13 +1551,13 @@
       };
     }
     if (debug) {
-      otherstyles = ['width', 'height', 'background-color'];
+      knownstyles = ['width', 'height', 'background-color', 'opacity'];
       ss2 = Sprite.prototype.setStyle;
       Sprite.prototype.setStyle = function(name, value, internal, el) {
         if (el == null) {
           el = this.el;
         }
-        if (!internal && !(name in stylemap) && !(__indexOf.call(otherstyles, name) >= 0)) {
+        if (!internal && !(name in stylemap) && !(__indexOf.call(knownstyles, name) >= 0)) {
           console.warn("Setting unknown CSS property " + name + " = " + value + " on ", this.el.$view, stylemap, internal);
         }
         return ss2(name, value, internal, el);
@@ -1656,98 +1656,81 @@
      *     </view>
      */
     View = (function(_super) {
-      __extends(View, _super);
-
 
       /**
        * @attribute {Number} [x=0]
        * This view's x position
        */
 
-
       /**
        * @attribute {Number} [y=0]
        * This view's y position
        */
-
 
       /**
        * @attribute {Number} [width=0]
        * This view's width
        */
 
-
       /**
        * @attribute {Number} [height=0]
        * This view's height
        */
-
 
       /**
        * @attribute {Boolean} [clickable=false]
        * If true, this view recieves mouse events. Automatically set to true when an onclick/mouse* event is registered for this view.
        */
 
-
       /**
        * @attribute {Boolean} [clip=false]
        * If true, this view clips to its bounds
        */
-
 
       /**
        * @attribute {Boolean} [scrollable=false]
        * If true, this view clips to its bounds and provides scrolling to see content that overflows the bounds
        */
 
-
       /**
        * @attribute {Boolean} [visible=true]
        * If false, this view is invisible
        */
-
 
       /**
        * @attribute {String} bgcolor
        * Sets this view's background color
        */
 
-
       /**
        * @attribute {String} bordercolor
        * Sets this view's border color
        */
-
 
       /**
        * @attribute {String} borderstyle
        * Sets this view's border style (can be any css border-style value)
        */
 
-
       /**
        * @attribute {Number} border
        * Sets this view's border width
        */
-
 
       /**
        * @attribute {Number} padding
        * Sets this view's padding
        */
 
-
       /**
        * @attribute {Number} [xscale=1.0]
        * Sets this view's width scale
        */
 
-
       /**
        * @attribute {Number} [yscale=1.0]
        * Sets this view's height scale
        */
-
 
       /**
        * @attribute {Number} [z=0]
@@ -1756,12 +1739,10 @@
        * *(note: setting a `z` value for a view implicitly sets its parent's `transform-style` to `preserve-3d`)*
        */
 
-
       /**
        * @attribute {Number} [rotation=0]
        * Sets this view's rotation in degrees.
        */
-
 
       /**
        * @attribute {String} [perspective=none]
@@ -1769,12 +1750,10 @@
        * When this value is set, items further from the camera will appear smaller, and closer items will be larger.
        */
 
-
       /**
        * @attribute {Number} [opacity=1.0]
        * Sets this view's opacity, values can be a float from 0.0 ~ 1.0
        */
-
 
       /**
        * @attribute {Number} [scrollx=0]
@@ -1783,7 +1762,6 @@
        * scrollx event and a scroll event.
        */
 
-
       /**
        * @attribute {Number} [scrolly=0]
        * Sets the vertical scroll position of the view. Only relevant if
@@ -1791,13 +1769,11 @@
        * scrolly event and a scroll event.
        */
 
-
       /**
        * @event onclick
        * Fired when this view is clicked
        * @param {dr.view} view The dr.view that fired the event
        */
-
 
       /**
        * @event onmouseover
@@ -1805,13 +1781,11 @@
        * @param {dr.view} view The dr.view that fired the event
        */
 
-
       /**
        * @event onmouseout
        * Fired when the mouse moves off this view
        * @param {dr.view} view The dr.view that fired the event
        */
-
 
       /**
        * @event onmousedown
@@ -1819,13 +1793,11 @@
        * @param {dr.view} view The dr.view that fired the event
        */
 
-
       /**
        * @event onmouseup
        * Fired when the mouse goes up on this view
        * @param {dr.view} view The dr.view that fired the event
        */
-
 
       /**
        * @event onscrollx
@@ -1833,13 +1805,11 @@
        * @param {number} The x value of the scroll position.
        */
 
-
       /**
        * @event onscrolly
        * Fired when the vertical scroll position changes
        * @param {number} The y value of the scroll position.
        */
-
 
       /**
        * @event onscroll
@@ -1861,9 +1831,29 @@
        *       of the scrollable view. The maximum can be calculated using this
        *       formula: scrollheight - view.height + 2*view.border
        */
+      var defaults;
+
+      __extends(View, _super);
+
+      defaults = {
+        x: 0,
+        y: 0,
+        width: 0,
+        height: 0,
+        opacity: 1,
+        clickable: false,
+        clip: false,
+        scrollable: false,
+        visible: true,
+        bordercolor: 'transparent',
+        borderstyle: 'solid',
+        border: 0,
+        padding: 0,
+        ignorelayout: false
+      };
 
       function View(el, attributes) {
-        var defaults, key, type, types, _ref;
+        var key, type, types, _ref;
         if (attributes == null) {
           attributes = {};
         }
@@ -1916,24 +1906,6 @@
           ignorelayout: 'boolean',
           scrollx: 'number',
           scrolly: 'number'
-        };
-        defaults = {
-          x: 0,
-          y: 0,
-          width: 0,
-          height: 0,
-          opacity: 1,
-          clickable: false,
-          clip: false,
-          scrollable: false,
-          visible: true,
-          bordercolor: 'transparent',
-          borderstyle: 'solid',
-          border: 0,
-          padding: 0,
-          ignorelayout: false,
-          scrollx: 0,
-          scrolly: 0
         };
         _ref = attributes.$types;
         for (key in _ref) {
@@ -1994,7 +1966,7 @@
         if (!(skipDomChange || name in ignoredAttributes || name in hiddenAttributes || existing === value)) {
           if (name in domElementAttributes) {
             return this.sprite.setProperty(name, value);
-          } else {
+          } else if (this.inited || defaults[name] !== value) {
             return this.sprite.setStyle(name, value);
           }
         }
@@ -2199,6 +2171,12 @@
       };
 
       View.prototype.set_scrollable = function(scrollable) {
+        if (scrollable) {
+          this.setAttributes({
+            scrollx: 0,
+            scrolly: 0
+          });
+        }
         this.sprite.set_scrollable(scrollable);
         return scrollable;
       };
@@ -3079,7 +3057,7 @@
         var style;
         style = document.createElement('style');
         style.type = 'text/css';
-        style.innerHTML = '.sprite{ position: absolute; pointer-events: none; padding: 0; margin: 0; box-sizing:border-box;} .sprite-text{ width: auto; height; auto; white-space: nowrap;  padding: 0; margin: 0;} .sprite-inputtext{border: none; outline: none; background-color:transparent; resize:none;} .hidden{ display: none; } .noselect{ -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;} method { display: none; } handler { display: none; } setter { display: none; } class { display:none } node { display:none } dataset { display:none } .warnings {font-size: 14px; background-color: pink; margin: 0;}';
+        style.innerHTML = '.sprite{ position: absolute; pointer-events: none; padding: 0; margin: 0; box-sizing: border-box; border-color: transparent; border-style: solid; border-width: 0} .sprite-text{ width: auto; height; auto; white-space: nowrap; padding: 0; margin: 0;} .sprite-inputtext{border: none; outline: none; background-color:transparent; resize:none;} .hidden{ display: none; } .noselect{ -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;} method { display: none; } handler { display: none; } setter { display: none; } class { display:none } node { display:none } dataset { display:none } .warnings {font-size: 14px; background-color: pink; margin: 0;}';
         return document.getElementsByTagName('head')[0].appendChild(style);
       };
       initAllElements = function(selector) {

@@ -1217,10 +1217,10 @@ window.dr = do ->
 
   if (debug)
     # add warnings for unknown CSS properties
-    otherstyles = ['width', 'height', 'background-color']
+    knownstyles = ['width', 'height', 'background-color', 'opacity']
     ss2 = Sprite::setStyle
     Sprite::setStyle = (name, value, internal, el=@el) ->
-      if not internal and not (name of stylemap) and not (name in otherstyles)
+      if not internal and not (name of stylemap) and not (name in knownstyles)
         console.warn "Setting unknown CSS property #{name} = #{value} on ", @el.$view, stylemap, internal
       ss2(name, value, internal, el)
 
@@ -1472,6 +1472,16 @@ window.dr = do ->
     #       of the scrollable view. The maximum can be calculated using this
     #       formula: scrollheight - view.height + 2*view.border
     ###
+
+    # default attribute values
+    defaults = {
+      x:0, y:0,
+      width:0, height:0,
+      opacity: 1,
+      clickable:false, clip:false, scrollable:false, visible:true, 
+      bordercolor:'transparent', borderstyle:'solid', border:0, 
+      padding:0, ignorelayout:false,
+    }
     constructor: (el, attributes = {}) ->
       ###*
       # @property {dr.view[]} subviews
@@ -1507,15 +1517,6 @@ window.dr = do ->
         clickable: 'boolean', clip: 'boolean', scrollable: 'boolean', visible: 'boolean', 
         border: 'number', padding: 'number', ignorelayout:'boolean',
         scrollx:'number', scrolly:'number'
-      }
-      defaults = {
-        x:0, y:0,
-        width:0, height:0,
-        opacity: 1,
-        clickable:false, clip:false, scrollable:false, visible:true, 
-        bordercolor:'transparent', borderstyle:'solid', border:0, 
-        padding:0, ignorelayout:false,
-        scrollx:0, scrolly:0
       }
 
       for key, type of attributes.$types
@@ -1567,7 +1568,7 @@ window.dr = do ->
         # console.log 'setting style', name, value, @
         if name of domElementAttributes
           @sprite.setProperty(name, value)
-        else
+        else if @inited or defaults[name] != value
           @sprite.setStyle(name, value)
 
     __setupPercentConstraint: (name, value, axis) ->
@@ -1728,6 +1729,8 @@ window.dr = do ->
       clip
 
     set_scrollable: (scrollable) ->
+      if scrollable
+        @setAttributes({scrollx: 0, scrolly: 0})
       @sprite.set_scrollable(scrollable)
       scrollable
 
@@ -2430,7 +2433,7 @@ window.dr = do ->
     writeCSS = ->
       style = document.createElement('style')
       style.type = 'text/css'
-      style.innerHTML = '.sprite{ position: absolute; pointer-events: none; padding: 0; margin: 0; box-sizing:border-box;} .sprite-text{ width: auto; height; auto; white-space: nowrap;  padding: 0; margin: 0;} .sprite-inputtext{border: none; outline: none; background-color:transparent; resize:none;} .hidden{ display: none; } .noselect{ -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;} method { display: none; } handler { display: none; } setter { display: none; } class { display:none } node { display:none } dataset { display:none } .warnings {font-size: 14px; background-color: pink; margin: 0;}'
+      style.innerHTML = '.sprite{ position: absolute; pointer-events: none; padding: 0; margin: 0; box-sizing: border-box; border-color: transparent; border-style: solid; border-width: 0} .sprite-text{ width: auto; height; auto; white-space: nowrap; padding: 0; margin: 0;} .sprite-inputtext{border: none; outline: none; background-color:transparent; resize:none;} .hidden{ display: none; } .noselect{ -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;} method { display: none; } handler { display: none; } setter { display: none; } class { display:none } node { display:none } dataset { display:none } .warnings {font-size: 14px; background-color: pink; margin: 0;}'
       document.getElementsByTagName('head')[0].appendChild(style)
 
     # init top-level views in the DOM recursively
