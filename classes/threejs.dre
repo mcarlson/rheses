@@ -37,7 +37,7 @@ SOFTWARE. -->
         return camerafar
       </setter>
       <handler event="onidle" reference="dr.idle">
-        this.renderer.render( this.scene, this.camera );
+        if (this.renderer) this.renderer.render( this.scene, this.camera );
       </handler>
 
       <handler event="onwidth" method="handleResize"></handler>
@@ -67,7 +67,7 @@ SOFTWARE. -->
       </handler>
       
       <method name="handleResize">
-        @super(arguments);
+        this.super(arguments);
 
         if (this.camera) {
           
