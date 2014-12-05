@@ -36,7 +36,7 @@
 
       // Animate the check at end
       this.test_tween_start = new Date().getTime();
-      this.test_timeout = this.test_tween_start + this.animationspeed * 1.1;
+      this.test_timeout = this.test_tween_start + this.animationspeed + 50;
 
       this.setAttribute('path', 2);
     </handler>
@@ -48,7 +48,7 @@
 
       var elapsed = new Date().getTime() - this.test_tween_start;
       var drift = Math.abs(elapsed - this.animationspeed);
-      if (drift > this.animationspeed/10) {
+      if (drift > 50) {
         assert.ok(false, 'ontween finished too soon/too late');
       }
     </handler>
@@ -57,7 +57,7 @@
       if (this.test_timeout && now > this.test_timeout) {
         delete this.test_timeout;        
         // Enable when #83961732 is fixed.
-        //assert.ok(false, 'timeout waiting for ontween event');
+        assert.ok(false, 'timeout waiting for ontween event');
       }
     </handler>
 
@@ -83,14 +83,14 @@
     <animator start="0" from="0" to="3" attribute="animationframe" duration="4000" motion = "outBounce" repeat="1">
       <handler event="oninit">
         this.test_start = new Date().getTime();
-        this.test_timeout = this.test_start + this.duration * 1.1;
+        this.test_timeout = this.test_start + this.duration + 50;
       </handler>
       <handler event="onend">
         delete this.test_timeout;        
 
         var elapsed = new Date().getTime() - this.test_start;
         var drift = Math.abs(elapsed - this.duration);
-        if (drift > this.duration/10) {
+        if (drift > 50) {
           assert.ok(false, 'onend finished too soon/too late');
         }
       </handler>
