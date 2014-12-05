@@ -50,6 +50,11 @@ With jsduck installed run:
 
 	./bin/builddocs
 
+building Snap.svg
+-----------------
+
+The art component uses a customized version of Snap.svg to display svg files. The changes allow any frame between two paths to be displayed. See [https://github.com/teem2/Snap.svg] for build instructions. Once built, a copy of [https://github.com/teem2/Snap.svg/blob/master/dist/snap.svg-min.js] should be copied into this repository at [https://github.com/teem2/dreem/tree/master/lib].
+
 running smoke tests
 --------------------------
 
