@@ -1500,6 +1500,7 @@
           input = document.createElement('input');
           input.setAttribute('type', 'text');
         }
+        input.$init = true;
         input.setAttribute('value', text);
         input.setAttribute('class', 'sprite-inputtext');
         if (width) {

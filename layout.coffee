@@ -1179,6 +1179,8 @@ window.dr = do ->
       else
         input = document.createElement('input')
         input.setAttribute('type', 'text')
+      # don't try to init this tag
+      input.$init = true
       input.setAttribute('value', text)
       input.setAttribute('class', 'sprite-inputtext')
       if width
