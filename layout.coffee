@@ -2399,7 +2399,7 @@ window.dr = do ->
       attributes.$skiponinit = skiponinit = children.length > 0
 
       if typeof dr[tagname] is 'function'
-        parent = new dr[tagname](el, attributes)
+        parent = new dr[tagname](el, attributes, true)
       else
         showWarnings(["Unrecognized class #{tagname} #{el.outerHTML}"])
         return
@@ -2771,7 +2771,7 @@ window.dr = do ->
       console.warn 'overwriting class', name if name of dr
 
       # class instance constructor
-      dr[name] = (instanceel, instanceattributes, skipchildren) ->
+      dr[name] = (instanceel, instanceattributes, internal, skipchildren) ->
         # override class attributes with instance attributes
         attributes = clone(classattributes)
         for key, value of instanceattributes
@@ -2808,8 +2808,8 @@ window.dr = do ->
         attributes.$deferbindings = haschildren
 
         # console.log 'creating class instance', name, attributes.$tagname, instanceel, extend, attributes
-        # call with the third argument as true to prevent creating children for the class we are extending
-        parent = new dr[extend](instanceel, attributes, true)
+        # call with the fourth argument as true to prevent creating children for the class we are extending
+        parent = new dr[extend](instanceel, attributes, true, true)
         # console.log 'created class instance', name, extend, parent
 
         viewel = parent.sprite?.el
@@ -2856,11 +2856,12 @@ window.dr = do ->
                   clearTimeout(tid) if tid?
                   tid = setTimeout(checkChildren, 0)
                   return
-              # console.log('class doinit', parent)
               sendInit()
             tid = setTimeout(checkChildren, 0)
+          else if internal
+            setTimeout(sendInit, 0)
           else
-            # console.log 'class init', parent
+            # the user called dr[foo]() directly, init immediately
             sendInit()
         return parent
 

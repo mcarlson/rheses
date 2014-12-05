@@ -3010,7 +3010,7 @@
         })();
         attributes.$skiponinit = skiponinit = children.length > 0;
         if (typeof dr[tagname] === 'function') {
-          parent = new dr[tagname](el, attributes);
+          parent = new dr[tagname](el, attributes, true);
         } else {
           showWarnings(["Unrecognized class " + tagname + " " + el.outerHTML]);
           return;
@@ -3441,7 +3441,7 @@
         if (name in dr) {
           console.warn('overwriting class', name);
         }
-        dr[name] = function(instanceel, instanceattributes, skipchildren) {
+        dr[name] = function(instanceel, instanceattributes, internal, skipchildren) {
           var attributes, checkChildren, children, key, parent, propname, sendInit, tid, val, value, viewel, _j, _len1, _ref;
           attributes = clone(classattributes);
           for (key in instanceattributes) {
@@ -3471,7 +3471,7 @@
           }
           attributes.$skiponinit = true;
           attributes.$deferbindings = haschildren;
-          parent = new dr[extend](instanceel, attributes, true);
+          parent = new dr[extend](instanceel, attributes, true, true);
           viewel = (_ref = parent.sprite) != null ? _ref.el : void 0;
           if (instanceel) {
             if (!viewel) {
@@ -3532,6 +3532,8 @@
                 return sendInit();
               };
               tid = setTimeout(checkChildren, 0);
+            } else if (internal) {
+              setTimeout(sendInit, 0);
             } else {
               sendInit();
             }
