@@ -1460,7 +1460,7 @@ window.dr = do ->
     # event is typically delayed by a few millis after setting scrollx or 
     # scrolly since the underlying DOM event fires during the next DOM refresh
     # performed by the browser.
-    # @param {object} The following four properties are defined:
+    # @param {Object} scroll The following four properties are defined:
     #     scrollx:number The horizontal scroll position.
     #     scrolly:number The vertical scroll position.
     #     scrollwidth:number The width of the scrollable area. Note this is

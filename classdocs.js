@@ -516,7 +516,7 @@
      * Data can be loaded from a URL when your backend server is ready, or reloaded to show changes over time:
      *
      *     @example wide
-     *     <dataset name="example" url="/example.json"></dataset>
+     *     <dataset name="example" url="/examples/data/example.json"></dataset>
      *     <spacedlayout></spacedlayout>
      *     <replicator classname="text" datapath="$example/store/book[*]/title"></replicator>
      */

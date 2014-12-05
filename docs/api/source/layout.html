@@ -42,7 +42,7 @@
  */
 
 (function() {
-  var hackstyle, stylemap,
+  var hackstyle, propmap, stylemap,
     __slice = [].slice,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -57,6 +57,11 @@
     border: &#39;borderWidth&#39;,
     borderstyle: &#39;borderStyle&#39;,
     bordercolor: &#39;borderColor&#39;
+  };
+
+  propmap = {
+    scrollx: &#39;scrollLeft&#39;,
+    scrolly: &#39;scrollTop&#39;
   };
 
   hackstyle = (function() {
@@ -92,7 +97,7 @@
   })();
 
   window.dr = (function() {
-    var Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, capabilities, compiler, constraintScopes, debug, dom, exports, fcamelCase, hiddenAttributes, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, noop, otherstyles, querystring, rdashAlpha, showWarnings, ss, ss2, test, triggerlock, warnings, _initConstraints;
+    var Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, capabilities, compiler, constraintScopes, debug, dom, domElementAttributes, exports, fcamelCase, hiddenAttributes, idle, ignoredAttributes, knownstyles, mixOf, moduleKeywords, mouseEvents, noop, querystring, rdashAlpha, showWarnings, ss, ss2, test, triggerlock, warnings, _initConstraints;
     noop = function() {};
     mixOf = function() {
       var Mixed, base, i, method, mixin, mixins, name, _i, _ref;
@@ -525,7 +530,7 @@
         propertyBindings = {
           MemberExpression: function(n, parent) {
             var name;
-            if (parent.node.type === &#39;CallExpression&#39;) {
+            if (parent.node.type === &#39;CallExpression&#39; &amp;&amp; parent.sub === &#39;callee&#39;) {
               return true;
             }
             name = n.property.name;
@@ -1054,14 +1059,11 @@
       };
 
       Node.prototype._unbindConstraint = function(property) {
-        var callback, callbackbindings, i, prop, scope, _i, _len, _ref;
-        if (!(this.constraints &amp;&amp; property in this.constraints)) {
+        var callback, callbackbindings, i, prop, scope, _i, _len, _ref, _ref1;
+        if (!(this.constraints &amp;&amp; ((_ref = this.constraints[property]) != null ? _ref.callback : void 0))) {
           return;
         }
-        _ref = this.constraints[property], callback = _ref.callback, callbackbindings = _ref.callbackbindings;
-        if (!(callback &amp;&amp; callbackbindings)) {
-          return;
-        }
+        _ref1 = this.constraints[property], callback = _ref1.callback, callbackbindings = _ref1.callbackbindings;
         for (i = _i = 0, _len = callbackbindings.length; _i &lt; _len; i = _i += 2) {
           prop = callbackbindings[i];
           scope = callbackbindings[i + 1];
@@ -1320,6 +1322,7 @@
           tagname = &#39;div&#39;;
         }
         this.handle = __bind(this.handle, this);
+        this._handleScroll = __bind(this._handleScroll, this);
         this.animate = __bind(this.animate, this);
         if (jqel == null) {
           this.el = document.createElement(tagname);
@@ -1345,6 +1348,19 @@
           value = styleval[name](value);
         }
         return el.style[name] = value;
+      };
+
+      Sprite.prototype.setProperty = function(name, value, el) {
+        if (el == null) {
+          el = this.el;
+        }
+        if (value == null) {
+          value = &#39;&#39;;
+        }
+        if (name in propmap) {
+          name = propmap[name];
+        }
+        return el[name] = value;
       };
 
       Sprite.prototype.set_parent = function(parent) {
@@ -1388,7 +1404,39 @@
       Sprite.prototype.set_scrollable = function(scrollable) {
         this.__scrollable = scrollable;
         this.__updateOverflow();
-        return this.__updatePointerEvents();
+        this.__updatePointerEvents();
+        if (scrollable) {
+          return $(this.el).on(&#39;scroll&#39;, this._handleScroll);
+        } else {
+          return $(this.el).off(&#39;scroll&#39;, this._handleScroll);
+        }
+      };
+
+      Sprite.prototype._handleScroll = function(event) {
+        var domElement, newEvt, oldEvt, target, x, y;
+        domElement = event.target;
+        target = domElement.$view;
+        if (target) {
+          x = domElement.scrollLeft;
+          y = domElement.scrollTop;
+          if (target.scrollx !== x) {
+            target.setAttribute(&#39;scrollx&#39;, x, true, true, true);
+          }
+          if (target.scrolly !== y) {
+            target.setAttribute(&#39;scrolly&#39;, y, true, true, true);
+          }
+          oldEvt = this._lastScrollEvent;
+          newEvt = {
+            scrollx: x,
+            scrolly: y,
+            scrollwidth: domElement.scrollWidth,
+            scrollheight: domElement.scrollHeight
+          };
+          if (!oldEvt || oldEvt.scrollx !== newEvt.scrollx || oldEvt.scrolly !== newEvt.scrolly || oldEvt.scrollwidth !== newEvt.scrollwidth || oldEvt.scrollheight !== newEvt.scrollheight) {
+            target.sendEvent(&#39;scroll&#39;, newEvt);
+            return this._lastScrollEvent = newEvt;
+          }
+        }
       };
 
       Sprite.prototype.__updateOverflow = function() {
@@ -1469,6 +1517,7 @@
           input = document.createElement(&#39;input&#39;);
           input.setAttribute(&#39;type&#39;, &#39;text&#39;);
         }
+        input.$init = true;
         input.setAttribute(&#39;value&#39;, text);
         input.setAttribute(&#39;class&#39;, &#39;sprite-inputtext&#39;);
         if (width) {
@@ -1519,13 +1568,13 @@
       };
     }
     if (debug) {
-      otherstyles = [&#39;width&#39;, &#39;height&#39;, &#39;background-color&#39;];
+      knownstyles = [&#39;width&#39;, &#39;height&#39;, &#39;background-color&#39;, &#39;opacity&#39;];
       ss2 = Sprite.prototype.setStyle;
       Sprite.prototype.setStyle = function(name, value, internal, el) {
         if (el == null) {
           el = this.el;
         }
-        if (!internal &amp;&amp; !(name in stylemap) &amp;&amp; !(__indexOf.call(otherstyles, name) &gt;= 0)) {
+        if (!internal &amp;&amp; !(name in stylemap) &amp;&amp; !(__indexOf.call(knownstyles, name) &gt;= 0)) {
           console.warn(&quot;Setting unknown CSS property &quot; + name + &quot; = &quot; + value + &quot; on &quot;, this.el.$view, stylemap, internal);
         }
         return ss2(name, value, internal, el);
@@ -1544,6 +1593,10 @@
       resize: true,
       multiline: true,
       ignorelayout: true
+    };
+    domElementAttributes = {
+      scrollx: true,
+      scrolly: true
     };
     ignoredAttributes = {
       parent: true,
@@ -1620,98 +1673,81 @@
      *     &lt;/view&gt;
      */
     View = (function(_super) {
-      __extends(View, _super);
-
 
 <span id='dr-view-attribute-x'>      /**
 </span>       * @attribute {Number} [x=0]
        * This view&#39;s x position
        */
 
-
 <span id='dr-view-attribute-y'>      /**
 </span>       * @attribute {Number} [y=0]
        * This view&#39;s y position
        */
-
 
 <span id='dr-view-attribute-width'>      /**
 </span>       * @attribute {Number} [width=0]
        * This view&#39;s width
        */
 
-
 <span id='dr-view-attribute-height'>      /**
 </span>       * @attribute {Number} [height=0]
        * This view&#39;s height
        */
-
 
 <span id='dr-view-attribute-clickable'>      /**
 </span>       * @attribute {Boolean} [clickable=false]
        * If true, this view recieves mouse events. Automatically set to true when an onclick/mouse* event is registered for this view.
        */
 
-
 <span id='dr-view-attribute-clip'>      /**
 </span>       * @attribute {Boolean} [clip=false]
        * If true, this view clips to its bounds
        */
-
 
 <span id='dr-view-attribute-scrollable'>      /**
 </span>       * @attribute {Boolean} [scrollable=false]
        * If true, this view clips to its bounds and provides scrolling to see content that overflows the bounds
        */
 
-
 <span id='dr-view-attribute-visible'>      /**
 </span>       * @attribute {Boolean} [visible=true]
        * If false, this view is invisible
        */
-
 
 <span id='dr-view-attribute-bgcolor'>      /**
 </span>       * @attribute {String} bgcolor
        * Sets this view&#39;s background color
        */
 
-
 <span id='dr-view-attribute-bordercolor'>      /**
 </span>       * @attribute {String} bordercolor
        * Sets this view&#39;s border color
        */
-
 
 <span id='dr-view-attribute-borderstyle'>      /**
 </span>       * @attribute {String} borderstyle
        * Sets this view&#39;s border style (can be any css border-style value)
        */
 
-
 <span id='dr-view-attribute-border'>      /**
 </span>       * @attribute {Number} border
        * Sets this view&#39;s border width
        */
-
 
 <span id='dr-view-attribute-padding'>      /**
 </span>       * @attribute {Number} padding
        * Sets this view&#39;s padding
        */
 
-
 <span id='dr-view-attribute-xscale'>      /**
 </span>       * @attribute {Number} [xscale=1.0]
        * Sets this view&#39;s width scale
        */
 
-
 <span id='dr-view-attribute-yscale'>      /**
 </span>       * @attribute {Number} [yscale=1.0]
        * Sets this view&#39;s height scale
        */
-
 
 <span id='dr-view-attribute-z'>      /**
 </span>       * @attribute {Number} [z=0]
@@ -1720,12 +1756,10 @@
        * *(note: setting a `z` value for a view implicitly sets its parent&#39;s `transform-style` to `preserve-3d`)*
        */
 
-
 <span id='dr-view-attribute-rotation'>      /**
 </span>       * @attribute {Number} [rotation=0]
        * Sets this view&#39;s rotation in degrees.
        */
-
 
 <span id='dr-view-attribute-perspective'>      /**
 </span>       * @attribute {String} [perspective=none]
@@ -1733,12 +1767,24 @@
        * When this value is set, items further from the camera will appear smaller, and closer items will be larger.
        */
 
-
 <span id='dr-view-attribute-opacity'>      /**
 </span>       * @attribute {Number} [opacity=1.0]
        * Sets this view&#39;s opacity, values can be a float from 0.0 ~ 1.0
        */
 
+<span id='dr-view-attribute-scrollx'>      /**
+</span>       * @attribute {Number} [scrollx=0]
+       * Sets the horizontal scroll position of the view. Only relevant if
+       * this.scrollable is true. Setting this value will generate both a
+       * scrollx event and a scroll event.
+       */
+
+<span id='dr-view-attribute-scrolly'>      /**
+</span>       * @attribute {Number} [scrolly=0]
+       * Sets the vertical scroll position of the view. Only relevant if
+       * this.scrollable is true. Setting this value will generate both a
+       * scrolly event and a scroll event.
+       */
 
 <span id='dr-view-event-onclick'>      /**
 </span>       * @event onclick
@@ -1746,13 +1792,11 @@
        * @param {dr.view} view The dr.view that fired the event
        */
 
-
 <span id='dr-view-event-onmouseover'>      /**
 </span>       * @event onmouseover
        * Fired when the mouse moves over this view
        * @param {dr.view} view The dr.view that fired the event
        */
-
 
 <span id='dr-view-event-onmouseout'>      /**
 </span>       * @event onmouseout
@@ -1760,13 +1804,11 @@
        * @param {dr.view} view The dr.view that fired the event
        */
 
-
 <span id='dr-view-event-onmousedown'>      /**
 </span>       * @event onmousedown
        * Fired when the mouse goes down on this view
        * @param {dr.view} view The dr.view that fired the event
        */
-
 
 <span id='dr-view-event-onmouseup'>      /**
 </span>       * @event onmouseup
@@ -1774,8 +1816,61 @@
        * @param {dr.view} view The dr.view that fired the event
        */
 
+<span id='dr-view-event-onscrollx'>      /**
+</span>       * @event onscrollx
+       * Fired when the horizontal scroll position changes
+       * @param {number} The x value of the scroll position.
+       */
+
+<span id='dr-view-event-onscrolly'>      /**
+</span>       * @event onscrolly
+       * Fired when the vertical scroll position changes
+       * @param {number} The y value of the scroll position.
+       */
+
+<span id='dr-view-event-onscroll'>      /**
+</span>       * @event onscroll
+       * Fired when the scroll position changes. Also provides information about
+       * the scroll width and scroll height though it does not refire when those
+       * values change since the DOM does not generate an event when they do. This
+       * event is typically delayed by a few millis after setting scrollx or 
+       * scrolly since the underlying DOM event fires during the next DOM refresh
+       * performed by the browser.
+       * @param {Object} scroll The following four properties are defined:
+       *     scrollx:number The horizontal scroll position.
+       *     scrolly:number The vertical scroll position.
+       *     scrollwidth:number The width of the scrollable area. Note this is
+       *       not the maximum value for scrollx since that depends on the bounds
+       *       of the scrollable view. The maximum can be calculated using this
+       *       formula: scrollwidth - view.width + 2*view.border
+       *     scrollheight:number The height of the scrollable area. Note this is
+       *       not the maximum value for scrolly since that depends on the bounds
+       *       of the scrollable view. The maximum can be calculated using this
+       *       formula: scrollheight - view.height + 2*view.border
+       */
+      var defaults;
+
+      __extends(View, _super);
+
+      defaults = {
+        x: 0,
+        y: 0,
+        width: 0,
+        height: 0,
+        opacity: 1,
+        clickable: false,
+        clip: false,
+        scrollable: false,
+        visible: true,
+        bordercolor: &#39;transparent&#39;,
+        borderstyle: &#39;solid&#39;,
+        border: 0,
+        padding: 0,
+        ignorelayout: false
+      };
+
       function View(el, attributes) {
-        var defaults, key, type, types, _ref;
+        var key, type, types, _ref;
         if (attributes == null) {
           attributes = {};
         }
@@ -1825,23 +1920,9 @@
           visible: &#39;boolean&#39;,
           border: &#39;number&#39;,
           padding: &#39;number&#39;,
-          ignorelayout: &#39;boolean&#39;
-        };
-        defaults = {
-          x: 0,
-          y: 0,
-          width: 0,
-          height: 0,
-          opacity: 1,
-          clickable: false,
-          clip: false,
-          scrollable: false,
-          visible: true,
-          bordercolor: &#39;transparent&#39;,
-          borderstyle: &#39;solid&#39;,
-          border: 0,
-          padding: 0,
-          ignorelayout: false
+          ignorelayout: &#39;boolean&#39;,
+          scrollx: &#39;number&#39;,
+          scrolly: &#39;number&#39;
         };
         _ref = attributes.$types;
         for (key in _ref) {
@@ -1865,7 +1946,7 @@
         return this.sprite = new Sprite(el, this, attributes.$tagname);
       };
 
-      View.prototype.setAttribute = function(name, value, skipstyle, skipConstraintSetup, skipconstraintunregistration) {
+      View.prototype.setAttribute = function(name, value, skipDomChange, skipConstraintSetup, skipconstraintunregistration) {
         var existing;
         if (!skipConstraintSetup) {
           switch (name) {
@@ -1889,12 +1970,22 @@
           case &#39;border&#39;:
           case &#39;padding&#39;:
             value = Math.max(0, value);
+            break;
+          case &#39;scrollx&#39;:
+            value = Math.max(0, Math.min(this.sprite.el.scrollWidth - this.width + 2 * this.border, value));
+            break;
+          case &#39;scrolly&#39;:
+            value = Math.max(0, Math.min(this.sprite.el.scrollHeight - this.height + 2 * this.border, value));
         }
         existing = this[name];
         View.__super__.setAttribute.call(this, name, value, true, skipConstraintSetup, skipconstraintunregistration);
         value = this[name];
-        if (!(skipstyle || name in ignoredAttributes || name in hiddenAttributes || existing === value)) {
-          return this.sprite.setStyle(name, value);
+        if (!(skipDomChange || name in ignoredAttributes || name in hiddenAttributes || existing === value)) {
+          if (name in domElementAttributes) {
+            return this.sprite.setProperty(name, value);
+          } else if (this.inited || defaults[name] !== value) {
+            return this.sprite.setStyle(name, value);
+          }
         }
       };
 
@@ -2097,6 +2188,12 @@
       };
 
       View.prototype.set_scrollable = function(scrollable) {
+        if (scrollable) {
+          this.setAttributes({
+            scrollx: 0,
+            scrolly: 0
+          });
+        }
         this.sprite.set_scrollable(scrollable);
         return scrollable;
       };
@@ -2977,7 +3074,7 @@
         var style;
         style = document.createElement(&#39;style&#39;);
         style.type = &#39;text/css&#39;;
-        style.innerHTML = &#39;.sprite{ position: absolute; pointer-events: none; padding: 0; margin: 0; box-sizing:border-box;} .sprite-text{ width: auto; height; auto; white-space: nowrap;  padding: 0; margin: 0;} .sprite-inputtext{border: none; outline: none; background-color:transparent; resize:none;} .hidden{ display: none; } .noselect{ -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;} method { display: none; } handler { display: none; } setter { display: none; } class { display:none } node { display:none } dataset { display:none } .warnings {font-size: 14px; background-color: pink; margin: 0;}&#39;;
+        style.innerHTML = &#39;.sprite{ position: absolute; pointer-events: none; padding: 0; margin: 0; box-sizing: border-box; border-color: transparent; border-style: solid; border-width: 0} .sprite-text{ width: auto; height; auto; white-space: nowrap; padding: 0; margin: 0;} .sprite-inputtext{border: none; outline: none; background-color:transparent; resize:none;} .hidden{ display: none; } .noselect{ -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;} method { display: none; } handler { display: none; } setter { display: none; } class { display:none } node { display:none } dataset { display:none } .warnings {font-size: 14px; background-color: pink; margin: 0;}&#39;;
         return document.getElementsByTagName(&#39;head&#39;)[0].appendChild(style);
       };
       initAllElements = function(selector) {
