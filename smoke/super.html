@@ -47,21 +47,21 @@
       </method>
       <handler event="oninit" method="doInit"></handler>
       <method name="doInit">
-        this.super(arguments);
+        this.super();
         var testArr = this.getTestArray();
         testArr.push('item.start');
-        this.super(arguments); // Invoke super when none exists
+        this.super(); // Invoke super when none exists
         testArr.push('item.end');
-        this.doMore();
+        this.doMore('a', 'b', 'c');
       </method>
-      <method name="doMore" type="coffee">
-        @super(arguments);
+      <method name="doMore" args="foo, bar, baz" type="coffee">
+        @super()
         testArr = @getTestArray()
-        testArr.push('item.startMore')
-        testArr.push('item.endMore')
+        testArr.push('item.startMore ' + foo + bar + baz)
+        testArr.push('item.endMore ' + foo + bar + baz)
       </method>
       <method name="getTestArray">
-        this.super(arguments);
+        this.super();
         return this.testArr || (this.testArr = []);
       </method>
     </class>
@@ -71,7 +71,7 @@
       <setter name="selected" args="selected">
         var testArr = this.getTestArray();
         testArr.push('sub.selected_setter.start');
-        this.super(arguments);
+        this.super();
         testArr.push('sub.selected_setter.end');
         return selected;
       </setter>
@@ -79,19 +79,19 @@
         // console.log('sub start');
         this.setAttribute('y', this.y + 10);
         // console.log('sub end');
-        this.super(arguments);
+        this.super();
       </method>
       <method name="doInit">
         var testArr = this.getTestArray();
         testArr.push('sub.start');
-        this.super(arguments);
+        this.super();
         testArr.push('sub.end');
       </method>
-      <method name="doMore" type="coffee">
+      <method name="doMore" args="foo, bar, baz" type="coffee">
         testArr = @getTestArray()
-        testArr.push('sub.startMore')
-        @super(arguments);
-        testArr.push('sub.endMore')
+        testArr.push('sub.startMore ' + foo + bar + baz)
+        @super('x','y');
+        testArr.push('sub.endMore ' + foo + bar + baz)
       </method>
     </class>
 
@@ -111,7 +111,7 @@
 
     <item>
       <method name="doInit">
-        this.super(arguments);
+        this.super();
         var testArr = this.getTestArray();
         testArr.push('inst.start');
         testArr.push('inst.end');
@@ -124,15 +124,15 @@
           // oninit handler
           'item.start',
           'item.end',
-          'item.startMore',
-          'item.endMore',
+          'item.startMore abc',
+          'item.endMore abc',
           'inst.start',
           'inst.end'
         ];
         assert.equal(matchArr.join(','), testArr.join(',')  );
       </method>
       <method name="doClick">
-        this.super(arguments);
+        this.super();
         // console.log('instance start');
         // console.log('instance end');
       </method>
@@ -150,7 +150,7 @@
          order for a method called from a superclass method. -->
     <item>
       <method name="doInit">
-        this.super(arguments);
+        this.super();
         var testArr = this.getTestArray();
         testArr.push('inst.start');
         testArr.push('inst.end');
@@ -164,8 +164,8 @@
           'item.start',
           'item.end',
           'inst.startMore',
-          'item.startMore', // invokesuper:inside
-          'item.endMore',
+          'item.startMore abc', // invokesuper:inside
+          'item.endMore abc',
           'inst.endMore',
           'inst.start', // invokesuper:before
           'inst.end'
@@ -175,11 +175,11 @@
       <method name="doMore" type="coffee">
         testArr = @getTestArray()
         testArr.push('inst.startMore')
-        @super(arguments)
+        @super()
         testArr.push('inst.endMore')
       </method>
       <method name="doClick">
-        this.super(arguments);
+        this.super();
         // console.log('instance start');
         // console.log('instance end');
       </method>
@@ -203,12 +203,12 @@
           'inst.end'
         ];
         assert.equal(matchArr.join(','), testArr.join(','));
-        this.super(arguments);
+        this.super();
       </method>
       <method name="doClick">
         // console.log('instance start');
         // console.log('instance end');
-        this.super(arguments);
+        this.super();
       </method>
     </item>
 
@@ -218,7 +218,7 @@
       <method name="doInit">
         var testArr = this.getTestArray();
         testArr.push('inst.start');
-        this.super(arguments);
+        this.super();
         testArr.push('inst.end');
 
         var matchArr = [
@@ -230,21 +230,21 @@
           'inst.start', // invokesuper:inside
             'item.start',
             'item.end',
-            'item.startMore',
-            'item.endMore',
+            'item.startMore abc',
+            'item.endMore abc',
           'inst.end'
         ];
         assert.equal(matchArr.join(','), testArr.join(','));
       </method>
       <setter name="selected" args="selected">
         // console.log('setter selected instance start');
-        this.super(arguments);
+        this.super();
         // console.log('setter selected instance end');
         return selected;
       </setter>
 
       <method name="doClick">
-        this.super(arguments);
+        this.super();
       </method>
     </item>
 
@@ -255,7 +255,7 @@
          executed in the correct order. -->
     <subitem>
       <method name="doInit">
-        this.super(arguments);
+        this.super();
         var testArr = this.getTestArray();
         testArr.push('inst.start');
         testArr.push('inst.end');
@@ -271,10 +271,10 @@
           'sub.start', // invokesuper:inside
             'item.start',
             'item.end',
-            'sub.startMore', // invokesuper:inside
-              'item.startMore',
-              'item.endMore',
-            'sub.endMore',
+            'sub.startMore abc', // invokesuper:inside
+              'item.startMore xyc',
+              'item.endMore xyc',
+            'sub.endMore abc',
           'sub.end',
           'inst.start', // invokesuper:default
           'inst.end'
@@ -282,7 +282,7 @@
         assert.equal(matchArr.join(','), testArr.join(','));
       </method>
       <method name="doClick">
-        this.super(arguments);
+        this.super();
       </method>
     </subitem>
 
@@ -292,7 +292,7 @@
       <method name="doInit">
         var testArr = this.getTestArray();
         testArr.push('inst.start');
-        this.super(arguments);
+        this.super();
         testArr.push('inst.end');
 
         var matchArr = [
@@ -307,10 +307,10 @@
             'sub.start',
               'item.start',
               'item.end',
-              'sub.startMore',
-                'item.startMore',
-                'item.endMore',
-              'sub.endMore',
+              'sub.startMore abc',
+                'item.startMore xyc',
+                'item.endMore xyc',
+              'sub.endMore abc',
             'sub.end',
           'inst.end'
         ];
@@ -326,8 +326,8 @@
       <method name="doInit">
         var testArr = this.getTestArray();
         testArr.push('inst.start');
-        this.super(arguments);
-        this.super(arguments);
+        this.super();
+        this.super();
         testArr.push('inst.end');
 
         var matchArr = [
@@ -342,26 +342,26 @@
             'sub.start',
               'item.start',
               'item.end',
-              'sub.startMore',
-                'item.startMore',
-                'item.endMore',
-              'sub.endMore',
+              'sub.startMore abc',
+                'item.startMore xyc',
+                'item.endMore xyc',
+              'sub.endMore abc',
             'sub.end',
             'sub.start',
               'item.start',
               'item.end',
-              'sub.startMore',
-                'item.startMore',
-                'item.endMore',
-              'sub.endMore',
+              'sub.startMore abc',
+                'item.startMore xyc',
+                'item.endMore xyc',
+              'sub.endMore abc',
             'sub.end',
           'inst.end'
         ];
         assert.equal(matchArr.join(','), testArr.join(','));
       </method>
       <method name="doClick">
-        this.super(arguments);
-        this.super(arguments);
+        this.super();
+        this.super();
       </method>
     </subitem>
 
@@ -369,7 +369,7 @@
          subclassing works. -->
     <subsubitem>
       <method name="doInit">
-        this.super(arguments);
+        this.super();
         var testArr = this.getTestArray();
         testArr.push('inst.start');
         testArr.push('inst.end');
@@ -385,10 +385,10 @@
           'sub.start',
             'item.start',
             'item.end',
-            'sub.startMore',
-              'item.startMore',
-              'item.endMore',
-            'sub.endMore',
+            'sub.startMore abc',
+              'item.startMore xyc',
+              'item.endMore xyc',
+            'sub.endMore abc',
           'sub.end',
           'inst.start',
           'inst.end'
@@ -396,7 +396,7 @@
         assert.equal(matchArr.join(','), testArr.join(','));
       </method>
       <method name="doClick">
-        this.super(arguments);
+        this.super();
       </method>
     </subsubitem>
 
@@ -406,12 +406,12 @@
       <setter name="selected" args="selected">
         var testArr = this.getTestArray();
         testArr.push('inst.selected_setter.start');
-        this.super(arguments);
+        this.super();
         testArr.push('inst.selected_setter.end');
         return selected;
       </setter>
       <method name="doInit">
-        this.super(arguments);
+        this.super();
         var testArr = this.getTestArray();
         testArr.push('inst.start');
         testArr.push('inst.end');
@@ -429,20 +429,23 @@
           'sub.start',
             'item.start',
             'item.end',
-            'sub.startMore',
-              'item.startMore',
-              'item.endMore',
-            'sub.endMore',
+            'sub.startMore zbc',
+              'item.startMore xyc',
+              'item.endMore xyc',
+            'sub.endMore zbc',
           'sub.end',
           'inst.start',
           'inst.end'
         ];
         assert.equal(matchArr.join(','), testArr.join(','));
       </method>
+      <method name="doMore" type="coffee">
+        @super('z');
+      </method>
       <method name="doClick" type="coffee">
         @toggle = !@toggle
         @setAttribute('x', if @toggle then @x + 25 else @x - 25)
-        @super(arguments);
+        @super();
       </method>
     </subsubitem>
     

@@ -89,13 +89,13 @@ SOFTWARE. -->
   </handler>
   
   <method name="startMonitoringSubview" args="view">
-    @super(arguments);
+    @super();
 
     @listenTo(view, @measureAttrName, @update)
   </method>
   
   <method name="stopMonitoringSubview" args="view">
-    @super(arguments);
+    @super();
 
     @stopListening(view, @measureAttrName, @update)
   </method>

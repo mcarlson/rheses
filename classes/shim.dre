@@ -66,7 +66,7 @@ SOFTWARE. -->
         * @param {Object} data The data to be sent.
         */-->
       <method name="send" args="type, data">
-        this.super(arguments);
+        this.super();
 
         if (this.connected) {
           var json = {'type': type || 'data', data: data};

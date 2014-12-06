@@ -725,7 +725,7 @@ window.dr = do ->
       # TODO: add class methods when allocation == 'class'
 
       if invokeSuper
-        console.warn('invokeSuper has been deprecated and will be removed soon, the default is now "inside".  Use @super(arguments) to invoke the overridden implementation')
+        console.warn('invokeSuper has been deprecated and will be removed soon, the default is now "inside".  Use @super() to invoke the overridden implementation')
 
       if methodname of scope
         # Cheesy override
@@ -744,14 +744,19 @@ window.dr = do ->
             return retval
         else # inside (default)
           scope[methodname] = ->
-            prevValue = scope['super'];
-            prevOwn = scope.hasOwnProperty('super');
-            scope['super'] = (args) -> supr.apply(scope, args);
+            prevOwn = scope.hasOwnProperty('super')
+            if prevOwn then prevValue = scope['super']
+            params = Array.prototype.slice.call(arguments)
+            scope['super'] = () -> 
+              i = arguments.length
+              while i
+                params[--i] = arguments[i]
+              supr.apply(scope, params)
             retval = method.apply(scope, arguments)
             if prevOwn
-              scope['super'] = prevValue;
+              scope['super'] = prevValue
             else
-              delete scope['super'];
+              delete scope['super']
             return retval
         # console.log('overrode method', methodname, scope, supr, meth)
       else
@@ -761,14 +766,14 @@ window.dr = do ->
           scope[methodname] = method
         else
           scope[methodname] = ->
-            prevValue = scope['super'];
-            prevOwn = scope.hasOwnProperty('super');
+            prevOwn = scope.hasOwnProperty('super')
+            if prevOwn then prevValue = scope['super']
             scope['super'] = noop
             retval = method.apply(scope, arguments)
             if prevOwn
-              scope['super'] = prevValue;
+              scope['super'] = prevValue
             else
-              delete scope['super'];
+              delete scope['super']
             return retval
       # console.log('installed method', methodname, scope, scope[methodname])
 

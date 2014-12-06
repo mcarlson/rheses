@@ -180,7 +180,7 @@ SOFTWARE. -->
       </handler>
 
       <method name="setAttribute" args="name, value">
-        @super(arguments);
+        @super();
         # If debug=true, show attributes that pass through to the svg
         debug = window.location.search.indexOf('debug') > 0
         if debug
@@ -191,7 +191,7 @@ SOFTWARE. -->
 
 
       <method name="show_path" args="name">
-        @super(arguments);
+        @super();
         # Retrieve an svg path given its name, or index
         path = @get_path(name)
         if path and path.length > 0
@@ -202,7 +202,7 @@ SOFTWARE. -->
 
 
       <method name="get_path_frame" args="name, params">
-        @super(arguments);
+        @super();
         # Construct a start or stop animation state using the specified
         # path, and optional other animation parameters
 
@@ -218,7 +218,7 @@ SOFTWARE. -->
       </method>
 
       <method name="animate_path" args="name, params">
-        @super(arguments);
+        @super();
 
         # Animate the path, as well as specified params
         return @show_path(name) if !@snap
@@ -244,7 +244,7 @@ SOFTWARE. -->
       </method>
 
       <method name="show_frame" args="start_path, end_path, frame, start_params, end_params">
-        @super(arguments);
+        @super();
 
         # Called when animationframe changes. This can also be used to display
         # a frame between any two keyframes.
@@ -277,7 +277,7 @@ SOFTWARE. -->
 
 
       <method name="createDOM">
-        @super(arguments);
+        @super();
 
         # Create a div to handle resizing of the graphics
         return if @container      
@@ -289,7 +289,7 @@ SOFTWARE. -->
       </method>
 
       <method name="createSnap">
-        @super(arguments);
+        @super();
 
         return if @snap
         @snap = Snap()
@@ -324,7 +324,7 @@ SOFTWARE. -->
 
 
       <method name="hide_art", args="fixed">
-        @super(arguments);
+        @super();
 
         # Hide either fixed art (fixed=true or missing) or snap (false)
         fixed = true if not fixed?
@@ -333,7 +333,7 @@ SOFTWARE. -->
       </method>
 
       <method name="get_path" args="name">
-        @super(arguments);
+        @super();
         # Read the path information from the svg using id and then index
         return null if !@container
 
@@ -352,7 +352,7 @@ SOFTWARE. -->
       </method>
 
       <method name="get_paths">
-        @super(arguments);
+        @super();
 
         # Get every path specified in the svg
         dom = @container
@@ -363,7 +363,7 @@ SOFTWARE. -->
       </method>
 
       <method name="get_bounding_box">
-        @super(arguments);
+        @super();
 
         # Get the bounding box of all the paths
         paths = @get_paths()
@@ -393,7 +393,7 @@ SOFTWARE. -->
       <handler event="onready" method="normalizeArt"></handler>
 
       <method name="normalizeArt">
-        @super(arguments);
+        @super();
 
         return unless @container
 
@@ -438,7 +438,7 @@ SOFTWARE. -->
       </method>
 
       <method name="resizeArt">
-        @super(arguments);
+        @super();
 
         # Resize the art, if needed, for changes in container size
 
@@ -462,7 +462,7 @@ SOFTWARE. -->
       </method>
 
       <method name="loadInline">
-        @super(arguments);
+        @super();
 
         # Load inline svg
         @createDOM()
@@ -486,7 +486,7 @@ SOFTWARE. -->
       </method>
 
       <method name="loadFromFile">
-        @super(arguments);
+        @super();
 
         # Load an svg file
         @createDOM()

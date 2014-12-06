@@ -57,7 +57,7 @@ SOFTWARE. -->
     * @return {void}
     */-->
   <method name="doBeforeUpdate">
-    @super(arguments);
+    @super();
     # Subclasses to implement as needed.
   </method>
   
@@ -69,7 +69,7 @@ SOFTWARE. -->
     * @return {void}
     */-->
   <method name="doAfterUpdate">
-    @super(arguments);
+    @super();
     # Subclasses to implement as needed.
   </method>
   
@@ -80,7 +80,7 @@ SOFTWARE. -->
     * @param {dr.view} view
     */-->
   <method name="startMonitoringSubview" args="view">
-    @super(arguments);
+    @super();
 
     @listenTo(view, 'visible', @update)
   </method>
@@ -92,7 +92,7 @@ SOFTWARE. -->
     * @param {dr.view} view
     */-->
   <method name="stopMonitoringSubview" args="view">
-    @super(arguments);
+    @super();
 
     @stopListening(view, 'visible', @update)
   </method>
@@ -109,7 +109,7 @@ SOFTWARE. -->
     * @return {*} The value to use for the next subview.
     */-->
   <method name="updateSubview" args="count, view, attribute, value">
-    @super(arguments);
+    @super();
 
     view.setAttribute(attribute, value)
     return value
@@ -125,7 +125,7 @@ SOFTWARE. -->
     *   layout updates.
     */-->
   <method name="skipSubview" args="view">
-    @super(arguments);
+    @super();
 
     return !view.visible
   </method>
@@ -139,7 +139,7 @@ SOFTWARE. -->
     * @return {void}
     */-->
   <method name="updateParent" args="attribute, value">
-    @super(arguments);
+    @super();
 
     # Subclasses to implement as needed.
   </method>

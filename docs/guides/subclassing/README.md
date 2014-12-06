@@ -68,7 +68,7 @@ In this case that isn't what we want, so we'll override the `layoutelements` met
     <class type="coffee" name="employee" extends="user">
         <text name="joblabel" text="COO" color="pink"></text>
         <method type="coffee" name="layoutelements">
-            @super(arguments);
+            @super();
             @joblabel.setAttribute('x', @lastnamelabel.x + @lastnamelabel.width + 10);
         </method>
     </class>

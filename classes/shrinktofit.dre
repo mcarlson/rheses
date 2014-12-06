@@ -81,13 +81,13 @@ SOFTWARE. -->
   <handler event="onypad" method="update"></handler>
   
   <method name="startMonitoringSubview" args="view">
-    @super(arguments);
+    @super();
 
     @__updateMonitoringSubview(view, @listenTo)
   </method>
   
   <method name="stopMonitoringSubview" args="view">
-    @super(arguments);
+    @super();
 
     @__updateMonitoringSubview(view, @stopListening)
   </method>
@@ -101,7 +101,7 @@ SOFTWARE. -->
     * @private
     */-->
   <method name="__updateMonitoringSubview" args="view, func">
-    @super(arguments);
+    @super();
 
     axis = @axis
     func = func.bind(@)
@@ -118,7 +118,7 @@ SOFTWARE. -->
   </method>
   
   <method name="update">
-    @super(arguments);
+    @super();
 
     if @canUpdate()
       # Prevent inadvertent loops
