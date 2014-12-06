@@ -747,7 +747,7 @@ window.dr = do ->
             prevOwn = scope.hasOwnProperty('super')
             if prevOwn then prevValue = scope['super']
             params = Array.prototype.slice.call(arguments)
-            scope['super'] = () -> 
+            scope['super'] = () ->
               i = arguments.length
               while i
                 params[--i] = arguments[i]
@@ -3049,6 +3049,7 @@ window.dr = do ->
         @update()
       return v
 
+  starttime = Date.now()
   idle = do ->
     requestAnimationFrame = do ->
       return  window.requestAnimationFrame       or
@@ -3057,7 +3058,9 @@ window.dr = do ->
               window.oRequestAnimationFrame      or
               window.msRequestAnimationFrame     or
               (callback, element) ->
-                window.setTimeout(callback, 1000 / 60)
+                callbackwrapper = () ->
+                  callback(Date.now() - starttime)
+                window.setTimeout(callbackwrapper, 1000 / 60)
 
     ticking = false
     tickEvents = []
