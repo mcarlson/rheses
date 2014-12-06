@@ -254,7 +254,7 @@ SOFTWARE. -->
         @applyData()
       </handler>
       <method name="buildsortfunc">
-        @super(arguments);
+        @super();
 
         if @sortfield
           sortfield = @sortfield
@@ -284,7 +284,7 @@ SOFTWARE. -->
       <handler event="ondatapath" method="applyData"></handler>
       <handler event="ondestroy" method="clear"></handler>
       <method name="updateData" args="data">
-        @super(arguments);
+        @super();
 
         # remove dataset declaration
         re = /^\$([^\/]+)/
@@ -295,12 +295,12 @@ SOFTWARE. -->
         * Refreshes the dataset manually
         */-->
       <method name="refresh">
-        @super(arguments);
+        @super();
 
         this.applyData()
       </method>
       <method name="clear">
-        @super(arguments);
+        @super();
 
         # @parent.setAttribute('display', 'none')
         if @children
@@ -319,7 +319,7 @@ SOFTWARE. -->
         * @returns {Object[]} The accum array. Must be returned otherwise results will be lost.
         */-->
       <method name="applyData">
-        @super(arguments);
+        @super();
 
         return unless @inited and @parent and @classname
         # console.log('applyData', @data, @classname, @parent, @children, @, @inited)
@@ -375,7 +375,7 @@ SOFTWARE. -->
           @doReplication()
       </method>
       <method name="doReplication">
-        @super(arguments);
+        @super();
 
         return unless @data and @parent
 

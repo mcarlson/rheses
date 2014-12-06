@@ -39,12 +39,12 @@ SOFTWARE. -->
   </setter>
   
   <method name="stopMonitoringAllSubviews" args="view">
-    @super(arguments)
+    @super()
     @stopListening(@parent, 'inner' + @measureAttrName, @update)
   </method>
   
   <method name="startMonitoringAllSubviews" args="view">
-    @super(arguments)
+    @super()
     @listenTo(@parent, 'inner' + @measureAttrName, @update)
   </method>
   
@@ -107,7 +107,7 @@ SOFTWARE. -->
       @remainderUsed += size
       view.setAttribute(@measureAttrName, size)
     
-    return @super(arguments)
+    return @super()
   </method>
   
   <method name="updateParent" args="attribute, value">

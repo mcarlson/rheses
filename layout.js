@@ -990,7 +990,7 @@
       _installMethod = function(scope, methodname, method, allocation, invokeSuper) {
         var supr;
         if (invokeSuper) {
-          console.warn('invokeSuper has been deprecated and will be removed soon, the default is now "inside".  Use @super(arguments) to invoke the overridden implementation');
+          console.warn('invokeSuper has been deprecated and will be removed soon, the default is now "inside".  Use @super() to invoke the overridden implementation');
         }
         if (methodname in scope) {
           supr = scope[methodname] || noop;
@@ -1010,11 +1010,19 @@
             };
           } else {
             return scope[methodname] = function() {
-              var prevOwn, prevValue, retval;
-              prevValue = scope['super'];
+              var params, prevOwn, prevValue, retval;
               prevOwn = scope.hasOwnProperty('super');
-              scope['super'] = function(args) {
-                return supr.apply(scope, args);
+              if (prevOwn) {
+                prevValue = scope['super'];
+              }
+              params = Array.prototype.slice.call(arguments);
+              scope['super'] = function() {
+                var i;
+                i = arguments.length;
+                while (i) {
+                  params[--i] = arguments[i];
+                }
+                return supr.apply(scope, params);
               };
               retval = method.apply(scope, arguments);
               if (prevOwn) {
@@ -1031,8 +1039,10 @@
           } else {
             return scope[methodname] = function() {
               var prevOwn, prevValue, retval;
-              prevValue = scope['super'];
               prevOwn = scope.hasOwnProperty('super');
+              if (prevOwn) {
+                prevValue = scope['super'];
+              }
               scope['super'] = noop;
               retval = method.apply(scope, arguments);
               if (prevOwn) {

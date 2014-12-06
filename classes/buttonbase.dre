@@ -68,7 +68,7 @@ SOFTWARE. -->
 
       <!-- visualize: Show the current button state -->
       <method name="visualize">
-        @super(arguments);
+        @super();
 
         # Hack. Should be @inited
         return unless @realinited
@@ -91,7 +91,7 @@ SOFTWARE. -->
         <handler event="onheight" method="handleResize"></handler>
 
         <method name="handleResize">
-          @super(arguments);
+          @super();
 
           # Force an onwidth event in the parent to resize the button
           @parent.sendEvent('width', @parent.width)
@@ -102,7 +102,7 @@ SOFTWARE. -->
       <handler event="onheight" method="handleResize"></handler>
 
       <method name="handleResize">
-        @super(arguments);
+        @super();
 
         # Custom behavior in subclasses
       </method>

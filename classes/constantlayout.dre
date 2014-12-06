@@ -48,7 +48,7 @@ SOFTWARE. -->
   <handler event="onvalue" method="update"></handler>
   
   <method name="update">
-    @super(arguments);
+    @super();
 
     if @canUpdate()
       attribute = @attribute

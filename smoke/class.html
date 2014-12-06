@@ -108,7 +108,7 @@
   <class name="c1" type="coffee">
     <attribute name="counter" type="string" value="0"></attribute>
     <method name="test">
-      this.super(arguments);
+      this.super();
 
       this.counter += '1';
       # console.log("c1.test")
@@ -116,7 +116,7 @@
   </class>
   <class name="c2" type="coffee" extends="c1">
     <method name="test">
-      this.super(arguments);
+      this.super();
 
       this.counter += '2';
       # console.log("c2.test")

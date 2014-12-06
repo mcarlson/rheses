@@ -25,7 +25,7 @@
           this.beforeCallCount++;
         </method>
         <method name="updateSubview" args="count, view, attribute, value">
-          return this.super(arguments) + count + view.width;
+          return this.super() + count + view.width;
         </method>
         <method name="doAfterUpdate">
           this.afterCallCount++;
@@ -48,10 +48,10 @@
       
       <variablelayout name="layoutY" attribute="y" value="5" collapseparent="true">
         <method name="updateSubview" args="count, view, attribute, value">
-          return this.super(arguments) + count + view.height;
+          return this.super() + count + view.height;
         </method>
         <method name="skipSubview" args="view">
-          return 5 >= view.height || this.super(arguments)
+          return 5 >= view.height || this.super()
         </method>
         <method name="updateParent" args="attribute, value">
           this.parent.setAttribute(attribute, value);

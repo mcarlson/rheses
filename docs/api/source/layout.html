@@ -973,7 +973,7 @@
       _installMethod = function(scope, methodname, method, allocation, invokeSuper) {
         var supr;
         if (invokeSuper) {
-          console.warn(&#39;invokeSuper has been deprecated and will be removed soon, the default is now &quot;inside&quot;.  Use @super(arguments) to invoke the overridden implementation&#39;);
+          console.warn(&#39;invokeSuper has been deprecated and will be removed soon, the default is now &quot;inside&quot;.  Use @super() to invoke the overridden implementation&#39;);
         }
         if (methodname in scope) {
           supr = scope[methodname] || noop;

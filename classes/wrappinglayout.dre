@@ -120,23 +120,23 @@ SOFTWARE. -->
   </handler>
   
   <method name="stopMonitoringAllSubviews" args="view">
-    @super(arguments)
+    @super()
     @stopListening(@parent, 'inner' + @measureAttrName, @update)
   </method>
   
   <method name="startMonitoringAllSubviews" args="view">
-    @super(arguments)
+    @super()
     @listenTo(@parent, 'inner' + @measureAttrName, @update)
   </method>
   
   <method name="startMonitoringSubview" args="view">
-    @super(arguments)
+    @super()
     @listenTo(view, @measureAttrName, @update)
     @listenTo(view, @otherMeasureAttrName, @update)
   </method>
   
   <method name="stopMonitoringSubview" args="view">
-    @super(arguments)
+    @super()
     @stopListening(view, @measureAttrName, @update)
     @stopListening(view, @otherMeasureAttrName, @update)
   </method>
