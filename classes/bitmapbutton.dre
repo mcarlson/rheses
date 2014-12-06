@@ -1,0 +1,199 @@
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+<!--/**
+ * @class dr.bitmapbutton {UI Components}
+ * @extends dr.view
+ * A button that may be configured with three images for the default states (default, over, and down), or can be configured
+ * with custom states, and custom interactive behavior.
+ *
+ * You can configure the default, over, and down image explicitly with the defaultsrc, oversrc, and downsrc attributes
+ *
+ *     @example
+ *     <bitmapbutton width="100" height="100" defaultsrc="../api-examples-resources/default.png" oversrc="../api-examples-resources/over.png" downsrc="../api-examples-resources/down.png"></bitmapbutton>
+ *
+ * Or you can set the images using the srcs attribute
+ *
+ *     @example
+ *     <bitmapbutton width="100" height="100" srcs='["../api-examples-resources/default.png", "../api-examples-resources/over.png", "../api-examples-resources/down.png"]'></bitmapbutton>
+ *
+ * Setting the interactive attribute to false disables the default hover and down state changes. This enables you to set your own custom state change behavior.
+ *
+ *     @example
+ *     <bitmapbutton width="100" height="100" interactive="false" srcs='["../api-examples-resources/default.png", "../api-examples-resources/over.png", "../api-examples-resources/down.png"]'></bitmapbutton>
+ *
+ * You can configure custom states like so, which will set the interactive flag to false, and then add your own custom state changes
+ *
+ *     @example
+ *     <bitmapbutton width="100" height="100" states='["one", "two", "three", "four"]' srcs='["../api-examples-resources/default.png", "../api-examples-resources/over.png", "../api-examples-resources/down.png", "../api-examples-resources/shasta.jpg"]'>
+ *       <attribute name="statetracker" type="number" value="0"></attribute>
+ *       <handler event="onclick">
+ *         var newStateIndex = this.statetracker + 1;
+ *         if (newStateIndex == 4) newStateIndex = 0;
+ *         this.setAttribute('statetracker', newStateIndex)
+ *         this.setAttribute('state', this.states[newStateIndex])
+ *       </handler>
+ *     </bitmapbutton>
+ */-->
+<class name="bitmapbutton" type="coffee" clickable="true" clip="true">
+  <!--/**
+    * @attribute {String} [state="default"]
+    * The currently active state.
+    */-->
+  <attribute name="state" type="string" value="default"></attribute>
+  <!--/**
+    * @attribute {String} [states="default, over, down"]
+    * The states that have been configured for this button. If left as the default states, default, over, and down states are applied automatically based on mouse/touch interactions.
+    */-->
+  <attribute name="states" type="string" value="default, over, down"></attribute>
+  <!--/**
+    * @attribute {String} [srcs=""]
+    * Use this to configure the image sources for the states (in order of default, over, down). 
+    */-->
+  <attribute name="srcs" type="string" value=""></attribute>
+  <!--/**
+    * @attribute {String} [defaultsrc=""]
+    * The source of the default image. 
+    */-->
+  <attribute name="defaultsrc" type="string" value=""></attribute>
+  <!--/**
+    * @attribute {String} [oversrc=""]
+    * The source of the over image. 
+    */-->
+  <attribute name="oversrc" type="string" value=""></attribute>
+  <!--/**
+    * @attribute {String} [downsrc=""]
+    * The source of the down image. 
+    */-->
+  <attribute name="downsrc" type="string" value=""></attribute>
+  <!--/**
+    * @attribute {Boolean} [interactive="true"]
+    * When true default, over, and down states are applied automatically based on mouse/touch interactions. Set to false to disable the default behavior.
+    */-->
+  <attribute name="interactive" type="boolean" value="true"></attribute>
+
+  <attribute name="_sourcesArray" type="json" value="null"></attribute>
+  <attribute name="_statesArray" type="json" value="null"></attribute>
+  
+  <handler event="oninit">
+    if (!@_srcsArray)
+      @_srcsArray = [@defaultsrc, @oversrc, @downsrc]
+      @srcs = @_srcsArray.join(',')
+    
+    for state, i in @_statesArray
+      @setSourceForState(@_srcsArray[i], state)
+
+    if @state != "default" && ($.inArray(@state, @_statesArray) == -1)
+      console.warn('Bitmapbutton: Invalid state set: ', @state)
+    
+    @state = @_statesArray[0] if $.inArray(@state, @_statesArray) == -1
+    @setImageForState(@state)
+
+    @interactive = false unless @_statesArray.join(',') == 'default,over,down'
+  </handler>
+  
+  <handler event="onmouseover">
+    return unless @interactive
+    @setAttribute('state', 'over')
+  </handler>
+  <handler event="onmousedown">
+    return unless @interactive
+    @setAttribute('state', 'down')
+  </handler>
+  <handler event="onmouseup">
+    return unless @interactive
+    @setAttribute('state', 'over') if (@state == 'down')
+  </handler>
+  <handler event="onmouseout">
+    return unless @interactive
+    @setAttribute('state', 'default')
+  </handler>
+  
+  <method name="setSourceForState" args="src, state">
+    return unless src
+    return unless state in @_statesArray
+    
+    imgs = @_imgs = @_imgs || {}
+    img = imgs[state] = imgs[state] || new Image()
+    img.src = src
+    
+    img.onload = ()=>
+      @sendEvent(state + 'load', {width: img.width, height: img.height});
+
+    img.onerror = ()=>
+      @sendEvent(state + 'error', img);
+  </method>
+  
+  <method name="setImageForState" args="state">
+    return unless @_imgs
+    img = @_imgs[state]
+    unless img
+      console.warn('Bitmapbutton: No image found for state', state)
+      return
+
+    this.setAttribute('background-image', 'url("' + img.src + '")');
+    this.setAttribute('background-size', 'cover');
+  </method>
+  
+  <!-- Don't allow these to be set at runtime (for now at least) -->
+  <setter name="defaultsrc" args="src">
+    if @inited
+      return @defaultsrc
+    return src
+  </setter>
+  <setter name="oversrc" args="src">
+    if @inited
+      return @oversrc
+    return src
+  </setter>
+  <setter name="downsrc" args="src">
+    if @inited
+      return @downsrc
+    return src
+  </setter>
+  
+  <setter name="srcs" args="srcs">
+    if @inited
+      return @srcs
+
+    @_srcsArray = srcs.replace(/\s/g,'').split(',') if srcs
+    return srcs
+  </setter>
+  <setter name="states" args="states">
+    if @inited
+      return @states
+
+    @_statesArray = states.replace(/\s/g,'').split(',')
+    return states
+  </setter>
+  
+  <!-- Make sure state is set to the first one in the list if it hasn't been set explicitly (for overridden states) -->
+  <setter name="state" args="state">
+    return state unless @inited
+    
+    if $.inArray(state, @_statesArray) == -1
+      console.warn('Bitmapbutton: Invalid state set: ', state)
+      return @state
+    
+    @setImageForState(state)
+    return state
+  </setter>
+</class>
