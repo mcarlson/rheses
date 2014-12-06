@@ -19,19 +19,19 @@
 
 /*
  * The MIT License (MIT)
- * 
+ *
  * Copyright ( c ) 2014 Teem2 LLC
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -97,7 +97,7 @@
   })();
 
   window.dr = (function() {
-    var Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, callOnIdle, capabilities, compiler, constraintScopes, debug, dom, domElementAttributes, exports, fcamelCase, hiddenAttributes, idle, ignoredAttributes, knownstyles, mixOf, moduleKeywords, mouseEvents, noop, querystring, rdashAlpha, showWarnings, specialtags, ss, ss2, test, triggerlock, warnings, _initConstraints;
+    var Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, callOnIdle, capabilities, compiler, constraintScopes, debug, dom, domElementAttributes, exports, fcamelCase, hiddenAttributes, idle, ignoredAttributes, knownstyles, mixOf, moduleKeywords, mouseEvents, noop, querystring, rdashAlpha, showWarnings, specialtags, ss, ss2, starttime, test, triggerlock, warnings, _initConstraints;
     noop = function() {};
     mixOf = function() {
       var Mixed, base, i, method, mixin, mixins, name, _i, _ref;
@@ -747,7 +747,7 @@
       lateattributes = [&#39;data&#39;];
 
       function Node(el, attributes) {
-        var args, deferbindings, ev, method, name, parent, reference, script, skiponinit, value, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
+        var deferbindings, name, parent, skiponinit, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref, _ref1, _ref2, _ref3, _ref4;
         if (attributes == null) {
           attributes = {};
         }
@@ -780,14 +780,23 @@
         }
         if (attributes.$handlers) {
           this.installHandlers(attributes.$handlers, attributes.$tagname);
-          _ref1 = attributes.$handlers;
-          for (_i = 0, _len = _ref1.length; _i &lt; _len; _i++) {
-            _ref2 = _ref1[_i], ev = _ref2.ev, name = _ref2.name, script = _ref2.script, args = _ref2.args, reference = _ref2.reference, method = _ref2.method;
-            ev = ev.substr(2);
-            if (__indexOf.call(mouseEvents, ev) &gt;= 0) {
-              if (attributes.clickable !== &quot;false&quot;) {
-                attributes.clickable = true;
+          if (attributes.clickable !== &quot;false&quot;) {
+            _ref1 = (function() {
+              var _j, _len, _ref1, _ref2, _results;
+              _ref1 = attributes.$handlers;
+              _results = [];
+              for (_j = 0, _len = _ref1.length; _j &lt; _len; _j++) {
+                name = _ref1[_j];
+                if (_ref2 = name.ev.substr(2), __indexOf.call(mouseEvents, _ref2) &gt;= 0) {
+                  _results.push(name);
+                }
               }
+              return _results;
+            })();
+            for (_i = 0, _len = _ref1.length; _i &lt; _len; _i++) {
+              name = _ref1[_i];
+              attributes.clickable = true;
+              break;
             }
           }
           delete attributes.$handlers;
@@ -795,18 +804,34 @@
         if (!deferbindings) {
           this._bindHandlers();
         }
-        for (_j = 0, _len1 = earlyattributes.length; _j &lt; _len1; _j++) {
-          name = earlyattributes[_j];
-          if (name in attributes) {
-            this.setAttribute(name, attributes[name]);
+        _ref2 = (function() {
+          var _k, _len1, _results;
+          _results = [];
+          for (_k = 0, _len1 = earlyattributes.length; _k &lt; _len1; _k++) {
+            name = earlyattributes[_k];
+            if (name in attributes) {
+              _results.push(name);
+            }
           }
+          return _results;
+        })();
+        for (_j = 0, _len1 = _ref2.length; _j &lt; _len1; _j++) {
+          name = _ref2[_j];
+          this.setAttribute(name, attributes[name]);
         }
-        for (name in attributes) {
-          value = attributes[name];
-          if (__indexOf.call(lateattributes, name) &gt;= 0 || __indexOf.call(earlyattributes, name) &gt;= 0) {
-            continue;
+        _ref3 = (function() {
+          var _results;
+          _results = [];
+          for (name in attributes) {
+            if (!(__indexOf.call(lateattributes, name) &gt;= 0 || __indexOf.call(earlyattributes, name) &gt;= 0)) {
+              _results.push(name);
+            }
           }
-          this.bindAttribute(name, value, attributes.$tagname);
+          return _results;
+        })();
+        for (_k = 0, _len2 = _ref3.length; _k &lt; _len2; _k++) {
+          name = _ref3[_k];
+          this.bindAttribute(name, attributes[name], attributes.$tagname);
         }
         parent = this.parent;
         if (parent &amp;&amp; parent instanceof Node) {
@@ -826,11 +851,20 @@
           parent.sendEvent(&#39;subnodeAdded&#39;, this);
           parent.doSubnodeAdded(this);
         }
-        for (_k = 0, _len2 = lateattributes.length; _k &lt; _len2; _k++) {
-          name = lateattributes[_k];
-          if (name in attributes) {
-            this.bindAttribute(name, attributes[name], attributes.$tagname);
+        _ref4 = (function() {
+          var _len3, _m, _results;
+          _results = [];
+          for (_m = 0, _len3 = lateattributes.length; _m &lt; _len3; _m++) {
+            name = lateattributes[_m];
+            if (name in attributes) {
+              _results.push(name);
+            }
           }
+          return _results;
+        })();
+        for (_l = 0, _len3 = _ref4.length; _l &lt; _len3; _l++) {
+          name = _ref4[_l];
+          this.bindAttribute(name, attributes[name], attributes.$tagname);
         }
         if (this.constraints) {
           constraintScopes.push(this);
@@ -993,11 +1027,19 @@
             };
           } else {
             return scope[methodname] = function() {
-              var prevOwn, prevValue, retval;
-              prevValue = scope[&#39;super&#39;];
+              var params, prevOwn, prevValue, retval;
               prevOwn = scope.hasOwnProperty(&#39;super&#39;);
-              scope[&#39;super&#39;] = function(args) {
-                return supr.apply(scope, args);
+              if (prevOwn) {
+                prevValue = scope[&#39;super&#39;];
+              }
+              params = Array.prototype.slice.call(arguments);
+              scope[&#39;super&#39;] = function() {
+                var i;
+                i = arguments.length;
+                while (i) {
+                  params[--i] = arguments[i];
+                }
+                return supr.apply(scope, params);
               };
               retval = method.apply(scope, arguments);
               if (prevOwn) {
@@ -1014,8 +1056,10 @@
           } else {
             return scope[methodname] = function() {
               var prevOwn, prevValue, retval;
-              prevValue = scope[&#39;super&#39;];
               prevOwn = scope.hasOwnProperty(&#39;super&#39;);
+              if (prevOwn) {
+                prevValue = scope[&#39;super&#39;];
+              }
               scope[&#39;super&#39;] = noop;
               retval = method.apply(scope, arguments);
               if (prevOwn) {
@@ -1322,7 +1366,6 @@
         if (tagname == null) {
           tagname = &#39;div&#39;;
         }
-        this.handle = __bind(this.handle, this);
         this._handleScroll = __bind(this._handleScroll, this);
         this.animate = __bind(this.animate, this);
         if (jqel == null) {
@@ -1771,7 +1814,7 @@
 
 <span id='dr-view-attribute-opacity'>      /**
 </span>       * @attribute {Number} [opacity=1.0]
-       * Sets this view&#39;s opacity, values can be a float from 0.0 ~ 1.0
+       * Sets this view&#39;s opacity, values can be a float from 0.0 is 1.0
        */
 
 <span id='dr-view-attribute-scrollx'>      /**
@@ -1835,7 +1878,7 @@
        * Fired when the scroll position changes. Also provides information about
        * the scroll width and scroll height though it does not refire when those
        * values change since the DOM does not generate an event when they do. This
-       * event is typically delayed by a few millis after setting scrollx or 
+       * event is typically delayed by a few millis after setting scrollx or
        * scrolly since the underlying DOM event fires during the next DOM refresh
        * performed by the browser.
        * @param {Object} scroll The following four properties are defined:
@@ -2066,6 +2109,7 @@
         if (this.rotation !== 0) {
           transform += &#39; rotate3d(0, 0, 1.0, &#39; + this.rotation + &#39;deg)&#39;;
         }
+        this.sprite.setStyle(&#39;z-index&#39;, this.z);
         return this.sprite.setStyle(&#39;transform&#39;, transform);
       };
 
@@ -3192,7 +3236,7 @@
 </span>         * @class dr.state {Core Dreem}
          * @extends dr.node
          * Allows a group of attributes, methods, handlers and instances to be removed and applied as a group.
-         * 
+         *
          * Like views and nodes, states can contain methods, handlers, setters, constraints, attributes and other view, node or class instances.
          *
          * Currently, states must end with the string &#39;state&#39; in their name to work properly.
@@ -3284,7 +3328,7 @@
 
 
 <span id='dr-state-event-onapplied'>      /**
-</span>       * @event onapplied 
+</span>       * @event onapplied
        * Fired when the state has been applied or unapplied. Onapplied handlers run in the scope of the state itself, see dragstate for an example.
        * @param {Boolean} applied If true, the state was applied.
        */
@@ -3343,12 +3387,12 @@
 
 <span id='dr-class'>    /**
 </span>     * @class dr.class {Core Dreem}
-     * Allows new tags to be created. Classes only be created with the &amp;lt;class&gt;&amp;lt;/class&gt; tag syntax. 
-     * 
-     * Classes can extend any other class, and they extend dr.view by default. 
-     * 
+     * Allows new tags to be created. Classes only be created with the &amp;lt;class&gt;&amp;lt;/class&gt; tag syntax.
+     *
+     * Classes can extend any other class, and they extend dr.view by default.
+     *
      * Once declared, classes invoked with the declarative syntax, e.g. &amp;lt;classname&gt;&amp;lt;/classname&gt;.
-     * 
+     *
      * If a class can&#39;t be found in the document, dreem will automatically attempt to load it from the classes/* directory.
      *
      * Like views and nodes, classes can contain methods, handlers, setters, constraints, attributes and other view, node or class instances.
@@ -3396,12 +3440,12 @@
        */
 
 <span id='dr-class-attribute-extends'>      /**
-</span>       * @attribute {String} [extends=view] 
+</span>       * @attribute {String} [extends=view]
        * The name of a class that should be extended.
        */
 
 <span id='dr-class-attribute-type'>      /**
-</span>       * @attribute {&quot;js&quot;/&quot;coffee&quot;} [type=js] 
+</span>       * @attribute {&quot;js&quot;/&quot;coffee&quot;} [type=js]
        * The default compiler to use for methods, setters and handlers. Either &#39;js&#39; or &#39;coffee&#39;
        */
 
@@ -3567,7 +3611,7 @@
 <span id='dr-layout'>    /**
 </span>     * @class dr.layout {Layout}
      * @extends dr.node
-     * The base class for all layouts. 
+     * The base class for all layouts.
      *
      * When a new layout is added, it will automatically create and add itself to a layouts array in its parent. In addition, an onlayouts event is fired in the parent when the layouts array changes. This allows the parent to access the layout(s) later.
      *
@@ -3686,7 +3730,7 @@
 
 
 <span id='dr-layout-method-ignore'>      /**
-</span>       * Checks if a subview can be added to this Layout or not. The default 
+</span>       * Checks if a subview can be added to this Layout or not. The default
        * implementation returns the &#39;ignorelayout&#39; attributes of the subview.
        * @param {dr.view} view The view to check.
        * @return {boolean} True means the subview will be skipped, false otherwise.
@@ -3708,7 +3752,7 @@
 
 
 <span id='dr-layout-method-startMonitoringAllSubviews'>      /**
-</span>       * Calls startMonitoringSubview for all views. Used by layout 
+</span>       * Calls startMonitoringSubview for all views. Used by layout
        * implementations when a change occurs to the layout that requires
        * refreshing all the subview monitoring.
        * @return {void}
@@ -3738,7 +3782,7 @@
 
 
 <span id='dr-layout-method-stopMonitoringAllSubviews'>      /**
-</span>       * Calls stopMonitoringSubview for all views. Used by Layout 
+</span>       * Calls stopMonitoringSubview for all views. Used by Layout
        * implementations when a change occurs to the layout that requires
        * refreshing all the subview monitoring.
        * @return {void}
@@ -3786,11 +3830,16 @@
       return Layout;
 
     })(Node);
+    starttime = Date.now();
     idle = (function() {
       var doTick, requestAnimationFrame, tickEvents, ticking;
       requestAnimationFrame = (function() {
         return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function(callback, element) {
-          return window.setTimeout(callback, 1000 / 60);
+          var callbackwrapper;
+          callbackwrapper = function() {
+            return callback(Date.now() - starttime);
+          };
+          return window.setTimeout(callbackwrapper, 1000 / 60);
         };
       })();
       ticking = false;
@@ -3890,7 +3939,6 @@
       __extends(Idle, _super);
 
       function Idle() {
-        this.callOnIdle = __bind(this.callOnIdle, this);
         this.sender = __bind(this.sender, this);
         this.startEvent = __bind(this.startEvent, this);
         return Idle.__super__.constructor.apply(this, arguments);
@@ -3912,7 +3960,7 @@
       Idle.prototype.sender = function(time) {
 
 <span id='dr-idle-event-onidle'>        /**
-</span>         * @event onidle 
+</span>         * @event onidle
          * Fired when the application is active and idle.
          * @param {Number} time The number of milliseconds since the application started
          */
@@ -3966,35 +4014,35 @@
 
 
 <span id='dr-mouse-event-onclick'>      /**
-</span>       * @event onclick 
+</span>       * @event onclick
        * Fired when the mouse is clicked
        * @param {dr.view} view The dr.view that fired the event
        */
 
 
 <span id='dr-mouse-event-onmouseover'>      /**
-</span>       * @event onmouseover 
+</span>       * @event onmouseover
        * Fired when the mouse moves over a view
        * @param {dr.view} view The dr.view that fired the event
        */
 
 
 <span id='dr-mouse-event-onmouseout'>      /**
-</span>       * @event onmouseout 
+</span>       * @event onmouseout
        * Fired when the mouse moves off a view
        * @param {dr.view} view The dr.view that fired the event
        */
 
 
 <span id='dr-mouse-event-onmousedown'>      /**
-</span>       * @event onmousedown 
+</span>       * @event onmousedown
        * Fired when the mouse goes down on a view
        * @param {dr.view} view The dr.view that fired the event
        */
 
 
 <span id='dr-mouse-event-onmouseup'>      /**
-</span>       * @event onmouseup 
+</span>       * @event onmouseup
        * Fired when the mouse goes up on a view
        * @param {dr.view} view The dr.view that fired the event
        */
@@ -4129,7 +4177,7 @@
       Mouse.prototype.sender = function() {
 
 <span id='dr-mouse-event-onmousemove'>        /**
-</span>         * @event onmousemove 
+</span>         * @event onmousemove
          * Fired when the mouse moves
          * @param {Object} coordinates The x and y coordinates of the mouse
          */
@@ -4139,14 +4187,14 @@
         });
 
 <span id='dr-mouse-event-onx'>        /**
-</span>         * @event onx 
+</span>         * @event onx
          * Fired when the mouse moves in the x axis
          * @param {Number} x The x coordinate of the mouse
          */
         this.sendEvent(&#39;x&#39;, this.x);
 
 <span id='dr-mouse-event-ony'>        /**
-</span>         * @event ony 
+</span>         * @event ony
          * Fired when the mouse moves in the y axis
          * @param {Number} y The y coordinate of the mouse
          */
@@ -4209,7 +4257,7 @@
             _this.visible = document[hidden];
 
 <span id='dr-window-event-onvisible'>            /**
-</span>             * @event onvisible 
+</span>             * @event onvisible
              * Fired when the window visibility changes
              * @param {Boolean} visible True if the window is currently visible
              */
@@ -4229,7 +4277,7 @@
         this.width = window.innerWidth;
 
 <span id='dr-window-event-onwidth'>        /**
-</span>         * @event onwidth 
+</span>         * @event onwidth
          * Fired when the window resizes
          * @param {Number} width The width of the window
          */
@@ -4237,7 +4285,7 @@
         this.height = window.innerHeight;
 
 <span id='dr-window-event-onheight'>        /**
-</span>         * @event onheight 
+</span>         * @event onheight
          * Fired when the window resizes
          * @param {Number} height The height of the window
          */
@@ -4313,32 +4361,32 @@
         out = type === &#39;select&#39; ? target : keys;
 
 <span id='dr-keyboard-event-onselect'>        /**
-</span>         * @event onselect 
+</span>         * @event onselect
          * Fired when text is selected
          * @param {dr.view} view The view that fired the event
          */
 
 <span id='dr-keyboard-event-onchange'>        /**
-</span>         * @event onchange 
+</span>         * @event onchange
          * Fired when an inputtext has changed
          * @param {dr.view} view The view that fired the event
          */
 
 <span id='dr-keyboard-event-onkeydown'>        /**
-</span>         * @event onkeydown 
+</span>         * @event onkeydown
          * Fired when a key goes down
          * @param {Object} keys An object representing the keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
          */
 
 <span id='dr-keyboard-event-onkeyup'>        /**
-</span>         * @event onkeyup 
+</span>         * @event onkeyup
          * Fired when a key goes up
          * @param {Object} keys An object representing the keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
          */
         this.sendEvent(type, out);
 
 <span id='dr-keyboard-event-onkeys'>        /**
-</span>         * @event onkeys 
+</span>         * @event onkeys
          * Fired when a key is pressed on the keyboard
          * @param {Object} keys An object representing the keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
          */
@@ -4354,7 +4402,7 @@
 <span id='dr'>    /**
 </span>     * @class dr {Core Dreem}
      * Holds builtin and user-created classes and public APIs.
-     * 
+     *
      * All classes listed here can be invoked with the declarative syntax, e.g. &amp;lt;node&gt;&amp;lt;/node&gt; or &amp;lt;view&gt;&amp;lt;/view&gt;
      */
     return exports = {
@@ -4386,7 +4434,7 @@
 <span id='dr-method'>    /**
 </span>     * @class dr.method {Core Dreem}
      * Declares a member function in a node, view, class or other class instance. Methods can only be created with the &amp;lt;method&gt;&amp;lt;/method&gt; tag syntax.
-     * 
+     *
      * If a method overrides an existing method, any existing (super) method(s) will be called first automatically.
      *
      * Let&#39;s define a method called changeColor in a view that sets the background color to pink.
@@ -4458,7 +4506,7 @@
      */
 
 <span id='dr-method-attribute-type'>    /**
-</span>     * @attribute {&quot;js&quot;/&quot;coffee&quot;} type 
+</span>     * @attribute {&quot;js&quot;/&quot;coffee&quot;} type
      * The compiler to use for this method. Inherits from the immediate class if unspecified.
      */
 
@@ -4467,7 +4515,7 @@
      * Declares a setter in a node, view, class or other class instance. Setters can only be created with the &amp;lt;setter&gt;&amp;lt;/setter&gt; tag syntax.
      *
      * Setters allow the default behavior of attribute changes to be changed.
-     * 
+     *
      * Like dr.method, if a setter overrides an existing setter any existing (super) setter(s) will be called first automatically.
      * @ignore
      */
@@ -4483,7 +4531,7 @@
      */
 
 <span id='dr-setter-attribute-type'>    /**
-</span>     * @attribute {&quot;js&quot;/&quot;coffee&quot;} type 
+</span>     * @attribute {&quot;js&quot;/&quot;coffee&quot;} type
      * The compiler to use for this method. Inherits from the immediate class if unspecified.
      */
 
@@ -4559,15 +4607,15 @@
      */
 
 <span id='dr-handler-attribute-type'>    /**
-</span>     * @attribute {&quot;js&quot;/&quot;coffee&quot;} type 
+</span>     * @attribute {&quot;js&quot;/&quot;coffee&quot;} type
      * The compiler to use for this method. Inherits from the immediate class if unspecified.
      */
 
 <span id='dr-attribute'>    /**
 </span>     * @class dr.attribute {Core Dreem}
      * Adds a variable to a node, view, class or other class instance. Attributes can only be created with the &amp;lt;attribute&gt;&amp;lt;/attribute&gt; tag syntax.
-     * 
-     * Attributes allow classes to declare new variables with a specific type and default value. 
+     *
+     * Attributes allow classes to declare new variables with a specific type and default value.
      *
      * Attributes automatically send events when their value changes.
      *
@@ -4593,7 +4641,7 @@
      *         this.setAttribute(&#39;bgcolor&#39;, color);
      *       &lt;/handler&gt;
      *     &lt;/class&gt;
-     * 
+     *
      *     &lt;spacedlayout&gt;&lt;/spacedlayout&gt;
      *     &lt;person&gt;&lt;/person&gt;
      *     &lt;person mood=&quot;sad&quot;&gt;&lt;/person&gt;
@@ -4612,7 +4660,7 @@
      *       &lt;/handler&gt;
      *       &lt;attribute name=&quot;size&quot; type=&quot;number&quot; value=&quot;20&quot;&gt;&lt;/attribute&gt;
      *     &lt;/class&gt;
-     * 
+     *
      *     &lt;spacedlayout&gt;&lt;/spacedlayout&gt;
      *     &lt;person&gt;&lt;/person&gt;
      *     &lt;person mood=&quot;sad&quot; size=&quot;50&quot;&gt;&lt;/person&gt;
