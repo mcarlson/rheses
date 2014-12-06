@@ -730,7 +730,7 @@
       lateattributes = ['data'];
 
       function Node(el, attributes) {
-        var args, deferbindings, ev, method, name, parent, reference, script, skiponinit, value, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
+        var deferbindings, name, parent, skiponinit, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref, _ref1, _ref2, _ref3, _ref4;
         if (attributes == null) {
           attributes = {};
         }
@@ -763,14 +763,23 @@
         }
         if (attributes.$handlers) {
           this.installHandlers(attributes.$handlers, attributes.$tagname);
-          _ref1 = attributes.$handlers;
-          for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-            _ref2 = _ref1[_i], ev = _ref2.ev, name = _ref2.name, script = _ref2.script, args = _ref2.args, reference = _ref2.reference, method = _ref2.method;
-            ev = ev.substr(2);
-            if (__indexOf.call(mouseEvents, ev) >= 0) {
-              if (attributes.clickable !== "false") {
-                attributes.clickable = true;
+          if (attributes.clickable !== "false") {
+            _ref1 = (function() {
+              var _j, _len, _ref1, _ref2, _results;
+              _ref1 = attributes.$handlers;
+              _results = [];
+              for (_j = 0, _len = _ref1.length; _j < _len; _j++) {
+                name = _ref1[_j];
+                if (_ref2 = name.ev.substr(2), __indexOf.call(mouseEvents, _ref2) >= 0) {
+                  _results.push(name);
+                }
               }
+              return _results;
+            })();
+            for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+              name = _ref1[_i];
+              attributes.clickable = true;
+              break;
             }
           }
           delete attributes.$handlers;
@@ -778,18 +787,34 @@
         if (!deferbindings) {
           this._bindHandlers();
         }
-        for (_j = 0, _len1 = earlyattributes.length; _j < _len1; _j++) {
-          name = earlyattributes[_j];
-          if (name in attributes) {
-            this.setAttribute(name, attributes[name]);
+        _ref2 = (function() {
+          var _k, _len1, _results;
+          _results = [];
+          for (_k = 0, _len1 = earlyattributes.length; _k < _len1; _k++) {
+            name = earlyattributes[_k];
+            if (name in attributes) {
+              _results.push(name);
+            }
           }
+          return _results;
+        })();
+        for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
+          name = _ref2[_j];
+          this.setAttribute(name, attributes[name]);
         }
-        for (name in attributes) {
-          value = attributes[name];
-          if (__indexOf.call(lateattributes, name) >= 0 || __indexOf.call(earlyattributes, name) >= 0) {
-            continue;
+        _ref3 = (function() {
+          var _results;
+          _results = [];
+          for (name in attributes) {
+            if (!(__indexOf.call(lateattributes, name) >= 0 || __indexOf.call(earlyattributes, name) >= 0)) {
+              _results.push(name);
+            }
           }
-          this.bindAttribute(name, value, attributes.$tagname);
+          return _results;
+        })();
+        for (_k = 0, _len2 = _ref3.length; _k < _len2; _k++) {
+          name = _ref3[_k];
+          this.bindAttribute(name, attributes[name], attributes.$tagname);
         }
         parent = this.parent;
         if (parent && parent instanceof Node) {
@@ -809,11 +834,20 @@
           parent.sendEvent('subnodeAdded', this);
           parent.doSubnodeAdded(this);
         }
-        for (_k = 0, _len2 = lateattributes.length; _k < _len2; _k++) {
-          name = lateattributes[_k];
-          if (name in attributes) {
-            this.bindAttribute(name, attributes[name], attributes.$tagname);
+        _ref4 = (function() {
+          var _len3, _m, _results;
+          _results = [];
+          for (_m = 0, _len3 = lateattributes.length; _m < _len3; _m++) {
+            name = lateattributes[_m];
+            if (name in attributes) {
+              _results.push(name);
+            }
           }
+          return _results;
+        })();
+        for (_l = 0, _len3 = _ref4.length; _l < _len3; _l++) {
+          name = _ref4[_l];
+          this.bindAttribute(name, attributes[name], attributes.$tagname);
         }
         if (this.constraints) {
           constraintScopes.push(this);

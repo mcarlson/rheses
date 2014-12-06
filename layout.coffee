@@ -545,7 +545,6 @@ window.dr = do ->
     lateattributes = ['data']
 
     constructor: (el, attributes = {}) ->
-
       ###*
       # @property {dr.node[]} subnodes
       # @readonly
@@ -577,26 +576,25 @@ window.dr = do ->
 
       if attributes.$handlers
         @installHandlers(attributes.$handlers, attributes.$tagname)
-        # do this here for now - ugly though
-        for {ev, name, script, args, reference, method} in attributes.$handlers
-          ev = ev.substr(2)
-          if ev in mouseEvents
-            attributes.clickable = true unless attributes.clickable is "false"
+        # set clickable=true for elements listening for mouse events here for now - ugly though
+        unless attributes.clickable is "false"
+          for name in (name for name in attributes.$handlers when name.ev.substr(2) in mouseEvents)
+            attributes.clickable = true
             # console.log 'registered for clickable', attributes.clickable
+            break
 
         delete attributes.$handlers
 
       unless deferbindings
         @_bindHandlers()
 
-      for name in earlyattributes
-        @setAttribute(name, attributes[name]) if name of attributes
+      for name in (name for name in earlyattributes when name of attributes)
+        @setAttribute(name, attributes[name])
 
       # Bind to event expressions and set attributes
-      for name, value of attributes
-        continue if name in lateattributes or name in earlyattributes
-        @bindAttribute(name, value, attributes.$tagname)
-      
+      for name in (name for name of attributes when not (name in lateattributes or name in earlyattributes))
+        @bindAttribute(name, attributes[name], attributes.$tagname)
+
       # Need to fire subnode added events after attributes have been set since
       # we aren't fully configured until now so listeners may be notified
       # before the node is actually ready. Doing this in set_parent specificaly
@@ -619,8 +617,8 @@ window.dr = do ->
         parent.sendEvent('subnodeAdded', @)
         parent.doSubnodeAdded(@)
 
-      for name in lateattributes
-        @bindAttribute(name, attributes[name], attributes.$tagname) if name of attributes
+      for name in (name for name in lateattributes when name of attributes)
+        @bindAttribute(name, attributes[name], attributes.$tagname)
 
       constraintScopes.push(@) if @constraints
 
