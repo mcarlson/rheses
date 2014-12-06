@@ -1649,6 +1649,7 @@ window.dr = do ->
       if @rotation isnt 0
         transform += ' rotate3d(0, 0, 1.0, ' + @rotation + 'deg)'
 
+      @sprite.setStyle('z-index', @z)
       @sprite.setStyle('transform', transform)
 
     set_xscale: (xscale) ->

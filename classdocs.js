@@ -711,16 +711,16 @@
      *     <text text="${toggle.selected ? 'selected' : 'not selected'}"></text>
      */
 /**
-     * @class dr.logger {Util}
-     * @extends dr.node
-     * Logs all attribute setting behavior
-     *
-     * This example shows how to log all setAttribute() calls for a replicator to console.log():
-     *
-     *     @example
-     *     <dataset name="topmovies" url="/top_movies.json"></dataset>
-     *     <replicator datapath="$topmovies/searchResponse/results[*]/movie[take(/releaseYear,/duration,/rating)]" classname="logger"></replicator>
-     */
+   * @class dr.logger {Util}
+   * @extends dr.node
+   * Logs all attribute setting behavior
+   *
+   * This example shows how to log all setAttribute() calls for a replicator to console.log():
+   *
+   *     @example
+   *     <dataset name="topmovies" url="/top_movies.json"></dataset>
+   *     <replicator datapath="$topmovies/searchResponse/results[*]/movie[take(/releaseYear,/duration,/rating)]" classname="logger"></replicator>
+   */
 /**
    * @class dr.rangeslider {UI Components}
    * @extends dr.view

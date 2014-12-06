@@ -2092,6 +2092,7 @@
         if (this.rotation !== 0) {
           transform += ' rotate3d(0, 0, 1.0, ' + this.rotation + 'deg)';
         }
+        this.sprite.setStyle('z-index', this.z);
         return this.sprite.setStyle('transform', transform);
       };
 
