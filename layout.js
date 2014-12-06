@@ -2,19 +2,19 @@
 
 /*
  * The MIT License (MIT)
- * 
+ *
  * Copyright ( c ) 2014 Teem2 LLC
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -1349,7 +1349,6 @@
         if (tagname == null) {
           tagname = 'div';
         }
-        this.handle = __bind(this.handle, this);
         this._handleScroll = __bind(this._handleScroll, this);
         this.animate = __bind(this.animate, this);
         if (jqel == null) {
@@ -1798,7 +1797,7 @@
 
       /**
        * @attribute {Number} [opacity=1.0]
-       * Sets this view's opacity, values can be a float from 0.0 ~ 1.0
+       * Sets this view's opacity, values can be a float from 0.0 is 1.0
        */
 
       /**
@@ -1862,7 +1861,7 @@
        * Fired when the scroll position changes. Also provides information about
        * the scroll width and scroll height though it does not refire when those
        * values change since the DOM does not generate an event when they do. This
-       * event is typically delayed by a few millis after setting scrollx or 
+       * event is typically delayed by a few millis after setting scrollx or
        * scrolly since the underlying DOM event fires during the next DOM refresh
        * performed by the browser.
        * @param {Object} scroll The following four properties are defined:
@@ -3219,7 +3218,7 @@
          * @class dr.state {Core Dreem}
          * @extends dr.node
          * Allows a group of attributes, methods, handlers and instances to be removed and applied as a group.
-         * 
+         *
          * Like views and nodes, states can contain methods, handlers, setters, constraints, attributes and other view, node or class instances.
          *
          * Currently, states must end with the string 'state' in their name to work properly.
@@ -3311,7 +3310,7 @@
 
 
       /**
-       * @event onapplied 
+       * @event onapplied
        * Fired when the state has been applied or unapplied. Onapplied handlers run in the scope of the state itself, see dragstate for an example.
        * @param {Boolean} applied If true, the state was applied.
        */
@@ -3370,12 +3369,12 @@
 
     /**
      * @class dr.class {Core Dreem}
-     * Allows new tags to be created. Classes only be created with the &lt;class>&lt;/class> tag syntax. 
-     * 
-     * Classes can extend any other class, and they extend dr.view by default. 
-     * 
+     * Allows new tags to be created. Classes only be created with the &lt;class>&lt;/class> tag syntax.
+     *
+     * Classes can extend any other class, and they extend dr.view by default.
+     *
      * Once declared, classes invoked with the declarative syntax, e.g. &lt;classname>&lt;/classname>.
-     * 
+     *
      * If a class can't be found in the document, dreem will automatically attempt to load it from the classes/* directory.
      *
      * Like views and nodes, classes can contain methods, handlers, setters, constraints, attributes and other view, node or class instances.
@@ -3423,12 +3422,12 @@
        */
 
       /**
-       * @attribute {String} [extends=view] 
+       * @attribute {String} [extends=view]
        * The name of a class that should be extended.
        */
 
       /**
-       * @attribute {"js"/"coffee"} [type=js] 
+       * @attribute {"js"/"coffee"} [type=js]
        * The default compiler to use for methods, setters and handlers. Either 'js' or 'coffee'
        */
 
@@ -3594,7 +3593,7 @@
     /**
      * @class dr.layout {Layout}
      * @extends dr.node
-     * The base class for all layouts. 
+     * The base class for all layouts.
      *
      * When a new layout is added, it will automatically create and add itself to a layouts array in its parent. In addition, an onlayouts event is fired in the parent when the layouts array changes. This allows the parent to access the layout(s) later.
      *
@@ -3713,7 +3712,7 @@
 
 
       /**
-       * Checks if a subview can be added to this Layout or not. The default 
+       * Checks if a subview can be added to this Layout or not. The default
        * implementation returns the 'ignorelayout' attributes of the subview.
        * @param {dr.view} view The view to check.
        * @return {boolean} True means the subview will be skipped, false otherwise.
@@ -3735,7 +3734,7 @@
 
 
       /**
-       * Calls startMonitoringSubview for all views. Used by layout 
+       * Calls startMonitoringSubview for all views. Used by layout
        * implementations when a change occurs to the layout that requires
        * refreshing all the subview monitoring.
        * @return {void}
@@ -3765,7 +3764,7 @@
 
 
       /**
-       * Calls stopMonitoringSubview for all views. Used by Layout 
+       * Calls stopMonitoringSubview for all views. Used by Layout
        * implementations when a change occurs to the layout that requires
        * refreshing all the subview monitoring.
        * @return {void}
@@ -3917,7 +3916,6 @@
       __extends(Idle, _super);
 
       function Idle() {
-        this.callOnIdle = __bind(this.callOnIdle, this);
         this.sender = __bind(this.sender, this);
         this.startEvent = __bind(this.startEvent, this);
         return Idle.__super__.constructor.apply(this, arguments);
@@ -3939,7 +3937,7 @@
       Idle.prototype.sender = function(time) {
 
         /**
-         * @event onidle 
+         * @event onidle
          * Fired when the application is active and idle.
          * @param {Number} time The number of milliseconds since the application started
          */
@@ -3993,35 +3991,35 @@
 
 
       /**
-       * @event onclick 
+       * @event onclick
        * Fired when the mouse is clicked
        * @param {dr.view} view The dr.view that fired the event
        */
 
 
       /**
-       * @event onmouseover 
+       * @event onmouseover
        * Fired when the mouse moves over a view
        * @param {dr.view} view The dr.view that fired the event
        */
 
 
       /**
-       * @event onmouseout 
+       * @event onmouseout
        * Fired when the mouse moves off a view
        * @param {dr.view} view The dr.view that fired the event
        */
 
 
       /**
-       * @event onmousedown 
+       * @event onmousedown
        * Fired when the mouse goes down on a view
        * @param {dr.view} view The dr.view that fired the event
        */
 
 
       /**
-       * @event onmouseup 
+       * @event onmouseup
        * Fired when the mouse goes up on a view
        * @param {dr.view} view The dr.view that fired the event
        */
@@ -4156,7 +4154,7 @@
       Mouse.prototype.sender = function() {
 
         /**
-         * @event onmousemove 
+         * @event onmousemove
          * Fired when the mouse moves
          * @param {Object} coordinates The x and y coordinates of the mouse
          */
@@ -4166,14 +4164,14 @@
         });
 
         /**
-         * @event onx 
+         * @event onx
          * Fired when the mouse moves in the x axis
          * @param {Number} x The x coordinate of the mouse
          */
         this.sendEvent('x', this.x);
 
         /**
-         * @event ony 
+         * @event ony
          * Fired when the mouse moves in the y axis
          * @param {Number} y The y coordinate of the mouse
          */
@@ -4236,7 +4234,7 @@
             _this.visible = document[hidden];
 
             /**
-             * @event onvisible 
+             * @event onvisible
              * Fired when the window visibility changes
              * @param {Boolean} visible True if the window is currently visible
              */
@@ -4256,7 +4254,7 @@
         this.width = window.innerWidth;
 
         /**
-         * @event onwidth 
+         * @event onwidth
          * Fired when the window resizes
          * @param {Number} width The width of the window
          */
@@ -4264,7 +4262,7 @@
         this.height = window.innerHeight;
 
         /**
-         * @event onheight 
+         * @event onheight
          * Fired when the window resizes
          * @param {Number} height The height of the window
          */
@@ -4340,32 +4338,32 @@
         out = type === 'select' ? target : keys;
 
         /**
-         * @event onselect 
+         * @event onselect
          * Fired when text is selected
          * @param {dr.view} view The view that fired the event
          */
 
         /**
-         * @event onchange 
+         * @event onchange
          * Fired when an inputtext has changed
          * @param {dr.view} view The view that fired the event
          */
 
         /**
-         * @event onkeydown 
+         * @event onkeydown
          * Fired when a key goes down
          * @param {Object} keys An object representing the keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
          */
 
         /**
-         * @event onkeyup 
+         * @event onkeyup
          * Fired when a key goes up
          * @param {Object} keys An object representing the keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
          */
         this.sendEvent(type, out);
 
         /**
-         * @event onkeys 
+         * @event onkeys
          * Fired when a key is pressed on the keyboard
          * @param {Object} keys An object representing the keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
          */
@@ -4381,7 +4379,7 @@
     /**
      * @class dr {Core Dreem}
      * Holds builtin and user-created classes and public APIs.
-     * 
+     *
      * All classes listed here can be invoked with the declarative syntax, e.g. &lt;node>&lt;/node> or &lt;view>&lt;/view>
      */
     return exports = {
@@ -4413,7 +4411,7 @@
     /**
      * @class dr.method {Core Dreem}
      * Declares a member function in a node, view, class or other class instance. Methods can only be created with the &lt;method>&lt;/method> tag syntax.
-     * 
+     *
      * If a method overrides an existing method, any existing (super) method(s) will be called first automatically.
      *
      * Let's define a method called changeColor in a view that sets the background color to pink.
@@ -4485,7 +4483,7 @@
      */
 
     /**
-     * @attribute {"js"/"coffee"} type 
+     * @attribute {"js"/"coffee"} type
      * The compiler to use for this method. Inherits from the immediate class if unspecified.
      */
 
@@ -4494,7 +4492,7 @@
      * Declares a setter in a node, view, class or other class instance. Setters can only be created with the &lt;setter>&lt;/setter> tag syntax.
      *
      * Setters allow the default behavior of attribute changes to be changed.
-     * 
+     *
      * Like dr.method, if a setter overrides an existing setter any existing (super) setter(s) will be called first automatically.
      * @ignore
      */
@@ -4510,7 +4508,7 @@
      */
 
     /**
-     * @attribute {"js"/"coffee"} type 
+     * @attribute {"js"/"coffee"} type
      * The compiler to use for this method. Inherits from the immediate class if unspecified.
      */
 
@@ -4586,15 +4584,15 @@
      */
 
     /**
-     * @attribute {"js"/"coffee"} type 
+     * @attribute {"js"/"coffee"} type
      * The compiler to use for this method. Inherits from the immediate class if unspecified.
      */
 
     /**
      * @class dr.attribute {Core Dreem}
      * Adds a variable to a node, view, class or other class instance. Attributes can only be created with the &lt;attribute>&lt;/attribute> tag syntax.
-     * 
-     * Attributes allow classes to declare new variables with a specific type and default value. 
+     *
+     * Attributes allow classes to declare new variables with a specific type and default value.
      *
      * Attributes automatically send events when their value changes.
      *
@@ -4620,7 +4618,7 @@
      *         this.setAttribute('bgcolor', color);
      *       </handler>
      *     </class>
-     * 
+     *
      *     <spacedlayout></spacedlayout>
      *     <person></person>
      *     <person mood="sad"></person>
@@ -4639,7 +4637,7 @@
      *       </handler>
      *       <attribute name="size" type="number" value="20"></attribute>
      *     </class>
-     * 
+     *
      *     <spacedlayout></spacedlayout>
      *     <person></person>
      *     <person mood="sad" size="50"></person>

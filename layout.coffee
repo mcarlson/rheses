@@ -1,18 +1,18 @@
 ###
 # The MIT License (MIT)
-# 
+#
 # Copyright ( c ) 2014 Teem2 LLC
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -43,19 +43,19 @@ hackstyle = do ->
   monitoredJQueryStyleProps = {}
   for prop, value of stylemap
     monitoredJQueryStyleProps[value] = prop
-  
+
   origstyle = $.style
   styletap = (elem, name, value) ->
     attrName = monitoredJQueryStyleProps[name]
-    if !attrName?
+    unless attrName?
       # Normalize style names to camel case names by removing '-' and upper
       # casing the subsequent character.
       attrName = monitoredJQueryStyleProps[name.replace(/-([a-z])/i, (m) -> m[1].toUpperCase())]
       monitoredJQueryStyleProps[name] = if attrName then attrName else name
-    
+
     view = elem.$view
-    if view[attrName] != value
-    # if (view[name] != value and view?.events?[name])
+    if view[attrName] isnt value
+    # if (view[name] isnt value and view?.events?[name])
       # console.log('sending style', name, elem.$view._locked) if sendstyle
       view.setAttribute(attrName, value, true)
 
@@ -120,7 +120,7 @@ window.dr = do ->
     trigger: (ev, args...) ->
       list = @hasOwnProperty('events') and @events?[ev]
       return unless list
-      if triggerlock and triggerlock.scope == @ and triggerlock.ev == ev
+      if triggerlock and triggerlock.scope is @ and triggerlock.ev is ev
         return @
       unless triggerlock
         triggerlock = {
@@ -182,7 +182,7 @@ window.dr = do ->
             # console.log('looking in array', listeningTo)
             for val, index in listeningTo
               # console.log('found', val)
-              if obj == val.obj and ev == val.ev and callback == val.callback
+              if obj is val.obj and ev is val.ev and callback is val.callback
                 # console.log('found match', index)
                 listeningTo.splice(index, 1)
                 break
@@ -250,11 +250,11 @@ window.dr = do ->
     # A mapping of type coercion functions by attribute type.
     typemappings=
       number: parseFloat
-      boolean: (val) -> (if (typeof val == 'string') then val == 'true' else (!! val))
+      boolean: (val) -> (if (typeof val is 'string') then val is 'true' else (!! val))
       string: (val) -> val + ''
       json: (val) -> JSON.parse(val)
-      expression: (val) -> 
-        if typeof val != 'string'
+      expression: (val) ->
+        if typeof val isnt 'string'
           return val
         eval(val)
 
@@ -307,7 +307,7 @@ window.dr = do ->
     sendEvent: (name, value) ->
       # send event
       if @events?[name]
-        @trigger(name, value, @) 
+        @trigger(name, value, @)
       # else
         # console.log 'no event named', name, @events, @
       @
@@ -331,7 +331,7 @@ window.dr = do ->
       catch e
         return false
     # detect touchhttp://stackoverflow.com/questions/4817029/whats-the-best-way-to-detect-a-touch-screen-device-using-javascript
-    touch: 'ontouchstart' of window || 'onmsgesturechange' of window # deal with ie10
+    touch: 'ontouchstart' of window or 'onmsgesturechange' of window # deal with ie10
     camelcss: navigator.userAgent.toLowerCase().indexOf('firefox') > -1
   }
 
@@ -372,7 +372,7 @@ window.dr = do ->
           # avoid binding to CallExpressions whose parent is a function call, e.g. Math.round(...) shouldn't attempt to bind to 'round' on Math
           if parent.node.type is 'CallExpression' and parent.sub is 'callee'
             # console.warn(acorn.stringify parent.node, n.property.name, n.object)
-            return true 
+            return true
 
           # grab the property name
           name = n.property.name
@@ -430,7 +430,7 @@ window.dr = do ->
         script = "\"use strict\"\n" + script if strict
         if name
           func = new Function("return function #{name}(#{argstring}){#{script}}")()
-        else 
+        else
           func = new Function(args, script)
         # console.log 'compiled', func
         scriptCache[key] = func
@@ -538,7 +538,7 @@ window.dr = do ->
     # An error to show if scriptincludes fail to load
     ###
     matchConstraint = /\${(.+)}/
-    # name should be set before parent so that when subnode events fire the 
+    # name should be set before parent so that when subnode events fire the
     # nodes can be identified
     earlyattributes = ['name', 'parent']
     # data must be set after text
@@ -695,7 +695,7 @@ window.dr = do ->
       if constraint
         # console.log('applying constraint', name, constraint[1])
         @setConstraint(name, constraint[1], true)
-      else if name.indexOf('on') == 0
+      else if name.indexOf('on') is 0
         name = name.substr(2)
         # console.log('binding to event expression', name, value, @)
         @bind(name, _eventCallback(name, value, @, tagname))
@@ -722,14 +722,14 @@ window.dr = do ->
         js.apply(scope, args)
 
     _installMethod = (scope, methodname, method, allocation, invokeSuper) ->
-      # TODO: add class methods when allocation == 'class'
+      # TODO: add class methods when allocation is 'class'
 
       if invokeSuper
         console.warn('invokeSuper has been deprecated and will be removed soon, the default is now "inside".  Use @super() to invoke the overridden implementation')
 
       if methodname of scope
         # Cheesy override
-        supr = scope[methodname] || noop
+        supr = scope[methodname] or noop
 
         # console.log 'applying overridden method', methodname, arguments
         if invokeSuper is 'after'
@@ -762,7 +762,7 @@ window.dr = do ->
       else
         # Provide error protection when calling super where no super method
         # exists.
-        if invokeSuper == 'after' || invokeSuper == 'before'
+        if invokeSuper is 'after' or invokeSuper is 'before'
           scope[methodname] = method
         else
           scope[methodname] = ->
@@ -869,9 +869,9 @@ window.dr = do ->
 
       # if bindings need to be deferred, try again later
       if defer.length
-        if isLate 
+        if isLate
           @latehandlers = defer
-        else 
+        else
           @handlers = defer
         # console.log 'found deferred bindings', defer
         callOnIdle(() =>
@@ -879,7 +879,7 @@ window.dr = do ->
         )
         return
 
-      if isLate 
+      if isLate
         @latehandlers = []
       else
         @handlers = []
@@ -915,12 +915,12 @@ window.dr = do ->
       return unless @parent
       arr = @parent[name]
       index = arr.indexOf(@)
-      if (index != -1)
+      if (index isnt -1)
         removedNode = arr[index]
         arr.splice(index, 1)
         # console.log('_removeFromParent', index, name, arr.length, arr, @)
         @parent.sendEvent(name, removedNode)
-        if name == 'subnodes'
+        if name is 'subnodes'
           ###*
           # @event subnodeRemoved
           # Fired when a subnode is removed from this node.
@@ -935,7 +935,7 @@ window.dr = do ->
       out = []
       p = @
       while (p)
-        if name of p and p[name] == value
+        if name of p and p[name] is value
           out.push p
         p = p.parent
       out
@@ -997,7 +997,7 @@ window.dr = do ->
       @unbind()
 
       # remove name reference
-      if (@parent?[@name] == @)
+      if (@parent?[@name] is @)
         delete @parent[@name]
 
       # console.log 'destroying', @subnodes, @
@@ -1019,7 +1019,7 @@ window.dr = do ->
         if isVisible then '' else 'none'
       cursor: (clickable) ->
         if clickable then 'pointer' else ''
-        
+
     constructor: (jqel, view, tagname = 'div') ->
       # console.log 'new sprite', jqel, view, tagname
       if not jqel?
@@ -1046,7 +1046,7 @@ window.dr = do ->
       # console.log('setStyle', name, value, @el)
       el.style[name] = value
       # @jqel.css(name, value)
-      
+
     setProperty: (name, value, el=@el) ->
       value ?= ''
       name = propmap[name] if name of propmap
@@ -1102,20 +1102,20 @@ window.dr = do ->
         $(@el).on('scroll', @_handleScroll)
       else
         $(@el).off('scroll', @_handleScroll)
-    
+
     _handleScroll: (event) =>
       domElement = event.target
       target = domElement.$view
       if target
         x = domElement.scrollLeft
         y = domElement.scrollTop
-        if target.scrollx != x then target.setAttribute('scrollx', x, true, true, true)
-        if target.scrolly != y then target.setAttribute('scrolly', y, true, true, true)
-        
+        if target.scrollx isnt x then target.setAttribute('scrollx', x, true, true, true)
+        if target.scrolly isnt y then target.setAttribute('scrolly', y, true, true, true)
+
         # Prevent extra events when data has not changed
         oldEvt = @_lastScrollEvent
         newEvt = {scrollx:x, scrolly:y, scrollwidth:domElement.scrollWidth, scrollheight:domElement.scrollHeight}
-        if !oldEvt or oldEvt.scrollx != newEvt.scrollx or oldEvt.scrolly != newEvt.scrolly or oldEvt.scrollwidth != newEvt.scrollwidth or oldEvt.scrollheight != newEvt.scrollheight
+        if not oldEvt or oldEvt.scrollx isnt newEvt.scrollx or oldEvt.scrolly isnt newEvt.scrolly or oldEvt.scrollwidth isnt newEvt.scrollwidth or oldEvt.scrollheight isnt newEvt.scrollheight
           target.sendEvent('scroll', newEvt)
           @_lastScrollEvent = newEvt
 
@@ -1130,8 +1130,8 @@ window.dr = do ->
       , true)
 
     __updatePointerEvents: () ->
-      @setStyle('pointer-events', 
-        if @__clickable || @__scrollable
+      @setStyle('pointer-events',
+        if @__clickable or @__scrollable
           'auto'
         else
           'none'
@@ -1170,7 +1170,7 @@ window.dr = do ->
         @setStyle('whiteSpace', '', true)
       {width: @el.clientWidth, height: @el.clientHeight}
 
-    handle: (event) =>
+    handle: (event) ->
       view = event.target.$view
       return unless view
       # console.log 'event', event.type, view
@@ -1258,11 +1258,11 @@ window.dr = do ->
 
   # Internal attributes ignored by class declarations and view styles
   ignoredAttributes = {
-    parent: true, 
-    id: true, 
-    name: true, 
-    extends: true, 
-    type: true, 
+    parent: true,
+    id: true,
+    name: true,
+    extends: true,
+    type: true,
     scriptincludes: true
   }
 
@@ -1410,7 +1410,7 @@ window.dr = do ->
     ###
     ###*
     # @attribute {Number} [opacity=1.0]
-    # Sets this view's opacity, values can be a float from 0.0 ~ 1.0
+    # Sets this view's opacity, values can be a float from 0.0 is 1.0
     ###
     ###*
     # @attribute {Number} [scrollx=0]
@@ -1465,7 +1465,7 @@ window.dr = do ->
     # Fired when the scroll position changes. Also provides information about
     # the scroll width and scroll height though it does not refire when those
     # values change since the DOM does not generate an event when they do. This
-    # event is typically delayed by a few millis after setting scrollx or 
+    # event is typically delayed by a few millis after setting scrollx or
     # scrolly since the underlying DOM event fires during the next DOM refresh
     # performed by the browser.
     # @param {Object} scroll The following four properties are defined:
@@ -1486,8 +1486,8 @@ window.dr = do ->
       x:0, y:0,
       width:0, height:0,
       opacity: 1,
-      clickable:false, clip:false, scrollable:false, visible:true, 
-      bordercolor:'transparent', borderstyle:'solid', border:0, 
+      clickable:false, clip:false, scrollable:false, visible:true,
+      bordercolor:'transparent', borderstyle:'solid', border:0,
       padding:0, ignorelayout:false,
     }
     constructor: (el, attributes = {}) ->
@@ -1522,7 +1522,7 @@ window.dr = do ->
         xscale: 'number', yscale: 'number',
         rotation: 'string', opacity: 'number',
         width: 'number', height: 'number',
-        clickable: 'boolean', clip: 'boolean', scrollable: 'boolean', visible: 'boolean', 
+        clickable: 'boolean', clip: 'boolean', scrollable: 'boolean', visible: 'boolean',
         border: 'number', padding: 'number', ignorelayout:'boolean',
         scrollx:'number', scrolly:'number'
       }
@@ -1542,22 +1542,22 @@ window.dr = do ->
       # console.log 'new view', el, attributes, @
 
     _isPercent: (value) ->
-      typeof value == 'string' && value.indexOf('%') > -1;
+      typeof value is 'string' and value.indexOf('%') > -1
 
     _createSprite: (el, attributes) ->
       @sprite = new Sprite(el, @, attributes.$tagname)
 
     setAttribute: (name, value, skipDomChange, skipConstraintSetup, skipconstraintunregistration) ->
       # catch percent constraints
-      if (!skipConstraintSetup)
+      unless skipConstraintSetup
         switch name
           when 'width','x'
             if @__setupPercentConstraint(name, value, 'innerwidth') then return
           when 'height','y'
             if @__setupPercentConstraint(name, value, 'innerheight') then return
-      
+
       value = @_coerceType(name, value)
-      
+
       # Protect from invalid values
       switch name
         when 'width','height','border','padding'
@@ -1566,17 +1566,17 @@ window.dr = do ->
           value = Math.max(0, Math.min(@sprite.el.scrollWidth - @width + 2*@border, value))
         when 'scrolly'
           value = Math.max(0, Math.min(@sprite.el.scrollHeight - @height + 2*@border, value))
-      
+
       # Do super first since setters may modify the actual value set.
       existing = @[name]
       super(name, value, true, skipConstraintSetup, skipconstraintunregistration)
       value = @[name]
-      
-      if not (skipDomChange or name of ignoredAttributes or name of hiddenAttributes or existing == value)
+
+      if not (skipDomChange or name of ignoredAttributes or name of hiddenAttributes or existing is value)
         # console.log 'setting style', name, value, @
         if name of domElementAttributes
           @sprite.setProperty(name, value)
-        else if @inited or defaults[name] != value
+        else if @inited or defaults[name] isnt value
           @sprite.setStyle(name, value)
 
     __setupPercentConstraint: (name, value, axis) ->
@@ -1585,7 +1585,7 @@ window.dr = do ->
       parent = @parent
 
       # Handle rootview case using dr.window
-      if !(parent instanceof Node)
+      unless parent instanceof Node
         parent = dr.window
         axis = axis.substring(5)
 
@@ -1636,17 +1636,17 @@ window.dr = do ->
 
       @z ||= 0
       xlate = 'translate3d(0, 0, ' + @z + 'px)'
-      if @z != 0
+      if @z isnt 0
         transform = xlate
         @parent.sprite.setStyle('transform-style', 'preserve-3d')
 
       @xscale ||= 1
       @yscale ||= 1
-      if @xscale * @yscale != 1
+      if @xscale * @yscale isnt 1
         transform += ' scale3d(' + @xscale + ', ' + @yscale + ', 1.0)'
 
       @rotation ||= 0
-      if @rotation != 0
+      if @rotation isnt 0
         transform += ' rotate3d(0, 0, 1.0, ' + @rotation + 'deg)'
 
       @sprite.setStyle('transform', transform)
@@ -1682,12 +1682,12 @@ window.dr = do ->
       @__updateTransform()
 
     moveInFrontOf: (otherView) ->
-      if otherView && otherView.z
+      if otherView and otherView.z
         @z = otherView.z + 1
         @__updateTransform()
 
     moveBehind: (otherView) ->
-      if otherView && otherView.z
+      if otherView and otherView.z
         @z = otherView.z - 1
         @__updateTransform()
 
@@ -1710,7 +1710,7 @@ window.dr = do ->
       retval
 
     set_ignorelayout: (ignorelayout) ->
-      if @inited and ignorelayout != @ignorelayout
+      if @inited and ignorelayout isnt @ignorelayout
         layouts = @parent.layouts
         if layouts
           if ignorelayout
@@ -1795,7 +1795,7 @@ window.dr = do ->
     ###
     doSubviewAdded: (sv) ->
       # Empty implementation by default
-    
+
     ###*
     # Called when a subview is removed from this view. Provides a hook for
     # subclasses. No need for subclasses to call super. Do not call this
@@ -1815,7 +1815,7 @@ window.dr = do ->
     ###
     doLayoutAdded: (layout) ->
       # Empty implementation by default
-    
+
     ###*
     # Called when a layout is removed from this view. Provides a hook for
     # subclasses. No need for subclasses to call super. Do not call this
@@ -1905,7 +1905,7 @@ window.dr = do ->
           @sprite.setStyle('height', ih, true, @sprite.input)
       )
       @sprite.setStyle('height', @innerheight, true, @sprite.input)
-      
+
       # fixes spec/inputext_spec.rb 'can be clicked into' by forwarding user-generated click events
       # a click() without focus() wasn't enough... See http://stackoverflow.com/questions/210643/in-javascript-can-i-make-a-click-event-fire-programmatically-for-a-file-input
       @listenTo(@, 'click',
@@ -1926,18 +1926,18 @@ window.dr = do ->
       borderH = parseInt(domElem.css('border-top-width')) + parseInt(domElem.css('border-bottom-width'))
       paddingH = parseInt(domElem.css('padding-top')) + parseInt(domElem.css('padding-bottom'))
       return h + borderH + paddingH
-      
+
     _handleChange: () ->
       return unless @replicator
       # attempt to coerce to the current type if it was a boolean or number (bad idea?)
       newdata = @text
-      if (typeof @data == 'number')
-        if parseFloat(newdata) + '' == newdata
+      if (typeof @data is 'number')
+        if parseFloat(newdata) + '' is newdata
           newdata = parseFloat(newdata)
-      else if (typeof @data == 'boolean')
-        if newdata == 'true'
+      else if (typeof @data is 'boolean')
+        if newdata is 'true'
           newdata = true
-        else if newdata == 'false'
+        else if newdata is 'false'
           newdata = false
       @replicator.updateData(newdata)
 
@@ -2066,7 +2066,7 @@ window.dr = do ->
       return unless @inited
       width = if @multiline then @_initialwidth else @width
       size = @sprite.measureTextSize(@multiline, width, @resize)
-      if size.width == 0 and size.height == 0
+      if size.width is 0 and size.height is 0
         # check for hidden parents
         parents = @_findParents('visible', false)
         for parent in parents
@@ -2084,7 +2084,7 @@ window.dr = do ->
       d
 
     set_text: (text) ->
-      if (text != @text)
+      if (text isnt @text)
         @sprite.setText(@format(text))
         @updateSize()
       text
@@ -2095,16 +2095,16 @@ window.dr = do ->
     warnings = warnings.concat(data)
     out = data.join('\n')
     pre = document.createElement('pre')
-    pre.setAttribute('class', 'warnings');
+    pre.setAttribute('class', 'warnings')
     pre.textContent = out
-    document.body.insertBefore(pre, document.body.firstChild);
+    document.body.insertBefore(pre, document.body.firstChild)
     console.error out
 
   specialtags = ['handler', 'method', 'attribute', 'setter', 'include']
 
   dom = do ->
     getChildren = (el) ->
-      child for child in el.childNodes when child.nodeType == 1 and child.localName in specialtags
+      child for child in el.childNodes when child.nodeType is 1 and child.localName in specialtags
 
     # flatten element.attributes to a hash
     flattenattributes = (namednodemap)  ->
@@ -2115,9 +2115,9 @@ window.dr = do ->
 
     sendInit = () ->
       # Create the event.
-      event = document.createEvent('Event');
-      event.initEvent('dreeminit', true, true);
-      window.dispatchEvent(event);
+      event = document.createEvent('Event')
+      event.initEvent('dreeminit', true, true)
+      window.dispatchEvent(event)
 
     # initialize a top-level view element
     initFromElement = (el) ->
@@ -2127,7 +2127,7 @@ window.dr = do ->
         initElement(el)
         # register constraints last
         _initConstraints()
-        window.DREEM_INITED = true;
+        window.DREEM_INITED = true
         sendInit()
       )
 
@@ -2160,7 +2160,7 @@ window.dr = do ->
         appendcallback = () ->
           # console.log('loaded script', scriptloading, loadqueue.length, includedScripts[url])
           scriptloading = false
-          if loadqueue.length == 0
+          if loadqueue.length is 0
             # console.log('done, calling callback', cb)
             cb()
           else
@@ -2188,13 +2188,13 @@ window.dr = do ->
         # look for class declarations and unloaded classes for tags
         for el in jqel.find('*')
           name = el.localName
-          if name == 'class'
+          if name is 'class'
             if el.attributes.extends
               # load load class extends
               names[el.attributes.extends.value] = el
             # track inline class declaration so we don't attempt to load it later
             inlineclasses[el.attributes.name?.value] = true
-          else if name == 'replicator'
+          else if name is 'replicator'
             # load class instance for tag
             names[name] = el
             # load classname instance as well
@@ -2203,7 +2203,7 @@ window.dr = do ->
             # don't autoload elements found inside specialtags, e.g. setter
             unless el.parentNode.localName in specialtags
               # load class instance for tag
-              names[name] = el 
+              names[name] = el
 
         # filter out classnames that may have already been loaded or should otherwise be ignored
         out = {}
@@ -2229,7 +2229,7 @@ window.dr = do ->
         # wait for all includes to load
         $.when.apply($, filerequests).done((args...) ->
           # append includes
-          args = [args] if (filerequests.length == 1)
+          args = [args] if (filerequests.length is 1)
           filerequests = []
           # console.log('loaded includes', args)
 
@@ -2249,7 +2249,7 @@ window.dr = do ->
           # console.log(filerequests, fileloaded, inlineclasses)
           # wait for all dre files to finish loading
           $.when.apply($, filerequests).done((args...) ->
-            args = [args] if (filerequests.length == 1)
+            args = [args] if (filerequests.length is 1)
             filerequests = []
 
             for xhr in args
@@ -2257,7 +2257,7 @@ window.dr = do ->
               jqel.prepend(xhr[0])
               if debug
                 jqel.contents().each(() ->
-                  if(this.nodeType == 8)
+                  if(this.nodeType is 8)
                     $(this).remove()
                 )
 
@@ -2265,7 +2265,7 @@ window.dr = do ->
             if Object.keys(includes).length > 0
               # console.warn("missing includes", includes)
               loadIncludes(callback)
-              return;
+              return
 
             # find class script includes and load them in lexical order
 
@@ -2294,13 +2294,13 @@ window.dr = do ->
               console.warn("failed to load #{oneurl}")
             )
           ).fail((args...) ->
-            args = [args] if (args.length == 1)
+            args = [args] if (args.length is 1)
             for xhr in args
               showWarnings(["failed to load #{xhr.url} for element #{xhr.el.outerHTML}"])
             return
           )
         ).fail((args...) ->
-          args = [args] if (args.length == 1)
+          args = [args] if (args.length is 1)
           for xhr in args
             showWarnings(["failed to load #{xhr.url} for element #{xhr.el.outerHTML}"])
           return
@@ -2314,13 +2314,13 @@ window.dr = do ->
           data: {url: window.location.pathname},
           success: (data) ->
             # console.log('got data...', data)
-            if data == window.location.pathname
+            if data is window.location.pathname
               # alert('reload')
               window.location.reload()
         }).done((data) ->
           # console.log('file reloaded', data)
           filereloader()
-        );
+        )
 
       validator = ->
         $.ajax({
@@ -2380,12 +2380,12 @@ window.dr = do ->
       for event in mouseEvents
         eventname = 'on' + event
         if eventname of attributes
-          attributes.clickable = true unless attributes.clickable == false
+          attributes.clickable = true unless attributes.clickable is false
           el.removeAttribute(eventname)
 
       # swallow event handler attributes to allow event delegation, e.g. <inputtext onchange="..."></inputtext>
       for attr of attributes
-        if attr.indexOf('on') == 0
+        if attr.indexOf('on') is 0
           el.removeAttribute(attr)
 
       parent ?= el.parentNode
@@ -2393,14 +2393,14 @@ window.dr = do ->
       # console.log 'parent for tag', tagname, attributes, parent
 
       li = tagname.lastIndexOf('state')
-      isState = li > -1 && li == tagname.length - 5
+      isState = li > -1 and li is tagname.length - 5
       isClass = tagname is 'class'
 
       unless isClass or isState
         dom.processSpecialTags(el, attributes, attributes.type)
 
       # Defer oninit if we have children
-      children = (child for child in el.childNodes when child.nodeType == 1)
+      children = (child for child in el.childNodes when child.nodeType is 1)
       attributes.$skiponinit = skiponinit = children.length > 0
 
       if typeof dr[tagname] is 'function'
@@ -2413,7 +2413,7 @@ window.dr = do ->
 
       unless isClass or isState
 #        grab children again in case any were added when the parent was instantiated
-        children = (child for child in el.childNodes when child.nodeType == 1)
+        children = (child for child in el.childNodes when child.nodeType is 1)
         # create children now, unless the class told us not to
         unless dr[tagname].skipinitchildren
           for child in children
@@ -2460,7 +2460,7 @@ window.dr = do ->
       e.innerHTML = input
       out = ''
       for child in e.childNodes
-        if child.nodeValue? and (child.nodeType == 3 or child.nodeType == 8)
+        if child.nodeValue? and (child.nodeType is 3 or child.nodeType is 8)
           out += child.nodeValue
           # console.log('child', child.nodeType, child)
           # console.log('out', out)
@@ -2515,9 +2515,9 @@ window.dr = do ->
             name = name.toLowerCase()
             classattributes[name] = attributes.value
             classattributes.$types[name] = attributes.type
-            if 'visual' of attributes 
+            if 'visual' of attributes
               # allow non-visual attributes to be added
-              hiddenAttributes[name] = attributes.visual == 'false'
+              hiddenAttributes[name] = attributes.visual is 'false'
             # console.log 'added attribute', attributes, classattributes
 
       # console.log('processSpecialTags', classattributes)
@@ -2533,7 +2533,7 @@ window.dr = do ->
   # @class dr.state {Core Dreem}
   # @extends dr.node
   # Allows a group of attributes, methods, handlers and instances to be removed and applied as a group.
-  # 
+  #
   # Like views and nodes, states can contain methods, handlers, setters, constraints, attributes and other view, node or class instances.
   #
   # Currently, states must end with the string 'state' in their name to work properly.
@@ -2587,41 +2587,41 @@ window.dr = do ->
       @installMethods(attributes.$methods, @parent.$tagname, @, @parent)
 
       if attributes.name
-        @setAttribute('name', attributes.name) 
-        @skipattributes.push('name') 
+        @setAttribute('name', attributes.name)
+        @skipattributes.push('name')
 
       # handle applied constraint bindings as local to the state
       if attributes.applied
         @bindAttribute('applied', attributes.applied, 'state')
 
       for handler in attributes.$handlers
-        if handler.ev == 'onapplied'
-          # console.log('found onapplied', handler) 
+        if handler.ev is 'onapplied'
+          # console.log('found onapplied', handler)
           @installHandlers([handler], 'state', @)
           @_bindHandlers()
 
       for name, value of attributes
-        unless name in @skipattributes or name.charAt(0) == '$'
-          @applyattributes[name] = value 
+        unless name in @skipattributes or name.charAt(0) is '$'
+          @applyattributes[name] = value
           @setAttribute(name, value)
       # console.log('applyattributes', @applyattributes)
 
       if @constraints
         @_bindConstraints()
         # prevent warnings if we have a constraint to @applied
-        @skipattributes.push('constraints') 
+        @skipattributes.push('constraints')
 
       if @events
         # prevent warnings for local events
-        @skipattributes.push('events') 
+        @skipattributes.push('events')
 
       if @handlers
         # prevent warnings for local handlers
-        @skipattributes.push('handlers') 
+        @skipattributes.push('handlers')
 
       if @latehandlers
         # prevent warnings for local handlers
-        @skipattributes.push('latehandlers') 
+        @skipattributes.push('latehandlers')
 
       # hide local properties we don't want applied to the parent by learn()
       @enumfalse(@skipattributes)
@@ -2629,9 +2629,9 @@ window.dr = do ->
 
       el.$view = @ if el
       @inited = true
- 
+
     ###*
-    # @event onapplied 
+    # @event onapplied
     # Fired when the state has been applied or unapplied. Onapplied handlers run in the scope of the state itself, see dragstate for an example.
     # @param {Boolean} applied If true, the state was applied.
     ###
@@ -2640,7 +2640,7 @@ window.dr = do ->
     # If true, the state is applied.
     ###
     set_applied: (applied) ->
-      if @parent and @applied != applied
+      if @parent and @applied isnt applied
         @applied = applied
 
         # console.log('set_applied', applied, @, @parent)
@@ -2661,13 +2661,13 @@ window.dr = do ->
         # Hack to set attributes for now - not needed when using signals
         for name of @applyattributes
           val = @parent[name]
-          continue if val == undefined
+          continue if val is undefined
           # learn/forget will have set the value already. Invert to cache bust setAttribute()
-          @parent[name] = !val
+          @parent[name] = not val
           # console.log('bindAttribute', name, val)
           @parent.bindAttribute(name, val, parentname)
       return applied
-      
+
     apply: () ->
       @setAttribute('applied', true) unless @applied
 
@@ -2677,12 +2677,12 @@ window.dr = do ->
 
   ###*
   # @class dr.class {Core Dreem}
-  # Allows new tags to be created. Classes only be created with the &lt;class>&lt;/class> tag syntax. 
-  # 
-  # Classes can extend any other class, and they extend dr.view by default. 
-  # 
+  # Allows new tags to be created. Classes only be created with the &lt;class>&lt;/class> tag syntax.
+  #
+  # Classes can extend any other class, and they extend dr.view by default.
+  #
   # Once declared, classes invoked with the declarative syntax, e.g. &lt;classname>&lt;/classname>.
-  # 
+  #
   # If a class can't be found in the document, dreem will automatically attempt to load it from the classes/* directory.
   #
   # Like views and nodes, classes can contain methods, handlers, setters, constraints, attributes and other view, node or class instances.
@@ -2725,14 +2725,14 @@ window.dr = do ->
   class Class
     ###*
     # @attribute {String} name (required)
-    # The name of the new tag. 
+    # The name of the new tag.
     ###
     ###*
-    # @attribute {String} [extends=view] 
+    # @attribute {String} [extends=view]
     # The name of a class that should be extended.
     ###
     ###*
-    # @attribute {"js"/"coffee"} [type=js] 
+    # @attribute {"js"/"coffee"} [type=js]
     # The default compiler to use for methods, setters and handlers. Either 'js' or 'coffee'
     ###
     ###*
@@ -2742,14 +2742,14 @@ window.dr = do ->
     clone = (obj) ->
       newobj = {}
       for name, val of obj
-        newobj[name] = val 
+        newobj[name] = val
       newobj
 
     constructor: (el, classattributes = {}) ->
       name = (if classattributes.name then classattributes.name.toLowerCase() else classattributes.name)
       extend = classattributes.extends ?= 'view'
       compilertype = classattributes.type
-      skipinitchildren = classattributes.initchildren == 'false'
+      skipinitchildren = classattributes.initchildren is 'false'
       # only class instances should specify these
       for ignored of ignoredAttributes
         delete classattributes[ignored]
@@ -2764,7 +2764,7 @@ window.dr = do ->
 
       for child in processedChildren
         child.parentNode.removeChild(child)
-      haschildren = (child for child in el.childNodes when child.nodeType == 1).length > 0
+      haschildren = (child for child in el.childNodes when child.nodeType is 1).length > 0
 
       # serialize the tag's contents for recreation with processedChildren removed
       instancebody = el.innerHTML.trim()
@@ -2788,14 +2788,14 @@ window.dr = do ->
               if key is '$methods' and attributes[key][propname]
                 attributes[key][propname] = attributes[key][propname].concat(val)
                 # console.log('method override found for', propname, attributes[key][propname])
-              else 
+              else
                 attributes[key][propname] = val
               # console.log 'overwrote class attribute', key, attributes[key], value
           else if key is '$handlers' and key of attributes
             # console.log 'concat', attributes[key], value
             attributes[key] = attributes[key].concat(value)
             # console.log 'after concat', attributes[key]
-          else 
+          else
             attributes[key] = value
 
         if not (extend of dr)
@@ -2834,7 +2834,7 @@ window.dr = do ->
             viewel.innerHTML = instancebody
 
           unless skipchildren
-            children = (child for child in viewel.childNodes when child.nodeType == 1 and child.localName not in specialtags)
+            children = (child for child in viewel.childNodes when child.nodeType is 1 and child.localName not in specialtags)
             unless skipinitchildren
               for child in children
                 # console.log 'creating class child in parent', child, parent, attributes
@@ -2876,7 +2876,7 @@ window.dr = do ->
   ###*
   # @class dr.layout {Layout}
   # @extends dr.node
-  # The base class for all layouts. 
+  # The base class for all layouts.
   #
   # When a new layout is added, it will automatically create and add itself to a layouts array in its parent. In addition, an onlayouts event is fired in the parent when the layouts array changes. This allows the parent to access the layout(s) later.
   #
@@ -2906,43 +2906,43 @@ window.dr = do ->
     constructor: (el, attributes = {}) ->
       types = {locked:'boolean'}
       defaults = {locked:false}
-      
+
       if attributes.locked?
-        attrLocked = if attributes.locked == 'true' then true else false
-      
+        attrLocked = if attributes.locked is 'true' then true else false
+
       @locked = true
       @subviews = []
-      
+
       super
-      
+
       # listen for changes in the parent
       @listenTo(@parent, 'subviewAdded', @addSubview.bind(@))
       @listenTo(@parent, 'subviewRemoved', @removeSubview.bind(@))
       @listenTo(@parent, 'init', @update)
-      
+
       # Store ourself in the parent layouts
       @parent.layouts ?= []
       @parent.layouts.push(@)
-      
+
       # Start monitoring existing subviews
       subviews = @parent.subviews
       if subviews
         for subview in subviews
           @addSubview(subview)
-      
+
       if attrLocked?
         @locked = attrLocked
       else
         @locked = false
-      
+
       @update()
-    
+
     destroy: (skipevents) ->
       @locked = true
       # console.log 'destroy layout', @
       super
       @_removeFromParent('layouts') unless skipevents
-    
+
     ###*
     # Adds the provided view to the subviews array of this layout.
     # @param {dr.view} view The view to add to this layout.
@@ -2951,12 +2951,12 @@ window.dr = do ->
     addSubview: (view) ->
       if @ignore(view)
         return
-      
+
       @subviews.push(view)
       @startMonitoringSubview(view)
-      if !@locked
+      unless @locked
         @update()
-    
+
     ###*
     # Removes the provided View from the subviews array of this Layout.
     # @param {dr.view} view The view to remove from this layout.
@@ -2965,24 +2965,24 @@ window.dr = do ->
     removeSubview: (view) ->
       if @ignore(view)
         return -1
-      
+
       idx = @subviews.indexOf(view)
-      if idx != -1
+      if idx isnt -1
         @stopMonitoringSubview(view)
         @subviews.splice(idx, 1)
-        if !@locked
+        unless @locked
           @update()
       return idx
-    
+
     ###*
-    # Checks if a subview can be added to this Layout or not. The default 
+    # Checks if a subview can be added to this Layout or not. The default
     # implementation returns the 'ignorelayout' attributes of the subview.
     # @param {dr.view} view The view to check.
     # @return {boolean} True means the subview will be skipped, false otherwise.
     ###
     ignore: (view) ->
       return view.ignorelayout
-    
+
     ###*
     # Subclasses should implement this method to start listening to
     # events from the subview that should trigger the update method.
@@ -2991,9 +2991,9 @@ window.dr = do ->
     ###
     startMonitoringSubview: (view) ->
       # Empty implementation by default
-    
+
     ###*
-    # Calls startMonitoringSubview for all views. Used by layout 
+    # Calls startMonitoringSubview for all views. Used by layout
     # implementations when a change occurs to the layout that requires
     # refreshing all the subview monitoring.
     # @return {void}
@@ -3003,7 +3003,7 @@ window.dr = do ->
       i = svs.length
       while (i)
         @startMonitoringSubview(svs[--i])
-    
+
     ###*
     # Subclasses should implement this method to stop listening to
     # events from the subview that would trigger the update method. This
@@ -3013,9 +3013,9 @@ window.dr = do ->
     ###
     stopMonitoringSubview: (view) ->
       # Empty implementation by default
-    
+
     ###*
-    # Calls stopMonitoringSubview for all views. Used by Layout 
+    # Calls stopMonitoringSubview for all views. Used by Layout
     # implementations when a change occurs to the layout that requires
     # refreshing all the subview monitoring.
     # @return {void}
@@ -3025,15 +3025,15 @@ window.dr = do ->
       i = svs.length
       while (i)
         @stopMonitoringSubview(svs[--i])
-    
+
     ###*
     # Checks if the layout is locked or not. Should be called by the
     # "update" method of each layout to check if it is OK to do the update.
     # @return {boolean} true if not locked, false otherwise.
     ###
     canUpdate: ->
-      return !@locked and @parent.inited
-    
+      return not @locked and @parent.inited
+
     ###*
     # Updates the layout. Subclasses should call canUpdate to check lock state
     # before doing anything.
@@ -3041,31 +3041,30 @@ window.dr = do ->
     ###
     update: ->
       # Empty implementation by default
-    
+
     set_locked: (v) ->
       # Update the layout immediately if changing to false
-      if @locked != v and v == false
+      if @locked isnt v and v is false
         @locked = false
         @update()
       return v
 
   idle = do ->
-    requestAnimationFrame = (()->
+    requestAnimationFrame = do ->
       return  window.requestAnimationFrame       or
               window.webkitRequestAnimationFrame or
               window.mozRequestAnimationFrame    or
               window.oRequestAnimationFrame      or
               window.msRequestAnimationFrame     or
               (callback, element) ->
-                window.setTimeout(callback, 1000 / 60);
-    )();
+                window.setTimeout(callback, 1000 / 60)
 
     ticking = false
     tickEvents = []
 
     doTick = (time) ->
       for key of tickEvents
-        if tickEvents[key] 
+        if tickEvents[key]
           # console.log('tick', key, tickEvents[key])
           tickEvents[key](time)
           tickEvents[key] = null
@@ -3073,7 +3072,7 @@ window.dr = do ->
 
     (key, callback) ->
       # console.log('idle', key, callback)
-      # console.log('hit', key) if (tickEvents[key] != null) 
+      # console.log('hit', key) if (tickEvents[key] isnt null)
       unless ticking
         requestAnimationFrame(doTick)
         ticking = true
@@ -3081,7 +3080,7 @@ window.dr = do ->
 
   callOnIdle = do ->
     queue = []
-  
+
     callback = (time) ->
       # console.log('callback', time, queue)
       if queue.length
@@ -3148,7 +3147,7 @@ window.dr = do ->
 
     sender: (time) =>
       ###*
-      # @event onidle 
+      # @event onidle
       # Fired when the application is active and idle.
       # @param {Number} time The number of milliseconds since the application started
       ###
@@ -3163,7 +3162,7 @@ window.dr = do ->
       # Calls a function on the next idle event.
       # @param {Function} callback A function to be called on the next idle event
       ###
-    callOnIdle: (callback) =>
+    callOnIdle: (callback) ->
       callOnIdle(callback)
 
   # singleton that listens for mouse events. Holds data about the most recent left and top mouse coordinates
@@ -3192,27 +3191,27 @@ window.dr = do ->
   class Mouse extends StartEventable
 
     ###*
-    # @event onclick 
+    # @event onclick
     # Fired when the mouse is clicked
     # @param {dr.view} view The dr.view that fired the event
     ###
     ###*
-    # @event onmouseover 
+    # @event onmouseover
     # Fired when the mouse moves over a view
     # @param {dr.view} view The dr.view that fired the event
     ###
     ###*
-    # @event onmouseout 
+    # @event onmouseout
     # Fired when the mouse moves off a view
     # @param {dr.view} view The dr.view that fired the event
     ###
     ###*
-    # @event onmousedown 
+    # @event onmousedown
     # Fired when the mouse goes down on a view
     # @param {dr.view} view The dr.view that fired the event
     ###
     ###*
-    # @event onmouseup 
+    # @event onmouseup
     # Fired when the mouse goes up on a view
     # @param {dr.view} view The dr.view that fired the event
     ###
@@ -3232,11 +3231,11 @@ window.dr = do ->
     skipEvent = (e) ->
       if e.stopPropagation
         e.stopPropagation()
-      if e.preventDefault  
+      if e.preventDefault
         e.preventDefault()
       e.cancelBubble = true
       e.returnValue = false
-      return false;
+      return false
 
     startEventTest: () ->
       @events['mousemove']?.length or @events['x']?.length or @events['y']?.length
@@ -3264,10 +3263,10 @@ window.dr = do ->
           lastTouchDown = first.target
         when 'touchmove'
           # console.log 'touchmove', event.touches, first, window.pageXOffset, window.pageYOffset, first.pageX, first.pageY, first.target
-          over = document.elementFromPoint(first.pageX - window.pageXOffset, first.pageY - window.pageYOffset);
+          over = document.elementFromPoint(first.pageX - window.pageXOffset, first.pageY - window.pageYOffset)
           if (over and over.$view)
-            if (lastTouchOver and lastTouchOver != over)
-              @handle({target: lastTouchOver, type: 'mouseout'}) 
+            if (lastTouchOver and lastTouchOver isnt over)
+              @handle({target: lastTouchOver, type: 'mouseout'})
             lastTouchOver = over
             @handle({target: over, type: 'mouseover'})
             # console.log 'over', over, over.$view
@@ -3275,10 +3274,10 @@ window.dr = do ->
           @sendMouseEvent('mousemove', first)
         when 'touchend'
           @sendMouseEvent('mouseup', first)
-          if (lastTouchDown == first.target)
+          if (lastTouchDown is first.target)
             @sendMouseEvent('click', first)
             lastTouchDown = null
-            
+
     handle: (event) =>
       view = event.target.$view
       type = event.type
@@ -3287,16 +3286,16 @@ window.dr = do ->
         if type is 'mousedown'
           @_lastMouseDown = view
           skipEvent(event) unless view instanceof InputText
-      
-      if type is 'mouseup' and @_lastMouseDown and @_lastMouseDown != view
+
+      if type is 'mouseup' and @_lastMouseDown and @_lastMouseDown isnt view
         # send onmouseup and onmouseupoutside to the view that the mouse originally went down
         @sendEvent('mouseup', @_lastMouseDown)
-        @_lastMouseDown.sendEvent('mouseup', @_lastMouseDown) 
+        @_lastMouseDown.sendEvent('mouseup', @_lastMouseDown)
         @sendEvent('mouseupoutside', @_lastMouseDown)
-        @_lastMouseDown.sendEvent('mouseupoutside', @_lastMouseDown) 
+        @_lastMouseDown.sendEvent('mouseupoutside', @_lastMouseDown)
         @_lastMouseDown = null
         return
-      else if view 
+      else if view
         view.sendEvent(type, view)
 
       ###*
@@ -3313,33 +3312,33 @@ window.dr = do ->
       @y = event.pageY
 
       if @eventStarted and type is 'mousemove'
-        idle(0, @sender) 
-      else 
+        idle(0, @sender)
+      else
         @sendEvent(type, view)
       return
 
     sender: =>
       ###*
-      # @event onmousemove 
+      # @event onmousemove
       # Fired when the mouse moves
       # @param {Object} coordinates The x and y coordinates of the mouse
       ###
       @sendEvent("mousemove", {x: @x, y: @y})
       ###*
-      # @event onx 
+      # @event onx
       # Fired when the mouse moves in the x axis
       # @param {Number} x The x coordinate of the mouse
       ###
       @sendEvent('x', @x)
       ###*
-      # @event ony 
+      # @event ony
       # Fired when the mouse moves in the y axis
       # @param {Number} y The y coordinate of the mouse
       ###
       @sendEvent('y', @y)
 
     handleDocEvent: (event) ->
-      return if event and event.target != document
+      return if event and event.target isnt document
       if @eventStarted
         @docSelector.on("mousemove", @handle).one("mouseout", @stopEvent)
       else
@@ -3365,10 +3364,10 @@ window.dr = do ->
     constructor: ->
       window.addEventListener('resize', @handle, false)
 
-      # Handle page visibility change   
+      # Handle page visibility change
       @visible = true
       if document.hidden?
-        # Opera 12.10 and Firefox 18 and later support 
+        # Opera 12.10 and Firefox 18 and later support
         hidden = "hidden"
         visibilityChange = "visibilitychange"
       else if document.mozHidden?
@@ -3385,7 +3384,7 @@ window.dr = do ->
         @visible = document[hidden]
         # console.log('visibilitychange', @visible)
         ###*
-        # @event onvisible 
+        # @event onvisible
         # Fired when the window visibility changes
         # @param {Boolean} visible True if the window is currently visible
         ###
@@ -3400,14 +3399,14 @@ window.dr = do ->
     handle: (event) =>
       @width = window.innerWidth
       ###*
-      # @event onwidth 
+      # @event onwidth
       # Fired when the window resizes
       # @param {Number} width The width of the window
       ###
       @sendEvent('width', @width)
       @height = window.innerHeight
       ###*
-      # @event onheight 
+      # @event onheight
       # Fired when the window resizes
       # @param {Number} height The height of the window
       ###
@@ -3454,58 +3453,58 @@ window.dr = do ->
       target = event.target.$view
       type = event.type
 
-      if type != 'select'
+      if type isnt 'select'
         for key, value of keys
           # console.log value, key
           keys[key] = event[key]
       keys.type = type
-      
+
       if target
         target.sendEvent(type, keys)
         # send text events for events that could cause text to change
-        if (type == 'keydown' or type == 'keyup' or type == 'blur' or type == 'change')
+        if (type is 'keydown' or type is 'keyup' or type is 'blur' or type is 'change')
           value = event.target.value
-          if (target.text != value)
+          if (target.text isnt value)
             target.text = value
             target.sendEvent('text', value)
 
-      out = if type == 'select' then target else keys
+      out = if type is 'select' then target else keys
       ###*
-      # @event onselect 
+      # @event onselect
       # Fired when text is selected
       # @param {dr.view} view The view that fired the event
       ###
       ###*
-      # @event onchange 
+      # @event onchange
       # Fired when an inputtext has changed
       # @param {dr.view} view The view that fired the event
       ###
       ###*
-      # @event onkeydown 
+      # @event onkeydown
       # Fired when a key goes down
       # @param {Object} keys An object representing the keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
       ###
       ###*
-      # @event onkeyup 
+      # @event onkeyup
       # Fired when a key goes up
       # @param {Object} keys An object representing the keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
       ###
       @sendEvent(type, out)
       ###*
-      # @event onkeys 
+      # @event onkeys
       # Fired when a key is pressed on the keyboard
       # @param {Object} keys An object representing the keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
       ###
-      @sendEvent('keys', out) unless type == 'select'
+      @sendEvent('keys', out) unless type is 'select'
       # console.log 'handleKeyboard', type, target, out, event
 
   ###*
   # @class dr {Core Dreem}
   # Holds builtin and user-created classes and public APIs.
-  # 
+  #
   # All classes listed here can be invoked with the declarative syntax, e.g. &lt;node>&lt;/node> or &lt;view>&lt;/view>
   ###
-  exports = 
+  exports =
     view: View
     text: Text
     inputtext: InputText
@@ -3532,7 +3531,7 @@ window.dr = do ->
   ###*
   # @class dr.method {Core Dreem}
   # Declares a member function in a node, view, class or other class instance. Methods can only be created with the &lt;method>&lt;/method> tag syntax.
-  # 
+  #
   # If a method overrides an existing method, any existing (super) method(s) will be called first automatically.
   #
   # Let's define a method called changeColor in a view that sets the background color to pink.
@@ -3601,7 +3600,7 @@ window.dr = do ->
   # A comma separated list of method arguments.
   ###
   ###*
-  # @attribute {"js"/"coffee"} type 
+  # @attribute {"js"/"coffee"} type
   # The compiler to use for this method. Inherits from the immediate class if unspecified.
   ###
 
@@ -3610,7 +3609,7 @@ window.dr = do ->
   # Declares a setter in a node, view, class or other class instance. Setters can only be created with the &lt;setter>&lt;/setter> tag syntax.
   #
   # Setters allow the default behavior of attribute changes to be changed.
-  # 
+  #
   # Like dr.method, if a setter overrides an existing setter any existing (super) setter(s) will be called first automatically.
   # @ignore
   ###
@@ -3623,7 +3622,7 @@ window.dr = do ->
   # A comma separated list of method arguments.
   ###
   ###*
-  # @attribute {"js"/"coffee"} type 
+  # @attribute {"js"/"coffee"} type
   # The compiler to use for this method. Inherits from the immediate class if unspecified.
   ###
 
@@ -3694,15 +3693,15 @@ window.dr = do ->
   # A comma separated list of method arguments.
   ###
   ###*
-  # @attribute {"js"/"coffee"} type 
+  # @attribute {"js"/"coffee"} type
   # The compiler to use for this method. Inherits from the immediate class if unspecified.
   ###
 
   ###*
   # @class dr.attribute {Core Dreem}
   # Adds a variable to a node, view, class or other class instance. Attributes can only be created with the &lt;attribute>&lt;/attribute> tag syntax.
-  # 
-  # Attributes allow classes to declare new variables with a specific type and default value. 
+  #
+  # Attributes allow classes to declare new variables with a specific type and default value.
   #
   # Attributes automatically send events when their value changes.
   #
@@ -3728,7 +3727,7 @@ window.dr = do ->
   #         this.setAttribute('bgcolor', color);
   #       </handler>
   #     </class>
-  # 
+  #
   #     <spacedlayout></spacedlayout>
   #     <person></person>
   #     <person mood="sad"></person>
@@ -3747,7 +3746,7 @@ window.dr = do ->
   #       </handler>
   #       <attribute name="size" type="number" value="20"></attribute>
   #     </class>
-  # 
+  #
   #     <spacedlayout></spacedlayout>
   #     <person></person>
   #     <person mood="sad" size="50"></person>
@@ -3770,8 +3769,8 @@ window.dr = do ->
   ###
 
 dr.writeCSS()
-$(window).on('load', -> 
-  dr.initElements() 
+$(window).on('load', ->
+  dr.initElements()
   # listen for jQuery style changes
   hackstyle(true)
 )
