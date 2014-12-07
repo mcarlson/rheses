@@ -90,14 +90,6 @@
       // Make another view stretchy. No change should occur until a layout update occurs.
       v5.setAttribute('layouthint', 1);
       assert.equal(5, v1.x, 'The first view is at inset.');
-      assert.equal(231, v1.width, 'The first view has a width of 231 since it lost space to v2.');
-      assert.equal(238, v2.x, 'The second view is at 238.');
-      assert.equal(340, v3.x, 'The third view is at 340.');
-      assert.equal(392, v4.x, 'The fourth view is at 392.');
-      assert.equal(444, v5.x, 'The fifth view is at 444.');
-      
-      layout.update();
-      assert.equal(5, v1.x, 'The first view is at inset.');
       assert.equal(141, v1.width, 'The first view has a width of 141 since it shares space equally with v5.');
       assert.equal(148, v2.x, 'The second view is at 148.');
       assert.equal(250, v3.x, 'The third view is at 250.');

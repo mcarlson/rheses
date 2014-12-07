@@ -54,6 +54,7 @@ SOFTWARE. -->
     if !(Number(view.layouthint) > 0)
       @listenTo(view, @measureAttrName, @update)
     @listenTo(view, 'visible', @update)
+    @listenTo(view, 'layouthint', @update)
   </method>
   
   <method name="stopMonitoringSubview" args="view">
@@ -62,6 +63,7 @@ SOFTWARE. -->
     if !(Number(view.layouthint) > 0)
       @stopListening(view, @measureAttrName, @update)
     @stopListening(view, 'visible', @update)
+    @stopListening(view, 'layouthint', @update)
   </method>
   
   <method name="doBeforeUpdate">
