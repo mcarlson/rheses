@@ -825,14 +825,7 @@
            * Fired when this node's subnodes array has changed
            * @param {dr.node} node The dr.node that fired the event
            */
-
-          /**
-           * @event subnodeAdded
-           * Fired when a subnode is added to this node.
-           * @param {dr.node} node The dr.node that was added
-           */
           parent.sendEvent('subnodes', this);
-          parent.sendEvent('subnodeAdded', this);
           parent.doSubnodeAdded(this);
         }
         _ref4 = (function() {
@@ -1181,13 +1174,6 @@
           arr.splice(index, 1);
           this.parent.sendEvent(name, removedNode);
           if (name === 'subnodes') {
-
-            /**
-             * @event subnodeRemoved
-             * Fired when a subnode is removed from this node.
-             * @param {dr.node} node The dr.node that was removed
-             */
-            this.parent.sendEvent('subnodeRemoved', removedNode);
             this.parent.doSubnodeRemoved(removedNode);
           }
         }
@@ -2210,13 +2196,6 @@
           this.sendEvent('subviewAdded', node);
           return this.doSubviewAdded(node);
         } else if (node instanceof Layout) {
-
-          /**
-           * @event layoutAdded
-           * Fired when a layout is added to this view.
-           * @param {dr.layout} layout The dr.layout that was added
-           */
-          this.sendEvent('layoutAdded', node);
           return this.doLayoutAdded(node);
         }
       };
@@ -2238,13 +2217,6 @@
           this.sendEvent('subviewRemoved', node);
           return this.doSubviewRemoved(node);
         } else if (node instanceof Layout) {
-
-          /**
-           * @event layoutRemoved
-           * Fired when a layout is removed from this view.
-           * @param {dr.layout} layout The dr.layout that was removed
-           */
-          this.sendEvent('layoutRemoved', node);
           return this.doLayoutRemoved(node);
         }
       };
