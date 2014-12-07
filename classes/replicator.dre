@@ -418,8 +418,7 @@ SOFTWARE. -->
         if @parent.layouts
           for layout in @parent.layouts
             layout.setAttribute('locked', false)
-            layout.update()
 
-        @locked = locked        
+        @locked = locked
       </method>
     </class>
