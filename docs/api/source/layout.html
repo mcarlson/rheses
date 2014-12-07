@@ -842,14 +842,7 @@
            * Fired when this node&#39;s subnodes array has changed
            * @param {dr.node} node The dr.node that fired the event
            */
-
-<span id='dr-node-event-subnodeAdded'>          /**
-</span>           * @event subnodeAdded
-           * Fired when a subnode is added to this node.
-           * @param {dr.node} node The dr.node that was added
-           */
           parent.sendEvent(&#39;subnodes&#39;, this);
-          parent.sendEvent(&#39;subnodeAdded&#39;, this);
           parent.doSubnodeAdded(this);
         }
         _ref4 = (function() {
@@ -894,7 +887,7 @@
       }
 
       Node.prototype.installMethods = function(methods, tagname, scope, callbackscope) {
-        var allocation, args, invokeSuper, method, methodlist, name, _i, _len, _ref;
+        var allocation, args, method, methodlist, name, _i, _len, _ref;
         if (scope == null) {
           scope = this;
         }
@@ -904,8 +897,8 @@
         for (name in methods) {
           methodlist = methods[name];
           for (_i = 0, _len = methodlist.length; _i &lt; _len; _i++) {
-            _ref = methodlist[_i], method = _ref.method, args = _ref.args, allocation = _ref.allocation, invokeSuper = _ref.invokeSuper;
-            _installMethod(scope, name, compiler.compile(method, args, &quot;&quot; + tagname + &quot;$&quot; + name).bind(callbackscope), allocation, invokeSuper);
+            _ref = methodlist[_i], method = _ref.method, args = _ref.args, allocation = _ref.allocation;
+            _installMethod(scope, name, compiler.compile(method, args, &quot;&quot; + tagname + &quot;$&quot; + name).bind(callbackscope), allocation);
           }
         }
       };
@@ -1005,73 +998,39 @@
         };
       };
 
-      _installMethod = function(scope, methodname, method, allocation, invokeSuper) {
-        var supr;
-        if (invokeSuper) {
-          console.warn(&#39;invokeSuper has been deprecated and will be removed soon, the default is now &quot;inside&quot;.  Use @super() to invoke the overridden implementation&#39;);
-        }
+      _installMethod = function(scope, methodname, method, allocation) {
+        var exists, supr;
         if (methodname in scope) {
           supr = scope[methodname] || noop;
-          if (invokeSuper === &#39;after&#39;) {
-            return scope[methodname] = function() {
-              var retval;
-              retval = method.apply(scope, arguments);
-              supr.apply(scope, arguments);
-              return retval;
-            };
-          } else if (invokeSuper === &#39;before&#39;) {
-            return scope[methodname] = function() {
-              var retval;
-              supr.apply(scope, arguments);
-              retval = method.apply(scope, arguments);
-              return retval;
-            };
-          } else {
-            return scope[methodname] = function() {
-              var params, prevOwn, prevValue, retval;
-              prevOwn = scope.hasOwnProperty(&#39;super&#39;);
-              if (prevOwn) {
-                prevValue = scope[&#39;super&#39;];
-              }
-              params = Array.prototype.slice.call(arguments);
-              scope[&#39;super&#39;] = function() {
-                var i;
-                i = arguments.length;
-                while (i) {
-                  params[--i] = arguments[i];
-                }
-                return supr.apply(scope, params);
-              };
-              retval = method.apply(scope, arguments);
-              if (prevOwn) {
-                scope[&#39;super&#39;] = prevValue;
-              } else {
-                delete scope[&#39;super&#39;];
-              }
-              return retval;
-            };
-          }
-        } else {
-          if (invokeSuper === &#39;after&#39; || invokeSuper === &#39;before&#39;) {
-            return scope[methodname] = method;
-          } else {
-            return scope[methodname] = function() {
-              var prevOwn, prevValue, retval;
-              prevOwn = scope.hasOwnProperty(&#39;super&#39;);
-              if (prevOwn) {
-                prevValue = scope[&#39;super&#39;];
-              }
-              scope[&#39;super&#39;] = noop;
-              retval = method.apply(scope, arguments);
-              if (prevOwn) {
-                scope[&#39;super&#39;] = prevValue;
-              } else {
-                delete scope[&#39;super&#39;];
-              }
-              return retval;
-            };
-          }
+          exists = true;
         }
+        return scope[methodname] = function() {
+          var params, prevOwn, prevValue, retval;
+          prevOwn = scope.hasOwnProperty(&#39;super&#39;);
+          if (prevOwn) {
+            prevValue = scope[&#39;super&#39;];
+          }
+          if (exists) {
+            params = Array.prototype.slice.call(arguments);
+            scope[&#39;super&#39;] = function() {
+              var i;
+              i = arguments.length;
+              while (i) {
+                params[--i] = arguments[i];
+              }
+              return supr.apply(scope, params);
+            };
+          } else {
+            scope[&#39;super&#39;] = noop;
+          }
+          retval = method.apply(scope, arguments);
+          if (prevOwn) {
+            scope[&#39;super&#39;] = prevValue;
+          } else {
+            delete scope[&#39;super&#39;];
+          }
+          return retval;
+        };
       };
 
       Node.prototype.setConstraint = function(property, expression, skipbinding) {
@@ -1232,13 +1191,6 @@
           arr.splice(index, 1);
           this.parent.sendEvent(name, removedNode);
           if (name === &#39;subnodes&#39;) {
-
-<span id='dr-node-event-subnodeRemoved'>            /**
-</span>             * @event subnodeRemoved
-             * Fired when a subnode is removed from this node.
-             * @param {dr.node} node The dr.node that was removed
-             */
-            this.parent.sendEvent(&#39;subnodeRemoved&#39;, removedNode);
             this.parent.doSubnodeRemoved(removedNode);
           }
         }
@@ -2261,13 +2213,6 @@
           this.sendEvent(&#39;subviewAdded&#39;, node);
           return this.doSubviewAdded(node);
         } else if (node instanceof Layout) {
-
-<span id='dr-view-event-layoutAdded'>          /**
-</span>           * @event layoutAdded
-           * Fired when a layout is added to this view.
-           * @param {dr.layout} layout The dr.layout that was added
-           */
-          this.sendEvent(&#39;layoutAdded&#39;, node);
           return this.doLayoutAdded(node);
         }
       };
@@ -2289,13 +2234,6 @@
           this.sendEvent(&#39;subviewRemoved&#39;, node);
           return this.doSubviewRemoved(node);
         } else if (node instanceof Layout) {
-
-<span id='dr-view-event-layoutRemoved'>          /**
-</span>           * @event layoutRemoved
-           * Fired when a layout is removed from this view.
-           * @param {dr.layout} layout The dr.layout that was removed
-           */
-          this.sendEvent(&#39;layoutRemoved&#39;, node);
           return this.doLayoutRemoved(node);
         }
       };
@@ -3205,7 +3143,7 @@
         return out;
       };
       processSpecialTags = function(el, classattributes, defaulttype) {
-        var args, attributes, child, children, handler, name, script, tagname, type, _base, _base1, _i, _len, _name, _ref, _ref1;
+        var args, attributes, child, children, handler, name, script, tagname, type, _base, _i, _len, _ref, _ref1;
         if (classattributes.$types == null) {
           classattributes.$types = {};
         }
@@ -3241,26 +3179,17 @@
               classattributes.$handlers.push(handler);
               break;
             case &#39;method&#39;:
+            case &#39;setter&#39;:
+              if (tagname === &#39;setter&#39;) {
+                name = &#39;set_&#39; + name.toLowerCase();
+              }
               if ((_base = classattributes.$methods)[name] == null) {
                 _base[name] = [];
               }
               classattributes.$methods[name].push({
                 method: compiler.transform(script, type),
                 args: args,
-                allocation: attributes.allocation,
-                invokeSuper: attributes.invokesuper
-              });
-              break;
-            case &#39;setter&#39;:
-              name = name.toLowerCase();
-              if ((_base1 = classattributes.$methods)[_name = &#39;set_&#39; + name] == null) {
-                _base1[_name] = [];
-              }
-              classattributes.$methods[&#39;set_&#39; + name].push({
-                method: compiler.transform(script, type),
-                args: args,
-                allocation: attributes.allocation,
-                invokeSuper: attributes.invokesuper
+                allocation: attributes.allocation
               });
               break;
             case &#39;attribute&#39;:

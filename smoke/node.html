@@ -1,12 +1,5 @@
 <html>
 <head>
-  <style type="text/css">
-    body {
-      font-family: 'Arial';
-      font-size: 14px;
-    }
-  </style>
-
   <title>Dr33m - Node Smoke Tests</title>
   <script type="text/javascript" src="/lib/jquery-1.9.1.min.js"></script>
   <script type="text/javascript" src="/lib/acorn.js"></script>
@@ -25,45 +18,34 @@
   <view name="outer" width="200" height="200" bgcolor="green">
     <method name="getTestArray">return this.testArr || (this.testArr = []);</method>
     
-    <handler event="onsubnodeAdded" args="node">
-      //console.log("EVENT subnodeAdded", node.name);
-    </handler>
-    <handler event="onsubnodeRemoved" args="node">
-      //console.log("EVENT subnodeRemoved", node.name);
-    </handler>
-    <method name="doSubnodeAdded" args="node">
-      //console.log("subnodeAdded", node.name);
-      this.super();
-    </method>
-    <method name="doSubnodeRemoved" args="node">
-      //console.log("subnodeRemoved", node.name);
-      this.super();
-    </method>
-    
     <handler event="onsubviewAdded" args="sv">
       //console.log("EVENT subviewAdded", sv.name);
     </handler>
     <handler event="onsubviewRemoved" args="sv">
       //console.log("EVENT subviewRemoved", sv.name);
     </handler>
-    <method name="doSubviewAdded" args="sv">
-      //console.log("subviewAdded", sv.name);
+    
+    <method name="doSubnodeAdded" args="node">
+      //console.log("doSubnodeAdded", node.name);
+      this.super();
     </method>
-    <method name="doSubviewRemoved" args="sv">
-      //console.log("subviewRemoved", sv.name);
+    <method name="doSubnodeRemoved" args="node">
+      //console.log("doSubnodeRemoved", node.name);
+      this.super();
     </method>
     
-    <handler event="onlayoutAdded" args="layout">
-      //console.log("EVENT layoutAdded", layout.name);
-    </handler>
-    <handler event="onlayoutRemoved" args="layout">
-      //console.log("EVENT layoutRemoved", layout.name);
-    </handler>
+    <method name="doSubviewAdded" args="sv">
+      //console.log("doSubviewAdded", sv.name);
+    </method>
+    <method name="doSubviewRemoved" args="sv">
+      //console.log("doSubviewRemoved", sv.name);
+    </method>
+    
     <method name="doLayoutAdded" args="layout">
-      //console.log("layoutAdded", layout.name);
+      //console.log("doLayoutAdded", layout.name);
     </method>
     <method name="doLayoutRemoved" args="layout">
-      //console.log("layoutRemoved", layout.name);
+      //console.log("doLayoutRemoved", layout.name);
     </method>
     
     <node name="foo">

@@ -613,13 +613,7 @@ window.dr = do ->
         # Fired when this node's subnodes array has changed
         # @param {dr.node} node The dr.node that fired the event
         ###
-        ###*
-        # @event subnodeAdded
-        # Fired when a subnode is added to this node.
-        # @param {dr.node} node The dr.node that was added
-        ###
         parent.sendEvent('subnodes', @)
-        parent.sendEvent('subnodeAdded', @)
         parent.doSubnodeAdded(@)
 
       for name in (name for name in lateattributes when name of attributes)
@@ -910,14 +904,7 @@ window.dr = do ->
         arr.splice(index, 1)
         # console.log('_removeFromParent', index, name, arr.length, arr, @)
         @parent.sendEvent(name, removedNode)
-        if name is 'subnodes'
-          ###*
-          # @event subnodeRemoved
-          # Fired when a subnode is removed from this node.
-          # @param {dr.node} node The dr.node that was removed
-          ###
-          @parent.sendEvent('subnodeRemoved', removedNode)
-          @parent.doSubnodeRemoved(removedNode)
+        if name is 'subnodes' then @parent.doSubnodeRemoved(removedNode)
       return
 
     # find all parents with an attribute set to a specific value. Used in updateSize to deal with invisible parents.
@@ -1746,12 +1733,6 @@ window.dr = do ->
         @sendEvent('subviewAdded', node)
         @doSubviewAdded(node);
       else if node instanceof Layout
-        ###*
-        # @event layoutAdded
-        # Fired when a layout is added to this view.
-        # @param {dr.layout} layout The dr.layout that was added
-        ###
-        @sendEvent('layoutAdded', node)
         @doLayoutAdded(node);
 
     ###*
@@ -1768,12 +1749,6 @@ window.dr = do ->
         @sendEvent('subviewRemoved', node)
         @doSubviewRemoved(node);
       else if node instanceof Layout
-        ###*
-        # @event layoutRemoved
-        # Fired when a layout is removed from this view.
-        # @param {dr.layout} layout The dr.layout that was removed
-        ###
-        @sendEvent('layoutRemoved', node)
         @doLayoutRemoved(node);
 
     ###*

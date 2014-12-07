@@ -595,6 +595,10 @@
         * The url to load JSON data from.
         */
 /**
+        * @attribute {Boolean} [async=false]
+        * If true, parse json in a worker thread
+        */
+/**
      * @class dr.dragstate {UI Components}
      * @extends dr.state
      * Allows views to be dragged by the mouse.
@@ -973,6 +977,10 @@
         * If true, reuse views when replicating.
         */
 /**
+        * @attribute {Boolean} [async=true]
+        * If true, create views asynchronously
+        */
+/**
         * @attribute {Array} [data=[]]
         * The list of items to replicate. If {@link #datapath datapath} is set, it is converted to an array and stored here.
         */
@@ -987,7 +995,7 @@
         */
 /**
         * @attribute {String} [sortfield=""]
-        * The field in the data to use for sorting. Only sort then this 
+        * The field in the data to use for sorting. Only sort then this
         */
 /**
         * @attribute {Boolean} [sortasc=true]
@@ -995,7 +1003,7 @@
         */
 /**
         * @attribute {String} [filterexpression=""]
-        * If defined, data will be filtered against a [regular expression](https://developer.mozilla.org/en/docs/Web/JavaScript/Guide/Regular_Expressions). 
+        * If defined, data will be filtered against a [regular expression](https://developer.mozilla.org/en/docs/Web/JavaScript/Guide/Regular_Expressions).
         */
 /**
         * @method refresh
@@ -1008,6 +1016,11 @@
         * @param obj An individual item to be processed.
         * @param {Object[]} accum The array of items that have been accumulated. To keep a processed item, it must be added to the accum array.
         * @returns {Object[]} The accum array. Must be returned otherwise results will be lost.
+        */
+/**
+        * @event onreplicated
+        * Fired when the replicator is done
+        * @param {dr.replicator} replicator The dr.replicator that fired the event
         */
 /**
       * @class dr.resizelayout {Layout}
