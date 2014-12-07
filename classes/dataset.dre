@@ -76,7 +76,7 @@ SOFTWARE. -->
      *     <spacedlayout></spacedlayout>
      *     <replicator classname="text" datapath="$example/store/book[*]/title"></replicator>
      */-->
-    <class name="dataset" type="coffee" extends="node">
+    <class name="dataset" type="coffee" extends="node" scriptincludes="/lib/json.async.js">
       <!--/**
         * @attribute {String} name (required)
         * The name of the dataset
@@ -94,6 +94,11 @@ SOFTWARE. -->
         * The url to load JSON data from.
         */-->
       <attribute name="url" type="string" value=""></attribute>
+      <!--/**
+        * @attribute {Boolean} [async=false]
+        * If true, parse json in a worker thread
+        */-->
+      <attribute name="async" value="true" type="boolean"></attribute>
       <handler event="on$textcontent">
         if @$textcontent?.trim()
           @setAttribute('data', JSON.parse(@$textcontent))
@@ -101,10 +106,10 @@ SOFTWARE. -->
       </handler>
       <handler event="onurl" method="loadURL"></handler>
       <method name="loadURL" args="url">
-        @super();
-
+        return unless url
         # console.log('loading url', url)
-        type = 'json'
+
+        type = 'text'
         if (url.indexOf('callback=?') != -1)
           # assume JSONP if 'callback=?' is in the URL
           type = 'jsonp'
@@ -114,12 +119,18 @@ SOFTWARE. -->
           dataType: type
         }).done((data) =>
           # console.log('data', url, data)
-          @setAttribute('data', data)
-        );
+          cb = (json) =>
+            @setAttribute('data', json)
+          if typeof data == 'string'
+            if (@async)
+              JSON.parseAsync(data, cb)
+            else
+              cb(JSON.parse(data))
+          else
+            cb(data)
+        )
       </method>
       <method name="updateData" args="path, data">
-        @super();
-
         # find the scope and property to be updated
         re = /\/([^\/]+)$/
         property = path.match(re)
