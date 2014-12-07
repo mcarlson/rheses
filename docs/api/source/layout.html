@@ -490,7 +490,8 @@
         }
       })(),
       touch: &#39;ontouchstart&#39; in window || &#39;onmsgesturechange&#39; in window,
-      camelcss: navigator.userAgent.toLowerCase().indexOf(&#39;firefox&#39;) &gt; -1
+      camelcss: navigator.userAgent.toLowerCase().indexOf(&#39;firefox&#39;) &gt; -1,
+      raf: window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame
     };
     querystring = window.location.search;
     debug = querystring.indexOf(&#39;debug&#39;) &gt; 0;
@@ -2109,7 +2110,6 @@
         if (this.rotation !== 0) {
           transform += &#39; rotate3d(0, 0, 1.0, &#39; + this.rotation + &#39;deg)&#39;;
         }
-        this.sprite.setStyle(&#39;z-index&#39;, this.z);
         return this.sprite.setStyle(&#39;transform&#39;, transform);
       };
 
@@ -2396,6 +2396,48 @@
       __extends(InputText, _super);
 
 
+<span id='dr-inputtext-event-onselect'>      /**
+</span>       * @event onselect
+       * Fired when an inputtext is selected
+       * @param {dr.view} view The view that fired the event
+       */
+
+
+<span id='dr-inputtext-event-onchange'>      /**
+</span>       * @event onchange
+       * Fired when an inputtext has changed
+       * @param {dr.view} view The view that fired the event
+       */
+
+
+<span id='dr-inputtext-event-onfocus'>      /**
+</span>       * @event onfocus
+       * Fired when an inputtext is focused
+       * @param {dr.view} view The view that fired the event
+       */
+
+
+<span id='dr-inputtext-event-onblur'>      /**
+</span>       * @event onblur
+       * Fired when an inputtext is blurred or loses focus
+       * @param {dr.view} view The view that fired the event
+       */
+
+
+<span id='dr-inputtext-event-onkeydown'>      /**
+</span>       * @event onkeydown
+       * Fired when a key goes down
+       * @param {Object} keys An object representing the keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
+       */
+
+
+<span id='dr-inputtext-event-onkeyup'>      /**
+</span>       * @event onkeyup
+       * Fired when a key goes up
+       * @param {Object} keys An object representing the keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
+       */
+
+
 <span id='dr-inputtext-attribute-multiline'>      /**
 </span>       * @attribute {Boolean} [multiline=false]
        * Set to true to show multi-line text.
@@ -2497,6 +2539,17 @@
       InputText.prototype.set_text = function(text) {
         this.sprite.value(text);
         return text;
+      };
+
+      InputText.prototype.sendEvent = function(name, value) {
+        InputText.__super__.sendEvent.apply(this, arguments);
+        if (name === &#39;keydown&#39; || name === &#39;keyup&#39; || name === &#39;blur&#39; || name === &#39;change&#39;) {
+          value = this.sprite.value();
+          if (this.text !== value) {
+            this.text = value;
+            return this.sendEvent(&#39;text&#39;, value);
+          }
+        }
       };
 
       return InputText;
@@ -3007,7 +3060,7 @@
         return error;
       };
       initElement = function(el, parent) {
-        var attr, attributes, checkChildren, child, children, event, eventname, isClass, isState, li, skiponinit, tagname, tid, _i, _j, _len, _len1;
+        var attr, attributes, checkChildren, child, children, event, eventname, isClass, isState, li, skiponinit, tagname, _i, _j, _len, _len1;
         if (el.$init) {
           return;
         }
@@ -3099,16 +3152,12 @@
             }
           }
           if (!parent.inited) {
-            tid = null;
             checkChildren = function() {
               var _k, _len2;
               for (_k = 0, _len2 = children.length; _k &lt; _len2; _k++) {
                 child = children[_k];
                 if (!child.inited &amp;&amp; child.localName === !&#39;class&#39;) {
-                  if (tid != null) {
-                    clearTimeout(tid);
-                  }
-                  tid = callOnIdle(checkChildren);
+                  callOnIdle(checkChildren);
                   return;
                 }
               }
@@ -3118,7 +3167,7 @@
               parent.inited = true;
               parent.sendEvent(&#39;init&#39;, parent);
             };
-            tid = callOnIdle(checkChildren);
+            callOnIdle(checkChildren);
           }
         }
       };
@@ -3503,7 +3552,7 @@
           console.warn(&#39;overwriting class&#39;, name);
         }
         dr[name] = function(instanceel, instanceattributes, internal, skipchildren) {
-          var attributes, checkChildren, children, key, parent, propname, sendInit, tid, val, value, viewel, _j, _len1, _ref;
+          var attributes, checkChildren, children, key, parent, propname, sendInit, val, value, viewel, _j, _len1, _ref;
           attributes = clone(classattributes);
           for (key in instanceattributes) {
             value = instanceattributes[key];
@@ -3577,22 +3626,18 @@
               return parent.sendEvent(&#39;init&#39;, parent);
             };
             if (children != null ? children.length : void 0) {
-              tid = null;
               checkChildren = function() {
                 var _k, _len2;
                 for (_k = 0, _len2 = children.length; _k &lt; _len2; _k++) {
                   child = children[_k];
                   if ((!child.$view) || (!child.$view.inited)) {
-                    if (tid != null) {
-                      clearTimeout(tid);
-                    }
-                    tid = callOnIdle(checkChildren);
+                    callOnIdle(checkChildren);
                     return;
                   }
                 }
                 return sendInit();
               };
-              tid = callOnIdle(checkChildren);
+              callOnIdle(checkChildren);
             } else if (internal) {
               callOnIdle(sendInit);
             } else {
@@ -3833,15 +3878,18 @@
     starttime = Date.now();
     idle = (function() {
       var doTick, requestAnimationFrame, tickEvents, ticking;
-      requestAnimationFrame = (function() {
-        return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function(callback, element) {
-          var callbackwrapper;
-          callbackwrapper = function() {
-            return callback(Date.now() - starttime);
+      requestAnimationFrame = capabilities.raf;
+      if (!requestAnimationFrame) {
+        requestAnimationFrame = (function() {
+          return function(callback, element) {
+            var callbackwrapper;
+            callbackwrapper = function() {
+              return callback(Date.now() - starttime);
+            };
+            return window.setTimeout(callbackwrapper, 1000 / 60);
           };
-          return window.setTimeout(callbackwrapper, 1000 / 60);
-        };
-      })();
+        })();
+      }
       ticking = false;
       tickEvents = [];
       doTick = function(time) {
@@ -3866,18 +3914,20 @@
       var callback, queue;
       queue = [];
       callback = function(time) {
-        var cb, _i, _len;
-        if (queue.length) {
-          for (_i = 0, _len = queue.length; _i &lt; _len; _i++) {
-            cb = queue[_i];
-            cb(time);
-          }
-          return queue = [];
+        var cb, _results;
+        _results = [];
+        while ((cb = queue.shift())) {
+          _results.push(cb(time));
         }
+        return _results;
       };
       return function(cb) {
-        queue.push(cb);
-        idle(2, callback);
+        if (capabilities.raf) {
+          queue.push(cb);
+          idle(2, callback);
+        } else {
+          setTimeout(cb, 0);
+        }
       };
     })();
     StartEventable = (function(_super) {
@@ -4301,76 +4351,44 @@
      * @extends Eventable
      * Sends keyboard events.
      *
-     * You might want to track specific keyboard events when text is being entered into an input box. In this example we listen for the enter key and display the value.
+     * You might want to listen for keyboard events globally. In this example, we display the code of the key being pressed. Note that you&#39;ll need to click on the example to activate it before you will see keyboard events.
      *
      *     @example
-     *     &lt;spacedlayout axis=&quot;y&quot; spacing=&quot;25&quot;&gt;&lt;/spacedlayout&gt;
-     *     &lt;inputtext id=&quot;nameinput&quot; bgcolor=&quot;lightgrey&quot;&gt;&lt;/inputtext&gt;
      *     &lt;text id=&quot;keycode&quot; text=&quot;Key Code:&quot;&gt;&lt;/text&gt;
-     *     &lt;text id=&quot;entered&quot;&gt;&lt;/text&gt;
      *
      *     &lt;handler event=&quot;onkeyup&quot; args=&quot;keys&quot; reference=&quot;dr.keyboard&quot;&gt;
      *       keycode.setAttribute(&#39;text&#39;, &#39;Key Code: &#39; + keys.keyCode);
-     *       if (keys.keyCode == 13) {
-     *         entered.setAttribute(&#39;text&#39;, &#39;You entered: &#39; + nameinput.text);
-     *         nameinput.setAttribute(&#39;text&#39;, &#39;&#39;);
-     *       }
      *     &lt;/handler&gt;
      */
     Keyboard = (function(_super) {
-      var keyboardEvents, keys;
-
       __extends(Keyboard, _super);
-
-      keyboardEvents = [&#39;select&#39;, &#39;keyup&#39;, &#39;keydown&#39;, &#39;change&#39;];
-
-      keys = {
-        shiftKey: false,
-        altKey: false,
-        ctrlKey: false,
-        metaKey: false,
-        keyCode: 0
-      };
 
       function Keyboard() {
         this.handle = __bind(this.handle, this);
-        $(document).on(keyboardEvents.join(&#39; &#39;), this.handle);
+        this.keys = {
+          shiftKey: false,
+          altKey: false,
+          ctrlKey: false,
+          metaKey: false,
+          keyCode: 0
+        };
+        $(document).on(&#39;select change keyup keydown&#39;, this.handle);
       }
 
       Keyboard.prototype.handle = function(event) {
-        var key, out, target, type, value;
+        var key, target, type;
         target = event.target.$view;
         type = event.type;
-        if (type !== &#39;select&#39;) {
-          for (key in keys) {
-            value = keys[key];
-            keys[key] = event[key];
-          }
+        for (key in this.keys) {
+          this.keys[key] = event[key];
         }
-        keys.type = type;
+        this.keys.type = type;
         if (target) {
-          target.sendEvent(type, keys);
-          if (type === &#39;keydown&#39; || type === &#39;keyup&#39; || type === &#39;blur&#39; || type === &#39;change&#39;) {
-            value = event.target.value;
-            if (target.text !== value) {
-              target.text = value;
-              target.sendEvent(&#39;text&#39;, value);
-            }
-          }
+          target.sendEvent(type, this.keys);
         }
-        out = type === &#39;select&#39; ? target : keys;
-
-<span id='dr-keyboard-event-onselect'>        /**
-</span>         * @event onselect
-         * Fired when text is selected
-         * @param {dr.view} view The view that fired the event
-         */
-
-<span id='dr-keyboard-event-onchange'>        /**
-</span>         * @event onchange
-         * Fired when an inputtext has changed
-         * @param {dr.view} view The view that fired the event
-         */
+        if (type === &#39;select&#39; || type === &#39;change&#39;) {
+          return;
+        }
 
 <span id='dr-keyboard-event-onkeydown'>        /**
 </span>         * @event onkeydown
@@ -4383,16 +4401,13 @@
          * Fired when a key goes up
          * @param {Object} keys An object representing the keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
          */
-        this.sendEvent(type, out);
+        this.sendEvent(type, this.keys);
 
-<span id='dr-keyboard-event-onkeys'>        /**
-</span>         * @event onkeys
-         * Fired when a key is pressed on the keyboard
-         * @param {Object} keys An object representing the keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
+<span id='dr-keyboard-attribute-keys'>        /**
+</span>         * @attribute {Object} keys
+         * An object representing the most recent keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
          */
-        if (type !== &#39;select&#39;) {
-          return this.sendEvent(&#39;keys&#39;, out);
-        }
+        return this.sendEvent(&#39;keys&#39;, this.keys);
       };
 
       return Keyboard;

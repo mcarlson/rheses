@@ -1654,7 +1654,6 @@ window.dr = do ->
       if @rotation isnt 0
         transform += ' rotate3d(0, 0, 1.0, ' + @rotation + 'deg)'
 
-      @sprite.setStyle('z-index', @z)
       @sprite.setStyle('transform', transform)
 
     set_xscale: (xscale) ->
@@ -1875,6 +1874,36 @@ window.dr = do ->
   ###
   class InputText extends View
     ###*
+    # @event onselect
+    # Fired when an inputtext is selected
+    # @param {dr.view} view The view that fired the event
+    ###
+    ###*
+    # @event onchange
+    # Fired when an inputtext has changed
+    # @param {dr.view} view The view that fired the event
+    ###
+    ###*
+    # @event onfocus
+    # Fired when an inputtext is focused
+    # @param {dr.view} view The view that fired the event
+    ###
+    ###*
+    # @event onblur
+    # Fired when an inputtext is blurred or loses focus
+    # @param {dr.view} view The view that fired the event
+    ###
+    ###*
+    # @event onkeydown
+    # Fired when a key goes down
+    # @param {Object} keys An object representing the keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
+    ###
+    ###*
+    # @event onkeyup
+    # Fired when a key goes up
+    # @param {Object} keys An object representing the keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
+    ###
+    ###*
     # @attribute {Boolean} [multiline=false]
     # Set to true to show multi-line text.
     ###
@@ -1954,6 +1983,15 @@ window.dr = do ->
     set_text: (text) ->
       @sprite.value(text)
       text
+
+    sendEvent: (name, value) ->
+      super
+      # send text events for events that could cause text to change
+      if name is 'keydown' or name is 'keyup' or name is 'blur' or name is 'change'
+        value = @sprite.value()
+        if @text isnt value
+          @text = value
+          @sendEvent('text', value)
 
   ###*
   # @class dr.text {UI Components}
@@ -3422,66 +3460,40 @@ window.dr = do ->
   # @extends Eventable
   # Sends keyboard events.
   #
-  # You might want to track specific keyboard events when text is being entered into an input box. In this example we listen for the enter key and display the value.
+  # You might want to listen for keyboard events globally. In this example, we display the code of the key being pressed. Note that you'll need to click on the example to activate it before you will see keyboard events.
   #
   #     @example
-  #     <spacedlayout axis="y" spacing="25"></spacedlayout>
-  #     <inputtext id="nameinput" bgcolor="lightgrey"></inputtext>
   #     <text id="keycode" text="Key Code:"></text>
-  #     <text id="entered"></text>
   #
   #     <handler event="onkeyup" args="keys" reference="dr.keyboard">
   #       keycode.setAttribute('text', 'Key Code: ' + keys.keyCode);
-  #       if (keys.keyCode == 13) {
-  #         entered.setAttribute('text', 'You entered: ' + nameinput.text);
-  #         nameinput.setAttribute('text', '');
-  #       }
   #     </handler>
   ###
   class Keyboard extends Eventable
-
-    keyboardEvents = ['select', 'keyup', 'keydown', 'change']
-
-    keys =
-      shiftKey: false
-      altKey: false
-      ctrlKey: false
-      metaKey: false
-      keyCode: 0
-
     constructor: ->
-      $(document).on(keyboardEvents.join(' '), @handle)
+      @keys =
+        shiftKey: false
+        altKey: false
+        ctrlKey: false
+        metaKey: false
+        keyCode: 0
+      $(document).on('select change keyup keydown', @handle)
 
     handle: (event) =>
       target = event.target.$view
       type = event.type
 
-      if type isnt 'select'
-        for key, value of keys
-          # console.log value, key
-          keys[key] = event[key]
-      keys.type = type
+      for key of @keys
+        # console.log key
+        @keys[key] = event[key]
+      @keys.type = type
 
-      if target
-        target.sendEvent(type, keys)
-        # send text events for events that could cause text to change
-        if (type is 'keydown' or type is 'keyup' or type is 'blur' or type is 'change')
-          value = event.target.value
-          if (target.text isnt value)
-            target.text = value
-            target.sendEvent('text', value)
+      # delegate events to the target inputtext, if any
+      target.sendEvent(type, @keys) if target
 
-      out = if type is 'select' then target else keys
-      ###*
-      # @event onselect
-      # Fired when text is selected
-      # @param {dr.view} view The view that fired the event
-      ###
-      ###*
-      # @event onchange
-      # Fired when an inputtext has changed
-      # @param {dr.view} view The view that fired the event
-      ###
+      # only keyup and down events should be sent
+      return if type is 'select' or type is 'change'
+
       ###*
       # @event onkeydown
       # Fired when a key goes down
@@ -3492,13 +3504,12 @@ window.dr = do ->
       # Fired when a key goes up
       # @param {Object} keys An object representing the keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
       ###
-      @sendEvent(type, out)
+      @sendEvent(type, @keys)
       ###*
-      # @event onkeys
-      # Fired when a key is pressed on the keyboard
-      # @param {Object} keys An object representing the keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
+      # @attribute {Object} keys
+      # An object representing the most recent keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
       ###
-      @sendEvent('keys', out) unless type is 'select'
+      @sendEvent('keys', @keys)
       # console.log 'handleKeyboard', type, target, out, event
 
   ###*
