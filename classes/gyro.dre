@@ -26,6 +26,11 @@ SOFTWARE. -->
      */-->
     <class name="gyro" extends="node">
       <!--/**
+        * @attribute {Boolean} [active=false] (readonly)
+        * True if gyro is supported
+        */-->
+      <attribute name="active" value="false" type="boolean"></attribute>
+      <!--/**
         * @attribute {Number} [x=0] (readonly)
         * The accelerometer x value
         */-->
@@ -65,21 +70,22 @@ SOFTWARE. -->
         * The compass accuracy, see [https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html](https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html) for details.
         */-->
       <attribute name="compassaccuracy" value="0" type="number"></attribute>
-      <handler event="oninit">
-        var _this = this;
-        // TODO: use lzidle to throttle
-        window.addEventListener('devicemotion', function(ev) {
-          var o = ev.accelerationIncludingGravity;
-          for (var key in o) {
-            _this.setAttribute(key, o[key]);
-          }
-        });
-        window.addEventListener('deviceorientation', function(ev) {
-          _this.setAttribute('alpha', ev.alpha);
-          _this.setAttribute('beta', ev.beta);
-          _this.setAttribute('gamma', ev.gamma);
-          _this.setAttribute('compassaccuracy', ev.webkitCompassAccuracy);
-          _this.setAttribute('compass', ev.webkitCompassHeading);
-        }); 
+      <handler event="oninit" type="coffee">
+        # TODO: use lzidle to throttle
+        window.addEventListener('devicemotion', (ev) =>
+          for key, value of ev.accelerationIncludingGravity
+            if value?
+              this.setAttribute('active', true) if ! _this.supported
+              this.setAttribute(key, value)
+        )
+        orientationevents = ['alpha', 'beta', 'gamma']
+        window.addEventListener('deviceorientation', (ev) =>
+          for name in orientationevents
+            if ev[name]?
+              this.setAttribute('active', true) if ! _this.supported
+              this.setAttribute(name, ev[name])
+          this.setAttribute('compassaccuracy', ev.webkitCompassAccuracy);
+          this.setAttribute('compass', ev.webkitCompassHeading);
+        );
       </handler>
     </class>

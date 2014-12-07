@@ -19,27 +19,110 @@
 </head>
 <body>
 <view>
-  <class name="mousetest" width="100" height="100" bgcolor="red" clickable="true">
+  <class name="tester" width="100" height="100" bgcolor="red">
     <attribute name="eventname" type="string" value="mouseover"></attribute>
+    <attribute name="scope" type="expression" value="dr.mouse"></attribute>
     <handler event="oninit">
-      this.listenTo(this, this.eventname, this.callback)
+      this.listenTo(this.scope, this.eventname, this.callback)
     </handler>
     <method name="callback" args="data">
-      console.log(this.eventname, data)
+      console.log(this.$tagname, this.eventname, data)
+      this.label.setAttribute('text', this.getLabel(data))
       this.setAttribute('bgcolor', 'green')
     </method>
-    <text text="${this.parent.eventname}"></text>
+    <method name="getLabel" args="data">
+      return this.eventname
+    </method>
+    <text name="label" multiline="true" width="100" height="100" text="${this.parent.eventname}"></text>
   </class>
 
-  <spacedlayout></spacedlayout>
-  <mousetest eventname="mouseover"></mousetest>
-  <mousetest eventname="mouseout"></mousetest>
-  <mousetest eventname="mousedown"></mousetest>
-  <mousetest eventname="mouseup"></mousetest>
-  <mousetest eventname="mouseupoutside"></mousetest>
-  <mousetest eventname="click"></mousetest>
+  <spacedlayout axis="y"></spacedlayout>
 
-  <view bgcolor="purple" width="30" height="30" opacity=".3" x="${dr.mouse.x - 15}" y="${dr.mouse.y - 15}"></view>
+  <view height="120">
+    <spacedlayout></spacedlayout>
+    <view id="mouser" height="100" width="100" bgcolor="yellow" clickable="true"></view>
+    <inputtext id="inp">Input text</inputtext>
+  </view>
+
+  <class name="mousetest" extends="tester" scope="mouser"></class>
+
+  <text>Mouse events</text>
+  <boundedview>
+    <spacedlayout></spacedlayout>
+    <mousetest eventname="mouseover"></mousetest>
+    <mousetest eventname="mouseout"></mousetest>
+    <mousetest eventname="mousedown"></mousetest>
+    <mousetest eventname="mouseup"></mousetest>
+    <mousetest eventname="mouseupoutside"></mousetest>
+    <mousetest eventname="click"></mousetest>
+  </boundedview>
+
+  <class name="globalmousetest" extends="tester" scope="dr.mouse"></class>
+
+  <text>Global mouse events</text>
+  <boundedview>
+    <spacedlayout></spacedlayout>
+    <globalmousetest eventname="mousemove"></globalmousetest>
+    <globalmousetest eventname="mouseover"></globalmousetest>
+    <globalmousetest eventname="mouseout"></globalmousetest>
+    <globalmousetest eventname="mousedown"></globalmousetest>
+    <globalmousetest eventname="mouseup"></globalmousetest>
+    <globalmousetest eventname="mouseupoutside"></globalmousetest>
+    <globalmousetest eventname="click"></globalmousetest>
+  </boundedview>
+
+  <class name="keyboardtest" extends="tester" scope="dr.keyboard">
+    <method name="getLabel" args="data">
+      var out = this.eventname
+      if (data && data.keyCode)
+        out += ': ' + data.keyCode
+      return out
+    </method>
+  </class>
+
+  <text>Keyboard events</text>
+  <boundedview>
+    <spacedlayout></spacedlayout>
+    <keyboardtest eventname="keydown"></keyboardtest>
+    <keyboardtest eventname="keyup"></keyboardtest>
+  </boundedview>
+
+  <class name="inputtexttest" extends="keyboardtest" scope="inp"></class>
+
+  <text>Input text events</text>
+  <boundedview>
+    <spacedlayout></spacedlayout>
+    <inputtexttest eventname="keydown"></inputtexttest>
+    <inputtexttest eventname="keyup"></inputtexttest>
+    <inputtexttest eventname="change"></inputtexttest>
+    <inputtexttest eventname="select"></inputtexttest>
+    <inputtexttest eventname="focus"></inputtexttest>
+    <inputtexttest eventname="blur"></inputtexttest>
+  </boundedview>
+
+  <gyro id="gyros"></gyro>
+  <class name="gyrotest" extends="tester" scope="gyros">
+    <method name="getLabel" args="data">
+      return this.eventname + ': ' + data
+    </method>
+  </class>
+
+  <text visible="${gyros.active}">Gyro events</text>
+  <boundedview visible="${gyros.active}">
+    <spacedlayout></spacedlayout>
+    <gyrotest eventname="active"></gyrotest>
+    <gyrotest eventname="x"></gyrotest>
+    <gyrotest eventname="x"></gyrotest>
+    <gyrotest eventname="y"></gyrotest>
+    <gyrotest eventname="z"></gyrotest>
+    <gyrotest eventname="alpha"></gyrotest>
+    <gyrotest eventname="beta"></gyrotest>
+    <gyrotest eventname="gamma"></gyrotest>
+    <gyrotest eventname="compass"></gyrotest>
+    <gyrotest eventname="compassaccuracy"></gyrotest>
+  </boundedview>
+
+  <view bgcolor="purple" width="30" height="30" opacity=".3" x="${dr.mouse.x - 15}" y="${dr.mouse.y - 15}" ignorelayout="true"></view>
 </view>
 <!-- The MIT License (MIT)
 
