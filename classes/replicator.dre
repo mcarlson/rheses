@@ -161,13 +161,18 @@ SOFTWARE. -->
      *     </replicator>
      *
      * See [https://github.com/flitbit/json-path](https://github.com/flitbit/json-path) for more details.
-     */--> 
+     */-->
     <class name="replicator" type="coffee" extends="node" scriptincludes="/lib/json-path+json-ptr-0.1.3.min.js">
       <!--/**
         * @attribute {Boolean} [pooling=false]
         * If true, reuse views when replicating.
         */-->
       <attribute name="pooling" value="false" type="boolean"></attribute>
+      <!--/**
+        * @attribute {Boolean} [async=true]
+        * If true, create views asynchronously
+        */-->
+      <attribute name="async" value="true" type="boolean"></attribute>
       <!--/**
         * @attribute {Array} [data=[]]
         * The list of items to replicate. If {@link #datapath datapath} is set, it is converted to an array and stored here.
@@ -221,7 +226,7 @@ SOFTWARE. -->
       <!-- TODO: make this a relative datapath -->
       <!--/**
         * @attribute {String} [sortfield=""]
-        * The field in the data to use for sorting. Only sort then this 
+        * The field in the data to use for sorting. Only sort then this
         */-->
       <attribute name="sortfield" value="" type="string"></attribute>
       <!--/**
@@ -231,7 +236,7 @@ SOFTWARE. -->
       <attribute name="sortasc" value="true" type="boolean"></attribute>
       <!--/**
         * @attribute {String} [filterexpression=""]
-        * If defined, data will be filtered against a [regular expression](https://developer.mozilla.org/en/docs/Web/JavaScript/Guide/Regular_Expressions). 
+        * If defined, data will be filtered against a [regular expression](https://developer.mozilla.org/en/docs/Web/JavaScript/Guide/Regular_Expressions).
         */-->
       <attribute name="filterexpression" value="" type="string"></attribute>
       <setter name="filterexpression" args="regex">
@@ -345,14 +350,14 @@ SOFTWARE. -->
             else
               # console.log('evaluating absolute selector', @datapath, @dataset.data, @parsedpath)
               data = JsonPath.executeSelectors(@dataset.data, @parsedpath, @filterfunction?.bind(@))
-          else 
+          else
             # relative datapath, look for dataset reference in parents
             parentdata = @_findInParents('data')
             if parentdata?
               # console.log 'found dataset in parent ', parentdata
               if parentdata.$tagname is 'dataset' and parentdata.data
                 # console.log 'found parentdata.data', parentdata
-                parentdata = parentdata.data 
+                parentdata = parentdata.data
               # console.log('executing relative selector', @datapath, @parsedpath, parentdata)
               data = JsonPath.executeSelectors(parentdata, @parsedpath, @filterfunction?.bind(@))
               # console.log('looking for data', @datapath, parentdata, data)
@@ -374,6 +379,11 @@ SOFTWARE. -->
         else
           @doReplication()
       </method>
+      <!--/**
+        * @event onreplicated
+        * Fired when the replicator is done
+        * @param {dr.replicator} replicator The dr.replicator that fired the event
+        */-->
       <method name="doReplication">
         @super();
 
@@ -392,7 +402,7 @@ SOFTWARE. -->
         if @classname == 'node'
           # bail out before actually replicating
           @locked = locked
-          return 
+          return
 
         if @parent.layouts
           for layout in @parent.layouts
@@ -408,17 +418,23 @@ SOFTWARE. -->
           @clear()
           for datum in @data
             # console.log 'replicator creating', @classname, 'in', @parent
-            child = new dr[@classname](null, {data: datum, parent: @parent, replicator: @})
+            child = new dr[@classname](null, {data: datum, parent: @parent, replicator: @}, @async)
             # console.log 'replicator created', @classname, child, child.data
             @children.push(child)
 
-        # init constraints for all children created
-        child.initConstraints() if child
+        finalize = () =>
+          # init constraints for all children created
+          child.initConstraints() if child
+          if @parent.layouts
+            for layout in @parent.layouts
+              layout.setAttribute('locked', false)
+              layout.update()
+          @locked = locked
+          @sendEvent('replicated', @)
 
-        if @parent.layouts
-          for layout in @parent.layouts
-            layout.setAttribute('locked', false)
-
-        @locked = locked
+        if @async
+          dr.idle.callOnIdle(finalize)
+        else
+          finalize()
       </method>
     </class>
