@@ -877,7 +877,7 @@
       }
 
       Node.prototype.installMethods = function(methods, tagname, scope, callbackscope) {
-        var allocation, args, invokeSuper, method, methodlist, name, _i, _len, _ref;
+        var allocation, args, method, methodlist, name, _i, _len, _ref;
         if (scope == null) {
           scope = this;
         }
@@ -887,8 +887,8 @@
         for (name in methods) {
           methodlist = methods[name];
           for (_i = 0, _len = methodlist.length; _i < _len; _i++) {
-            _ref = methodlist[_i], method = _ref.method, args = _ref.args, allocation = _ref.allocation, invokeSuper = _ref.invokeSuper;
-            _installMethod(scope, name, compiler.compile(method, args, "" + tagname + "$" + name).bind(callbackscope), allocation, invokeSuper);
+            _ref = methodlist[_i], method = _ref.method, args = _ref.args, allocation = _ref.allocation;
+            _installMethod(scope, name, compiler.compile(method, args, "" + tagname + "$" + name).bind(callbackscope), allocation);
           }
         }
       };
@@ -988,73 +988,39 @@
         };
       };
 
-      _installMethod = function(scope, methodname, method, allocation, invokeSuper) {
-        var supr;
-        if (invokeSuper) {
-          console.warn('invokeSuper has been deprecated and will be removed soon, the default is now "inside".  Use @super() to invoke the overridden implementation');
-        }
+      _installMethod = function(scope, methodname, method, allocation) {
+        var exists, supr;
         if (methodname in scope) {
           supr = scope[methodname] || noop;
-          if (invokeSuper === 'after') {
-            return scope[methodname] = function() {
-              var retval;
-              retval = method.apply(scope, arguments);
-              supr.apply(scope, arguments);
-              return retval;
-            };
-          } else if (invokeSuper === 'before') {
-            return scope[methodname] = function() {
-              var retval;
-              supr.apply(scope, arguments);
-              retval = method.apply(scope, arguments);
-              return retval;
-            };
-          } else {
-            return scope[methodname] = function() {
-              var params, prevOwn, prevValue, retval;
-              prevOwn = scope.hasOwnProperty('super');
-              if (prevOwn) {
-                prevValue = scope['super'];
-              }
-              params = Array.prototype.slice.call(arguments);
-              scope['super'] = function() {
-                var i;
-                i = arguments.length;
-                while (i) {
-                  params[--i] = arguments[i];
-                }
-                return supr.apply(scope, params);
-              };
-              retval = method.apply(scope, arguments);
-              if (prevOwn) {
-                scope['super'] = prevValue;
-              } else {
-                delete scope['super'];
-              }
-              return retval;
-            };
-          }
-        } else {
-          if (invokeSuper === 'after' || invokeSuper === 'before') {
-            return scope[methodname] = method;
-          } else {
-            return scope[methodname] = function() {
-              var prevOwn, prevValue, retval;
-              prevOwn = scope.hasOwnProperty('super');
-              if (prevOwn) {
-                prevValue = scope['super'];
-              }
-              scope['super'] = noop;
-              retval = method.apply(scope, arguments);
-              if (prevOwn) {
-                scope['super'] = prevValue;
-              } else {
-                delete scope['super'];
-              }
-              return retval;
-            };
-          }
+          exists = true;
         }
+        return scope[methodname] = function() {
+          var params, prevOwn, prevValue, retval;
+          prevOwn = scope.hasOwnProperty('super');
+          if (prevOwn) {
+            prevValue = scope['super'];
+          }
+          if (exists) {
+            params = Array.prototype.slice.call(arguments);
+            scope['super'] = function() {
+              var i;
+              i = arguments.length;
+              while (i) {
+                params[--i] = arguments[i];
+              }
+              return supr.apply(scope, params);
+            };
+          } else {
+            scope['super'] = noop;
+          }
+          retval = method.apply(scope, arguments);
+          if (prevOwn) {
+            scope['super'] = prevValue;
+          } else {
+            delete scope['super'];
+          }
+          return retval;
+        };
       };
 
       Node.prototype.setConstraint = function(property, expression, skipbinding) {
@@ -3188,7 +3154,7 @@
         return out;
       };
       processSpecialTags = function(el, classattributes, defaulttype) {
-        var args, attributes, child, children, handler, name, script, tagname, type, _base, _base1, _i, _len, _name, _ref, _ref1;
+        var args, attributes, child, children, handler, name, script, tagname, type, _base, _i, _len, _ref, _ref1;
         if (classattributes.$types == null) {
           classattributes.$types = {};
         }
@@ -3224,26 +3190,17 @@
               classattributes.$handlers.push(handler);
               break;
             case 'method':
+            case 'setter':
+              if (tagname === 'setter') {
+                name = 'set_' + name.toLowerCase();
+              }
               if ((_base = classattributes.$methods)[name] == null) {
                 _base[name] = [];
               }
               classattributes.$methods[name].push({
                 method: compiler.transform(script, type),
                 args: args,
-                allocation: attributes.allocation,
-                invokeSuper: attributes.invokesuper
-              });
-              break;
-            case 'setter':
-              name = name.toLowerCase();
-              if ((_base1 = classattributes.$methods)[_name = 'set_' + name] == null) {
-                _base1[_name] = [];
-              }
-              classattributes.$methods['set_' + name].push({
-                method: compiler.transform(script, type),
-                args: args,
-                allocation: attributes.allocation,
-                invokeSuper: attributes.invokesuper
+                allocation: attributes.allocation
               });
               break;
             case 'attribute':

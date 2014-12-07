@@ -651,9 +651,9 @@ window.dr = do ->
       # console.log('installing methods', methods, tagname, scope, callbackscope)
       # Install methods
       for name, methodlist of methods
-        for {method, args, allocation, invokeSuper} in methodlist
+        for {method, args, allocation} in methodlist
           # console.log 'installing method', name, method, args, allocation, @
-          _installMethod(scope, name, compiler.compile(method, args, "#{tagname}$#{name}").bind(callbackscope), allocation, invokeSuper)
+          _installMethod(scope, name, compiler.compile(method, args, "#{tagname}$#{name}").bind(callbackscope), allocation)
       return
 
     installHandlers: (handlers, tagname, scope=@) ->
@@ -726,60 +726,45 @@ window.dr = do ->
         # console.log 'event callback', name, args, scope, js
         js.apply(scope, args)
 
-    _installMethod = (scope, methodname, method, allocation, invokeSuper) ->
+    _installMethod = (scope, methodname, method, allocation) ->
       # TODO: add class methods when allocation is 'class'
 
-      if invokeSuper
-        console.warn('invokeSuper has been deprecated and will be removed soon, the default is now "inside".  Use @super() to invoke the overridden implementation')
-
+      # Check if we are overriding a method in the scope
       if methodname of scope
-        # Cheesy override
+        # Remember overridden method
         supr = scope[methodname] or noop
+        exists = true
+      
+      # console.log 'applying overridden method', methodname, arguments
+      scope[methodname] = ->
+        # Remember current state of scope by storing current super
+        prevOwn = scope.hasOwnProperty('super')
+        if prevOwn then prevValue = scope['super']
 
-        # console.log 'applying overridden method', methodname, arguments
-        if invokeSuper is 'after'
-          scope[methodname] = ->
-            retval = method.apply(scope, arguments)
-            supr.apply(scope, arguments)
-            return retval
-        else if invokeSuper is 'before'
-          scope[methodname] = ->
-            supr.apply(scope, arguments)
-            retval = method.apply(scope, arguments)
-            return retval
-        else # inside (default)
-          scope[methodname] = ->
-            prevOwn = scope.hasOwnProperty('super')
-            if prevOwn then prevValue = scope['super']
-            params = Array.prototype.slice.call(arguments)
-            scope['super'] = () ->
-              i = arguments.length
-              while i
-                params[--i] = arguments[i]
-              supr.apply(scope, params)
-            retval = method.apply(scope, arguments)
-            if prevOwn
-              scope['super'] = prevValue
-            else
-              delete scope['super']
-            return retval
-        # console.log('overrode method', methodname, scope, supr, meth)
-      else
-        # Provide error protection when calling super where no super method
-        # exists.
-        if invokeSuper is 'after' or invokeSuper is 'before'
-          scope[methodname] = method
+        # Add a super function to the scope
+        if exists
+          # Super method exists so supr will be invoked
+          params = Array.prototype.slice.call(arguments)
+          scope['super'] = () ->
+            # Argument shadowing on the super call
+            i = arguments.length
+            while i
+              params[--i] = arguments[i]
+            supr.apply(scope, params)
         else
-          scope[methodname] = ->
-            prevOwn = scope.hasOwnProperty('super')
-            if prevOwn then prevValue = scope['super']
-            scope['super'] = noop
-            retval = method.apply(scope, arguments)
-            if prevOwn
-              scope['super'] = prevValue
-            else
-              delete scope['super']
-            return retval
+          # Provide error protection when calling super where no super method
+          # exists.
+          scope['super'] = noop
+
+        # Execute the methd that called super
+        retval = method.apply(scope, arguments)
+
+        # Restore scope with remembered super or by deleting.
+        if prevOwn
+          scope['super'] = prevValue
+        else
+          delete scope['super']
+        return retval
       # console.log('installed method', methodname, scope, scope[methodname])
 
     # sets a constraint, binding it immediately unless skipbinding is true.
@@ -2543,15 +2528,11 @@ window.dr = do ->
 
             classattributes.$handlers.push(handler)
             # console.log 'added handler', name, script, attributes
-          when 'method'
+          when 'method','setter'
+            if tagname is 'setter' then name = 'set_' + name.toLowerCase()
             classattributes.$methods[name] ?= []
-            classattributes.$methods[name].push({method: compiler.transform(script, type), args: args, allocation: attributes.allocation, invokeSuper: attributes.invokesuper})
-            # console.log 'added method', name, script, classattributes, classattributes.$methods[name]
-          when 'setter'
-            name = name.toLowerCase()
-            classattributes.$methods['set_' + name] ?= []
-            classattributes.$methods['set_' + name].push({method: compiler.transform(script, type), args: args, allocation: attributes.allocation, invokeSuper: attributes.invokesuper})
-            # console.log 'added setter', 'set_' + name, args, classattributes.$methods
+            classattributes.$methods[name].push({method: compiler.transform(script, type), args: args, allocation: attributes.allocation})
+            # console.log 'added ' + tagname, 'set_' + name, args, classattributes.$methods
           when 'attribute'
             name = name.toLowerCase()
             classattributes[name] = attributes.value
