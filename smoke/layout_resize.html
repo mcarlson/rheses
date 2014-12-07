@@ -1,0 +1,182 @@
+<html>
+<head>
+  <title>dr33m | wrappinglayout Smoke Tests</title>
+  <link rel="stylesheet" href="../examples/css/example.css"/>
+  <script type="text/javascript" src="../lib/jquery-1.9.1.js"></script>
+  <script type="text/javascript" src="../lib/acorn.js"></script>
+  <script type="text/javascript" src="../lib/coffee-script.js"></script>
+  <script type="text/javascript" src="../layout.js"></script>
+  <script type="text/javascript" src="../lib/chai.js"></script>
+  <script>
+    var assert = chai.assert
+  </script>
+</head>
+<body>
+  <view width="100%" height="100%" bgcolor="#cccccc">
+    <class name="item" width="50" height="50" bgcolor="#666666"></class>
+    
+    <view name="container" padding="1" border="2" bordercolor="black" x="10" y="10" width="500" height="56" bgcolor="#999999">
+      <resizelayout name="layout" inset="5" spacing="2" outset="10"></resizelayout>
+      
+      <item name="v1" bgcolor="#eeeeee" layouthint="1"></item>
+      <item name="v2" bgcolor="#ddddcc"></item>
+      <item name="v3" bgcolor="#ccccaa"></item>
+      <item name="v4" bgcolor="#bbbb88"></item>
+      <item name="v5" bgcolor="#aaaa66"></item>
+    </view>
+    
+    <handler event="oninit">
+      var container = this.container,
+          layout = container.layout,
+          v1 = container.v1,
+          v2 = container.v2,
+          v3 = container.v3,
+          v4 = container.v4,
+          v5 = container.v5;
+      
+      // Verify all views are positioned correctly
+      assert.equal(5, v1.x, 'The first view is at inset.');
+      assert.equal(271, v1.width, 'The first view has a width of 271.');
+      assert.equal(278, v2.x, 'The second view is at 278.');
+      assert.equal(330, v3.x, 'The third view is at 330.');
+      assert.equal(382, v4.x, 'The fourth view is at 382.');
+      assert.equal(434, v5.x, 'The fifth view is at 434.');
+      
+      // Collapseparent should be ignored
+      layout.setAttribute('collapseparent', true);
+      assert.equal(5, v1.x, 'The first view is at inset.');
+      assert.equal(271, v1.width, 'The first view has a width of 271.');
+      assert.equal(278, v2.x, 'The second view is at 278.');
+      assert.equal(330, v3.x, 'The third view is at 330.');
+      assert.equal(382, v4.x, 'The fourth view is at 382.');
+      assert.equal(434, v5.x, 'The fifth view is at 434.');
+      assert.equal(494, container.innerwidth, 'Collapse parent has no effect.');
+      
+      // Resize parent larger
+      container.setAttribute('width', 510);
+      assert.equal(5, v1.x, 'The first view is at inset.');
+      assert.equal(281, v1.width, 'The first view has a width of 281 since it gets the extra space.');
+      assert.equal(288, v2.x, 'The second view is at 288.');
+      assert.equal(340, v3.x, 'The third view is at 340.');
+      assert.equal(392, v4.x, 'The fourth view is at 392.');
+      assert.equal(444, v5.x, 'The fifth view is at 444.');
+      
+      // Resize a non stretchy view
+      v2.setAttribute('width', 100);
+      assert.equal(5, v1.x, 'The first view is at inset.');
+      assert.equal(231, v1.width, 'The first view has a width of 231 since it lost space to v2.');
+      assert.equal(238, v2.x, 'The second view is at 238.');
+      assert.equal(340, v3.x, 'The third view is at 340.');
+      assert.equal(392, v4.x, 'The fourth view is at 392.');
+      assert.equal(444, v5.x, 'The fifth view is at 444.');
+      
+      // Hide a view
+      v5.setAttribute('visible', false);
+      assert.equal(5, v1.x, 'The first view is at inset.');
+      assert.equal(283, v1.width, 'The first view has a width of 283.');
+      assert.equal(290, v2.x, 'The second view is at 290.');
+      assert.equal(392, v3.x, 'The third view is at 392.');
+      assert.equal(444, v4.x, 'The fourth view is at 444.');
+      
+      // Show a view
+      v5.setAttribute('visible', true);
+      assert.equal(5, v1.x, 'The first view is at inset.');
+      assert.equal(231, v1.width, 'The first view has a width of 231 since it lost space to v2.');
+      assert.equal(238, v2.x, 'The second view is at 238.');
+      assert.equal(340, v3.x, 'The third view is at 340.');
+      assert.equal(392, v4.x, 'The fourth view is at 392.');
+      assert.equal(444, v5.x, 'The fifth view is at 444.');
+      
+      // Make another view stretchy. No change should occur until a layout update occurs.
+      v5.setAttribute('layouthint', 1);
+      assert.equal(5, v1.x, 'The first view is at inset.');
+      assert.equal(231, v1.width, 'The first view has a width of 231 since it lost space to v2.');
+      assert.equal(238, v2.x, 'The second view is at 238.');
+      assert.equal(340, v3.x, 'The third view is at 340.');
+      assert.equal(392, v4.x, 'The fourth view is at 392.');
+      assert.equal(444, v5.x, 'The fifth view is at 444.');
+      
+      layout.update();
+      assert.equal(5, v1.x, 'The first view is at inset.');
+      assert.equal(141, v1.width, 'The first view has a width of 141 since it shares space equally with v5.');
+      assert.equal(148, v2.x, 'The second view is at 148.');
+      assert.equal(250, v3.x, 'The third view is at 250.');
+      assert.equal(302, v4.x, 'The fourth view is at 302.');
+      assert.equal(354, v5.x, 'The fifth view is at 354.');
+      assert.equal(140, v5.width, 'The fifth has a width of 140 since it shares space equally with v1 but v1 gets left over space.');
+      
+      // Increase parent width by 1 and observe space going to v5
+      container.setAttribute('width', 511);
+      assert.equal(5, v1.x, 'The first view is at inset.');
+      assert.equal(141, v1.width, 'The first view has a width of 141 since it shares space equally with v5.');
+      assert.equal(148, v2.x, 'The second view is at 148.');
+      assert.equal(250, v3.x, 'The third view is at 250.');
+      assert.equal(302, v4.x, 'The fourth view is at 302.');
+      assert.equal(354, v5.x, 'The fifth view is at 354.');
+      assert.equal(141, v5.width, 'The fifth has a width of 141 since it shares space equally with v1.');
+      
+      // Reverse the layout
+      layout.setAttribute('reverse', true);
+      assert.equal(5, v5.x, 'The fifth view is at inset.');
+      assert.equal(141, v5.width, 'The fifth view has a width of 141 since it shares space equally with v1.');
+      assert.equal(148, v4.x, 'The fourth view is at 148.');
+      assert.equal(200, v3.x, 'The third view is at 200.');
+      assert.equal(252, v2.x, 'The second view is at 252.');
+      assert.equal(354, v1.x, 'The first view is at 354.');
+      assert.equal(141, v1.width, 'The first has a width of 141 since it shares space equally with v5.');
+      
+      layout.setAttribute('reverse', false);
+      
+      // Change axis (also cleanup old positions and sizes so things look cleaner).
+      container.setAttribute('height', 511);
+      layout.setAttribute('axis', 'y');
+      container.setAttribute('width', 56);
+      
+      var layoutH = new dr.constantlayout(null, {parent:container, attribute:'x', value:0});
+      layoutH.setAttribute('attribute', 'width');
+      layoutH.setAttribute('value', 50);
+      layoutH.destroy();
+      
+      // Verify all views are positioned correctly
+      assert.equal(5, v1.y, 'The first view is at inset.');
+      assert.equal(166, v1.height, 'The first view has a height of 166 since it shares space equally with v5.');
+      assert.equal(173, v2.y, 'The second view is at 173.');
+      assert.equal(225, v3.y, 'The third view is at 225.');
+      assert.equal(277, v4.y, 'The fourth view is at 277.');
+      assert.equal(329, v5.y, 'The fifth view is at 329.');
+      assert.equal(166, v5.height, 'The fifth has a height of 166 since it shares space equally with v1.');
+      
+      // Change width to make sure all the constraints have been updated
+      container.setAttribute('width', 100);
+      assert.equal(5, v1.y, 'The first view is at inset.');
+      assert.equal(166, v1.height, 'The first view has a height of 166 since it shares space equally with v5.');
+      assert.equal(173, v2.y, 'The second view is at 173.');
+      assert.equal(225, v3.y, 'The third view is at 225.');
+      assert.equal(277, v4.y, 'The fourth view is at 277.');
+      assert.equal(329, v5.y, 'The fifth view is at 329.');
+      assert.equal(166, v5.height, 'The fifth has a height of 166 since it shares space equally with v1.');
+    </handler>
+  </view>
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+</body>
+</html>
