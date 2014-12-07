@@ -473,7 +473,8 @@
         }
       })(),
       touch: 'ontouchstart' in window || 'onmsgesturechange' in window,
-      camelcss: navigator.userAgent.toLowerCase().indexOf('firefox') > -1
+      camelcss: navigator.userAgent.toLowerCase().indexOf('firefox') > -1,
+      raf: window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame
     };
     querystring = window.location.search;
     debug = querystring.indexOf('debug') > 0;
@@ -2990,7 +2991,7 @@
         return error;
       };
       initElement = function(el, parent) {
-        var attr, attributes, checkChildren, child, children, event, eventname, isClass, isState, li, skiponinit, tagname, tid, _i, _j, _len, _len1;
+        var attr, attributes, checkChildren, child, children, event, eventname, isClass, isState, li, skiponinit, tagname, _i, _j, _len, _len1;
         if (el.$init) {
           return;
         }
@@ -3082,16 +3083,12 @@
             }
           }
           if (!parent.inited) {
-            tid = null;
             checkChildren = function() {
               var _k, _len2;
               for (_k = 0, _len2 = children.length; _k < _len2; _k++) {
                 child = children[_k];
                 if (!child.inited && child.localName === !'class') {
-                  if (tid != null) {
-                    clearTimeout(tid);
-                  }
-                  tid = callOnIdle(checkChildren);
+                  callOnIdle(checkChildren);
                   return;
                 }
               }
@@ -3101,7 +3098,7 @@
               parent.inited = true;
               parent.sendEvent('init', parent);
             };
-            tid = callOnIdle(checkChildren);
+            callOnIdle(checkChildren);
           }
         }
       };
@@ -3486,7 +3483,7 @@
           console.warn('overwriting class', name);
         }
         dr[name] = function(instanceel, instanceattributes, internal, skipchildren) {
-          var attributes, checkChildren, children, key, parent, propname, sendInit, tid, val, value, viewel, _j, _len1, _ref;
+          var attributes, checkChildren, children, key, parent, propname, sendInit, val, value, viewel, _j, _len1, _ref;
           attributes = clone(classattributes);
           for (key in instanceattributes) {
             value = instanceattributes[key];
@@ -3560,22 +3557,18 @@
               return parent.sendEvent('init', parent);
             };
             if (children != null ? children.length : void 0) {
-              tid = null;
               checkChildren = function() {
                 var _k, _len2;
                 for (_k = 0, _len2 = children.length; _k < _len2; _k++) {
                   child = children[_k];
                   if ((!child.$view) || (!child.$view.inited)) {
-                    if (tid != null) {
-                      clearTimeout(tid);
-                    }
-                    tid = callOnIdle(checkChildren);
+                    callOnIdle(checkChildren);
                     return;
                   }
                 }
                 return sendInit();
               };
-              tid = callOnIdle(checkChildren);
+              callOnIdle(checkChildren);
             } else if (internal) {
               callOnIdle(sendInit);
             } else {
@@ -3816,15 +3809,18 @@
     starttime = Date.now();
     idle = (function() {
       var doTick, requestAnimationFrame, tickEvents, ticking;
-      requestAnimationFrame = (function() {
-        return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function(callback, element) {
-          var callbackwrapper;
-          callbackwrapper = function() {
-            return callback(Date.now() - starttime);
+      requestAnimationFrame = capabilities.raf;
+      if (!requestAnimationFrame) {
+        requestAnimationFrame = (function() {
+          return function(callback, element) {
+            var callbackwrapper;
+            callbackwrapper = function() {
+              return callback(Date.now() - starttime);
+            };
+            return window.setTimeout(callbackwrapper, 1000 / 60);
           };
-          return window.setTimeout(callbackwrapper, 1000 / 60);
-        };
-      })();
+        })();
+      }
       ticking = false;
       tickEvents = [];
       doTick = function(time) {
@@ -3849,18 +3845,20 @@
       var callback, queue;
       queue = [];
       callback = function(time) {
-        var cb, _i, _len;
-        if (queue.length) {
-          for (_i = 0, _len = queue.length; _i < _len; _i++) {
-            cb = queue[_i];
-            cb(time);
-          }
-          return queue = [];
+        var cb, _results;
+        _results = [];
+        while ((cb = queue.shift())) {
+          _results.push(cb(time));
         }
+        return _results;
       };
       return function(cb) {
-        queue.push(cb);
-        idle(2, callback);
+        if (capabilities.raf) {
+          queue.push(cb);
+          idle(2, callback);
+        } else {
+          setTimeout(cb, 0);
+        }
       };
     })();
     StartEventable = (function(_super) {

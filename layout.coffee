@@ -333,6 +333,11 @@ window.dr = do ->
     # detect touchhttp://stackoverflow.com/questions/4817029/whats-the-best-way-to-detect-a-touch-screen-device-using-javascript
     touch: 'ontouchstart' of window or 'onmsgesturechange' of window # deal with ie10
     camelcss: navigator.userAgent.toLowerCase().indexOf('firefox') > -1
+    raf: window.requestAnimationFrame       or
+         window.webkitRequestAnimationFrame or
+         window.mozRequestAnimationFrame    or
+         window.oRequestAnimationFrame      or
+         window.msRequestAnimationFrame
   }
 
   querystring = window.location.search
@@ -2423,21 +2428,18 @@ window.dr = do ->
 
         unless parent.inited
           # console.log('skiponinit', parent, parent.subnodes.length)
-          tid = null
           checkChildren = ->
             for child in children
               if not child.inited and child.localName is not 'class'
                 # console.log 'child not initted', child, parent
-                clearTimeout(tid) if tid?
-                tid = callOnIdle(checkChildren)
+                callOnIdle(checkChildren)
                 return
             return if parent.inited
             # console.log('doinit', parent)
             parent.inited = true
             parent.sendEvent('init', parent)
             return
-          tid = callOnIdle(checkChildren)
-
+          callOnIdle(checkChildren)
       return
 
 
@@ -2852,18 +2854,15 @@ window.dr = do ->
 
           if children?.length
             # console.log 'delaying init', parent, children
-            tid = null
             checkChildren = ->
               for child in children
                 # console.log('checking child', child, child.$view?.inited)
-
                 if (not child.$view) or (not child.$view.inited)
                   # console.log 'child not initted', child, child.$view, child.$view?.inited, parent
-                  clearTimeout(tid) if tid?
-                  tid = callOnIdle(checkChildren)
+                  callOnIdle(checkChildren)
                   return
               sendInit()
-            tid = callOnIdle(checkChildren)
+            callOnIdle(checkChildren)
           else if internal
             callOnIdle(sendInit)
           else
@@ -3052,16 +3051,14 @@ window.dr = do ->
 
   starttime = Date.now()
   idle = do ->
-    requestAnimationFrame = do ->
-      return  window.requestAnimationFrame       or
-              window.webkitRequestAnimationFrame or
-              window.mozRequestAnimationFrame    or
-              window.oRequestAnimationFrame      or
-              window.msRequestAnimationFrame     or
-              (callback, element) ->
-                callbackwrapper = () ->
-                  callback(Date.now() - starttime)
-                window.setTimeout(callbackwrapper, 1000 / 60)
+    requestAnimationFrame = capabilities.raf
+    unless requestAnimationFrame
+      # for phantom and really old browsers
+      requestAnimationFrame = do ->
+        (callback, element) ->
+          callbackwrapper = () ->
+            callback(Date.now() - starttime)
+          window.setTimeout(callbackwrapper, 1000 / 60)
 
     ticking = false
     tickEvents = []
@@ -3086,20 +3083,22 @@ window.dr = do ->
     queue = []
 
     callback = (time) ->
-      # console.log('callback', time, queue)
-      if queue.length
-        for cb in queue
-          # console.log('callback', _cb)
-          cb(time)
-        queue = []
+      # console.log('callback', time, queue.length)
+      while (cb = queue.shift())
+        # console.log('callback', cb)
+        cb(time)
 
     (cb) ->
-      # setTimeout(cb, 0)
-      queue.push(cb)
-      # console.log('callOnIdle', queue)
-      idle(2, callback)
+      if capabilities.raf
+        queue.push(cb)
+        # console.log('callOnIdle', queue)
+        idle(2, callback)
+      else
+        setTimeout(cb, 0)
       return
 
+  # overrides bind/unbind to allow an event to be started/stopped automatically.
+  # Used by Idle Mouse and Window to only register for events when they're used.
   class StartEventable extends Eventable
     bind: (ev, callback) ->
       super
