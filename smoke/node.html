@@ -19,33 +19,41 @@
     <method name="getTestArray">return this.testArr || (this.testArr = []);</method>
     
     <handler event="onsubviewAdded" args="sv">
-      //console.log("EVENT subviewAdded", sv.name);
+      var testArr = this.getTestArray();
+      testArr.push('onsubviewAdded ' + this.name + ':' + sv.name );
     </handler>
     <handler event="onsubviewRemoved" args="sv">
-      //console.log("EVENT subviewRemoved", sv.name);
+      var testArr = this.getTestArray();
+      testArr.push('onsubviewRemoved ' + this.name + ':' + sv.name );
     </handler>
     
     <method name="doSubnodeAdded" args="node">
-      //console.log("doSubnodeAdded", node.name);
+      var testArr = this.getTestArray();
+      testArr.push('doSubnodeAdded ' + this.name + ':' + node.name );
       this.super();
     </method>
     <method name="doSubnodeRemoved" args="node">
-      //console.log("doSubnodeRemoved", node.name);
+      var testArr = this.getTestArray();
+      testArr.push('doSubnodeRemoved ' + this.name + ':' + node.name );
       this.super();
     </method>
     
     <method name="doSubviewAdded" args="sv">
-      //console.log("doSubviewAdded", sv.name);
+      var testArr = this.getTestArray();
+      testArr.push('doSubviewAdded ' + this.name + ':' + sv.name );
     </method>
     <method name="doSubviewRemoved" args="sv">
-      //console.log("doSubviewRemoved", sv.name);
+      var testArr = this.getTestArray();
+      testArr.push('doSubviewRemoved ' + this.name + ':' + sv.name );
     </method>
     
     <method name="doLayoutAdded" args="layout">
-      //console.log("doLayoutAdded", layout.name);
+      var testArr = this.getTestArray();
+      testArr.push('doLayoutAdded ' + this.name + ':' + layout.name );
     </method>
     <method name="doLayoutRemoved" args="layout">
-      //console.log("doLayoutRemoved", layout.name);
+      var testArr = this.getTestArray();
+      testArr.push('doLayoutRemoved ' + this.name + ':' + layout.name );
     </method>
     
     <node name="foo">
@@ -88,11 +96,29 @@
       testArr.push(this.name + '.oninit.handler');
       
       var matchArr = [
+        'doSubnodeAdded outer:foo',
+        
+        'doSubnodeAdded outer:bar',
+        'onsubviewAdded outer:bar',
+        'doSubviewAdded outer:bar',
+        
+        'doSubnodeAdded outer:baz',
+        'doLayoutAdded outer:baz',
+        
+        'doSubnodeAdded outer:hey',
+        'onsubviewAdded outer:hey',
+        'doSubviewAdded outer:hey',
+        
+        'doSubnodeAdded outer:there',
+        'onsubviewAdded outer:there',
+        'doSubviewAdded outer:there',
+        
         'foo.oninit.handler',
         'bar.oninit.handler',
         'baz.oninit.handler',
         'hey.oninit.handler',
         'there.oninit.handler',
+        
         'outer.oninit.handler'
       ];
       assert.equal(matchArr.join(','), testArr.join(','));
