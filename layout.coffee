@@ -81,7 +81,6 @@ window.dr = do ->
     Mixed
 
 
-
   ###*
   # @class Events
   # @private
@@ -257,6 +256,9 @@ window.dr = do ->
         if typeof val isnt 'string'
           return val
         eval(val)
+      positivenumber: (val) ->
+        val = parseFloat(val)
+        if isNaN val then 0 else Math.max(0, val)
 
     # Tracks events sent by setAttribute() to prevent recursion
     eventlock = {}
@@ -1503,9 +1505,9 @@ window.dr = do ->
         x: 'number', y: 'number', z: 'number',
         xscale: 'number', yscale: 'number',
         rotation: 'string', opacity: 'number',
-        width: 'number', height: 'number',
+        width: 'positivenumber', height: 'positivenumber',
         clickable: 'boolean', clip: 'boolean', scrollable: 'boolean', visible: 'boolean',
-        border: 'number', padding: 'number', ignorelayout:'boolean',
+        border: 'positivenumber', padding: 'positivenumber', ignorelayout:'boolean',
         scrollx:'number', scrolly:'number'
       }
 
@@ -1536,15 +1538,6 @@ window.dr = do ->
             if @__setupPercentConstraint(name, value, 'innerheight') then return
 
       value = @_coerceType(name, value)
-
-      # Protect from invalid values
-      switch name
-        when 'width','height','border','padding'
-          value = Math.max(0, value)
-        when 'scrollx'
-          value = Math.max(0, Math.min(@sprite.el.scrollWidth - @width + 2*@border, value))
-        when 'scrolly'
-          value = Math.max(0, Math.min(@sprite.el.scrollHeight - @height + 2*@border, value))
 
       # Do super first since setters may modify the actual value set.
       existing = @[name]
@@ -1721,6 +1714,12 @@ window.dr = do ->
         @setAttributes({scrollx: 0, scrolly: 0})
       @sprite.set_scrollable(scrollable)
       scrollable
+
+    set_scrollx: (scrollx) ->
+      if isNaN scrollx then 0 else Math.max(0, Math.min(@sprite.el.scrollWidth - @width + 2*@border, scrollx))
+
+    set_scrolly: (scrolly) ->
+      if isNaN scrolly then 0 else Math.max(0, Math.min(@sprite.el.scrollHeight - @height + 2*@border, scrolly))
 
     ###*
     # Calls doSubviewAdded/doLayoutAdded if the added subnode is a view or
