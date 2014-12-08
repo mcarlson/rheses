@@ -1,0 +1,60 @@
+<html>
+<head>
+  <title>template-workshop 2nd</title>
+  <style type="text/css">
+    body {
+      background-color: white;
+      font-family: 'Helvetica';
+      font-size: 40px;
+      margin: 0px;
+      padding: 0px;
+    } 
+    input {
+      font-family: 'Helvetica';
+      font-size: 14px;
+      margin: 0px;
+      padding: 0px;
+      width: 100px;
+    }
+  </style>
+  <script type="text/javascript" src="/lib/jquery-1.9.1.js"></script>
+  <script type="text/javascript" src="/lib/acorn.js"></script>
+  <script type="text/javascript" src="/lib/coffee-script.js"></script>
+  <script type="text/javascript" src="/lib/chai.js"></script>
+  <script type="text/javascript" src="/layout.js"></script>
+</head>
+<body>
+  <view> 
+    <view bgcolor='red' id="koala1" x="10" y="0" width="20" height="20">
+      <animgroup repeat="4" bounce="true" parallel='false'>
+        <animator attribute="x" to="100" duration="100" motion="linear"></animator>
+        <animator attribute="y" to="100" duration="500" control="0.01,0.01" motion="bret" ></animator>
+        <animgroup repeat="1" motion="bret" control="0.01,0.01" bounce="false" parallel='true'>
+          <animator attribute="x" to="0" duration="1000" motion="linear"></animator>
+          <animator attribute="y" to="0" duration="1000" motion="linear" ></animator>
+        </animgroup>
+      </animgroup>
+    </view>
+  </view>
+  <!-- The MIT License (MIT)
+  Copyright ( c ) 2014 Teem2 LLC
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to deal
+  in the Software without restriction, including without limitation the rights
+  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in all
+  copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE. -->
+</body>
+</html>
