@@ -36,6 +36,6 @@ SOFTWARE. -->
         this.container.appendChild( this.stats.domElement );
       </handler>
       <handler event="onidle" reference="dr.idle">
-        this.stats.update();
+        if (this.stats) this.stats.update();
       </handler>
     </class>
