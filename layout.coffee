@@ -3082,9 +3082,19 @@ window.dr = do ->
 
     callback = (time) ->
       # console.log('callback', time, queue.length)
-      while (cb = queue.shift())
+      # snapshot the current queue to prevent recursion
+      localqueue = queue
+      queue = []
+      for cb in localqueue
         # console.log('callback', cb)
         cb(time)
+      if queue.length
+        # if we have new items, call back later
+        # console.log('new items', queue.length)
+        setTimeout(() ->
+          idle(2, callback)
+        ,0)
+      return
 
     (cb) ->
       if capabilities.raf

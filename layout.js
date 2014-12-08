@@ -3845,12 +3845,18 @@
       var callback, queue;
       queue = [];
       callback = function(time) {
-        var cb, _results;
-        _results = [];
-        while ((cb = queue.shift())) {
-          _results.push(cb(time));
+        var cb, localqueue, _i, _len;
+        localqueue = queue;
+        queue = [];
+        for (_i = 0, _len = localqueue.length; _i < _len; _i++) {
+          cb = localqueue[_i];
+          cb(time);
         }
-        return _results;
+        if (queue.length) {
+          setTimeout(function() {
+            return idle(2, callback);
+          }, 0);
+        }
       };
       return function(cb) {
         if (capabilities.raf) {
