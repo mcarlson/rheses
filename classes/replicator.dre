@@ -259,8 +259,6 @@ SOFTWARE. -->
         @applyData()
       </handler>
       <method name="buildsortfunc">
-        @super();
-
         if @sortfield
           sortfield = @sortfield
           sortasc = @sortasc
@@ -289,8 +287,6 @@ SOFTWARE. -->
       <handler event="ondatapath" method="applyData"></handler>
       <handler event="ondestroy" method="clear"></handler>
       <method name="updateData" args="data">
-        @super();
-
         # remove dataset declaration
         re = /^\$([^\/]+)/
         @dataset.updateData(@datapath.replace(re, ''), data);
@@ -300,13 +296,9 @@ SOFTWARE. -->
         * Refreshes the dataset manually
         */-->
       <method name="refresh">
-        @super();
-
         this.applyData()
       </method>
       <method name="clear">
-        @super();
-
         # @parent.setAttribute('display', 'none')
         if @children
           for child in @children
@@ -324,8 +316,6 @@ SOFTWARE. -->
         * @returns {Object[]} The accum array. Must be returned otherwise results will be lost.
         */-->
       <method name="applyData">
-        @super();
-
         return unless @inited and @parent and @classname
         # console.log('applyData', @data, @classname, @parent, @children, @, @inited)
 
@@ -385,8 +375,6 @@ SOFTWARE. -->
         * @param {dr.replicator} replicator The dr.replicator that fired the event
         */-->
       <method name="doReplication">
-        @super();
-
         return unless @data and @parent
 
         locked = @locked

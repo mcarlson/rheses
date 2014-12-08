@@ -22,7 +22,7 @@ SOFTWARE. -->
 <!--/**
       * @class dr.variablelayout {Layout}
       * @extends dr.constantlayout
-      * Allows for variation based on the index and subview. An updateSubview 
+      * Allows for variation based on the index and subview. An updateSubview
       * method is provided that can be overriden to provide variable behavior.
       *
       *     @example
@@ -36,20 +36,20 @@ SOFTWARE. -->
 <class name="variablelayout" extends="constantlayout" type="coffee">
   <!--/**
     * @attribute {boolean} [collapseparent=false]
-    * If true the updateParent method will be called. The updateParent method 
+    * If true the updateParent method will be called. The updateParent method
     * will typically resize the parent to fit the newly layed out child views.
     */-->
   <attribute name="collapseparent" type="boolean" value="false"></attribute>
   <handler event="oncollapseparent" method="update"></handler>
-  
+
   <!--/**
     * @attribute {boolean} [reverse=false]
-    * If true the layout will position the items in the opposite order. For 
+    * If true the layout will position the items in the opposite order. For
     * example, right to left instead of left to right.
     */-->
   <attribute name="reverse" type="boolean" value="false"></attribute>
   <handler event="onreverse" method="update"></handler>
-  
+
   <!--/**
     * @method doBeforeUpdate
     * Called by update before any processing is done. Gives subviews a
@@ -57,22 +57,20 @@ SOFTWARE. -->
     * @return {void}
     */-->
   <method name="doBeforeUpdate">
-    @super();
     # Subclasses to implement as needed.
   </method>
-  
+
   <!--/**
     * @method doAfterUpdate
     * Called by update after any processing is done but before the optional
-    * collapsing of parent is done. Gives subviews a chance to do any 
+    * collapsing of parent is done. Gives subviews a chance to do any
     * special teardown after update is processed.
     * @return {void}
     */-->
   <method name="doAfterUpdate">
-    @super();
     # Subclasses to implement as needed.
   </method>
-  
+
   <!--/**
     * @method startMonitoringSubview
     * Provides a default implementation that calls update when the
@@ -80,11 +78,9 @@ SOFTWARE. -->
     * @param {dr.view} view
     */-->
   <method name="startMonitoringSubview" args="view">
-    @super();
-
     @listenTo(view, 'visible', @update)
   </method>
-  
+
   <!--/**
     * @method stopMonitoringSubview
     * Provides a default implementation that calls update when the
@@ -92,11 +88,9 @@ SOFTWARE. -->
     * @param {dr.view} view
     */-->
   <method name="stopMonitoringSubview" args="view">
-    @super();
-
     @stopListening(view, 'visible', @update)
   </method>
-  
+
   <!--/**
     * @method updateSubview
     * Called for each subview in the layout.
@@ -109,54 +103,48 @@ SOFTWARE. -->
     * @return {*} The value to use for the next subview.
     */-->
   <method name="updateSubview" args="count, view, attribute, value">
-    @super();
-
     view.setAttribute(attribute, value)
     return value
   </method>
-  
+
   <!--/**
     * @method skipSubview
     * Called for each subview in the layout to determine if the view should
-    * be updated or not. The default implementation returns true if the 
+    * be updated or not. The default implementation returns true if the
     * subview is not visible.
     * @param {dr.view} view The subview to check.
-    * @return {Boolean} True if the subview should be skipped during 
+    * @return {Boolean} True if the subview should be skipped during
     *   layout updates.
     */-->
   <method name="skipSubview" args="view">
-    @super();
-
     return !view.visible
   </method>
-  
+
   <!--/**
     * @method updateParent
-    * Called if the collapseparent attribute is true. Subclasses should 
+    * Called if the collapseparent attribute is true. Subclasses should
     * implement this if they want to modify the parent view.
     * @param {String} attribute The name of the attribute to update.
     * @param {*} value The value to set on the parent.
     * @return {void}
     */-->
   <method name="updateParent" args="attribute, value">
-    @super();
-
     # Subclasses to implement as needed.
   </method>
-  
+
   <method name="update">
     if @canUpdate()
       # Prevent inadvertent loops
       @locked = true
-      
+
       @doBeforeUpdate()
-      
+
       attribute = @attribute
       value = @value
       svs = @subviews
       len = svs.length
       count = 0
-      
+
       if @reverse
         i = len
         while i
@@ -169,11 +157,11 @@ SOFTWARE. -->
           sv = svs[i++]
           if @skipSubview(sv) then continue
           value = @updateSubview(++count, sv, attribute, value)
-      
+
       @doAfterUpdate()
-      
+
       if @collapseparent then @updateParent(attribute, value)
-      
+
       @locked = false
   </method>
 </class>

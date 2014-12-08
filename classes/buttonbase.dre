@@ -23,14 +23,14 @@ SOFTWARE. -->
   <!--/**
      * @class dr.buttonbase {UI Components}
      * @extends dr.view
-     * Base class for button components. Buttons share common elements, 
+     * Base class for button components. Buttons share common elements,
      * including their ability to be selected, a visual element to display
      * their state, and a default and selected color.
      * The visual element is a dr.view that shows the current state of the
      * button. For example, in a labelbutton the entire button is the visual
      * element. For a checkbutton, the visual element is a square dr.view
      * that is inside the button.
-     */-->    
+     */-->
     <class name="buttonbase" type="coffee" clickable="true" clip="true">
 
       <!--/**
@@ -68,8 +68,6 @@ SOFTWARE. -->
 
       <!-- visualize: Show the current button state -->
       <method name="visualize">
-        @super();
-
         # Hack. Should be @inited
         return unless @realinited
         return unless @visual
@@ -91,8 +89,6 @@ SOFTWARE. -->
         <handler event="onheight" method="handleResize"></handler>
 
         <method name="handleResize">
-          @super();
-
           # Force an onwidth event in the parent to resize the button
           @parent.sendEvent('width', @parent.width)
         </method>
@@ -102,8 +98,6 @@ SOFTWARE. -->
       <handler event="onheight" method="handleResize"></handler>
 
       <method name="handleResize">
-        @super();
-
         # Custom behavior in subclasses
       </method>
 

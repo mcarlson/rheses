@@ -83,8 +83,6 @@ SOFTWARE. -->
         }
       </handler>
       <method name="updatePos" args="name, val">
-        this.super();
-
         //console.log('updatePos', name, val, this, this.updatePos)
         this.setAttribute(name, val)
       </method>

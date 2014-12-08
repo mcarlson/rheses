@@ -33,7 +33,7 @@ SOFTWARE. -->
      *     @example wide
      *     <ace id="editor" width="500"><view width="100%" height="100%" bgcolor="thistle"></view></ace>
      *
-     */-->    
+     */-->
 <!-- Don't use until dr syntax highlighter is available via cdn
     <class name="ace" width="300" height="100" clickable="true" scriptincludes="http://cdnjs.cloudflare.com/ajax/libs/ace/1.1.3/ace.js">
 -->
@@ -129,11 +129,11 @@ SOFTWARE. -->
         this.editor.on("change", this.handleChange);
 
         // To remove line numbers, enable next line
-        //this.editor.renderer.setShowGutter(false);    
+        //this.editor.renderer.setShowGutter(false);
 
         this.editor.setValue(text);
         this.text = text;
-    
+
         //console.log("editor", this.editor);
       </handler>
 
@@ -141,7 +141,6 @@ SOFTWARE. -->
       </handler>
 
       <method name="handleChange">
-        this.super();
         this.setAttribute('text', this.editor.getValue());
         //console.log("handleChange", this.text);
         if (this.pausedelay > 0) {
@@ -163,7 +162,6 @@ SOFTWARE. -->
       </handler>
 
       <method name="handleResize">
-        this.super();
         if (this.editor) {
           this.acediv.style.width = this.width;
           this.acediv.style.height = this.height;

@@ -123,10 +123,10 @@ SOFTWARE. -->
         if (! url) return;
         var _this = this;
         function updateProgress(evt) {
-          if (evt.lengthComputable) {  
-            var percentComplete = (evt.loaded / evt.total);  
+          if (evt.lengthComputable) {
+            var percentComplete = (evt.loaded / evt.total);
             _this.setAttribute('loadprogress', percentComplete);
-          } 
+          }
         }
 
         this.sendEvent('loading', url);
@@ -162,20 +162,18 @@ SOFTWARE. -->
         this.startTime = 0;
       </handler>
       <method name="play">
-        this.super();
-
         if (! this.buffer) return;
 
         // track the time when playback started
         this.startTime = this.context.currentTime;
         // creates a sound source
-        this.source = this.context.createBufferSource(); 
+        this.source = this.context.createBufferSource();
         this.source.loop = this.loop;
         // tell the source which sound to play
         this.source.buffer = this.buffer;
         // Create a gain node.
         //this.gain = this.context.createGain();
-        // Create fft     
+        // Create fft
         this.fftNode = this.context.createAnalyser();
         if (this.fftsize) {
           this.fftNode.fftSize = this.fftsize;
@@ -192,8 +190,6 @@ SOFTWARE. -->
         this.source.start(0, this.startOffset % this.duration);
       </method>
       <method name="stop">
-        this.super();
-
         if (! this.source) return;
         if (!this.source.stop)
           this.source.stop = source.noteOff;
@@ -203,8 +199,6 @@ SOFTWARE. -->
         this.paused = false;
       </method>
       <method name="pause">
-        this.super();
-
         if (! this.source) return;
         if (!this.source.stop)
           this.source.stop = source.noteOff;
@@ -224,7 +218,7 @@ SOFTWARE. -->
 
         if (this.fftsize) {
           var data = new Uint8Array(this.fftsize);
-          this.fftNode.getByteFrequencyData(data); 
+          this.fftNode.getByteFrequencyData(data);
           this.setAttribute('fft', data)
         }
       </handler>

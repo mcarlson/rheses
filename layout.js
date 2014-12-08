@@ -80,7 +80,7 @@
   })();
 
   window.dr = (function() {
-    var Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, callOnIdle, capabilities, compiler, constraintScopes, debug, dom, domElementAttributes, exports, fcamelCase, hiddenAttributes, idle, ignoredAttributes, knownstyles, mixOf, moduleKeywords, mouseEvents, noop, querystring, rdashAlpha, showWarnings, specialtags, ss, ss2, starttime, test, triggerlock, warnings, _initConstraints;
+    var Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, callOnIdle, capabilities, compiler, constraintScopes, debug, dom, domElementAttributes, exports, fcamelCase, hiddenAttributes, idle, ignoredAttributes, knownstyles, matchEvent, mixOf, moduleKeywords, mouseEvents, noop, querystring, rdashAlpha, showWarnings, specialtags, ss, ss2, starttime, test, triggerlock, warnings, _initConstraints;
     noop = function() {};
     mixOf = function() {
       var Mixed, base, i, method, mixin, mixins, name, _i, _ref;
@@ -720,11 +720,9 @@
        * @attribute {String} scriptincludeserror
        * An error to show if scriptincludes fail to load
        */
-      var earlyattributes, lateattributes, matchConstraint, _eventCallback, _installMethod;
+      var earlyattributes, lateattributes, matchConstraint, matchSuper, _eventCallback, _installMethod;
 
       __extends(Node, _super);
-
-      matchConstraint = /\${(.+)}/;
 
       earlyattributes = ['name', 'parent'];
 
@@ -869,8 +867,10 @@
         }
       }
 
+      matchSuper = /this.super\(|this\["super"\]\(/;
+
       Node.prototype.installMethods = function(methods, tagname, scope, callbackscope) {
-        var allocation, args, method, methodlist, name, _i, _len, _ref;
+        var allocation, args, hassuper, method, methodlist, name, _i, _len, _ref;
         if (scope == null) {
           scope = this;
         }
@@ -881,7 +881,8 @@
           methodlist = methods[name];
           for (_i = 0, _len = methodlist.length; _i < _len; _i++) {
             _ref = methodlist[_i], method = _ref.method, args = _ref.args, allocation = _ref.allocation;
-            _installMethod(scope, name, compiler.compile(method, args, "" + tagname + "$" + name).bind(callbackscope), allocation);
+            hassuper = matchSuper.test(method);
+            _installMethod(scope, name, compiler.compile(method, args, "" + tagname + "$" + name).bind(callbackscope), hassuper, allocation);
           }
         }
       };
@@ -939,6 +940,8 @@
         }
       };
 
+      matchConstraint = /\${(.+)}/;
+
       Node.prototype.bindAttribute = function(name, value, tagname) {
         var constraint;
         if (value) {
@@ -946,7 +949,7 @@
         }
         if (constraint) {
           return this.setConstraint(name, constraint[1], true);
-        } else if (name.indexOf('on') === 0) {
+        } else if (matchEvent.test(name)) {
           name = name.substr(2);
           return this.bind(name, _eventCallback(name, value, this, tagname));
         } else {
@@ -981,39 +984,45 @@
         };
       };
 
-      _installMethod = function(scope, methodname, method, allocation) {
+      _installMethod = function(scope, methodname, method, hassuper, allocation) {
         var exists, supr;
-        if (methodname in scope) {
-          supr = scope[methodname] || noop;
-          exists = true;
+        if (!hassuper) {
+          return scope[methodname] = method;
+        } else {
+          if (methodname in scope && typeof scope[methodname] === 'function') {
+            supr = scope[methodname];
+            exists = true;
+          }
+          return scope[methodname] = function() {
+            var args, prevOwn, prevValue, retval;
+            args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+            prevOwn = scope.hasOwnProperty('super');
+            if (prevOwn) {
+              prevValue = scope['super'];
+            }
+            if (exists) {
+              scope['super'] = function() {
+                var i, params, superargs;
+                superargs = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+                i = superargs.length;
+                params = args.splice(0);
+                while (i) {
+                  params[--i] = superargs[i];
+                }
+                return supr.apply(scope, params);
+              };
+            } else {
+              scope['super'] = noop;
+            }
+            retval = method.apply(scope, args);
+            if (prevOwn) {
+              scope['super'] = prevValue;
+            } else {
+              delete scope['super'];
+            }
+            return retval;
+          };
         }
-        return scope[methodname] = function() {
-          var params, prevOwn, prevValue, retval;
-          prevOwn = scope.hasOwnProperty('super');
-          if (prevOwn) {
-            prevValue = scope['super'];
-          }
-          if (exists) {
-            params = Array.prototype.slice.call(arguments);
-            scope['super'] = function() {
-              var i;
-              i = arguments.length;
-              while (i) {
-                params[--i] = arguments[i];
-              }
-              return supr.apply(scope, params);
-            };
-          } else {
-            scope['super'] = noop;
-          }
-          retval = method.apply(scope, arguments);
-          if (prevOwn) {
-            scope['super'] = prevValue;
-          } else {
-            delete scope['super'];
-          }
-          return retval;
-        };
       };
 
       Node.prototype.setConstraint = function(property, expression, skipbinding) {
@@ -1829,7 +1838,7 @@
        *       of the scrollable view. The maximum can be calculated using this
        *       formula: scrollheight - view.height + 2*view.border
        */
-      var defaults;
+      var defaults, matchPercent;
 
       __extends(View, _super);
 
@@ -1919,10 +1928,6 @@
         View.__super__.constructor.apply(this, arguments);
       }
 
-      View.prototype._isPercent = function(value) {
-        return typeof value === 'string' && value.indexOf('%') > -1;
-      };
-
       View.prototype._createSprite = function(el, attributes) {
         return this.sprite = new Sprite(el, this, attributes.$tagname);
       };
@@ -1970,6 +1975,8 @@
         }
       };
 
+      matchPercent = /%$/;
+
       View.prototype.__setupPercentConstraint = function(name, value, axis) {
         var func, funcKey, oldFunc, parent, scale, self;
         funcKey = '__percentFunc' + name;
@@ -1983,7 +1990,7 @@
           this.stopListening(parent, axis, oldFunc);
           delete this[funcKey];
         }
-        if (this._isPercent(value)) {
+        if (matchPercent.test(value)) {
           self = this;
           scale = parseInt(value) / 100;
           func = this[funcKey] = function() {
@@ -2663,6 +2670,7 @@
       return console.error(out);
     };
     specialtags = ['handler', 'method', 'attribute', 'setter', 'include'];
+    matchEvent = /^on/;
     dom = (function() {
       var builtinTags, checkRequiredAttributes, exports, findAutoIncludes, flattenattributes, getChildren, htmlDecode, initAllElements, initElement, initFromElement, processSpecialTags, requiredAttributes, sendInit, writeCSS;
       getChildren = function(el) {
@@ -3015,7 +3023,7 @@
           }
         }
         for (attr in attributes) {
-          if (attr.indexOf('on') === 0) {
+          if (matchEvent.test(attr)) {
             el.removeAttribute(attr);
           }
         }

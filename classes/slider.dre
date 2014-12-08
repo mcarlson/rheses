@@ -31,11 +31,11 @@ SOFTWARE. -->
      * Slider with a label:
      *
      *     @example
-     *     
+     *
      *     <spacedlayout spacing="8"></spacedlayout>
      *     <slider name="hslide" y="5" width="250" height="10" value="50" bgcolor="#808080"></slider>
      *     <text text="${Math.round(this.parent.hslide.value)}" y="${this.parent.hslide.y + (this.parent.hslide.height-this.height)/2}"></text>
-     */-->    
+     */-->
     <class name="slider" type="coffee" clickable="true" clip="true">
       <!--/**
         * @attribute {Number} [minvalue=0]
@@ -82,8 +82,6 @@ SOFTWARE. -->
         * @param {Number} v The new value of the component.
         */-->
       <method name="changeValue" args="v">
-        @super();
-
         if (v > @maxvalue)
           v = @maxvalue;
         else if (v < @minvalue)
@@ -101,11 +99,9 @@ SOFTWARE. -->
 
       <!-- Internal view to show the current slider value -->
       <view name="valueview" bgcolor="${this.parent.selectcolor}"></view>
-      
+
       <!-- visualize: Show the current value -->
       <method name="visualize">
-        @super();
-
         if (@axis == 'x')
           w = @width * ((@value - @minvalue) / (@maxvalue-@minvalue))
           x = if @invert then @width-w else 0
@@ -139,8 +135,6 @@ SOFTWARE. -->
 
       <!-- Move the slider in response to a change in position -->
       <method name="movePosition" args="p">
-        @super();
-
         spread = @maxvalue - @minvalue;
         if (@axis == 'x')
           if (@width > 0)

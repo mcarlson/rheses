@@ -67,7 +67,7 @@ SOFTWARE. -->
 
       <!-- check: Show button state -->
       <view name="check" x="${this.parent.checkx}" y="${this.parent.checky}" width="${this.parent.checkw}" height="${this.parent.checkh}"></view>
- 
+
       <handler event="oninit">
         #TODO Remove this hack when oninit works
         $this = @;
@@ -76,8 +76,6 @@ SOFTWARE. -->
       </handler>
 
       <method name="realinit">
-        @super();
-
         @realinited = true
         # return unless @check   # oninit can fire before children are inited
 
@@ -93,8 +91,6 @@ SOFTWARE. -->
       </method>
 
       <method name="handleResize">
-        @super();
-
         return unless @realinited  #Hack. Should be @inited
         return if @_resize_lock
 
@@ -102,7 +98,7 @@ SOFTWARE. -->
         if (@label.width > 0 && @label.height > 0)
           # Checkbox size
           if @checkw != @label.height || @checkh != @check.height
-            settings = 
+            settings =
               checkw: @label.height
               checkh: @label.height
             @setAttributes(settings)
@@ -113,7 +109,7 @@ SOFTWARE. -->
             xoffset = (@width + @padding - @label.width - @checkw)/2
             yoffset = (@height + @padding - @label.height)/2
 
-            settings = 
+            settings =
               checkx:xoffset
               checky:yoffset
             @setAttributes(settings)
