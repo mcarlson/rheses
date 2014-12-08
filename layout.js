@@ -368,6 +368,14 @@
             return val;
           }
           return eval(val);
+        },
+        positivenumber: function(val) {
+          val = parseFloat(val);
+          if (isNaN(val)) {
+            return 0;
+          } else {
+            return Math.max(0, val);
+          }
         }
       };
 
@@ -1902,14 +1910,14 @@
           yscale: 'number',
           rotation: 'string',
           opacity: 'number',
-          width: 'number',
-          height: 'number',
+          width: 'positivenumber',
+          height: 'positivenumber',
           clickable: 'boolean',
           clip: 'boolean',
           scrollable: 'boolean',
           visible: 'boolean',
-          border: 'number',
-          padding: 'number',
+          border: 'positivenumber',
+          padding: 'positivenumber',
           ignorelayout: 'boolean',
           scrollx: 'number',
           scrolly: 'number'
@@ -1950,19 +1958,6 @@
           }
         }
         value = this._coerceType(name, value);
-        switch (name) {
-          case 'width':
-          case 'height':
-          case 'border':
-          case 'padding':
-            value = Math.max(0, value);
-            break;
-          case 'scrollx':
-            value = Math.max(0, Math.min(this.sprite.el.scrollWidth - this.width + 2 * this.border, value));
-            break;
-          case 'scrolly':
-            value = Math.max(0, Math.min(this.sprite.el.scrollHeight - this.height + 2 * this.border, value));
-        }
         existing = this[name];
         View.__super__.setAttribute.call(this, name, value, true, skipConstraintSetup, skipconstraintunregistration);
         value = this[name];
@@ -2184,6 +2179,22 @@
         }
         this.sprite.set_scrollable(scrollable);
         return scrollable;
+      };
+
+      View.prototype.set_scrollx = function(scrollx) {
+        if (isNaN(scrollx)) {
+          return 0;
+        } else {
+          return Math.max(0, Math.min(this.sprite.el.scrollWidth - this.width + 2 * this.border, scrollx));
+        }
+      };
+
+      View.prototype.set_scrolly = function(scrolly) {
+        if (isNaN(scrolly)) {
+          return 0;
+        } else {
+          return Math.max(0, Math.min(this.sprite.el.scrollHeight - this.height + 2 * this.border, scrolly));
+        }
       };
 
 

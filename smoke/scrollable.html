@@ -1,5 +1,5 @@
 <html>
-<testingtimer><!--500--></testingtimer>
+<testingtimer><!--1000--></testingtimer>
 <head>
   <title>dr33m | Scrollable View Smoke Tests</title>
   <style type="text/css">
@@ -234,7 +234,7 @@
         assert.equal(224, event.scrollwidth, 'The scrollwidth property of the scroll event should be 224.');
         assert.equal(124, event.scrollheight, 'The scrollheight property of the scroll event should be 124.');
         self.continueTesting()
-      }, 100);
+      }, 300);
     </handler>
     <method name="continueTesting">
       var container = this.container;
@@ -263,7 +263,7 @@
         assert.equal(2, container.scrollEventCount, 'An initial onscroll event should have happened.');
         
         self.continueTesting2()
-      }, 100);
+      }, 200);
     </method>
     <method name="continueTesting2">
       var container = this.container;
@@ -292,7 +292,7 @@
         assert.equal(99, event.scrollheight, 'The scrollheight property of the scroll event should be 99.');
         
         self.continueTesting3()
-      }, 50);
+      }, 100);
     </method>
     <method name="continueTesting3">
       var container = this.container;
@@ -307,7 +307,7 @@
         assert.equal(1, container.scrollXEventCount, 'The scrollXEventCount should be the same.');
         assert.equal(1, container.scrollYEventCount, 'The scrollYEventCount should be the same.');
         assert.equal(1, container.scrollEventCount, 'The scrollEventCount should be the same.');
-      }, 50);
+      }, 100);
     </method>
   </view>
 <!-- The MIT License (MIT)

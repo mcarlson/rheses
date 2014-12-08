@@ -28,22 +28,31 @@
 <view width="100%">
   <spacedlayout axis="y" spacing="15"></spacedlayout>
 
-  <!-- Visibility -->
-  <view id="hiddenview" bgcolor="lightgreen" width="100" height="50" visible="false">
+  <!-- Basic width and height -->
+  <view bgcolor="lightgrey" width="100" height="50">
     <handler event="oninit">
-      assert.equal($('#hiddenview').css('display'), 'none')
-    </handler>
-  </view>
-
-  <view id="visibleview" bgcolor="lightpink" width="100" height="50" visible="true">
-    <handler event="oninit">
-      assert.equal($('#visibleview').css('display'), 'block')
-    </handler>
-  </view>
-
-  <view id="visibleview" bgcolor="thistle" width="100" height="50">
-    <handler event="oninit">
-      assert.equal($('#visibleview').css('display'), 'block')
+      assert.equal(this.width, 100)
+      assert.equal(this.height, 50)
+      
+      // Set width to a valid value
+      this.setAttribute('width', 1);
+      assert.equal(this.width, 1);
+      
+      // Set width to an invalid value
+      this.setAttribute('width', -1);
+      assert.equal(this.width, 0);
+      this.setAttribute('width', 'foo');
+      assert.equal(this.width, 0);
+      
+      // Set height to a valid value
+      this.setAttribute('height', 1);
+      assert.equal(this.height, 1);
+      
+      // Set height to an invalid value
+      this.setAttribute('height', -1);
+      assert.equal(this.height, 0);
+      this.setAttribute('height', 'foo');
+      assert.equal(this.height, 0);
     </handler>
   </view>
 
@@ -74,6 +83,25 @@
     </handler>
   </view>
 
+  <!-- Visibility -->
+  <view id="hiddenview" bgcolor="lightgreen" width="100" height="50" visible="false">
+    <handler event="oninit">
+      assert.equal($('#hiddenview').css('display'), 'none')
+    </handler>
+  </view>
+
+  <view id="visibleview" bgcolor="lightpink" width="100" height="50" visible="true">
+    <handler event="oninit">
+      assert.equal($('#visibleview').css('display'), 'block')
+    </handler>
+  </view>
+
+  <view id="visibleview" bgcolor="thistle" width="100" height="50">
+    <handler event="oninit">
+      assert.equal($('#visibleview').css('display'), 'block')
+    </handler>
+  </view>
+
   <!-- Border and padding -->
   <view bgcolor="lightgrey" width="100" height="50">
     <view name="inner" width="100%" height="100%" bgcolor="lightyellow"></view>
@@ -85,6 +113,28 @@
 
       assert.equal(this.inner.width, 100)
       assert.equal(this.inner.height, 50)
+      
+      // Set border to a valid value
+      assert.equal(this.border, 0);
+      this.setAttribute('border', 1);
+      assert.equal(this.border, 1);
+      
+      // Set border to an invalid value
+      this.setAttribute('border', -1);
+      assert.equal(this.border, 0);
+      this.setAttribute('border', 'foo');
+      assert.equal(this.border, 0);
+      
+      // Set padding to a valid value
+      assert.equal(this.padding, 0);
+      this.setAttribute('padding', 1);
+      assert.equal(this.padding, 1);
+      
+      // Set padding to an invalid value
+      this.setAttribute('padding', -1);
+      assert.equal(this.padding, 0);
+      this.setAttribute('padding', 'foo');
+      assert.equal(this.padding, 0);
     </handler>
   </view>
 
@@ -195,42 +245,30 @@
   <!--</view>-->
 
   <!-- z, rotation & scale -->
-  <view                                                width="100" height="50" border="2px" bordercolor="lightblue" perspective="5px">
-      <view name="topView"               x="10" y="10" width="5"  height="5" bgcolor="orange"
-
-                   z="1">
-
-      </view>
-      <view name="rotateViewDeg"         x="80" y="10" width="15" height="15" bgcolor="pink"
-
-            rotation="45">
-
-      </view>
-      <view name="xScaleView"            x="75" y="20" width="20" height="20" bgcolor="darkgreen"
-
-              xscale="0.1">
-
-      </view>
-      <view name="yScaleView"            x="75" y="20" width="20" height="20" bgcolor="red"
-
-              yscale="0.2">
-
-      </view>
+  <view width="100" height="50" border="2px" bordercolor="lightblue" perspective="5px">
+      <view name="topView" x="10" y="10" width="5"  height="5" bgcolor="orange" z="1"></view>
+      <view name="rotateViewDeg" x="80" y="10" width="15" height="15" bgcolor="pink" rotation="45"></view>
+      <view name="xScaleView" x="75" y="20" width="20" height="20" bgcolor="darkgreen" xscale="0.1"></view>
+      <view name="yScaleView" x="75" y="20" width="20" height="20" bgcolor="red" yscale="0.2"></view>
       <view id="xmz" name="scaleRotateBottomView" x="50" y="20" width="20" height="20" bgcolor="blue"
-
-                   z="-10"
-            rotation="-115"
-               xscale="10.5"
-               yscale="10.4">
-
-      </view>
+        z="-10" rotation="-115" xscale="10.5" yscale="10.4"
+      ></view>
 
       <handler event="oninit">
-          assert.equal(this.topView.sprite.el.style['transform'],               'translate3d(0, 0, 1px)')
-          assert.equal(this.rotateViewDeg.sprite.el.style['transform'],         ' rotate3d(0, 0, 1.0, 45deg)')
-          assert.equal(this.xScaleView.sprite.el.style['transform'],            ' scale3d(0.1, 1, 1.0)')
-          assert.equal(this.yScaleView.sprite.el.style['transform'],            ' scale3d(1, 0.2, 1.0)')
-          assert.equal(this.scaleRotateBottomView.sprite.el.style['transform'], 'translate3d(0, 0, -10px) scale3d(10.5, 10.4, 1.0) rotate3d(0, 0, 1.0, -115deg)')
+        var transform = this.topView.sprite.el.style['transform'];
+        assert.equal((transform == 'translate3d(0, 0, 1px)') || (transform == 'translate3d(0px, 0px, 1px)'), true)
+        
+        transform = this.rotateViewDeg.sprite.el.style['transform'];
+        assert.equal((transform == ' rotate3d(0, 0, 1.0, 45deg)') || (transform == 'rotate3d(0, 0, 1, 45deg)'), true)
+        
+        transform = this.xScaleView.sprite.el.style['transform'];
+        assert.equal((transform == ' scale3d(0.1, 1, 1.0)') || (transform == 'scale3d(0.1, 1, 1)'), true)
+        
+        transform = this.yScaleView.sprite.el.style['transform'];
+        assert.equal((transform == ' scale3d(1, 0.2, 1.0)') || (transform == 'scale3d(1, 0.2, 1)'), true)
+        
+        transform = this.scaleRotateBottomView.sprite.el.style['transform'];
+        assert.equal((transform == 'translate3d(0, 0, -10px) scale3d(10.5, 10.4, 1.0) rotate3d(0, 0, 1.0, -115deg)') || (transform == 'translate3d(0px, 0px, -10px) scale3d(10.5, 10.4, 1) rotate3d(0, 0, 1, -115deg)'), true)
       </handler>
   </view>
 
