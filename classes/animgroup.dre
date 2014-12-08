@@ -243,8 +243,10 @@ SOFTWARE. -->
         this.prepare()
 
         var ended = false
-        function myIdle(time){
-
+        var dup = 0
+        function Idle(time){
+          dup++
+          if(dup>5)debugger
           this.timestep(time)
 
           if(this.animator.ended){
@@ -253,10 +255,14 @@ SOFTWARE. -->
             //Todo remove idle binding again
           }
           this.sendEvent('tick')
+          console.log('hii')
+          dr.idle.callOnIdle(myIdle)
         }
-        // the animator works with timelines, so lets set up our timeline from the childlist.
-        var t = dr.idle.bind('idle', myIdle.bind(this))
+        var myIdle = Idle.bind(this)
 
+        // the animator works with timelines, so lets set up our timeline from the childlist.
+        var t = dr.idle.callOnIdle(myIdle)
+        console.log('here')
       }.bind(this), 0)
     --></handler>
   </class>
