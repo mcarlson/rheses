@@ -168,9 +168,7 @@
         }
         for (_i = 0, _len = list.length; _i < _len; _i++) {
           callback = list[_i];
-          if (callback.apply(this, args) === false) {
-            break;
-          }
+          callback.apply(this, args);
         }
         triggerlock = null;
         return this;

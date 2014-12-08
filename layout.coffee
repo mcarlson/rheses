@@ -131,8 +131,7 @@ window.dr = do ->
       #   console.log 'old', triggerlock
       # if list then console.log 'trigger', ev, list
       for callback in list
-        if callback.apply(@, args) is false
-          break
+        callback.apply(@, args)
       triggerlock = null
       @
     ###*
