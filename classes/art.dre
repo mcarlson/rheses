@@ -89,7 +89,7 @@ SOFTWARE. -->
      *       </animator>
      *     </art>
      *
-     */-->    
+     */-->
 
       <!--/**
         * @attribute {Boolean} [inline=false]
@@ -164,7 +164,7 @@ SOFTWARE. -->
 
       <setter name="src" args="src">
         return if !src
-        return if @src == src
+        return src if @src == src
         @src = src
         return src
       </setter>
@@ -191,7 +191,6 @@ SOFTWARE. -->
 
 
       <method name="show_path" args="name">
-        @super();
         # Retrieve an svg path given its name, or index
         path = @get_path(name)
         if path and path.length > 0
@@ -202,7 +201,6 @@ SOFTWARE. -->
 
 
       <method name="get_path_frame" args="name, params">
-        @super();
         # Construct a start or stop animation state using the specified
         # path, and optional other animation parameters
 
@@ -218,7 +216,6 @@ SOFTWARE. -->
       </method>
 
       <method name="animate_path" args="name, params">
-        @super();
 
         # Animate the path, as well as specified params
         return @show_path(name) if !@snap
@@ -244,7 +241,6 @@ SOFTWARE. -->
       </method>
 
       <method name="show_frame" args="start_path, end_path, frame, start_params, end_params">
-        @super();
 
         # Called when animationframe changes. This can also be used to display
         # a frame between any two keyframes.
@@ -277,10 +273,9 @@ SOFTWARE. -->
 
 
       <method name="createDOM">
-        @super();
 
         # Create a div to handle resizing of the graphics
-        return if @container      
+        return if @container
 
         @container = document.createElement('div')
         #@container.setAttribute('style', 'overflow: hidden; width: 100%; height: 100%')
@@ -289,7 +284,6 @@ SOFTWARE. -->
       </method>
 
       <method name="createSnap">
-        @super();
 
         return if @snap
         @snap = Snap()
@@ -324,7 +318,6 @@ SOFTWARE. -->
 
 
       <method name="hide_art", args="fixed">
-        @super();
 
         # Hide either fixed art (fixed=true or missing) or snap (false)
         fixed = true if not fixed?
@@ -333,7 +326,6 @@ SOFTWARE. -->
       </method>
 
       <method name="get_path" args="name">
-        @super();
         # Read the path information from the svg using id and then index
         return null if !@container
 
@@ -352,7 +344,6 @@ SOFTWARE. -->
       </method>
 
       <method name="get_paths">
-        @super();
 
         # Get every path specified in the svg
         dom = @container
@@ -363,7 +354,6 @@ SOFTWARE. -->
       </method>
 
       <method name="get_bounding_box">
-        @super();
 
         # Get the bounding box of all the paths
         paths = @get_paths()
@@ -393,7 +383,6 @@ SOFTWARE. -->
       <handler event="onready" method="normalizeArt"></handler>
 
       <method name="normalizeArt">
-        @super();
 
         return unless @container
 
@@ -438,7 +427,6 @@ SOFTWARE. -->
       </method>
 
       <method name="resizeArt">
-        @super();
 
         # Resize the art, if needed, for changes in container size
 
@@ -462,7 +450,6 @@ SOFTWARE. -->
       </method>
 
       <method name="loadInline">
-        @super();
 
         # Load inline svg
         @createDOM()
@@ -486,7 +473,6 @@ SOFTWARE. -->
       </method>
 
       <method name="loadFromFile">
-        @super();
 
         # Load an svg file
         @createDOM()

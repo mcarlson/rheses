@@ -45,26 +45,24 @@ SOFTWARE. -->
 
       <handler event="oninit">
         var renderer = this.renderer = new THREE.WebGLRenderer();
-        
+
         renderer.setClearColor( this.bgcolor );
         renderer.setSize(this.width, this.height);
         renderer.domElement.$view = this;
-        
+
         this.sprite.el.appendChild(renderer.domElement);
 
         this.camera = new THREE.PerspectiveCamera( 40, this.width / this.height, this.cameranear, this.camerafar );
         this.scene = new THREE.Scene();
         this.initScene(this.scene);
       </handler>
-      
+
       <handler event="onbgcolor" args="color">
         if (! this.renderer) return;
         this.renderer.setClearColor( color );
       </handler>
-      
-      <method name="handleResize">
-        this.super();
 
+      <method name="handleResize">
         if (this.camera) {
           this.camera.aspect = this.width / this.height;
           this.camera.updateProjectionMatrix();
@@ -75,9 +73,7 @@ SOFTWARE. -->
         }
       </method>
       <method name="update" args="scene, camera">
-        this.super();
       </method>
       <method name="initScene" args="scene">
-        this.super();
       </method>
     </class>

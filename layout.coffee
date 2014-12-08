@@ -542,7 +542,6 @@ window.dr = do ->
     # @attribute {String} scriptincludeserror
     # An error to show if scriptincludes fail to load
     ###
-    matchConstraint = /\${(.+)}/
     # name should be set before parent so that when subnode events fire the
     # nodes can be identified
     earlyattributes = ['name', 'parent']
@@ -641,13 +640,16 @@ window.dr = do ->
           @inited = true
           @sendEvent('init', @)
 
+    # match js and CoffeeScript-style super() calls
+    matchSuper = /this.super\(|this\["super"\]\(/
     installMethods: (methods, tagname, scope=@, callbackscope=@) ->
       # console.log('installing methods', methods, tagname, scope, callbackscope)
       # Install methods
       for name, methodlist of methods
         for {method, args, allocation} in methodlist
-          # console.log 'installing method', name, method, args, allocation, @
-          _installMethod(scope, name, compiler.compile(method, args, "#{tagname}$#{name}").bind(callbackscope), allocation)
+          hassuper = matchSuper.test(method)
+          # console.log 'installing method', name, hassuper, args, method, allocation, @
+          _installMethod(scope, name, compiler.compile(method, args, "#{tagname}$#{name}").bind(callbackscope), hassuper, allocation)
       return
 
     installHandlers: (handlers, tagname, scope=@) ->
@@ -689,12 +691,13 @@ window.dr = do ->
       return
 
     # Bind an attribute to a constraint, event expression/handler or fall back to setAttribute()
+    matchConstraint = /\${(.+)}/
     bindAttribute: (name, value, tagname) ->
       constraint = value.match?(matchConstraint) if value
       if constraint
         # console.log('applying constraint', name, constraint[1])
         @setConstraint(name, constraint[1], true)
-      else if name.indexOf('on') is 0
+      else if matchEvent.test(name)
         name = name.substr(2)
         # console.log('binding to event expression', name, value, @)
         @bind(name, _eventCallback(name, value, @, tagname))
@@ -720,45 +723,47 @@ window.dr = do ->
         # console.log 'event callback', name, args, scope, js
         js.apply(scope, args)
 
-    _installMethod = (scope, methodname, method, allocation) ->
+    _installMethod = (scope, methodname, method, hassuper, allocation) ->
       # TODO: add class methods when allocation is 'class'
+      unless hassuper
+        scope[methodname] = method
+      else
+        # Check if we are overriding a method in the scope
+        if methodname of scope and typeof scope[methodname] is 'function'
+          # Remember overridden method
+          supr = scope[methodname]
+          exists = true
 
-      # Check if we are overriding a method in the scope
-      if methodname of scope
-        # Remember overridden method
-        supr = scope[methodname] or noop
-        exists = true
-      
-      # console.log 'applying overridden method', methodname, arguments
-      scope[methodname] = ->
-        # Remember current state of scope by storing current super
-        prevOwn = scope.hasOwnProperty('super')
-        if prevOwn then prevValue = scope['super']
+        # console.log 'applying overridden method', methodname, arguments
+        scope[methodname] = (args...) ->
+          # Remember current state of scope by storing current super
+          prevOwn = scope.hasOwnProperty('super')
+          prevValue = scope['super'] if prevOwn
 
-        # Add a super function to the scope
-        if exists
-          # Super method exists so supr will be invoked
-          params = Array.prototype.slice.call(arguments)
-          scope['super'] = () ->
-            # Argument shadowing on the super call
-            i = arguments.length
-            while i
-              params[--i] = arguments[i]
-            supr.apply(scope, params)
-        else
-          # Provide error protection when calling super where no super method
-          # exists.
-          scope['super'] = noop
+          # Add a super function to the scope
+          if exists
+            # Super method exists so supr will be invoked
+            scope['super'] = (superargs...) ->
+              # Argument shadowing on the super call
+              i = superargs.length
+              params = args.splice(0)
+              while i
+                params[--i] = superargs[i]
+              supr.apply(scope, params)
+          else
+            # Provide error protection when calling super inside a method where no super
+            # exists. Should this warn?
+            scope['super'] = noop
 
-        # Execute the methd that called super
-        retval = method.apply(scope, arguments)
+          # Execute the methd that called super
+          retval = method.apply(scope, args)
 
-        # Restore scope with remembered super or by deleting.
-        if prevOwn
-          scope['super'] = prevValue
-        else
-          delete scope['super']
-        return retval
+          # Restore scope with remembered super or by deleting.
+          if prevOwn
+            scope['super'] = prevValue
+          else
+            delete scope['super']
+          return retval
       # console.log('installed method', methodname, scope, scope[methodname])
 
     # sets a constraint, binding it immediately unless skipbinding is true.
@@ -1518,9 +1523,6 @@ window.dr = do ->
       super
       # console.log 'new view', el, attributes, @
 
-    _isPercent: (value) ->
-      typeof value is 'string' and value.indexOf('%') > -1
-
     _createSprite: (el, attributes) ->
       @sprite = new Sprite(el, @, attributes.$tagname)
 
@@ -1556,6 +1558,7 @@ window.dr = do ->
         else if @inited or defaults[name] isnt value
           @sprite.setStyle(name, value)
 
+    matchPercent = /%$/
     __setupPercentConstraint: (name, value, axis) ->
       funcKey = '__percentFunc' + name
       oldFunc = @[funcKey]
@@ -1569,7 +1572,7 @@ window.dr = do ->
       if oldFunc
         @stopListening(parent, axis, oldFunc)
         delete @[funcKey]
-      if @_isPercent(value)
+      if matchPercent.test(value)
         self = @
         scale = parseInt(value)/100
         func = @[funcKey] = () ->
@@ -2106,6 +2109,8 @@ window.dr = do ->
 
   specialtags = ['handler', 'method', 'attribute', 'setter', 'include']
 
+  matchEvent = /^on/
+
   dom = do ->
     getChildren = (el) ->
       child for child in el.childNodes when child.nodeType is 1 and child.localName in specialtags
@@ -2389,7 +2394,7 @@ window.dr = do ->
 
       # swallow event handler attributes to allow event delegation, e.g. <inputtext onchange="..."></inputtext>
       for attr of attributes
-        if attr.indexOf('on') is 0
+        if matchEvent.test(attr)
           el.removeAttribute(attr)
 
       parent ?= el.parentNode

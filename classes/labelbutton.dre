@@ -24,7 +24,7 @@ SOFTWARE. -->
      * @class dr.labelbutton {UI Components}
      * @extends dr.buttonbase
      * Button class consisting of text centered in a view. The onclick event
-     * is generated when the button is clicked. The visual state of the 
+     * is generated when the button is clicked. The visual state of the
      * button changes during onmousedown/onmouseup.
      *
      *     @example
@@ -37,7 +37,7 @@ SOFTWARE. -->
      *     </labelbutton>
      *
      *     <text id="hello"></text>
-     */-->    
+     */-->
     <class name="labelbutton" type="coffee" extends="buttonbase">
 
       <handler event="oninit">
@@ -48,8 +48,6 @@ SOFTWARE. -->
       </handler>
 
       <method name="realinit">
-        @super();
-
         # visual is the object that makes a visual change when selected
         @visual = @
 
@@ -57,15 +55,13 @@ SOFTWARE. -->
 
         # Detect if the button was supplied with a size
         @_fixedsize = true if (@width > 0 || @height > 0)
-          
+
         @handleResize()
 
         @visualize()
       </method>
 
       <method name="handleResize">
-        @super();
-
         return unless @realinited  #Hack. Should be @inited
         return if @_resize_lock
 

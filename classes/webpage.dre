@@ -29,7 +29,7 @@ SOFTWARE. -->
      * using the src attribute, or to show dynamic content using the
      * contents attribute.
      *
-     * This example shows how to display a web page in an iframe. The 
+     * This example shows how to display a web page in an iframe. The
      * contents of the iframe are not editable:
      *
      *     @example
@@ -46,7 +46,7 @@ SOFTWARE. -->
      *     @example
      *     <webpage width="300" height="140" contents="Hello"></webpage>
      *
-     */-->    
+     */-->
 
     <class name="webpage" type="coffee">
       <handler event="onwidth" method="handleResize"></handler>
@@ -88,8 +88,6 @@ SOFTWARE. -->
       </handler>
 
       <method name="createFrame">
-        @super();
-
         @sprite.el.removeChild(@iframe) if @iframe
         @iframe = document.createElement("IFRAME")
 
@@ -107,8 +105,6 @@ SOFTWARE. -->
       </method>
 
       <method name="updateFrame">
-        @super();
-
         return if (@width == 0 || @height == 0 || !@iframe)
 
         @iframe.src = @src unless @iframe.src == @src
@@ -135,8 +131,6 @@ SOFTWARE. -->
       </method>
 
       <method name="handleResize">
-        @super();
-
         if (@iframe)
           @iframe.style.width = @width;
           @iframe.style.height = @height;

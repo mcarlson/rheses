@@ -22,7 +22,7 @@ SOFTWARE. -->
 <!--/**
       * @class dr.shrinktofit {Layout}
       * @extends dr.layout
-      * A special "layout" that resizes the parent to fit the children 
+      * A special "layout" that resizes the parent to fit the children
       * rather than laying out the children.
       *
       *
@@ -53,7 +53,7 @@ SOFTWARE. -->
 <class name="shrinktofit" extends="layout" type="coffee">
   <!--/**
     * @attribute {String} [axis=x]
-    * The axis along which to resize this view to fit its children. 
+    * The axis along which to resize this view to fit its children.
     * Supported values are 'x', 'y' and 'both'.
     */-->
   <attribute name="axis" type="string" value="x"></attribute>
@@ -65,35 +65,31 @@ SOFTWARE. -->
     @startMonitoringAllSubviews()
     @update()
   </handler>
-  
+
   <!--/**
     * @attribute {Number} [xpad=0]
     * Additional space added on the child extent along the x-axis.
     */-->
   <attribute name="xpad" type="number" value="0"></attribute>
   <handler event="onxpad" method="update"></handler>
-  
+
   <!--/**
     * @attribute {Number} [ypad=0]
     * Additional space added on the child extent along the y-axis.
     */-->
   <attribute name="ypad" type="number" value="0"></attribute>
   <handler event="onypad" method="update"></handler>
-  
-  <method name="startMonitoringSubview" args="view">
-    @super();
 
+  <method name="startMonitoringSubview" args="view">
     @__updateMonitoringSubview(view, @listenTo)
   </method>
-  
-  <method name="stopMonitoringSubview" args="view">
-    @super();
 
+  <method name="stopMonitoringSubview" args="view">
     @__updateMonitoringSubview(view, @stopListening)
   </method>
-  
+
   <!--/**
-    * @method __updateMonitoringSubview 
+    * @method __updateMonitoringSubview
     * Wrapped by startMonitoringSubview and stopMonitoringSubview.
     * @param {dr.view} view
     * @param {Function} func
@@ -101,34 +97,30 @@ SOFTWARE. -->
     * @private
     */-->
   <method name="__updateMonitoringSubview" args="view, func">
-    @super();
-
     axis = @axis
     func = func.bind(@)
-    
+
     if axis != 'y'
       func(view, 'x', @update)
       func(view, 'width', @update)
-    
+
     if axis != 'x'
       func(view, 'y', @update)
       func(view, 'height', @update)
-    
+
     func(view, 'visible', @update)
   </method>
-  
-  <method name="update">
-    @super();
 
+  <method name="update">
     if @canUpdate()
       # Prevent inadvertent loops
       @locked = true
-      
+
       svs = @subviews
       len = svs.length
       maxFunc = Math.max
       parent = @parent
-      
+
       if @axis != 'y'
         max = 0
         i = len
@@ -136,7 +128,7 @@ SOFTWARE. -->
           sv = svs[--i]
           if sv.visible then max = maxFunc(max, sv.x + maxFunc(0, sv.width))
         parent.setAttribute('width', max + @xpad + parent.width - parent.innerwidth)
-        
+
       if @axis != 'x'
         max = 0
         i = len
@@ -144,7 +136,7 @@ SOFTWARE. -->
           sv = svs[--i]
           if sv.visible then max = maxFunc(max, sv.y + maxFunc(0, sv.height))
         parent.setAttribute('height', max + @ypad + parent.height - parent.innerheight)
-      
+
       @locked = false
   </method>
 </class>
