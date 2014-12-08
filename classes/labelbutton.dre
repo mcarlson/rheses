@@ -48,6 +48,8 @@ SOFTWARE. -->
       </handler>
 
       <method name="realinit">
+        @super();
+
         # visual is the object that makes a visual change when selected
         @visual = @
 
@@ -62,6 +64,8 @@ SOFTWARE. -->
       </method>
 
       <method name="handleResize">
+        @super();
+
         return unless @realinited  #Hack. Should be @inited
         return if @_resize_lock
 

@@ -72,6 +72,23 @@ SOFTWARE. -->
      *       </handler>
      *     </art>
      *
+     * The art component can work with the animator component to control which
+     * frame is displayed. For example, this will animate the graphic between
+     * frames 0, 1, 2, 3, and display the frame inside the component.
+     *
+     *     @example
+     *     <class name="centertext2" extends="text" color="white" height="40" x="${this.parent.width/2-this.width/2}" y="${this.parent.height/2-this.height/2}">
+     *       <method name="format" args="value">
+     *         if (value < 0.0) return '';
+     *         return value.toFixed(2);
+     *       </method>
+     *     </class>
+     *     <art id="art_1" width="100" height="100" src="/examples/img/cursorshapes.svg" path="0" stroke="coral" fill="coral" stretches="true">
+     *       <centertext2 text="${this.parent.animationframe}"></centertext2>
+     *       <animator start="0" from="0" to="3" attribute="animationframe" duration="4000" motion = "outBounce" repeat="1">
+     *       </animator>
+     *     </art>
+     *
      */-->    
 
       <!--/**
@@ -149,6 +166,7 @@ SOFTWARE. -->
         return if !src
         return if @src == src
         @src = src
+        return src
       </setter>
 
       <handler event="oninit">
@@ -162,6 +180,7 @@ SOFTWARE. -->
       </handler>
 
       <method name="setAttribute" args="name, value">
+        @super();
         # If debug=true, show attributes that pass through to the svg
         debug = window.location.search.indexOf('debug') > 0
         if debug
@@ -172,6 +191,7 @@ SOFTWARE. -->
 
 
       <method name="show_path" args="name">
+        @super();
         # Retrieve an svg path given its name, or index
         path = @get_path(name)
         if path and path.length > 0
@@ -182,6 +202,7 @@ SOFTWARE. -->
 
 
       <method name="get_path_frame" args="name, params">
+        @super();
         # Construct a start or stop animation state using the specified
         # path, and optional other animation parameters
 
@@ -197,6 +218,8 @@ SOFTWARE. -->
       </method>
 
       <method name="animate_path" args="name, params">
+        @super();
+
         # Animate the path, as well as specified params
         return @show_path(name) if !@snap
 
@@ -221,6 +244,8 @@ SOFTWARE. -->
       </method>
 
       <method name="show_frame" args="start_path, end_path, frame, start_params, end_params">
+        @super();
+
         # Called when animationframe changes. This can also be used to display
         # a frame between any two keyframes.
         frame = 0 if frame < 0
@@ -252,6 +277,8 @@ SOFTWARE. -->
 
 
       <method name="createDOM">
+        @super();
+
         # Create a div to handle resizing of the graphics
         return if @container      
 
@@ -262,6 +289,8 @@ SOFTWARE. -->
       </method>
 
       <method name="createSnap">
+        @super();
+
         return if @snap
         @snap = Snap()
 
@@ -295,6 +324,8 @@ SOFTWARE. -->
 
 
       <method name="hide_art", args="fixed">
+        @super();
+
         # Hide either fixed art (fixed=true or missing) or snap (false)
         fixed = true if not fixed?
         $(@container).hide() if @container and fixed
@@ -302,6 +333,7 @@ SOFTWARE. -->
       </method>
 
       <method name="get_path" args="name">
+        @super();
         # Read the path information from the svg using id and then index
         return null if !@container
 
@@ -309,16 +341,19 @@ SOFTWARE. -->
         path = $(@container).find('svg').find('g#'+name).find('path')
         return path if path.length == 1
 
-        # Try using name as an index
+        # Try using name as an index (take the first child that is a path)
         index = parseInt(name)
         return null if isNaN(index)
-        elements = $(@container).find('svg').find('g').find('path')
+        elements = $(@container).find('svg').find('path:nth-child(1)')
+        # console.log('get_path', name, elements)
         return null if (elements.length-1) < index
 
         return $(elements[index])
       </method>
 
       <method name="get_paths">
+        @super();
+
         # Get every path specified in the svg
         dom = @container
         return null if !dom
@@ -328,6 +363,8 @@ SOFTWARE. -->
       </method>
 
       <method name="get_bounding_box">
+        @super();
+
         # Get the bounding box of all the paths
         paths = @get_paths()
         for path, index in paths
@@ -356,6 +393,8 @@ SOFTWARE. -->
       <handler event="onready" method="normalizeArt"></handler>
 
       <method name="normalizeArt">
+        @super();
+
         return unless @container
 
         # Normalize the svg by setting width and height to 100%, and
@@ -399,6 +438,8 @@ SOFTWARE. -->
       </method>
 
       <method name="resizeArt">
+        @super();
+
         # Resize the art, if needed, for changes in container size
 
         # Apply stretches to the static svg
@@ -421,6 +462,8 @@ SOFTWARE. -->
       </method>
 
       <method name="loadInline">
+        @super();
+
         # Load inline svg
         @createDOM()
 
@@ -443,6 +486,8 @@ SOFTWARE. -->
       </method>
 
       <method name="loadFromFile">
+        @super();
+
         # Load an svg file
         @createDOM()
 

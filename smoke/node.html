@@ -1,12 +1,5 @@
 <html>
 <head>
-  <style type="text/css">
-    body {
-      font-family: 'Helvetica';
-      font-size: 14px;
-    }
-  </style>
-
   <title>Dr33m - Node Smoke Tests</title>
   <script type="text/javascript" src="/lib/jquery-1.9.1.min.js"></script>
   <script type="text/javascript" src="/lib/acorn.js"></script>
@@ -25,43 +18,42 @@
   <view name="outer" width="200" height="200" bgcolor="green">
     <method name="getTestArray">return this.testArr || (this.testArr = []);</method>
     
-    <handler event="onsubnodeAdded" args="node">
-      //console.log("EVENT subnodeAdded", node.name);
-    </handler>
-    <handler event="onsubnodeRemoved" args="node">
-      //console.log("EVENT subnodeRemoved", node.name);
-    </handler>
-    <method name="doSubnodeAdded" args="node" invokesuper="after">
-      //console.log("subnodeAdded", node.name);
-    </method>
-    <method name="doSubnodeRemoved" args="node" invokesuper="after">
-      //console.log("subnodeRemoved", node.name);
-    </method>
-    
     <handler event="onsubviewAdded" args="sv">
-      //console.log("EVENT subviewAdded", sv.name);
+      var testArr = this.getTestArray();
+      testArr.push('onsubviewAdded ' + this.name + ':' + sv.name );
     </handler>
     <handler event="onsubviewRemoved" args="sv">
-      //console.log("EVENT subviewRemoved", sv.name);
+      var testArr = this.getTestArray();
+      testArr.push('onsubviewRemoved ' + this.name + ':' + sv.name );
     </handler>
-    <method name="doSubviewAdded" args="sv">
-      //console.log("subviewAdded", sv.name);
+    
+    <method name="doSubnodeAdded" args="node">
+      var testArr = this.getTestArray();
+      testArr.push('doSubnodeAdded ' + this.name + ':' + node.name );
+      this.super();
     </method>
-    <method name="doSubviewRemoved" args="sv">
-      //console.log("subviewRemoved", sv.name);
+    <method name="doSubnodeRemoved" args="node">
+      var testArr = this.getTestArray();
+      testArr.push('doSubnodeRemoved ' + this.name + ':' + node.name );
+      this.super();
     </method>
     
-    <handler event="onlayoutAdded" args="layout">
-      //console.log("EVENT layoutAdded", layout.name);
-    </handler>
-    <handler event="onlayoutRemoved" args="layout">
-      //console.log("EVENT layoutRemoved", layout.name);
-    </handler>
+    <method name="doSubviewAdded" args="sv">
+      var testArr = this.getTestArray();
+      testArr.push('doSubviewAdded ' + this.name + ':' + sv.name );
+    </method>
+    <method name="doSubviewRemoved" args="sv">
+      var testArr = this.getTestArray();
+      testArr.push('doSubviewRemoved ' + this.name + ':' + sv.name );
+    </method>
+    
     <method name="doLayoutAdded" args="layout">
-      //console.log("layoutAdded", layout.name);
+      var testArr = this.getTestArray();
+      testArr.push('doLayoutAdded ' + this.name + ':' + layout.name );
     </method>
     <method name="doLayoutRemoved" args="layout">
-      //console.log("layoutRemoved", layout.name);
+      var testArr = this.getTestArray();
+      testArr.push('doLayoutRemoved ' + this.name + ':' + layout.name );
     </method>
     
     <node name="foo">
@@ -104,11 +96,29 @@
       testArr.push(this.name + '.oninit.handler');
       
       var matchArr = [
+        'doSubnodeAdded outer:foo',
+        
+        'doSubnodeAdded outer:bar',
+        'onsubviewAdded outer:bar',
+        'doSubviewAdded outer:bar',
+        
+        'doSubnodeAdded outer:baz',
+        'doLayoutAdded outer:baz',
+        
+        'doSubnodeAdded outer:hey',
+        'onsubviewAdded outer:hey',
+        'doSubviewAdded outer:hey',
+        
+        'doSubnodeAdded outer:there',
+        'onsubviewAdded outer:there',
+        'doSubviewAdded outer:there',
+        
         'foo.oninit.handler',
         'bar.oninit.handler',
         'baz.oninit.handler',
         'hey.oninit.handler',
         'there.oninit.handler',
+        
         'outer.oninit.handler'
       ];
       assert.equal(matchArr.join(','), testArr.join(','));

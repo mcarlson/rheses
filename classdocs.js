@@ -45,6 +45,11 @@
       * A variablelayout that aligns each view vertically or horizontally
       * relative to all the other views.
       *
+      * If collapseparent is true the parent will be sized to fit the
+      * aligned views such that the view with the greatest extent will have
+      * a position of 0. If instead collapseparent is false the views will
+      * be aligned within the inner extent of the parent view.
+      *
       *     @example
       *     <alignlayout align="middle" collapseparent="true">
       *     </alignlayout>
@@ -81,7 +86,7 @@
         * The start time of the animation
         */
 /**
-        * @attribute {String} form
+        * @attribute {String} from
         * The value to start the animation from, if not specified is read from the target attribute
         */
 /**
@@ -184,35 +189,65 @@
      * This example shows how to load an existing svg
      *
      *     @example
-     *     <art width="100" height="100" src="/images/siemens-clock.svg"></art>
+     *     <art width="100" height="100" src="/examples/img/siemens-clock.svg"></art>
      *
      * Paths within an svg can be selected using the path attribute
      *
      *     @example
-     *     <art width="100" height="100" src="/images/cursorshapes.svg" path="0"></art>
+     *     <art width="100" height="100" src="/examples/img/cursorshapes.svg" path="0"></art>
      *
      * Attributes are automatically passed through to the SVG. Here, the fill color is changed
      *
      *     @example
-     *     <art width="100" height="100" src="/images/cursorshapes.svg" path="0" fill="coral"></art>
+     *     <art width="100" height="100" src="/examples/img/cursorshapes.svg" path="0" fill="coral"></art>
      *
      * Setting the path attribute animates between paths. This example animates when the mouse is clicked
      *
      *     @example
-     *     <art width="100" height="100" src="/images/cursorshapes.svg" path="0" fill="coral">
+     *     <art width="100" height="100" src="/examples/img/cursorshapes.svg" path="0" fill="coral">
      *       <handler event="onclick">
      *         this.setAttribute('path', this.path ^ 1);
+     *       </handler>
+     *     </art>
+     *
+     * The animationframe attribute controls which frame is displayed. The
+     * value is a floating point number to display a frame between two
+     * keyframes. For example, 1.4 will display the frame 40% between
+     * paths 1 and 2. This example will animate between keyframes 0, 1, 2.
+     *
+     *     @example
+     *     <art id="art_3" width="100" height="100" src="/examples/img/cursorshapes.svg" path="0" fill="coral" animationspeed="1000" animationcurve="linear">
+     *       <handler event="onclick">
+     *         this.setAttribute('animationframe', 0);
+     *         this.animate({animationframe: 2}, 1000);
      *       </handler>
      *     </art>
      *
      * By default, the SVG's aspect ratio is preserved. Set the stretches attribute to true to change this behavior.
      *
      *     @example
-     *     <art width="200" height="100" src="/images/cursorshapes.svg" path="0" fill="coral" stretches="true">
+     *     <art width="200" height="100" src="/examples/img/cursorshapes.svg" path="0" fill="coral" stretches="true">
      *       <handler event="onclick">
      *         this.setAttribute('path', this.path ^ 1);
      *         this.animate({width: (this.width == 200 ? 100 : 200)});
      *       </handler>
+     *     </art>
+     *
+     * The art component can work with the animator component to control which
+     * frame is displayed. For example, this will animate the graphic between
+     * frames 0, 1, 2, 3, and display the frame inside the component.
+     *
+     *     @example
+     *     <class name="centertext2" extends="text" color="white" height="40" x="${this.parent.width/2-this.width/2}" y="${this.parent.height/2-this.height/2}">
+     *       <method name="format" args="value">
+     *         if (value < 0.0) return '';
+     *         return value.toFixed(2);
+     *       </method>
+     *     </class>
+     *     <art id="art_1" width="100" height="100" src="/examples/img/cursorshapes.svg" path="0" stroke="coral" fill="coral" stretches="true">
+     *       <centertext2 text="${this.parent.animationframe}"></centertext2>
+     *       <animator start="0" from="0" to="3" attribute="animationframe" duration="4000" motion = "outBounce" repeat="1">
+     *       </animator>
      *     </art>
      *
      */
@@ -235,6 +270,10 @@
 /**
         * @attribute {Number} [animationspeed=400]
         * The number of milliseconds to use when animating between paths
+        */
+/**
+        * @attribute {Number} [animationframe=0]
+        * The current animation frame
         */
 /**
         * @attribute {"linear"/"easeout"/"easein"/"easeinout"/"backin"/"backout"/"elastic"/"bounce"} [animationcurve="linear"]
@@ -320,14 +359,76 @@
         * The bitmap URL to load
         */
 /**
-             * @event onload 
-             * Fired when the bitmap is loaded
-             * @param {Object} size An object containing the width and height
-             */
+               * @event onload 
+               * Fired when the bitmap is loaded
+               * @param {Object} size An object containing the width and height
+               */
 /**
-             * @event onerror 
-             * Fired when there is an error loading the bitmap
-             */
+               * @event onerror 
+               * Fired when there is an error loading the bitmap
+               */
+/**
+ * @class dr.bitmapbutton {UI Components}
+ * @extends dr.view
+ * A button that may be configured with three images for the default states (default, over, and down), or can be configured
+ * with custom states, and custom interactive behavior.
+ *
+ * You can configure the default, over, and down image explicitly with the defaultsrc, oversrc, and downsrc attributes
+ *
+ *     @example
+ *     <bitmapbutton width="100" height="100" defaultsrc="../api-examples-resources/default.png" oversrc="../api-examples-resources/over.png" downsrc="../api-examples-resources/down.png"></bitmapbutton>
+ *
+ * Or you can set the images using the srcs attribute
+ *
+ *     @example
+ *     <bitmapbutton width="100" height="100" srcs='["../api-examples-resources/default.png", "../api-examples-resources/over.png", "../api-examples-resources/down.png"]'></bitmapbutton>
+ *
+ * Setting the interactive attribute to false disables the default hover and down state changes. This enables you to set your own custom state change behavior.
+ *
+ *     @example
+ *     <bitmapbutton width="100" height="100" interactive="false" srcs='["../api-examples-resources/default.png", "../api-examples-resources/over.png", "../api-examples-resources/down.png"]'></bitmapbutton>
+ *
+ * You can configure custom states like so, which will set the interactive flag to false, and then add your own custom state changes
+ *
+ *     @example
+ *     <bitmapbutton width="100" height="100" states='["one", "two", "three", "four"]' srcs='["../api-examples-resources/default.png", "../api-examples-resources/over.png", "../api-examples-resources/down.png", "../api-examples-resources/shasta.jpg"]'>
+ *       <attribute name="statetracker" type="number" value="0"></attribute>
+ *       <handler event="onclick">
+ *         var newStateIndex = this.statetracker + 1;
+ *         if (newStateIndex == 4) newStateIndex = 0;
+ *         this.setAttribute('statetracker', newStateIndex)
+ *         this.setAttribute('state', this.states[newStateIndex])
+ *       </handler>
+ *     </bitmapbutton>
+ */
+/**
+    * @attribute {String} [state="default"]
+    * The currently active state.
+    */
+/**
+    * @attribute {String} [states="default, over, down"]
+    * The states that have been configured for this button. If left as the default states, default, over, and down states are applied automatically based on mouse/touch interactions.
+    */
+/**
+    * @attribute {String} [srcs=""]
+    * Use this to configure the image sources for the states (in order of default, over, down). 
+    */
+/**
+    * @attribute {String} [defaultsrc=""]
+    * The source of the default image. 
+    */
+/**
+    * @attribute {String} [oversrc=""]
+    * The source of the over image. 
+    */
+/**
+    * @attribute {String} [downsrc=""]
+    * The source of the down image. 
+    */
+/**
+    * @attribute {Boolean} [interactive="true"]
+    * When true default, over, and down states are applied automatically based on mouse/touch interactions. Set to false to disable the default behavior.
+    */
 /**
       * @class dr.boundslayout {Deprecated}
       * @extends dr.layout
@@ -477,7 +578,7 @@
      * Data can be loaded from a URL when your backend server is ready, or reloaded to show changes over time:
      *
      *     @example wide
-     *     <dataset name="example" url="/example.json"></dataset>
+     *     <dataset name="example" url="/examples/data/example.json"></dataset>
      *     <spacedlayout></spacedlayout>
      *     <replicator classname="text" datapath="$example/store/book[*]/title"></replicator>
      */
@@ -492,6 +593,10 @@
 /**
         * @attribute {String} url
         * The url to load JSON data from.
+        */
+/**
+        * @attribute {Boolean} [async=false]
+        * If true, parse json in a worker thread
         */
 /**
      * @class dr.dragstate {UI Components}
@@ -544,6 +649,10 @@
      * @extends dr.node
      * Receives gyroscope and compass data where available. See [https://w3c.github.io/deviceorientation/spec-source-orientation.html#deviceorientation](https://w3c.github.io/deviceorientation/spec-source-orientation.html#deviceorientation) and [https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html](https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html) for details.
      */
+/**
+        * @attribute {Boolean} [active=false] (readonly)
+        * True if gyro is supported
+        */
 /**
         * @attribute {Number} [x=0] (readonly)
         * The accelerometer x value
@@ -610,16 +719,16 @@
      *     <text text="${toggle.selected ? 'selected' : 'not selected'}"></text>
      */
 /**
-     * @class dr.logger {Util}
-     * @extends dr.node
-     * Logs all attribute setting behavior
-     *
-     * This example shows how to log all setAttribute() calls for a replicator to console.log():
-     *
-     *     @example
-     *     <dataset name="topmovies" url="/top_movies.json"></dataset>
-     *     <replicator datapath="$topmovies/searchResponse/results[*]/movie[take(/releaseYear,/duration,/rating)]" classname="logger"></replicator>
-     */
+   * @class dr.logger {Util}
+   * @extends dr.node
+   * Logs all attribute setting behavior
+   *
+   * This example shows how to log all setAttribute() calls for a replicator to console.log():
+   *
+   *     @example
+   *     <dataset name="topmovies" url="/top_movies.json"></dataset>
+   *     <replicator datapath="$topmovies/searchResponse/results[*]/movie[take(/releaseYear,/duration,/rating)]" classname="logger"></replicator>
+   */
 /**
    * @class dr.rangeslider {UI Components}
    * @extends dr.view
@@ -868,6 +977,10 @@
         * If true, reuse views when replicating.
         */
 /**
+        * @attribute {Boolean} [async=true]
+        * If true, create views asynchronously
+        */
+/**
         * @attribute {Array} [data=[]]
         * The list of items to replicate. If {@link #datapath datapath} is set, it is converted to an array and stored here.
         */
@@ -882,7 +995,7 @@
         */
 /**
         * @attribute {String} [sortfield=""]
-        * The field in the data to use for sorting. Only sort then this 
+        * The field in the data to use for sorting. Only sort then this
         */
 /**
         * @attribute {Boolean} [sortasc=true]
@@ -890,7 +1003,7 @@
         */
 /**
         * @attribute {String} [filterexpression=""]
-        * If defined, data will be filtered against a [regular expression](https://developer.mozilla.org/en/docs/Web/JavaScript/Guide/Regular_Expressions). 
+        * If defined, data will be filtered against a [regular expression](https://developer.mozilla.org/en/docs/Web/JavaScript/Guide/Regular_Expressions).
         */
 /**
         * @method refresh
@@ -903,6 +1016,11 @@
         * @param obj An individual item to be processed.
         * @param {Object[]} accum The array of items that have been accumulated. To keep a processed item, it must be added to the accum array.
         * @returns {Object[]} The accum array. Must be returned otherwise results will be lost.
+        */
+/**
+        * @event onreplicated
+        * Fired when the replicator is done
+        * @param {dr.replicator} replicator The dr.replicator that fired the event
         */
 /**
       * @class dr.resizelayout {Layout}

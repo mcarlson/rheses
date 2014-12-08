@@ -161,13 +161,18 @@ SOFTWARE. -->
      *     </replicator>
      *
      * See [https://github.com/flitbit/json-path](https://github.com/flitbit/json-path) for more details.
-     */--> 
+     */-->
     <class name="replicator" type="coffee" extends="node" scriptincludes="/lib/json-path+json-ptr-0.1.3.min.js">
       <!--/**
         * @attribute {Boolean} [pooling=false]
         * If true, reuse views when replicating.
         */-->
       <attribute name="pooling" value="false" type="boolean"></attribute>
+      <!--/**
+        * @attribute {Boolean} [async=true]
+        * If true, create views asynchronously
+        */-->
+      <attribute name="async" value="true" type="boolean"></attribute>
       <!--/**
         * @attribute {Array} [data=[]]
         * The list of items to replicate. If {@link #datapath datapath} is set, it is converted to an array and stored here.
@@ -185,6 +190,7 @@ SOFTWARE. -->
         */-->
       <setter name="datapath" args="datapath">
         return unless datapath
+        orig = datapath
         # console.log('evaluating datapath', datapath)
         re = /^\$([^\/]+)/
         match = datapath.match(re)
@@ -198,12 +204,13 @@ SOFTWARE. -->
 
         @parsedpath = JsonPath.parseSelector(datapath)
         # console.log('evaluated datapath', datapath, @parsedpath)
+        return orig
       </setter>
       <!-- TODO: why can't this attribute/setter be named _dataset? -->
 <!--       TODO: attribute value is overwritten by "" later!!!
       <attribute name="_dataset" value="" type="string"></attribute> -->
       <setter name="_dataset" args="dataset">
-        return unless dataset
+        return dataset unless dataset and dr.datasets?[dataset]
         @dataset = dr.datasets[dataset]
         @_dataset = dataset
 
@@ -214,11 +221,12 @@ SOFTWARE. -->
           @applyData()
         )
         @sendEvent('dataset', @dataset)
+        return dataset
       </setter>
       <!-- TODO: make this a relative datapath -->
       <!--/**
         * @attribute {String} [sortfield=""]
-        * The field in the data to use for sorting. Only sort then this 
+        * The field in the data to use for sorting. Only sort then this
         */-->
       <attribute name="sortfield" value="" type="string"></attribute>
       <!--/**
@@ -228,7 +236,7 @@ SOFTWARE. -->
       <attribute name="sortasc" value="true" type="boolean"></attribute>
       <!--/**
         * @attribute {String} [filterexpression=""]
-        * If defined, data will be filtered against a [regular expression](https://developer.mozilla.org/en/docs/Web/JavaScript/Guide/Regular_Expressions). 
+        * If defined, data will be filtered against a [regular expression](https://developer.mozilla.org/en/docs/Web/JavaScript/Guide/Regular_Expressions).
         */-->
       <attribute name="filterexpression" value="" type="string"></attribute>
       <setter name="filterexpression" args="regex">
@@ -237,6 +245,7 @@ SOFTWARE. -->
         @_filterexpressionfunc = (value) ->
           return (value + '').match(_filterexpression) if (value)
         @doReplication()
+        return regex
       </setter>
       <attribute name="lazycount" value="Infinity" type="number"></attribute>
       <handler event="onsortfield">
@@ -250,6 +259,8 @@ SOFTWARE. -->
         @applyData()
       </handler>
       <method name="buildsortfunc">
+        @super();
+
         if @sortfield
           sortfield = @sortfield
           sortasc = @sortasc
@@ -269,12 +280,17 @@ SOFTWARE. -->
         else
           @sortfunc = null
       </method>
-      <handler event="oninit" method="applyData"></handler>
+      <handler event="oninit">
+        @setAttribute('_dataset', @_dataset) unless @dataset
+        @applyData();
+      </handler>
       <handler event="onclassname" method="applyData"></handler>
       <handler event="ondata" method="applyData"></handler>
       <handler event="ondatapath" method="applyData"></handler>
       <handler event="ondestroy" method="clear"></handler>
       <method name="updateData" args="data">
+        @super();
+
         # remove dataset declaration
         re = /^\$([^\/]+)/
         @dataset.updateData(@datapath.replace(re, ''), data);
@@ -284,9 +300,13 @@ SOFTWARE. -->
         * Refreshes the dataset manually
         */-->
       <method name="refresh">
+        @super();
+
         this.applyData()
       </method>
       <method name="clear">
+        @super();
+
         # @parent.setAttribute('display', 'none')
         if @children
           for child in @children
@@ -304,6 +324,8 @@ SOFTWARE. -->
         * @returns {Object[]} The accum array. Must be returned otherwise results will be lost.
         */-->
       <method name="applyData">
+        @super();
+
         return unless @inited and @parent and @classname
         # console.log('applyData', @data, @classname, @parent, @children, @, @inited)
 
@@ -328,14 +350,14 @@ SOFTWARE. -->
             else
               # console.log('evaluating absolute selector', @datapath, @dataset.data, @parsedpath)
               data = JsonPath.executeSelectors(@dataset.data, @parsedpath, @filterfunction?.bind(@))
-          else 
+          else
             # relative datapath, look for dataset reference in parents
             parentdata = @_findInParents('data')
             if parentdata?
               # console.log 'found dataset in parent ', parentdata
               if parentdata.$tagname is 'dataset' and parentdata.data
                 # console.log 'found parentdata.data', parentdata
-                parentdata = parentdata.data 
+                parentdata = parentdata.data
               # console.log('executing relative selector', @datapath, @parsedpath, parentdata)
               data = JsonPath.executeSelectors(parentdata, @parsedpath, @filterfunction?.bind(@))
               # console.log('looking for data', @datapath, parentdata, data)
@@ -357,7 +379,14 @@ SOFTWARE. -->
         else
           @doReplication()
       </method>
+      <!--/**
+        * @event onreplicated
+        * Fired when the replicator is done
+        * @param {dr.replicator} replicator The dr.replicator that fired the event
+        */-->
       <method name="doReplication">
+        @super();
+
         return unless @data and @parent
 
         locked = @locked
@@ -373,7 +402,7 @@ SOFTWARE. -->
         if @classname == 'node'
           # bail out before actually replicating
           @locked = locked
-          return 
+          return
 
         if @parent.layouts
           for layout in @parent.layouts
@@ -389,18 +418,23 @@ SOFTWARE. -->
           @clear()
           for datum in @data
             # console.log 'replicator creating', @classname, 'in', @parent
-            child = new dr[@classname](null, {data: datum, parent: @parent, replicator: @})
+            child = new dr[@classname](null, {data: datum, parent: @parent, replicator: @}, @async)
             # console.log 'replicator created', @classname, child, child.data
             @children.push(child)
 
-        # init constraints for all children created
-        child.initConstraints() if child
+        finalize = () =>
+          # init constraints for all children created
+          child.initConstraints() if child
+          if @parent.layouts
+            for layout in @parent.layouts
+              layout.setAttribute('locked', false)
+              layout.update()
+          @locked = locked
+          @sendEvent('replicated', @)
 
-        if @parent.layouts
-          for layout in @parent.layouts
-            layout.setAttribute('locked', false)
-            layout.update()
-
-        @locked = locked        
+        if @async
+          dr.idle.callOnIdle(finalize)
+        else
+          finalize()
       </method>
     </class>

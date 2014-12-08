@@ -22,25 +22,28 @@ SOFTWARE. -->
     <class name="threejs" width="400" height="300" scriptincludes="http://threejs.org/build/three.min.js">
       <attribute name="cameranear" value="1" type="number"></attribute>
       <setter name="cameranear" args="cameranear">
-        if (! this.camera) return;
-        this.camera.near = cameranear;
-        this.camera.updateProjectionMatrix();
+        if (this.camera) {
+          this.camera.near = cameranear;
+          this.camera.updateProjectionMatrix();
+        }
+        return cameranear
       </setter>
       <attribute name="camerafar" value="100000" type="number"></attribute>
       <setter name="camerafar" args="camerafar">
-        if (! this.camera) return;
-        this.camera.far = camerafar;
-        this.camera.updateProjectionMatrix();
+        if (this.camera) {
+          this.camera.far = camerafar;
+          this.camera.updateProjectionMatrix();
+        }
+        return camerafar
       </setter>
       <handler event="onidle" reference="dr.idle">
-        this.renderer.render( this.scene, this.camera );
+        if (this.renderer) this.renderer.render( this.scene, this.camera );
       </handler>
 
       <handler event="onwidth" method="handleResize"></handler>
       <handler event="onheight" method="handleResize"></handler>
 
       <handler event="oninit">
-        
         var renderer = this.renderer = new THREE.WebGLRenderer();
         
         renderer.setClearColor( this.bgcolor );
@@ -52,32 +55,29 @@ SOFTWARE. -->
         this.camera = new THREE.PerspectiveCamera( 40, this.width / this.height, this.cameranear, this.camerafar );
         this.scene = new THREE.Scene();
         this.initScene(this.scene);
-
       </handler>
       
       <handler event="onbgcolor" args="color">
-        
         if (! this.renderer) return;
         this.renderer.setClearColor( color );
-      
       </handler>
       
       <method name="handleResize">
+        this.super();
 
         if (this.camera) {
-          
           this.camera.aspect = this.width / this.height;
           this.camera.updateProjectionMatrix();
-        
         }
 
         if (this.renderer) {
-          
           this.renderer.setSize( this.width, this.height );
-        
         }
-
       </method>
-      <method name="update" args="scene, camera"></method>
-      <method name="initScene" args="scene"></method>
+      <method name="update" args="scene, camera">
+        this.super();
+      </method>
+      <method name="initScene" args="scene">
+        this.super();
+      </method>
     </class>

@@ -2,6 +2,7 @@ var fs = require('fs');
 
 var timeout = 60;
 var path = "/smoke/";
+var exitCode = 0;
 
 var system = require('system');
 var args = system.args;
@@ -15,16 +16,44 @@ for(var i = 0; i < list.length; i++){
   var file = list[i]
   if (file.indexOf('.html') > 0) {
     files.unshift(file);
-  }       
+  }
 }
 
 var runTest = function (file, callback) {
   var out = []
   var tId;
+  var processOutput = function() {
+    var expectedarry = page.evaluateJavaScript(function () {
+      var retarry = [];
+      $('expectedoutput').contents().filter(function(){
+        return this.nodeType == 8;
+      }).each(function(i, e){
+          retarry.push($.trim(e.nodeValue))
+        });
+
+      return retarry;
+    });
+
+    var gotoutput = out.join("\n")
+    var expectedoutput = expectedarry.join("\n")
+    if (gotoutput !== expectedoutput) {
+      console.log('ERROR: unexpected output expected::::');
+      console.log(expectedoutput)
+      console.log('but got::::::::::::::::::::::::::::::');
+      console.log(gotoutput)
+      console.log("\n")
+    }
+    callback();
+  }
   var updateTimer = function(ms) {
-    ms = ms || timeout
-    if (tId) clearTimeout(tId) 
-    tId = setTimeout(callback, ms);
+    if (ms == null) {
+      var pageTimeout = page.evaluateJavaScript(function () {
+        return $('testingtimer').contents()[0];
+      });
+      ms = pageTimeout == null ? timeout : Number(pageTimeout.nodeValue);
+    }
+    if (tId) clearTimeout(tId);
+    tId = setTimeout(processOutput, ms);
   }
   var page = require('webpage').create();
   page.onError = function(msg, trace) {
@@ -36,7 +65,8 @@ var runTest = function (file, callback) {
       });
     }
     console.error(msgStack.join('\n'));
-    updateTimer();
+    updateTimer(0);
+    exitCode = 1;
   };
   page.onInitialized = function () {
     // this is executed 'after the web page is created but before a URL is loaded.
@@ -49,31 +79,11 @@ var runTest = function (file, callback) {
   };
   page.onResourceError = function(resourceError) {
     console.log('RESOURCE ERROR: ' + resourceError.errorString + ', URL: ' + resourceError.url + ', File: ' + file);
-    updateTimer();
+    updateTimer(0);
   };
   page.onConsoleMessage = function(msg, lineNum, sourceId) {
     if (msg === '~~DONE~~') {
-      updateTimer(timeout);
-      var expectedarry = page.evaluateJavaScript(function () {
-        var retarry = [];
-        $('expectedoutput').contents().filter(function(){
-          return this.nodeType == 8;
-        }).each(function(i, e){
-            retarry.push($.trim(e.nodeValue))
-        });
-        
-        return retarry;
-      });
-      
-      gotoutput = out.join("\n")
-      expectedoutput = expectedarry.join("\n")
-      if (gotoutput !== expectedoutput) {
-        console.log('ERROR: unexpected output expected::::');
-        console.log(expectedoutput)
-        console.log('but got::::::::::::::::::::::::::::::');
-        console.log(gotoutput)
-        console.log("\n")
-      }
+      updateTimer();
       return;
     }
     out.push(msg)
@@ -88,7 +98,7 @@ var loadNext = function() {
     console.log("RUNNING TEST: ", file)
     runTest(file, loadNext);
   } else {
-    phantom.exit();
+    phantom.exit(exitCode);
   }
 }
 

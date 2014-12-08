@@ -1,0 +1,300 @@
+<html>
+<head>
+  <title>dr33m | alignedlayout Smoke Tests</title>
+  <link rel="stylesheet" href="../examples/css/example.css"/>
+  <script type="text/javascript" src="../lib/jquery-1.9.1.js"></script>
+  <script type="text/javascript" src="../lib/acorn.js"></script>
+  <script type="text/javascript" src="../lib/coffee-script.js"></script>
+  <script type="text/javascript" src="../layout.js"></script>
+  <script type="text/javascript" src="../lib/chai.js"></script>
+  <script>
+    var assert = chai.assert
+  </script>
+</head>
+<body>
+  <view width="100%" height="100%" bgcolor="#cccccc">
+    <class name="item" width="10" height="10" bgcolor="#666666"></class>
+    
+    <view name="container" padding="5" border="2" bordercolor="black" height="120" bgcolor="#999999">
+      <alignlayout name="layout" align="right" collapseparent="true"></alignlayout>
+      
+      <item name="v1" y="10" width="10"></item>
+      <item name="v2" y="30" width="20"></item>
+      <item name="v3" y="50" width="30"></item>
+      <item name="v4" y="70" width="40"></item>
+      <item name="v5" y="90" width="50"></item>
+    </view>
+    
+    <view name="container2" x="150" padding="5" border="2" bordercolor="black" width="120" bgcolor="#999999">
+      <alignlayout name="layout" align="bottom" collapseparent="true"></alignlayout>
+      
+      <item name="v1" x="10" height="10"></item>
+      <item name="v2" x="30" height="20"></item>
+      <item name="v3" x="50" height="30"></item>
+      <item name="v4" x="70" height="40"></item>
+      <item name="v5" x="90" height="50"></item>
+    </view>
+    
+    <view name="container3" y="140" padding="5" border="2" bordercolor="black" width="100" height="120" bgcolor="#999999">
+      <alignlayout name="layout" align="right"></alignlayout>
+      
+      <item name="v1" y="10" width="10"></item>
+      <item name="v2" y="30" width="20"></item>
+      <item name="v3" y="50" width="30"></item>
+      <item name="v4" y="70" width="40"></item>
+      <item name="v5" y="90" width="50"></item>
+    </view>
+    
+    <view name="container4" x="150" y="140" bordercolor="black" width="120" height="100" bgcolor="#999999">
+      <alignlayout name="layout" align="bottom"></alignlayout>
+      
+      <item name="v1" x="10" height="10"></item>
+      <item name="v2" x="30" height="20"></item>
+      <item name="v3" x="50" height="30"></item>
+      <item name="v4" x="70" height="40"></item>
+      <item name="v5" x="90" height="50"></item>
+    </view>
+    
+    <handler event="oninit">
+      // HORIZONTAL ALIGNMENT
+      var container = this.container,
+          layout = container.layout,
+          v1 = container.v1,
+          v2 = container.v2,
+          v3 = container.v3,
+          v4 = container.v4,
+          v5 = container.v5;
+          
+      // Verify align right works
+      assert.equal(40, v1.x, 'View one has an x of 40.');
+      assert.equal(30, v2.x, 'View one has an x of 30.');
+      assert.equal(20, v3.x, 'View one has an x of 20.');
+      assert.equal(10, v4.x, 'View one has an x of 10.');
+      assert.equal(0, v5.x, 'View one has an x of 0.');
+      
+      assert.equal(64, container.width, 'The container should be collapsed to 64 due to border and padding.');
+      assert.equal(50, container.innerwidth, 'The container should have an innerwidth of 50.');
+      
+      // Verify align center works
+      layout.setAttribute('align', 'center');
+      assert.equal(20, v1.x, 'View one has an x of 20.');
+      assert.equal(15, v2.x, 'View one has an x of 15.');
+      assert.equal(10, v3.x, 'View one has an x of 10.');
+      assert.equal(5, v4.x, 'View one has an x of 5.');
+      assert.equal(0, v5.x, 'View one has an x of 0.');
+      
+      // Change a views width
+      v5.setAttribute('width', 30);
+      
+      assert.equal(15, v1.x, 'View one has an x of 20.');
+      assert.equal(10, v2.x, 'View one has an x of 15.');
+      assert.equal(5, v3.x, 'View one has an x of 10.');
+      assert.equal(0, v4.x, 'View one has an x of 0.');
+      assert.equal(5, v5.x, 'View one has an x of 10.');
+      
+      assert.equal(54, container.width, 'The container should be collapsed to 54 due to border and padding.');
+      assert.equal(40, container.innerwidth, 'The container should have an innerwidth of 40.');
+      
+      // Verify align left works
+      layout.setAttribute('align', 'left');
+      
+      assert.equal(0, v1.x, 'View one has an x of 0.');
+      assert.equal(0, v2.x, 'View one has an x of 0.');
+      assert.equal(0, v3.x, 'View one has an x of 0.');
+      assert.equal(0, v4.x, 'View one has an x of 0.');
+      assert.equal(0, v5.x, 'View one has an x of 0.');
+      
+      // Align within the parent
+      layout.setAttribute('collapseparent', false);
+      layout.setAttribute('align', 'right');
+      container.setAttribute('width', 100);
+      
+      assert.equal(100, container.width, 'The container should now have a width of 100.');
+      assert.equal(86, container.innerwidth, 'The container should have an innerwidth of 86.');
+      
+      assert.equal(76, v1.x, 'View one has an x of 76.');
+      assert.equal(66, v2.x, 'View one has an x of 66.');
+      assert.equal(56, v3.x, 'View one has an x of 56.');
+      assert.equal(46, v4.x, 'View one has an x of 46.');
+      assert.equal(56, v5.x, 'View one has an x of 56.');
+      
+      layout.setAttribute('align', 'center');
+      
+      assert.equal(38, v1.x, 'View one has an x of 38.');
+      assert.equal(33, v2.x, 'View one has an x of 33.');
+      assert.equal(28, v3.x, 'View one has an x of 28.');
+      assert.equal(23, v4.x, 'View one has an x of 23.');
+      assert.equal(28, v5.x, 'View one has an x of 28.');
+      
+      container.setAttribute('width', 120);
+      assert.equal(120, container.width, 'The container should now have a width of 120.');
+      assert.equal(106, container.innerwidth, 'The container should have an innerwidth of 106.');
+      
+      assert.equal(48, v1.x, 'View one has an x of 48.');
+      assert.equal(43, v2.x, 'View one has an x of 43.');
+      assert.equal(38, v3.x, 'View one has an x of 38.');
+      assert.equal(33, v4.x, 'View one has an x of 33.');
+      assert.equal(38, v5.x, 'View one has an x of 38.');
+      
+      layout.setAttribute('align', 'left');
+      
+      assert.equal(0, v1.x, 'View one has an x of 0.');
+      assert.equal(0, v2.x, 'View one has an x of 0.');
+      assert.equal(0, v3.x, 'View one has an x of 0.');
+      assert.equal(0, v4.x, 'View one has an x of 0.');
+      assert.equal(0, v5.x, 'View one has an x of 0.');
+      
+      // Recollapse
+      layout.setAttribute('collapseparent', true);
+      
+      assert.equal(54, container.width, 'The container should now have a width of 54.');
+      assert.equal(40, container.innerwidth, 'The container should have an innerwidth of 40.');
+      
+      // Verify not initially collapsed works
+      container = this.container3,
+      layout = container.layout;
+      v1 = container.v1;
+      v2 = container.v2;
+      v3 = container.v3;
+      v4 = container.v4;
+      v5 = container.v5;
+      
+      assert.equal(76, v1.x, 'View one has an x of 76.');
+      assert.equal(66, v2.x, 'View one has an x of 66.');
+      assert.equal(56, v3.x, 'View one has an x of 56.');
+      assert.equal(46, v4.x, 'View one has an x of 46.');
+      assert.equal(36, v5.x, 'View one has an x of 36.');
+      
+      // VERTICAL ALIGNMENT
+      container = this.container2,
+      layout = container.layout;
+      v1 = container.v1;
+      v2 = container.v2;
+      v3 = container.v3;
+      v4 = container.v4;
+      v5 = container.v5;
+      
+      // Verify align bottom works
+      assert.equal(40, v1.y, 'View one has an y of 40.');
+      assert.equal(30, v2.y, 'View one has an y of 30.');
+      assert.equal(20, v3.y, 'View one has an y of 20.');
+      assert.equal(10, v4.y, 'View one has an y of 10.');
+      assert.equal(0, v5.y, 'View one has an y of 0.');
+      
+      assert.equal(64, container.height, 'The container should be collapsed to 64 due to border and padding.');
+      assert.equal(50, container.innerheight, 'The container should have an innerheight of 50.');
+      
+      // Verify align center works
+      layout.setAttribute('align', 'middle');
+      assert.equal(20, v1.y, 'View one has an y of 20.');
+      assert.equal(15, v2.y, 'View one has an y of 15.');
+      assert.equal(10, v3.y, 'View one has an y of 10.');
+      assert.equal(5, v4.y, 'View one has an y of 5.');
+      assert.equal(0, v5.y, 'View one has an y of 0.');
+      
+      // Change a views height
+      v5.setAttribute('height', 30);
+      
+      assert.equal(15, v1.y, 'View one has an y of 20.');
+      assert.equal(10, v2.y, 'View one has an y of 15.');
+      assert.equal(5, v3.y, 'View one has an y of 10.');
+      assert.equal(0, v4.y, 'View one has an y of 0.');
+      assert.equal(5, v5.y, 'View one has an y of 10.');
+      
+      assert.equal(54, container.height, 'The container should be collapsed to 54 due to border and padding.');
+      assert.equal(40, container.innerheight, 'The container should have an innerheight of 40.');
+      
+      // Verify align left works
+      layout.setAttribute('align', 'top');
+      
+      assert.equal(0, v1.y, 'View one has an y of 0.');
+      assert.equal(0, v2.y, 'View one has an y of 0.');
+      assert.equal(0, v3.y, 'View one has an y of 0.');
+      assert.equal(0, v4.y, 'View one has an y of 0.');
+      assert.equal(0, v5.y, 'View one has an y of 0.');
+      
+      // Align within the parent
+      layout.setAttribute('collapseparent', false);
+      layout.setAttribute('align', 'bottom');
+      container.setAttribute('height', 100);
+      
+      assert.equal(100, container.height, 'The container should now have a height of 100.');
+      assert.equal(86, container.innerheight, 'The container should have an innerheight of 86.');
+      
+      assert.equal(76, v1.y, 'View one has an y of 76.');
+      assert.equal(66, v2.y, 'View one has an y of 66.');
+      assert.equal(56, v3.y, 'View one has an y of 56.');
+      assert.equal(46, v4.y, 'View one has an y of 46.');
+      assert.equal(56, v5.y, 'View one has an y of 56.');
+      
+      layout.setAttribute('align', 'middle');
+      
+      assert.equal(38, v1.y, 'View one has an y of 38.');
+      assert.equal(33, v2.y, 'View one has an y of 33.');
+      assert.equal(28, v3.y, 'View one has an y of 28.');
+      assert.equal(23, v4.y, 'View one has an y of 23.');
+      assert.equal(28, v5.y, 'View one has an y of 28.');
+      
+      container.setAttribute('height', 120);
+      assert.equal(120, container.height, 'The container should now have a height of 120.');
+      assert.equal(106, container.innerheight, 'The container should have an innerheight of 106.');
+      
+      assert.equal(48, v1.y, 'View one has an y of 48.');
+      assert.equal(43, v2.y, 'View one has an y of 43.');
+      assert.equal(38, v3.y, 'View one has an y of 38.');
+      assert.equal(33, v4.y, 'View one has an y of 33.');
+      assert.equal(38, v5.y, 'View one has an y of 38.');
+      
+      layout.setAttribute('align', 'top');
+      
+      assert.equal(0, v1.y, 'View one has an y of 0.');
+      assert.equal(0, v2.y, 'View one has an y of 0.');
+      assert.equal(0, v3.y, 'View one has an y of 0.');
+      assert.equal(0, v4.y, 'View one has an y of 0.');
+      assert.equal(0, v5.y, 'View one has an y of 0.');
+      
+      // Recollapse
+      layout.setAttribute('collapseparent', true);
+      
+      assert.equal(54, container.height, 'The container should now have a height of 54.');
+      assert.equal(40, container.innerheight, 'The container should have an innerheight of 40.');
+      
+      // Verify not initially collapsed works
+      container = this.container4,
+      layout = container.layout;
+      v1 = container.v1;
+      v2 = container.v2;
+      v3 = container.v3;
+      v4 = container.v4;
+      v5 = container.v5;
+      
+      assert.equal(90, v1.y, 'View one has an y of 90.');
+      assert.equal(80, v2.y, 'View one has an y of 80.');
+      assert.equal(70, v3.y, 'View one has an y of 70.');
+      assert.equal(60, v4.y, 'View one has an y of 60.');
+      assert.equal(50, v5.y, 'View one has an y of 50.');
+    </handler>
+  </view>
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+</body>
+</html>

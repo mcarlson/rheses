@@ -82,6 +82,8 @@ SOFTWARE. -->
         * @param {Number} v The new value of the component.
         */-->
       <method name="changeValue" args="v">
+        @super();
+
         if (v > @maxvalue)
           v = @maxvalue;
         else if (v < @minvalue)
@@ -102,6 +104,8 @@ SOFTWARE. -->
       
       <!-- visualize: Show the current value -->
       <method name="visualize">
+        @super();
+
         if (@axis == 'x')
           w = @width * ((@value - @minvalue) / (@maxvalue-@minvalue))
           x = if @invert then @width-w else 0
@@ -135,6 +139,8 @@ SOFTWARE. -->
 
       <!-- Move the slider in response to a change in position -->
       <method name="movePosition" args="p">
+        @super();
+
         spread = @maxvalue - @minvalue;
         if (@axis == 'x')
           if (@width > 0)

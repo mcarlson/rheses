@@ -53,6 +53,7 @@ SOFTWARE. -->
             this.setAttribute('playing', true);
           }
         }
+        return loaded
       </setter>
       <!--/**
         * @attribute {Boolean} playing
@@ -65,6 +66,7 @@ SOFTWARE. -->
         } else {
           this.stop()
         }
+        return playing
       </setter>
       <!--/**
         * @attribute {Boolean} paused
@@ -77,6 +79,7 @@ SOFTWARE. -->
         } else {
           this.setAttribute('playing', true)
         }
+        return paused
       </setter>
       <!--/**
         * @attribute {Boolean} loop
@@ -86,6 +89,7 @@ SOFTWARE. -->
       <setter name="loop" args="loop">
         if (this.source)
           this.source.loop = loop;
+        return loop
       </setter>
       <!--/**
         * @attribute {Number} time
@@ -158,6 +162,8 @@ SOFTWARE. -->
         this.startTime = 0;
       </handler>
       <method name="play">
+        this.super();
+
         if (! this.buffer) return;
 
         // track the time when playback started
@@ -166,11 +172,11 @@ SOFTWARE. -->
         this.source = this.context.createBufferSource(); 
         this.source.loop = this.loop;
         // tell the source which sound to play
-        this.source.buffer = this.buffer;                    
+        this.source.buffer = this.buffer;
         // Create a gain node.
         //this.gain = this.context.createGain();
         // Create fft     
-        this.fftNode = this.context.createAnalyser();     
+        this.fftNode = this.context.createAnalyser();
         if (this.fftsize) {
           this.fftNode.fftSize = this.fftsize;
           this.fftNode.smoothingTimeConstant = this.fftsmoothing;
@@ -183,9 +189,11 @@ SOFTWARE. -->
         // play the source now
         if (!this.source.start)
           this.source.start = source.noteOn;
-        this.source.start(0, this.startOffset % this.duration);                           
+        this.source.start(0, this.startOffset % this.duration);
       </method>
       <method name="stop">
+        this.super();
+
         if (! this.source) return;
         if (!this.source.stop)
           this.source.stop = source.noteOff;
@@ -195,6 +203,8 @@ SOFTWARE. -->
         this.paused = false;
       </method>
       <method name="pause">
+        this.super();
+
         if (! this.source) return;
         if (!this.source.stop)
           this.source.stop = source.noteOff;

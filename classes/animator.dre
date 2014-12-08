@@ -43,11 +43,12 @@ SOFTWARE. -->
       <setter name="start" args="start">
         if(!this.track)this.track = {}
         this.track.start = start
-        if(this.animator) this.animator.update(this.track)      
+        if(this.animator) this.animator.update(this.track)
+        return start
       </setter>
 
       <!--/**
-        * @attribute {String} form
+        * @attribute {String} from
         * The value to start the animation from, if not specified is read from the target attribute
         */-->
       <attribute name="from" value="" type="string"/>
@@ -57,6 +58,7 @@ SOFTWARE. -->
           this.track[0] = this.from === ""? this.target_obj[this.attribute]: this.from
           this.animator.update(this.track)
         }
+        return from
       </setter>
 
       <!--/**
@@ -70,19 +72,21 @@ SOFTWARE. -->
           this.track[this.duration] = to
         }
         if(this.animator) this.animator.update(this.track)
+        return to
       </setter>
 
       <!--/**
         * @attribute {number} duration
         * The duration of the animation. Is identical to specifying a <keyframe at='{duration}'>{to}</keyframe>
         */-->
-      <attribute name="duration" value = "1000" type = "number"/>
+      <attribute name="duration" value="1000" type="number"/>
       <setter name="duration" args="duration">
         if(!this.track)this.track = {}
         if(this.to !== undefined){
           this.track[duration] = this.to
         }
         if(this.animator) this.animator.update(this.track)
+        return duration
       </setter>
 
       <!--/**
@@ -112,6 +116,7 @@ SOFTWARE. -->
             if(!target) throw new Error('Animation target does not have a $view '+this.target)
           }
         }
+        return target
       </setter>
       <!--/**
         * @attribute {boolean} paused
@@ -127,6 +132,7 @@ SOFTWARE. -->
         else{
           if(this.animator)this.animator.resume()
         }
+        return paused
       </setter>
       <!--/** 
         * @attribute {string} motion
@@ -177,6 +183,7 @@ SOFTWARE. -->
         if(!this.track)this.track = {}
         this.track.motion = motion
         if(this.animator) this.animator.update(this.track)
+        return motion
       </setter>
       <!--/**
         * @attribute {string} control
@@ -189,6 +196,7 @@ SOFTWARE. -->
           return parseFloat(v)
         })
         if(this.animator) this.animator.update(this.track)
+        return control
       </setter>
 
       <!--/**
@@ -200,6 +208,7 @@ SOFTWARE. -->
         if(!this.track)this.track = {}
         this.track.repeat = repeat
         if(this.animator) this.animator.update(this.track)
+        return repeat
       </setter>
 
       <!--/**
@@ -211,6 +220,7 @@ SOFTWARE. -->
         if(!this.track)this.track = {}
         this.track.bounce = bounce
         if(this.animator) this.animator.update(this.track)
+        return bounce
       </setter>
 
       <!--/**

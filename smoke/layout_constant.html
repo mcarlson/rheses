@@ -46,9 +46,9 @@
            view since update happens oninit of the layout's parent -->
       <view name="inner">
         <constantlayout name="layoutX" attribute="x" value="10" locked="false">
-          <method name="update" invokesuper="inside">
+          <method name="update">
             if (this.canUpdate()) window.UC_X++;
-            this.super(arguments);
+            this.super();
           </method>
         </constantlayout>
         
@@ -58,9 +58,9 @@
         <item name="v4"></item>
         
         <constantlayout name="layoutY" attribute="y" value="5">
-          <method name="update" invokesuper="inside">
+          <method name="update">
             if (this.canUpdate()) window.UC_Y++;
-            this.super(arguments);
+            this.super();
           </method>
         </constantlayout>
       </view>

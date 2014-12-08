@@ -7,7 +7,7 @@
 <head>
   <style type="text/css">
     body {
-      font-family: 'Helvetica';
+      font-family: 'Arial';
       font-size: 14px;
     }
   </style>
@@ -29,7 +29,61 @@
 
   <!-- should warn about missing name -->
   <class></class>
+
+  <class name="initme">
+    <attribute name="initcounter" type="number" value="0"></attribute>
+    <handler event="oninit">
+      this.initcounter++;
+    </handler>
+  </class>
+
+  <initme oninit="assert.equal(this.initcounter, 1)"></initme>
+
+  <class name="initmechild">
+    <attribute name="initcounter" type="number" value="0"></attribute>
+    <handler event="oninit">
+      this.initcounter++;
+    </handler>
+    <view></view>
+  </class>
+
+  <initmechild>
+    <handler event="oninit">
+      assert.equal(this.initcounter, 1)
+    </handler>
+  </initmechild>
+
+  <class name="initmechild2" extends="initmechild">
+    <handler event="oninit">
+      this.initcounter++;
+    </handler>
+  </class>
+
+  <initmechild2>
+    <handler event="oninit">
+      assert.equal(this.initcounter, 2)
+    </handler>
+  </initmechild2>
+
+  <initmechild2>
+    <handler event="oninit">
+      assert.equal(this.initcounter, 2)
+    </handler>
+    <view></view>
+  </initmechild2>
+
+  <class name="initme2" extends="initme">
+    <handler event="oninit">
+      this.initcounter++;
+    </handler>
+  </class>
   
+  <initme2 oninit="assert.equal(this.initcounter, 2)"></initme2>
+
+  <initme2 oninit="assert.equal(this.initcounter, 2)">
+    <view></view>
+  </initme2>
+
   <!-- Setting a sub view's attribute with a constraint -->
   <class name="labelview" width="${this.label.width}" height="${this.label.height}" bgcolor="#808080">
     <text name="label" text="${this.parent.text}"></text>
@@ -54,12 +108,16 @@
   <class name="c1" type="coffee">
     <attribute name="counter" type="string" value="0"></attribute>
     <method name="test">
+      this.super();
+
       this.counter += '1';
       # console.log("c1.test")
     </method>
   </class>
   <class name="c2" type="coffee" extends="c1">
     <method name="test">
+      this.super();
+
       this.counter += '2';
       # console.log("c2.test")
     </method>
@@ -73,7 +131,58 @@
   <!-- Loading classes from server -->
   <!-- Can load a class from the components directory. Will throw an error if broken -->
   <checkbutton text="Check"></checkbutton>
+  
+  <!-- Classes defined inline only fire oninit once -->
+  <class name="onlyinitonce">
+    <handler event="oninit">
+      window.inlineClassInitCount = !!window.inlineClassInitCount ? window.inlineClassInitCount+1 : 1
 
+      window.setTimeout(function() {
+        assert.equal(1, window.inlineClassInitCount, 'oninit handler should only fire once')
+      }, 1);
+    </handler>
+  </class>
+  
+  <onlyinitonce></onlyinitonce>
+
+
+  <!-- See https://www.pivotaltracker.com/story/show/82011138 for the issue -->
+  <class name="stackview">
+    <spacedlayout axis="y" spacing="10"></spacedlayout>
+  </class>
+
+  <stackview name="st" bgcolor="red">
+    <view width="100" height="25" bgcolor="lightpink"></view>
+  </stackview>
+
+  <handler event="oninit">
+    assert.equal(this.st.subviews.length, 1)
+    assert.equal(this.st.subnodes.length, 2)
+  </handler>
+
+  <!-- $tagname -->
+  <class name="texta" extends="text"></class>
+  <class name="textb" extends="text2">
+    <handler event="oninit" args="who">
+      assert.equal(who.$tagname, 'textb')
+    </handler>
+  </class>
+
+  <!-- classes should have the correct number of subviews, see https://www.pivotaltracker.com/story/show/83603414 -->
+  <class name="user" type="coffee">
+    <text name="firstnamelabel" color="darkblue"></text>
+    <text name="lastnamelabel" color="darkblue"></text>
+    <handler event="oninit" method="layoutelements"></handler>
+    <method name="layoutelements" type="coffee">
+      assert.equal(@subviews.length, 3)
+    </method>
+  </class>
+
+  <class name="employee" extends="user" type="coffee">
+    <text name="joblabel"></text>
+  </class>
+
+  <employee height="40" firstname="Donathan" lastname="Chillburger" jobtitle="COO"></employee>
 
 </view>
 <!-- The MIT License (MIT)

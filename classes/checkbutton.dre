@@ -76,6 +76,8 @@ SOFTWARE. -->
       </handler>
 
       <method name="realinit">
+        @super();
+
         @realinited = true
         # return unless @check   # oninit can fire before children are inited
 
@@ -91,6 +93,8 @@ SOFTWARE. -->
       </method>
 
       <method name="handleResize">
+        @super();
+
         return unless @realinited  #Hack. Should be @inited
         return if @_resize_lock
 

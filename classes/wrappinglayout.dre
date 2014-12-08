@@ -60,6 +60,7 @@ SOFTWARE. -->
   <setter name="inset" args="inset">
     # An alias for value.
     @setAttribute('value', inset);
+    return inset
   </setter>
   
   <!--/**
@@ -93,9 +94,10 @@ SOFTWARE. -->
   <setter name="axis" args="axis">
     # An alias for attribute.
     @setAttribute('attribute', axis);
+    return axis
   </setter>
   
-  <setter name="attribute" args="attribute" invokesuper="inside">
+  <setter name="attribute" args="attribute">
     @measureAttrName ?= 'height'
     @otherMeasureAttrName ?= 'width'
     @otherAttribute ?= 'x'
@@ -110,35 +112,36 @@ SOFTWARE. -->
       @measureAttrName = 'width'
       @otherMeasureAttrName = 'height'
       @otherAttribute = 'y'
+    return attribute
   </setter>
   <handler event="onattribute">
     @startMonitoringAllSubviews()
     @update()
   </handler>
   
-  <method name="stopMonitoringAllSubviews" args="view" invokesuper="inside">
-    @super(arguments)
+  <method name="stopMonitoringAllSubviews" args="view">
+    @super()
     @stopListening(@parent, 'inner' + @measureAttrName, @update)
   </method>
   
-  <method name="startMonitoringAllSubviews" args="view" invokesuper="inside">
-    @super(arguments)
+  <method name="startMonitoringAllSubviews" args="view">
+    @super()
     @listenTo(@parent, 'inner' + @measureAttrName, @update)
   </method>
   
-  <method name="startMonitoringSubview" args="view" invokesuper="inside">
-    @super(arguments)
+  <method name="startMonitoringSubview" args="view">
+    @super()
     @listenTo(view, @measureAttrName, @update)
     @listenTo(view, @otherMeasureAttrName, @update)
   </method>
   
-  <method name="stopMonitoringSubview" args="view" invokesuper="inside">
-    @super(arguments)
+  <method name="stopMonitoringSubview" args="view">
+    @super()
     @stopListening(view, @measureAttrName, @update)
     @stopListening(view, @otherMeasureAttrName, @update)
   </method>
   
-  <method name="doBeforeUpdate" invokesuper="inside">
+  <method name="doBeforeUpdate">
     # The number of lines layed out.
     @lineCount = 1
     
@@ -158,7 +161,7 @@ SOFTWARE. -->
     @parentSizeLessOutset = @parent['inner' + @measureAttrName] - @outset
   </method>
   
-  <method name="updateSubview" args="count, view, attribute, value" invokesuper="inside">
+  <method name="updateSubview" args="count, view, attribute, value">
     size = view[@measureAttrName]
     otherSize = view[@otherMeasureAttrName]
     
@@ -182,7 +185,7 @@ SOFTWARE. -->
     return value + size + @spacing
   </method>
   
-  <method name="updateParent" args="attribute, value" invokesuper="inside">
+  <method name="updateParent" args="attribute, value">
     parent = @parent
     oman = @otherMeasureAttrName
     parent.setAttribute(oman, @linePos + @lineSize + @lineoutset + parent[oman] - parent['inner' + oman])

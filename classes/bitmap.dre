@@ -33,34 +33,35 @@ SOFTWARE. -->
         * The bitmap URL to load
         */-->
       <setter name="src" args="src">
-        if (! src) return
-        if (this.src == src) return
-        this.setAttribute('background-image', 'url("' + src + '")');
-        this.setAttribute('background-size', 'cover');
-
-        var img = this._img;
-        if (! img) {
-          img = this._img = new Image();
+        if (src && this.src != src) {
+          this.setAttribute('background-image', 'url("' + src + '")');
+          this.setAttribute('background-size', 'cover');
+  
+          var img = this._img;
+          if (! img) {
+            img = this._img = new Image();
+          }
+  
+          img.src = src;
+  
+          // send load events 
+          var _this = this;
+          img.onload = function() {
+              /**
+               * @event onload 
+               * Fired when the bitmap is loaded
+               * @param {Object} size An object containing the width and height
+               */
+            _this.sendEvent('load', {width: img.width, height: img.height});
+          }
+          img.onerror = function() {
+              /**
+               * @event onerror 
+               * Fired when there is an error loading the bitmap
+               */
+            _this.sendEvent('error', img);
+          }
         }
-
-        img.src = src;
-
-        // send load events 
-        var _this = this;
-        img.onload = function() {
-            /**
-             * @event onload 
-             * Fired when the bitmap is loaded
-             * @param {Object} size An object containing the width and height
-             */
-          _this.sendEvent('load', {width: img.width, height: img.height});
-        }
-        img.onerror = function() {
-            /**
-             * @event onerror 
-             * Fired when there is an error loading the bitmap
-             */
-          _this.sendEvent('error', img);
-        }
+        return src
       </setter>
     </class>

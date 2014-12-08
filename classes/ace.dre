@@ -71,7 +71,7 @@ SOFTWARE. -->
         * @param {dr.ace} view The dr.ace that fired the event
         */-->
 
-    <class name="ace" width="300" height="100" clickable="true" scriptincludes="/lib/ace/src-noconflict/ace.js">
+    <class name="ace" width="300" height="100" clickable="true" scriptincludes="/lib/ace/src-noconflict/ace.js" initchildren="false">
       <handler event="ondata" args="d">
         this.setAttribute('text', d)
       </handler>
@@ -93,6 +93,7 @@ SOFTWARE. -->
           // console.log('set_text', text)
           this.editor.setValue(text);
         }
+        return text
       </setter>
 
       <handler event="onwidth" method="handleResize"></handler>
@@ -140,6 +141,7 @@ SOFTWARE. -->
       </handler>
 
       <method name="handleChange">
+        this.super();
         this.setAttribute('text', this.editor.getValue());
         //console.log("handleChange", this.text);
         if (this.pausedelay > 0) {
@@ -161,6 +163,7 @@ SOFTWARE. -->
       </handler>
 
       <method name="handleResize">
+        this.super();
         if (this.editor) {
           this.acediv.style.width = this.width;
           this.acediv.style.height = this.height;

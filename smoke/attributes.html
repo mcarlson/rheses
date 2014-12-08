@@ -21,7 +21,7 @@ Invalid type 'text' for attribute 'something', must be one of: number, boolean, 
       border:0px none;
     }
     body {
-      font-family: 'Helvetica';
+      font-family: 'Arial';
       font-size: 14px;
     }
   </style>
@@ -191,6 +191,18 @@ Invalid type 'text' for attribute 'something', must be one of: number, boolean, 
       this.setAttribute('thirty', 40)
       assert.equal(this.thirty, 40)
       assert.equal(this.x, 20)
+      // this will cause the event system to attempt to unbind constraints for the noconstraint attribute which shouldn't exist. There shouldn't be an error.
+      this.setAttribute('noconstraint', 0)
+    </handler>
+  </view>
+
+  <!-- Constraints shouldn't attempt to bind to functions, see https://www.pivotaltracker.com/story/show/83879598 -->
+  <view x="${Math.round(this.floating)}" bgcolor="pink" width="10" height="10">
+    <attribute name="floating" type="number" value=".5"></attribute>
+    <handler event="oninit">
+      // There shouldn't be a warning and this.floating should be bound even though it's inside Math.round()
+      assert.equal(this.events.floating.length, 1)
+      assert.equal(this.x, 1)
     </handler>
   </view>
   

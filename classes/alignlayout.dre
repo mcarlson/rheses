@@ -25,6 +25,11 @@ SOFTWARE. -->
       * A variablelayout that aligns each view vertically or horizontally
       * relative to all the other views.
       *
+      * If collapseparent is true the parent will be sized to fit the
+      * aligned views such that the view with the greatest extent will have
+      * a position of 0. If instead collapseparent is false the views will
+      * be aligned within the inner extent of the parent view.
+      *
       *     @example
       *     <alignlayout align="middle" collapseparent="true">
       *     </alignlayout>
@@ -53,19 +58,40 @@ SOFTWARE. -->
       when 'top', 'middle', 'bottom'
         @measureAttrName = 'height'
         @setterAttrName = 'y'
+    return align
   </setter>
   <handler event="onalign">
     @startMonitoringAllSubviews()
     @update()
   </handler>
   
-  <method name="startMonitoringSubview" args="view" invokesuper="inside">
-    @super(arguments)
+  <setter name="collapseparent" args="collapseparent">
+    @stopMonitoringAllSubviews()
+    return collapseparent
+  </setter>
+  <handler event="oncollapseparent">
+    @startMonitoringAllSubviews()
+  </handler>
+  
+  <method name="stopMonitoringAllSubviews" args="view">
+    @super()
+    if !@collapseparent
+      @stopListening(@parent, 'inner' + @measureAttrName, @update)
+  </method>
+  
+  <method name="startMonitoringAllSubviews" args="view">
+    @super()
+    if !@collapseparent
+      @listenTo(@parent, 'inner' + @measureAttrName, @update)
+  </method>
+  
+  <method name="startMonitoringSubview" args="view">
+    @super()
     @listenTo(view, @measureAttrName, @update)
   </method>
   
-  <method name="stopMonitoringSubview" args="view" invokesuper="inside">
-    @super(arguments)
+  <method name="stopMonitoringSubview" args="view">
+    @super()
     @stopListening(view, @measureAttrName, @update)
   </method>
   
@@ -73,36 +99,43 @@ SOFTWARE. -->
     * @method doBeforeUpdate
     * Determine the maximum subview width/height according to the alignment.
     */-->
-  <method name="doBeforeUpdate" invokesuper="inside">
-    measureAttrName = @measureAttrName
-    svs = @subviews
-    i = svs.length
-    value = 0
-    
-    while i
-      sv = svs[--i]
-      if @skipSubview(sv) then continue
-      value = Math.max(value, sv[measureAttrName])
-    
-    if (isNaN(value) || 0 >= value)
+  <method name="doBeforeUpdate">
+    if @collapseparent
+      measureAttrName = @measureAttrName
+      svs = @subviews
+      i = svs.length
       value = 0
-    
-    @setAttribute('value', value)
+      
+      while i
+        sv = svs[--i]
+        if @skipSubview(sv) then continue
+        value = Math.max(value, sv[measureAttrName])
+      
+      if (isNaN(value) || 0 >= value)
+        value = 0
+      
+      @setAttribute('value', value)
   </method>
   
-  <method name="updateSubview" args="count, view, attribute, value" invokesuper="inside">
+  <method name="updateSubview" args="count, view, attribute, value">
     switch @align
       when 'center','middle'
-        view.setAttribute(@setterAttrName, (value - view[@measureAttrName]) / 2)
+        if @collapseparent
+          view.setAttribute(@setterAttrName, (value - view[@measureAttrName]) / 2)
+        else
+          view.setAttribute(@setterAttrName, (@parent['inner' + @measureAttrName] - view[@measureAttrName]) / 2)
       when 'right','bottom'
-        view.setAttribute(@setterAttrName, value - view[@measureAttrName])
+        if @collapseparent
+          view.setAttribute(@setterAttrName, value - view[@measureAttrName])
+        else
+          view.setAttribute(@setterAttrName, @parent['inner' + @measureAttrName] - view[@measureAttrName])
       else
         view.setAttribute(@setterAttrName, 0)
     
     return value
   </method>
   
-  <method name="updateParent" args="attribute, value" invokesuper="inside">
+  <method name="updateParent" args="attribute, value">
     parent = @parent
     man = @measureAttrName
     parent.setAttribute(man, value + parent[man] - parent['inner' + man])

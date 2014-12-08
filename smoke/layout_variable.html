@@ -1,0 +1,188 @@
+<html>
+<head>
+  <title>dr33m | variablelayout Smoke Tests</title>
+  <link rel="stylesheet" href="../examples/css/example.css"/>
+  <script type="text/javascript" src="../lib/jquery-1.9.1.js"></script>
+  <script type="text/javascript" src="../lib/acorn.js"></script>
+  <script type="text/javascript" src="../lib/coffee-script.js"></script>
+  <script type="text/javascript" src="../layout.js"></script>
+  <script type="text/javascript" src="../lib/chai.js"></script>
+  <script>
+    var assert = chai.assert
+  </script>
+</head>
+<body>
+  <view width="100%" height="100%" bgcolor="#cccccc">
+    <class name="item" width="10" height="10"></class>
+    
+    <view name="container" width="100" height="100" bgcolor="#999999">
+      <variablelayout name="layoutX" attribute="x" value="10">
+        <handler event="oninit">
+          this.beforeCallCount = 0;
+          this.afterCallCount = 0;
+        </handler>
+        <method name="doBeforeUpdate">
+          this.beforeCallCount++;
+        </method>
+        <method name="updateSubview" args="count, view, attribute, value">
+          return this.super() + count + view.width;
+        </method>
+        <method name="doAfterUpdate">
+          this.afterCallCount++;
+        </method>
+        <method name="updateParent" args="attribute, value">
+          this.parent.setAttribute('width', value);
+        </method>
+      </variablelayout>
+      
+      <!-- Variable layout should behave pretty much like a constant layout
+           if you don't override anything. -->
+      <variablelayout name="layoutBgcolor" attribute="bgcolor" value="'#666666'"></variablelayout>
+      
+      <item name="v1"></item>
+      <item name="v2"></item>
+      <item name="v3"></item>
+      <item name="v4"></item>
+      <item name="v5" height="5" width="5"></item>
+      <item name="v6" visible="false"></item>
+      
+      <variablelayout name="layoutY" attribute="y" value="5" collapseparent="true">
+        <method name="updateSubview" args="count, view, attribute, value">
+          return this.super() + count + view.height;
+        </method>
+        <method name="skipSubview" args="view">
+          return 5 >= view.height || this.super()
+        </method>
+        <method name="updateParent" args="attribute, value">
+          this.parent.setAttribute(attribute, value);
+        </method>
+      </variablelayout>
+    </view>
+    
+    <handler event="oninit">
+      var container = this.container,
+          layoutX = container.layoutX,
+          layoutY = container.layoutY,
+          layoutBgcolor = container.layoutBgcolor,
+          v1 = container.v1,
+          v2 = container.v2,
+          v3 = container.v3,
+          v4 = container.v4,
+          v5 = container.v5,
+          v6 = container.v6;
+      
+      // Verify doBeforeUpdate and doAfterUpdate we're called
+      assert.equal(1, layoutX.beforeCallCount, 'doBeforeUpdate should be called once.');
+      assert.equal(1, layoutX.afterCallCount, 'doAfterUpdate should be called once.');
+      
+      // Verify updateSubview works and default as well as overridden 
+      // skipSubview works
+      assert.equal('#666666', v1.bgcolor, 'View one should have a bgcolor of #666666.');
+      assert.equal('#666666', v2.bgcolor, 'View two should have a y of #666666.');
+      assert.equal('#666666', v3.bgcolor, 'View three should have a y of #666666.');
+      assert.equal('#666666', v4.bgcolor, 'View four should have a y of #666666.');
+      assert.equal('#666666', v5.bgcolor, 'View five should have a y of #666666.');
+      assert.equal(undefined, v6.bgcolor, 'View six should have a y of undefined.');
+      
+      assert.equal(10, v1.x, 'View one should have an x of 10.');
+      assert.equal(21, v2.x, 'View two should have an x of 21.');
+      assert.equal(33, v3.x, 'View three should have an x of 33.');
+      assert.equal(46, v4.x, 'View four should have an x of 46.');
+      assert.equal(60, v5.x, 'View five should have an x of 60.');
+      assert.equal(0, v6.x, 'View six should have an x of 0.');
+      
+      assert.equal(5, v1.y, 'View one should have a y of 5.');
+      assert.equal(16, v2.y, 'View two should have a y of 16.');
+      assert.equal(28, v3.y, 'View three should have a y of 28.');
+      assert.equal(41, v4.y, 'View four should have a y of 41.');
+      assert.equal(0, v5.y, 'View five should have a y of 0 because it gets skipped.');
+      assert.equal(0, v6.y, 'View six should have a y of 0.');
+      
+      assert.equal(55, container.y, 'Update parent should set the container y to 55.');
+      assert.equal(100, container.width, 'Update parent for layoutX should not have been called.');
+      
+      // Verify subview monitoring works
+      v3.setAttribute('visible', false);
+      assert.equal(2, layoutX.beforeCallCount, 'doBeforeUpdate should be called once again.');
+      assert.equal(2, layoutX.afterCallCount, 'doAfterUpdate should be called once again.');
+      
+      assert.equal(10, v1.x, 'View one should have an x of 10.');
+      assert.equal(21, v2.x, 'View two should have an x of 21.');
+      assert.equal(33, v3.x, 'View three should still have an x of 33.');
+      assert.equal(33, v4.x, 'View four should have an x of 33.');
+      assert.equal(46, v5.x, 'View five should have an x of 46.');
+      assert.equal(0, v6.x, 'View six should have an x of 0.');
+      
+      assert.equal(5, v1.y, 'View one should have a y of 5.');
+      assert.equal(16, v2.y, 'View two should have a y of 16.');
+      assert.equal(28, v3.y, 'View three should still have a y of 28.');
+      assert.equal(28, v4.y, 'View four should have a y of 28.');
+      assert.equal(0, v5.y, 'View five should have a y of 0 because it gets skipped.');
+      assert.equal(0, v6.y, 'View six should have a y of 0.');
+      
+      assert.equal(41, container.y, 'Update parent should set the container y to 41.');
+      
+      v6.setAttribute('visible', true);
+      assert.equal(3, layoutX.beforeCallCount, 'doBeforeUpdate should be called once again.');
+      assert.equal(3, layoutX.afterCallCount, 'doAfterUpdate should be called once again.');
+      
+      assert.equal('#666666', v6.bgcolor, 'View six should have a y of #666666.');
+      
+      assert.equal(10, v1.x, 'View one should have an x of 10.');
+      assert.equal(21, v2.x, 'View two should have an x of 21.');
+      assert.equal(33, v3.x, 'View three should still have an x of 33.');
+      assert.equal(33, v4.x, 'View four should have an x of 33.');
+      assert.equal(46, v5.x, 'View five should have an x of 46.');
+      assert.equal(55, v6.x, 'View six should have an x of 55.');
+      
+      assert.equal(5, v1.y, 'View one should have a y of 5.');
+      assert.equal(16, v2.y, 'View two should have a y of 16.');
+      assert.equal(28, v3.y, 'View three should still have a y of 28.');
+      assert.equal(28, v4.y, 'View four should have a y of 28.');
+      assert.equal(0, v5.y, 'View five should have a y of 0 because it gets skipped.');
+      assert.equal(41, v6.y, 'View six should have a y of 41.');
+      
+      assert.equal(55, container.y, 'Update parent should set the container y to 55.');
+      
+      layoutX.setAttribute('collapseparent', true);
+      assert.equal(4, layoutX.beforeCallCount, 'doBeforeUpdate should be called once again.');
+      assert.equal(4, layoutX.afterCallCount, 'doAfterUpdate should be called once again.');
+      
+      assert.equal(70, container.width, 'Update parent for layoutX should set the container width to 70.');
+      
+      // Verify reverse works
+      layoutX.setAttribute('reverse', true);
+      
+      assert.equal(55, v1.x, 'View one should have an x of 10.');
+      assert.equal(41, v2.x, 'View two should have an x of 41.');
+      assert.equal(33, v3.x, 'View three should still have an x of 33.');
+      assert.equal(28, v4.x, 'View four should have an x of 28.');
+      assert.equal(21, v5.x, 'View five should have an x of 21.');
+      assert.equal(10, v6.x, 'View six should have an x of 10.');
+      
+      assert.equal(70, container.width, 'Update parent for layoutX should set the container width to 70.');
+    </handler>
+  </view>
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+</body>
+</html>

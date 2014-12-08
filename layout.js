@@ -2,19 +2,19 @@
 
 /*
  * The MIT License (MIT)
- * 
+ *
  * Copyright ( c ) 2014 Teem2 LLC
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -25,7 +25,7 @@
  */
 
 (function() {
-  var hackstyle, stylemap,
+  var hackstyle, propmap, stylemap,
     __slice = [].slice,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -40,6 +40,11 @@
     border: 'borderWidth',
     borderstyle: 'borderStyle',
     bordercolor: 'borderColor'
+  };
+
+  propmap = {
+    scrollx: 'scrollLeft',
+    scrolly: 'scrollTop'
   };
 
   hackstyle = (function() {
@@ -75,7 +80,8 @@
   })();
 
   window.dr = (function() {
-    var Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, capabilities, compiler, constraintScopes, debug, dom, exports, fcamelCase, hiddenAttributes, idle, ignoredAttributes, mixOf, moduleKeywords, mouseEvents, otherstyles, querystring, rdashAlpha, showWarnings, ss, ss2, test, triggerlock, warnings, _initConstraints;
+    var Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, callOnIdle, capabilities, compiler, constraintScopes, debug, dom, domElementAttributes, exports, fcamelCase, hiddenAttributes, idle, ignoredAttributes, knownstyles, mixOf, moduleKeywords, mouseEvents, noop, querystring, rdashAlpha, showWarnings, specialtags, ss, ss2, starttime, test, triggerlock, warnings, _initConstraints;
+    noop = function() {};
     mixOf = function() {
       var Mixed, base, i, method, mixin, mixins, name, _i, _ref;
       base = arguments[0], mixins = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
@@ -406,18 +412,15 @@
        */
 
       Eventable.prototype.setAttribute = function(name, value, skipcoercion, skipConstraintSetup, skipconstraintunregistration) {
-        var _name;
+        var setterName;
         if (!skipcoercion) {
           value = this._coerceType(name, value);
         }
         if (!skipconstraintunregistration) {
-          if ((this.constraints != null) && name in this.constraints) {
-            this._unbindConstraint(name);
-          }
+          this._unbindConstraint(name);
         }
-        if (typeof this[_name = "set_" + name] === "function") {
-          this[_name](value);
-        }
+        setterName = "set_" + name;
+        if (typeof this[setterName] === "function") value = this[setterName](value);
         this[name] = value;
         this.sendEvent(name, value);
         return this;
@@ -470,7 +473,8 @@
         }
       })(),
       touch: 'ontouchstart' in window || 'onmsgesturechange' in window,
-      camelcss: navigator.userAgent.toLowerCase().indexOf('firefox') > -1
+      camelcss: navigator.userAgent.toLowerCase().indexOf('firefox') > -1,
+      raf: window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame
     };
     querystring = window.location.search;
     debug = querystring.indexOf('debug') > 0;
@@ -508,8 +512,11 @@
         bindingCache = compileCache.bindings;
         scopes = null;
         propertyBindings = {
-          MemberExpression: function(n) {
+          MemberExpression: function(n, parent) {
             var name;
+            if (parent.node.type === 'CallExpression' && parent.sub === 'callee') {
+              return true;
+            }
             name = n.property.name;
             n = n.object;
             scopes.push({
@@ -724,7 +731,7 @@
       lateattributes = ['data'];
 
       function Node(el, attributes) {
-        var args, deferbindings, ev, method, name, parent, reference, script, skiponinit, value, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
+        var deferbindings, name, parent, skiponinit, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref, _ref1, _ref2, _ref3, _ref4;
         if (attributes == null) {
           attributes = {};
         }
@@ -747,7 +754,8 @@
          * @readonly
          * Contains the textual contents of this node, if any
          */
-        if (el != null ? el.textContent : void 0) {
+        if (el != null) {
+          el.$view = this;
           attributes.$textcontent = el.textContent;
         }
         if (attributes.$methods) {
@@ -756,14 +764,23 @@
         }
         if (attributes.$handlers) {
           this.installHandlers(attributes.$handlers, attributes.$tagname);
-          _ref1 = attributes.$handlers;
-          for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-            _ref2 = _ref1[_i], ev = _ref2.ev, name = _ref2.name, script = _ref2.script, args = _ref2.args, reference = _ref2.reference, method = _ref2.method;
-            ev = ev.substr(2);
-            if (__indexOf.call(mouseEvents, ev) >= 0) {
-              if (attributes.clickable !== "false") {
-                attributes.clickable = true;
+          if (attributes.clickable !== "false") {
+            _ref1 = (function() {
+              var _j, _len, _ref1, _ref2, _results;
+              _ref1 = attributes.$handlers;
+              _results = [];
+              for (_j = 0, _len = _ref1.length; _j < _len; _j++) {
+                name = _ref1[_j];
+                if (_ref2 = name.ev.substr(2), __indexOf.call(mouseEvents, _ref2) >= 0) {
+                  _results.push(name);
+                }
               }
+              return _results;
+            })();
+            for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+              name = _ref1[_i];
+              attributes.clickable = true;
+              break;
             }
           }
           delete attributes.$handlers;
@@ -771,18 +788,34 @@
         if (!deferbindings) {
           this._bindHandlers();
         }
-        for (_j = 0, _len1 = earlyattributes.length; _j < _len1; _j++) {
-          name = earlyattributes[_j];
-          if (name in attributes) {
-            this.setAttribute(name, attributes[name]);
+        _ref2 = (function() {
+          var _k, _len1, _results;
+          _results = [];
+          for (_k = 0, _len1 = earlyattributes.length; _k < _len1; _k++) {
+            name = earlyattributes[_k];
+            if (name in attributes) {
+              _results.push(name);
+            }
           }
+          return _results;
+        })();
+        for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
+          name = _ref2[_j];
+          this.setAttribute(name, attributes[name]);
         }
-        for (name in attributes) {
-          value = attributes[name];
-          if (__indexOf.call(lateattributes, name) >= 0 || __indexOf.call(earlyattributes, name) >= 0) {
-            continue;
+        _ref3 = (function() {
+          var _results;
+          _results = [];
+          for (name in attributes) {
+            if (!(__indexOf.call(lateattributes, name) >= 0 || __indexOf.call(earlyattributes, name) >= 0)) {
+              _results.push(name);
+            }
           }
-          this.bindAttribute(name, value, attributes.$tagname);
+          return _results;
+        })();
+        for (_k = 0, _len2 = _ref3.length; _k < _len2; _k++) {
+          name = _ref3[_k];
+          this.bindAttribute(name, attributes[name], attributes.$tagname);
         }
         parent = this.parent;
         if (parent && parent instanceof Node) {
@@ -792,21 +825,23 @@
            * Fired when this node's subnodes array has changed
            * @param {dr.node} node The dr.node that fired the event
            */
-
-          /**
-           * @event subnodeAdded
-           * Fired when a subnode is added to this node.
-           * @param {dr.node} node The dr.node that was added
-           */
           parent.sendEvent('subnodes', this);
-          parent.sendEvent('subnodeAdded', this);
           parent.doSubnodeAdded(this);
         }
-        for (_k = 0, _len2 = lateattributes.length; _k < _len2; _k++) {
-          name = lateattributes[_k];
-          if (name in attributes) {
-            this.bindAttribute(name, attributes[name], attributes.$tagname);
+        _ref4 = (function() {
+          var _len3, _m, _results;
+          _results = [];
+          for (_m = 0, _len3 = lateattributes.length; _m < _len3; _m++) {
+            name = lateattributes[_m];
+            if (name in attributes) {
+              _results.push(name);
+            }
           }
+          return _results;
+        })();
+        for (_l = 0, _len3 = _ref4.length; _l < _len3; _l++) {
+          name = _ref4[_l];
+          this.bindAttribute(name, attributes[name], attributes.$tagname);
         }
         if (this.constraints) {
           constraintScopes.push(this);
@@ -835,7 +870,7 @@
       }
 
       Node.prototype.installMethods = function(methods, tagname, scope, callbackscope) {
-        var allocation, args, invokeSuper, method, methodlist, name, _i, _len, _ref;
+        var allocation, args, method, methodlist, name, _i, _len, _ref;
         if (scope == null) {
           scope = this;
         }
@@ -845,8 +880,8 @@
         for (name in methods) {
           methodlist = methods[name];
           for (_i = 0, _len = methodlist.length; _i < _len; _i++) {
-            _ref = methodlist[_i], method = _ref.method, args = _ref.args, allocation = _ref.allocation, invokeSuper = _ref.invokeSuper;
-            _installMethod(scope, name, compiler.compile(method, args, "" + tagname + "$" + name).bind(callbackscope), allocation, invokeSuper);
+            _ref = methodlist[_i], method = _ref.method, args = _ref.args, allocation = _ref.allocation;
+            _installMethod(scope, name, compiler.compile(method, args, "" + tagname + "$" + name).bind(callbackscope), allocation);
           }
         }
       };
@@ -946,45 +981,45 @@
         };
       };
 
-      _installMethod = function(scope, methodname, method, allocation, invokeSuper) {
-        var meth, supr;
+      _installMethod = function(scope, methodname, method, allocation) {
+        var exists, supr;
         if (methodname in scope) {
-          supr = scope[methodname];
-          meth = method;
-          return scope[methodname] = function() {
-            var prevOwn, prevValue, retval;
-            if (invokeSuper === 'after') {
-              retval = meth.apply(scope, arguments);
-              supr.apply(scope, arguments);
-            } else if (invokeSuper === 'inside') {
-              prevValue = scope['super'];
-              prevOwn = scope.hasOwnProperty('super');
-              scope['super'] = function(args) {
-                return supr.apply(scope, args);
-              };
-              retval = meth.apply(scope, arguments);
-              if (prevOwn) {
-                scope['super'] = prevValue;
-              } else {
-                delete scope.callSuper;
-              }
-            } else {
-              supr.apply(scope, arguments);
-              retval = meth.apply(scope, arguments);
-            }
-            return retval;
-          };
-        } else {
-          return scope[methodname] = method;
+          supr = scope[methodname] || noop;
+          exists = true;
         }
+        return scope[methodname] = function() {
+          var params, prevOwn, prevValue, retval;
+          prevOwn = scope.hasOwnProperty('super');
+          if (prevOwn) {
+            prevValue = scope['super'];
+          }
+          if (exists) {
+            params = Array.prototype.slice.call(arguments);
+            scope['super'] = function() {
+              var i;
+              i = arguments.length;
+              while (i) {
+                params[--i] = arguments[i];
+              }
+              return supr.apply(scope, params);
+            };
+          } else {
+            scope['super'] = noop;
+          }
+          retval = method.apply(scope, arguments);
+          if (prevOwn) {
+            scope['super'] = prevValue;
+          } else {
+            delete scope['super'];
+          }
+          return retval;
+        };
       };
 
       Node.prototype.setConstraint = function(property, expression, skipbinding) {
         var bindexpression, bindings, scope, scopes, _i, _len;
         if (this.constraints != null) {
-          if (property in this.constraints) {
-            this._unbindConstraint(property);
-          }
+          this._unbindConstraint(property);
         } else {
           this.constraints = {};
         }
@@ -1012,18 +1047,15 @@
       };
 
       Node.prototype._unbindConstraint = function(property) {
-        var callback, callbackbindings, constraint, i, prop, scope, _i, _len;
-        if (!(property in this.constraints)) {
+        var callback, callbackbindings, i, prop, scope, _i, _len, _ref, _ref1;
+        if (!(this.constraints && ((_ref = this.constraints[property]) != null ? _ref.callback : void 0))) {
           return;
         }
-        constraint = this.constraints[property];
-        callback = constraint.callback, callbackbindings = constraint.callbackbindings;
+        _ref1 = this.constraints[property], callback = _ref1.callback, callbackbindings = _ref1.callbackbindings;
         for (i = _i = 0, _len = callbackbindings.length; _i < _len; i = _i += 2) {
           prop = callbackbindings[i];
           scope = callbackbindings[i + 1];
-          if (typeof scope.unbind === "function") {
-            scope.unbind(prop, callback);
-          }
+          scope.unbind(prop, callback);
         }
         this.constraints[property] = null;
       };
@@ -1042,7 +1074,7 @@
           for (bindexpression in bindings) {
             bindinglist = bindings[bindexpression];
             boundref = this._valueLookup(bindexpression)();
-            if (!boundref || (boundref.bind == null)) {
+            if (!boundref || !(boundref instanceof Eventable)) {
               showWarnings(["Could not bind to " + bindexpression + " of constraint " + expression + " for " + this.$tagname + (this.id ? '#' + this.id : this.name ? '.' + name : '')]);
               continue;
             }
@@ -1088,11 +1120,11 @@
           } else {
             this.handlers = defer;
           }
-          setTimeout((function(_this) {
+          callOnIdle((function(_this) {
             return function() {
               return _this._bindHandlers(isLate);
             };
-          })(this), 0);
+          })(this));
           return;
         }
         if (isLate) {
@@ -1113,18 +1145,21 @@
           if (this.name) {
             parent[this.name] = this;
           }
-          return parent.subnodes.push(this);
+          parent.subnodes.push(this);
         }
+        return parent;
       };
 
       Node.prototype.set_name = function(name) {
         if (this.parent && name) {
-          return this.parent[name] = this;
+          this.parent[name] = this;
         }
+        return name;
       };
 
       Node.prototype.set_id = function(id) {
-        return window[id] = this;
+        window[id] = this;
+        return id;
       };
 
       Node.prototype._removeFromParent = function(name) {
@@ -1139,13 +1174,6 @@
           arr.splice(index, 1);
           this.parent.sendEvent(name, removedNode);
           if (name === 'subnodes') {
-
-            /**
-             * @event subnodeRemoved
-             * Fired when a subnode is removed from this node.
-             * @param {dr.node} node The dr.node that was removed
-             */
-            this.parent.sendEvent('subnodeRemoved', removedNode);
             this.parent.doSubnodeRemoved(removedNode);
           }
         }
@@ -1251,9 +1279,7 @@
      * Abstracts the underlying visual primitives (currently HTML) from dreem's view system.
      */
     Sprite = (function() {
-      var noop, styleval;
-
-      noop = function() {};
+      var styleval;
 
       styleval = {
         display: function(isVisible) {
@@ -1276,7 +1302,7 @@
         if (tagname == null) {
           tagname = 'div';
         }
-        this.handle = __bind(this.handle, this);
+        this._handleScroll = __bind(this._handleScroll, this);
         this.animate = __bind(this.animate, this);
         if (jqel == null) {
           this.el = document.createElement(tagname);
@@ -1302,6 +1328,19 @@
           value = styleval[name](value);
         }
         return el.style[name] = value;
+      };
+
+      Sprite.prototype.setProperty = function(name, value, el) {
+        if (el == null) {
+          el = this.el;
+        }
+        if (value == null) {
+          value = '';
+        }
+        if (name in propmap) {
+          name = propmap[name];
+        }
+        return el[name] = value;
       };
 
       Sprite.prototype.set_parent = function(parent) {
@@ -1345,7 +1384,39 @@
       Sprite.prototype.set_scrollable = function(scrollable) {
         this.__scrollable = scrollable;
         this.__updateOverflow();
-        return this.__updatePointerEvents();
+        this.__updatePointerEvents();
+        if (scrollable) {
+          return $(this.el).on('scroll', this._handleScroll);
+        } else {
+          return $(this.el).off('scroll', this._handleScroll);
+        }
+      };
+
+      Sprite.prototype._handleScroll = function(event) {
+        var domElement, newEvt, oldEvt, target, x, y;
+        domElement = event.target;
+        target = domElement.$view;
+        if (target) {
+          x = domElement.scrollLeft;
+          y = domElement.scrollTop;
+          if (target.scrollx !== x) {
+            target.setAttribute('scrollx', x, true, true, true);
+          }
+          if (target.scrolly !== y) {
+            target.setAttribute('scrolly', y, true, true, true);
+          }
+          oldEvt = this._lastScrollEvent;
+          newEvt = {
+            scrollx: x,
+            scrolly: y,
+            scrollwidth: domElement.scrollWidth,
+            scrollheight: domElement.scrollHeight
+          };
+          if (!oldEvt || oldEvt.scrollx !== newEvt.scrollx || oldEvt.scrolly !== newEvt.scrolly || oldEvt.scrollwidth !== newEvt.scrollwidth || oldEvt.scrollheight !== newEvt.scrollheight) {
+            target.sendEvent('scroll', newEvt);
+            return this._lastScrollEvent = newEvt;
+          }
+        }
       };
 
       Sprite.prototype.__updateOverflow = function() {
@@ -1426,6 +1497,7 @@
           input = document.createElement('input');
           input.setAttribute('type', 'text');
         }
+        input.$init = true;
         input.setAttribute('value', text);
         input.setAttribute('class', 'sprite-inputtext');
         if (width) {
@@ -1476,13 +1548,13 @@
       };
     }
     if (debug) {
-      otherstyles = ['width', 'height', 'background-color'];
+      knownstyles = ['width', 'height', 'background-color', 'opacity'];
       ss2 = Sprite.prototype.setStyle;
       Sprite.prototype.setStyle = function(name, value, internal, el) {
         if (el == null) {
           el = this.el;
         }
-        if (!internal && !(name in stylemap) && !(__indexOf.call(otherstyles, name) >= 0)) {
+        if (!internal && !(name in stylemap) && !(__indexOf.call(knownstyles, name) >= 0)) {
           console.warn("Setting unknown CSS property " + name + " = " + value + " on ", this.el.$view, stylemap, internal);
         }
         return ss2(name, value, internal, el);
@@ -1500,7 +1572,12 @@
       $textcontent: true,
       resize: true,
       multiline: true,
-      ignorelayout: true
+      ignorelayout: true,
+      initchildren: true
+    };
+    domElementAttributes = {
+      scrollx: true,
+      scrolly: true
     };
     ignoredAttributes = {
       parent: true,
@@ -1577,98 +1654,81 @@
      *     </view>
      */
     View = (function(_super) {
-      __extends(View, _super);
-
 
       /**
        * @attribute {Number} [x=0]
        * This view's x position
        */
 
-
       /**
        * @attribute {Number} [y=0]
        * This view's y position
        */
-
 
       /**
        * @attribute {Number} [width=0]
        * This view's width
        */
 
-
       /**
        * @attribute {Number} [height=0]
        * This view's height
        */
-
 
       /**
        * @attribute {Boolean} [clickable=false]
        * If true, this view recieves mouse events. Automatically set to true when an onclick/mouse* event is registered for this view.
        */
 
-
       /**
        * @attribute {Boolean} [clip=false]
        * If true, this view clips to its bounds
        */
-
 
       /**
        * @attribute {Boolean} [scrollable=false]
        * If true, this view clips to its bounds and provides scrolling to see content that overflows the bounds
        */
 
-
       /**
        * @attribute {Boolean} [visible=true]
        * If false, this view is invisible
        */
-
 
       /**
        * @attribute {String} bgcolor
        * Sets this view's background color
        */
 
-
       /**
        * @attribute {String} bordercolor
        * Sets this view's border color
        */
-
 
       /**
        * @attribute {String} borderstyle
        * Sets this view's border style (can be any css border-style value)
        */
 
-
       /**
        * @attribute {Number} border
        * Sets this view's border width
        */
-
 
       /**
        * @attribute {Number} padding
        * Sets this view's padding
        */
 
-
       /**
        * @attribute {Number} [xscale=1.0]
        * Sets this view's width scale
        */
 
-
       /**
        * @attribute {Number} [yscale=1.0]
        * Sets this view's height scale
        */
-
 
       /**
        * @attribute {Number} [z=0]
@@ -1677,12 +1737,10 @@
        * *(note: setting a `z` value for a view implicitly sets its parent's `transform-style` to `preserve-3d`)*
        */
 
-
       /**
        * @attribute {Number} [rotation=0]
        * Sets this view's rotation in degrees.
        */
-
 
       /**
        * @attribute {String} [perspective=none]
@@ -1690,12 +1748,24 @@
        * When this value is set, items further from the camera will appear smaller, and closer items will be larger.
        */
 
-
       /**
        * @attribute {Number} [opacity=1.0]
-       * Sets this view's opacity, values can be a float from 0.0 ~ 1.0
+       * Sets this view's opacity, values can be a float from 0.0 is 1.0
        */
 
+      /**
+       * @attribute {Number} [scrollx=0]
+       * Sets the horizontal scroll position of the view. Only relevant if
+       * this.scrollable is true. Setting this value will generate both a
+       * scrollx event and a scroll event.
+       */
+
+      /**
+       * @attribute {Number} [scrolly=0]
+       * Sets the vertical scroll position of the view. Only relevant if
+       * this.scrollable is true. Setting this value will generate both a
+       * scrolly event and a scroll event.
+       */
 
       /**
        * @event onclick
@@ -1703,13 +1773,11 @@
        * @param {dr.view} view The dr.view that fired the event
        */
 
-
       /**
        * @event onmouseover
        * Fired when the mouse moves over this view
        * @param {dr.view} view The dr.view that fired the event
        */
-
 
       /**
        * @event onmouseout
@@ -1717,13 +1785,11 @@
        * @param {dr.view} view The dr.view that fired the event
        */
 
-
       /**
        * @event onmousedown
        * Fired when the mouse goes down on this view
        * @param {dr.view} view The dr.view that fired the event
        */
-
 
       /**
        * @event onmouseup
@@ -1731,8 +1797,61 @@
        * @param {dr.view} view The dr.view that fired the event
        */
 
+      /**
+       * @event onscrollx
+       * Fired when the horizontal scroll position changes
+       * @param {number} The x value of the scroll position.
+       */
+
+      /**
+       * @event onscrolly
+       * Fired when the vertical scroll position changes
+       * @param {number} The y value of the scroll position.
+       */
+
+      /**
+       * @event onscroll
+       * Fired when the scroll position changes. Also provides information about
+       * the scroll width and scroll height though it does not refire when those
+       * values change since the DOM does not generate an event when they do. This
+       * event is typically delayed by a few millis after setting scrollx or
+       * scrolly since the underlying DOM event fires during the next DOM refresh
+       * performed by the browser.
+       * @param {Object} scroll The following four properties are defined:
+       *     scrollx:number The horizontal scroll position.
+       *     scrolly:number The vertical scroll position.
+       *     scrollwidth:number The width of the scrollable area. Note this is
+       *       not the maximum value for scrollx since that depends on the bounds
+       *       of the scrollable view. The maximum can be calculated using this
+       *       formula: scrollwidth - view.width + 2*view.border
+       *     scrollheight:number The height of the scrollable area. Note this is
+       *       not the maximum value for scrolly since that depends on the bounds
+       *       of the scrollable view. The maximum can be calculated using this
+       *       formula: scrollheight - view.height + 2*view.border
+       */
+      var defaults;
+
+      __extends(View, _super);
+
+      defaults = {
+        x: 0,
+        y: 0,
+        width: 0,
+        height: 0,
+        opacity: 1,
+        clickable: false,
+        clip: false,
+        scrollable: false,
+        visible: true,
+        bordercolor: 'transparent',
+        borderstyle: 'solid',
+        border: 0,
+        padding: 0,
+        ignorelayout: false
+      };
+
       function View(el, attributes) {
-        var defaults, key, type, types, _ref;
+        var key, type, types, _ref;
         if (attributes == null) {
           attributes = {};
         }
@@ -1782,23 +1901,9 @@
           visible: 'boolean',
           border: 'number',
           padding: 'number',
-          ignorelayout: 'boolean'
-        };
-        defaults = {
-          x: 0,
-          y: 0,
-          width: 0,
-          height: 0,
-          opacity: 1,
-          clickable: false,
-          clip: false,
-          scrollable: false,
-          visible: true,
-          bordercolor: 'transparent',
-          borderstyle: 'solid',
-          border: 0,
-          padding: 0,
-          ignorelayout: false
+          ignorelayout: 'boolean',
+          scrollx: 'number',
+          scrolly: 'number'
         };
         _ref = attributes.$types;
         for (key in _ref) {
@@ -1822,7 +1927,8 @@
         return this.sprite = new Sprite(el, this, attributes.$tagname);
       };
 
-      View.prototype.setAttribute = function(name, value, skipstyle, skipConstraintSetup, skipconstraintunregistration) {
+      View.prototype.setAttribute = function(name, value, skipDomChange, skipConstraintSetup, skipconstraintunregistration) {
+        var existing;
         if (!skipConstraintSetup) {
           switch (name) {
             case 'width':
@@ -1845,11 +1951,23 @@
           case 'border':
           case 'padding':
             value = Math.max(0, value);
+            break;
+          case 'scrollx':
+            value = Math.max(0, Math.min(this.sprite.el.scrollWidth - this.width + 2 * this.border, value));
+            break;
+          case 'scrolly':
+            value = Math.max(0, Math.min(this.sprite.el.scrollHeight - this.height + 2 * this.border, value));
         }
-        if (!(skipstyle || name in ignoredAttributes || name in hiddenAttributes || this[name] === value)) {
-          this.sprite.setStyle(name, value);
+        existing = this[name];
+        View.__super__.setAttribute.call(this, name, value, true, skipConstraintSetup, skipconstraintunregistration);
+        value = this[name];
+        if (!(skipDomChange || name in ignoredAttributes || name in hiddenAttributes || existing === value)) {
+          if (name in domElementAttributes) {
+            return this.sprite.setProperty(name, value);
+          } else if (this.inited || defaults[name] !== value) {
+            return this.sprite.setStyle(name, value);
+          }
         }
-        return View.__super__.setAttribute.call(this, name, value, true, skipConstraintSetup, skipconstraintunregistration);
       };
 
       View.prototype.__setupPercentConstraint = function(name, value, axis) {
@@ -1878,19 +1996,23 @@
       };
 
       View.prototype.set_width = function(width) {
-        return this.setAttribute('innerwidth', width - 2 * (this.border + this.padding), true);
+        this.setAttribute('innerwidth', width - 2 * (this.border + this.padding), true);
+        return width;
       };
 
       View.prototype.set_height = function(height) {
-        return this.setAttribute('innerheight', height - 2 * (this.border + this.padding), true);
+        this.setAttribute('innerheight', height - 2 * (this.border + this.padding), true);
+        return height;
       };
 
       View.prototype.set_border = function(border) {
-        return this.__updateInnerMeasures(2 * (border + this.padding));
+        this.__updateInnerMeasures(2 * (border + this.padding));
+        return border;
       };
 
       View.prototype.set_padding = function(padding) {
-        return this.__updateInnerMeasures(2 * (this.border + padding));
+        this.__updateInnerMeasures(2 * (this.border + padding));
+        return padding;
       };
 
       View.prototype.__updateInnerMeasures = function(inset) {
@@ -1901,7 +2023,8 @@
       };
 
       View.prototype.set_clickable = function(clickable) {
-        return this.sprite.set_clickable(clickable);
+        this.sprite.set_clickable(clickable);
+        return clickable;
       };
 
       View.prototype.__updateTransform = function() {
@@ -1927,22 +2050,26 @@
 
       View.prototype.set_xscale = function(xscale) {
         this.xscale = xscale;
-        return this.__updateTransform();
+        this.__updateTransform();
+        return xscale;
       };
 
       View.prototype.set_yscale = function(yscale) {
         this.yscale = yscale;
-        return this.__updateTransform();
+        this.__updateTransform();
+        return yscale;
       };
 
       View.prototype.set_rotation = function(rotation) {
         this.rotation = rotation;
-        return this.__updateTransform();
+        this.__updateTransform();
+        return rotation;
       };
 
       View.prototype.set_z = function(depth) {
         this.z = depth;
-        return this.__updateTransform();
+        this.__updateTransform();
+        return depth;
       };
 
       View.prototype.moveToFront = function() {
@@ -1984,43 +2111,44 @@
       };
 
       View.prototype.set_parent = function(parent) {
-        View.__super__.set_parent.apply(this, arguments);
+        var retval;
+        retval = View.__super__.set_parent.apply(this, arguments);
         if (parent instanceof View) {
           parent.subviews.push(this);
           parent.sendEvent('subviews', this);
           parent = parent.sprite;
         }
-        return this.sprite.set_parent(parent);
+        this.sprite.set_parent(parent);
+        return retval;
       };
 
       View.prototype.set_id = function(id) {
-        View.__super__.set_id.apply(this, arguments);
-        return this.sprite.set_id(id);
+        var retval;
+        retval = View.__super__.set_id.apply(this, arguments);
+        this.sprite.set_id(id);
+        return retval;
       };
 
       View.prototype.set_ignorelayout = function(ignorelayout) {
-        var layout, layouts, _i, _j, _len, _len1, _results, _results1;
+        var layout, layouts, _i, _j, _len, _len1;
         if (this.inited && ignorelayout !== this.ignorelayout) {
           layouts = this.parent.layouts;
           if (layouts) {
             if (ignorelayout) {
-              _results = [];
               for (_i = 0, _len = layouts.length; _i < _len; _i++) {
                 layout = layouts[_i];
-                _results.push(layout.removeSubview(this));
+                layout.removeSubview(this);
               }
-              return _results;
             } else {
               this.ignorelayout = ignorelayout;
-              _results1 = [];
               for (_j = 0, _len1 = layouts.length; _j < _len1; _j++) {
                 layout = layouts[_j];
-                _results1.push(layout.addSubview(this));
+                layout.addSubview(this);
               }
-              return _results1;
             }
           }
         }
+        return ignorelayout;
       };
 
 
@@ -2036,11 +2164,19 @@
       };
 
       View.prototype.set_clip = function(clip) {
-        return this.sprite.set_clip(clip);
+        this.sprite.set_clip(clip);
+        return clip;
       };
 
       View.prototype.set_scrollable = function(scrollable) {
-        return this.sprite.set_scrollable(scrollable);
+        if (scrollable) {
+          this.setAttributes({
+            scrollx: 0,
+            scrolly: 0
+          });
+        }
+        this.sprite.set_scrollable(scrollable);
+        return scrollable;
       };
 
 
@@ -2060,13 +2196,6 @@
           this.sendEvent('subviewAdded', node);
           return this.doSubviewAdded(node);
         } else if (node instanceof Layout) {
-
-          /**
-           * @event layoutAdded
-           * Fired when a layout is added to this view.
-           * @param {dr.layout} layout The dr.layout that was added
-           */
-          this.sendEvent('layoutAdded', node);
           return this.doLayoutAdded(node);
         }
       };
@@ -2088,13 +2217,6 @@
           this.sendEvent('subviewRemoved', node);
           return this.doSubviewRemoved(node);
         } else if (node instanceof Layout) {
-
-          /**
-           * @event layoutRemoved
-           * Fired when a layout is removed from this view.
-           * @param {dr.layout} layout The dr.layout that was removed
-           */
-          this.sendEvent('layoutRemoved', node);
           return this.doLayoutRemoved(node);
         }
       };
@@ -2157,7 +2279,8 @@
       };
 
       View.prototype.set_class = function(classname) {
-        return this.sprite.set_class(classname);
+        this.sprite.set_class(classname);
+        return classname;
       };
 
       return View;
@@ -2192,6 +2315,48 @@
      */
     InputText = (function(_super) {
       __extends(InputText, _super);
+
+
+      /**
+       * @event onselect
+       * Fired when an inputtext is selected
+       * @param {dr.view} view The view that fired the event
+       */
+
+
+      /**
+       * @event onchange
+       * Fired when an inputtext has changed
+       * @param {dr.view} view The view that fired the event
+       */
+
+
+      /**
+       * @event onfocus
+       * Fired when an inputtext is focused
+       * @param {dr.view} view The view that fired the event
+       */
+
+
+      /**
+       * @event onblur
+       * Fired when an inputtext is blurred or loses focus
+       * @param {dr.view} view The view that fired the event
+       */
+
+
+      /**
+       * @event onkeydown
+       * Fired when a key goes down
+       * @param {Object} keys An object representing the keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
+       */
+
+
+      /**
+       * @event onkeyup
+       * Fired when a key goes up
+       * @param {Object} keys An object representing the keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
+       */
 
 
       /**
@@ -2288,11 +2453,24 @@
       };
 
       InputText.prototype.set_data = function(d) {
-        return this.setAttribute('text', d, true);
+        this.setAttribute('text', d, true);
+        return d;
       };
 
       InputText.prototype.set_text = function(text) {
-        return this.sprite.value(text);
+        this.sprite.value(text);
+        return text;
+      };
+
+      InputText.prototype.sendEvent = function(name, value) {
+        InputText.__super__.sendEvent.apply(this, arguments);
+        if (name === 'keydown' || name === 'keyup' || name === 'blur' || name === 'change') {
+          value = this.sprite.value();
+          if (this.text !== value) {
+            this.text = value;
+            return this.sendEvent('text', value);
+          }
+        }
       };
 
       return InputText;
@@ -2458,14 +2636,16 @@
       };
 
       Text.prototype.set_data = function(d) {
-        return this.setAttribute('text', d, true);
+        this.setAttribute('text', d, true);
+        return d;
       };
 
       Text.prototype.set_text = function(text) {
         if (text !== this.text) {
           this.sprite.setText(this.format(text));
-          return this.updateSize();
+          this.updateSize();
         }
+        return text;
       };
 
       return Text;
@@ -2482,8 +2662,9 @@
       document.body.insertBefore(pre, document.body.firstChild);
       return console.error(out);
     };
+    specialtags = ['handler', 'method', 'attribute', 'setter', 'include'];
     dom = (function() {
-      var builtinTags, checkRequiredAttributes, exports, findAutoIncludes, flattenattributes, getChildren, htmlDecode, initAllElements, initElement, initFromElement, processSpecialTags, requiredAttributes, sendInit, specialtags, writeCSS;
+      var builtinTags, checkRequiredAttributes, exports, findAutoIncludes, flattenattributes, getChildren, htmlDecode, initAllElements, initElement, initFromElement, processSpecialTags, requiredAttributes, sendInit, writeCSS;
       getChildren = function(el) {
         var child, _i, _len, _ref, _ref1, _results;
         _ref = el.childNodes;
@@ -2758,7 +2939,6 @@
         };
         return loadIncludes(test ? finalcallback : validator);
       };
-      specialtags = ['handler', 'method', 'attribute', 'setter', 'include'];
       builtinTags = ['a', 'abbr', 'address', 'area', 'article', 'aside', 'audio', 'b', 'base', 'bdi', 'bdo', 'blockquote', 'body', 'br', 'button', 'canvas', 'caption', 'cite', 'code', 'col', 'colgroup', 'command', 'datalist', 'dd', 'del', 'details', 'dfn', 'div', 'dl', 'dt', 'em', 'embed', 'fieldset', 'figcaption', 'figure', 'footer', 'form', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'head', 'header', 'hgroup', 'hr', 'html', 'i', 'iframe', 'img', 'image', 'input', 'ins', 'kbd', 'keygen', 'label', 'legend', 'li', 'link', 'map', 'mark', 'menu', 'meta', 'meter', 'nav', 'noscript', 'object', 'ol', 'optgroup', 'option', 'output', 'p', 'param', 'pre', 'progress', 'q', 'rp', 'rt', 'ruby', 's', 'samp', 'script', 'section', 'select', 'small', 'source', 'span', 'strong', 'style', 'sub', 'summary', 'sup', 'table', 'tbody', 'td', 'textarea', 'tfoot', 'th', 'thead', 'time', 'title', 'tr', 'track', 'u', 'ul', 'var', 'video', 'wbr'];
       requiredAttributes = {
         "class": {
@@ -2865,7 +3045,7 @@
         })();
         attributes.$skiponinit = skiponinit = children.length > 0;
         if (typeof dr[tagname] === 'function') {
-          parent = new dr[tagname](el, attributes);
+          parent = new dr[tagname](el, attributes, true);
         } else {
           showWarnings(["Unrecognized class " + tagname + " " + el.outerHTML]);
           return;
@@ -2886,9 +3066,11 @@
             }
             return _results;
           })();
-          for (_j = 0, _len1 = children.length; _j < _len1; _j++) {
-            child = children[_j];
-            initElement(child, parent);
+          if (!dr[tagname].skipinitchildren) {
+            for (_j = 0, _len1 = children.length; _j < _len1; _j++) {
+              child = children[_j];
+              initElement(child, parent);
+            }
           }
           if (!parent.inited) {
             checkChildren = function() {
@@ -2896,14 +3078,17 @@
               for (_k = 0, _len2 = children.length; _k < _len2; _k++) {
                 child = children[_k];
                 if (!child.inited && child.localName === !'class') {
-                  setTimeout(checkChildren, 0);
+                  callOnIdle(checkChildren);
                   return;
                 }
+              }
+              if (parent.inited) {
+                return;
               }
               parent.inited = true;
               parent.sendEvent('init', parent);
             };
-            setTimeout(checkChildren, 0);
+            callOnIdle(checkChildren);
           }
         }
       };
@@ -2911,7 +3096,7 @@
         var style;
         style = document.createElement('style');
         style.type = 'text/css';
-        style.innerHTML = '.sprite{ position: absolute; pointer-events: none; padding: 0; margin: 0; box-sizing:border-box;} .sprite-text{ width: auto; height; auto; white-space: nowrap;  padding: 0; margin: 0;} .sprite-inputtext{border: none; outline: none; background-color:transparent; resize:none;} .hidden{ display: none; } .noselect{ -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;} method { display: none; } handler { display: none; } setter { display: none; } class { display:none } node { display:none } dataset { display:none } .warnings {font-size: 14px; background-color: pink; margin: 0;}';
+        style.innerHTML = '.sprite{ position: absolute; pointer-events: none; padding: 0; margin: 0; box-sizing: border-box; border-color: transparent; border-style: solid; border-width: 0} .sprite-text{ width: auto; height; auto; white-space: nowrap; padding: 0; margin: 0;} .sprite-inputtext{border: none; outline: none; background-color:transparent; resize:none;} .hidden{ display: none; } .noselect{ -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;} method { display: none; } handler { display: none; } setter { display: none; } class { display:none } node { display:none } dataset { display:none } .warnings {font-size: 14px; background-color: pink; margin: 0;}';
         return document.getElementsByTagName('head')[0].appendChild(style);
       };
       initAllElements = function(selector) {
@@ -2941,7 +3126,7 @@
         return out;
       };
       processSpecialTags = function(el, classattributes, defaulttype) {
-        var args, attributes, child, children, handler, name, script, tagname, type, _base, _base1, _i, _len, _name, _ref, _ref1;
+        var args, attributes, child, children, handler, name, script, tagname, type, _base, _i, _len, _ref, _ref1;
         if (classattributes.$types == null) {
           classattributes.$types = {};
         }
@@ -2977,26 +3162,17 @@
               classattributes.$handlers.push(handler);
               break;
             case 'method':
+            case 'setter':
+              if (tagname === 'setter') {
+                name = 'set_' + name.toLowerCase();
+              }
               if ((_base = classattributes.$methods)[name] == null) {
                 _base[name] = [];
               }
               classattributes.$methods[name].push({
                 method: compiler.transform(script, type),
                 args: args,
-                allocation: attributes.allocation,
-                invokeSuper: attributes.invokesuper
-              });
-              break;
-            case 'setter':
-              name = name.toLowerCase();
-              if ((_base1 = classattributes.$methods)[_name = 'set_' + name] == null) {
-                _base1[_name] = [];
-              }
-              classattributes.$methods['set_' + name].push({
-                method: compiler.transform(script, type),
-                args: args,
-                allocation: attributes.allocation,
-                invokeSuper: attributes.invokesuper
+                allocation: attributes.allocation
               });
               break;
             case 'attribute':
@@ -3021,7 +3197,7 @@
          * @class dr.state {Core Dreem}
          * @extends dr.node
          * Allows a group of attributes, methods, handlers and instances to be removed and applied as a group.
-         * 
+         *
          * Like views and nodes, states can contain methods, handlers, setters, constraints, attributes and other view, node or class instances.
          *
          * Currently, states must end with the string 'state' in their name to work properly.
@@ -3105,11 +3281,15 @@
         }
         this.enumfalse(this.skipattributes);
         this.enumfalse(this.keys);
+        if (el) {
+          el.$view = this;
+        }
+        this.inited = true;
       }
 
 
       /**
-       * @event onapplied 
+       * @event onapplied
        * Fired when the state has been applied or unapplied. Onapplied handlers run in the scope of the state itself, see dragstate for an example.
        * @param {Boolean} applied If true, the state was applied.
        */
@@ -3122,35 +3302,32 @@
 
       State.prototype.set_applied = function(applied) {
         var name, parentname, val;
-        if (!this.parent) {
-          return;
-        }
-        if (this.applied === applied) {
-          return;
-        }
-        this.applied = applied;
-        if (applied) {
-          this.parent.learn(this);
-          if (this.stateattributes.$handlers) {
-            this.parent.installHandlers(this.stateattributes.$handlers, this.parent.$tagname, this.parent);
-            this.parent._bindHandlers();
-            this.parent._bindHandlers(true);
+        if (this.parent && this.applied !== applied) {
+          this.applied = applied;
+          if (applied) {
+            this.parent.learn(this);
+            if (this.stateattributes.$handlers) {
+              this.parent.installHandlers(this.stateattributes.$handlers, this.parent.$tagname, this.parent);
+              this.parent._bindHandlers();
+              this.parent._bindHandlers(true);
+            }
+          } else {
+            this.parent.forget(this);
+            if (this.stateattributes.$handlers) {
+              this.parent.removeHandlers(this.stateattributes.$handlers, this.parent.$tagname, this.parent);
+            }
           }
-        } else {
-          this.parent.forget(this);
-          if (this.stateattributes.$handlers) {
-            this.parent.removeHandlers(this.stateattributes.$handlers, this.parent.$tagname, this.parent);
+          parentname = this.parent.$tagname;
+          for (name in this.applyattributes) {
+            val = this.parent[name];
+            if (val === void 0) {
+              continue;
+            }
+            this.parent[name] = !val;
+            this.parent.bindAttribute(name, val, parentname);
           }
         }
-        parentname = this.parent.$tagname;
-        for (name in this.applyattributes) {
-          val = this.parent[name];
-          if (val === void 0) {
-            continue;
-          }
-          this.parent[name] = !val;
-          this.parent.bindAttribute(name, val, parentname);
-        }
+        return applied;
       };
 
       State.prototype.apply = function() {
@@ -3171,12 +3348,12 @@
 
     /**
      * @class dr.class {Core Dreem}
-     * Allows new tags to be created. Classes only be created with the &lt;class>&lt;/class> tag syntax. 
-     * 
-     * Classes can extend any other class, and they extend dr.view by default. 
-     * 
+     * Allows new tags to be created. Classes only be created with the &lt;class>&lt;/class> tag syntax.
+     *
+     * Classes can extend any other class, and they extend dr.view by default.
+     *
      * Once declared, classes invoked with the declarative syntax, e.g. &lt;classname>&lt;/classname>.
-     * 
+     *
      * If a class can't be found in the document, dreem will automatically attempt to load it from the classes/* directory.
      *
      * Like views and nodes, classes can contain methods, handlers, setters, constraints, attributes and other view, node or class instances.
@@ -3224,13 +3401,18 @@
        */
 
       /**
-       * @attribute {String} [extends=view] 
+       * @attribute {String} [extends=view]
        * The name of a class that should be extended.
        */
 
       /**
-       * @attribute {"js"/"coffee"} [type=js] 
+       * @attribute {"js"/"coffee"} [type=js]
        * The default compiler to use for methods, setters and handlers. Either 'js' or 'coffee'
+       */
+
+      /**
+       * @attribute {Boolean} [initchildren=true]
+       * If false, class instances won't initialize their children.
        */
       var clone;
 
@@ -3245,13 +3427,14 @@
       };
 
       function Class(el, classattributes) {
-        var child, compilertype, extend, haschildren, ignored, instancebody, name, oldbody, processedChildren, _i, _len;
+        var child, compilertype, extend, haschildren, ignored, instancebody, name, oldbody, processedChildren, skipinitchildren, _i, _len;
         if (classattributes == null) {
           classattributes = {};
         }
         name = (classattributes.name ? classattributes.name.toLowerCase() : classattributes.name);
         extend = classattributes["extends"] != null ? classattributes["extends"] : classattributes["extends"] = 'view';
         compilertype = classattributes.type;
+        skipinitchildren = classattributes.initchildren === 'false';
         for (ignored in ignoredAttributes) {
           delete classattributes[ignored];
         }
@@ -3280,7 +3463,7 @@
         if (name in dr) {
           console.warn('overwriting class', name);
         }
-        dr[name] = function(instanceel, instanceattributes) {
+        dr[name] = function(instanceel, instanceattributes, internal, skipchildren) {
           var attributes, checkChildren, children, key, parent, propname, sendInit, val, value, viewel, _j, _len1, _ref;
           attributes = clone(classattributes);
           for (key in instanceattributes) {
@@ -3310,63 +3493,72 @@
           }
           attributes.$skiponinit = true;
           attributes.$deferbindings = haschildren;
-          parent = new dr[extend](instanceel, attributes);
+          parent = new dr[extend](instanceel, attributes, true, true);
           viewel = (_ref = parent.sprite) != null ? _ref.el : void 0;
           if (instanceel) {
             if (!viewel) {
               instanceel.setAttribute('class', 'hidden');
             }
           }
-          if (instancebody && viewel) {
+          if (viewel) {
             if (viewel.innerHTML) {
               viewel.innerHTML = instancebody + viewel.innerHTML;
             } else {
               viewel.innerHTML = instancebody;
             }
-            children = (function() {
-              var _j, _len1, _ref1, _results;
-              _ref1 = viewel.childNodes;
-              _results = [];
-              for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-                child = _ref1[_j];
-                if (child.nodeType === 1) {
-                  _results.push(child);
+            if (!skipchildren) {
+              children = (function() {
+                var _j, _len1, _ref1, _ref2, _results;
+                _ref1 = viewel.childNodes;
+                _results = [];
+                for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+                  child = _ref1[_j];
+                  if (child.nodeType === 1 && (_ref2 = child.localName, __indexOf.call(specialtags, _ref2) < 0)) {
+                    _results.push(child);
+                  }
+                }
+                return _results;
+              })();
+              if (!skipinitchildren) {
+                for (_j = 0, _len1 = children.length; _j < _len1; _j++) {
+                  child = children[_j];
+                  dom.initElement(child, parent);
                 }
               }
-              return _results;
-            })();
-            for (_j = 0, _len1 = children.length; _j < _len1; _j++) {
-              child = children[_j];
-              dom.initElement(child, parent);
             }
           }
-          sendInit = function() {
-            if (parent.inited) {
-              return;
-            }
-            parent._bindHandlers();
-            parent._bindHandlers(true);
-            parent.inited = true;
-            return parent.sendEvent('init', parent);
-          };
-          if (children != null ? children.length : void 0) {
-            checkChildren = function() {
-              var _k, _len2;
-              for (_k = 0, _len2 = children.length; _k < _len2; _k++) {
-                child = children[_k];
-                if (!child.inited && child.localName === !'class') {
-                  setTimeout(checkChildren, 0);
-                  return;
-                }
+          if (!skipchildren) {
+            sendInit = function() {
+              if (parent.inited) {
+                return;
               }
-              return sendInit();
+              parent._bindHandlers();
+              parent._bindHandlers(true);
+              parent.inited = true;
+              return parent.sendEvent('init', parent);
             };
-            setTimeout(checkChildren, 0);
-          } else {
-            sendInit();
+            if (children != null ? children.length : void 0) {
+              checkChildren = function() {
+                var _k, _len2;
+                for (_k = 0, _len2 = children.length; _k < _len2; _k++) {
+                  child = children[_k];
+                  if ((!child.$view) || (!child.$view.inited)) {
+                    callOnIdle(checkChildren);
+                    return;
+                  }
+                }
+                return sendInit();
+              };
+              callOnIdle(checkChildren);
+            } else if (internal) {
+              callOnIdle(sendInit);
+            } else {
+              sendInit();
+            }
           }
           return parent;
         };
+        dr[name].skipinitchildren = skipinitchildren;
       }
 
       return Class;
@@ -3376,7 +3568,7 @@
     /**
      * @class dr.layout {Layout}
      * @extends dr.node
-     * The base class for all layouts. 
+     * The base class for all layouts.
      *
      * When a new layout is added, it will automatically create and add itself to a layouts array in its parent. In addition, an onlayouts event is fired in the parent when the layouts array changes. This allows the parent to access the layout(s) later.
      *
@@ -3495,7 +3687,7 @@
 
 
       /**
-       * Checks if a subview can be added to this Layout or not. The default 
+       * Checks if a subview can be added to this Layout or not. The default
        * implementation returns the 'ignorelayout' attributes of the subview.
        * @param {dr.view} view The view to check.
        * @return {boolean} True means the subview will be skipped, false otherwise.
@@ -3517,7 +3709,7 @@
 
 
       /**
-       * Calls startMonitoringSubview for all views. Used by layout 
+       * Calls startMonitoringSubview for all views. Used by layout
        * implementations when a change occurs to the layout that requires
        * refreshing all the subview monitoring.
        * @return {void}
@@ -3547,7 +3739,7 @@
 
 
       /**
-       * Calls stopMonitoringSubview for all views. Used by Layout 
+       * Calls stopMonitoringSubview for all views. Used by Layout
        * implementations when a change occurs to the layout that requires
        * refreshing all the subview monitoring.
        * @return {void}
@@ -3587,20 +3779,29 @@
       Layout.prototype.set_locked = function(v) {
         if (this.locked !== v && v === false) {
           this.locked = false;
-          return this.update();
+          this.update();
         }
+        return v;
       };
 
       return Layout;
 
     })(Node);
+    starttime = Date.now();
     idle = (function() {
       var doTick, requestAnimationFrame, tickEvents, ticking;
-      requestAnimationFrame = (function() {
-        return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function(callback, element) {
-          return window.setTimeout(callback, 1000 / 60);
-        };
-      })();
+      requestAnimationFrame = capabilities.raf;
+      if (!requestAnimationFrame) {
+        requestAnimationFrame = (function() {
+          return function(callback, element) {
+            var callbackwrapper;
+            callbackwrapper = function() {
+              return callback(Date.now() - starttime);
+            };
+            return window.setTimeout(callbackwrapper, 1000 / 60);
+          };
+        })();
+      }
       ticking = false;
       tickEvents = [];
       doTick = function(time) {
@@ -3616,9 +3817,29 @@
       return function(key, callback) {
         if (!ticking) {
           requestAnimationFrame(doTick);
+          ticking = true;
         }
-        ticking = true;
         return tickEvents[key] = callback;
+      };
+    })();
+    callOnIdle = (function() {
+      var callback, queue;
+      queue = [];
+      callback = function(time) {
+        var cb, _results;
+        _results = [];
+        while ((cb = queue.shift())) {
+          _results.push(cb(time));
+        }
+        return _results;
+      };
+      return function(cb) {
+        if (capabilities.raf) {
+          queue.push(cb);
+          idle(2, callback);
+        } else {
+          setTimeout(cb, 0);
+        }
       };
     })();
     StartEventable = (function(_super) {
@@ -3673,7 +3894,7 @@
      *     </handler>
      *
      *     <spacedlayout></spacedlayout>
-     *     <text text="Miliseconds since app started: "></text>
+     *     <text text="Milliseconds since app started: "></text>
      *     <text id="milis"></text>
      */
     Idle = (function(_super) {
@@ -3695,13 +3916,13 @@
 
       Idle.prototype.startEvent = function(event) {
         Idle.__super__.startEvent.apply(this, arguments);
-        return idle(1, this.sender);
+        idle(1, this.sender);
       };
 
       Idle.prototype.sender = function(time) {
 
         /**
-         * @event onidle 
+         * @event onidle
          * Fired when the application is active and idle.
          * @param {Number} time The number of milliseconds since the application started
          */
@@ -3711,6 +3932,16 @@
             return idle(1, _this.sender);
           };
         })(this), 0);
+
+        /**
+         * @method callOnIdle
+         * Calls a function on the next idle event.
+         * @param {Function} callback A function to be called on the next idle event
+         */
+      };
+
+      Idle.prototype.callOnIdle = function(callback) {
+        return callOnIdle(callback);
       };
 
       return Idle;
@@ -3745,35 +3976,35 @@
 
 
       /**
-       * @event onclick 
+       * @event onclick
        * Fired when the mouse is clicked
        * @param {dr.view} view The dr.view that fired the event
        */
 
 
       /**
-       * @event onmouseover 
+       * @event onmouseover
        * Fired when the mouse moves over a view
        * @param {dr.view} view The dr.view that fired the event
        */
 
 
       /**
-       * @event onmouseout 
+       * @event onmouseout
        * Fired when the mouse moves off a view
        * @param {dr.view} view The dr.view that fired the event
        */
 
 
       /**
-       * @event onmousedown 
+       * @event onmousedown
        * Fired when the mouse goes down on a view
        * @param {dr.view} view The dr.view that fired the event
        */
 
 
       /**
-       * @event onmouseup 
+       * @event onmouseup
        * Fired when the mouse goes up on a view
        * @param {dr.view} view The dr.view that fired the event
        */
@@ -3899,16 +4130,16 @@
          */
         this.y = event.pageY;
         if (this.eventStarted && type === 'mousemove') {
-          return idle(0, this.sender);
+          idle(0, this.sender);
         } else {
-          return this.sendEvent(type, view);
+          this.sendEvent(type, view);
         }
       };
 
       Mouse.prototype.sender = function() {
 
         /**
-         * @event onmousemove 
+         * @event onmousemove
          * Fired when the mouse moves
          * @param {Object} coordinates The x and y coordinates of the mouse
          */
@@ -3918,14 +4149,14 @@
         });
 
         /**
-         * @event onx 
+         * @event onx
          * Fired when the mouse moves in the x axis
          * @param {Number} x The x coordinate of the mouse
          */
         this.sendEvent('x', this.x);
 
         /**
-         * @event ony 
+         * @event ony
          * Fired when the mouse moves in the y axis
          * @param {Number} y The y coordinate of the mouse
          */
@@ -3988,7 +4219,7 @@
             _this.visible = document[hidden];
 
             /**
-             * @event onvisible 
+             * @event onvisible
              * Fired when the window visibility changes
              * @param {Boolean} visible True if the window is currently visible
              */
@@ -4008,7 +4239,7 @@
         this.width = window.innerWidth;
 
         /**
-         * @event onwidth 
+         * @event onwidth
          * Fired when the window resizes
          * @param {Number} width The width of the window
          */
@@ -4016,7 +4247,7 @@
         this.height = window.innerHeight;
 
         /**
-         * @event onheight 
+         * @event onheight
          * Fired when the window resizes
          * @param {Number} height The height of the window
          */
@@ -4032,98 +4263,63 @@
      * @extends Eventable
      * Sends keyboard events.
      *
-     * You might want to track specific keyboard events when text is being entered into an input box. In this example we listen for the enter key and display the value.
+     * You might want to listen for keyboard events globally. In this example, we display the code of the key being pressed. Note that you'll need to click on the example to activate it before you will see keyboard events.
      *
      *     @example
-     *     <spacedlayout axis="y" spacing="25"></spacedlayout>
-     *     <inputtext id="nameinput" bgcolor="lightgrey"></inputtext>
      *     <text id="keycode" text="Key Code:"></text>
-     *     <text id="entered"></text>
      *
      *     <handler event="onkeyup" args="keys" reference="dr.keyboard">
      *       keycode.setAttribute('text', 'Key Code: ' + keys.keyCode);
-     *       if (keys.keyCode == 13) {
-     *         entered.setAttribute('text', 'You entered: ' + nameinput.text);
-     *         nameinput.setAttribute('text', '');
-     *       }
      *     </handler>
      */
     Keyboard = (function(_super) {
-      var keyboardEvents, keys;
-
       __extends(Keyboard, _super);
-
-      keyboardEvents = ['select', 'keyup', 'keydown', 'change'];
-
-      keys = {
-        shiftKey: false,
-        altKey: false,
-        ctrlKey: false,
-        metaKey: false,
-        keyCode: 0
-      };
 
       function Keyboard() {
         this.handle = __bind(this.handle, this);
-        $(document).on(keyboardEvents.join(' '), this.handle);
+        this.keys = {
+          shiftKey: false,
+          altKey: false,
+          ctrlKey: false,
+          metaKey: false,
+          keyCode: 0
+        };
+        $(document).on('select change keyup keydown', this.handle);
       }
 
       Keyboard.prototype.handle = function(event) {
-        var key, out, target, type, value;
+        var key, target, type;
         target = event.target.$view;
         type = event.type;
-        if (type !== 'select') {
-          for (key in keys) {
-            value = keys[key];
-            keys[key] = event[key];
-          }
+        for (key in this.keys) {
+          this.keys[key] = event[key];
         }
-        keys.type = type;
+        this.keys.type = type;
         if (target) {
-          target.sendEvent(type, keys);
-          if (type === 'keydown' || type === 'keyup' || type === 'blur' || type === 'change') {
-            value = event.target.value;
-            if (target.text !== value) {
-              target.text = value;
-              target.sendEvent('text', value);
-            }
-          }
+          target.sendEvent(type, this.keys);
         }
-        out = type === 'select' ? target : keys;
+        if (type === 'select' || type === 'change') {
+          return;
+        }
 
         /**
-         * @event onselect 
-         * Fired when text is selected
-         * @param {dr.view} view The view that fired the event
-         */
-
-        /**
-         * @event onchange 
-         * Fired when an inputtext has changed
-         * @param {dr.view} view The view that fired the event
-         */
-
-        /**
-         * @event onkeydown 
+         * @event onkeydown
          * Fired when a key goes down
          * @param {Object} keys An object representing the keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
          */
 
         /**
-         * @event onkeyup 
+         * @event onkeyup
          * Fired when a key goes up
          * @param {Object} keys An object representing the keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
          */
-        this.sendEvent(type, out);
+        this.sendEvent(type, this.keys);
 
         /**
-         * @event onkeys 
-         * Fired when a key is pressed on the keyboard
-         * @param {Object} keys An object representing the keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
+         * @attribute {Object} keys
+         * An object representing the most recent keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
          */
-        if (type !== 'select') {
-          return this.sendEvent('keys', out);
-        }
+        return this.sendEvent('keys', this.keys);
       };
 
       return Keyboard;
@@ -4133,7 +4329,7 @@
     /**
      * @class dr {Core Dreem}
      * Holds builtin and user-created classes and public APIs.
-     * 
+     *
      * All classes listed here can be invoked with the declarative syntax, e.g. &lt;node>&lt;/node> or &lt;view>&lt;/view>
      */
     return exports = {
@@ -4165,7 +4361,7 @@
     /**
      * @class dr.method {Core Dreem}
      * Declares a member function in a node, view, class or other class instance. Methods can only be created with the &lt;method>&lt;/method> tag syntax.
-     * 
+     *
      * If a method overrides an existing method, any existing (super) method(s) will be called first automatically.
      *
      * Let's define a method called changeColor in a view that sets the background color to pink.
@@ -4237,7 +4433,7 @@
      */
 
     /**
-     * @attribute {"js"/"coffee"} type 
+     * @attribute {"js"/"coffee"} type
      * The compiler to use for this method. Inherits from the immediate class if unspecified.
      */
 
@@ -4246,7 +4442,7 @@
      * Declares a setter in a node, view, class or other class instance. Setters can only be created with the &lt;setter>&lt;/setter> tag syntax.
      *
      * Setters allow the default behavior of attribute changes to be changed.
-     * 
+     *
      * Like dr.method, if a setter overrides an existing setter any existing (super) setter(s) will be called first automatically.
      * @ignore
      */
@@ -4262,7 +4458,7 @@
      */
 
     /**
-     * @attribute {"js"/"coffee"} type 
+     * @attribute {"js"/"coffee"} type
      * The compiler to use for this method. Inherits from the immediate class if unspecified.
      */
 
@@ -4338,15 +4534,15 @@
      */
 
     /**
-     * @attribute {"js"/"coffee"} type 
+     * @attribute {"js"/"coffee"} type
      * The compiler to use for this method. Inherits from the immediate class if unspecified.
      */
 
     /**
      * @class dr.attribute {Core Dreem}
      * Adds a variable to a node, view, class or other class instance. Attributes can only be created with the &lt;attribute>&lt;/attribute> tag syntax.
-     * 
-     * Attributes allow classes to declare new variables with a specific type and default value. 
+     *
+     * Attributes allow classes to declare new variables with a specific type and default value.
      *
      * Attributes automatically send events when their value changes.
      *
@@ -4372,7 +4568,7 @@
      *         this.setAttribute('bgcolor', color);
      *       </handler>
      *     </class>
-     * 
+     *
      *     <spacedlayout></spacedlayout>
      *     <person></person>
      *     <person mood="sad"></person>
@@ -4391,7 +4587,7 @@
      *       </handler>
      *       <attribute name="size" type="number" value="20"></attribute>
      *     </class>
-     * 
+     *
      *     <spacedlayout></spacedlayout>
      *     <person></person>
      *     <person mood="sad" size="50"></person>

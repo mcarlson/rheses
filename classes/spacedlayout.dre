@@ -56,6 +56,7 @@ SOFTWARE. -->
   <setter name="inset" args="inset">
     # An alias for value.
     @setAttribute('value', inset);
+    return inset
   </setter>
   
   <!--/**
@@ -68,9 +69,10 @@ SOFTWARE. -->
   <setter name="axis" args="axis">
     # An alias for attribute.
     @setAttribute('attribute', axis);
+    return axis
   </setter>
   
-  <setter name="attribute" args="attribute" invokesuper="inside">
+  <setter name="attribute" args="attribute">
     @measureAttrName ?= 'height'
     
     @stopMonitoringAllSubviews()
@@ -79,28 +81,31 @@ SOFTWARE. -->
       @measureAttrName = 'height'
     else
       @measureAttrName = 'width'
+    return attribute
   </setter>
   <handler event="onattribute">
     @startMonitoringAllSubviews()
     @update()
   </handler>
   
-  <method name="startMonitoringSubview" args="view" invokesuper="inside">
-    @super(arguments)
+  <method name="startMonitoringSubview" args="view">
+    @super();
+
     @listenTo(view, @measureAttrName, @update)
   </method>
   
-  <method name="stopMonitoringSubview" args="view" invokesuper="inside">
-    @super(arguments)
+  <method name="stopMonitoringSubview" args="view">
+    @super();
+
     @stopListening(view, @measureAttrName, @update)
   </method>
   
-  <method name="updateSubview" args="count, view, attribute, value" invokesuper="inside">
+  <method name="updateSubview" args="count, view, attribute, value">
     view.setAttribute(attribute, value)
     return value + view[@measureAttrName] + @spacing
   </method>
   
-  <method name="updateParent" args="attribute, value" invokesuper="inside">
+  <method name="updateParent" args="attribute, value">
     parent = @parent
     man = @measureAttrName
     parent.setAttribute(man, value + @outset - @spacing + parent[man] - parent['inner' + man])
