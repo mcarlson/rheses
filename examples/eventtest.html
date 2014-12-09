@@ -47,7 +47,7 @@
   <class name="mousetest" extends="tester" scope="mouser"></class>
 
   <text>Mouse events</text>
-  <boundedview>
+  <view width="auto" height="auto">
     <spacedlayout></spacedlayout>
     <mousetest eventname="mouseover"></mousetest>
     <mousetest eventname="mouseout"></mousetest>
@@ -55,12 +55,12 @@
     <mousetest eventname="mouseup"></mousetest>
     <mousetest eventname="mouseupoutside"></mousetest>
     <mousetest eventname="click"></mousetest>
-  </boundedview>
+  </view>
 
   <class name="globalmousetest" extends="tester" scope="dr.mouse"></class>
 
   <text>Global mouse events</text>
-  <boundedview>
+  <view width="auto" height="auto">
     <spacedlayout></spacedlayout>
     <globalmousetest eventname="mousemove"></globalmousetest>
     <globalmousetest eventname="mouseover"></globalmousetest>
@@ -69,7 +69,7 @@
     <globalmousetest eventname="mouseup"></globalmousetest>
     <globalmousetest eventname="mouseupoutside"></globalmousetest>
     <globalmousetest eventname="click"></globalmousetest>
-  </boundedview>
+  </view>
 
   <class name="keyboardtest" extends="tester" scope="dr.keyboard">
     <method name="getLabel" args="data">
@@ -81,16 +81,16 @@
   </class>
 
   <text>Keyboard events</text>
-  <boundedview>
+  <view width="auto" height="auto">
     <spacedlayout></spacedlayout>
     <keyboardtest eventname="keydown"></keyboardtest>
     <keyboardtest eventname="keyup"></keyboardtest>
-  </boundedview>
+  </view>
 
   <class name="inputtexttest" extends="keyboardtest" scope="inp"></class>
 
   <text>Input text events</text>
-  <boundedview>
+  <view width="auto" height="auto">
     <spacedlayout></spacedlayout>
     <inputtexttest eventname="keydown"></inputtexttest>
     <inputtexttest eventname="keyup"></inputtexttest>
@@ -98,7 +98,7 @@
     <inputtexttest eventname="select"></inputtexttest>
     <inputtexttest eventname="focus"></inputtexttest>
     <inputtexttest eventname="blur"></inputtexttest>
-  </boundedview>
+  </view>
 
   <gyro id="gyros"></gyro>
   <class name="gyrotest" extends="tester" scope="gyros">
@@ -108,7 +108,7 @@
   </class>
 
   <text visible="${gyros.active}">Gyro events</text>
-  <boundedview visible="${gyros.active}">
+  <view width="auto" height="auto" visible="${gyros.active}">
     <spacedlayout></spacedlayout>
     <gyrotest eventname="active"></gyrotest>
     <gyrotest eventname="x"></gyrotest>
@@ -120,7 +120,7 @@
     <gyrotest eventname="gamma"></gyrotest>
     <gyrotest eventname="compass"></gyrotest>
     <gyrotest eventname="compassaccuracy"></gyrotest>
-  </boundedview>
+  </view>
 
   <view bgcolor="purple" width="30" height="30" opacity=".3" x="${dr.mouse.x - 15}" y="${dr.mouse.y - 15}" ignorelayout="true"></view>
 </view>

@@ -446,6 +446,12 @@
 </span>    * @attribute {Boolean} [interactive=&quot;true&quot;]
     * When true default, over, and down states are applied automatically based on mouse/touch interactions. Set to false to disable the default behavior.
     */
+<span id='dr-boundedview'>/**
+</span>      * @class dr.boundedview {Deprecated}
+      * @extends dr.view
+      * boundedview has been deprecated, use dr.view with a width and 
+      * height of auto instead.
+      */
 <span id='dr-boundslayout'>/**
 </span>      * @class dr.boundslayout {Deprecated}
       * @extends dr.layout
@@ -1068,7 +1074,7 @@
         */
 <span id='dr-shim-attribute-websockets'>/**
 </span>        * @attribute {Boolean} [websockets=false]
-        * If true, force the use of websockets to connect to the server
+        * If true, use websockets to connect to the server
         */
 <span id='dr-shim-method-send'>/**
 </span>        * @method send
@@ -1077,7 +1083,7 @@
         * @param {Object} data The data to be sent.
         */
 <span id='dr-shrinktofit'>/**
-</span>      * @class dr.shrinktofit {Layout}
+</span>      * @class dr.shrinktofit {Deprecated}
       * @extends dr.layout
       * A special &quot;layout&quot; that resizes the parent to fit the children
       * rather than laying out the children.

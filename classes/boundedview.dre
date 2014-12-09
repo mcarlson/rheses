@@ -1,3 +1,11 @@
-<class name="boundedview">
-  <shrinktofit axis="both"></shrinktofit>
+ <!--/**
+      * @class dr.boundedview {Deprecated}
+      * @extends dr.view
+      * boundedview has been deprecated, use dr.view with a width and 
+      * height of auto instead.
+      */-->
+<class name="boundedview" width="auto" height="auto">
+  <handler event="oninit">
+    console.warn('boundedview has been deprecated, use dr.view with a width and height of auto instead.')
+  </handler>
 </class>

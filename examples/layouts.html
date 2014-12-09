@@ -8,7 +8,7 @@
   <script type="text/javascript" src="../layout.js"></script>
 </head>
 <body>
-<view bgcolor="#cccccc" scrollable="true">
+<view bgcolor="#cccccc" width="auto" padding="25" scrollable="true">
   <class name="item" extends="view" height="15" width="100" bgcolor="red">
     <handler event="onclick" type="coffee">
       @count ?= 0
@@ -30,11 +30,9 @@
   
   <class name="item2" extends="item" height="20" width="40" bgcolor="red"></class>
   
-  <constantlayout value="25"></constantlayout>
-  <shrinktofit axis="x" xpad="25"></shrinktofit>
-  <spacedlayout axis="y" inset="25" spacing="5" outset="25" collapseparent="true"></spacedlayout>
+  <spacedlayout axis="y" spacing="5" collapseparent="true"></spacedlayout>
   
-  <view width="300" bgcolor="#999999" padding="2" border="1" bordercolor="black">
+  <view width="300" height="auto" bgcolor="#999999" padding="2" border="1" bordercolor="black">
     <item width="10" height="20" bgcolor="green"></item>
     <item height="20" layouthint="1"></item>
     <item layouthint="2" height="20" bgcolor="purple"></item>
@@ -42,7 +40,6 @@
     <item width="10" height="20" bgcolor="yellow"></item>
     
     <resizelayout spacing="1" inset="1" outset="1"></resizelayout>
-    <shrinktofit axis="y" ypad="3"></shrinktofit>
   </view>
   
   <view bgcolor="#999999" width="300" id="foo" padding="10" border="2" bordercolor="#99ff33">
@@ -59,7 +56,7 @@
     <wrappinglayout id="bar" inset="5" outset="10" spacing="1" lineinset="2" lineoutset="8" linespacing="4" collapseparent="true"></wrappinglayout>
   </view>
   
-  <view bgcolor="#999999">
+  <view bgcolor="#999999" width="auto">
     <item bgcolor="green"></item>
     <item></item>
     <item></item>
@@ -81,8 +78,6 @@
         this.parent.setAttribute(attribute === 'x' ? 'width' : 'height', value + 5)
       </method>
     </variablelayout>
-    
-    <shrinktofit axis="x" xpad="4"></shrinktofit>
   </view>
   
   <view width="200" bgcolor="#999999">

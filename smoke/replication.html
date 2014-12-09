@@ -15,10 +15,9 @@
   <spacedlayout axis="y" spacing="15"></spacedlayout>
 
   <!-- Test datapath binding through non-bound parents -->
-  <class name="weather" extends="boundedview" bgcolor="lightblue">
-    <view>
+  <class name="weather" width="auto" height="auto" bgcolor="lightblue">
+    <view width="auto" height="auto">
       <spacedlayout spacing="15"></spacedlayout>
-      <shrinktofit axis="both"></shrinktofit>
       <replicator datapath="/weather[0]/main" classname="text"></replicator>
       <replicator datapath="/main/temp" classname="text"></replicator>
       <replicator datapath="/wind/speed" classname="text"></replicator>
@@ -26,17 +25,17 @@
     </view>
   </class>
 
-  <class name="weather2" extends="boundedview" bgcolor="lightgreen">
-    <boundedview>
+  <class name="weather2" width="auto" height="auto" bgcolor="lightgreen">
+    <view width="auto" height="auto">
       <spacedlayout spacing="15"></spacedlayout>
       <replicator datapath="/weather[0]/main" classname="text"></replicator>
       <replicator datapath="/main/temp" classname="text"></replicator>
       <replicator datapath="/wind/speed" classname="text"></replicator>
       <replicator datapath="/wind/deg" classname="text"></replicator>
-    </boundedview>
+    </view>
   </class>
 
-  <view>
+  <view width="auto" height="auto">
     <dataset name="tempdata">
       {
         "coord": {
@@ -80,7 +79,6 @@
       }
     </dataset>
 
-    <shrinktofit axis="both"></shrinktofit>
     <spacedlayout axis="y" spacing="15"></spacedlayout>
 
     <replicator datapath="$tempdata" classname="weather"></replicator>
@@ -91,13 +89,13 @@
 
     <handler event="oninit">
       assert.equal(this.subviews.length, 3)
-      assert.equal(this.subnodes.length, 9)
+      assert.equal(this.subnodes.length, 10)
       assert.equal(this.subviews[2].text, '63.88')
     </handler>
   </view>
 
   <!-- Test datapath binding through non-bound parents with a synchronous dataset -->
-  <view>
+  <view width="auto" height="auto">
     <dataset name="tempdata2" async="false">
       {
         "coord": {
@@ -141,7 +139,6 @@
       }
     </dataset>
 
-    <shrinktofit axis="both"></shrinktofit>
     <spacedlayout axis="y" spacing="15"></spacedlayout>
     <replicator datapath="$tempdata2" classname="weather"></replicator>
 
@@ -151,16 +148,15 @@
 
     <handler event="oninit">
       assert.equal(this.subviews.length, 3)
-      assert.equal(this.subnodes.length, 9)
+      assert.equal(this.subnodes.length, 10)
       assert.equal(this.subviews[2].text, '63.88')
     </handler>
   </view>
 
   <!-- Test datapath binding through non-bound parents with a remote dataset and everything async -->
-  <view>
+  <view width="auto" height="auto">
     <dataset name="tempdata3" url="/examples/data/weather.json"></dataset>
 
-    <shrinktofit axis="both"></shrinktofit>
     <spacedlayout axis="y" spacing="15"></spacedlayout>
     <replicator datapath="$tempdata3" classname="weather"></replicator>
 
@@ -172,7 +168,7 @@
       var _this = this;
       dr.idle.callOnIdle(function() {
         assert.equal(_this.subviews.length, 3)
-        assert.equal(_this.subnodes.length, 9)
+        assert.equal(_this.subnodes.length, 10)
         assert.equal(_this.subviews[2].text, '63.88')
       })
     </handler>
