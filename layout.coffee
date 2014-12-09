@@ -633,8 +633,11 @@ window.dr = do ->
       # console.log 'new node', @, attributes
       unless skiponinit
         unless @inited
-          @inited = true
-          @sendEvent('init', @)
+          @initialize()
+
+    initialize: (skipevents) ->
+      @inited = true
+      if not skipevents then @sendEvent('init', @)
 
     # match js and CoffeeScript-style super() calls
     matchSuper = /this.super\(|this\["super"\]\(/
@@ -1499,6 +1502,11 @@ window.dr = do ->
       super
       # console.log 'new view', el, attributes, @
 
+    initialize: (skipevents) ->
+      if @__autoLayoutwidth then @__autoLayoutwidth.setAttribute('locked', false)
+      if @__autoLayoutheight then @__autoLayoutheight.setAttribute('locked', false)
+      super
+      
     _createSprite: (el, attributes) ->
       @sprite = new Sprite(el, @, attributes.$tagname)
 
@@ -1506,10 +1514,16 @@ window.dr = do ->
       # catch percent constraints
       unless skipConstraintSetup
         switch name
-          when 'width','x'
+          when 'x'
             if @__setupPercentConstraint(name, value, 'innerwidth') then return
-          when 'height','y'
+          when 'y'
             if @__setupPercentConstraint(name, value, 'innerheight') then return
+          when 'width'
+            if @__setupPercentConstraint(name, value, 'innerwidth') then return
+            if @__setupAutoConstraint(name, value, 'x') then return
+          when 'height'
+            if @__setupPercentConstraint(name, value, 'innerheight') then return
+            if @__setupAutoConstraint(name, value, 'y') then return
 
       value = @_coerceType(name, value)
 
@@ -1524,6 +1538,18 @@ window.dr = do ->
           @sprite.setProperty(name, value)
         else if @inited or defaults[name] isnt value
           @sprite.setStyle(name, value)
+
+    __setupAutoConstraint: (name, value, axis) ->
+      layoutKey = '__autoLayout' + name
+      oldLayout = @[layoutKey]
+      if oldLayout
+        oldLayout.destroy()
+        delete @[layoutKey]
+      if value is 'auto'
+        @[layoutKey] = new AutoPropertyLayout(null, {parent:@, axis:axis, locked:if @inited then 'false' else 'true'})
+        unless @inited
+          @setAttribute(name, 0, false, true) # An initial value is still necessary.
+        return true
 
     matchPercent = /%$/
     __setupPercentConstraint: (name, value, axis) ->
@@ -2413,8 +2439,7 @@ window.dr = do ->
                 return
             return if parent.inited
             # console.log('doinit', parent)
-            parent.inited = true
-            parent.sendEvent('init', parent)
+            parent.initialize()
             return
           callOnIdle(checkChildren)
       return
@@ -2604,7 +2629,7 @@ window.dr = do ->
       @enumfalse(@keys)
 
       el.$view = @ if el
-      @inited = true
+      @initialize(true)
 
     ###*
     # @attribute {Boolean} [applied=false]
@@ -2817,8 +2842,7 @@ window.dr = do ->
             return if parent.inited
             parent._bindHandlers()
             parent._bindHandlers(true)
-            parent.inited = true
-            parent.sendEvent('init', parent)
+            parent.initialize()
 
           if children?.length
             # console.log 'delaying init', parent, children
@@ -2884,9 +2908,10 @@ window.dr = do ->
       super
 
       # listen for changes in the parent
+      # Bind needed because the callback scope is the monitored object not the monitoring object.
       @listenTo(@parent, 'subviewAdded', @addSubview.bind(@))
       @listenTo(@parent, 'subviewRemoved', @removeSubview.bind(@))
-      @listenTo(@parent, 'init', @update)
+      @listenTo(@parent, 'init', @update.bind(@))
 
       # Store ourself in the parent layouts
       @parent.layouts ?= []
@@ -3017,6 +3042,59 @@ window.dr = do ->
         @locked = false
         @update()
       return v
+
+  class AutoPropertyLayout extends Layout
+    startMonitoringSubview: (view) ->
+      func = @update.bind(@)
+      if @axis is 'x'
+        @listenTo(view, 'x', func)
+        @listenTo(view, 'width', func)
+      else
+        @listenTo(view, 'y', func)
+        @listenTo(view, 'height', func)
+      @listenTo(view, 'visible', func)
+
+    stopMonitoringSubview: (view) ->
+      func = @update.bind(@)
+      if @axis is 'x'
+        @stopListening(view, 'x', func)
+        @stopListening(view, 'width', func)
+      else
+        @stopListening(view, 'y', func)
+        @stopListening(view, 'height', func)
+      @stopListening(view, 'visible', func)
+
+    update: ->
+      if not @locked and @axis
+        # console.log('update', @axis)
+        # Prevent inadvertent loops
+        @locked = true
+
+        svs = @subviews
+        i = svs.length
+        maxFunc = Math.max
+        parent = @parent
+        max = 0
+
+        if @axis is 'x'
+          while i
+            sv = svs[--i]
+            unless @_skipX(sv) then max = maxFunc(max, sv.x + maxFunc(0, sv.width))
+          parent.setAttribute('width', max + parent.width - parent.innerwidth, false, true)
+        else
+          while i
+            sv = svs[--i]
+            unless @_skipY(sv) then max = maxFunc(max, sv.y + maxFunc(0, sv.height))
+          parent.setAttribute('height', max + parent.height - parent.innerheight, false, true)
+
+        @locked = false
+
+    # Skip children that use a percent position or size since this leads
+    # to circular sizing constraints.
+    _skipX: (view) ->
+      return !view.visible or view.__percentFuncwidth? or view.__percentFuncx?
+    _skipY: (view) ->
+      return !view.visible or view.__percentFuncheight? or view.__percentFuncy?
 
   starttime = Date.now()
   idle = do ->

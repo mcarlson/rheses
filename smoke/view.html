@@ -28,61 +28,6 @@
 <view width="100%">
   <spacedlayout axis="y" spacing="15"></spacedlayout>
 
-  <!-- Basic width and height -->
-  <view bgcolor="lightgrey" width="100" height="50">
-    <handler event="oninit">
-      assert.equal(this.width, 100)
-      assert.equal(this.height, 50)
-      
-      // Set width to a valid value
-      this.setAttribute('width', 1);
-      assert.equal(this.width, 1);
-      
-      // Set width to an invalid value
-      this.setAttribute('width', -1);
-      assert.equal(this.width, 0);
-      this.setAttribute('width', 'foo');
-      assert.equal(this.width, 0);
-      
-      // Set height to a valid value
-      this.setAttribute('height', 1);
-      assert.equal(this.height, 1);
-      
-      // Set height to an invalid value
-      this.setAttribute('height', -1);
-      assert.equal(this.height, 0);
-      this.setAttribute('height', 'foo');
-      assert.equal(this.height, 0);
-    </handler>
-  </view>
-
-  <!-- Relative width/height -->
-  <view bgcolor="lightgrey" width="100" height="50">
-    <view name="inner" width="100%" height="100%" bgcolor="thistle"></view>
-    <handler event="oninit">
-      assert.equal(this.inner.width, 100)
-      assert.equal(this.inner.height, 50)
-    </handler>
-  </view>
-
-  <view bgcolor="lightgrey" width="100" height="50">
-    <view name="inner" width="80%" height="70%" bgcolor="lightpink"></view>
-    <handler event="oninit">
-      assert.equal(this.inner.width, 80)
-      assert.equal(this.inner.height, 35)
-      assert.equal($(this.inner.sprite.el).css('marginLeft'), '0px')
-      assert.equal($(this.inner.sprite.el).css('marginTop'), '0px')
-    </handler>
-  </view>
-
-  <view bgcolor="lightgrey" width="100" height="50">
-    <view name="inner" width="${this.parent.width}" height="${this.parent.height}" bgcolor="thistle"></view>
-    <handler event="oninit">
-      assert.equal(this.inner.width, 100)
-      assert.equal(this.inner.height, 50)
-    </handler>
-  </view>
-
   <!-- Visibility -->
   <view id="hiddenview" bgcolor="lightgreen" width="100" height="50" visible="false">
     <handler event="oninit">

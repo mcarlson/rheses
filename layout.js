@@ -80,7 +80,7 @@
   })();
 
   window.dr = (function() {
-    var Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, callOnIdle, capabilities, compiler, constraintScopes, debug, dom, domElementAttributes, exports, fcamelCase, hiddenAttributes, idle, ignoredAttributes, knownstyles, matchEvent, mixOf, moduleKeywords, mouseEvents, noop, querystring, rdashAlpha, showWarnings, specialtags, ss, ss2, starttime, test, triggerlock, warnings, _initConstraints;
+    var AutoPropertyLayout, Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, callOnIdle, capabilities, compiler, constraintScopes, debug, dom, domElementAttributes, exports, fcamelCase, hiddenAttributes, idle, ignoredAttributes, knownstyles, matchEvent, mixOf, moduleKeywords, mouseEvents, noop, querystring, rdashAlpha, showWarnings, specialtags, ss, ss2, starttime, test, triggerlock, warnings, _initConstraints;
     noop = function() {};
     mixOf = function() {
       var Mixed, base, i, method, mixin, mixins, name, _i, _ref;
@@ -861,11 +861,17 @@
          */
         if (!skiponinit) {
           if (!this.inited) {
-            this.inited = true;
-            this.sendEvent('init', this);
+            this.initialize();
           }
         }
       }
+
+      Node.prototype.initialize = function(skipevents) {
+        this.inited = true;
+        if (!skipevents) {
+          return this.sendEvent('init', this);
+        }
+      };
 
       matchSuper = /this.super\(|this\["super"\]\(/;
 
@@ -1904,6 +1910,16 @@
         View.__super__.constructor.apply(this, arguments);
       }
 
+      View.prototype.initialize = function(skipevents) {
+        if (this.__autoLayoutwidth) {
+          this.__autoLayoutwidth.setAttribute('locked', false);
+        }
+        if (this.__autoLayoutheight) {
+          this.__autoLayoutheight.setAttribute('locked', false);
+        }
+        return View.__super__.initialize.apply(this, arguments);
+      };
+
       View.prototype._createSprite = function(el, attributes) {
         return this.sprite = new Sprite(el, this, attributes.$tagname);
       };
@@ -1912,15 +1928,29 @@
         var existing;
         if (!skipConstraintSetup) {
           switch (name) {
-            case 'width':
             case 'x':
               if (this.__setupPercentConstraint(name, value, 'innerwidth')) {
                 return;
               }
               break;
-            case 'height':
             case 'y':
               if (this.__setupPercentConstraint(name, value, 'innerheight')) {
+                return;
+              }
+              break;
+            case 'width':
+              if (this.__setupPercentConstraint(name, value, 'innerwidth')) {
+                return;
+              }
+              if (this.__setupAutoConstraint(name, value, 'x')) {
+                return;
+              }
+              break;
+            case 'height':
+              if (this.__setupPercentConstraint(name, value, 'innerheight')) {
+                return;
+              }
+              if (this.__setupAutoConstraint(name, value, 'y')) {
                 return;
               }
           }
@@ -1935,6 +1965,27 @@
           } else if (this.inited || defaults[name] !== value) {
             return this.sprite.setStyle(name, value);
           }
+        }
+      };
+
+      View.prototype.__setupAutoConstraint = function(name, value, axis) {
+        var layoutKey, oldLayout;
+        layoutKey = '__autoLayout' + name;
+        oldLayout = this[layoutKey];
+        if (oldLayout) {
+          oldLayout.destroy();
+          delete this[layoutKey];
+        }
+        if (value === 'auto') {
+          this[layoutKey] = new AutoPropertyLayout(null, {
+            parent: this,
+            axis: axis,
+            locked: this.inited ? 'false' : 'true'
+          });
+          if (!this.inited) {
+            this.setAttribute(name, 0, false, true);
+          }
+          return true;
         }
       };
 
@@ -3073,8 +3124,7 @@
               if (parent.inited) {
                 return;
               }
-              parent.inited = true;
-              parent.sendEvent('init', parent);
+              parent.initialize();
             };
             callOnIdle(checkChildren);
           }
@@ -3272,7 +3322,7 @@
         if (el) {
           el.$view = this;
         }
-        this.inited = true;
+        this.initialize(true);
       }
 
 
@@ -3515,8 +3565,7 @@
               }
               parent._bindHandlers();
               parent._bindHandlers(true);
-              parent.inited = true;
-              return parent.sendEvent('init', parent);
+              return parent.initialize();
             };
             if (children != null ? children.length : void 0) {
               checkChildren = function() {
@@ -3597,7 +3646,7 @@
         Layout.__super__.constructor.apply(this, arguments);
         this.listenTo(this.parent, 'subviewAdded', this.addSubview.bind(this));
         this.listenTo(this.parent, 'subviewRemoved', this.removeSubview.bind(this));
-        this.listenTo(this.parent, 'init', this.update);
+        this.listenTo(this.parent, 'init', this.update.bind(this));
         if ((_base = this.parent).layouts == null) {
           _base.layouts = [];
         }
@@ -3769,6 +3818,80 @@
       return Layout;
 
     })(Node);
+    AutoPropertyLayout = (function(_super) {
+      __extends(AutoPropertyLayout, _super);
+
+      function AutoPropertyLayout() {
+        return AutoPropertyLayout.__super__.constructor.apply(this, arguments);
+      }
+
+      AutoPropertyLayout.prototype.startMonitoringSubview = function(view) {
+        var func;
+        func = this.update.bind(this);
+        if (this.axis === 'x') {
+          this.listenTo(view, 'x', func);
+          this.listenTo(view, 'width', func);
+        } else {
+          this.listenTo(view, 'y', func);
+          this.listenTo(view, 'height', func);
+        }
+        return this.listenTo(view, 'visible', func);
+      };
+
+      AutoPropertyLayout.prototype.stopMonitoringSubview = function(view) {
+        var func;
+        func = this.update.bind(this);
+        if (this.axis === 'x') {
+          this.stopListening(view, 'x', func);
+          this.stopListening(view, 'width', func);
+        } else {
+          this.stopListening(view, 'y', func);
+          this.stopListening(view, 'height', func);
+        }
+        return this.stopListening(view, 'visible', func);
+      };
+
+      AutoPropertyLayout.prototype.update = function() {
+        var i, max, maxFunc, parent, sv, svs;
+        if (!this.locked && this.axis) {
+          this.locked = true;
+          svs = this.subviews;
+          i = svs.length;
+          maxFunc = Math.max;
+          parent = this.parent;
+          max = 0;
+          if (this.axis === 'x') {
+            while (i) {
+              sv = svs[--i];
+              if (!this._skipX(sv)) {
+                max = maxFunc(max, sv.x + maxFunc(0, sv.width));
+              }
+            }
+            parent.setAttribute('width', max + parent.width - parent.innerwidth, false, true);
+          } else {
+            while (i) {
+              sv = svs[--i];
+              if (!this._skipY(sv)) {
+                max = maxFunc(max, sv.y + maxFunc(0, sv.height));
+              }
+            }
+            parent.setAttribute('height', max + parent.height - parent.innerheight, false, true);
+          }
+          return this.locked = false;
+        }
+      };
+
+      AutoPropertyLayout.prototype._skipX = function(view) {
+        return !view.visible || (view.__percentFuncwidth != null) || (view.__percentFuncx != null);
+      };
+
+      AutoPropertyLayout.prototype._skipY = function(view) {
+        return !view.visible || (view.__percentFuncheight != null) || (view.__percentFuncy != null);
+      };
+
+      return AutoPropertyLayout;
+
+    })(Layout);
     starttime = Date.now();
     idle = (function() {
       var doTick, requestAnimationFrame, tickEvents, ticking;
