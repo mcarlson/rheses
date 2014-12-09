@@ -43,6 +43,7 @@ var runTest = function (file, callback) {
       console.log(gotoutput)
       console.log("\n")
     }
+    page.close();
     callback();
   }
   var updateTimer = function(ms) {
