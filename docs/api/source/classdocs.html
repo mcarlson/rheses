@@ -454,7 +454,7 @@
 <span id='dr-buttonbase'>/**
 </span>     * @class dr.buttonbase {UI Components}
      * @extends dr.view
-     * Base class for button components. Buttons share common elements, 
+     * Base class for button components. Buttons share common elements,
      * including their ability to be selected, a visual element to display
      * their state, and a default and selected color.
      * The visual element is a dr.view that shows the current state of the
@@ -524,7 +524,7 @@
 <span id='dr-constantlayout'>/**
 </span>      * @class dr.constantlayout {Layout}
       * @extends dr.layout
-      * A layout that sets the target attribute name to the target value for 
+      * A layout that sets the target attribute name to the target value for
       * each subview.
       *
       *     @example
@@ -706,7 +706,7 @@
 </span>     * @class dr.labelbutton {UI Components}
      * @extends dr.buttonbase
      * Button class consisting of text centered in a view. The onclick event
-     * is generated when the button is clicked. The visual state of the 
+     * is generated when the button is clicked. The visual state of the
      * button changes during onmousedown/onmouseup.
      *
      *     @example
@@ -1067,7 +1067,7 @@
         */
 <span id='dr-shim-attribute-websockets'>/**
 </span>        * @attribute {Boolean} [websockets=false]
-        * If true, use websockets to connect to the server
+        * If true, force the use of websockets to connect to the server
         */
 <span id='dr-shim-method-send'>/**
 </span>        * @method send
@@ -1078,7 +1078,7 @@
 <span id='dr-shrinktofit'>/**
 </span>      * @class dr.shrinktofit {Layout}
       * @extends dr.layout
-      * A special &quot;layout&quot; that resizes the parent to fit the children 
+      * A special &quot;layout&quot; that resizes the parent to fit the children
       * rather than laying out the children.
       *
       *
@@ -1108,7 +1108,7 @@
       */
 <span id='dr-shrinktofit-attribute-axis'>/**
 </span>    * @attribute {String} [axis=x]
-    * The axis along which to resize this view to fit its children. 
+    * The axis along which to resize this view to fit its children.
     * Supported values are &#39;x&#39;, &#39;y&#39; and &#39;both&#39;.
     */
 <span id='dr-shrinktofit-attribute-xpad'>/**
@@ -1120,7 +1120,7 @@
     * Additional space added on the child extent along the y-axis.
     */
 <span id='dr-shrinktofit-method-__updateMonitoringSubview'>/**
-</span>    * @method __updateMonitoringSubview 
+</span>    * @method __updateMonitoringSubview
     * Wrapped by startMonitoringSubview and stopMonitoringSubview.
     * @param {dr.view} view
     * @param {Function} func
@@ -1143,7 +1143,7 @@
      * Slider with a label:
      *
      *     @example
-     *     
+     *
      *     &lt;spacedlayout spacing=&quot;8&quot;&gt;&lt;/spacedlayout&gt;
      *     &lt;slider name=&quot;hslide&quot; y=&quot;5&quot; width=&quot;250&quot; height=&quot;10&quot; value=&quot;50&quot; bgcolor=&quot;#808080&quot;&gt;&lt;/slider&gt;
      *     &lt;text text=&quot;${Math.round(this.parent.hslide.value)}&quot; y=&quot;${this.parent.hslide.y + (this.parent.hslide.height-this.height)/2}&quot;&gt;&lt;/text&gt;
@@ -1241,7 +1241,7 @@
 <span id='dr-variablelayout'>/**
 </span>      * @class dr.variablelayout {Layout}
       * @extends dr.constantlayout
-      * Allows for variation based on the index and subview. An updateSubview 
+      * Allows for variation based on the index and subview. An updateSubview
       * method is provided that can be overriden to provide variable behavior.
       *
       *     @example
@@ -1254,12 +1254,12 @@
       */
 <span id='dr-variablelayout-attribute-collapseparent'>/**
 </span>    * @attribute {boolean} [collapseparent=false]
-    * If true the updateParent method will be called. The updateParent method 
+    * If true the updateParent method will be called. The updateParent method
     * will typically resize the parent to fit the newly layed out child views.
     */
 <span id='dr-variablelayout-attribute-reverse'>/**
 </span>    * @attribute {boolean} [reverse=false]
-    * If true the layout will position the items in the opposite order. For 
+    * If true the layout will position the items in the opposite order. For
     * example, right to left instead of left to right.
     */
 <span id='dr-variablelayout-method-doBeforeUpdate'>/**
@@ -1271,7 +1271,7 @@
 <span id='dr-variablelayout-method-doAfterUpdate'>/**
 </span>    * @method doAfterUpdate
     * Called by update after any processing is done but before the optional
-    * collapsing of parent is done. Gives subviews a chance to do any 
+    * collapsing of parent is done. Gives subviews a chance to do any
     * special teardown after update is processed.
     * @return {void}
     */
@@ -1301,15 +1301,15 @@
 <span id='dr-variablelayout-method-skipSubview'>/**
 </span>    * @method skipSubview
     * Called for each subview in the layout to determine if the view should
-    * be updated or not. The default implementation returns true if the 
+    * be updated or not. The default implementation returns true if the
     * subview is not visible.
     * @param {dr.view} view The subview to check.
-    * @return {Boolean} True if the subview should be skipped during 
+    * @return {Boolean} True if the subview should be skipped during
     *   layout updates.
     */
 <span id='dr-variablelayout-method-updateParent'>/**
 </span>    * @method updateParent
-    * Called if the collapseparent attribute is true. Subclasses should 
+    * Called if the collapseparent attribute is true. Subclasses should
     * implement this if they want to modify the parent view.
     * @param {String} attribute The name of the attribute to update.
     * @param {*} value The value to set on the parent.
@@ -1324,7 +1324,7 @@
      * using the src attribute, or to show dynamic content using the
      * contents attribute.
      *
-     * This example shows how to display a web page in an iframe. The 
+     * This example shows how to display a web page in an iframe. The
      * contents of the iframe are not editable:
      *
      *     @example

@@ -823,12 +823,6 @@
         }
         parent = this.parent;
         if (parent && parent instanceof Node) {
-
-          /**
-           * @event onsubnodes
-           * Fired when this node's subnodes array has changed
-           * @param {dr.node} node The dr.node that fired the event
-           */
           parent.sendEvent('subnodes', this);
           parent.doSubnodeAdded(this);
         }
@@ -1765,7 +1759,7 @@
 
       /**
        * @attribute {Number} [opacity=1.0]
-       * Sets this view's opacity, values can be a float from 0.0 is 1.0
+       * Sets this view's opacity, values can be a float from 0.0 to 1.0
        */
 
       /**
@@ -1810,18 +1804,6 @@
        * @event onmouseup
        * Fired when the mouse goes up on this view
        * @param {dr.view} view The dr.view that fired the event
-       */
-
-      /**
-       * @event onscrollx
-       * Fired when the horizontal scroll position changes
-       * @param {number} The x value of the scroll position.
-       */
-
-      /**
-       * @event onscrolly
-       * Fired when the vertical scroll position changes
-       * @param {number} The y value of the scroll position.
        */
 
       /**
@@ -1878,21 +1860,9 @@
          */
 
         /**
-         * @event onsubviews
-         * Fired when this views's subviews array has changed
-         * @param {dr.view} view The dr.view that fired the event
-         */
-
-        /**
          * @property {dr.layout[]} layouts
          * @readonly
          * An array of this views's layouts. Only defined when needed.
-         */
-
-        /**
-         * @event onlayouts
-         * Fired when this views's layouts array has changed
-         * @param {dr.layout} view The dr.layout that fired the event
          */
 
         /**
@@ -3639,6 +3609,7 @@
           _base.layouts = [];
         }
         this.parent.layouts.push(this);
+        this.parent.sendEvent('layouts', this);
         subviews = this.parent.subviews;
         if (subviews) {
           for (_i = 0, _len = subviews.length; _i < _len; _i++) {

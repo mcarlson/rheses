@@ -97,7 +97,7 @@
   })();
 
   window.dr = (function() {
-    var Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, callOnIdle, capabilities, compiler, constraintScopes, debug, dom, domElementAttributes, exports, fcamelCase, hiddenAttributes, idle, ignoredAttributes, knownstyles, mixOf, moduleKeywords, mouseEvents, noop, querystring, rdashAlpha, showWarnings, specialtags, ss, ss2, starttime, test, triggerlock, warnings, _initConstraints;
+    var Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, callOnIdle, capabilities, compiler, constraintScopes, debug, dom, domElementAttributes, exports, fcamelCase, hiddenAttributes, idle, ignoredAttributes, knownstyles, matchEvent, mixOf, moduleKeywords, mouseEvents, noop, querystring, rdashAlpha, showWarnings, specialtags, ss, ss2, starttime, test, triggerlock, warnings, _initConstraints;
     noop = function() {};
     mixOf = function() {
       var Mixed, base, i, method, mixin, mixins, name, _i, _ref;
@@ -185,9 +185,7 @@
         }
         for (_i = 0, _len = list.length; _i &lt; _len; _i++) {
           callback = list[_i];
-          if (callback.apply(this, args) === false) {
-            break;
-          }
+          callback.apply(this, args);
         }
         triggerlock = null;
         return this;
@@ -385,6 +383,14 @@
             return val;
           }
           return eval(val);
+        },
+        positivenumber: function(val) {
+          val = parseFloat(val);
+          if (isNaN(val)) {
+            return 0;
+          } else {
+            return Math.max(0, val);
+          }
         }
       };
 
@@ -737,11 +743,9 @@
 </span>       * @attribute {String} scriptincludeserror
        * An error to show if scriptincludes fail to load
        */
-      var earlyattributes, lateattributes, matchConstraint, _eventCallback, _installMethod;
+      var earlyattributes, lateattributes, matchConstraint, matchSuper, _eventCallback, _installMethod;
 
       __extends(Node, _super);
-
-      matchConstraint = /\${(.+)}/;
 
       earlyattributes = [&#39;name&#39;, &#39;parent&#39;];
 
@@ -836,12 +840,6 @@
         }
         parent = this.parent;
         if (parent &amp;&amp; parent instanceof Node) {
-
-<span id='dr-node-event-onsubnodes'>          /**
-</span>           * @event onsubnodes
-           * Fired when this node&#39;s subnodes array has changed
-           * @param {dr.node} node The dr.node that fired the event
-           */
           parent.sendEvent(&#39;subnodes&#39;, this);
           parent.doSubnodeAdded(this);
         }
@@ -886,8 +884,10 @@
         }
       }
 
+      matchSuper = /this.super\(|this\[&quot;super&quot;\]\(/;
+
       Node.prototype.installMethods = function(methods, tagname, scope, callbackscope) {
-        var allocation, args, method, methodlist, name, _i, _len, _ref;
+        var allocation, args, hassuper, method, methodlist, name, _i, _len, _ref;
         if (scope == null) {
           scope = this;
         }
@@ -898,7 +898,8 @@
           methodlist = methods[name];
           for (_i = 0, _len = methodlist.length; _i &lt; _len; _i++) {
             _ref = methodlist[_i], method = _ref.method, args = _ref.args, allocation = _ref.allocation;
-            _installMethod(scope, name, compiler.compile(method, args, &quot;&quot; + tagname + &quot;$&quot; + name).bind(callbackscope), allocation);
+            hassuper = matchSuper.test(method);
+            _installMethod(scope, name, compiler.compile(method, args, &quot;&quot; + tagname + &quot;$&quot; + name).bind(callbackscope), hassuper, allocation);
           }
         }
       };
@@ -956,6 +957,8 @@
         }
       };
 
+      matchConstraint = /\${(.+)}/;
+
       Node.prototype.bindAttribute = function(name, value, tagname) {
         var constraint;
         if (value) {
@@ -963,7 +966,7 @@
         }
         if (constraint) {
           return this.setConstraint(name, constraint[1], true);
-        } else if (name.indexOf(&#39;on&#39;) === 0) {
+        } else if (matchEvent.test(name)) {
           name = name.substr(2);
           return this.bind(name, _eventCallback(name, value, this, tagname));
         } else {
@@ -998,39 +1001,45 @@
         };
       };
 
-      _installMethod = function(scope, methodname, method, allocation) {
+      _installMethod = function(scope, methodname, method, hassuper, allocation) {
         var exists, supr;
-        if (methodname in scope) {
-          supr = scope[methodname] || noop;
-          exists = true;
+        if (!hassuper) {
+          return scope[methodname] = method;
+        } else {
+          if (methodname in scope &amp;&amp; typeof scope[methodname] === &#39;function&#39;) {
+            supr = scope[methodname];
+            exists = true;
+          }
+          return scope[methodname] = function() {
+            var args, prevOwn, prevValue, retval;
+            args = 1 &lt;= arguments.length ? __slice.call(arguments, 0) : [];
+            prevOwn = scope.hasOwnProperty(&#39;super&#39;);
+            if (prevOwn) {
+              prevValue = scope[&#39;super&#39;];
+            }
+            if (exists) {
+              scope[&#39;super&#39;] = function() {
+                var i, params, superargs;
+                superargs = 1 &lt;= arguments.length ? __slice.call(arguments, 0) : [];
+                i = superargs.length;
+                params = args.splice(0);
+                while (i) {
+                  params[--i] = superargs[i];
+                }
+                return supr.apply(scope, params);
+              };
+            } else {
+              scope[&#39;super&#39;] = noop;
+            }
+            retval = method.apply(scope, args);
+            if (prevOwn) {
+              scope[&#39;super&#39;] = prevValue;
+            } else {
+              delete scope[&#39;super&#39;];
+            }
+            return retval;
+          };
         }
-        return scope[methodname] = function() {
-          var params, prevOwn, prevValue, retval;
-          prevOwn = scope.hasOwnProperty(&#39;super&#39;);
-          if (prevOwn) {
-            prevValue = scope[&#39;super&#39;];
-          }
-          if (exists) {
-            params = Array.prototype.slice.call(arguments);
-            scope[&#39;super&#39;] = function() {
-              var i;
-              i = arguments.length;
-              while (i) {
-                params[--i] = arguments[i];
-              }
-              return supr.apply(scope, params);
-            };
-          } else {
-            scope[&#39;super&#39;] = noop;
-          }
-          retval = method.apply(scope, arguments);
-          if (prevOwn) {
-            scope[&#39;super&#39;] = prevValue;
-          } else {
-            delete scope[&#39;super&#39;];
-          }
-          return retval;
-        };
       };
 
       Node.prototype.setConstraint = function(property, expression, skipbinding) {
@@ -1767,7 +1776,7 @@
 
 <span id='dr-view-attribute-opacity'>      /**
 </span>       * @attribute {Number} [opacity=1.0]
-       * Sets this view&#39;s opacity, values can be a float from 0.0 is 1.0
+       * Sets this view&#39;s opacity, values can be a float from 0.0 to 1.0
        */
 
 <span id='dr-view-attribute-scrollx'>      /**
@@ -1814,18 +1823,6 @@
        * @param {dr.view} view The dr.view that fired the event
        */
 
-<span id='dr-view-event-onscrollx'>      /**
-</span>       * @event onscrollx
-       * Fired when the horizontal scroll position changes
-       * @param {number} The x value of the scroll position.
-       */
-
-<span id='dr-view-event-onscrolly'>      /**
-</span>       * @event onscrolly
-       * Fired when the vertical scroll position changes
-       * @param {number} The y value of the scroll position.
-       */
-
 <span id='dr-view-event-onscroll'>      /**
 </span>       * @event onscroll
        * Fired when the scroll position changes. Also provides information about
@@ -1846,7 +1843,7 @@
        *       of the scrollable view. The maximum can be calculated using this
        *       formula: scrollheight - view.height + 2*view.border
        */
-      var defaults;
+      var defaults, matchPercent;
 
       __extends(View, _super);
 
@@ -1879,22 +1876,10 @@
          * An array of this views&#39;s child views
          */
 
-<span id='dr-view-event-onsubviews'>        /**
-</span>         * @event onsubviews
-         * Fired when this views&#39;s subviews array has changed
-         * @param {dr.view} view The dr.view that fired the event
-         */
-
 <span id='dr-view-property-layouts'>        /**
 </span>         * @property {dr.layout[]} layouts
          * @readonly
          * An array of this views&#39;s layouts. Only defined when needed.
-         */
-
-<span id='dr-view-event-onlayouts'>        /**
-</span>         * @event onlayouts
-         * Fired when this views&#39;s layouts array has changed
-         * @param {dr.layout} view The dr.layout that fired the event
          */
 
 <span id='dr-view-property-ignorelayout'>        /**
@@ -1910,14 +1895,14 @@
           yscale: &#39;number&#39;,
           rotation: &#39;string&#39;,
           opacity: &#39;number&#39;,
-          width: &#39;number&#39;,
-          height: &#39;number&#39;,
+          width: &#39;positivenumber&#39;,
+          height: &#39;positivenumber&#39;,
           clickable: &#39;boolean&#39;,
           clip: &#39;boolean&#39;,
           scrollable: &#39;boolean&#39;,
           visible: &#39;boolean&#39;,
-          border: &#39;number&#39;,
-          padding: &#39;number&#39;,
+          border: &#39;positivenumber&#39;,
+          padding: &#39;positivenumber&#39;,
           ignorelayout: &#39;boolean&#39;,
           scrollx: &#39;number&#39;,
           scrolly: &#39;number&#39;
@@ -1935,10 +1920,6 @@
         this._createSprite(el, attributes);
         View.__super__.constructor.apply(this, arguments);
       }
-
-      View.prototype._isPercent = function(value) {
-        return typeof value === &#39;string&#39; &amp;&amp; value.indexOf(&#39;%&#39;) &gt; -1;
-      };
 
       View.prototype._createSprite = function(el, attributes) {
         return this.sprite = new Sprite(el, this, attributes.$tagname);
@@ -1962,19 +1943,6 @@
           }
         }
         value = this._coerceType(name, value);
-        switch (name) {
-          case &#39;width&#39;:
-          case &#39;height&#39;:
-          case &#39;border&#39;:
-          case &#39;padding&#39;:
-            value = Math.max(0, value);
-            break;
-          case &#39;scrollx&#39;:
-            value = Math.max(0, Math.min(this.sprite.el.scrollWidth - this.width + 2 * this.border, value));
-            break;
-          case &#39;scrolly&#39;:
-            value = Math.max(0, Math.min(this.sprite.el.scrollHeight - this.height + 2 * this.border, value));
-        }
         existing = this[name];
         View.__super__.setAttribute.call(this, name, value, true, skipConstraintSetup, skipconstraintunregistration);
         value = this[name];
@@ -1986,6 +1954,8 @@
           }
         }
       };
+
+      matchPercent = /%$/;
 
       View.prototype.__setupPercentConstraint = function(name, value, axis) {
         var func, funcKey, oldFunc, parent, scale, self;
@@ -2000,7 +1970,7 @@
           this.stopListening(parent, axis, oldFunc);
           delete this[funcKey];
         }
-        if (this._isPercent(value)) {
+        if (matchPercent.test(value)) {
           self = this;
           scale = parseInt(value) / 100;
           func = this[funcKey] = function() {
@@ -2062,6 +2032,7 @@
         if (this.rotation !== 0) {
           transform += &#39; rotate3d(0, 0, 1.0, &#39; + this.rotation + &#39;deg)&#39;;
         }
+        this.sprite.setStyle(&#39;z-index&#39;, this.z);
         return this.sprite.setStyle(&#39;transform&#39;, transform);
       };
 
@@ -2194,6 +2165,22 @@
         }
         this.sprite.set_scrollable(scrollable);
         return scrollable;
+      };
+
+      View.prototype.set_scrollx = function(scrollx) {
+        if (isNaN(scrollx)) {
+          return 0;
+        } else {
+          return Math.max(0, Math.min(this.sprite.el.scrollWidth - this.width + 2 * this.border, scrollx));
+        }
+      };
+
+      View.prototype.set_scrolly = function(scrolly) {
+        if (isNaN(scrolly)) {
+          return 0;
+        } else {
+          return Math.max(0, Math.min(this.sprite.el.scrollHeight - this.height + 2 * this.border, scrolly));
+        }
       };
 
 
@@ -2680,6 +2667,7 @@
       return console.error(out);
     };
     specialtags = [&#39;handler&#39;, &#39;method&#39;, &#39;attribute&#39;, &#39;setter&#39;, &#39;include&#39;];
+    matchEvent = /^on/;
     dom = (function() {
       var builtinTags, checkRequiredAttributes, exports, findAutoIncludes, flattenattributes, getChildren, htmlDecode, initAllElements, initElement, initFromElement, processSpecialTags, requiredAttributes, sendInit, writeCSS;
       getChildren = function(el) {
@@ -3032,7 +3020,7 @@
           }
         }
         for (attr in attributes) {
-          if (attr.indexOf(&#39;on&#39;) === 0) {
+          if (matchEvent.test(attr)) {
             el.removeAttribute(attr);
           }
         }
@@ -3638,6 +3626,7 @@
           _base.layouts = [];
         }
         this.parent.layouts.push(this);
+        this.parent.sendEvent(&#39;layouts&#39;, this);
         subviews = this.parent.subviews;
         if (subviews) {
           for (_i = 0, _len = subviews.length; _i &lt; _len; _i++) {
@@ -3843,12 +3832,18 @@
       var callback, queue;
       queue = [];
       callback = function(time) {
-        var cb, _results;
-        _results = [];
-        while ((cb = queue.shift())) {
-          _results.push(cb(time));
+        var cb, localqueue, _i, _len;
+        localqueue = queue;
+        queue = [];
+        for (_i = 0, _len = localqueue.length; _i &lt; _len; _i++) {
+          cb = localqueue[_i];
+          cb(time);
         }
-        return _results;
+        if (queue.length) {
+          setTimeout(function() {
+            return idle(2, callback);
+          }, 0);
+        }
       };
       return function(cb) {
         if (capabilities.raf) {

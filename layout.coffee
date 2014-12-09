@@ -608,11 +608,6 @@ window.dr = do ->
       # of the node itself have run.
       parent = @parent
       if (parent and parent instanceof Node)
-        ###*
-        # @event onsubnodes
-        # Fired when this node's subnodes array has changed
-        # @param {dr.node} node The dr.node that fired the event
-        ###
         parent.sendEvent('subnodes', @)
         parent.doSubnodeAdded(@)
 
@@ -1393,7 +1388,7 @@ window.dr = do ->
     ###
     ###*
     # @attribute {Number} [opacity=1.0]
-    # Sets this view's opacity, values can be a float from 0.0 is 1.0
+    # Sets this view's opacity, values can be a float from 0.0 to 1.0
     ###
     ###*
     # @attribute {Number} [scrollx=0]
@@ -1434,16 +1429,6 @@ window.dr = do ->
     # @param {dr.view} view The dr.view that fired the event
     ###
     ###*
-    # @event onscrollx
-    # Fired when the horizontal scroll position changes
-    # @param {number} The x value of the scroll position.
-    ###
-    ###*
-    # @event onscrolly
-    # Fired when the vertical scroll position changes
-    # @param {number} The y value of the scroll position.
-    ###
-    ###*
     # @event onscroll
     # Fired when the scroll position changes. Also provides information about
     # the scroll width and scroll height though it does not refire when those
@@ -1480,19 +1465,9 @@ window.dr = do ->
       # An array of this views's child views
       ###
       ###*
-      # @event onsubviews
-      # Fired when this views's subviews array has changed
-      # @param {dr.view} view The dr.view that fired the event
-      ###
-      ###*
       # @property {dr.layout[]} layouts
       # @readonly
       # An array of this views's layouts. Only defined when needed.
-      ###
-      ###*
-      # @event onlayouts
-      # Fired when this views's layouts array has changed
-      # @param {dr.layout} view The dr.layout that fired the event
       ###
       ###*
       # @property {Boolean} ignorelayout
@@ -2921,6 +2896,7 @@ window.dr = do ->
       # Store ourself in the parent layouts
       @parent.layouts ?= []
       @parent.layouts.push(@)
+      @parent.sendEvent('layouts', @)
 
       # Start monitoring existing subviews
       subviews = @parent.subviews

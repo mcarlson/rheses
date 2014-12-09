@@ -437,7 +437,7 @@
 /**
      * @class dr.buttonbase {UI Components}
      * @extends dr.view
-     * Base class for button components. Buttons share common elements, 
+     * Base class for button components. Buttons share common elements,
      * including their ability to be selected, a visual element to display
      * their state, and a default and selected color.
      * The visual element is a dr.view that shows the current state of the
@@ -507,7 +507,7 @@
 /**
       * @class dr.constantlayout {Layout}
       * @extends dr.layout
-      * A layout that sets the target attribute name to the target value for 
+      * A layout that sets the target attribute name to the target value for
       * each subview.
       *
       *     @example
@@ -689,7 +689,7 @@
      * @class dr.labelbutton {UI Components}
      * @extends dr.buttonbase
      * Button class consisting of text centered in a view. The onclick event
-     * is generated when the button is clicked. The visual state of the 
+     * is generated when the button is clicked. The visual state of the
      * button changes during onmousedown/onmouseup.
      *
      *     @example
@@ -1050,7 +1050,7 @@
         */
 /**
         * @attribute {Boolean} [websockets=false]
-        * If true, use websockets to connect to the server
+        * If true, force the use of websockets to connect to the server
         */
 /**
         * @method send
@@ -1061,7 +1061,7 @@
 /**
       * @class dr.shrinktofit {Layout}
       * @extends dr.layout
-      * A special "layout" that resizes the parent to fit the children 
+      * A special "layout" that resizes the parent to fit the children
       * rather than laying out the children.
       *
       *
@@ -1091,7 +1091,7 @@
       */
 /**
     * @attribute {String} [axis=x]
-    * The axis along which to resize this view to fit its children. 
+    * The axis along which to resize this view to fit its children.
     * Supported values are 'x', 'y' and 'both'.
     */
 /**
@@ -1103,7 +1103,7 @@
     * Additional space added on the child extent along the y-axis.
     */
 /**
-    * @method __updateMonitoringSubview 
+    * @method __updateMonitoringSubview
     * Wrapped by startMonitoringSubview and stopMonitoringSubview.
     * @param {dr.view} view
     * @param {Function} func
@@ -1126,7 +1126,7 @@
      * Slider with a label:
      *
      *     @example
-     *     
+     *
      *     <spacedlayout spacing="8"></spacedlayout>
      *     <slider name="hslide" y="5" width="250" height="10" value="50" bgcolor="#808080"></slider>
      *     <text text="${Math.round(this.parent.hslide.value)}" y="${this.parent.hslide.y + (this.parent.hslide.height-this.height)/2}"></text>
@@ -1224,7 +1224,7 @@
 /**
       * @class dr.variablelayout {Layout}
       * @extends dr.constantlayout
-      * Allows for variation based on the index and subview. An updateSubview 
+      * Allows for variation based on the index and subview. An updateSubview
       * method is provided that can be overriden to provide variable behavior.
       *
       *     @example
@@ -1237,12 +1237,12 @@
       */
 /**
     * @attribute {boolean} [collapseparent=false]
-    * If true the updateParent method will be called. The updateParent method 
+    * If true the updateParent method will be called. The updateParent method
     * will typically resize the parent to fit the newly layed out child views.
     */
 /**
     * @attribute {boolean} [reverse=false]
-    * If true the layout will position the items in the opposite order. For 
+    * If true the layout will position the items in the opposite order. For
     * example, right to left instead of left to right.
     */
 /**
@@ -1254,7 +1254,7 @@
 /**
     * @method doAfterUpdate
     * Called by update after any processing is done but before the optional
-    * collapsing of parent is done. Gives subviews a chance to do any 
+    * collapsing of parent is done. Gives subviews a chance to do any
     * special teardown after update is processed.
     * @return {void}
     */
@@ -1284,15 +1284,15 @@
 /**
     * @method skipSubview
     * Called for each subview in the layout to determine if the view should
-    * be updated or not. The default implementation returns true if the 
+    * be updated or not. The default implementation returns true if the
     * subview is not visible.
     * @param {dr.view} view The subview to check.
-    * @return {Boolean} True if the subview should be skipped during 
+    * @return {Boolean} True if the subview should be skipped during
     *   layout updates.
     */
 /**
     * @method updateParent
-    * Called if the collapseparent attribute is true. Subclasses should 
+    * Called if the collapseparent attribute is true. Subclasses should
     * implement this if they want to modify the parent view.
     * @param {String} attribute The name of the attribute to update.
     * @param {*} value The value to set on the parent.
@@ -1307,7 +1307,7 @@
      * using the src attribute, or to show dynamic content using the
      * contents attribute.
      *
-     * This example shows how to display a web page in an iframe. The 
+     * This example shows how to display a web page in an iframe. The
      * contents of the iframe are not editable:
      *
      *     @example
