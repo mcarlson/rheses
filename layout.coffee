@@ -551,7 +551,7 @@ window.dr = do ->
 
     constructor: (el, attributes = {}) ->
       ###*
-      # @property {dr.node[]} subnodes
+      # @attribute {dr.node[]} subnodes
       # @readonly
       # An array of this node's child nodes
       ###
@@ -565,7 +565,7 @@ window.dr = do ->
       delete attributes.$deferbindings
 
       ###
-      # @property {String} $textcontent
+      # @attribute {String} $textcontent
       # @readonly
       # Contains the textual contents of this node, if any
       ###
@@ -1460,17 +1460,17 @@ window.dr = do ->
     }
     constructor: (el, attributes = {}) ->
       ###*
-      # @property {dr.view[]} subviews
+      # @attribute {dr.view[]} subviews
       # @readonly
       # An array of this views's child views
       ###
       ###*
-      # @property {dr.layout[]} layouts
+      # @attribute {dr.layout[]} layouts
       # @readonly
       # An array of this views's layouts. Only defined when needed.
       ###
       ###*
-      # @property {Boolean} ignorelayout
+      # @attribute {Boolean} [ignorelayout=false]
       # If true, layouts should ignore this view
       ###
 
@@ -2607,13 +2607,8 @@ window.dr = do ->
       @inited = true
 
     ###*
-    # @event onapplied
-    # Fired when the state has been applied or unapplied. Onapplied handlers run in the scope of the state itself, see dragstate for an example.
-    # @param {Boolean} applied If true, the state was applied.
-    ###
-    ###*
     # @attribute {Boolean} [applied=false]
-    # If true, the state is applied.
+    # If true, the state is applied.  Note that onapplied handlers run in the scope of the state itself, see dr.dragstate for an example.
     ###
     set_applied: (applied) ->
       if @parent and @applied isnt applied
@@ -3285,17 +3280,7 @@ window.dr = do ->
       else if view
         view.sendEvent(type, view)
 
-      ###*
-      # @property {Number} x
-      # @readonly
-      # The x coordinate of the mouse
-      ###
       @x = event.pageX
-      ###*
-      # @property {Number} y
-      # @readonly
-      # The y coordinate of the mouse
-      ###
       @y = event.pageY
 
       if @eventStarted and type is 'mousemove'
@@ -3312,15 +3297,13 @@ window.dr = do ->
       ###
       @sendEvent("mousemove", {x: @x, y: @y})
       ###*
-      # @event onx
-      # Fired when the mouse moves in the x axis
-      # @param {Number} x The x coordinate of the mouse
+      # @attribute {Number} x The x position of the mouse
+      # @readonly
       ###
       @sendEvent('x', @x)
       ###*
-      # @event ony
-      # Fired when the mouse moves in the y axis
-      # @param {Number} y The y coordinate of the mouse
+      # @attribute {Number} y The y position of the mouse
+      # @readonly
       ###
       @sendEvent('y', @y)
 
@@ -3371,9 +3354,8 @@ window.dr = do ->
         @visible = document[hidden]
         # console.log('visibilitychange', @visible)
         ###*
-        # @event onvisible
-        # Fired when the window visibility changes
-        # @param {Boolean} visible True if the window is currently visible
+        # @attribute {Boolean} visible=true Set when the window visibility changes, true if the window is currently visible
+        # @readonly
         ###
         @sendEvent('visible', @visible)
 
@@ -3384,20 +3366,19 @@ window.dr = do ->
       @events['width']?.length or @events['height']?.length
 
     handle: (event) =>
+      ###*
+      # @attribute {Number} width Set when the window width changes
+      # @readonly
+      ###
       @width = window.innerWidth
-      ###*
-      # @event onwidth
-      # Fired when the window resizes
-      # @param {Number} width The width of the window
-      ###
       @sendEvent('width', @width)
-      @height = window.innerHeight
       ###*
-      # @event onheight
-      # Fired when the window resizes
-      # @param {Number} height The height of the window
+      # @attribute {Number} height Set when the window height changes
+      # @readonly
       ###
+      @height = window.innerHeight
       @sendEvent('height', @height)
+      return
       # console.log('window resize', event, @width, @height)
 
 

@@ -741,7 +741,7 @@
         }
 
         /**
-         * @property {dr.node[]} subnodes
+         * @attribute {dr.node[]} subnodes
          * @readonly
          * An array of this node's child nodes
          */
@@ -754,7 +754,7 @@
         delete attributes.$deferbindings;
 
         /*
-         * @property {String} $textcontent
+         * @attribute {String} $textcontent
          * @readonly
          * Contains the textual contents of this node, if any
          */
@@ -1854,19 +1854,19 @@
         }
 
         /**
-         * @property {dr.view[]} subviews
+         * @attribute {dr.view[]} subviews
          * @readonly
          * An array of this views's child views
          */
 
         /**
-         * @property {dr.layout[]} layouts
+         * @attribute {dr.layout[]} layouts
          * @readonly
          * An array of this views's layouts. Only defined when needed.
          */
 
         /**
-         * @property {Boolean} ignorelayout
+         * @attribute {Boolean} [ignorelayout=false]
          * If true, layouts should ignore this view
          */
         this.subviews = [];
@@ -3277,15 +3277,8 @@
 
 
       /**
-       * @event onapplied
-       * Fired when the state has been applied or unapplied. Onapplied handlers run in the scope of the state itself, see dragstate for an example.
-       * @param {Boolean} applied If true, the state was applied.
-       */
-
-
-      /**
        * @attribute {Boolean} [applied=false]
-       * If true, the state is applied.
+       * If true, the state is applied.  Note that onapplied handlers run in the scope of the state itself, see dr.dragstate for an example.
        */
 
       State.prototype.set_applied = function(applied) {
@@ -4110,19 +4103,7 @@
         } else if (view) {
           view.sendEvent(type, view);
         }
-
-        /**
-         * @property {Number} x
-         * @readonly
-         * The x coordinate of the mouse
-         */
         this.x = event.pageX;
-
-        /**
-         * @property {Number} y
-         * @readonly
-         * The y coordinate of the mouse
-         */
         this.y = event.pageY;
         if (this.eventStarted && type === 'mousemove') {
           idle(0, this.sender);
@@ -4144,16 +4125,14 @@
         });
 
         /**
-         * @event onx
-         * Fired when the mouse moves in the x axis
-         * @param {Number} x The x coordinate of the mouse
+         * @attribute {Number} x The x position of the mouse
+         * @readonly
          */
         this.sendEvent('x', this.x);
 
         /**
-         * @event ony
-         * Fired when the mouse moves in the y axis
-         * @param {Number} y The y coordinate of the mouse
+         * @attribute {Number} y The y position of the mouse
+         * @readonly
          */
         return this.sendEvent('y', this.y);
       };
@@ -4214,9 +4193,8 @@
             _this.visible = document[hidden];
 
             /**
-             * @event onvisible
-             * Fired when the window visibility changes
-             * @param {Boolean} visible True if the window is currently visible
+             * @attribute {Boolean} visible=true Set when the window visibility changes, true if the window is currently visible
+             * @readonly
              */
             return _this.sendEvent('visible', _this.visible);
           };
@@ -4231,22 +4209,20 @@
       };
 
       Window.prototype.handle = function(event) {
+
+        /**
+         * @attribute {Number} width Set when the window width changes
+         * @readonly
+         */
         this.width = window.innerWidth;
-
-        /**
-         * @event onwidth
-         * Fired when the window resizes
-         * @param {Number} width The width of the window
-         */
         this.sendEvent('width', this.width);
-        this.height = window.innerHeight;
 
         /**
-         * @event onheight
-         * Fired when the window resizes
-         * @param {Number} height The height of the window
+         * @attribute {Number} height Set when the window height changes
+         * @readonly
          */
-        return this.sendEvent('height', this.height);
+        this.height = window.innerHeight;
+        this.sendEvent('height', this.height);
       };
 
       return Window;

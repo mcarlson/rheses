@@ -757,8 +757,8 @@
           attributes = {};
         }
 
-<span id='dr-node-property-subnodes'>        /**
-</span>         * @property {dr.node[]} subnodes
+<span id='dr-node-attribute-subnodes'>        /**
+</span>         * @attribute {dr.node[]} subnodes
          * @readonly
          * An array of this node&#39;s child nodes
          */
@@ -771,7 +771,7 @@
         delete attributes.$deferbindings;
 
         /*
-         * @property {String} $textcontent
+         * @attribute {String} $textcontent
          * @readonly
          * Contains the textual contents of this node, if any
          */
@@ -1870,20 +1870,20 @@
           attributes = {};
         }
 
-<span id='dr-view-property-subviews'>        /**
-</span>         * @property {dr.view[]} subviews
+<span id='dr-view-attribute-subviews'>        /**
+</span>         * @attribute {dr.view[]} subviews
          * @readonly
          * An array of this views&#39;s child views
          */
 
-<span id='dr-view-property-layouts'>        /**
-</span>         * @property {dr.layout[]} layouts
+<span id='dr-view-attribute-layouts'>        /**
+</span>         * @attribute {dr.layout[]} layouts
          * @readonly
          * An array of this views&#39;s layouts. Only defined when needed.
          */
 
-<span id='dr-view-property-ignorelayout'>        /**
-</span>         * @property {Boolean} ignorelayout
+<span id='dr-view-attribute-ignorelayout'>        /**
+</span>         * @attribute {Boolean} [ignorelayout=false]
          * If true, layouts should ignore this view
          */
         this.subviews = [];
@@ -3293,16 +3293,9 @@
       }
 
 
-<span id='dr-state-event-onapplied'>      /**
-</span>       * @event onapplied
-       * Fired when the state has been applied or unapplied. Onapplied handlers run in the scope of the state itself, see dragstate for an example.
-       * @param {Boolean} applied If true, the state was applied.
-       */
-
-
 <span id='dr-state-attribute-applied'>      /**
 </span>       * @attribute {Boolean} [applied=false]
-       * If true, the state is applied.
+       * If true, the state is applied.  Note that onapplied handlers run in the scope of the state itself, see dr.dragstate for an example.
        */
 
       State.prototype.set_applied = function(applied) {
@@ -4127,19 +4120,7 @@
         } else if (view) {
           view.sendEvent(type, view);
         }
-
-<span id='dr-mouse-property-x'>        /**
-</span>         * @property {Number} x
-         * @readonly
-         * The x coordinate of the mouse
-         */
         this.x = event.pageX;
-
-<span id='dr-mouse-property-y'>        /**
-</span>         * @property {Number} y
-         * @readonly
-         * The y coordinate of the mouse
-         */
         this.y = event.pageY;
         if (this.eventStarted &amp;&amp; type === &#39;mousemove&#39;) {
           idle(0, this.sender);
@@ -4160,17 +4141,15 @@
           y: this.y
         });
 
-<span id='dr-mouse-event-onx'>        /**
-</span>         * @event onx
-         * Fired when the mouse moves in the x axis
-         * @param {Number} x The x coordinate of the mouse
+<span id='dr-mouse-attribute-x'>        /**
+</span>         * @attribute {Number} x The x position of the mouse
+         * @readonly
          */
         this.sendEvent(&#39;x&#39;, this.x);
 
-<span id='dr-mouse-event-ony'>        /**
-</span>         * @event ony
-         * Fired when the mouse moves in the y axis
-         * @param {Number} y The y coordinate of the mouse
+<span id='dr-mouse-attribute-y'>        /**
+</span>         * @attribute {Number} y The y position of the mouse
+         * @readonly
          */
         return this.sendEvent(&#39;y&#39;, this.y);
       };
@@ -4230,10 +4209,9 @@
           return function() {
             _this.visible = document[hidden];
 
-<span id='dr-window-event-onvisible'>            /**
-</span>             * @event onvisible
-             * Fired when the window visibility changes
-             * @param {Boolean} visible True if the window is currently visible
+<span id='dr-window-attribute-visible'>            /**
+</span>             * @attribute {Boolean} visible=true Set when the window visibility changes, true if the window is currently visible
+             * @readonly
              */
             return _this.sendEvent(&#39;visible&#39;, _this.visible);
           };
@@ -4248,22 +4226,20 @@
       };
 
       Window.prototype.handle = function(event) {
+
+<span id='dr-window-attribute-width'>        /**
+</span>         * @attribute {Number} width Set when the window width changes
+         * @readonly
+         */
         this.width = window.innerWidth;
-
-<span id='dr-window-event-onwidth'>        /**
-</span>         * @event onwidth
-         * Fired when the window resizes
-         * @param {Number} width The width of the window
-         */
         this.sendEvent(&#39;width&#39;, this.width);
-        this.height = window.innerHeight;
 
-<span id='dr-window-event-onheight'>        /**
-</span>         * @event onheight
-         * Fired when the window resizes
-         * @param {Number} height The height of the window
+<span id='dr-window-attribute-height'>        /**
+</span>         * @attribute {Number} height Set when the window height changes
+         * @readonly
          */
-        return this.sendEvent(&#39;height&#39;, this.height);
+        this.height = window.innerHeight;
+        this.sendEvent(&#39;height&#39;, this.height);
       };
 
       return Window;
