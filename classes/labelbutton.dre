@@ -68,13 +68,16 @@ SOFTWARE. -->
         if (@label.width > 0 && @label.height > 0)
           if @_fixedsize
             #Fixed size button. position text in center of button
-            xoffset = (@width + @padding - @label.width)/2
-            yoffset = (@height + @padding - @label.height)/2
+            xoffset = (@width - 2*@padding - @label.width)/2
+            yoffset = (@height - 2*@padding - @label.height)/2
             @setAttributes(textx:xoffset, texty:yoffset)
           else
             #Variable size button. Resize button to text
             @_resize_lock = true
-            @setAttributes({width:@label.width + @padding*2, height:@label.height + @padding*2, textx:@padding, texty:@padding})
+            xoffset = (@width - 2*@padding - @label.width)/2
+            yoffset = (@height - 2*@padding - @label.height)/2
+
+            @setAttributes({width:(@label.width + 2*@padding), height:(@label.height + 2*@padding), textx:0, texty:0})
             @_resize_lock = false
       </method>
 
