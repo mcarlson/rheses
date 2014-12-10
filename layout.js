@@ -988,11 +988,6 @@
         }
       };
 
-      Node.prototype.initConstraints = function() {
-        _initConstraints();
-        return this;
-      };
-
       _eventCallback = function(name, script, scope, tagname, fnargs) {
         var js;
         if (tagname == null) {
@@ -4438,7 +4433,8 @@
        * @method writeCSS
        * Writes generic dreem-specific CSS to the document. Should only be called once.
        */
-      writeCSS: dom.writeCSS
+      writeCSS: dom.writeCSS,
+      initConstraints: _initConstraints
     };
 
     /**

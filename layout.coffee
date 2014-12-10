@@ -723,11 +723,6 @@ window.dr = do ->
       else
         @setAttribute(name, value)
 
-    # public API to initialize constraints for a group of nodes, used by replicator
-    initConstraints: ->
-      _initConstraints()
-      @
-
     # generate a callback for an event expression in a way that preserves scope, e.g. on_x="console.log(value, this, ...)"
     _eventCallback = (name, script, scope, tagname='', fnargs=['value']) ->
       # console.log 'binding to event expression', name, script, scope, fnargs
@@ -3529,6 +3524,7 @@ window.dr = do ->
     # Writes generic dreem-specific CSS to the document. Should only be called once.
     ###
     writeCSS: dom.writeCSS
+    initConstraints: _initConstraints
 
   # virtual classes declared for documentation purposes
   ###*

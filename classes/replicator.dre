@@ -397,22 +397,32 @@ SOFTWARE. -->
             layout.setAttribute('locked', true)
 
         #console.log @data.length
-        if @pooling and @children and @children.length == @data.length
+        @children ?= []
+        if @pooling 
           for child, i in @children
             datum = @data[i]
             # console.log 'replicator updating', i, child, 'in', datum
-            child.setAttribute('data', datum)
+            if i < @data.length
+              child.setAttribute('data', datum)
+              child.setAttribute('visible', true);
+            else
+              child.setAttribute('visible', false);
+          if @data.length > @children.length
+            i = @children.length;
+            while @data.length > @children.length
+              datum = @data[i++]
+              @children.push(new dr[@classname](null, {data: datum, parent: @parent, replicator: @}, @async))
+              # console.log 'replicator created', @classname, @children[@children.length - 1]
         else
           @clear()
           for datum in @data
             # console.log 'replicator creating', @classname, 'in', @parent
-            child = new dr[@classname](null, {data: datum, parent: @parent, replicator: @}, @async)
-            # console.log 'replicator created', @classname, child, child.data
-            @children.push(child)
+            @children.push(new dr[@classname](null, {data: datum, parent: @parent, replicator: @}, @async))
+            # console.log 'replicator created', @classname, @children[@children.length - 1]
 
         finalize = () =>
           # init constraints for all children created
-          child.initConstraints() if child
+          dr.initConstraints()
           if @parent.layouts
             for layout in @parent.layouts
               layout.setAttribute('locked', false)

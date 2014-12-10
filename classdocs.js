@@ -1048,16 +1048,8 @@
      * Connects to the shared event bus. When data is sent with a given type, a corresponding event is sent. For example, send('blah', {}) sends data with the 'blah' type, other shims will receive the object via an 'onblah' event.
      */
 /**
-        * @attribute {Boolean} [connected=false] (readonly)
-        * If true, we are connected to the server
-        */
-/**
-        * @attribute {Number} [pingtime=1000]
-        * The frequency used to reconnect to the server
-        */
-/**
-        * @attribute {Boolean} [websockets=false]
-        * If true, use websockets to connect to the server
+        * @attribute {Number} [pingtime=5000]
+        * The frequency used to ping to the server
         */
 /**
         * @method send
