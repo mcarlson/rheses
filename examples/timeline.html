@@ -106,13 +106,12 @@
     <wrappinglayout inset="4" spacing="4" lineinset="4" linespacing="4"></wrappinglayout>
     
     <text name="year" font-size="210px" color="white" opacity=".6" font-weight="bold"
-      ignorelayout="true" z-index="1" x="${this.parent.width - this.width - 10}"
+      ignorelayout="true" z="1" x="${this.parent.width - this.width - 10}"
       text-shadow="0px 0px 10px black"
     ></text>
     
     <replicator name="repl" datapath="$topmovies/searchResponse/results[*]/movie[@]"
-      classname="thumbnail" filterfield="releaseYear"
-    >
+      classname="thumbnail" filterfield="releaseYear" pooling="true">
       <!-- TODO: can't specify a custom filter function in a path, e.g. @filt -->
       <method name="filterfunction" args="obj, accum, sel">
         if (this.parent.data && this.parent.data.releaseYear == obj.releaseYear)
