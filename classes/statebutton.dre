@@ -1,0 +1,181 @@
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+<!--/**
+ * @class dr.statebutton {UI Components}
+ * @extends dr.view
+ * A button that may be configured with views associated with named states. Change which view is active by setting the state attribute. If the state names 'default', 'over', and 'down' are used then state changes based on mouse interactions will automatically be configured by default. If those states are not present then mouse interactions will not be automatically configured, and will be left to the developer to implement.
+ *
+ * Here is a statebutton configured with three bitmaps associated with the states default, over, and down. Notice the mouse interaction is set up by default.
+ *
+ *     @example
+ *     <statebutton width="100" height="100">
+ *       <bitmap name="defaultv" width="100%" height="100%" src="../api-examples-resources/default.png">
+ *         <attribute name="state" type="string" value="default"></attribute>
+ *       </bitmap>
+ *
+ *       <bitmap name="overv" width="100%" height="100%" src="../api-examples-resources/over.png">
+ *         <attribute name="state" type="string" value="over"></attribute>
+ *       </bitmap>
+ *
+ *       <bitmap name="downv" width="100%" height="100%" src="../api-examples-resources/down.png">
+ *         <attribute name="state" type="string" value="down"></attribute>
+ *       </bitmap>
+ *     </statebutton>
+ *
+ * Setting the interactive attribute to false disables the default hover and down state changes.
+ *
+ *     @example
+ *     <statebutton interactive="false" width="100" height="100">
+ *       <bitmap name="defaultv" width="100%" height="100%" src="../api-examples-resources/default.png">
+ *         <attribute name="state" type="string" value="default"></attribute>
+ *       </bitmap>
+ *
+ *       <bitmap name="overv" width="100%" height="100%" src="../api-examples-resources/over.png">
+ *         <attribute name="state" type="string" value="over"></attribute>
+ *       </bitmap>
+ *
+ *       <bitmap name="downv" width="100%" height="100%" src="../api-examples-resources/down.png">
+ *         <attribute name="state" type="string" value="down"></attribute>
+ *       </bitmap>
+ *     </statebutton>
+ *
+ * Configuring custom states will also set the interactive flag to false, and then you can add your own custom state changes
+ *
+ *     @example
+ *     <statebutton width="100" height="100">
+ *       <attribute name="statetracker" type="number" value="0"></attribute>
+ *       <handler event="onclick">
+ *         var newStateIndex = this.statetracker + 1;
+ *         if (newStateIndex == 3) newStateIndex = 0;
+ *         this.setAttribute('statetracker', newStateIndex)
+ *         this.setAttribute('state', this.states[newStateIndex])
+ *       </handler>
+ *  
+ *       <bitmap name="onev" width="100%" height="100%" src="../api-examples-resources/default.png">
+ *         <attribute name="state" type="string" value="one"></attribute>
+ *       </bitmap>
+ *
+ *       <bitmap name="twov" width="100%" height="100%" src="../api-examples-resources/over.png">
+ *         <attribute name="state" type="string" value="two"></attribute>
+ *       </bitmap>
+ *
+ *       <bitmap name="threev" width="100%" height="100%" src="../api-examples-resources/down.png">
+ *         <attribute name="state" type="string" value="three"></attribute>
+ *       </bitmap>
+ *     </statebutton>
+ */-->
+<class name="statebutton" type="coffee" clickable="true" clip="true">
+  <!--/**
+    * @attribute {String} [state="default"]
+    * The currently active state.
+    */-->
+  <attribute name="state" type="string" value="default"></attribute>
+  
+  <!--/**
+    * @attribute {Boolean} [interactive="true"]
+    * When true default, over, and down states are applied automatically based on mouse/touch interactions. Set to false to disable the default behavior.
+    */-->
+  <attribute name="interactive" type="boolean" value="true"></attribute>
+
+  <!--/**
+    * @attribute {String[]} states
+    * @readonly
+    * An array of the states
+  */-->
+  <!--/**
+    * @attribute {dr.view} activeview
+    * @readonly
+    * The currently active view
+  */-->
+  
+  <method name="_setActiveState" args="state">
+    for s,v of @_stateViews
+      if (s == state)
+        v.setAttribute('visible', true)
+        @activeview = v
+      else
+        v.setAttribute('visible', false)
+      
+  </method>
+  
+  <handler event="oninit">
+    @_stateViews = {}
+    @states = []
+    
+    for sub in this.subviews
+      if sub.state
+        @_stateViews[sub.state] = sub
+        @states.push(sub.state)
+    
+    unless @states.length
+      console.warn('statebutton: No states set')
+      return
+
+    if @state != "default" && ($.inArray(@state, @states) == -1)
+      console.warn('statebutton: Invalid state set: ', @state)
+
+    @state = @states[0] if $.inArray(@state, @states) == -1
+    
+    @_setActiveState(@state)
+
+    @interactive = false unless @states.join(',').indexOf('default,over,down') >= 0
+  </handler>
+
+  <handler event="onmouseover">
+    return unless @interactive
+    @setAttribute('state', 'over')
+  </handler>
+  <handler event="onmousedown">
+    return unless @interactive
+    @setAttribute('state', 'down')
+  </handler>
+  <handler event="onmouseup">
+    return unless @interactive
+    @setAttribute('state', 'over') if (@state == 'down')
+  </handler>
+  <handler event="onmouseout">
+    return unless @interactive
+    @setAttribute('state', 'default')
+  </handler>
+  
+  <!-- Make states readonly -->
+  <setter name="states">
+    return @states
+  </setter>
+
+  <!-- Make activeview readonly -->
+  <setter name="activeview">
+    return @activeview
+  </setter>
+
+  <!-- Make sure state is set to the first one in the list if it hasn't been set explicitly (for overridden states) -->
+  <setter name="state" args="state">
+    return state unless @inited
+
+    if $.inArray(state, @states) == -1
+      console.warn('statebutton: Invalid state set: ', state)
+      return @state
+
+    @_setActiveState(state)
+    return state
+  </setter>
+</class>
