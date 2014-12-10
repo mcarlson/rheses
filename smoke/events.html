@@ -1,0 +1,181 @@
+<html>
+<head>
+  <title>dr33m | Event Smoke Tests</title>
+  <link rel="stylesheet" href="../examples/css/example.css"/>
+  <script type="text/javascript" src="/lib/jquery-1.9.1.min.js"></script>
+  <script type="text/javascript" src="/lib/acorn.js"></script>
+  <script type="text/javascript" src="/lib/coffee-script.js"></script>
+  <script type="text/javascript" src="/layout.js"></script>
+  <script type="text/javascript" src="/lib/chai.js"></script>
+  <script>
+    var assert = chai.assert
+  </script>
+</head>
+<body>
+<view id="all" width="100%" height="100%">
+  <class name="item" width="10" height="10" bgcolor="#666666">
+    <method name="doIt">
+      all.results.push(this.name);
+    </method>
+  </class>
+  
+  <spacedlayout spacing="1"></spacedlayout>
+  
+  <item name="v1"></item>
+  <item name="v2"></item>
+  <item name="v3">
+    <method name="doIt">
+      all.results.push("X" + this.name);
+    </method>
+  </item>
+  
+  <view name="container" width="auto" height="auto" padding="5" bgcolor="#cccccc">
+    <spacedlayout spacing="1"></spacedlayout>
+    
+    <item name="v4"></item>
+    <item name="v5"></item>
+    <item name="v6"></item>
+  </view>
+  
+  <handler event="oninit">
+    var v1 = this.v1,
+      v2 = this.v2,
+      v3 = this.v3,
+      container = this.container,
+      v4 = container.v4,
+      v5 = container.v5,
+      v6 = container.v6,
+      self = this,
+      noop = function() {},
+      results = this.results = [];
+      
+    
+    // Test Events.register, Events.one and Events.unregister and indirectly tests Events.trigger
+    self._eventCount = 0;
+    
+    var widthFunc = function(v) {
+      self._v1wA = v;
+      self._eventCount++;
+    };
+    v1.register('width', widthFunc);
+    
+    var bothFunc = function(v) {
+      self._eventCount++;
+    };
+    v1.register('width height unknown', bothFunc);
+    
+    v1.one('height', function(v) {
+      self._v1hA = v;
+      self._eventCount++;
+    });
+    
+    assert.equal(0, this._eventCount, 'Make sure count is still 0 after registration.');
+    
+    v1.setAttribute('width', 20);
+    
+    assert.equal(2, this._eventCount, 'Two events should have been fired since 2 functions were registered.');
+    assert.equal(20, this._v1wA, 'Value provided in the event should be the new width.');
+    
+    v1.setAttribute('height', 20);
+    
+    assert.equal(4, this._eventCount, 'Two more event should have been fired for height.');
+    assert.equal(20, this._v1hA, 'Value provided in the event should be the new height.');
+    
+    v1.setAttribute('height', 30);
+    
+    assert.equal(5, this._eventCount, 'Two more event should have been fired for height.');
+    assert.equal(20, this._v1hA, 'Value should still be 20 since the function that updates it should have been removed.');
+    
+    v1.unregister('width', bothFunc);
+    
+    v1.setAttribute('width', 30);
+    assert.equal(6, this._eventCount, 'Only one event should have fired.');
+    
+    v1.setAttribute('unknown', 'blah');
+    assert.equal(7, this._eventCount, 'Only one event should have fired.');
+    
+    v1.unregister('height unknown', bothFunc);
+    
+    v1.setAttribute('unknown', 'foo');
+    assert.equal(7, this._eventCount, 'No event should have fired.');
+    
+    v1.setAttribute('height', 40);
+    assert.equal(7, this._eventCount, 'No event should have fired.');
+    
+    v1.setAttribute('width', 20);
+    assert.equal(8, this._eventCount, 'Only one event should have fired.');
+    
+    v1.unregister('width', widthFunc);
+    v1.setAttribute('width', 25);
+    assert.equal(8, this._eventCount, 'No event should have fired.');
+    
+    // Unregister something that was never registered to make sure no error is thrown
+    v1.unregister('width height', noop);
+    
+    
+    
+    // Test Events.listenTo, Events.listenToOnce and Events.stopListening
+    v2.listenTo(v1, 'width height', v2.doIt);
+    assert.equal(this.results.join(','), '', 'No results yet.');
+    
+    v1.setAttribute('width', 100);
+    assert.equal(this.results.join(','), 'v2', 'Event should have fired.');
+    this.results.length = 0;
+    
+    v1.setAttribute('height', 100);
+    assert.equal(this.results.join(','), 'v2', 'Event should have fired.');
+    this.results.length = 0;
+    
+    v1.setAttribute('width', 50);
+    v1.setAttribute('height', 50);
+    assert.equal(this.results.join(','), 'v2,v2', 'Two events should have fired.');
+    this.results.length = 0;
+    
+    v2.stopListening(v1, 'width', v2.doIt);
+    
+    v1.setAttribute('width', 25);
+    assert.equal(this.results.join(','), '', 'No events should have fired.');
+    this.results.length = 0;
+    
+    v1.setAttribute('height', 25);
+    assert.equal(this.results.join(','), 'v2', 'One event should have fired.');
+    this.results.length = 0;
+    
+    v2.stopListening(v1, 'height', v2.doIt);
+    
+    v1.setAttribute('width', 15);
+    v1.setAttribute('height', 15);
+    assert.equal(this.results.join(','), '', 'No events should have fired.');
+    this.results.length = 0;
+    
+    
+    v3.listenTo(v1, 'width', v3.doIt);
+    
+    v1.setAttribute('width', 100);
+    assert.equal(this.results.join(','), 'Xv3', 'Event should have fired.');
+    this.results.length = 0;
+  </handler>
+</view>
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+</body>
+</html>

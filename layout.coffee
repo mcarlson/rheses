@@ -90,12 +90,12 @@ window.dr = do ->
   triggerlock = null
   Events =
     ###*
-    # Binds an event to the current scope
-    # @param {String} ev the name of the event
+    # Registers one or more events with the current scope
+    # @param {String} ev the name of the event, or event names if separated by spaces.
     # @param {Function} callback called when the event is fired
     ###
-    bind: (ev, callback) ->
-      # console.log 'binding', ev, callback
+    register: (ev, callback) ->
+      # console.log 'registering', ev, callback
       evs   = ev.split(' ')
       @events = {} unless @hasOwnProperty('events') and @events
       for name in evs
@@ -103,13 +103,13 @@ window.dr = do ->
         @events[name].push(callback)
       @
     ###*
-    # Binds an event to the current scope, automatically unbinds when the event fires
+    # Registers an event with the current scope, automatically unregisters when the event fires
     # @param {String} ev the name of the event
     # @param {Function} callback called when the event is fired
     ###
     one: (ev, callback) ->
-      @bind ev, ->
-        @unbind(ev, arguments.callee)
+      @register ev, ->
+        @unregister(ev, arguments.callee)
         callback.apply(@, arguments)
       @
     ###*
@@ -141,8 +141,8 @@ window.dr = do ->
     # @param {Function} callback called when the event is fired
     ###
     listenTo: (obj, ev, callback) ->
-      # console.log('listenTo', obj, ev, callback, obj.bind)
-      obj.bind(ev, callback)
+      # console.log('listenTo', obj, ev, callback, obj.register)
+      obj.register(ev, callback)
       @listeningTo or= []
       @listeningTo.push {obj: obj, ev: ev, callback: callback}
       @
@@ -169,7 +169,7 @@ window.dr = do ->
     ###
     stopListening: (obj, ev, callback) ->
       if obj
-        obj.unbind(ev, callback)
+        obj.unregister(ev, callback)
         for listeningTo in [@listeningTo, @listeningToOnce]
           continue unless listeningTo
           idx = listeningTo.indexOf(obj)
@@ -187,7 +187,7 @@ window.dr = do ->
       else
         for {obj, ev, callback} in @listeningTo
           # console.log 'stopped listening', obj, ev, callback
-          obj.unbind(ev, callback)
+          obj.unregister(ev, callback)
         @listeningTo = undefined
       @
     ###*
@@ -195,7 +195,7 @@ window.dr = do ->
     # @param {String} ev the name of the event
     # @param {Function} callback called when the event would have been fired
     ###
-    unbind: (ev, callback) ->
+    unregister: (ev, callback) ->
       unless ev
         @events = {}
         return @
@@ -701,7 +701,7 @@ window.dr = do ->
           # console.log('stopListening to reference', reference, refeval, ev, handler.callback)
           scope.stopListening(refeval, ev, handler.callback)
         else
-          scope.unbind(ev, handler.callback)
+          scope.unregister(ev, handler.callback)
       return
 
     # Bind an attribute to a constraint, event expression/handler or fall back to setAttribute()
@@ -719,7 +719,6 @@ window.dr = do ->
           ev: name
           callback: _eventCallback(name, value, @, tagname)
         @handlers.push(handler)
-        # @bind(name, _eventCallback(name, value, @, tagname))
       else
         @setAttribute(name, value)
 
@@ -820,7 +819,7 @@ window.dr = do ->
       for prop, i in callbackbindings by 2
         scope = callbackbindings[i + 1]
         # console.log "removing binding", prop, scope, callback
-        scope.unbind(prop, callback)
+        scope.unregister(prop, callback)
 
       @constraints[property] = null
       return
@@ -841,7 +840,7 @@ window.dr = do ->
           for binding in bindinglist
             property = binding.property
             # console.log 'binding to', property, 'on', boundref
-            boundref.bind(property, constraint.callback)
+            boundref.register(property, constraint.callback)
             constraint.callbackbindings.push(property, boundref)
 
         @setAttribute(name, fn(), false, false, true)
@@ -865,7 +864,7 @@ window.dr = do ->
             # console.log('binding to reference', reference, refeval, ev, scope)
         else
           # console.log('binding to scope', scope, ev)
-          scope.bind(ev, callback)
+          scope.register(ev, callback)
 
       @handlers = []
       return
@@ -972,7 +971,7 @@ window.dr = do ->
       # stop events
       if @listeningTo
         @stopListening()
-      @unbind()
+      @unregister()
 
       # remove name reference
       if (@parent?[@name] is @)
@@ -3136,12 +3135,12 @@ window.dr = do ->
   # overrides bind/unbind to allow an event to be started/stopped automatically.
   # Used by Idle Mouse and Window to only register for events when they're used.
   class StartEventable extends Eventable
-    bind: (ev, callback) ->
+    register: (ev, callback) ->
       super
       if @startEventTest()
         @startEvent()
 
-    unbind: (ev, callback) ->
+    unregister: (ev, callback) ->
       super
       if not @startEventTest()
         @stopEvent()
