@@ -26,24 +26,14 @@ SOFTWARE. -->
      */-->
     <class name="shim" extends="node" scriptincludes="/primus/primus.io.js" scriptincludeserror="In order to use dr.shim, you need to be running the Teem server">
       <!--/**
-        * @attribute {Boolean} [connected=false] (readonly)
-        * If true, we are connected to the server
+        * @attribute {Number} [pingtime=5000]
+        * The frequency used to ping to the server
         */-->
-      <attribute name="connected" value="false" type="boolean"></attribute>
-      <!--/**
-        * @attribute {Number} [pingtime=1000]
-        * The frequency used to reconnect to the server
-        */-->
-      <attribute name="pingtime" value="1000" type="number"></attribute>
-      <!--/**
-        * @attribute {Boolean} [websockets=false]
-        * If true, use websockets to connect to the server
-        */-->
-      <attribute name="websockets" value="false" type="boolean"></attribute>
+      <attribute name="pingtime" value="5000" type="number"></attribute>
       <handler event="oninit">
         var url = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '') + '/';
-        if (! window['Primus']) return;
-        this.primus = new Primus(url, {ping: this.pingtime, pong: this.pingtime, websockets: this.websockets});
+        this.primus = new Primus(url, {ping: this.pingtime});
+
         var _this = this;
         this.primus.on('data', function shim$data(data) {
           // console.log('message', data)
@@ -58,6 +48,9 @@ SOFTWARE. -->
           _this.setAttribute('connected', false);
           _this.sendEvent('error', err);
         });
+        this.primus.on('reconnecting', function (opts) {
+          _this.setAttribute('connected', false);
+       });
       </handler>
       <!--/**
         * @method send
