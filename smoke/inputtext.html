@@ -48,8 +48,7 @@
   </inputtext>
 
   <!-- Setting text with a constraint -->
-  <view>
-    <shrinktofit axis="both"></shrinktofit>
+  <view width="auto" height="auto">
     <attribute name="text" type="string" value="some text"></attribute>
 
     <inputtext bgcolor="lightgreen" text="${this.parent.text}">
@@ -60,8 +59,7 @@
     </inputtext>
   </view>
 
-  <view>
-    <shrinktofit axis="both"></shrinktofit>
+  <view width="auto" height="auto">
     <inputtext bgcolor="lightyellow" text="${this.parent.text}">
       <handler event="oninit">
         assert.equal($(this.sprite.input)[0].value, '')

@@ -430,6 +430,12 @@
     * When true default, over, and down states are applied automatically based on mouse/touch interactions. Set to false to disable the default behavior.
     */
 /**
+      * @class dr.boundedview {Deprecated}
+      * @extends dr.view
+      * boundedview has been deprecated, use dr.view with a width and 
+      * height of auto instead.
+      */
+/**
       * @class dr.boundslayout {Deprecated}
       * @extends dr.layout
       * boundslayout has been deprecated, use dr.shrinktofit instead
@@ -1051,7 +1057,7 @@
         */
 /**
         * @attribute {Boolean} [websockets=false]
-        * If true, force the use of websockets to connect to the server
+        * If true, use websockets to connect to the server
         */
 /**
         * @method send
@@ -1060,7 +1066,7 @@
         * @param {Object} data The data to be sent.
         */
 /**
-      * @class dr.shrinktofit {Layout}
+      * @class dr.shrinktofit {Deprecated}
       * @extends dr.layout
       * A special "layout" that resizes the parent to fit the children
       * rather than laying out the children.

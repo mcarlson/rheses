@@ -86,8 +86,7 @@
     <replicator datapath="$topmovies/searchResponse/results[*]/movie" classname="thumbnail"></replicator>
   </view>
 
-  <view name="actors" x="${dr.window.width - this.width}" height="${dr.window.height}" bgcolor="white" transition="width .2s" position="fixed">
-    <shrinktofit axis="x"></shrinktofit>
+  <view name="actors" x="${dr.window.width - this.width}" width="auto" height="${dr.window.height}" bgcolor="white" transition="width .2s" position="fixed">
     <spacedlayout axis="y" spacing="1"></spacedlayout>
     <replicator datapath="$actor/searchResponse/results[0..10]/name/filmography[*]/title" classname="text"></replicator>
   </view>
@@ -98,7 +97,6 @@
     <handler event="ondata" args="r">
       console.log('facet data', r);
     </handler>
-    <shrinktofit></shrinktofit>
     <spacedlayout spacing="1"></spacedlayout>
     <replicator datapath="/count" classname="text"></replicator>
     <replicator datapath="/name" classname="text"></replicator>

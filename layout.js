@@ -3602,13 +3602,11 @@
      *
      * When a new layout is added, it will automatically create and add itself to a layouts array in its parent. In addition, an onlayouts event is fired in the parent when the layouts array changes. This allows the parent to access the layout(s) later.
      *
-     * Here is a view that contains both a spacedlayout and a shrinktofit.
+     * Here is a view that contains a spacedlayout.
      *
      *     @example
      *     <spacedlayout axis="y"></spacedlayout>
-     *     <view bgcolor="oldlace">
-     *       <shrinktofit axis="both"></shrinktofit>
-     *
+     *     <view bgcolor="oldlace" width="auto" height="auto">
      *       <spacedlayout></spacedlayout>
      *
      *       <view width="50" height="50" bgcolor="lightpink" opacity=".3"></view>

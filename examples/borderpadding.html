@@ -33,7 +33,7 @@
       <view width="8" height="8" x="9" y="9" bgcolor="#ffffff" border="1" bordercolor="#666666"></view>
     </view>
     
-    <view x="200" y="5" bgcolor="#ffffff">
+    <view width="auto" x="200" y="5" padding="4" bgcolor="#ffffff">
       <labelbutton defaultcolor="plum" selectcolor="orchid" text="+ Border Width">
         <handler event="onclick">
           var container = this.parent.parent.container;
@@ -100,9 +100,7 @@
         </handler>
       </labelbutton>
       
-      <constantlayout attribute="x" value="4"></constantlayout>
-      <spacedlayout axis="y" inset="4" spacing="2" outset="4" collapseparent="true"></spacedlayout>
-      <shrinktofit axis="x" xpad="4"></shrinktofit>
+      <spacedlayout axis="y" spacing="2" collapseparent="true"></spacedlayout>
     </view>
   </view>
 
