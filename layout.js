@@ -115,11 +115,11 @@
     Events = {
 
       /**
-       * Binds an event to the current scope
-       * @param {String} ev the name of the event
+       * Registers one or more events with the current scope
+       * @param {String} ev the name of the event, or event names if separated by spaces.
        * @param {Function} callback called when the event is fired
        */
-      bind: function(ev, callback) {
+      register: function(ev, callback) {
         var evs, name, _base, _i, _len;
         evs = ev.split(' ');
         if (!(this.hasOwnProperty('events') && this.events)) {
@@ -134,13 +134,13 @@
       },
 
       /**
-       * Binds an event to the current scope, automatically unbinds when the event fires
+       * Registers an event with the current scope, automatically unregisters when the event fires
        * @param {String} ev the name of the event
        * @param {Function} callback called when the event is fired
        */
       one: function(ev, callback) {
-        this.bind(ev, function() {
-          this.unbind(ev, arguments.callee);
+        this.register(ev, function() {
+          this.unregister(ev, arguments.callee);
           return callback.apply(this, arguments);
         });
         return this;
@@ -181,7 +181,7 @@
        * @param {Function} callback called when the event is fired
        */
       listenTo: function(obj, ev, callback) {
-        obj.bind(ev, callback);
+        obj.register(ev, callback);
         this.listeningTo || (this.listeningTo = []);
         this.listeningTo.push({
           obj: obj,
@@ -221,7 +221,7 @@
       stopListening: function(obj, ev, callback) {
         var idx, index, listeningTo, val, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
         if (obj) {
-          obj.unbind(ev, callback);
+          obj.unregister(ev, callback);
           _ref = [this.listeningTo, this.listeningToOnce];
           for (_i = 0, _len = _ref.length; _i < _len; _i++) {
             listeningTo = _ref[_i];
@@ -245,7 +245,7 @@
           _ref1 = this.listeningTo;
           for (_k = 0, _len2 = _ref1.length; _k < _len2; _k++) {
             _ref2 = _ref1[_k], obj = _ref2.obj, ev = _ref2.ev, callback = _ref2.callback;
-            obj.unbind(ev, callback);
+            obj.unregister(ev, callback);
           }
           this.listeningTo = void 0;
         }
@@ -257,7 +257,7 @@
        * @param {String} ev the name of the event
        * @param {Function} callback called when the event would have been fired
        */
-      unbind: function(ev, callback) {
+      unregister: function(ev, callback) {
         var cb, evs, i, list, name, _i, _j, _len, _len1, _ref;
         if (!ev) {
           this.events = {};
@@ -961,7 +961,7 @@
             refeval = this._valueLookup(reference)();
             scope.stopListening(refeval, ev, handler.callback);
           } else {
-            scope.unbind(ev, handler.callback);
+            scope.unregister(ev, handler.callback);
           }
         }
       };
@@ -1090,7 +1090,7 @@
         for (i = _i = 0, _len = callbackbindings.length; _i < _len; i = _i += 2) {
           prop = callbackbindings[i];
           scope = callbackbindings[i + 1];
-          scope.unbind(prop, callback);
+          scope.unregister(prop, callback);
         }
         this.constraints[property] = null;
       };
@@ -1116,7 +1116,7 @@
             for (_i = 0, _len = bindinglist.length; _i < _len; _i++) {
               binding = bindinglist[_i];
               property = binding.property;
-              boundref.bind(property, constraint.callback);
+              boundref.register(property, constraint.callback);
               constraint.callbackbindings.push(property, boundref);
             }
           }
@@ -1143,7 +1143,7 @@
               scope.listenTo(refeval, ev, callback);
             }
           } else {
-            scope.bind(ev, callback);
+            scope.register(ev, callback);
           }
         }
         this.handlers = [];
@@ -1268,7 +1268,7 @@
         if (this.listeningTo) {
           this.stopListening();
         }
-        this.unbind();
+        this.unregister();
         if (((_ref = this.parent) != null ? _ref[this.name] : void 0) === this) {
           delete this.parent[this.name];
         }
@@ -3946,15 +3946,15 @@
         return StartEventable.__super__.constructor.apply(this, arguments);
       }
 
-      StartEventable.prototype.bind = function(ev, callback) {
-        StartEventable.__super__.bind.apply(this, arguments);
+      StartEventable.prototype.register = function(ev, callback) {
+        StartEventable.__super__.register.apply(this, arguments);
         if (this.startEventTest()) {
           return this.startEvent();
         }
       };
 
-      StartEventable.prototype.unbind = function(ev, callback) {
-        StartEventable.__super__.unbind.apply(this, arguments);
+      StartEventable.prototype.unregister = function(ev, callback) {
+        StartEventable.__super__.unregister.apply(this, arguments);
         if (!this.startEventTest()) {
           return this.stopEvent();
         }

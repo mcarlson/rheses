@@ -259,7 +259,7 @@ SOFTWARE. -->
 
           var ended = false
           // the animator works with timelines, so lets set up our timeline from the childlist.
-          var t = dr.idle.bind('idle', function(time){
+          var t = dr.idle.register('idle', function(time){
             // and call timestep
             var value = this.animator.timestep(time)
             this.target_obj.setAttribute(this.attribute, value)
