@@ -295,7 +295,8 @@ window.dr = do ->
       # If a setter function exists, use its return value as the value for
       # the attribute.
       setterName = "set_" + name
-      `if (typeof this[setterName] === "function") value = this[setterName](value)`
+      if typeof this[setterName] is 'function'
+        value = this[setterName](value)
       @[name] = value
       @sendEvent(name, value)
       @
@@ -306,6 +307,10 @@ window.dr = do ->
     # @param value the value to send with the event
     ###
     sendEvent: (name, value) ->
+      if instantiating
+        eventq.push({scope: @, name: name, value: value})
+        return
+
       # send event
       if @events?[name]
         @trigger(name, value, @)
@@ -460,11 +465,28 @@ window.dr = do ->
 
   # a list of constraint scopes gathered at init time
   constraintScopes = []
+  instantiating = false
+  handlerq = []
+  eventq = []
 
   _initConstraints = ->
-    for constraint in constraintScopes
-      constraint._bindConstraints()
+    instantiating = false
+    for scope in handlerq
+      scope._bindHandlers()
+    handlerq = []
+
+    for ev in eventq
+      {scope, name, value} = ev
+      if name is 'init'
+        # console.log ('init')
+        scope.inited = true
+      scope.sendEvent(name, value)
+    eventq = []
+
+    for scope in constraintScopes
+      scope._bindConstraints()
     constraintScopes = []
+
   ###*
   # @class dr.node {Core Dreem}
   # @extends Eventable
@@ -616,9 +638,6 @@ window.dr = do ->
 
       constraintScopes.push(@) if @constraints
 
-      unless deferbindings
-        @_bindHandlers(true)
-
       ###*
       # @event oninit
       # Fired when this node and all its children are completely initialized
@@ -636,7 +655,7 @@ window.dr = do ->
           @initialize()
 
     initialize: (skipevents) ->
-      @inited = true
+      @inited = true unless instantiating
       if not skipevents then @sendEvent('init', @)
 
     # match js and CoffeeScript-style super() calls
@@ -654,7 +673,6 @@ window.dr = do ->
     installHandlers: (handlers, tagname, scope=@) ->
       # store list of handlers for late binding
       @handlers ?= []
-      @latehandlers ?= []
       for handler in handlers
         {ev, name, script, args, reference, method} = handler
         # strip off leading 'on'
@@ -668,10 +686,7 @@ window.dr = do ->
           handler.callback = _eventCallback(ev, script, scope, tagname, args)
 
         handlerobj = {scope: @, ev: ev, name: name, callback: handler.callback, reference: reference}
-        if reference
-          @latehandlers.push(handlerobj)
-        else
-          @handlers.push(handlerobj)
+        @handlers.push(handlerobj)
       return
 
     removeHandlers: (handlers, tagname, scope=@) ->
@@ -699,7 +714,12 @@ window.dr = do ->
       else if matchEvent.test(name)
         name = name.substr(2)
         # console.log('binding to event expression', name, value, @)
-        @bind(name, _eventCallback(name, value, @, tagname))
+        handler =
+          scope: @
+          ev: name
+          callback: _eventCallback(name, value, @, tagname)
+        @handlers.push(handler)
+        # @bind(name, _eventCallback(name, value, @, tagname))
       else
         @setAttribute(name, value)
 
@@ -832,12 +852,14 @@ window.dr = do ->
         @setAttribute(name, fn(), false, false, true)
       return
 
-    _bindHandlers: (isLate) ->
-      bindings = if isLate then @latehandlers else @handlers
+    _bindHandlers: () ->
+      if instantiating
+        handlerq.push(@)
+        return
+
+      bindings = @handlers
       return unless bindings
 
-      # Track bindings that need to be deferred here
-      defer = []
       for binding in bindings
         {scope, name, ev, callback, reference} = binding
         if reference
@@ -846,31 +868,11 @@ window.dr = do ->
           if refeval instanceof Eventable
             scope.listenTo(refeval, ev, callback)
             # console.log('binding to reference', reference, refeval, ev, scope)
-          else
-            # if not, defer this binding and continue
-            defer.push binding
-            continue
         else
           # console.log('binding to scope', scope, ev)
           scope.bind(ev, callback)
-          scope.sendEvent(ev, scope[ev]) if ev of scope
 
-      # if bindings need to be deferred, try again later
-      if defer.length
-        if isLate
-          @latehandlers = defer
-        else
-          @handlers = defer
-        # console.log 'found deferred bindings', defer
-        callOnIdle(() =>
-          @_bindHandlers(isLate)
-        )
-        return
-
-      if isLate
-        @latehandlers = []
-      else
-        @handlers = []
+      @handlers = []
       return
 
     # generate a callback for a constraint expression, e.g. x="${this.parent.baz.x + 10}"
@@ -1059,6 +1061,7 @@ window.dr = do ->
       @jqel.animate.apply(@jqel, arguments)
 
     set_clickable: (clickable) ->
+      # console.log('set_clickable', clickable)
       @__clickable = clickable
       @__updatePointerEvents()
       @setStyle('cursor', clickable, true)
@@ -1070,12 +1073,12 @@ window.dr = do ->
       # el.show()
 
     set_clip: (clip) ->
-      # console.log('setid', @id)
+      # console.log('set_clip', clip)
       @__clip = clip
       @__updateOverflow()
 
     set_scrollable: (scrollable) ->
-      # console.log('setid', @id)
+      # console.log('set_scrollable', scrollable)
       @__scrollable = scrollable
       @__updateOverflow()
       @__updatePointerEvents()
@@ -1115,7 +1118,7 @@ window.dr = do ->
         if @__clickable or @__scrollable
           'auto'
         else
-          'none'
+          ''
       , true)
 
     destroy: ->
@@ -1493,6 +1496,8 @@ window.dr = do ->
       attributes.$types = types
 
       @_setDefaults(attributes, defaults)
+      # prevent sprite updates for these
+      @clip = @scrollable = @clickable = false
 
       if (el instanceof View)
         el = el.sprite
@@ -1506,7 +1511,7 @@ window.dr = do ->
       if @__autoLayoutwidth then @__autoLayoutwidth.setAttribute('locked', false)
       if @__autoLayoutheight then @__autoLayoutheight.setAttribute('locked', false)
       super
-      
+
     _createSprite: (el, attributes) ->
       @sprite = new Sprite(el, @, attributes.$tagname)
 
@@ -1600,7 +1605,7 @@ window.dr = do ->
       @setAttribute('innerheight', @height - inset, true)
 
     set_clickable: (clickable) ->
-      @sprite.set_clickable(clickable)
+      @sprite.set_clickable(clickable) if clickable isnt @clickable
       # super?(clickable)
       clickable
 
@@ -1707,13 +1712,13 @@ window.dr = do ->
       @
 
     set_clip: (clip) ->
-      @sprite.set_clip(clip)
+      @sprite.set_clip(clip) if clip isnt @clip
       clip
 
     set_scrollable: (scrollable) ->
       if scrollable
         @setAttributes({scrollx: 0, scrolly: 0})
-      @sprite.set_scrollable(scrollable)
+      @sprite.set_scrollable(scrollable) if scrollable isnt @scrollable
       scrollable
 
     set_scrollx: (scrollx) ->
@@ -2130,6 +2135,7 @@ window.dr = do ->
 
     # initialize a top-level view element
     initFromElement = (el) ->
+      instantiating = true
       el.style.display = 'none'
       findAutoIncludes(el, () ->
         el.style.display = null
@@ -2432,11 +2438,6 @@ window.dr = do ->
         unless parent.inited
           # console.log('skiponinit', parent, parent.subnodes.length)
           checkChildren = ->
-            for child in children
-              if not child.inited and child.localName is not 'class'
-                # console.log 'child not initted', child, parent
-                callOnIdle(checkChildren)
-                return
             return if parent.inited
             # console.log('doinit', parent)
             parent.initialize()
@@ -2607,26 +2608,24 @@ window.dr = do ->
           @setAttribute(name, value)
       # console.log('applyattributes', @applyattributes)
 
-      if @constraints
-        @_bindConstraints()
-        # prevent warnings if we have a constraint to @applied
-        @skipattributes.push('constraints')
+      finish = () =>
+        if @constraints
+          @_bindConstraints()
+          # prevent warnings if we have a constraint to @applied
+          @skipattributes.push('constraints')
 
-      if @events
-        # prevent warnings for local events
-        @skipattributes.push('events')
+        if @events
+          # prevent warnings for local events
+          @skipattributes.push('events')
 
-      if @handlers
-        # prevent warnings for local handlers
-        @skipattributes.push('handlers')
+        if @handlers
+          # prevent warnings for local handlers
+          @skipattributes.push('handlers')
 
-      if @latehandlers
-        # prevent warnings for local handlers
-        @skipattributes.push('latehandlers')
+        # hide local properties we don't want applied to the parent by learn()
+        @enumfalse(@skipattributes)
 
-      # hide local properties we don't want applied to the parent by learn()
-      @enumfalse(@skipattributes)
-      @enumfalse(@keys)
+      callOnIdle(finish)
 
       el.$view = @ if el
       @initialize(true)
@@ -2646,7 +2645,6 @@ window.dr = do ->
             # console.log('installing handlers', @stateattributes.$handlers)
             @parent.installHandlers(@stateattributes.$handlers, @parent.$tagname, @parent)
             @parent._bindHandlers()
-            @parent._bindHandlers(true)
         else
           @parent.forget @
           if @stateattributes.$handlers
@@ -2841,21 +2839,9 @@ window.dr = do ->
             # console.log('sendInit', parent.inited, parent)
             return if parent.inited
             parent._bindHandlers()
-            parent._bindHandlers(true)
             parent.initialize()
 
-          if children?.length
-            # console.log 'delaying init', parent, children
-            checkChildren = ->
-              for child in children
-                # console.log('checking child', child, child.$view?.inited)
-                if (not child.$view) or (not child.$view.inited)
-                  # console.log 'child not initted', child, child.$view, child.$view?.inited, parent
-                  callOnIdle(checkChildren)
-                  return
-              sendInit()
-            callOnIdle(checkChildren)
-          else if internal
+          if internal
             callOnIdle(sendInit)
           else
             # the user called dr[foo]() directly, init immediately
@@ -2914,11 +2900,11 @@ window.dr = do ->
       # Store ourself in the parent layouts
       @parent.layouts ?= []
       @parent.layouts.push(@)
-      @parent.sendEvent('layouts', @)
+      @parent.sendEvent('layouts', @parent.layouts)
 
       # Start monitoring existing subviews
       subviews = @parent.subviews
-      if subviews
+      if subviews and @parent.inited
         for subview in subviews
           @addSubview(subview)
 

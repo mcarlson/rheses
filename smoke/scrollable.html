@@ -30,7 +30,7 @@
         assert.equal(false, this.scrollable, 'scrollable should be false (scrollable false, clickable true, clip true)');
         assert.equal(true, this.clickable, 'clickable should be true (scrollable false, clickable true, clip true)');
         assert.equal(true, this.clip, 'clip should be true (scrollable false, clickable true, clip true)');
-        
+
         var style = this.sprite.el.style;
         assert.equal('hidden', style.overflow, 'style.overflow should be "hidden" (scrollable false, clickable true, clip true)');
         assert.equal('auto', style.pointerEvents, 'style.pointerEvents should be "auto" (scrollable false, clickable true, clip true)');
@@ -47,7 +47,7 @@
     <view x="30" y="30" width="60" height="60" bgcolor="#ffffff">
       <text>In Front</text>
     </view>
-    
+
     <!-- scrollable false, clickable true, clip false -->
     <view x="110" y="110" width="100" height="100"
       bgcolor="#ff9999" clickable="true"
@@ -56,7 +56,7 @@
         assert.equal(false, this.scrollable, 'scrollable should be false (scrollable false, clickable true, clip false)');
         assert.equal(true, this.clickable, 'clickable should be true (scrollable false, clickable true, clip false)');
         assert.equal(false, this.clip, 'clip should be false (scrollable false, clickable true, clip false)');
-        
+
         var style = this.sprite.el.style;
         assert.equal('', style.overflow, 'style.overflow should be "" (scrollable false, clickable true, clip false)');
         assert.equal('auto', style.pointerEvents, 'style.pointerEvents should be "auto" (scrollable false, clickable true, clip false)');
@@ -70,17 +70,17 @@
     <view x="130" y="130" width="60" height="60" bgcolor="#ffffff">
       <text>In Front</text>
     </view>
-    
+
     <!-- scrollable false, clickable false, clip false -->
     <view x="210" y="210" width="100" height="100" bgcolor="#999999">
       <handler event="oninit">
         assert.equal(false, this.scrollable, 'scrollable should be false (scrollable false, clickable false, clip false)');
         assert.equal(false, this.clickable, 'clickable should be false (scrollable false, clickable false, clip false)');
         assert.equal(false, this.clip, 'clip should be false (scrollable false, clickable false, clip false)');
-        
+
         var style = this.sprite.el.style;
         assert.equal('', style.overflow, 'style.overflow should be "" (scrollable false, clickable false, clip false)');
-        assert.equal('none', style.pointerEvents, 'style.pointerEvents should be "none" (scrollable false, clickable false, clip false)');
+        assert.equal('', style.pointerEvents, 'style.pointerEvents should be "none" (scrollable false, clickable false, clip false)');
         assert.equal('', style.cursor, 'style.cursor should be "" (scrollable false, clickable false, clip false)');
       </handler>
       <text>No Clip</text>
@@ -88,17 +88,17 @@
         <text>Inside</text>
       </view>
     </view>
-    
+
     <!-- scrollable false, clickable false, clip true -->
     <view x="310" y="310" width="100" height="100" bgcolor="#999999" clip="true">
       <handler event="oninit">
         assert.equal(false, this.scrollable, 'scrollable should be false (scrollable false, clickable false, clip true)');
         assert.equal(false, this.clickable, 'clickable should be false (scrollable false, clickable false, clip true)');
         assert.equal(true, this.clip, 'clip should be true (scrollable false, clickable false, clip true)');
-        
+
         var style = this.sprite.el.style;
         assert.equal('hidden', style.overflow, 'style.overflow should be "hidden" (scrollable false, clickable false, clip true)');
-        assert.equal('none', style.pointerEvents, 'style.pointerEvents should be "none" (scrollable false, clickable false, clip true)');
+        assert.equal('', style.pointerEvents, 'style.pointerEvents should be "none" (scrollable false, clickable false, clip true)');
         assert.equal('', style.cursor, 'style.cursor should be "" (scrollable false, clickable false, clip true)');
       </handler>
       <text>Clipped</text>
@@ -106,16 +106,16 @@
         <text>Inside</text>
       </view>
     </view>
-    
+
     <!-- nested scrolling, scrollable true, clickable false, clip false -->
-    <view x="410" y="410" width="100" height="100" 
+    <view x="410" y="410" width="100" height="100"
       bgcolor="#999999" scrollable="true" clickable="false"
     >
       <handler event="oninit">
         assert.equal(true, this.scrollable, 'scrollable should be true (nested scrolling, scrollable true, clickable false, clip false)');
         assert.equal(false, this.clickable, 'clickable should be false (nested scrolling, scrollable true, clickable false, clip false)');
         assert.equal(false, this.clip, 'clip should be false (nested scrolling, scrollable true, clickable false, clip false)');
-        
+
         var style = this.sprite.el.style;
         assert.equal('auto', style.overflow, 'style.overflow should be "auto" (nested scrolling, scrollable true, clickable false, clip false)');
         assert.equal('auto', style.pointerEvents, 'style.pointerEvents should be "auto" (nested scrolling, scrollable true, clickable false, clip false)');
@@ -126,16 +126,16 @@
         <text>Inside</text>
       </view>
     </view>
-    
+
     <!-- scrollable true, clickable true, clip true -->
-    <view x="510" y="510" width="100" height="100" 
+    <view x="510" y="510" width="100" height="100"
       bgcolor="#ff9999" scrollable="true" clip="true" clickable="true"
     >
       <handler event="oninit">
         assert.equal(true, this.scrollable, 'scrollable should be true (scrollable true, clickable true, clip true)');
         assert.equal(true, this.clickable, 'clickable should be true (scrollable true, clickable true, clip true)');
         assert.equal(true, this.clip, 'clip should be true (scrollable true, clickable true, clip true)');
-        
+
         var style = this.sprite.el.style;
         assert.equal('auto', style.overflow, 'style.overflow should be "auto" (scrollable true, clickable true, clip true)');
         assert.equal('auto', style.pointerEvents, 'style.pointerEvents should be "auto" (scrollable true, clickable true, clip true)');
@@ -152,12 +152,12 @@
     <view x="530" y="530" width="60" height="60" bgcolor="#ffffff">
       <text>In Front</text>
     </view>
-    
+
     <view x="610" y="610" width="100" height="100" bgcolor="#999999"></view>
     <view x="710" y="710" width="100" height="100" bgcolor="#999999"></view>
     <view x="810" y="810" width="100" height="100" bgcolor="#999999"></view>
-    
-    <view name="container" x="610" y="10" width="100" height="100" bgcolor="#999999" 
+
+    <view name="container" x="610" y="10" width="100" height="100" bgcolor="#999999"
       padding="4" border="1" bordercolor="black" scrollable="true"
     >
       <spacedlayout axis="x" spacing="5"></spacedlayout>
@@ -167,7 +167,7 @@
       <view width="40" height="20" bgcolor="#eeeeee"></view>
       <view width="40" height="20" bgcolor="#eeeedd"></view>
       <view name="last" width="40" height="20" bgcolor="#eeeecc"></view>
-      
+
       <handler event="onscrollx" args="scrollx">
         if (this.scrollXEventCount === undefined) this.scrollXEventCount = 0;
         this.scrollXEventCount++;
@@ -182,17 +182,17 @@
         this.lastScrollEvent = event;
       </handler>
     </view>
-    
+
     <handler event="oninit">
       assert.equal(true, this.scrollable, 'scrollable should be true (scrollable true, clickable false, clip false)');
       assert.equal(false, this.clickable, 'clickable should be false (scrollable true, clickable false, clip false)');
       assert.equal(false, this.clip, 'clip should be false (scrollable true, clickable false, clip false)');
-      
+
       var style = this.sprite.el.style;
       assert.equal('auto', style.overflow, 'style.overflow should be "auto" (scrollable true, clickable false, clip false)');
       assert.equal('auto', style.pointerEvents, 'style.pointerEvents should be "auto" (scrollable true, clickable false, clip false)');
       assert.equal('', style.cursor, 'style.cursor should be "" (scrollable true, clickable false, clip false)');
-      
+
       // Verify scroll events
       var container = this.container;
       assert.equal(1, container.scrollXEventCount, 'An initial onscrollx event should have happened.');
@@ -201,29 +201,29 @@
       assert.equal(1, container.scrollYEventCount, 'An initial onscrolly event should have happened.');
       assert.equal(0, container.scrolly, 'scrolly should initially be 0.');
       assert.equal(0, container.sprite.el.scrollTop, 'The scrollTop on the dom element should be 0.');
-      
+
       container.setAttribute('scrollx', 50);
       assert.equal(2, container.scrollXEventCount, 'Another onscrollx event should have happened.');
       assert.equal(50, container.scrollx, 'scrollx should now be 50.');
       assert.equal(50, container.sprite.el.scrollLeft, 'The scrollLeft on the dom element should now be 50.');
-      
+
       container.setAttribute('scrolly', 10);
       assert.equal(2, container.scrollYEventCount, 'Another onscrolly event should have happened.');
       assert.equal(10, container.scrolly, 'scrolly should now be 10.');
       assert.equal(10, container.sprite.el.scrollTop, 'The scrollTop on the dom element should now be 10.');
-      
+
       // Verify that a value that exceed the maximum allowed scroll position is capped
       container.setAttribute('scrolly', 30);
       assert.equal(3, container.scrollYEventCount, 'Another onscrolly event should have happened.');
       assert.equal(26, container.scrolly, 'scrolly should now be 26.');
       assert.equal(26, container.sprite.el.scrollTop, 'The scrollTop on the dom element should now be 26.');
-      
+
       // Verify that a value that is below the minimum allowed scroll position is 0
       container.setAttribute('scrolly', -5);
       assert.equal(4, container.scrollYEventCount, 'Another onscrolly event should have happened.');
       assert.equal(0, container.scrolly, 'scrolly should now be 0.');
       assert.equal(0, container.sprite.el.scrollTop, 'The scrollTop on the dom element should now be 0.');
-      
+
       // The onscroll event will fire later since it is fired by the DOM
       var self = this;
       setTimeout(function() {
@@ -238,70 +238,70 @@
     </handler>
     <method name="continueTesting">
       var container = this.container;
-      
+
       // Move to maximum scroll should trigger a scroll event
       container.setAttribute('scrollx', 1000);
       container.setAttribute('scrolly', 1000);
-      
+
       assert.equal(126, container.scrollx, 'scrollx should now be 126. maxscroll - width + 2*border -> 224 - 100 + 2');
       assert.equal(26, container.scrolly, 'scrolly should now be 26.');
-      
+
       // Make width smaller should not trigger a scroll event
       container.setAttribute('width', 90);
-      
+
       // Make width larger should not trigger a scroll event
       container.setAttribute('width', 110);
-      
+
       // Make border larger should not trigger a scroll event
       container.setAttribute('border', 8);
-      
+
       // Make border smaller should not trigger a scroll event
       container.setAttribute('border', 2);
-      
+
       var self = this;
       setTimeout(function() {
         assert.equal(2, container.scrollEventCount, 'An initial onscroll event should have happened.');
-        
+
         self.continueTesting2()
       }, 200);
     </method>
     <method name="continueTesting2">
       var container = this.container;
-      
+
       // Reset scroll event counts
       container.scrollXEventCount = container.scrollYEventCount = container.scrollEventCount = 0;
-      
+
       // Make the contents smaller should trigger a scroll event
       container.last.destroy();
-      
+
       var self = this;
       setTimeout(function() {
         assert.equal(1, container.scrollXEventCount, 'A scrollx event should have happened.');
         assert.equal(1, container.scrollYEventCount, 'A scrolly event should have happened.');
         assert.equal(1, container.scrollEventCount, 'A scroll event should have happened.');
-        
+
         assert.equal(73, container.scrollx, 'scrollx should now be 73.');
         assert.equal((container.sprite.el.scrollLeft == 73) || (container.sprite.el.scrollLeft == 88), true, 'The scrollLeft on the dom element should now be 73 or 88 on phantomrunner.');
         assert.equal(3, container.scrolly, 'scrolly should now be 3.');
         assert.equal((container.sprite.el.scrollTop == 3) || (container.sprite.el.scrollTop == 18), true, 'The scrollTop on the dom element should now be 3 or 18 on phantomrunner.');
-        
+
         var event = container.lastScrollEvent;
         assert.equal((event.scrollx == 73) || (event.scrollx == 88), true, 'The scrollx property of the scroll event should be 73 or 88 on phantomrunner.');
         assert.equal((event.scrolly == 3) || (event.scrolly == 18), true, 'The scrolly property of the scroll event should be 3 or 18 on phantomrunner.');
         assert.equal(179, event.scrollwidth, 'The scrollwidth property of the scroll event should be 179.');
         assert.equal(99, event.scrollheight, 'The scrollheight property of the scroll event should be 99.');
-        
+
         self.continueTesting3()
       }, 100);
     </method>
     <method name="continueTesting3">
       var container = this.container;
-      
+
       // Make the contents larger should not trigger a scroll event since only
       // the scrollWidth and scrollHeight changed which don't trigger a DOM event
       container.first.setAttribute('width', 100);
       container.first.setAttribute('height', 100);
-      
+
       var self = this;
       setTimeout(function() {
         assert.equal(1, container.scrollXEventCount, 'The scrollXEventCount should be the same.');
