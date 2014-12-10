@@ -80,7 +80,7 @@
   })();
 
   window.dr = (function() {
-    var AutoPropertyLayout, Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, callOnIdle, capabilities, compiler, constraintScopes, debug, dom, domElementAttributes, exports, fcamelCase, hiddenAttributes, idle, ignoredAttributes, knownstyles, matchEvent, mixOf, moduleKeywords, mouseEvents, noop, querystring, rdashAlpha, showWarnings, specialtags, ss, ss2, starttime, test, triggerlock, warnings, _initConstraints;
+    var AutoPropertyLayout, Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, callOnIdle, capabilities, compiler, constraintScopes, debug, dom, domElementAttributes, eventq, exports, fcamelCase, handlerq, hiddenAttributes, idle, ignoredAttributes, instantiating, knownstyles, matchEvent, mixOf, moduleKeywords, mouseEvents, noop, querystring, rdashAlpha, showWarnings, specialtags, ss, ss2, starttime, test, triggerlock, warnings, _initConstraints;
     noop = function() {};
     mixOf = function() {
       var Mixed, base, i, method, mixin, mixins, name, _i, _ref;
@@ -426,7 +426,9 @@
           this._unbindConstraint(name);
         }
         setterName = "set_" + name;
-        if (typeof this[setterName] === "function") value = this[setterName](value);
+        if (typeof this[setterName] === 'function') {
+          value = this[setterName](value);
+        }
         this[name] = value;
         this.sendEvent(name, value);
         return this;
@@ -441,6 +443,14 @@
 
       Eventable.prototype.sendEvent = function(name, value) {
         var _ref;
+        if (instantiating) {
+          eventq.push({
+            scope: this,
+            name: name,
+            value: value
+          });
+          return;
+        }
         if ((_ref = this.events) != null ? _ref[name] : void 0) {
           this.trigger(name, value, this);
         }
@@ -635,11 +645,29 @@
       };
     })();
     constraintScopes = [];
+    instantiating = false;
+    handlerq = [];
+    eventq = [];
     _initConstraints = function() {
-      var constraint, _i, _len;
-      for (_i = 0, _len = constraintScopes.length; _i < _len; _i++) {
-        constraint = constraintScopes[_i];
-        constraint._bindConstraints();
+      var ev, name, scope, value, _i, _j, _k, _len, _len1, _len2;
+      instantiating = false;
+      for (_i = 0, _len = handlerq.length; _i < _len; _i++) {
+        scope = handlerq[_i];
+        scope._bindHandlers();
+      }
+      handlerq = [];
+      for (_j = 0, _len1 = eventq.length; _j < _len1; _j++) {
+        ev = eventq[_j];
+        scope = ev.scope, name = ev.name, value = ev.value;
+        if (name === 'init') {
+          scope.inited = true;
+        }
+        scope.sendEvent(name, value);
+      }
+      eventq = [];
+      for (_k = 0, _len2 = constraintScopes.length; _k < _len2; _k++) {
+        scope = constraintScopes[_k];
+        scope._bindConstraints();
       }
       return constraintScopes = [];
     };
@@ -844,9 +872,6 @@
         if (this.constraints) {
           constraintScopes.push(this);
         }
-        if (!deferbindings) {
-          this._bindHandlers(true);
-        }
 
         /**
          * @event oninit
@@ -867,7 +892,9 @@
       }
 
       Node.prototype.initialize = function(skipevents) {
-        this.inited = true;
+        if (!instantiating) {
+          this.inited = true;
+        }
         if (!skipevents) {
           return this.sendEvent('init', this);
         }
@@ -901,9 +928,6 @@
         if (this.handlers == null) {
           this.handlers = [];
         }
-        if (this.latehandlers == null) {
-          this.latehandlers = [];
-        }
         for (_i = 0, _len = handlers.length; _i < _len; _i++) {
           handler = handlers[_i];
           ev = handler.ev, name = handler.name, script = handler.script, args = handler.args, reference = handler.reference, method = handler.method;
@@ -920,11 +944,7 @@
             callback: handler.callback,
             reference: reference
           };
-          if (reference) {
-            this.latehandlers.push(handlerobj);
-          } else {
-            this.handlers.push(handlerobj);
-          }
+          this.handlers.push(handlerobj);
         }
       };
 
@@ -949,7 +969,7 @@
       matchConstraint = /\${(.+)}/;
 
       Node.prototype.bindAttribute = function(name, value, tagname) {
-        var constraint;
+        var constraint, handler;
         if (value) {
           constraint = typeof value.match === "function" ? value.match(matchConstraint) : void 0;
         }
@@ -957,7 +977,12 @@
           return this.setConstraint(name, constraint[1], true);
         } else if (matchEvent.test(name)) {
           name = name.substr(2);
-          return this.bind(name, _eventCallback(name, value, this, tagname));
+          handler = {
+            scope: this,
+            ev: name,
+            callback: _eventCallback(name, value, this, tagname)
+          };
+          return this.handlers.push(handler);
         } else {
           return this.setAttribute(name, value);
         }
@@ -1104,13 +1129,16 @@
         }
       };
 
-      Node.prototype._bindHandlers = function(isLate) {
-        var binding, bindings, callback, defer, ev, name, reference, refeval, scope, _i, _len;
-        bindings = isLate ? this.latehandlers : this.handlers;
+      Node.prototype._bindHandlers = function() {
+        var binding, bindings, callback, ev, name, reference, refeval, scope, _i, _len;
+        if (instantiating) {
+          handlerq.push(this);
+          return;
+        }
+        bindings = this.handlers;
         if (!bindings) {
           return;
         }
-        defer = [];
         for (_i = 0, _len = bindings.length; _i < _len; _i++) {
           binding = bindings[_i];
           scope = binding.scope, name = binding.name, ev = binding.ev, callback = binding.callback, reference = binding.reference;
@@ -1118,35 +1146,12 @@
             refeval = this._valueLookup(reference)();
             if (refeval instanceof Eventable) {
               scope.listenTo(refeval, ev, callback);
-            } else {
-              defer.push(binding);
-              continue;
             }
           } else {
             scope.bind(ev, callback);
-            if (ev in scope) {
-              scope.sendEvent(ev, scope[ev]);
-            }
           }
         }
-        if (defer.length) {
-          if (isLate) {
-            this.latehandlers = defer;
-          } else {
-            this.handlers = defer;
-          }
-          callOnIdle((function(_this) {
-            return function() {
-              return _this._bindHandlers(isLate);
-            };
-          })(this));
-          return;
-        }
-        if (isLate) {
-          this.latehandlers = [];
-        } else {
-          this.handlers = [];
-        }
+        this.handlers = [];
       };
 
       Node.prototype._constraintCallback = function(name, fn) {
@@ -1439,7 +1444,7 @@
       };
 
       Sprite.prototype.__updatePointerEvents = function() {
-        return this.setStyle('pointer-events', this.__clickable || this.__scrollable ? 'auto' : 'none', true);
+        return this.setStyle('pointer-events', this.__clickable || this.__scrollable ? 'auto' : '', true);
       };
 
       Sprite.prototype.destroy = function() {
@@ -1903,6 +1908,7 @@
         }
         attributes.$types = types;
         this._setDefaults(attributes, defaults);
+        this.clip = this.scrollable = this.clickable = false;
         if (el instanceof View) {
           el = el.sprite;
         }
@@ -2044,7 +2050,9 @@
       };
 
       View.prototype.set_clickable = function(clickable) {
-        this.sprite.set_clickable(clickable);
+        if (clickable !== this.clickable) {
+          this.sprite.set_clickable(clickable);
+        }
         return clickable;
       };
 
@@ -2186,7 +2194,9 @@
       };
 
       View.prototype.set_clip = function(clip) {
-        this.sprite.set_clip(clip);
+        if (clip !== this.clip) {
+          this.sprite.set_clip(clip);
+        }
         return clip;
       };
 
@@ -2197,7 +2207,9 @@
             scrolly: 0
           });
         }
-        this.sprite.set_scrollable(scrollable);
+        if (scrollable !== this.scrollable) {
+          this.sprite.set_scrollable(scrollable);
+        }
         return scrollable;
       };
 
@@ -2732,6 +2744,7 @@
         return window.dispatchEvent(event);
       };
       initFromElement = function(el) {
+        instantiating = true;
         el.style.display = 'none';
         return findAutoIncludes(el, function() {
           el.style.display = null;
@@ -3113,14 +3126,6 @@
           }
           if (!parent.inited) {
             checkChildren = function() {
-              var _k, _len2;
-              for (_k = 0, _len2 = children.length; _k < _len2; _k++) {
-                child = children[_k];
-                if (!child.inited && child.localName === !'class') {
-                  callOnIdle(checkChildren);
-                  return;
-                }
-              }
               if (parent.inited) {
                 return;
               }
@@ -3260,7 +3265,7 @@
       __extends(State, _super);
 
       function State(el, attributes) {
-        var child, compilertype, handler, instancebody, name, oldbody, processedChildren, value, _i, _j, _len, _len1, _ref, _ref1;
+        var child, compilertype, finish, handler, instancebody, name, oldbody, processedChildren, value, _i, _j, _len, _len1, _ref, _ref1;
         if (attributes == null) {
           attributes = {};
         }
@@ -3304,21 +3309,22 @@
             this.setAttribute(name, value);
           }
         }
-        if (this.constraints) {
-          this._bindConstraints();
-          this.skipattributes.push('constraints');
-        }
-        if (this.events) {
-          this.skipattributes.push('events');
-        }
-        if (this.handlers) {
-          this.skipattributes.push('handlers');
-        }
-        if (this.latehandlers) {
-          this.skipattributes.push('latehandlers');
-        }
-        this.enumfalse(this.skipattributes);
-        this.enumfalse(this.keys);
+        finish = (function(_this) {
+          return function() {
+            if (_this.constraints) {
+              _this._bindConstraints();
+              _this.skipattributes.push('constraints');
+            }
+            if (_this.events) {
+              _this.skipattributes.push('events');
+            }
+            if (_this.handlers) {
+              _this.skipattributes.push('handlers');
+            }
+            return _this.enumfalse(_this.skipattributes);
+          };
+        })(this);
+        callOnIdle(finish);
         if (el) {
           el.$view = this;
         }
@@ -3340,7 +3346,6 @@
             if (this.stateattributes.$handlers) {
               this.parent.installHandlers(this.stateattributes.$handlers, this.parent.$tagname, this.parent);
               this.parent._bindHandlers();
-              this.parent._bindHandlers(true);
             }
           } else {
             this.parent.forget(this);
@@ -3495,7 +3500,7 @@
           console.warn('overwriting class', name);
         }
         dr[name] = function(instanceel, instanceattributes, internal, skipchildren) {
-          var attributes, checkChildren, children, key, parent, propname, sendInit, val, value, viewel, _j, _len1, _ref;
+          var attributes, children, key, parent, propname, sendInit, val, value, viewel, _j, _len1, _ref;
           attributes = clone(classattributes);
           for (key in instanceattributes) {
             value = instanceattributes[key];
@@ -3564,23 +3569,9 @@
                 return;
               }
               parent._bindHandlers();
-              parent._bindHandlers(true);
               return parent.initialize();
             };
-            if (children != null ? children.length : void 0) {
-              checkChildren = function() {
-                var _k, _len2;
-                for (_k = 0, _len2 = children.length; _k < _len2; _k++) {
-                  child = children[_k];
-                  if ((!child.$view) || (!child.$view.inited)) {
-                    callOnIdle(checkChildren);
-                    return;
-                  }
-                }
-                return sendInit();
-              };
-              callOnIdle(checkChildren);
-            } else if (internal) {
+            if (internal) {
               callOnIdle(sendInit);
             } else {
               sendInit();
@@ -3649,9 +3640,9 @@
           _base.layouts = [];
         }
         this.parent.layouts.push(this);
-        this.parent.sendEvent('layouts', this);
+        this.parent.sendEvent('layouts', this.parent.layouts);
         subviews = this.parent.subviews;
-        if (subviews) {
+        if (subviews && this.parent.inited) {
           for (_i = 0, _len = subviews.length; _i < _len; _i++) {
             subview = subviews[_i];
             this.addSubview(subview);

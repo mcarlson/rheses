@@ -56,10 +56,11 @@
       testArr.push('doLayoutRemoved ' + this.name + ':' + layout.name );
     </method>
 
-    <handler event="onlayouts" args="layout">
+    <handler event="onlayouts" args="layouts">
       var testArr = this.getTestArray();
-      assert.equal(layout.name, 'baz');
-      testArr.push('onlayouts ' + this.name + ':' + layout.name );
+      //console.log('onlayouts', layouts, this)
+      assert.equal(layouts[0].name, 'baz');
+      testArr.push('onlayouts ' + this.name + ':' + layouts[0].name );
     </handler>
 
     <node name="foo">
@@ -97,6 +98,28 @@
       </handler>
     </item>
 
+    <!-- https://www.pivotaltracker.com/story/show/84258034 -->
+    <class name="cl1" initchildren="false">
+      <handler event="oninit">
+        var testArr = this.parent.getTestArray();
+        testArr.push(this.name + '.oninit.handler');
+      </handler>
+    </class>
+
+    <class name="cl2">
+      <view></view>
+    </class>
+
+    <class name="cl3" extends="cl2" initchildren="false">
+      <handler event="oninit">
+        var testArr = this.parent.getTestArray();
+        testArr.push(this.name + '.oninit.handler');
+      </handler>
+    </class>
+
+    <cl1 name="works"></cl1>
+    <cl3 name="doesnotwork"></cl3>
+
     <handler event="oninit">
       var testArr = this.getTestArray();
       testArr.push(this.name + '.oninit.handler');
@@ -105,32 +128,60 @@
         'doSubnodeAdded outer:foo',
 
         'doSubnodeAdded outer:bar',
-        'onsubviewAdded outer:bar',
         'doSubviewAdded outer:bar',
 
         'doSubnodeAdded outer:baz',
         'doLayoutAdded outer:baz',
-        'onlayouts outer:baz',
 
         'doSubnodeAdded outer:hey',
-        'onsubviewAdded outer:hey',
         'doSubviewAdded outer:hey',
 
         'doSubnodeAdded outer:there',
-        'onsubviewAdded outer:there',
         'doSubviewAdded outer:there',
+
+        'doSubnodeAdded outer:works',
+        'doSubviewAdded outer:works',
+
+        'doSubnodeAdded outer:doesnotwork',
+        'doSubviewAdded outer:doesnotwork',
+
+        'onsubviewAdded outer:bar',
+        'onlayouts outer:baz',
+        'onsubviewAdded outer:hey',
+        'onsubviewAdded outer:there',
+        'onsubviewAdded outer:works',
+        'onsubviewAdded outer:doesnotwork',
 
         'foo.oninit.handler',
         'bar.oninit.handler',
         'baz.oninit.handler',
         'hey.oninit.handler',
         'there.oninit.handler',
+        'works.oninit.handler',
+        'doesnotwork.oninit.handler',
 
         'outer.oninit.handler'
       ];
-      assert.equal(matchArr.join(','), testArr.join(','));
+      assert.equal(matchArr.join(), testArr.join());
     </handler>
   </view>
+
+  <!-- https://www.pivotaltracker.com/story/show/79651666 -->
+  <view width="auto" height="auto" bgcolor="oldlace">
+    <spacedlayout spacing="15"></spacedlayout>
+
+    <view width="50" height="50" bgcolor="lightpink" opacity=".3"></view>
+    <view width="50" height="50" bgcolor="plum" opacity=".3"></view>
+    <view width="50" height="50" bgcolor="lightblue" opacity=".3"></view>
+
+    <handler event="onlayouts" args="layouts">
+      output.setAttribute('text', output.text + ' testing');
+    </handler>
+  </view>
+  <text id="output" multiline="true"></text>
+  <handler event="oninit">
+    assert.equal(output.text, ' testing testing testing')
+  </handler>
 </view>
 <!-- The MIT License (MIT)
 
