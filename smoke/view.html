@@ -192,7 +192,7 @@
   <!-- z, rotation & scale -->
   <view width="100" height="50" border="2px" bordercolor="lightblue" perspective="5px">
       <view name="topView" x="10" y="10" width="5"  height="5" bgcolor="orange" z="1"></view>
-      <view name="rotateViewDeg" x="80" y="10" xanchor="20%" yanchor="40%" width="15" height="15" bgcolor="pink" rotation="45"></view>
+      <view name="rotateViewDeg" x="80" y="10" xanchor="5" yanchor="10" zanchor="1" width="15" height="15" bgcolor="pink" rotation="45"></view>
       <view name="xScaleView" x="75" y="20" width="20" height="20" bgcolor="darkgreen" xscale="0.1"></view>
       <view name="yScaleView" x="75" y="20" width="20" height="20" bgcolor="red" yscale="0.2"></view>
       <view id="xmz" name="scaleRotateBottomView" x="50" y="20" width="20" height="20" bgcolor="blue"
@@ -202,12 +202,12 @@
       <handler event="oninit">
         var transform = this.topView.sprite.el.style['transform'];
         assert.equal((transform == 'translate3d(0, 0, 1px)') || (transform == 'translate3d(0px, 0px, 1px)'), true)
-        
+
         transform = this.rotateViewDeg.sprite.el.style['transform'];
         assert.equal((transform == ' rotate3d(0, 0, 1.0, 45deg)') || (transform == 'rotate3d(0, 0, 1, 45deg)'), true)
 
         transformOrigin = this.rotateViewDeg.sprite.el.style['transform-origin'];
-        assert.equal('20% 40% 0', transformOrigin)
+        assert.equal('5px 10px 1px', transformOrigin)
 
         transform = this.xScaleView.sprite.el.style['transform'];
         assert.equal((transform == ' scale3d(0.1, 1, 1.0)') || (transform == 'scale3d(0.1, 1, 1)'), true)

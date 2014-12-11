@@ -1795,20 +1795,18 @@
        */
 
       /**
-       * @attribute {String/Number} [xanchor=50%]
-       * Sets the horizontal center of the view's transformations (such as rotation).  Values can be a pixel length,
-       * a percentage of total width or one of the keywords: 'left', 'center', or 'right'
+       * @attribute {Number} [xanchor=0]
+       * Sets the horizontal center of the view's transformations (such as rotation)
        */
 
       /**
-       * @attribute {String/Number} [yanchor=50%]
-       * Sets the vertical center of the view's transformations (such as rotation).  Values can be a pixel length,
-       * a percentage of total height or one of the keywords: 'top', 'center', or 'bottom'
+       * @attribute {Number} [yanchor=0]
+       * Sets the vertical center of the view's transformations (such as rotation)
        */
 
       /**
-       * @attribute {String/Number} [zanchor=0]
-       * Sets the z-axis center of the view's transformations (such as rotation).  Values can be only a pixel length.
+       * @attribute {Number} [zanchor=0]
+       * Sets the z-axis center of the view's transformations (such as rotation)
        */
 
       /**
@@ -2130,7 +2128,7 @@
       };
 
       View.prototype.__updateTransform = function() {
-        var transform, xlate;
+        var origin, transform, xanchor, xlate, yanchor, zanchor;
         transform = '';
         this.z || (this.z = 0);
         xlate = 'translate3d(0, 0, ' + this.z + 'px)';
@@ -2147,11 +2145,12 @@
         if (this.rotation !== 0) {
           transform += ' rotate3d(0, 0, 1.0, ' + this.rotation + 'deg)';
         }
-        if (transform !== '') {
-          this.xanchor || (this.xanchor = "50%");
-          this.yanchor || (this.yanchor = "50%");
-          this.zanchor || (this.zanchor = "0");
-          this.sprite.setStyle('transform-origin', this.xanchor + ' ' + this.yanchor + ' ' + this.zanchor);
+        if (transform !== '' && (this.xanchor || this.yanchor || this.zanchor)) {
+          xanchor = this.xanchor || (this.width / 2);
+          yanchor = this.yanchor || (this.height / 2);
+          zanchor = this.zanchor || 0;
+          origin = xanchor + 'px ' + yanchor + 'px ' + zanchor + 'px';
+          this.sprite.setStyle('transform-origin', origin);
         }
         this.sprite.setStyle('z-index', this.z);
         return this.sprite.setStyle('transform', transform);
