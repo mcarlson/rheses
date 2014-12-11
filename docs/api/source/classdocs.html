@@ -1210,6 +1210,88 @@
     * A value of &#39;x&#39; will orient the views horizontally and a value of &#39;y&#39;
     * will orient them vertically.
     */
+<span id='dr-statebutton'>/**
+</span> * @class dr.statebutton {UI Components}
+ * @extends dr.view
+ * A button that may be configured with views associated with named states. Change which view is active by setting the state attribute. If the state names &#39;default&#39;, &#39;over&#39;, and &#39;down&#39; are used then state changes based on mouse interactions will automatically be configured by default. If those states are not present then mouse interactions will not be automatically configured, and will be left to the developer to implement.
+ *
+ * Here is a statebutton configured with three bitmaps associated with the states default, over, and down. Notice the mouse interaction is set up by default.
+ *
+ *     @example
+ *     &lt;statebutton width=&quot;100&quot; height=&quot;100&quot;&gt;
+ *       &lt;bitmap name=&quot;defaultv&quot; width=&quot;100%&quot; height=&quot;100%&quot; src=&quot;../api-examples-resources/default.png&quot;&gt;
+ *         &lt;attribute name=&quot;state&quot; type=&quot;string&quot; value=&quot;default&quot;&gt;&lt;/attribute&gt;
+ *       &lt;/bitmap&gt;
+ *
+ *       &lt;bitmap name=&quot;overv&quot; width=&quot;100%&quot; height=&quot;100%&quot; src=&quot;../api-examples-resources/over.png&quot;&gt;
+ *         &lt;attribute name=&quot;state&quot; type=&quot;string&quot; value=&quot;over&quot;&gt;&lt;/attribute&gt;
+ *       &lt;/bitmap&gt;
+ *
+ *       &lt;bitmap name=&quot;downv&quot; width=&quot;100%&quot; height=&quot;100%&quot; src=&quot;../api-examples-resources/down.png&quot;&gt;
+ *         &lt;attribute name=&quot;state&quot; type=&quot;string&quot; value=&quot;down&quot;&gt;&lt;/attribute&gt;
+ *       &lt;/bitmap&gt;
+ *     &lt;/statebutton&gt;
+ *
+ * Setting the interactive attribute to false disables the default hover and down state changes.
+ *
+ *     @example
+ *     &lt;statebutton interactive=&quot;false&quot; width=&quot;100&quot; height=&quot;100&quot;&gt;
+ *       &lt;bitmap name=&quot;defaultv&quot; width=&quot;100%&quot; height=&quot;100%&quot; src=&quot;../api-examples-resources/default.png&quot;&gt;
+ *         &lt;attribute name=&quot;state&quot; type=&quot;string&quot; value=&quot;default&quot;&gt;&lt;/attribute&gt;
+ *       &lt;/bitmap&gt;
+ *
+ *       &lt;bitmap name=&quot;overv&quot; width=&quot;100%&quot; height=&quot;100%&quot; src=&quot;../api-examples-resources/over.png&quot;&gt;
+ *         &lt;attribute name=&quot;state&quot; type=&quot;string&quot; value=&quot;over&quot;&gt;&lt;/attribute&gt;
+ *       &lt;/bitmap&gt;
+ *
+ *       &lt;bitmap name=&quot;downv&quot; width=&quot;100%&quot; height=&quot;100%&quot; src=&quot;../api-examples-resources/down.png&quot;&gt;
+ *         &lt;attribute name=&quot;state&quot; type=&quot;string&quot; value=&quot;down&quot;&gt;&lt;/attribute&gt;
+ *       &lt;/bitmap&gt;
+ *     &lt;/statebutton&gt;
+ *
+ * Configuring custom states will also set the interactive flag to false, and then you can add your own custom state changes
+ *
+ *     @example
+ *     &lt;statebutton width=&quot;100&quot; height=&quot;100&quot;&gt;
+ *       &lt;attribute name=&quot;statetracker&quot; type=&quot;number&quot; value=&quot;0&quot;&gt;&lt;/attribute&gt;
+ *       &lt;handler event=&quot;onclick&quot;&gt;
+ *         var newStateIndex = this.statetracker + 1;
+ *         if (newStateIndex == 3) newStateIndex = 0;
+ *         this.setAttribute(&#39;statetracker&#39;, newStateIndex)
+ *         this.setAttribute(&#39;state&#39;, this.states[newStateIndex])
+ *       &lt;/handler&gt;
+ *  
+ *       &lt;bitmap name=&quot;onev&quot; width=&quot;100%&quot; height=&quot;100%&quot; src=&quot;../api-examples-resources/default.png&quot;&gt;
+ *         &lt;attribute name=&quot;state&quot; type=&quot;string&quot; value=&quot;one&quot;&gt;&lt;/attribute&gt;
+ *       &lt;/bitmap&gt;
+ *
+ *       &lt;bitmap name=&quot;twov&quot; width=&quot;100%&quot; height=&quot;100%&quot; src=&quot;../api-examples-resources/over.png&quot;&gt;
+ *         &lt;attribute name=&quot;state&quot; type=&quot;string&quot; value=&quot;two&quot;&gt;&lt;/attribute&gt;
+ *       &lt;/bitmap&gt;
+ *
+ *       &lt;bitmap name=&quot;threev&quot; width=&quot;100%&quot; height=&quot;100%&quot; src=&quot;../api-examples-resources/down.png&quot;&gt;
+ *         &lt;attribute name=&quot;state&quot; type=&quot;string&quot; value=&quot;three&quot;&gt;&lt;/attribute&gt;
+ *       &lt;/bitmap&gt;
+ *     &lt;/statebutton&gt;
+ */
+<span id='dr-statebutton-attribute-state'>/**
+</span>    * @attribute {String} [state=&quot;default&quot;]
+    * The currently active state.
+    */
+<span id='dr-statebutton-attribute-interactive'>/**
+</span>    * @attribute {Boolean} [interactive=&quot;true&quot;]
+    * When true default, over, and down states are applied automatically based on mouse/touch interactions. Set to false to disable the default behavior.
+    */
+<span id='dr-statebutton-attribute-states'>/**
+</span>    * @attribute {String[]} states
+    * @readonly
+    * An array of the states
+  */
+<span id='dr-statebutton-attribute-activeview'>/**
+</span>    * @attribute {dr.view} activeview
+    * @readonly
+    * The currently active view
+  */
 <span id='dr-stats'>/**
 </span>     * @class dr.stats {Util}
      * @extends dr.view
