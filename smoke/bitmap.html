@@ -28,7 +28,18 @@
 </head>
 <body>
     <view>
-        <bitmap id="koala" x="100" y="200" width="200" height="200" src="./shoarma.jpg"></bitmap>
+        <bitmap id="koala" x="100" y="200" width="200" height="200" src="./shoarma.jpg">
+          <handler event="onload" args="size">
+            if (this.src) {
+              assert.equal(size.width, 259)
+              assert.equal(size.height, 194)
+              koala.setAttribute('src', '')
+            } else {
+              assert.equal(size.width, 0)
+              assert.equal(size.height, 0)
+            }
+          </handler>
+        </bitmap>
         <handler event="oninit">
           assert.equal(koala.sprite.el.style.marginLeft, '100px');
           assert.equal(koala.sprite.el.style.marginTop, '200px');

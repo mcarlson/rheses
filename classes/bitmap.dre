@@ -33,7 +33,12 @@ SOFTWARE. -->
         * The bitmap URL to load
         */-->
       <setter name="src" args="src">
-        if (src && this.src != src) {
+        if (! src) {
+          this.setAttribute('background-image', '');
+          this.sendEvent('load', {width: 0, height: 0});
+          return
+        }
+        if (this.src != src) {
           this.setAttribute('background-image', 'url("' + src + '")');
           this.setAttribute('background-size', 'cover');
   
