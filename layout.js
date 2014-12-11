@@ -387,6 +387,12 @@
             return;
           }
           value = typemappings[type](value);
+          if (type === 'number' && isNaN(value)) {
+            value = this[name];
+            if (isNaN(value)) {
+              value = 0;
+            }
+          }
         } else if (value == null) {
           value = '';
         }
@@ -2014,22 +2020,6 @@
           this.listenTo(parent, axis, func);
           func.call();
           return true;
-        }
-      };
-
-      View.prototype.set_x = function(x) {
-        if (isNaN(x)) {
-          return this.x;
-        } else {
-          return x;
-        }
-      };
-
-      View.prototype.set_y = function(y) {
-        if (isNaN(y)) {
-          return this.y;
-        } else {
-          return y;
         }
       };
 

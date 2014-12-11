@@ -269,6 +269,11 @@ window.dr = do ->
           showWarnings ["Invalid type '#{type}' for attribute '#{name}', must be one of: #{Object.keys(typemappings).join(', ')}"]
           return
         value = typemappings[type](value)
+        
+        # Protect number values from being set to NaN
+        if type is 'number' and isNaN value
+          value = @[name]
+          if isNaN value then value = 0
       else unless value?
         #if this is a string type attribute it should be set to the empty string if it is null or undefined
         # (as in the case where it is set by constraint, and the constraint resolves to undefined)
@@ -1572,12 +1577,6 @@ window.dr = do ->
         @listenTo(parent, axis, func)
         func.call()
         return true
-
-    set_x: (x) ->
-      if isNaN x then @x else x
-
-    set_y: (y) ->
-      if isNaN y then @y else y
 
     set_width: (width) ->
       @setAttribute('innerwidth', width - 2*(@border + @padding), true)
