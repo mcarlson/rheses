@@ -2750,17 +2750,19 @@
         });
       };
       findAutoIncludes = function(parentel, finalcallback) {
-        var fileloaded, filereloader, filerequests, findIncludeURLs, findMissingClasses, includedScripts, inlineclasses, jqel, loadInclude, loadIncludes, loadScript, loadqueue, scriptloading, validator;
+        var dependencies, fileloaded, filereloader, filerequests, findIncludeURLs, findMissingClasses, includedScripts, inlineclasses, jqel, loadInclude, loadIncludes, loadScript, loadqueue, scriptloading, validator;
         jqel = $(parentel);
         includedScripts = {};
         loadqueue = [];
         scriptloading = false;
+        dependencies = [];
         loadScript = function(url, cb, error) {
           var appendScript, appendcallback;
           if (url in includedScripts) {
             return;
           }
           includedScripts[url] = true;
+          dependencies.push(url);
           if (scriptloading) {
             loadqueue.push(url, error);
             return url;
@@ -2800,6 +2802,7 @@
             return;
           }
           fileloaded[url] = el;
+          dependencies.push(url);
           prom = $.get(url);
           prom.url = url;
           prom.el = el;
@@ -2952,14 +2955,16 @@
           });
         };
         filereloader = function() {
+          dependencies.push(window.location.pathname);
+          dependencies.push('/layout.js');
           return $.ajax({
             url: '/watchfile/',
             datatype: 'text',
             data: {
-              url: window.location.pathname
+              url: dependencies
             },
-            success: function(data) {
-              if (data === window.location.pathname) {
+            success: function(url) {
+              if (__indexOf.call(dependencies, url) >= 0) {
                 return window.location.reload();
               }
             }

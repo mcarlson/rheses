@@ -2146,9 +2146,11 @@ window.dr = do ->
       includedScripts = {}
       loadqueue = []
       scriptloading = false
+      dependencies = []
       loadScript = (url, cb, error) ->
         return if url of includedScripts
         includedScripts[url] = true
+        dependencies.push(url)
 
         if (scriptloading)
           loadqueue.push(url, error)
@@ -2187,6 +2189,7 @@ window.dr = do ->
       loadInclude = (url, el) ->
         return if url of fileloaded
         fileloaded[url] = el
+        dependencies.push(url)
         # console.log "Loading #{url}", el
         prom = $.get(url)
         prom.url = url
@@ -2316,18 +2319,18 @@ window.dr = do ->
         )
 
       filereloader = ->
-        # console.log('listen for changes watching')
+        dependencies.push(window.location.pathname)
+        dependencies.push('/layout.js')
+        # console.log('listen for changes watching', dependencies)
         $.ajax({
           url: '/watchfile/',
           datatype: 'text',
-          data: {url: window.location.pathname},
-          success: (data) ->
-            # console.log('got data...', data)
-            if data is window.location.pathname
+          data: {url: dependencies},
+          success: (url) ->
+            if url in dependencies
               # alert('reload')
               window.location.reload()
         }).done((data) ->
-          # console.log('file reloaded', data)
           filereloader()
         )
 
