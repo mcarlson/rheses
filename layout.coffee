@@ -2323,16 +2323,20 @@ window.dr = do ->
           return
         )
 
+      blacklist = ['/primus/primus.io.js']
       filereloader = ->
         dependencies.push(window.location.pathname)
         dependencies.push('/layout.js')
+        paths = dependencies.filter((path) ->
+          return true unless path in blacklist
+        )
         # console.log('listen for changes watching', dependencies)
         $.ajax({
           url: '/watchfile/',
           datatype: 'text',
-          data: {url: dependencies},
+          data: {url: paths},
           success: (url) ->
-            if url in dependencies
+            if url in paths
               # alert('reload')
               window.location.reload()
         }).done((data) ->
@@ -3078,9 +3082,9 @@ window.dr = do ->
     # Skip children that use a percent position or size since this leads
     # to circular sizing constraints.
     _skipX: (view) ->
-      return !view.visible or view.__percentFuncwidth? or view.__percentFuncx?
+      return not view.visible or view.__percentFuncwidth? or view.__percentFuncx?
     _skipY: (view) ->
-      return !view.visible or view.__percentFuncheight? or view.__percentFuncy?
+      return not view.visible or view.__percentFuncheight? or view.__percentFuncy?
 
   starttime = Date.now()
   idle = do ->

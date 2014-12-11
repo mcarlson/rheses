@@ -2756,7 +2756,7 @@
         });
       };
       findAutoIncludes = function(parentel, finalcallback) {
-        var dependencies, fileloaded, filereloader, filerequests, findIncludeURLs, findMissingClasses, includedScripts, inlineclasses, jqel, loadInclude, loadIncludes, loadScript, loadqueue, scriptloading, validator;
+        var blacklist, dependencies, fileloaded, filereloader, filerequests, findIncludeURLs, findMissingClasses, includedScripts, inlineclasses, jqel, loadInclude, loadIncludes, loadScript, loadqueue, scriptloading, validator;
         jqel = $(parentel);
         includedScripts = {};
         loadqueue = [];
@@ -2960,17 +2960,24 @@
             }
           });
         };
+        blacklist = ['/primus/primus.io.js'];
         filereloader = function() {
+          var paths;
           dependencies.push(window.location.pathname);
           dependencies.push('/layout.js');
+          paths = dependencies.filter(function(path) {
+            if (__indexOf.call(blacklist, path) < 0) {
+              return true;
+            }
+          });
           return $.ajax({
             url: '/watchfile/',
             datatype: 'text',
             data: {
-              url: dependencies
+              url: paths
             },
             success: function(url) {
-              if (__indexOf.call(dependencies, url) >= 0) {
+              if (__indexOf.call(paths, url) >= 0) {
                 return window.location.reload();
               }
             }
