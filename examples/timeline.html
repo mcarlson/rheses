@@ -80,8 +80,9 @@
             height = image.height * 1.6
             
             this.setAttribute('width', image.width * 1.6);
-            this.setAttribute('src', image.url);
+            src = image.url
             break
+      this.setAttribute('src', src)
       this.setAttribute('title', data.title);
     </handler>
     <text multiline="true" x="4" y="4" width="160"
