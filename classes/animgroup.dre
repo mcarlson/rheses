@@ -1,0 +1,262 @@
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+
+ <!--/**
+    * @class dr.animgroup {Animation}
+    * @extends dr.node
+    * Animator class that can animate keys on other objects
+    *
+    *     @example nestedr="red" x="0" y="0" width="100" height="100"/>
+    *     <view id='obj2' bgcolo
+    *     <view id='obj1' bgcolor="green" x="0" y="0" width="100" height="100"/>
+    *     <animgroup parallel='true'>
+    *       <animator target='obj1' start="100" attribute="x" to="200" duration="1000" motion="outBounce" repeat="1"/>
+    *       <animator target='obj2' start="100" attribute="x" to="200" duration="1000" motion="outBounce" repeat="1"/>
+    *     </animgroup>
+    */-->
+  <class name="animgroup" extends='node'>
+    <!--/**
+      * @attribute {Boolean} parallel
+      * Wether child animations are run in parallel, or serial
+      */-->
+    <attribute name="parallel" value="true" type="boolean"/>
+    <setter name="parallel" args="parallel">
+      this.parallel = parallel
+    </setter>
+
+    <!--/**
+      * @attribute {String} start
+      * The start time of the animation
+      */-->
+    <attribute name="start" value="0" type="number"/>
+    <setter name="start" args="start">
+      if(!this.track)this.track = {}
+      this.track.start = start
+      if(this.animator) this.animator.update(this.track)      
+    </setter>
+
+     <!--/**
+      * @attribute {boolean} paused
+      * wether or not the animator is paused
+      */-->
+    <attribute name="paused" value="false" type="boolean"/>
+    <setter name="paused" args="paused">
+      if(!this.track) this.track = {}
+      this.track.paused = paused // to make sure it starts paused
+      if(paused){
+        if(this.animator)this.animator.pause()
+      }
+      else{
+        if(this.animator)this.animator.resume()
+      }
+    </setter>
+
+   <!--/** 
+      * @attribute {string} motion
+      * name of the motion the animation is following
+      * valid values are:
+      * 'bezier' use a cubic bezier motion function
+      *   use control points in control='x1,y1,x2,y2' 
+      *   for example control='0,0,1,1'
+      *   bezier control points work the same as the CSS3 cubic-bezier easing
+      * 'bret' uses brets animation function, has 2 control points
+      *   control='start,end' value near 0 (0.01) will produce a curved line
+      *   where values near 1.0 will produce a straight line
+      *   this way you can control the 'easing' from 'smooth' (0.01) to 'hard' (1.0)
+      *   on each side start / end of the animation
+      *   for example control='0.01,1.00' produces an animation with a smooth start and a hard end 
+      * 'linear' simple linear motion
+      * the following curves can be seen here http://api.jqueryui.com/easings/
+      * 'inQuad' use a t^2 curve
+      * 'outQuad' t^2 curve on out
+      * 'inOutQuad' mix of inQuad and outQuad
+      * 'inCubic' use a t^3 curve
+      * 'outCubic' t^3 curve on out
+      * 'inOutCubic' mix of inCubic and outCubic
+      * 'inQuart' t^4 curve
+      * 'outQuart' t^4 curve on out
+      * 'inOutQuart' mix of inQuart and outQuart
+      * 'inQuint' t^5 curve
+      * 'outQuint' t^5 curve on out
+      * 'inOutQuint' mix of inQuint and outQuint
+      * 'inSine' sin(t) curve
+      * 'outSine' sin(t) on out
+      * 'inOutSine' mix of inSine and outSine
+      * 'inExpo' e^t curve
+      * 'outExpo' e^t curve on end
+      * 'inOutExpo' mix of inExpo and outExpo
+      * 'inElastic' elastic (like bounce, but overshoots) curve
+      * 'outElastic' elastic on end
+      * 'inOutElastic' mix of inElastic and outElastic
+      * 'inBack' overshooting curve
+      * 'outBack' overshooting on end
+      * 'inOutBack' mix of inBack and outBack
+      * 'inBounce' Bouncing curve
+      * 'outBounce' Bouncing curve on end
+      * 'inOutBounce' mix of inBounce and outBounce
+      */-->
+    <attribute name="motion" value="linear" type="string"/>
+    <setter name="motion" args="motion">
+      if(!this.track)this.track = {}
+      this.track.motion = motion
+      if(this.animator) this.animator.update(this.track)
+    </setter>
+    <!--/**
+      * @attribute {string} control
+      * control points for the bret and bezier motions
+      */-->
+    <attribute name="control" value="" type="string"/>
+    <setter name="control" args="control">
+      if(!this.track)this.track = {}
+      this.track.control = control.split(',').map(function(v){
+        return parseFloat(v)
+      })
+      if(this.animator) this.animator.update(this.track)
+    </setter>
+
+    <!--/**
+      * @attribute {number} repeat
+      * how many times to repeat the loop (repeat 2 runs something twice)
+      */-->
+    <attribute name="repeat" value="1" type="number"/>
+    <setter name="repeat" args="repeat">
+      if(!this.track)this.track = {}
+      this.track.repeat = repeat
+      if(this.animator) this.animator.update(this.track)
+    </setter>
+
+    <!--/**
+      * @attribute {boolean} bounce
+      * turn on bounce looping
+      */-->
+    <attribute name="bounce" value="false" type="boolean"/>
+    <setter name="bounce" args="bounce">
+      if(!this.track)this.track = {}
+      this.track.bounce = bounce
+      if(this.animator) this.animator.update(this.track)
+    </setter>
+
+    <method name="prepare"><!--
+      this.animator = Animator.createAnimator()
+      // lets process all slave anims
+      var max_len = 0
+      for(var i = 0;i < this.slave_anims.length; i++){
+        var len = this.slave_anims[i].prepare()
+        this.slave_anims[i]._computed_len = len
+        if(this.parallel){
+          max_len = Math.max(max_len, len)
+        }
+        else{
+          max_len += len
+        }
+      }
+      // lets make an animator that goes from 0 to max_len and use that
+      if(!this.track) this.track = {}
+      // create a track for our own time
+      this.track[0] = 0
+      this.track[max_len] = max_len
+
+      // and play it
+      this.animator.play(this.track)
+      // return our length
+      return max_len * this.repeat
+
+
+    --></method>
+    <method 
+    <method name="timestep" args='time, sample_first'><!--
+      var local_time = this.animator.timestep(time)
+      if(this.parallel){
+        for(var i = 0;i < this.slave_anims.length; i++){
+          this.slave_anims[i].timestep(local_time, sample_first)
+        }
+      }
+      else{ // we have to find the right slave anim
+        var accum = 0
+        for(var i = 0; i < this.slave_anims.length; i++){
+          var anim = this.slave_anims[i]
+          var next = accum + anim._computed_len
+          
+          if(local_time >= accum && local_time < next){
+            var forwards = (this.last_time || 0 )< local_time
+
+            if(this.last_anim != anim){
+              if(forwards){ // 
+                var found = false
+                for(var j = 0; j < this.slave_anims.length; j++){
+                  var iter_anim = this.slave_anims[j]
+                  if(iter_anim == this.last_anim) found = true
+                  if(iter_anim == anim) break
+                  if(found) iter_anim.timestep(iter_anim._computed_len)
+                }
+              }
+              else{
+                var found = false
+                for(var j = this.slave_anims.length - 1; j >= 0; j--){
+                  var iter_anim = this.slave_anims[j]
+                  if(iter_anim == this.last_anim) found = true
+                  if(iter_anim == anim) break
+                  if(found) iter_anim.timestep(0)
+                }
+              }
+            }
+            // if we are moving backwards, fire the 0 timesteps of the things we skipped
+            // if we are moving forwards fire the last timestep of the things we skipped.
+            anim.timestep(local_time - accum,  sample_first || forwards && this.last_anim != anim)
+            this.last_time = local_time
+            this.last_anim = anim
+          }
+          accum = next
+        }
+      }
+    --></method>
+
+    <handler event="oninit"><!--
+      var parent = this.parent
+
+      if(parent.$tagname == 'animgroup'){
+        if(!parent.slave_anims) parent.slave_anims = []
+        parent.slave_anims.push(this)
+        return
+      }
+
+      setTimeout(function(){
+        this.prepare()
+
+        var ended = false
+        function myIdle(time){
+
+          this.timestep(time)
+
+          if(this.animator.ended){
+            if(!ended) this.sendEvent('end')
+            ended = true
+            //Todo remove idle binding again
+          }
+          this.sendEvent('tick')
+        }
+        // the animator works with timelines, so lets set up our timeline from the childlist.
+        var t = dr.idle.bind('idle', myIdle.bind(this))
+
+      }.bind(this), 0)
+    --></handler>
+  </class>

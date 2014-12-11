@@ -102,7 +102,11 @@ SOFTWARE. -->
       <setter name="target" args="target">
         if(this.animator){
           if(!target){
-            this.target_obj = this.parent
+            var parent = this.parent
+            // SEVERE BUG. Parentnode is not set correctly
+            while(parent.$tagname == 'animgroup') parent = parent.parent
+
+            this.target_obj = parent
           }
           else{ 
             // otherwise we have to look it up by name
@@ -174,7 +178,7 @@ SOFTWARE. -->
         * 'outBounce' Bouncing curve on end
         * 'inOutBounce' mix of inBounce and outBounce
         */-->
-      <attribute name="motion" value="bret" type="string"/>
+      <attribute name="motion" value="linear" type="string"/>
       <setter name="motion" args="motion">
         if(!this.track)this.track = {}
         this.track.motion = motion
@@ -218,7 +222,7 @@ SOFTWARE. -->
         if(this.animator) this.animator.update(this.track)
         return bounce
       </setter>
-      
+
       <!--/**
         * @attribute {boolean} relative
         * animation is relative to original value
@@ -239,27 +243,65 @@ SOFTWARE. -->
         * @event ontick
         * Fired every step of the animation
         */-->
+
+      <method name="prepare">
+
+        // lets create the animator
+        this.animator = Animator.createAnimator()
+
+        // call the setter to get our target_obj
+        this.set_target(this.target)
+
+        if(!this.track)this.track = {}
+        this.track[0] = this.from === ""? this.target_obj[this.attribute]: this.from
+
+        this.animator.play(this.track)
+        if(this.track.paused) this.animator.pause()
       
+        // returns the length of the animation and track
+
+        // lets also include our repeat settings
+        return this.animator.current.end_time * this.repeat
+
+      </method>
+
+      <method name="timestep" args="time, sample_first">
+        // ok so how do we decide when we need to sample this thing?
+        if(sample_first && this.from === ""){
+          // lets update the track
+          this.track[0] = this.target_obj[this.attribute]
+          this.animator.update(this.track)
+        }
+        var value = this.animator.timestep(time)
+        this.target_obj.setAttribute(this.attribute, value)
+      </method>
+
       <handler event="oninit"> 
+        // parent is the animgroup, which means we should slave to it
+        var parent = this.parent
+
+        if(parent.$tagname == 'animgroup'){
+          // console.log(this.parent)
+          // ok so we are in an animgroup. now what.
+          // well first of all we have to 
+          // register ourselves
+          if(!parent.slave_anims) parent.slave_anims = []
+          // lets push ourselves in
+          parent.slave_anims.push(this)
+          return
+        }
+
         setTimeout(function(){ // otherwise my target has no $view
-          
+
           this.sendEvent('start')
 
-          // lets create the animator
-          this.animator = Animator.createAnimator()
-         
-          // call the setter to get our target_obj
-          this.set_target(this.target)
-
-          if(!this.track)this.track = {}
-          this.track[0] = this.from === ""? this.target_obj[this.attribute]: this.from
-
-          this.animator.play(this.track)
-          if(this.track.paused) this.animator.pause()
+          this.prepare()
 
           var ended = false
           // the animator works with timelines, so lets set up our timeline from the childlist.
           var t = dr.idle.register('idle', function(time){
+
+          function myIdle(time){
             // and call timestep
             var value = this.animator.timestep(time)
             this.target_obj.setAttribute(this.attribute, value)
@@ -269,7 +311,11 @@ SOFTWARE. -->
               //Todo remove idle binding again
             }
             this.sendEvent('tick')
-          }.bind(this))
+          }
+          console.log(dr.idle)
+
+          // the animator works with timelines, so lets set up our timeline from the childlist.
+          var t = dr.idle.bind('idle', myIdle.bind(this))
 
         }.bind(this),0)
       </handler>
