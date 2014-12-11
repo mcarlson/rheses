@@ -1812,20 +1812,18 @@
        */
 
 <span id='dr-view-attribute-xanchor'>      /**
-</span>       * @attribute {String/Number} [xanchor=50%]
-       * Sets the horizontal center of the view&#39;s transformations (such as rotation).  Values can be a pixel length,
-       * a percentage of total width or one of the keywords: &#39;left&#39;, &#39;center&#39;, or &#39;right&#39;
+</span>       * @attribute {Number} [xanchor=0]
+       * Sets the horizontal center of the view&#39;s transformations (such as rotation)
        */
 
 <span id='dr-view-attribute-yanchor'>      /**
-</span>       * @attribute {String/Number} [yanchor=50%]
-       * Sets the vertical center of the view&#39;s transformations (such as rotation).  Values can be a pixel length,
-       * a percentage of total height or one of the keywords: &#39;top&#39;, &#39;center&#39;, or &#39;bottom&#39;
+</span>       * @attribute {Number} [yanchor=0]
+       * Sets the vertical center of the view&#39;s transformations (such as rotation)
        */
 
 <span id='dr-view-attribute-zanchor'>      /**
-</span>       * @attribute {String/Number} [zanchor=0]
-       * Sets the z-axis center of the view&#39;s transformations (such as rotation).  Values can be only a pixel length.
+</span>       * @attribute {Number} [zanchor=0]
+       * Sets the z-axis center of the view&#39;s transformations (such as rotation)
        */
 
 <span id='dr-view-event-onclick'>      /**
@@ -2147,7 +2145,7 @@
       };
 
       View.prototype.__updateTransform = function() {
-        var transform, xlate;
+        var origin, transform, xanchor, xlate, yanchor, zanchor;
         transform = &#39;&#39;;
         this.z || (this.z = 0);
         xlate = &#39;translate3d(0, 0, &#39; + this.z + &#39;px)&#39;;
@@ -2164,11 +2162,12 @@
         if (this.rotation !== 0) {
           transform += &#39; rotate3d(0, 0, 1.0, &#39; + this.rotation + &#39;deg)&#39;;
         }
-        if (transform !== &#39;&#39;) {
-          this.xanchor || (this.xanchor = &quot;50%&quot;);
-          this.yanchor || (this.yanchor = &quot;50%&quot;);
-          this.zanchor || (this.zanchor = &quot;0&quot;);
-          this.sprite.setStyle(&#39;transform-origin&#39;, this.xanchor + &#39; &#39; + this.yanchor + &#39; &#39; + this.zanchor);
+        if (transform !== &#39;&#39; &amp;&amp; (this.xanchor || this.yanchor || this.zanchor)) {
+          xanchor = this.xanchor || (this.width / 2);
+          yanchor = this.yanchor || (this.height / 2);
+          zanchor = this.zanchor || 0;
+          origin = xanchor + &#39;px &#39; + yanchor + &#39;px &#39; + zanchor + &#39;px&#39;;
+          this.sprite.setStyle(&#39;transform-origin&#39;, origin);
         }
         this.sprite.setStyle(&#39;z-index&#39;, this.z);
         return this.sprite.setStyle(&#39;transform&#39;, transform);
