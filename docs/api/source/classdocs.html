@@ -385,67 +385,10 @@
                * Fired when there is an error loading the bitmap
                */
 <span id='dr-bitmapbutton'>/**
-</span> * @class dr.bitmapbutton {UI Components}
- * @extends dr.view
- * A button that may be configured with three images for the default states (default, over, and down), or can be configured
- * with custom states, and custom interactive behavior.
- *
- * You can configure the default, over, and down image explicitly with the defaultsrc, oversrc, and downsrc attributes
- *
- *     @example
- *     &lt;bitmapbutton width=&quot;100&quot; height=&quot;100&quot; defaultsrc=&quot;../api-examples-resources/default.png&quot; oversrc=&quot;../api-examples-resources/over.png&quot; downsrc=&quot;../api-examples-resources/down.png&quot;&gt;&lt;/bitmapbutton&gt;
- *
- * Or you can set the images using the srcs attribute
- *
- *     @example
- *     &lt;bitmapbutton width=&quot;100&quot; height=&quot;100&quot; srcs=&#39;[&quot;../api-examples-resources/default.png&quot;, &quot;../api-examples-resources/over.png&quot;, &quot;../api-examples-resources/down.png&quot;]&#39;&gt;&lt;/bitmapbutton&gt;
- *
- * Setting the interactive attribute to false disables the default hover and down state changes. This enables you to set your own custom state change behavior.
- *
- *     @example
- *     &lt;bitmapbutton width=&quot;100&quot; height=&quot;100&quot; interactive=&quot;false&quot; srcs=&#39;[&quot;../api-examples-resources/default.png&quot;, &quot;../api-examples-resources/over.png&quot;, &quot;../api-examples-resources/down.png&quot;]&#39;&gt;&lt;/bitmapbutton&gt;
- *
- * You can configure custom states like so, which will set the interactive flag to false, and then add your own custom state changes
- *
- *     @example
- *     &lt;bitmapbutton width=&quot;100&quot; height=&quot;100&quot; states=&#39;[&quot;one&quot;, &quot;two&quot;, &quot;three&quot;, &quot;four&quot;]&#39; srcs=&#39;[&quot;../api-examples-resources/default.png&quot;, &quot;../api-examples-resources/over.png&quot;, &quot;../api-examples-resources/down.png&quot;, &quot;../api-examples-resources/shasta.jpg&quot;]&#39;&gt;
- *       &lt;attribute name=&quot;statetracker&quot; type=&quot;number&quot; value=&quot;0&quot;&gt;&lt;/attribute&gt;
- *       &lt;handler event=&quot;onclick&quot;&gt;
- *         var newStateIndex = this.statetracker + 1;
- *         if (newStateIndex == 4) newStateIndex = 0;
- *         this.setAttribute(&#39;statetracker&#39;, newStateIndex)
- *         this.setAttribute(&#39;state&#39;, this.states[newStateIndex])
- *       &lt;/handler&gt;
- *     &lt;/bitmapbutton&gt;
- */
-<span id='dr-bitmapbutton-attribute-state'>/**
-</span>    * @attribute {String} [state=&quot;default&quot;]
-    * The currently active state.
-    */
-<span id='dr-bitmapbutton-attribute-states'>/**
-</span>    * @attribute {String} [states=&quot;default, over, down&quot;]
-    * The states that have been configured for this button. If left as the default states, default, over, and down states are applied automatically based on mouse/touch interactions.
-    */
-<span id='dr-bitmapbutton-attribute-srcs'>/**
-</span>    * @attribute {String} [srcs=&quot;&quot;]
-    * Use this to configure the image sources for the states (in order of default, over, down). 
-    */
-<span id='dr-bitmapbutton-attribute-defaultsrc'>/**
-</span>    * @attribute {String} [defaultsrc=&quot;&quot;]
-    * The source of the default image. 
-    */
-<span id='dr-bitmapbutton-attribute-oversrc'>/**
-</span>    * @attribute {String} [oversrc=&quot;&quot;]
-    * The source of the over image. 
-    */
-<span id='dr-bitmapbutton-attribute-downsrc'>/**
-</span>    * @attribute {String} [downsrc=&quot;&quot;]
-    * The source of the down image. 
-    */
-<span id='dr-bitmapbutton-attribute-interactive'>/**
-</span>    * @attribute {Boolean} [interactive=&quot;true&quot;]
-    * When true default, over, and down states are applied automatically based on mouse/touch interactions. Set to false to disable the default behavior.
-    */
+</span>      * @class dr.bitmapbutton {Deprecated}
+      * @extends dr.statebutton
+      * bitmapbutton has been deprecated, use dr.statebutton instead
+      */
 <span id='dr-boundedview'>/**
 </span>      * @class dr.boundedview {Deprecated}
       * @extends dr.view

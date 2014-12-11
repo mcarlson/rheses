@@ -886,7 +886,7 @@
          */
 
         /**
-         * @property {Boolean} inited
+         * @attribute {Boolean} inited
          * @readonly
          * True when this node and all its children are completely initialized
          */
@@ -1795,6 +1795,23 @@
        */
 
       /**
+       * @attribute {String/Number} [xanchor=50%]
+       * Sets the horizontal center of the view's transformations (such as rotation).  Values can be a pixel length,
+       * a percentage of total width or one of the keywords: 'left', 'center', or 'right'
+       */
+
+      /**
+       * @attribute {String/Number} [yanchor=50%]
+       * Sets the vertical center of the view's transformations (such as rotation).  Values can be a pixel length,
+       * a percentage of total height or one of the keywords: 'top', 'center', or 'bottom'
+       */
+
+      /**
+       * @attribute {String/Number} [zanchor=0]
+       * Sets the z-axis center of the view's transformations (such as rotation).  Values can be only a pixel length.
+       */
+
+      /**
        * @event onclick
        * Fired when this view is clicked
        * @param {dr.view} view The dr.view that fired the event
@@ -2130,6 +2147,12 @@
         if (this.rotation !== 0) {
           transform += ' rotate3d(0, 0, 1.0, ' + this.rotation + 'deg)';
         }
+        if (transform !== '') {
+          this.xanchor || (this.xanchor = "50%");
+          this.yanchor || (this.yanchor = "50%");
+          this.zanchor || (this.zanchor = "0");
+          this.sprite.setStyle('transform-origin', this.xanchor + ' ' + this.yanchor + ' ' + this.zanchor);
+        }
         this.sprite.setStyle('z-index', this.z);
         return this.sprite.setStyle('transform', transform);
       };
@@ -2156,6 +2179,24 @@
         this.z = depth;
         this.__updateTransform();
         return depth;
+      };
+
+      View.prototype.set_xanchor = function(xanchor) {
+        this.xanchor = xanchor;
+        this.__updateTransform();
+        return xanchor;
+      };
+
+      View.prototype.set_yanchor = function(yanchor) {
+        this.yanchor = yanchor;
+        this.__updateTransform();
+        return yanchor;
+      };
+
+      View.prototype.set_zanchor = function(zanchor) {
+        this.zanchor = zanchor;
+        this.__updateTransform();
+        return zanchor;
       };
 
       View.prototype.moveToFront = function() {
