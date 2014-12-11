@@ -104,6 +104,17 @@
       </handler>
     </block>
     
+    <!-- Auto size with right/center or middle/bottom aligned children -->
+    <block name="auto6" width="auto" height="auto">
+      <item name="v1" x="right" y="bottom" bgcolor="#ff0000"></item>
+      <item name="v2" x="205"></item>
+      <item name="v3" y="55"></item>
+      <handler event="oninit">
+        assert.equal(this.width, 230);
+        assert.equal(this.height, 80);
+      </handler>
+    </block>
+    
     <handler event="oninit">
       //// Verify Basic Sizing ////
       var block = this.basic, v1, v2, v3, v4, v5;
@@ -254,9 +265,36 @@
       assert.equal(block.width, 195);
       assert.equal(block.height, 90);
       
+      // Change position of child of an auto sized view with aligned children
+      // The aligned children should be ignored.
+      block = this.auto6;
+      v1 = block.v1;
+      v2 = block.v2;
+      v3 = block.v3;
+      
+      v2.setAttribute('x', 105);
+      assert.equal(block.width, 130);
+      assert.equal(block.height, 80);
+      assert.equal(v1.x, 105);
+      assert.equal(v1.y, 55);
+      
+      v1.setAttribute('x', 'center');
+      assert.equal(v1.x, 52.5);
+      assert.equal(v1.y, 55);
+      
+      v1.setAttribute('width', 130);
+      v1.setAttribute('x', 65);
+      assert.equal(block.width, 195);
+      assert.equal(block.height, 80);
+      
+      v1.setAttribute('height', 50);
+      v1.setAttribute('y', 40);
+      assert.equal(block.width, 195);
+      assert.equal(block.height, 90);
+      
       // Finally, verify root view since we gave it a width of auto
       assert.equal(this.width, 210);
-      assert.equal(this.height, 492);
+      assert.equal(this.height, 587);
     </handler>
   </view>
 <!-- The MIT License (MIT)

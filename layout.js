@@ -1939,9 +1939,15 @@
               if (this.__setupPercentConstraint(name, value, 'innerwidth')) {
                 return;
               }
+              if (this.__setupAlignConstraint(name, value, 'innerwidth', 'width')) {
+                return;
+              }
               break;
             case 'y':
               if (this.__setupPercentConstraint(name, value, 'innerheight')) {
+                return;
+              }
+              if (this.__setupAlignConstraint(name, value, 'innerheight', 'height')) {
                 return;
               }
               break;
@@ -1972,6 +1978,49 @@
           } else if (this.inited || defaults[name] !== value) {
             return this.sprite.setStyle(name, value);
           }
+        }
+      };
+
+      View.prototype.__setupAlignConstraint = function(name, value, axis, selfAxis) {
+        var func, funcKey, isX, normValue, oldFunc, parent, self;
+        funcKey = '__alignFunc' + name;
+        oldFunc = this[funcKey];
+        parent = this.parent;
+        if (!(parent instanceof Node)) {
+          return;
+        }
+        if (oldFunc) {
+          this.stopListening(parent, axis, oldFunc);
+          this.stopListening(this, selfAxis, oldFunc);
+          delete this[funcKey];
+        }
+        if (typeof value !== 'string') {
+          return;
+        }
+        normValue = value.toLowerCase();
+        isX = name === 'x';
+        if (normValue === 'begin' || (isX && normValue === 'left') || (!isX && normValue === 'top')) {
+          this.setAttribute(name, 0, false, true);
+          return true;
+        }
+        self = this;
+        if (normValue === 'middle' || normValue === 'center') {
+          func = this[funcKey] = function() {
+            return self.setAttribute(name, (parent[axis] - self[selfAxis]) / 2, false, true);
+          };
+          this.listenTo(parent, axis, func);
+          this.listenTo(this, selfAxis, func);
+          func.call();
+          return true;
+        }
+        if (normValue === 'end' || (isX && normValue === 'right') || (!isX && normValue === 'bottom')) {
+          func = this[funcKey] = function() {
+            return self.setAttribute(name, parent[axis] - self[selfAxis], false, true);
+          };
+          this.listenTo(parent, axis, func);
+          this.listenTo(this, selfAxis, func);
+          func.call();
+          return true;
         }
       };
 
@@ -3884,11 +3933,11 @@
       };
 
       AutoPropertyLayout.prototype._skipX = function(view) {
-        return !view.visible || (view.__percentFuncwidth != null) || (view.__percentFuncx != null);
+        return !view.visible || (view.__percentFuncwidth != null) || (view.__percentFuncx != null) || (view.__alignFuncx != null);
       };
 
       AutoPropertyLayout.prototype._skipY = function(view) {
-        return !view.visible || (view.__percentFuncheight != null) || (view.__percentFuncy != null);
+        return !view.visible || (view.__percentFuncheight != null) || (view.__percentFuncy != null) || (view.__alignFuncy != null);
       };
 
       return AutoPropertyLayout;

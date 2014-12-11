@@ -1520,8 +1520,10 @@ window.dr = do ->
         switch name
           when 'x'
             if @__setupPercentConstraint(name, value, 'innerwidth') then return
+            if @__setupAlignConstraint(name, value, 'innerwidth', 'width') then return
           when 'y'
             if @__setupPercentConstraint(name, value, 'innerheight') then return
+            if @__setupAlignConstraint(name, value, 'innerheight', 'height') then return
           when 'width'
             if @__setupPercentConstraint(name, value, 'innerwidth') then return
             if @__setupAutoConstraint(name, value, 'x') then return
@@ -1542,6 +1544,52 @@ window.dr = do ->
           @sprite.setProperty(name, value)
         else if @inited or defaults[name] isnt value
           @sprite.setStyle(name, value)
+
+    __setupAlignConstraint: (name, value, axis, selfAxis) ->
+      funcKey = '__alignFunc' + name
+      oldFunc = @[funcKey]
+      parent = @parent
+
+      # rootview can't be aligned
+      return unless parent instanceof Node
+
+      if oldFunc
+        @stopListening(parent, axis, oldFunc) # FIXME: could we make a prop on the function to call?
+        @stopListening(@, selfAxis, oldFunc)
+        delete @[funcKey]
+
+      # Only process new values that are strings
+      return unless typeof value is 'string'
+
+      # Normalize to lowercase
+      normValue = value.toLowerCase()
+
+      isX = name is 'x'
+      
+      # Handle top/left
+      if normValue is 'begin' or (isX and normValue is 'left') or (not isX and normValue is 'top')
+        @.setAttribute(name, 0, false, true)
+        return true
+
+      self = @
+
+      if normValue is 'middle' or normValue is 'center'
+        func = @[funcKey] = () ->
+          self.setAttribute(name, (parent[axis] - self[selfAxis]) / 2, false, true)
+        @listenTo(parent, axis, func)
+        @listenTo(@, selfAxis, func)
+        func.call()
+        return true
+
+      if normValue is 'end' or (isX and normValue is 'right') or (not isX and normValue is 'bottom')
+        func = @[funcKey] = () ->
+          self.setAttribute(name, parent[axis] - self[selfAxis], false, true)
+        @listenTo(parent, axis, func)
+        @listenTo(@, selfAxis, func)
+        func.call()
+        return true
+
+      return
 
     __setupAutoConstraint: (name, value, axis) ->
       layoutKey = '__autoLayout' + name
@@ -3080,11 +3128,12 @@ window.dr = do ->
         @locked = false
 
     # Skip children that use a percent position or size since this leads
-    # to circular sizing constraints.
+    # to circular sizing constraints. Also skip children that use an align
+    # of bottom/right or center/middle
     _skipX: (view) ->
-      return not view.visible or view.__percentFuncwidth? or view.__percentFuncx?
+      return not view.visible or view.__percentFuncwidth? or view.__percentFuncx? or view.__alignFuncx?
     _skipY: (view) ->
-      return not view.visible or view.__percentFuncheight? or view.__percentFuncy?
+      return not view.visible or view.__percentFuncheight? or view.__percentFuncy? or view.__alignFuncy?
 
   starttime = Date.now()
   idle = do ->
