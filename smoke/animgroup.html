@@ -24,14 +24,18 @@
   <script type="text/javascript" src="/layout.js"></script>
 </head>
 <body>
-  <view> 
+  <view>
     <view bgcolor='red' id="koala1" x="10" y="0" width="20" height="20">
-      <animgroup repeat="4" bounce="true" parallel='false'>
+      <handler event='onclick'>
+        console.log('hi')
+      </handler>
+
+      <animgroup repeat="1" bounce="true" parallel='false'>
         <animator attribute="x" to="100" duration="100" motion="linear"></animator>
         <animator attribute="y" to="100" duration="500" control="0.01,0.01" motion="bret" ></animator>
         <animgroup repeat="1" motion="bret" control="0.01,0.01" bounce="false" parallel='true'>
           <animator attribute="x" to="0" duration="1000" motion="linear"></animator>
-          <animator attribute="y" to="0" duration="1000" motion="linear" ></animator>
+          <animator attribute="y" to="0" duration="1000" motion="linear"></animator>
         </animgroup>
       </animgroup>
     </view>

@@ -40,7 +40,7 @@ SOFTWARE. -->
       */-->
     <attribute name="parallel" value="true" type="boolean"/>
     <setter name="parallel" args="parallel">
-      this.parallel = parallel
+      return parallel
     </setter>
 
     <!--/**
@@ -51,7 +51,8 @@ SOFTWARE. -->
     <setter name="start" args="start">
       if(!this.track)this.track = {}
       this.track.start = start
-      if(this.animator) this.animator.update(this.track)      
+      if(this.animator) this.animator.update(this.track)
+      return start
     </setter>
 
      <!--/**
@@ -68,6 +69,7 @@ SOFTWARE. -->
       else{
         if(this.animator)this.animator.resume()
       }
+      return paused
     </setter>
 
    <!--/** 
@@ -119,6 +121,7 @@ SOFTWARE. -->
       if(!this.track)this.track = {}
       this.track.motion = motion
       if(this.animator) this.animator.update(this.track)
+      return motion
     </setter>
     <!--/**
       * @attribute {string} control
@@ -131,17 +134,19 @@ SOFTWARE. -->
         return parseFloat(v)
       })
       if(this.animator) this.animator.update(this.track)
+      return control
     </setter>
 
     <!--/**
-      * @attribute {number} repeat
-      * how many times to repeat the loop (repeat 2 runs something twice)
+      * @attribute {number} times
+      * how many times to times the loop (times 2 runs something twice)
       */-->
     <attribute name="repeat" value="1" type="number"/>
     <setter name="repeat" args="repeat">
       if(!this.track)this.track = {}
       this.track.repeat = repeat
       if(this.animator) this.animator.update(this.track)
+      return repeat
     </setter>
 
     <!--/**
@@ -153,6 +158,7 @@ SOFTWARE. -->
       if(!this.track)this.track = {}
       this.track.bounce = bounce
       if(this.animator) this.animator.update(this.track)
+      return bounce
     </setter>
 
     <method name="prepare"><!--
@@ -162,6 +168,7 @@ SOFTWARE. -->
       for(var i = 0;i < this.slave_anims.length; i++){
         var len = this.slave_anims[i].prepare()
         this.slave_anims[i]._computed_len = len
+
         if(this.parallel){
           max_len = Math.max(max_len, len)
         }
@@ -174,13 +181,10 @@ SOFTWARE. -->
       // create a track for our own time
       this.track[0] = 0
       this.track[max_len] = max_len
-
       // and play it
       this.animator.play(this.track)
       // return our length
       return max_len * this.repeat
-
-
     --></method>
     <method 
     <method name="timestep" args='time, sample_first'><!--
@@ -245,18 +249,16 @@ SOFTWARE. -->
         var ended = false
         var dup = 0
         function Idle(time){
-          dup++
-          if(dup>5)debugger
           this.timestep(time)
-
+          this.sendEvent('tick')
           if(this.animator.ended){
             if(!ended) this.sendEvent('end')
             ended = true
-            //Todo remove idle binding again
+
           }
-          this.sendEvent('tick')
-          console.log('hii')
-          dr.idle.callOnIdle(myIdle)
+          else{
+            dr.idle.callOnIdle(myIdle)
+          }
         }
         var myIdle = Idle.bind(this)
 
