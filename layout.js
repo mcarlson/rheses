@@ -2017,6 +2017,22 @@
         }
       };
 
+      View.prototype.set_x = function(x) {
+        if (isNaN(x)) {
+          return this.x;
+        } else {
+          return x;
+        }
+      };
+
+      View.prototype.set_y = function(y) {
+        if (isNaN(y)) {
+          return this.y;
+        } else {
+          return y;
+        }
+      };
+
       View.prototype.set_width = function(width) {
         this.setAttribute('innerwidth', width - 2 * (this.border + this.padding), true);
         return width;

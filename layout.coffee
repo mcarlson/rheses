@@ -1573,6 +1573,12 @@ window.dr = do ->
         func.call()
         return true
 
+    set_x: (x) ->
+      if isNaN x then @x else x
+
+    set_y: (y) ->
+      if isNaN y then @y else y
+
     set_width: (width) ->
       @setAttribute('innerwidth', width - 2*(@border + @padding), true)
       width
