@@ -57,7 +57,7 @@
 				if(!options) options = {}
 				if(options.yscale === undefined) options.yscale = 1.0
 
-				var end = options.end || anim.current.last_time
+				var end = options.end || anim.current.end_time
 				var ctx = create_canvas(title)
 
 				ctx.strokeStyle = 'red'
@@ -85,7 +85,7 @@
 			function plot_gradient(title, anim, options){
 				var start = 0
 
-				var end = anim.current.last_time
+				var end = anim.current.end_time
 
 				var ctx = create_canvas(title)
 
@@ -107,7 +107,7 @@
 			function plot_points(title, anim, options){
 				var start = 0
 
-				var end = anim.current.last_time
+				var end = anim.current.end_time
 
 				var ctx = create_canvas(title)
 

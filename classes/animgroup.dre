@@ -20,24 +20,33 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. -->
 
-  <!--/**
-    * @class dr.animator {Animation}
+ <!--/**
+    * @class dr.animgroup {Animation}
     * @extends dr.node
     * Animator class that can animate keys on other objects
     *
-    *     @example nested
-    *     <view bgcolor="red" x="0" y="0" width="100" height="100">
-    *       <animator start="100" attribute="x" to="200" duration="1000" motion="outBounce" repeat="1">
-    *         <handler event="onend">
-    *           console.log('it ended')
-    *         </handler>
-    *       </animator>
+    *     @example nestedr="red" x="0" y="0" width="100" height="100"/>
+    *     <view id='obj1' bgcolor="green" x="0" y="0" width="100" height="100">
+    *       <animgroup parallel='true'>
+    *         <animator attribute="x" to="200" duration="1000" motion="outBounce" repeat="2"/>
+    *         <animator delay="100" attribute="y" to="200" duration="1000" motion="outBounce" repeat="2"/>
+    *         <animator attribute="bgcolor" to="red" duration="1000"/>
+    *       </animgroup>
     *     </view>
     */-->
-  <class name="animator" extends='node' scriptincludes="/lib/animator.js">
+  <class name="animgroup" extends='node'>
     <!--/**
-      * @attribute {String} start
-      * The start time of the animation
+      * @attribute {Boolean} parallel
+      * Wether child animations are run in parallel, or serial
+      */-->
+    <attribute name="parallel" value="true" type="boolean"/>
+    <setter name="parallel" args="parallel">
+      return parallel
+    </setter>
+
+    <!--/**
+      * @attribute {String} delay
+      * The delay time of the animation
       */-->
     <attribute name="delay" value="0" type="number"/>
     <setter name="delay" args="delay">
@@ -47,80 +56,9 @@ SOFTWARE. -->
       return delay
     </setter>
 
-    <!--/**
-      * @attribute {String} from
-      * The value to start the animation from, if not specified is read from the target attribute
-      */-->
-    <attribute name="from" value="" type="string"/>
-    <setter name="from" args="from">
-      if(!this.track)this.track = {}
-      if(this.animator){
-        this.track[0] = this.from === ""? this.target_obj[this.attribute]: this.from
-        this.animator.update(this.track)
-      }
-      return from
-    </setter>
-
-    <!--/**
-      * @attribute {String} to
-      * The value to animate to. Is identical to specifying a <keyframe at='{duration}'>{to}</keyframe>
-      */-->
-    <attribute name="to" value="0" type="string"/>
-    <setter name="to" args="to">
-      if(!this.track)this.track = {}
-      if(this.duration !== undefined){
-        this.track[this.duration] = to
-      }
-      if(this.animator) this.animator.update(this.track)
-      return to
-    </setter>
-
-    <!--/**
-      * @attribute {number} duration
-      * The duration of the animation. Is identical to specifying a <keyframe at='{duration}'>{to}</keyframe>
-      */-->
-    <attribute name="duration" value="1000" type="number"/>
-    <setter name="duration" args="duration">
-      if(!this.track)this.track = {}
-      if(this.to !== undefined){
-        this.track[duration] = this.to
-      }
-      if(this.animator) this.animator.update(this.track)
-      return duration
-    </setter>
-
-    <!--/**
-      * @attribute {string} attribute
-      * The name of the attribute this animator is animating
-      */-->
-    <attribute name="attribute" value="" type="string"/>
-    <!--/**
-      * @attribute {string} target
-      * Name of the target object id, not needed if animator is used as a child tag in the target node
-      */-->
-    <attribute name="target" value="" type="string"/>
-    <setter name="target" args="target">
-      if(this.animator){
-        if(!target){
-          var parent = this.parent
-          // SEVERE BUG. Parentnode is not set correctly
-          while(parent.$tagname == 'animgroup') parent = parent.parent
-
-          this.target_obj = parent
-        }
-        else{ 
-          // otherwise we have to look it up by name
-          var node = document.getElementById(this.target)
-          if(!node) throw new Error('Cannot find animation target '+this.target)
-          this.target_obj = node.$view
-          if(!target) throw new Error('Animation target does not have a $view '+this.target)
-        }
-      }
-      return target
-    </setter>
-    <!--/**
+     <!--/**
       * @attribute {boolean} paused
-      * wether or not the animator is paused
+      * wether or not the animgroup is paused
       */-->
     <attribute name="paused" value="false" type="boolean"/>
     <setter name="paused" args="paused">
@@ -141,7 +79,8 @@ SOFTWARE. -->
       }
       return paused
     </setter>
-    <!--/** 
+
+   <!--/** 
       * @attribute {string} motion
       * name of the motion the animation is following
       * valid values are:
@@ -207,8 +146,8 @@ SOFTWARE. -->
     </setter>
 
     <!--/**
-      * @attribute {number} repeat
-      * how many times to repeat the loop (repeat 2 runs something twice)
+      * @attribute {number} times
+      * how many times to times the loop (times 2 runs something twice)
       */-->
     <attribute name="repeat" value="1" type="number"/>
     <setter name="repeat" args="repeat">
@@ -231,12 +170,6 @@ SOFTWARE. -->
     </setter>
 
     <!--/**
-      * @attribute {boolean} relative
-      * animation is relative to original value
-      */-->        
-    <attribute name="relative" value="false" type="boolean"/>
-
-    <!--/**
       * @event onstart
       * Fired when animation starts
       */-->
@@ -252,48 +185,105 @@ SOFTWARE. -->
       */-->
 
     <!-- Internal prepare animation to play -->
-    <method name="prepare">
-
-      // lets create the animator
+    <method name="prepare"><!--
       this.animator = Animator.createAnimator()
 
-      // call the setter to get our target_obj
-      this.set_target(this.target)
-
-      if(!this.track)this.track = {}
-      this.track[0] = this.from === ""? this.target_obj[this.attribute]: this.from
-
-      this.animator.play(this.track)
-      if(this.track.paused) this.animator.pause()
-    
-      // returns the length of the animation and track
-
-      // lets also include our repeat settings
-      return this.animator.current.end_time * this.repeat + this.delay
-
-    </method>
-
-    <!-- Internal do a timestep-->
-    <method name="timestep" args="time, sample_first">
-      // ok so how do we decide when we need to sample this thing?
-      if(sample_first && this.from === ""){
-        // lets update the track
-        this.track[0] = this.target_obj[this.attribute]
-        this.animator.update(this.track)
+      if(!this.slave_anims){
+        console.log('Animation group without animations!')
+        return
       }
-      var value = this.animator.timestep(time)
-      if(this.debug) console.log(time, value)
-      this.target_obj.setAttribute(this.attribute, value)
-    </method>
+      // lets process all slave anims
+      var max_len = 0
+      for(var i = 0; i < this.slave_anims.length; i++){
+        var len = this.slave_anims[i].prepare()
+        this.slave_anims[i]._computed_len = len
 
-    <!-- Internal start animation-->
+        if(this.parallel){
+          max_len = Math.max(max_len, len)
+        }
+        else{
+          max_len += len
+        }
+      }
+      // lets make an animator that goes from 0 to max_len and use that
+      if(!this.track) this.track = {}
+      // create a track for our own time
+      this.track[0] = 0
+      this.track[max_len] = max_len
+      // and play it
+      this.animator.play(this.track)
+      // return our length
+      return max_len * this.repeat + this.delay
+    --></method>
+
+    <!-- Internal do timestep -->
+    <method name="timestep" args='time, sample_first'><!--
+      var local_time = this.animator.timestep(time)
+      if(this.parallel){
+        for(var i = 0;i < this.slave_anims.length; i++){
+          this.slave_anims[i].timestep(local_time, sample_first)
+        }
+      }
+      else{ // we have to find the right slave anim
+        var accum = 0
+        for(var i = 0; i < this.slave_anims.length; i++){
+          var anim = this.slave_anims[i]
+          var next = accum + anim._computed_len
+
+          // make sure we do the last key of the last animation
+          if(i == this.slave_anims.length - 1){
+            next = next * 2          
+          }
+
+          if(local_time >= accum && local_time < next){
+            var forwards = (this.last_time || 0 )< local_time
+
+            if(this.last_anim != anim){
+              if(forwards){ // 
+                var found = false
+                for(var j = 0; j < this.slave_anims.length; j++){
+                  var iter_anim = this.slave_anims[j]
+                  if(iter_anim == this.last_anim) found = true
+                  if(iter_anim == anim) break
+                  if(found) iter_anim.timestep(iter_anim._computed_len)
+                }
+              }
+              else{
+                var found = false
+                for(var j = this.slave_anims.length - 1; j >= 0; j--){
+                  var iter_anim = this.slave_anims[j]
+                  if(iter_anim == this.last_anim) found = true
+                  if(iter_anim == anim) break
+                  if(found) iter_anim.timestep(0)
+                }
+              }
+            }
+            // if we are moving backwards, fire the 0 timesteps of the things we skipped
+            // if we are moving forwards fire the last timestep of the things we skipped.
+            anim.timestep(local_time - accum,  sample_first || forwards && this.last_anim != anim)
+            this.last_time = local_time
+            this.last_anim = anim
+          }
+          accum = next
+        }
+        return local_time
+      }
+    --></method>
+
+    <!-- Internal start animation -->
     <method name="startAnim">
+      this.start_fire = true
       this.prepare()
 
       var dup = 0
       var animTick = function(time){
-        this.timestep(time)
-        this.sendEvent('tick')
+        var time = this.timestep(time)
+        if(this.start_fire && time !== 0){
+          this.sendEvent('start')
+          this.start_fire = false
+        }
+
+        this.sendEvent('tick', time)
         if(this.animator.ended){
           this.sendEvent('end')
           // remove the animator so it reinitializes when putting paused on false again
@@ -308,6 +298,7 @@ SOFTWARE. -->
 
     </method>
 
+    <!-- Internal initialize animgroup -->
     <handler event="oninit"><!--
       var parent = this.parent
       this.initialized = true
