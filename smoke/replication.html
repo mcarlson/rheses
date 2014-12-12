@@ -185,6 +185,41 @@
     </handler>
   </view>
 
+  <!-- Filter function -->
+  <view>
+    <spacedlayout spacing="15"></spacedlayout>
+    <replicator name="repl" classname="text" data="['x',1,'y',2,'z',3,4,5]">
+      <method name="filterfunction" args="obj, accum">
+        accum.unshift(obj);
+        return accum;
+      </method>
+    </replicator>
+    <handler event="oninit">
+      assert.deepEqual(this.repl.data, [5,4,3,'z',2,'y',1,'x']);
+    </handler>
+  </view>
+  
+  <!-- Filter function with a class to replicate on. -->
+  <dataset name="sample">
+    {"text" : [ {"a":"a"}, {"a":"b"}, {"a":"c"}, {"a":"d"} ]}
+  </dataset>
+  <class name="testview" extends="view" bgcolor="#ffcccc" width="20" height="20">
+    <replicator classname="text" datapath="/a"></replicator>
+  </class>
+  <view height="20">
+    <spacedlayout spacing="1"></spacedlayout>
+    
+    <replicator name="repl" classname="testview" datapath="$sample/text[*][@]">
+      <method name="filterfunction" args="obj, accum">
+        accum.unshift(obj);
+        return accum;
+      </method>
+    </replicator>
+    <handler event="oninit">
+      assert.deepEqual(this.repl.data, [{"a":"d"}, {"a":"c"}, {"a":"b"}, {"a":"a"}]);
+    </handler>
+  </view>
+
   <!-- Replicating over data bound to a constraint -->
   <view id="v_rep_constraint" bgcolor="lightgrey" width="100" height="50">
     <attribute name="dataarray" type="expression" value="[10,30,50]"></attribute>

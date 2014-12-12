@@ -168,21 +168,25 @@ SOFTWARE. -->
         * If true, reuse views when replicating.
         */-->
       <attribute name="pooling" value="false" type="boolean"></attribute>
+
       <!--/**
         * @attribute {Boolean} [async=true]
         * If true, create views asynchronously
         */-->
       <attribute name="async" value="true" type="boolean"></attribute>
+
       <!--/**
         * @attribute {Array} [data=[]]
         * The list of items to replicate. If {@link #datapath datapath} is set, it is converted to an array and stored here.
         */-->
       <attribute name="data" value="[]" type="expression"></attribute>
+
       <!--/**
         * @attribute {String} classname (required)
         * The name of the class to be replicated.
         */-->
       <attribute name="classname" value="node" type="string"></attribute>
+
       <!--/**
         * @attribute {String} datapath
         * The datapath expression to be replicated.
@@ -206,6 +210,7 @@ SOFTWARE. -->
         # console.log('evaluated datapath', datapath, @parsedpath)
         return orig
       </setter>
+
       <!-- TODO: why can't this attribute/setter be named _dataset? -->
 <!--       TODO: attribute value is overwritten by "" later!!!
       <attribute name="_dataset" value="" type="string"></attribute> -->
@@ -223,22 +228,26 @@ SOFTWARE. -->
         @sendEvent('dataset', @dataset)
         return dataset
       </setter>
+
       <!-- TODO: make this a relative datapath -->
       <!--/**
         * @attribute {String} [sortfield=""]
         * The field in the data to use for sorting. Only sort then this
         */-->
       <attribute name="sortfield" value="" type="string"></attribute>
+
       <!--/**
         * @attribute {Boolean} [sortasc=true]
         * If true, sort ascending.
         */-->
       <attribute name="sortasc" value="true" type="boolean"></attribute>
+
       <!--/**
         * @attribute {String} [filterexpression=""]
         * If defined, data will be filtered against a [regular expression](https://developer.mozilla.org/en/docs/Web/JavaScript/Guide/Regular_Expressions).
         */-->
       <attribute name="filterexpression" value="" type="string"></attribute>
+
       <setter name="filterexpression" args="regex">
         _filterexpression = new RegExp(regex)
         # console.log('filtering on', regex, _filterexpression)
@@ -247,17 +256,21 @@ SOFTWARE. -->
         @doReplication()
         return regex
       </setter>
+
       <attribute name="lazycount" value="Infinity" type="number"></attribute>
+
       <handler event="onsortfield">
         # console.log 'onsortfield', @sortfield, @data
         @buildsortfunc()
         @applyData()
       </handler>
+
       <handler event="onsortasc">
         # console.log 'onsortasc', @sortasc, @data
         @buildsortfunc()
         @applyData()
       </handler>
+
       <method name="buildsortfunc">
         if @sortfield
           sortfield = @sortfield
@@ -278,19 +291,26 @@ SOFTWARE. -->
         else
           @sortfunc = null
       </method>
+
       <handler event="oninit">
         @setAttribute('_dataset', @_dataset) unless @dataset
         @applyData();
       </handler>
+
       <handler event="onclassname" method="applyData"></handler>
+
       <handler event="ondata" method="applyData"></handler>
+
       <handler event="ondatapath" method="applyData"></handler>
+
       <handler event="ondestroy" method="clear"></handler>
+
       <method name="updateData" args="data">
         # remove dataset declaration
         re = /^\$([^\/]+)/
         @dataset.updateData(@datapath.replace(re, ''), data);
       </method>
+
       <!--/**
         * @method refresh
         * Refreshes the dataset manually
@@ -298,6 +318,7 @@ SOFTWARE. -->
       <method name="refresh">
         this.applyData()
       </method>
+
       <method name="clear">
         # @parent.setAttribute('display', 'none')
         if @children
@@ -307,6 +328,7 @@ SOFTWARE. -->
         @children = []
         # @parent.setAttribute('display', null)
       </method>
+
       <!--/**
         * @method filterfunction
         * @abstract
@@ -336,10 +358,10 @@ SOFTWARE. -->
             if @datapath == '$' + @_dataset
               # console.log('dataset only', @datapath, @dataset)
               # replicate an instance with data attribute set to the dataset
-              data = [@dataset]
+              @data = [@dataset]
             else
               # console.log('evaluating absolute selector', @datapath, @dataset.data, @parsedpath)
-              data = JsonPath.executeSelectors(@dataset.data, @parsedpath, @filterfunction?.bind(@))
+              @data = JsonPath.executeSelectors(@dataset.data, @parsedpath, @filterfunction?.bind(@))
           else
             # relative datapath, look for dataset reference in parents
             parentdata = @_findInParents('data')
@@ -349,14 +371,19 @@ SOFTWARE. -->
                 # console.log 'found parentdata.data', parentdata
                 parentdata = parentdata.data
               # console.log('executing relative selector', @datapath, @parsedpath, parentdata)
-              data = JsonPath.executeSelectors(parentdata, @parsedpath, @filterfunction?.bind(@))
+              @data = JsonPath.executeSelectors(parentdata, @parsedpath, @filterfunction?.bind(@))
               # console.log('looking for data', @datapath, parentdata, data)
             else
               console.warn('No parent datapath found', @datapath, @)
-          @data = data
         else
           # no datapath
-          data = @data
+          filterfunction = @filterfunction
+          if filterfunction? and @data?
+            filterfunction = filterfunction.bind(@)
+            accum = []
+            for datum in @data
+              accum = filterfunction(datum, accum)
+            @data = accum
 
         return unless @data
 
@@ -369,6 +396,7 @@ SOFTWARE. -->
         else
           @doReplication()
       </method>
+
       <!--/**
         * @event onreplicated
         * Fired when the replicator is done
