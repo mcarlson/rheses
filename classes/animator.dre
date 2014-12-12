@@ -273,7 +273,7 @@ SOFTWARE. -->
 
     </method>
 
-    <!-- Internal do a timestep -->
+    <!-- Internal do a timestep-->
     <method name="timestep" args="time, sample_first">
       // ok so how do we decide when we need to sample this thing?
       if(sample_first && this.from === ""){
@@ -286,7 +286,7 @@ SOFTWARE. -->
       this.target_obj.setAttribute(this.attribute, value)
     </method>
 
-    <!-- Internal start animation -->
+    <!-- Internal start animation-->
     <method name="startAnim">
       this.prepare()
 
@@ -308,7 +308,6 @@ SOFTWARE. -->
 
     </method>
 
-    <!-- Internal initialize animator -->
     <handler event="oninit"><!--
       var parent = this.parent
       this.initialized = true
