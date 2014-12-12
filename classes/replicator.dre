@@ -425,8 +425,7 @@ SOFTWARE. -->
           dr.initConstraints()
           if @parent.layouts
             for layout in @parent.layouts
-              layout.setAttribute('locked', false)
-              layout.update()
+              layout.setAttribute('locked', false) # Updates automatically since the layout was already locked.
           @locked = locked
           @sendEvent('replicated', @)
 
