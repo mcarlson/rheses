@@ -19,51 +19,13 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. -->
-   <!--/**
-     * @class dr.shim {Util}
-     * @extends dr.node
-     * Connects to the shared event bus. When data is sent with a given type, a corresponding event is sent. For example, send('blah', {}) sends data with the 'blah' type, other shims will receive the object via an 'onblah' event.
-     */-->
-    <class name="shim" extends="node" scriptincludes="/primus/primus.io.js" scriptincludeserror="In order to use dr.shim, you need to be running the Teem server">
-      <!--/**
-        * @attribute {Number} [pingtime=5000]
-        * The frequency used to ping to the server
-        */-->
-      <attribute name="pingtime" value="5000" type="number"></attribute>
+ <!--/**
+      * @class dr.shim {Deprecated}
+      * @extends dr.node
+      * shim has been deprecated, use dr.teem instead
+      */-->
+    <class name="shim" extends="teem">
       <handler event="oninit">
-        var url = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '') + '/';
-        this.primus = new Primus(url, {ping: this.pingtime});
-
-        var _this = this;
-        this.primus.on('data', function shim$data(data) {
-          // console.log('message', data)
-          _this.setAttribute(data.type, data.data);
-        });
-        this.primus.on('open', function shim$open() {
-          // console.log('opened')
-          _this.setAttribute('connected', true);
-        });
-        this.primus.on('error', function shim$error(err) {
-          // console.error('error', err)
-          _this.setAttribute('connected', false);
-          _this.sendEvent('error', err);
-        });
-        this.primus.on('reconnecting', function (opts) {
-          _this.setAttribute('connected', false);
-       });
+        console.warn('shim has been deprecated, use teem instead')
       </handler>
-      <!--/**
-        * @method send
-        * Sends some data over the event bus.
-        * @param {String} type The type of event to be sent.
-        * @param {Object} data The data to be sent.
-        */-->
-      <method name="send" args="type, data">
-        if (this.connected) {
-          var json = {'type': type || 'data', data: data};
-          // console.log('sending', json)
-          this.primus.write(json)
-        }
-        this.setAttribute(type, data);
-      </method>
     </class>

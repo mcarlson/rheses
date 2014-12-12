@@ -1355,7 +1355,8 @@
           this.el = jqel;
         }
         this.el.$view = view;
-        this.el.setAttribute(&#39;class&#39;, &#39;sprite&#39;);
+        this.css_baseclass = &#39;sprite&#39;;
+        this.set_class();
       }
 
       Sprite.prototype.setStyle = function(name, value, internal, el) {
@@ -1529,12 +1530,14 @@
       };
 
       Sprite.prototype.createTextElement = function() {
-        return this.el.setAttribute(&#39;class&#39;, &#39;sprite sprite-text noselect&#39;);
+        this.css_baseclass = &#39;sprite sprite-text noselect&#39;;
+        return this.set_class();
       };
 
       Sprite.prototype.createInputtextElement = function(text, multiline, width, height) {
         var input;
-        this.el.setAttribute(&#39;class&#39;, &#39;sprite noselect&#39;);
+        this.css_baseclass = &#39;sprite noselect&#39;;
+        this.set_class();
         if (multiline) {
           input = document.createElement(&#39;textarea&#39;);
         } else {
@@ -1569,7 +1572,7 @@
       };
 
       Sprite.prototype.set_class = function(classname) {
-        return this.el.setAttribute(&#39;class&#39;, classname);
+        return this.el.setAttribute(&#39;class&#39;, &quot;&quot; + this.css_baseclass + &quot; &quot; + classname);
       };
 
       return Sprite;
@@ -4669,7 +4672,7 @@
      */
 
 <span id='dr-handler'>    /**
-</span>     * @class dr.handler {Core Dreem}
+</span>     * @class dr.handler {Core Dreem, Events}
      * Declares a handler in a node, view, class or other class instance. Handlers can only be created with the `&lt;handler&gt;&lt;/handler&gt;` tag syntax.
      *
      * Handlers are called when an event fires with new value, if available.
@@ -4745,7 +4748,7 @@
      */
 
 <span id='dr-attribute'>    /**
-</span>     * @class dr.attribute {Core Dreem}
+</span>     * @class dr.attribute {Core Dreem, Events}
      * Adds a variable to a node, view, class or other class instance. Attributes can only be created with the &amp;lt;attribute&gt;&amp;lt;/attribute&gt; tag syntax.
      *
      * Attributes allow classes to declare new variables with a specific type and default value.

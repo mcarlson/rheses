@@ -4655,7 +4655,7 @@
      */
 
     /**
-     * @class dr.handler {Core Dreem}
+     * @class dr.handler {Core Dreem, Events}
      * Declares a handler in a node, view, class or other class instance. Handlers can only be created with the `<handler></handler>` tag syntax.
      *
      * Handlers are called when an event fires with new value, if available.
@@ -4731,7 +4731,7 @@
      */
 
     /**
-     * @class dr.attribute {Core Dreem}
+     * @class dr.attribute {Core Dreem, Events}
      * Adds a variable to a node, view, class or other class instance. Attributes can only be created with the &lt;attribute>&lt;/attribute> tag syntax.
      *
      * Attributes allow classes to declare new variables with a specific type and default value.
