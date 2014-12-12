@@ -25,21 +25,68 @@
 </head>
 <body>
   <view>
-    <view bgcolor='red' id="koala1" x="10" y="0" width="20" height="20">
-      <handler event='onclick'>
-        console.log('hi')
-      </handler>
-
-      <animgroup repeat="1" bounce="true" parallel='false'>
+    <view bgcolor='red' id="koala1" x="10" y="0" width="auto" height="auto">
+      <text text='Nesting'></text>
+      <animgroup delay='100' id="myanim1" repeat="1" bounce="true" parallel='false'>
+        <handler event='onend'>
+          chai.assert.equal(this.parent.x, 14)
+          chai.assert.equal(this.parent.y, 12)
+        </handler>
         <animator attribute="x" to="100" duration="100" motion="linear"></animator>
         <animator attribute="y" to="100" duration="500" control="0.01,0.01" motion="bret" ></animator>
         <animgroup repeat="1" motion="bret" control="0.01,0.01" bounce="false" parallel='true'>
-          <animator attribute="x" to="0" duration="1000" motion="linear"></animator>
-          <animator attribute="y" to="0" duration="1000" motion="linear"></animator>
+          <animator attribute="x" to="14" duration="1000" motion="linear"></animator>
+          <animator delay="500"  attribute="y" to="12" duration="1000" motion="linear"></animator>
         </animgroup>
       </animgroup>
     </view>
+
+    <view bgcolor='red' id="koala2" x="10" y="75" width="auto" height="auto">
+      <text text='Paused'></text>
+      <animgroup delay='100' paused='true' repeat="1" bounce="true" parallel='false'>
+        <handler event='oninit'>
+          setTimeout(function(){
+            this.setAttribute('paused', false)
+          }.bind(this), 100)
+        </handler>
+        <handler event='onend'>
+          chai.assert.equal(this.parent.x, 14)
+          chai.assert.equal(this.parent.y, 76)
+        </handler>
+        <animator attribute="x" to="200" duration="100" motion="linear"></animator>
+        <animator attribute="y" to="150" duration="500" control="0.01,0.01" motion="bret" ></animator>
+        <animgroup repeat="1" motion="bret" control="0.01,0.01" bounce="false" parallel='true'>
+          <animator attribute="x" to="14" duration="1000" motion="linear"></animator>
+          <animator delay="500" attribute="y" to="76" duration="1000" motion="linear"></animator>
+        </animgroup>
+      </animgroup>
+    </view>
+
+    <view bgcolor='red' id="koala2" x="10" y="150" width="auto" height="auto">
+      <text text='Color'></text>
+      <animgroup delay='100' repeat="3" bounce="true" parallel='true'>
+        <handler event='onend'>
+          chai.assert.equal(this.parent.x, 10)
+          chai.assert.equal(this.parent.bgcolor, '#0000ff')
+        </handler>      
+        <animator attribute="x" to="100" duration="100" repeat='4' bounce='true' motion="linear"></animator>
+        <animator attribute="bgcolor" to="blue" duration="500" control="0.01,0.01" motion="bret" ></animator>
+      </animgroup>
+    </view>
+
+    <view bgcolor='red' id="koala2" x="10" y="210" width="auto" height="auto">
+      <text text='Pause mid'></text>
+      <animgroup delay='100' repeat="3" bounce="true" parallel='true'>
+        <handler event='ontick' args='time'>
+          // Needs to pause mid stroke console.log(time)
+        </handler>      
+        <animator attribute="x" to="100" duration="1000" repeat='4' bounce='true' motion="inOutExpo"></animator>
+        <animator attribute="bgcolor" to="orange" repeat='10' bounce='true' duration="1000" control="0.01,0.01" motion="bret" ></animator>
+      </animgroup>
+    </view>
+
   </view>
+
   <!-- The MIT License (MIT)
   Copyright ( c ) 2014 Teem2 LLC
 

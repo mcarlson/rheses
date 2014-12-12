@@ -26,12 +26,13 @@ SOFTWARE. -->
     * Animator class that can animate keys on other objects
     *
     *     @example nestedr="red" x="0" y="0" width="100" height="100"/>
-    *     <view id='obj2' bgcolo
-    *     <view id='obj1' bgcolor="green" x="0" y="0" width="100" height="100"/>
-    *     <animgroup parallel='true'>
-    *       <animator target='obj1' start="100" attribute="x" to="200" duration="1000" motion="outBounce" repeat="1"/>
-    *       <animator target='obj2' start="100" attribute="x" to="200" duration="1000" motion="outBounce" repeat="1"/>
-    *     </animgroup>
+    *     <view id='obj1' bgcolor="green" x="0" y="0" width="100" height="100">
+    *       <animgroup parallel='true'>
+    *         <animator attribute="x" to="200" duration="1000" motion="outBounce" repeat="2"/>
+    *         <animator delay="100" attribute="y" to="200" duration="1000" motion="outBounce" repeat="2"/>
+    *         <animator attribute="bgcolor" to="red" duration="1000"/>
+    *       </animgroup>
+    *     </view>
     */-->
   <class name="animgroup" extends='node'>
     <!--/**
@@ -44,30 +45,37 @@ SOFTWARE. -->
     </setter>
 
     <!--/**
-      * @attribute {String} start
-      * The start time of the animation
+      * @attribute {String} delay
+      * The delay time of the animation
       */-->
-    <attribute name="start" value="0" type="number"/>
-    <setter name="start" args="start">
+    <attribute name="delay" value="0" type="number"/>
+    <setter name="delay" args="delay">
       if(!this.track)this.track = {}
-      this.track.start = start
+      this.track.delay = delay
       if(this.animator) this.animator.update(this.track)
-      return start
+      return delay
     </setter>
 
      <!--/**
       * @attribute {boolean} paused
-      * wether or not the animator is paused
+      * wether or not the animgroup is paused
       */-->
     <attribute name="paused" value="false" type="boolean"/>
     <setter name="paused" args="paused">
       if(!this.track) this.track = {}
       this.track.paused = paused // to make sure it starts paused
+
       if(paused){
-        if(this.animator)this.animator.pause()
+        if(this.animator) this.animator.pause()
       }
       else{
-        if(this.animator)this.animator.resume()
+        if(this.animator){
+          this.animator.resume()
+        }
+        else{
+          if(this.parent.$tagname == 'animgroup') return paused
+          if(this.initialized) this.startAnim()
+        }
       }
       return paused
     </setter>
@@ -161,11 +169,32 @@ SOFTWARE. -->
       return bounce
     </setter>
 
+    <!--/**
+      * @event onstart
+      * Fired when animation starts
+      */-->
+
+    <!--/**
+      * @event onend
+      * Fired when animation ends
+      */-->
+
+    <!--/**
+      * @event ontick
+      * Fired every step of the animation
+      */-->
+
+    <!-- Internal prepare animation to play -->
     <method name="prepare"><!--
       this.animator = Animator.createAnimator()
+
+      if(!this.slave_anims){
+        console.log('Animation group without animations!')
+        return
+      }
       // lets process all slave anims
       var max_len = 0
-      for(var i = 0;i < this.slave_anims.length; i++){
+      for(var i = 0; i < this.slave_anims.length; i++){
         var len = this.slave_anims[i].prepare()
         this.slave_anims[i]._computed_len = len
 
@@ -184,9 +213,10 @@ SOFTWARE. -->
       // and play it
       this.animator.play(this.track)
       // return our length
-      return max_len * this.repeat
+      return max_len * this.repeat + this.delay
     --></method>
-    <method 
+
+    <!-- Internal do timestep -->
     <method name="timestep" args='time, sample_first'><!--
       var local_time = this.animator.timestep(time)
       if(this.parallel){
@@ -199,7 +229,12 @@ SOFTWARE. -->
         for(var i = 0; i < this.slave_anims.length; i++){
           var anim = this.slave_anims[i]
           var next = accum + anim._computed_len
-          
+
+          // make sure we do the last key of the last animation
+          if(i == this.slave_anims.length - 1){
+            next = next * 2          
+          }
+
           if(local_time >= accum && local_time < next){
             var forwards = (this.last_time || 0 )< local_time
 
@@ -231,40 +266,50 @@ SOFTWARE. -->
           }
           accum = next
         }
+        return local_time
       }
     --></method>
 
+    <!-- Internal start animation -->
+    <method name="startAnim">
+      this.start_fire = true
+      this.prepare()
+
+      var dup = 0
+      var animTick = function(time){
+        var time = this.timestep(time)
+        if(this.start_fire && time !== 0){
+          this.sendEvent('start')
+          this.start_fire = false
+        }
+
+        this.sendEvent('tick', time)
+        if(this.animator.ended){
+          this.sendEvent('end')
+          // remove the animator so it reinitializes when putting paused on false again
+          this.animator = undefined
+        }
+        else{
+          dr.idle.callOnIdle(animTick)
+        }
+        // the animator works with timelines, so lets set up our timeline from the childlist.
+      }.bind(this)
+      dr.idle.callOnIdle(animTick)
+
+    </method>
+
+    <!-- Internal initialize animgroup -->
     <handler event="oninit"><!--
       var parent = this.parent
-
+      this.initialized = true
       if(parent.$tagname == 'animgroup'){
         if(!parent.slave_anims) parent.slave_anims = []
         parent.slave_anims.push(this)
         return
       }
 
-      setTimeout(function(){
-        this.prepare()
-
-        var ended = false
-        var dup = 0
-        function Idle(time){
-          this.timestep(time)
-          this.sendEvent('tick')
-          if(this.animator.ended){
-            if(!ended) this.sendEvent('end')
-            ended = true
-
-          }
-          else{
-            dr.idle.callOnIdle(myIdle)
-          }
-        }
-        var myIdle = Idle.bind(this)
-
-        // the animator works with timelines, so lets set up our timeline from the childlist.
-        var t = dr.idle.callOnIdle(myIdle)
-        console.log('here')
+      if(!this.paused) setTimeout(function(){
+        this.startAnim()
       }.bind(this), 0)
     --></handler>
   </class>
