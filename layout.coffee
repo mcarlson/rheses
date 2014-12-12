@@ -851,25 +851,29 @@ window.dr = do ->
         @setAttribute(name, fn(), false, false, true)
       return
 
-    _bindHandlers: () ->
+    # bind all handlers
+    _bindHandlers: (send) ->
+      return unless @handlers
+
       if instantiating
         handlerq.push(@)
         return
 
-      bindings = @handlers
-      return unless bindings
-
-      for binding in bindings
+      for binding in @handlers
         {scope, name, ev, callback, reference} = binding
         if reference
           refeval = @_valueLookup(reference)()
           # Ensure we have a reference to a Dreem object
           if refeval instanceof Eventable
             scope.listenTo(refeval, ev, callback)
+            if send and ev of refeval
+              callback(refeval[ev])
             # console.log('binding to reference', reference, refeval, ev, scope)
         else
           # console.log('binding to scope', scope, ev)
           scope.register(ev, callback)
+          if send and ev of scope
+            callback(scope[ev])
 
       @handlers = []
       return
@@ -2164,9 +2168,6 @@ window.dr = do ->
   matchEvent = /^on/
 
   dom = do ->
-    getChildren = (el) ->
-      child for child in el.childNodes when child.nodeType is 1 and child.localName in specialtags
-
     # flatten element.attributes to a hash
     flattenattributes = (namednodemap)  ->
       attributes = {}
@@ -2430,7 +2431,6 @@ window.dr = do ->
       el.$init = true
 
       tagname = el.localName
-      return if tagname in specialtags
 
       if not tagname of dr
         console.warn 'could not find class for tag', tagname, el unless tagname in builtinTags
@@ -2481,10 +2481,10 @@ window.dr = do ->
       return unless children.length > 0
 
       unless isClass or isState
-#        grab children again in case any were added when the parent was instantiated
-        children = (child for child in el.childNodes when child.nodeType is 1)
         # create children now, unless the class told us not to
         unless dr[tagname].skipinitchildren
+          # grab children again in case any were added when the parent was instantiated
+          children = (child for child in el.childNodes when child.nodeType is 1 and child.localName not in specialtags)
           for child in children
             # console.log 'initting class child', child.localName
             initElement(child, parent)
@@ -2494,6 +2494,7 @@ window.dr = do ->
           checkChildren = ->
             return if parent.inited
             # console.log('doinit', parent)
+            parent._bindHandlers(true)
             parent.initialize()
             return
           callOnIdle(checkChildren)
@@ -2534,7 +2535,7 @@ window.dr = do ->
       classattributes.$types ?= {}
       classattributes.$methods ?= {}
       classattributes.$handlers ?= []
-      children = getChildren(el)
+      children = (child for child in el.childNodes when child.nodeType is 1 and child.localName in specialtags)
       for child in children
         attributes = flattenattributes(child.attributes)
         # console.log child, attributes, classattributes
@@ -2892,7 +2893,7 @@ window.dr = do ->
           sendInit = () ->
             # console.log('sendInit', parent.inited, parent)
             return if parent.inited
-            parent._bindHandlers()
+            parent._bindHandlers(true)
             parent.initialize()
 
           if internal
@@ -3584,6 +3585,7 @@ window.dr = do ->
     # Writes generic dreem-specific CSS to the document. Should only be called once.
     ###
     writeCSS: dom.writeCSS
+    # public API to initialize constraints for a group of nodes, used by replicator
     initConstraints: _initConstraints
 
   # virtual classes declared for documentation purposes

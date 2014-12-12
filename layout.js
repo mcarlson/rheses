@@ -1130,26 +1130,32 @@
         }
       };
 
-      Node.prototype._bindHandlers = function() {
-        var binding, bindings, callback, ev, name, reference, refeval, scope, _i, _len;
+      Node.prototype._bindHandlers = function(send) {
+        var binding, callback, ev, name, reference, refeval, scope, _i, _len, _ref;
+        if (!this.handlers) {
+          return;
+        }
         if (instantiating) {
           handlerq.push(this);
           return;
         }
-        bindings = this.handlers;
-        if (!bindings) {
-          return;
-        }
-        for (_i = 0, _len = bindings.length; _i < _len; _i++) {
-          binding = bindings[_i];
+        _ref = this.handlers;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          binding = _ref[_i];
           scope = binding.scope, name = binding.name, ev = binding.ev, callback = binding.callback, reference = binding.reference;
           if (reference) {
             refeval = this._valueLookup(reference)();
             if (refeval instanceof Eventable) {
               scope.listenTo(refeval, ev, callback);
+              if (send && ev in refeval) {
+                callback(refeval[ev]);
+              }
             }
           } else {
             scope.register(ev, callback);
+            if (send && ev in scope) {
+              callback(scope[ev]);
+            }
           }
         }
         this.handlers = [];
@@ -2765,19 +2771,7 @@
     specialtags = ['handler', 'method', 'attribute', 'setter', 'include'];
     matchEvent = /^on/;
     dom = (function() {
-      var builtinTags, checkRequiredAttributes, exports, findAutoIncludes, flattenattributes, getChildren, htmlDecode, initAllElements, initElement, initFromElement, processSpecialTags, requiredAttributes, sendInit, writeCSS;
-      getChildren = function(el) {
-        var child, _i, _len, _ref, _ref1, _results;
-        _ref = el.childNodes;
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          child = _ref[_i];
-          if (child.nodeType === 1 && (_ref1 = child.localName, __indexOf.call(specialtags, _ref1) >= 0)) {
-            _results.push(child);
-          }
-        }
-        return _results;
-      };
+      var builtinTags, checkRequiredAttributes, exports, findAutoIncludes, flattenattributes, htmlDecode, initAllElements, initElement, initFromElement, processSpecialTags, requiredAttributes, sendInit, writeCSS;
       flattenattributes = function(namednodemap) {
         var attributes, i, _i, _len;
         attributes = {};
@@ -3101,9 +3095,6 @@
         }
         el.$init = true;
         tagname = el.localName;
-        if (__indexOf.call(specialtags, tagname) >= 0) {
-          return;
-        }
         if (!tagname in dr) {
           if (__indexOf.call(builtinTags, tagname) < 0) {
             console.warn('could not find class for tag', tagname, el);
@@ -3168,19 +3159,19 @@
           return;
         }
         if (!(isClass || isState)) {
-          children = (function() {
-            var _j, _len1, _ref, _results;
-            _ref = el.childNodes;
-            _results = [];
-            for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
-              child = _ref[_j];
-              if (child.nodeType === 1) {
-                _results.push(child);
-              }
-            }
-            return _results;
-          })();
           if (!dr[tagname].skipinitchildren) {
+            children = (function() {
+              var _j, _len1, _ref, _ref1, _results;
+              _ref = el.childNodes;
+              _results = [];
+              for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+                child = _ref[_j];
+                if (child.nodeType === 1 && (_ref1 = child.localName, __indexOf.call(specialtags, _ref1) < 0)) {
+                  _results.push(child);
+                }
+              }
+              return _results;
+            })();
             for (_j = 0, _len1 = children.length; _j < _len1; _j++) {
               child = children[_j];
               initElement(child, parent);
@@ -3191,6 +3182,7 @@
               if (parent.inited) {
                 return;
               }
+              parent._bindHandlers(true);
               parent.initialize();
             };
             callOnIdle(checkChildren);
@@ -3241,7 +3233,18 @@
         if (classattributes.$handlers == null) {
           classattributes.$handlers = [];
         }
-        children = getChildren(el);
+        children = (function() {
+          var _i, _len, _ref, _ref1, _results;
+          _ref = el.childNodes;
+          _results = [];
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            child = _ref[_i];
+            if (child.nodeType === 1 && (_ref1 = child.localName, __indexOf.call(specialtags, _ref1) >= 0)) {
+              _results.push(child);
+            }
+          }
+          return _results;
+        })();
         for (_i = 0, _len = children.length; _i < _len; _i++) {
           child = children[_i];
           attributes = flattenattributes(child.attributes);
@@ -3630,7 +3633,7 @@
               if (parent.inited) {
                 return;
               }
-              parent._bindHandlers();
+              parent._bindHandlers(true);
               return parent.initialize();
             };
             if (internal) {
