@@ -154,7 +154,7 @@ window.dr = do ->
     # @param {Function} callback called when the event is fired
     ###
     listenToOnce: (obj, ev, callback) ->
-      listeningToOnce = @listeningToOnce or = []
+      listeningToOnce = @listeningToOnce ||= []
       listeningToOnce.push obj
       obj.one ev, ->
         idx = listeningToOnce.indexOf(obj)
@@ -269,7 +269,7 @@ window.dr = do ->
           showWarnings ["Invalid type '#{type}' for attribute '#{name}', must be one of: #{Object.keys(typemappings).join(', ')}"]
           return
         value = typemappings[type](value)
-        
+
         # Protect number values from being set to NaN
         if type is 'number' and isNaN value
           value = @[name]
@@ -649,7 +649,7 @@ window.dr = do ->
       # @param {dr.node} node The dr.node that fired the event
       ###
       ###*
-      # @property {Boolean} inited
+      # @attribute {Boolean} inited
       # @readonly
       # True when this node and all its children are completely initialized
       ###
@@ -1411,6 +1411,18 @@ window.dr = do ->
     # this.scrollable is true. Setting this value will generate both a
     # scrolly event and a scroll event.
     ###
+    ###*
+    # @attribute {Number} [xanchor=0]
+    # Sets the horizontal center of the view's transformations (such as rotation)
+    ###
+    ###*
+    # @attribute {Number} [yanchor=0]
+    # Sets the vertical center of the view's transformations (such as rotation)
+    ###
+    ###*
+    # @attribute {Number} [zanchor=0]
+    # Sets the z-axis center of the view's transformations (such as rotation)
+    ###
 
     ###*
     # @event onclick
@@ -1678,6 +1690,15 @@ window.dr = do ->
       if @rotation isnt 0
         transform += ' rotate3d(0, 0, 1.0, ' + @rotation + 'deg)'
 
+      if transform isnt '' && (@xanchor || @yanchor || @zanchor)
+        xanchor = @xanchor || (@width / 2)
+        yanchor = @yanchor || (@height / 2)
+        zanchor = @zanchor || 0
+
+        origin = xanchor + 'px ' + yanchor + 'px ' + zanchor + 'px'
+
+        @sprite.setStyle('transform-origin', origin)
+
       @sprite.setStyle('z-index', @z)
       @sprite.setStyle('transform', transform)
 
@@ -1700,6 +1721,21 @@ window.dr = do ->
       @z = depth
       @__updateTransform()
       depth
+
+    set_xanchor: (xanchor) ->
+      @xanchor = xanchor
+      @__updateTransform()
+      xanchor
+
+    set_yanchor: (yanchor) ->
+      @yanchor = yanchor
+      @__updateTransform()
+      yanchor
+
+    set_zanchor: (zanchor) ->
+      @zanchor = zanchor
+      @__updateTransform()
+      zanchor
 
     moveToFront: () ->
       for subview in @parent.subviews

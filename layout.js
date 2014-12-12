@@ -886,7 +886,7 @@
          */
 
         /**
-         * @property {Boolean} inited
+         * @attribute {Boolean} inited
          * @readonly
          * True when this node and all its children are completely initialized
          */
@@ -1795,6 +1795,21 @@
        */
 
       /**
+       * @attribute {Number} [xanchor=0]
+       * Sets the horizontal center of the view's transformations (such as rotation)
+       */
+
+      /**
+       * @attribute {Number} [yanchor=0]
+       * Sets the vertical center of the view's transformations (such as rotation)
+       */
+
+      /**
+       * @attribute {Number} [zanchor=0]
+       * Sets the z-axis center of the view's transformations (such as rotation)
+       */
+
+      /**
        * @event onclick
        * Fired when this view is clicked
        * @param {dr.view} view The dr.view that fired the event
@@ -2113,7 +2128,7 @@
       };
 
       View.prototype.__updateTransform = function() {
-        var transform, xlate;
+        var origin, transform, xanchor, xlate, yanchor, zanchor;
         transform = '';
         this.z || (this.z = 0);
         xlate = 'translate3d(0, 0, ' + this.z + 'px)';
@@ -2129,6 +2144,13 @@
         this.rotation || (this.rotation = 0);
         if (this.rotation !== 0) {
           transform += ' rotate3d(0, 0, 1.0, ' + this.rotation + 'deg)';
+        }
+        if (transform !== '' && (this.xanchor || this.yanchor || this.zanchor)) {
+          xanchor = this.xanchor || (this.width / 2);
+          yanchor = this.yanchor || (this.height / 2);
+          zanchor = this.zanchor || 0;
+          origin = xanchor + 'px ' + yanchor + 'px ' + zanchor + 'px';
+          this.sprite.setStyle('transform-origin', origin);
         }
         this.sprite.setStyle('z-index', this.z);
         return this.sprite.setStyle('transform', transform);
@@ -2156,6 +2178,24 @@
         this.z = depth;
         this.__updateTransform();
         return depth;
+      };
+
+      View.prototype.set_xanchor = function(xanchor) {
+        this.xanchor = xanchor;
+        this.__updateTransform();
+        return xanchor;
+      };
+
+      View.prototype.set_yanchor = function(yanchor) {
+        this.yanchor = yanchor;
+        this.__updateTransform();
+        return yanchor;
+      };
+
+      View.prototype.set_zanchor = function(zanchor) {
+        this.zanchor = zanchor;
+        this.__updateTransform();
+        return zanchor;
       };
 
       View.prototype.moveToFront = function() {
