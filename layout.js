@@ -1338,7 +1338,8 @@
           this.el = jqel;
         }
         this.el.$view = view;
-        this.el.setAttribute('class', 'sprite');
+        this.css_baseclass = 'sprite';
+        this.set_class();
       }
 
       Sprite.prototype.setStyle = function(name, value, internal, el) {
@@ -1512,12 +1513,14 @@
       };
 
       Sprite.prototype.createTextElement = function() {
-        return this.el.setAttribute('class', 'sprite sprite-text noselect');
+        this.css_baseclass = 'sprite sprite-text noselect';
+        return this.set_class();
       };
 
       Sprite.prototype.createInputtextElement = function(text, multiline, width, height) {
         var input;
-        this.el.setAttribute('class', 'sprite noselect');
+        this.css_baseclass = 'sprite noselect';
+        this.set_class();
         if (multiline) {
           input = document.createElement('textarea');
         } else {
@@ -1552,7 +1555,7 @@
       };
 
       Sprite.prototype.set_class = function(classname) {
-        return this.el.setAttribute('class', classname);
+        return this.el.setAttribute('class', "" + this.css_baseclass + " " + classname);
       };
 
       return Sprite;

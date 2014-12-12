@@ -173,6 +173,14 @@
     <handler event="oninit">
       assert.equal(window.logdefaults, 'x:0,y:0,width:0,height:0,clickable:false,clip:false,scrollable:false,visible:true,bordercolor:transparent,borderstyle:solid,border:0,padding:0')
     </handler>
+
+    <!-- Setting the class attribute shouldn't overwrite sprite css baseclass -->
+    <view class="foo">
+      <handler event="oninit">
+        assert.include(this.sprite.el.getAttribute("class"), 'sprite')
+        assert.include(this.sprite.el.getAttribute("class"), 'foo')
+      </handler>
+    </view>
   </view>
 
   <!-- Not sure how to deal with these constraints, what is the appropriate behavior? Could special case this.parent.width

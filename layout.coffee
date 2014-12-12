@@ -1023,7 +1023,8 @@ window.dr = do ->
       # normalize to jQuery object
 #      guid++
 #      jqel.attr('id', 'jqel-' + guid) if not jqel.attr('id')
-      @el.setAttribute('class', 'sprite')
+      @css_baseclass = 'sprite'
+      @set_class()
 
     setStyle: (name, value, internal, el=@el) ->
       value ?= ''
@@ -1164,10 +1165,13 @@ window.dr = do ->
       view.sendEvent(event.type, view)
 
     createTextElement: () ->
-      @el.setAttribute('class', 'sprite sprite-text noselect')
+      @css_baseclass = 'sprite sprite-text noselect'
+      @set_class()
 
     createInputtextElement: (text, multiline, width, height) ->
-      @el.setAttribute('class', 'sprite noselect')
+      @css_baseclass = 'sprite noselect'
+      @set_class()
+
       if multiline
         input = document.createElement('textarea')
       else
@@ -1195,7 +1199,7 @@ window.dr = do ->
 
     set_class: (classname) ->
       # console.log('setid', @id)
-      @el.setAttribute('class', classname)
+      @el.setAttribute('class', "#{@css_baseclass} #{classname}")
 
   if (capabilities.camelcss)
     # handle camelCasing CSS styles, e.g. background-color -> backgroundColor - not needed for webkit
