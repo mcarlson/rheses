@@ -81,7 +81,7 @@
   })();
 
   window.dr = (function() {
-    var AutoPropertyLayout, Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Sprite, StartEventable, State, Text, View, Window, callOnIdle, capabilities, compiler, constraintScopes, debug, dom, domElementAttributes, eventq, exports, fcamelCase, handlerq, hiddenAttributes, idle, ignoredAttributes, instantiating, knownstyles, matchEvent, mixOf, moduleKeywords, mouseEvents, noop, querystring, rdashAlpha, showWarnings, specialtags, ss, ss2, starttime, test, triggerlock, warnings, _initConstraints;
+    var AutoPropertyLayout, Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Path, Sprite, StartEventable, State, Text, View, Window, callOnIdle, capabilities, compiler, constraintScopes, debug, dom, domElementAttributes, eventq, exports, fcamelCase, handlerq, hiddenAttributes, idle, ignoredAttributes, instantiating, knownstyles, matchEvent, mixOf, moduleKeywords, mouseEvents, noop, querystring, rdashAlpha, showWarnings, specialtags, ss, ss2, starttime, test, triggerlock, warnings, _initConstraints;
     noop = function() {};
     mixOf = function() {
       var Mixed, base, i, method, mixin, mixins, name, _i, _ref;
@@ -1734,6 +1734,36 @@
        */
 
       /**
+       * @attribute {Number} innerwidth The width of the view less padding and
+       * border. This is the width child views should use if border or padding
+       * is being used by the view.
+       * @readonly
+       */
+
+      /**
+       * @attribute {Number} innerheight The height of the view less padding and
+       * border. This is the height child views should use if border or padding
+       * is being used by the view.
+       * @readonly
+       */
+
+      /**
+       * @attribute {Number} boundswidth The width of the bounding box for the
+       * view. This value accounts for rotation and scaling of the view. This is
+       * the width non-descendant views should use if the view is rotated or
+       * scaled.
+       * @readonly
+       */
+
+      /**
+       * @attribute {Number} boundsheight The height of the bounding box for the
+       * view. This value accounts for rotation and scaling of the view. This is
+       * the height non-descendant views should use if the view is rotated or
+       * scaled.
+       * @readonly
+       */
+
+      /**
        * @attribute {Boolean} [clickable=false]
        * If true, this view recieves mouse events. Automatically set to true when an onclick/mouse* event is registered for this view.
        */
@@ -1961,6 +1991,9 @@
         }
         attributes.$types = types;
         this._setDefaults(attributes, defaults);
+        this._twiceBorderPadding = 0;
+        this.xanchor = this.yanchor = 'center';
+        this.border = this.padding = this.width = this.height = this.zanchor = 0;
         this.clip = this.scrollable = this.clickable = false;
         if (el instanceof View) {
           el = el.sprite;
@@ -1976,6 +2009,7 @@
         if (this.__autoLayoutheight) {
           this.__autoLayoutheight.setAttribute('locked', false);
         }
+        this.__updateBounds(this.width, this.height, this.xscale, this.yscale, this.rotation, this.xanchor, this.yanchor);
         return View.__super__.initialize.apply(this, arguments);
       };
 
@@ -2020,17 +2054,70 @@
               }
           }
         }
-        value = this._coerceType(name, value);
         existing = this[name];
-        View.__super__.setAttribute.call(this, name, value, true, skipConstraintSetup, skipconstraintunregistration);
+        View.__super__.setAttribute.call(this, name, value, false, skipConstraintSetup, skipconstraintunregistration);
         value = this[name];
         if (!(skipDomChange || name in ignoredAttributes || name in hiddenAttributes || existing === value)) {
           if (name in domElementAttributes) {
-            return this.sprite.setProperty(name, value);
+            this.sprite.setProperty(name, value);
           } else if (this.inited || defaults[name] !== value) {
-            return this.sprite.setStyle(name, value);
+            this.sprite.setStyle(name, value);
           }
         }
+        if (this.inited && (name === 'x' || name === 'y' || name === 'width' || name === 'height' || name === 'xscale' || name === 'yscale' || name === 'rotation' || name === 'xanchor' || name === 'yanchor')) {
+          return this.__updateBounds(this.width, this.height, this.xscale, this.yscale, this.rotation, this.xanchor, this.yanchor);
+        }
+      };
+
+      View.prototype.getBoundsRelativeToParent = function(x1, y1, w, h, xscale, yscale, rotation, xanchor, yanchor) {
+        var x2, y2;
+        if (typeof rotation !== 'number') {
+          rotation = Number(rotation);
+        }
+        if (xanchor === 'left') {
+          xanchor = 0;
+        } else if (xanchor === 'center') {
+          xanchor = w / 2;
+        } else if (xanchor === 'right') {
+          xanchor = w;
+        } else {
+          xanchor = Number(xanchor);
+        }
+        xanchor += x1;
+        if (yanchor === 'top') {
+          yanchor = 0;
+        } else if (yanchor === 'center') {
+          yanchor = h / 2;
+        } else if (yanchor === 'bottom') {
+          yanchor = h;
+        } else {
+          yanchor = Number(yanchor);
+        }
+        yanchor += y1;
+        x2 = x1 + w;
+        y2 = y1 + h;
+        return (new Path([x1, y1, x2, y1, x2, y2, x1, y2])).transformAroundOrigin(xscale, yscale, rotation, xanchor, yanchor).getBoundingBox();
+      };
+
+      View.prototype.__updateBounds = function(width, height, xscale, yscale, rotation, xanchor, yanchor) {
+        var bounds, x, y;
+        if (!((width != null) && (height != null))) {
+          return;
+        }
+        if (((xscale == null) || xscale === 1) && ((yscale == null) || yscale === 1) && ((rotation == null) || rotation % 360 === 0)) {
+          x = this.x;
+          y = this.y;
+        } else {
+          bounds = this.getBoundsRelativeToParent(this.x, this.y, width, height, xscale, yscale, rotation, xanchor, yanchor);
+          width = bounds.width;
+          height = bounds.height;
+          x = bounds.x;
+          y = bounds.y;
+        }
+        this.setAttribute('boundsx', x, true);
+        this.setAttribute('boundsy', y, true);
+        this.setAttribute('boundswidth', width, true);
+        return this.setAttribute('boundsheight', height, true);
       };
 
       View.prototype.__setupAlignConstraint = function(name, value, axis, selfAxis) {
@@ -2125,12 +2212,14 @@
       };
 
       View.prototype.set_width = function(width) {
-        this.setAttribute('innerwidth', width - 2 * (this.border + this.padding), true);
+        width = Math.max(width, this._twiceBorderPadding);
+        this.setAttribute('innerwidth', width - this._twiceBorderPadding, true);
         return width;
       };
 
       View.prototype.set_height = function(height) {
-        this.setAttribute('innerheight', height - 2 * (this.border + this.padding), true);
+        height = Math.max(height, this._twiceBorderPadding);
+        this.setAttribute('innerheight', height - this._twiceBorderPadding, true);
         return height;
       };
 
@@ -2145,6 +2234,13 @@
       };
 
       View.prototype.__updateInnerMeasures = function(inset) {
+        this._twiceBorderPadding = inset;
+        if (inset > this.width) {
+          this.setAttribute('width', inset, false, true, true);
+        }
+        if (inset > this.height) {
+          this.setAttribute('height', inset, false, true, true);
+        }
         this.innerwidth = this.width - inset;
         this.innerheight = this.height - inset;
         this.setAttribute('innerwidth', this.width - inset, true);
@@ -2159,7 +2255,7 @@
       };
 
       View.prototype.__updateTransform = function() {
-        var origin, prefix, transform, xanchor, xlate, yanchor, zanchor;
+        var prefix, transform, xanchor, xlate, xscale, yanchor, yscale, zanchor;
         transform = '';
         prefix = capabilities.prefix.css;
         this.z || (this.z = 0);
@@ -2168,21 +2264,32 @@
           transform = xlate;
           this.parent.sprite.setStyle(prefix + 'transform-style', 'preserve-3d');
         }
-        this.xscale || (this.xscale = 1);
-        this.yscale || (this.yscale = 1);
-        if (this.xscale * this.yscale !== 1) {
-          transform += ' scale3d(' + this.xscale + ', ' + this.yscale + ', 1.0)';
+        xscale = this.xscale;
+        if (this.xscale == null) {
+          xscale = this.xscale = 1;
+        }
+        yscale = this.yscale;
+        if (this.yscale == null) {
+          yscale = this.yscale = 1;
+        }
+        if (xscale !== 1 || yscale !== 1) {
+          transform += ' scale3d(' + xscale + ', ' + yscale + ', 1.0)';
         }
         this.rotation || (this.rotation = 0);
         if (this.rotation !== 0) {
           transform += ' rotate3d(0, 0, 1.0, ' + this.rotation + 'deg)';
         }
-        if (transform !== '' && (this.xanchor || this.yanchor || this.zanchor)) {
-          xanchor = this.xanchor || (this.width / 2);
-          yanchor = this.yanchor || (this.height / 2);
-          zanchor = this.zanchor || 0;
-          origin = xanchor + 'px ' + yanchor + 'px ' + zanchor + 'px';
-          this.sprite.setStyle(prefix + 'transform-origin', origin);
+        if (transform !== '') {
+          xanchor = this.xanchor;
+          if (xanchor !== 'left' && xanchor !== 'right' && xanchor !== 'center') {
+            xanchor += 'px';
+          }
+          yanchor = this.yanchor;
+          if (yanchor !== 'top' && yanchor !== 'bottom' && yanchor !== 'center') {
+            yanchor += 'px';
+          }
+          zanchor = this.zanchor + 'px';
+          this.sprite.setStyle(prefix + 'transform-origin', xanchor + ' ' + yanchor + ' ' + zanchor);
         }
         return this.sprite.setStyle(prefix + 'transform', transform);
       };
@@ -2212,18 +2319,27 @@
       };
 
       View.prototype.set_xanchor = function(xanchor) {
+        if ((xanchor == null) || xanchor === '') {
+          xanchor = 'center';
+        }
         this.xanchor = xanchor;
         this.__updateTransform();
         return xanchor;
       };
 
       View.prototype.set_yanchor = function(yanchor) {
+        if ((yanchor == null) || yanchor === '') {
+          yanchor = 'center';
+        }
         this.yanchor = yanchor;
         this.__updateTransform();
         return yanchor;
       };
 
       View.prototype.set_zanchor = function(zanchor) {
+        if ((zanchor == null) || zanchor === '') {
+          zanchor = 0;
+        }
         this.zanchor = zanchor;
         this.__updateTransform();
         return zanchor;
@@ -4017,6 +4133,157 @@
       return AutoPropertyLayout;
 
     })(Layout);
+    Path = (function() {
+      function Path(vectors) {
+        if (vectors == null) {
+          vectors = [];
+        }
+        this._boundingBox = null;
+        this.vectors = vectors;
+      }
+
+
+      /**
+       * Convert radians to degrees.
+       * @param {Number} deg The degrees to convert.
+       * @return {Number} The radians
+       */
+
+      Path.prototype.degreesToRadians = function(deg) {
+        return deg * Math.PI / 180;
+      };
+
+
+      /**
+       * Convert degrees to radians.
+       * @param {Number} rad The radians to convert.
+       * @return {Number} The radians
+       */
+
+      Path.prototype.radiansToDegrees = function(rad) {
+        return rad * 180 / Math.PI;
+      };
+
+
+      /**
+       * Shift this path by the provided x and y amount.
+       * @param {Number} dx The x amount to shift.
+       * @param {Number} dy The y amount to shift.
+       * @return {self}
+       */
+
+      Path.prototype.translate = function(dx, dy) {
+        var i, vecs;
+        vecs = this.vectors;
+        i = vecs.length;
+        while (i) {
+          vecs[--i] += dy;
+          vecs[--i] += dx;
+        }
+        this._boundingBox = null;
+        return this;
+      };
+
+
+      /**
+       * Rotates this path around 0,0 by the provided angle in radians.
+       * @param {Number} a The angle in degrees to rotate
+       * @return {self}
+       */
+
+      Path.prototype.rotate = function(a) {
+        var cosA, i, len, sinA, vecs, xNew, yNew;
+        a = this.degreesToRadians(a);
+        cosA = Math.cos(a);
+        sinA = Math.sin(a);
+        vecs = this.vectors;
+        len = vecs.length;
+        i = 0;
+        while (len > i) {
+          xNew = vecs[i] * cosA - vecs[i + 1] * sinA;
+          yNew = vecs[i] * sinA + vecs[i + 1] * cosA;
+          vecs[i++] = xNew;
+          vecs[i++] = yNew;
+        }
+        this._boundingBox = null;
+        return this;
+      };
+
+
+      /**
+       * Scales this path around the origin by the provided scale amount
+       * @param {Number} sx The amount to scale along the x-axis.
+       * @param {Number} sy The amount to scale along the y-axis.
+       * @return {self}
+       */
+
+      Path.prototype.scale = function(sx, sy) {
+        var i, vecs;
+        vecs = this.vectors;
+        i = vecs.length;
+        while (i) {
+          vecs[--i] *= sy;
+          vecs[--i] *= sx;
+        }
+        this._boundingBox = null;
+        return this;
+      };
+
+
+      /**
+       * Rotates and scales this path around the provided origin by the angle in 
+       * degrees, scalex and scaley.
+       * @param {Number} scalex The amount to scale along the x axis.
+       * @param {Number} scaley The amount to scale along the y axis.
+       * @param {Number} angle The amount to scale.
+       * @param {Number} xOrigin The amount to scale.
+       * @param {Number} yOrign The amount to scale.
+       * @return {self}
+       */
+
+      Path.prototype.transformAroundOrigin = function(scalex, scaley, angle, xOrigin, yOrigin) {
+        return this.translate(-xOrigin, -yOrigin).rotate(angle).scale(scalex, scaley).translate(xOrigin, yOrigin);
+      };
+
+
+      /**
+       * Gets the bounding box for this path.
+       * @return {Object} with properties x, y, width and height or null
+       * if no bounding box could be calculated.
+       */
+
+      Path.prototype.getBoundingBox = function() {
+        var i, maxX, maxY, minX, minY, vecs, x, y;
+        if (this._boundingBox) {
+          return this._boundingBox;
+        }
+        vecs = this.vectors;
+        i = vecs.length;
+        if (i >= 2) {
+          minY = maxY = vecs[--i];
+          minX = maxX = vecs[--i];
+          while (i) {
+            y = vecs[--i];
+            x = vecs[--i];
+            minY = Math.min(y, minY);
+            maxY = Math.max(y, maxY);
+            minX = Math.min(x, minX);
+            maxX = Math.max(x, maxX);
+          }
+          return this._boundingBox = {
+            x: minX,
+            y: minY,
+            width: maxX - minX,
+            height: maxY - minY
+          };
+        } else {
+          return this._boundingBox = null;
+        }
+      };
+
+      return Path;
+
+    })();
     starttime = Date.now();
     idle = (function() {
       var doTick, requestAnimationFrame, tickEvents, ticking;

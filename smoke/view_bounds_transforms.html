@@ -1,0 +1,301 @@
+<html>
+<head>
+  <title>dr33m | View position Smoke Tests</title>
+  <link rel="stylesheet" href="../examples/css/example.css"/>
+  <script type="text/javascript" src="../lib/jquery-1.9.1.js"></script>
+  <script type="text/javascript" src="../lib/acorn.js"></script>
+  <script type="text/javascript" src="../lib/coffee-script.js"></script>
+  <script type="text/javascript" src="../layout.js"></script>
+  <script type="text/javascript" src="../lib/chai.js"></script>
+  <script>
+    var assert = chai.assert
+  </script>
+</head>
+<body>
+  <view width="auto" height="auto" bgcolor="#cccccc" padding="5">
+    <class name="block" x="10" width="100" height="50" bgcolor="#999999"></class>
+    <class name="item" width="20" height="20" bgcolor="#666666"></class>
+    
+    <!-- Basic Bounds -->
+    <block name="basic" x="10" y="5">
+      <item name="inner" x="10" y="10" height="40">
+        <handler event="oninit">
+          assert.equal(this.x, 10);
+          assert.equal(this.y, 10);
+          assert.equal(this.width, 20);
+          assert.equal(this.height, 40);
+          
+          assert.equal(this.boundsx, 10);
+          assert.equal(this.boundsy, 10);
+          assert.equal(this.boundswidth, 20);
+          assert.equal(this.boundsheight, 40);
+        </handler>
+      </item>
+      <handler event="oninit">
+        assert.equal(this.x, 10);
+        assert.equal(this.y, 5);
+        assert.equal(this.width, 100);
+        assert.equal(this.height, 50);
+        
+        assert.equal(this.boundsx, 10);
+        assert.equal(this.boundsy, 5);
+        assert.equal(this.boundswidth, 100);
+        assert.equal(this.boundsheight, 50);
+        
+        // All transform related attributes start as undefined
+        assert.equal(this.z, undefined);
+        assert.equal(this.xanchor, 'center');
+        assert.equal(this.yanchor, 'center');
+        assert.equal(this.zanchor, 0);
+        assert.equal(this.xscale, undefined);
+        assert.equal(this.yscale, undefined);
+        assert.equal(this.rotation, undefined);
+      </handler>
+    </block>
+    
+    
+    <handler event="oninit">
+      var block = this.basic,
+        item = block.inner;
+      
+      // Change position and size
+      block.setAttribute('x', 5);
+      assert.equal(block.boundsx, 5);
+      assert.equal(block.boundsy, 5);
+      assert.equal(block.boundswidth, 100);
+      assert.equal(block.boundsheight, 50);
+      
+      block.setAttribute('y', 10);
+      assert.equal(block.boundsx, 5);
+      assert.equal(block.boundsy, 10);
+      assert.equal(block.boundswidth, 100);
+      assert.equal(block.boundsheight, 50);
+      
+      block.setAttribute('width', 80);
+      assert.equal(block.boundsx, 5);
+      assert.equal(block.boundsy, 10);
+      assert.equal(block.boundswidth, 80);
+      assert.equal(block.boundsheight, 50);
+      
+      block.setAttribute('height', 100);
+      assert.equal(block.boundsx, 5);
+      assert.equal(block.boundsy, 10);
+      assert.equal(block.boundswidth, 80);
+      assert.equal(block.boundsheight, 100);
+      
+      // Set x-scale
+      block.setAttribute('xscale', 2);
+      assert.equal(block.z, 0, 'An undefined z gets converted to 0 when a transform is applied.');
+      assert.equal(block.xanchor, 'center');
+      assert.equal(block.yanchor, 'center');
+      assert.equal(block.zanchor, 0);
+      assert.equal(block.xscale, 2);
+      assert.equal(block.yscale, 1, 'An undefined yscale gets converted to 1 when a transform is applied.');
+      assert.equal(block.rotation, 0, 'An undefined rotation gets converted to 0 when a transform is applied.');
+      
+      assert.equal(block.x, 5);
+      assert.equal(block.y, 10);
+      assert.equal(block.width, 80);
+      assert.equal(block.height, 100);
+      
+      assert.equal(block.boundsx, -35);
+      assert.equal(block.boundsy, 10);
+      assert.equal(block.boundswidth, 160);
+      assert.equal(block.boundsheight, 100);
+      
+      // Set y-scale
+      block.setAttribute('yscale', 0.5);
+      assert.equal(block.yscale, 0.5);
+      
+      assert.equal(block.x, 5);
+      assert.equal(block.y, 10);
+      assert.equal(block.width, 80);
+      assert.equal(block.height, 100);
+      
+      assert.equal(block.boundsx, -35);
+      assert.equal(block.boundsy, 35);
+      assert.equal(block.boundswidth, 160);
+      assert.equal(block.boundsheight, 50);
+      
+      // Change xanchor
+      block.setAttribute('xanchor', 0);
+      assert.equal(block.xanchor, 0);
+      
+      assert.equal(block.x, 5);
+      assert.equal(block.y, 10);
+      assert.equal(block.width, 80);
+      assert.equal(block.height, 100);
+      
+      assert.equal(block.boundsx, 5);
+      assert.equal(block.boundsy, 35);
+      assert.equal(block.boundswidth, 160);
+      assert.equal(block.boundsheight, 50);
+      
+      // Change yanchor
+      block.setAttribute('yanchor', 0);
+      assert.equal(block.yanchor, 0);
+      
+      assert.equal(block.x, 5);
+      assert.equal(block.y, 10);
+      assert.equal(block.width, 80);
+      assert.equal(block.height, 100);
+      
+      assert.equal(block.boundsx, 5);
+      assert.equal(block.boundsy, 10);
+      assert.equal(block.boundswidth, 160);
+      assert.equal(block.boundsheight, 50);
+      
+      // Reset xscale, yscale, xanchor, yanchor, zanchor
+      block.setAttribute('xscale', 1);
+      block.setAttribute('yscale', 1);
+      block.setAttribute('xanchor', undefined);
+      block.setAttribute('yanchor', undefined);
+      block.setAttribute('zanchor', undefined);
+      
+      assert.equal(block.xscale, 1);
+      assert.equal(block.yscale, 1);
+      assert.equal(block.xanchor, 'center', 'Undefined xanchor gets converted to center');
+      assert.equal(block.yanchor, 'center', 'Undefined yanchor gets converted to center');
+      assert.equal(block.zanchor, 0, 'Undefined zanchor gets converted to 0');
+      
+      assert.equal(block.x, 5);
+      assert.equal(block.y, 10);
+      assert.equal(block.width, 80);
+      assert.equal(block.height, 100);
+      
+      assert.equal(block.boundsx, 5);
+      assert.equal(block.boundsy, 10);
+      assert.equal(block.boundswidth, 80);
+      assert.equal(block.boundsheight, 100);
+      
+      // Rotate
+      block.setAttribute('rotation', 90);
+      assert.equal(block.rotation, 90);
+      
+      assert.equal(block.x, 5);
+      assert.equal(block.y, 10);
+      assert.equal(block.width, 80);
+      assert.equal(block.height, 100);
+      
+      assert.equal(block.boundsx, -5);
+      assert.equal(block.boundsy, 20);
+      assert.equal(block.boundswidth, 100);
+      assert.equal(block.boundsheight, 80);
+      
+      block.setAttribute('rotation', 45);
+      assert.equal(block.rotation, 45);
+      
+      assert.equal(block.x, 5);
+      assert.equal(block.y, 10);
+      assert.equal(block.width, 80);
+      assert.equal(block.height, 100);
+      
+      assert.closeTo(block.boundsx, -18.64, .01);
+      assert.closeTo(block.boundsy, -3.64, .01);
+      assert.closeTo(block.boundswidth, 127.28, .01);
+      assert.closeTo(block.boundsheight, 127.28, .01);
+      
+      // Adjust the anchor while rotated
+      block.setAttribute('xanchor', 5);
+      assert.equal(block.xanchor, 5);
+      
+      assert.equal(block.x, 5);
+      assert.equal(block.y, 10);
+      assert.equal(block.width, 80);
+      assert.equal(block.height, 100);
+      
+      assert.closeTo(block.boundsx, -28.89, .01);
+      assert.closeTo(block.boundsy, 21.11, .01);
+      assert.closeTo(block.boundswidth, 127.28, .01);
+      assert.closeTo(block.boundsheight, 127.28, .01);
+      
+      // Adjust x and y to shift bounds
+      block.setAttribute('x', 50);
+      block.setAttribute('y', 20);
+      
+      assert.equal(block.x, 50);
+      assert.equal(block.y, 20);
+      assert.equal(block.width, 80);
+      assert.equal(block.height, 100);
+      
+      assert.closeTo(block.boundsx, -28.89 + 45, .01);
+      assert.closeTo(block.boundsy, 21.11 + 10, .01);
+      assert.closeTo(block.boundswidth, 127.28, .01);
+      assert.closeTo(block.boundsheight, 127.28, .01);
+      
+      //// Nested Bounds ////
+      assert.equal(item.x, 10);
+      assert.equal(item.y, 10);
+      assert.equal(item.width, 20);
+      assert.equal(item.height, 40);
+      
+      assert.equal(item.boundsx, 10);
+      assert.equal(item.boundsy, 10);
+      assert.equal(item.boundswidth, 20);
+      assert.equal(item.boundsheight, 40);
+      
+      // Scale nested item
+      item.setAttribute('xscale', 3)
+      assert.equal(item.xscale, 3);
+      
+      assert.equal(item.x, 10);
+      assert.equal(item.y, 10);
+      assert.equal(item.width, 20);
+      assert.equal(item.height, 40);
+      
+      assert.equal(item.boundsx, -10);
+      assert.equal(item.boundsy, 10);
+      assert.equal(item.boundswidth, 60);
+      assert.equal(item.boundsheight, 40);
+      
+      // Rotate nested item
+      item.setAttribute('rotation', 90)
+      assert.equal(item.rotation, 90);
+      
+      assert.equal(item.x, 10);
+      assert.equal(item.y, 10);
+      assert.equal(item.width, 20);
+      assert.equal(item.height, 40);
+      
+      assert.equal(item.boundsx, -40);
+      assert.equal(item.boundsy, 20);
+      assert.equal(item.boundswidth, 120);
+      assert.equal(item.boundsheight, 20);
+      
+      // Clearing outer view rotation should have no effect
+      block.setAttribute('rotation', 0);
+      
+      assert.equal(item.x, 10);
+      assert.equal(item.y, 10);
+      assert.equal(item.width, 20);
+      assert.equal(item.height, 40);
+      
+      assert.equal(item.boundsx, -40);
+      assert.equal(item.boundsy, 20);
+      assert.equal(item.boundswidth, 120);
+      assert.equal(item.boundsheight, 20);
+    </handler>
+  </view>
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+</body>
+</html>
