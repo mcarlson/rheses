@@ -26,6 +26,7 @@
 stylemap =
   x: 'marginLeft'
   y: 'marginTop'
+  z: 'z-index'
   bgcolor: 'backgroundColor'
   visible: 'display'
   border: 'borderWidth'
@@ -1215,7 +1216,7 @@ window.dr = do ->
 
   if (debug)
     # add warnings for unknown CSS properties
-    knownstyles = ['width', 'height', 'background-color', 'opacity']
+    knownstyles = ['width', 'height', 'background-color', 'opacity', 'padding', 'transform', 'transform-style', 'transform-origin', 'z-index', 'perspective']
     ss2 = Sprite::setStyle
     Sprite::setStyle = (name, value, internal, el=@el) ->
       if not internal and not (name of stylemap) and not (name in knownstyles)
@@ -1237,7 +1238,13 @@ window.dr = do ->
     resize: true,
     multiline: true,
     ignorelayout: true,
-    initchildren: true
+    initchildren: true,
+    rotation: true,
+    xscale: true,
+    yscale: true,
+    xanchor: true,
+    yanchor: true,
+    zanchor: true,
   }
 
   # Attributes that should be set on the dom element directly, not the
@@ -1703,7 +1710,6 @@ window.dr = do ->
 
         @sprite.setStyle('transform-origin', origin)
 
-      @sprite.setStyle('z-index', @z)
       @sprite.setStyle('transform', transform)
 
     set_xscale: (xscale) ->

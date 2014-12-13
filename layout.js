@@ -35,6 +35,7 @@
   stylemap = {
     x: 'marginLeft',
     y: 'marginTop',
+    z: 'z-index',
     bgcolor: 'backgroundColor',
     visible: 'display',
     border: 'borderWidth',
@@ -1578,7 +1579,7 @@
       };
     }
     if (debug) {
-      knownstyles = ['width', 'height', 'background-color', 'opacity'];
+      knownstyles = ['width', 'height', 'background-color', 'opacity', 'padding', 'transform', 'transform-style', 'transform-origin', 'z-index', 'perspective'];
       ss2 = Sprite.prototype.setStyle;
       Sprite.prototype.setStyle = function(name, value, internal, el) {
         if (el == null) {
@@ -1603,7 +1604,13 @@
       resize: true,
       multiline: true,
       ignorelayout: true,
-      initchildren: true
+      initchildren: true,
+      rotation: true,
+      xscale: true,
+      yscale: true,
+      xanchor: true,
+      yanchor: true,
+      zanchor: true
     };
     domElementAttributes = {
       scrollx: true,
@@ -2155,7 +2162,6 @@
           origin = xanchor + 'px ' + yanchor + 'px ' + zanchor + 'px';
           this.sprite.setStyle('transform-origin', origin);
         }
-        this.sprite.setStyle('z-index', this.z);
         return this.sprite.setStyle('transform', transform);
       };
 
