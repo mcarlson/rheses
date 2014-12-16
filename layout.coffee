@@ -1148,7 +1148,16 @@ window.dr = do ->
 
     getText: (textOnly) ->
       if textOnly
-        @el.innerText
+        # Firefox doesn't support innerText and textContent gives us more that
+        # we want. Instead, walk the dom children and concat all the text nodes.
+        # The nodes get trimmed since line feeds and other junk whitespace will
+        # show up as text nodes.
+        child = @el.firstChild
+        texts = []
+        while child
+          if child.nodeType is 3 then texts.push(child.data.trim())
+          child = child.nextSibling;
+        texts.join("")
       else
         @el.innerHTML
 

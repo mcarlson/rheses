@@ -1480,8 +1480,17 @@
       };
 
       Sprite.prototype.getText = function(textOnly) {
+        var child, texts;
         if (textOnly) {
-          return this.el.innerText;
+          child = this.el.firstChild;
+          texts = [];
+          while (child) {
+            if (child.nodeType === 3) {
+              texts.push(child.data.trim());
+            }
+            child = child.nextSibling;
+          }
+          return texts.join("");
         } else {
           return this.el.innerHTML;
         }
