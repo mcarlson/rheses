@@ -208,22 +208,22 @@
       ></view>
 
       <handler event="oninit">
-        var transform = this.topView.sprite.el.style['transform'];
+        var transform = this.topView.sprite.el.style['-webkit-transform'];
         assert.equal((transform == 'translate3d(0, 0, 1px)') || (transform == 'translate3d(0px, 0px, 1px)'), true)
 
-        transform = this.rotateViewDeg.sprite.el.style['transform'];
+        transform = this.rotateViewDeg.sprite.el.style['-webkit-transform'];
         assert.equal((transform == ' rotate3d(0, 0, 1.0, 45deg)') || (transform == 'rotate3d(0, 0, 1, 45deg)'), true)
 
-        transformOrigin = this.rotateViewDeg.sprite.el.style['transform-origin'];
+        transformOrigin = this.rotateViewDeg.sprite.el.style['-webkit-transform-origin'];
         assert.equal('5px 10px 1px', transformOrigin)
 
-        transform = this.xScaleView.sprite.el.style['transform'];
+        transform = this.xScaleView.sprite.el.style['-webkit-transform'];
         assert.equal((transform == ' scale3d(0.1, 1, 1.0)') || (transform == 'scale3d(0.1, 1, 1)'), true)
         
-        transform = this.yScaleView.sprite.el.style['transform'];
+        transform = this.yScaleView.sprite.el.style['-webkit-transform'];
         assert.equal((transform == ' scale3d(1, 0.2, 1.0)') || (transform == 'scale3d(1, 0.2, 1)'), true)
         
-        transform = this.scaleRotateBottomView.sprite.el.style['transform'];
+        transform = this.scaleRotateBottomView.sprite.el.style['-webkit-transform'];
         assert.equal((transform == 'translate3d(0, 0, -10px) scale3d(10.5, 10.4, 1.0) rotate3d(0, 0, 1.0, -115deg)') || (transform == 'translate3d(0px, 0px, -10px) scale3d(10.5, 10.4, 1) rotate3d(0, 0, 1, -115deg)'), true)
       </handler>
   </view>

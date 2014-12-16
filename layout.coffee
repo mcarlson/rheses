@@ -350,6 +350,18 @@ window.dr = do ->
          window.mozRequestAnimationFrame    or
          window.oRequestAnimationFrame      or
          window.msRequestAnimationFrame
+    prefix: (
+      () ->
+        styles = window.getComputedStyle(document.documentElement, '')
+        pre = (Array.prototype.slice.call(styles).join('').match(/-(moz|webkit|ms)-/) or (styles.OLink is '' and ['', 'o']))[1]
+        dom = ('WebKit|Moz|MS|O').match(new RegExp('(' + pre + ')', 'i'))[1]
+        {
+          dom:dom
+          lowercase:pre
+          css:'-' + pre + '-'
+          js:pre[0].toUpperCase() + pre.substr(1)
+        }
+      )()
   }
 
   querystring = window.location.search
@@ -1685,12 +1697,13 @@ window.dr = do ->
 
     __updateTransform: () ->
       transform = ''
+      prefix = capabilities.prefix.css
 
       @z ||= 0
       xlate = 'translate3d(0, 0, ' + @z + 'px)'
       if @z isnt 0
         transform = xlate
-        @parent.sprite.setStyle('transform-style', 'preserve-3d')
+        @parent.sprite.setStyle(prefix + 'transform-style', 'preserve-3d')
 
       @xscale ||= 1
       @yscale ||= 1
@@ -1708,9 +1721,9 @@ window.dr = do ->
 
         origin = xanchor + 'px ' + yanchor + 'px ' + zanchor + 'px'
 
-        @sprite.setStyle('transform-origin', origin)
+        @sprite.setStyle(prefix + 'transform-origin', origin)
 
-      @sprite.setStyle('transform', transform)
+      @sprite.setStyle(prefix + 'transform', transform)
 
     set_xscale: (xscale) ->
       @xscale = xscale

@@ -497,7 +497,19 @@
       })(),
       touch: 'ontouchstart' in window || 'onmsgesturechange' in window,
       camelcss: navigator.userAgent.toLowerCase().indexOf('firefox') > -1,
-      raf: window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame
+      raf: window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame,
+      prefix: (function() {
+        var dom, pre, styles;
+        styles = window.getComputedStyle(document.documentElement, '');
+        pre = (Array.prototype.slice.call(styles).join('').match(/-(moz|webkit|ms)-/) || (styles.OLink === '' && ['', 'o']))[1];
+        dom = 'WebKit|Moz|MS|O'.match(new RegExp('(' + pre + ')', 'i'))[1];
+        return {
+          dom: dom,
+          lowercase: pre,
+          css: '-' + pre + '-',
+          js: pre[0].toUpperCase() + pre.substr(1)
+        };
+      })()
     };
     querystring = window.location.search;
     debug = querystring.indexOf('debug') > 0;
@@ -2138,13 +2150,14 @@
       };
 
       View.prototype.__updateTransform = function() {
-        var origin, transform, xanchor, xlate, yanchor, zanchor;
+        var origin, prefix, transform, xanchor, xlate, yanchor, zanchor;
         transform = '';
+        prefix = capabilities.prefix.css;
         this.z || (this.z = 0);
         xlate = 'translate3d(0, 0, ' + this.z + 'px)';
         if (this.z !== 0) {
           transform = xlate;
-          this.parent.sprite.setStyle('transform-style', 'preserve-3d');
+          this.parent.sprite.setStyle(prefix + 'transform-style', 'preserve-3d');
         }
         this.xscale || (this.xscale = 1);
         this.yscale || (this.yscale = 1);
@@ -2160,9 +2173,9 @@
           yanchor = this.yanchor || (this.height / 2);
           zanchor = this.zanchor || 0;
           origin = xanchor + 'px ' + yanchor + 'px ' + zanchor + 'px';
-          this.sprite.setStyle('transform-origin', origin);
+          this.sprite.setStyle(prefix + 'transform-origin', origin);
         }
-        return this.sprite.setStyle('transform', transform);
+        return this.sprite.setStyle(prefix + 'transform', transform);
       };
 
       View.prototype.set_xscale = function(xscale) {
