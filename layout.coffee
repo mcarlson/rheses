@@ -1369,6 +1369,32 @@ window.dr = do ->
     # This view's height
     ###
     ###*
+    # @attribute {Number} innerwidth The width of the view less padding and
+    # border. This is the width child views should use if border or padding
+    # is being used by the view.
+    # @readonly
+    ###
+    ###*
+    # @attribute {Number} innerheight The height of the view less padding and
+    # border. This is the height child views should use if border or padding
+    # is being used by the view.
+    # @readonly
+    ###
+    ###*
+    # @attribute {Number} boundswidth The width of the bounding box for the
+    # view. This value accounts for rotation and scaling of the view. This is
+    # the width non-descendant views should use if the view is rotated or
+    # scaled.
+    # @readonly
+    ###
+    ###*
+    # @attribute {Number} boundsheight The height of the bounding box for the
+    # view. This value accounts for rotation and scaling of the view. This is
+    # the height non-descendant views should use if the view is rotated or
+    # scaled.
+    # @readonly
+    ###
+    ###*
     # @attribute {Boolean} [clickable=false]
     # If true, this view recieves mouse events. Automatically set to true when an onclick/mouse* event is registered for this view.
     ###
@@ -1543,7 +1569,13 @@ window.dr = do ->
       attributes.$types = types
 
       @_setDefaults(attributes, defaults)
+      
+      # Used in many calculations so precalculating
+      @_twiceBorderPadding = 0
+      
       # prevent sprite updates for these
+      @xanchor = @yanchor = 'center'
+      @border = @padding = @width = @height = @zanchor = 0
       @clip = @scrollable = @clickable = false
 
       if (el instanceof View)
@@ -1557,6 +1589,7 @@ window.dr = do ->
     initialize: (skipevents) ->
       if @__autoLayoutwidth then @__autoLayoutwidth.setAttribute('locked', false)
       if @__autoLayoutheight then @__autoLayoutheight.setAttribute('locked', false)
+      @__updateBounds(@width, @height, @xscale, @yscale, @rotation, @xanchor, @yanchor)
       super
 
     _createSprite: (el, attributes) ->
@@ -1579,11 +1612,9 @@ window.dr = do ->
             if @__setupPercentConstraint(name, value, 'innerheight') then return
             if @__setupAutoConstraint(name, value, 'y') then return
 
-      value = @_coerceType(name, value)
-
       # Do super first since setters may modify the actual value set.
       existing = @[name]
-      super(name, value, true, skipConstraintSetup, skipconstraintunregistration)
+      super(name, value, false, skipConstraintSetup, skipconstraintunregistration)
       value = @[name]
 
       if not (skipDomChange or name of ignoredAttributes or name of hiddenAttributes or existing is value)
@@ -1592,6 +1623,54 @@ window.dr = do ->
           @sprite.setProperty(name, value)
         else if @inited or defaults[name] isnt value
           @sprite.setStyle(name, value)
+      
+      if @inited and (name is 'x' or name is 'y' or name is 'width' or name is 'height' or name is 'xscale' or name is 'yscale' or name is 'rotation' or name is 'xanchor' or name is 'yanchor')
+        @__updateBounds(@width, @height, @xscale, @yscale, @rotation, @xanchor, @yanchor)
+
+    getBoundsRelativeToParent: (x1, y1, w, h, xscale, yscale, rotation, xanchor, yanchor) ->
+      rotation = Number(rotation) unless typeof rotation is 'number'
+      
+      if xanchor is 'left'
+        xanchor = 0
+      else if xanchor is 'center'
+        xanchor = w / 2
+      else if xanchor is 'right'
+        xanchor = w
+      else
+        xanchor = Number(xanchor)
+      xanchor += x1
+      
+      if yanchor is 'top'
+        yanchor = 0
+      else if yanchor is 'center'
+        yanchor = h / 2
+      else if yanchor is 'bottom'
+        yanchor = h
+      else
+        yanchor = Number(yanchor)
+      yanchor += y1
+      
+      x2 = x1 + w
+      y2 = y1 + h
+      (new Path([x1,y1,x2,y1,x2,y2,x1,y2])).transformAroundOrigin(xscale, yscale, rotation, xanchor, yanchor).getBoundingBox()
+    
+    __updateBounds: (width, height, xscale, yscale, rotation, xanchor, yanchor) ->
+      return unless width? and height?
+      
+      if (!xscale? or xscale is 1) and (!yscale? or yscale is 1) and (!rotation? or rotation % 360 is 0)
+        x = @x
+        y = @y
+      else
+        bounds = @getBoundsRelativeToParent(@x, @y, width, height, xscale, yscale, rotation, xanchor, yanchor)
+        width = bounds.width
+        height = bounds.height
+        x = bounds.x
+        y = bounds.y
+      
+      @setAttribute('boundsx', x, true)
+      @setAttribute('boundsy', y, true)
+      @setAttribute('boundswidth', width, true)
+      @setAttribute('boundsheight', height, true)
 
     __setupAlignConstraint: (name, value, axis, selfAxis) ->
       funcKey = '__alignFunc' + name
@@ -1675,11 +1754,17 @@ window.dr = do ->
         return true
 
     set_width: (width) ->
-      @setAttribute('innerwidth', width - 2*(@border + @padding), true)
+      # Prevent width smaller than border and padding
+      width = Math.max(width, @_twiceBorderPadding)
+      
+      @setAttribute('innerwidth', width - @_twiceBorderPadding, true)
       width
 
     set_height: (height) ->
-      @setAttribute('innerheight', height - 2*(@border + @padding), true)
+      # Prevent height smaller than border and padding
+      height = Math.max(height, @_twiceBorderPadding)
+      
+      @setAttribute('innerheight', height - @_twiceBorderPadding, true)
       height
 
     set_border: (border) ->
@@ -1691,6 +1776,11 @@ window.dr = do ->
       padding
 
     __updateInnerMeasures: (inset) ->
+      @_twiceBorderPadding = inset
+      # Prevent width/height less than twice border padding
+      if inset > @width then @setAttribute('width', inset, false, true, true)
+      if inset > @height then @setAttribute('height', inset, false, true, true)
+      
       # Ensures innerwidth and innerheight will both be correct before
       # oninnerwidth and oninnerheight fire. Needed by wrappinglayout.
       @innerwidth = @width - inset
@@ -1714,23 +1804,29 @@ window.dr = do ->
         transform = xlate
         @parent.sprite.setStyle(prefix + 'transform-style', 'preserve-3d')
 
-      @xscale ||= 1
-      @yscale ||= 1
-      if @xscale * @yscale isnt 1
-        transform += ' scale3d(' + @xscale + ', ' + @yscale + ', 1.0)'
+      xscale = @xscale
+      if !@xscale? then xscale = @xscale = 1
+      yscale = @yscale
+      if !@yscale? then yscale = @yscale = 1
+      if xscale isnt 1 or yscale isnt 1
+        transform += ' scale3d(' + xscale + ', ' + yscale + ', 1.0)'
 
       @rotation ||= 0
       if @rotation isnt 0
         transform += ' rotate3d(0, 0, 1.0, ' + @rotation + 'deg)'
 
-      if transform isnt '' && (@xanchor || @yanchor || @zanchor)
-        xanchor = @xanchor || (@width / 2)
-        yanchor = @yanchor || (@height / 2)
-        zanchor = @zanchor || 0
-
-        origin = xanchor + 'px ' + yanchor + 'px ' + zanchor + 'px'
-
-        @sprite.setStyle(prefix + 'transform-origin', origin)
+      if transform isnt ''
+        xanchor = @xanchor
+        if xanchor isnt 'left' and xanchor isnt 'right' and xanchor isnt 'center'
+          xanchor += 'px'
+        
+        yanchor = @yanchor
+        if yanchor isnt 'top' and yanchor isnt 'bottom' and yanchor isnt 'center'
+          yanchor += 'px'
+        
+        zanchor = @zanchor + 'px'
+        
+        @sprite.setStyle(prefix + 'transform-origin', xanchor + ' ' + yanchor + ' ' + zanchor)
 
       @sprite.setStyle(prefix + 'transform', transform)
 
@@ -1755,16 +1851,19 @@ window.dr = do ->
       depth
 
     set_xanchor: (xanchor) ->
+      if !xanchor? or xanchor is '' then xanchor = 'center'
       @xanchor = xanchor
       @__updateTransform()
       xanchor
 
     set_yanchor: (yanchor) ->
+      if !yanchor? or yanchor is '' then yanchor = 'center'
       @yanchor = yanchor
       @__updateTransform()
       yanchor
 
     set_zanchor: (zanchor) ->
+      if !zanchor? or zanchor is '' then zanchor = 0
       @zanchor = zanchor
       @__updateTransform()
       zanchor
@@ -3203,6 +3302,117 @@ window.dr = do ->
       return not view.visible or view.__percentFuncwidth? or view.__percentFuncx? or view.__alignFuncx?
     _skipY: (view) ->
       return not view.visible or view.__percentFuncheight? or view.__percentFuncy? or view.__alignFuncy?
+
+  # An ordered collection of points that can be transformed in various ways.
+  class Path
+    constructor: (vectors = []) ->
+      @_boundingBox = null
+      @vectors = vectors
+    
+    ###*
+    # Convert radians to degrees.
+    # @param {Number} deg The degrees to convert.
+    # @return {Number} The radians
+    ###
+    degreesToRadians: (deg) ->
+      deg * Math.PI / 180
+    
+    ###*
+    # Convert degrees to radians.
+    # @param {Number} rad The radians to convert.
+    # @return {Number} The radians
+    ###
+    radiansToDegrees: (rad) ->
+      rad * 180 / Math.PI
+    
+    ###*
+    # Shift this path by the provided x and y amount.
+    # @param {Number} dx The x amount to shift.
+    # @param {Number} dy The y amount to shift.
+    # @return {self}
+    ###
+    translate: (dx, dy) ->
+      vecs = @vectors
+      i = vecs.length
+      while i
+        vecs[--i] += dy
+        vecs[--i] += dx
+      @_boundingBox = null
+      @
+    
+    ###*
+    # Rotates this path around 0,0 by the provided angle in radians.
+    # @param {Number} a The angle in degrees to rotate
+    # @return {self}
+    ###
+    rotate: (a) ->
+      a = @degreesToRadians(a)
+      
+      cosA = Math.cos(a)
+      sinA = Math.sin(a)
+      vecs = @vectors
+      len = vecs.length
+      i = 0
+      while len > i
+        xNew = vecs[i] * cosA - vecs[i + 1] * sinA
+        yNew = vecs[i] * sinA + vecs[i + 1] * cosA
+        
+        vecs[i++] = xNew
+        vecs[i++] = yNew
+      @_boundingBox = null
+      @
+
+    ###*
+    # Scales this path around the origin by the provided scale amount
+    # @param {Number} sx The amount to scale along the x-axis.
+    # @param {Number} sy The amount to scale along the y-axis.
+    # @return {self}
+    ###
+    scale: (sx, sy) ->
+      vecs = @vectors
+      i = vecs.length
+      while i
+        vecs[--i] *= sy
+        vecs[--i] *= sx
+      @_boundingBox = null
+      @
+
+    ###*
+    # Rotates and scales this path around the provided origin by the angle in 
+    # degrees, scalex and scaley.
+    # @param {Number} scalex The amount to scale along the x axis.
+    # @param {Number} scaley The amount to scale along the y axis.
+    # @param {Number} angle The amount to scale.
+    # @param {Number} xOrigin The amount to scale.
+    # @param {Number} yOrign The amount to scale.
+    # @return {self}
+    ###
+    transformAroundOrigin: (scalex, scaley, angle, xOrigin, yOrigin) ->
+      @translate(-xOrigin, -yOrigin).rotate(angle).scale(scalex, scaley).translate(xOrigin, yOrigin)
+
+    ###*
+    # Gets the bounding box for this path.
+    # @return {Object} with properties x, y, width and height or null
+    # if no bounding box could be calculated.
+    ###
+    getBoundingBox: () ->
+      return @_boundingBox if @_boundingBox
+      
+      vecs = @vectors
+      i = vecs.length
+      if i >= 2
+        minY = maxY = vecs[--i]
+        minX = maxX = vecs[--i]
+        while i
+          y = vecs[--i]
+          x = vecs[--i]
+          minY = Math.min(y, minY)
+          maxY = Math.max(y, maxY)
+          minX = Math.min(x, minX)
+          maxX = Math.max(x, maxX)
+        @_boundingBox = {x:minX, y:minY, width:maxX - minX, height:maxY - minY}
+      else
+        @_boundingBox = null
 
   starttime = Date.now()
   idle = do ->
