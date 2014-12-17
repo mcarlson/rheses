@@ -143,7 +143,7 @@
       assert.equal((transform == ' scale3d(1, 0.2, 1.0)') || (transform == 'scale3d(1, 0.2, 1)'), true)
       
       transform = this.scaleRotateBottomView.sprite.el.style['-webkit-transform'];
-      assert.equal((transform == 'translate3d(0, 0, -10px) scale3d(10.5, 10.4, 1.0) rotate3d(0, 0, 1.0, -115deg)') || (transform == 'translate3d(0px, 0px, -10px) scale3d(10.5, 10.4, 1) rotate3d(0, 0, 1, -115deg)'), true)
+      assert.equal((transform == 'scale3d(10.5, 10.4, 1.0) rotate3d(0, 0, 1.0, -115deg) translate3d(0, 0, -10px)') || (transform == 'scale3d(10.5, 10.4, 1) rotate3d(0, 0, 1, -115deg) translate3d(0px, 0px, -10px)'), true)
     </handler>
   </view>
 

@@ -12,17 +12,44 @@
   </script>
 </head>
 <body>
-  <view width="100%" height="100%" bgcolor="#cccccc">
+  <view width="100%" height="100%" bgcolor="#eeeeee">
     <class name="item" width="50" height="50" bgcolor="#666666"></class>
     
     <view name="container" padding="1" border="2" bordercolor="black" x="10" y="10" width="500" height="56" bgcolor="#999999">
       <resizelayout name="layout" inset="5" spacing="2" outset="10"></resizelayout>
+      
+      <view name="inner" width="100%" height="100%" ignorelayout="true" bgcolor="#cccccc"></view>
       
       <item name="v1" bgcolor="#eeeeee" layouthint="1"></item>
       <item name="v2" bgcolor="#ddddcc"></item>
       <item name="v3" bgcolor="#ccccaa"></item>
       <item name="v4" bgcolor="#bbbb88"></item>
       <item name="v5" bgcolor="#aaaa66"></item>
+    </view>
+    
+    <view name="container2" padding="2" border="1" bordercolor="black"
+        x="120" y="10" width="400" height="auto" bgcolor="#999999"
+    >
+      <resizelayout name="layout" inset="2" spacing="1" outset="2"></resizelayout>
+      
+      <view name="inner" width="100%" height="100%" ignorelayout="true" bgcolor="#cccccc"></view>
+      
+      <item name="v1" bgcolor="#eeeeee" layouthint="1"></item>
+      <item name="v2" bgcolor="#ddddcc" rotation="15" y="top"></item>
+      <item name="v3" bgcolor="#ccccaa"></item>
+      <item name="v4" bgcolor="#bbbb88"></item>
+      <item name="v5" bgcolor="#aaaa66" xscale="2" layouthint="1"></item>
+      
+      <handler event="oninit">
+        assert.equal(2, this.v1.x, 'The first view is at inset.');
+        assert.equal(112, this.v1.width, 'The first view has a width of 112.');
+        assert.closeTo(120.62, this.v2.x, 0.01, 'The second view is at 120.62.');
+        assert.closeTo(177.24, this.v3.x, 0.01, 'The third view is at 177.24.');
+        assert.closeTo(228.24, this.v4.x, 0.01, 'The fourth view is at 228.24.');
+        assert.closeTo(307.43, this.v5.x, 0.01, 'The fifth view is at 307.43.');
+        
+        assert.closeTo(67.24, this.height, 0.01, 'Auto sizing should set the height to 67.24.');
+      </handler>
     </view>
     
     <handler event="oninit">

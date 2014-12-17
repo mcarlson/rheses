@@ -53,6 +53,193 @@
       </handler>
     </block>
     
+    <!-- Bounds, auto sizing and alignment -->
+    <block name="auto" x="10" y="150" width="auto" height="auto">
+      <item name="inner">
+        <handler event="oninit">
+          assert.equal(this.x, 0);
+          assert.equal(this.y, 0);
+          assert.equal(this.width, 20);
+          assert.equal(this.height, 20);
+          
+          assert.equal(this.boundsx, 0);
+          assert.equal(this.boundsy, 0);
+          assert.equal(this.boundswidth, 20);
+          assert.equal(this.boundsheight, 20);
+        </handler>
+      </item>
+      <handler event="oninit">
+        assert.equal(this.x, 10);
+        assert.equal(this.y, 150);
+        assert.equal(this.width, 20);
+        assert.equal(this.height, 20);
+        
+        assert.equal(this.boundsx, 10);
+        assert.equal(this.boundsy, 150);
+        assert.equal(this.boundswidth, 20);
+        assert.equal(this.boundsheight, 20);
+      </handler>
+    </block>
+    
+    <block name="auto2" x="40" y="150"
+      width="${this.inner.boundsx + this.inner.boundswidth + 2*(this.padding + this.border)}"
+      height="${this.inner.boundsy + this.inner.boundsheight + 2*(this.padding + this.border)}"
+      padding="2" border="1" bordercolor="black"
+    >
+      <item name="inner" x="left" y="top" rotation="45">
+        <handler event="oninit">
+          assert.closeTo(this.x, 4.14, 0.1);
+          assert.closeTo(this.y, 4.14, 0.1);
+          assert.equal(this.width, 20);
+          assert.equal(this.height, 20);
+          
+          assert.equal(this.boundsx, 0);
+          assert.equal(this.boundsy, 0);
+          assert.closeTo(this.boundsxdiff, 4.14, 0.1);
+          assert.closeTo(this.boundsydiff, 4.14, 0.1);
+          assert.closeTo(this.boundswidth, 28.28, 0.1);
+          assert.closeTo(this.boundsheight, 28.28, 0.1);
+        </handler>
+      </item>
+      <handler event="oninit">
+        assert.equal(this.x, 40);
+        assert.equal(this.y, 150);
+        assert.closeTo(this.width, 28.28 + 6, 0.1);
+        assert.closeTo(this.height, 28.28 + 6, 0.1);
+        
+        assert.equal(this.boundsx, 40);
+        assert.equal(this.boundsy, 150);
+        assert.equal(this.boundsxdiff, 0);
+        assert.equal(this.boundsydiff, 0);
+        assert.closeTo(this.boundswidth, 28.28 + 6, 0.1);
+        assert.closeTo(this.boundsheight, 28.28 + 6, 0.1);
+      </handler>
+    </block>
+    
+    <block name="auto3" x="80" y="150"
+      width="auto"
+      height="auto"
+      padding="2" border="1" bordercolor="black"
+    >
+      <item name="inner" x="${this.boundsxdiff}" y="${this.boundsydiff}" rotation="30">
+        <handler event="oninit">
+          assert.closeTo(this.x, 3.66, 0.1);
+          assert.closeTo(this.y, 3.66, 0.1);
+          assert.equal(this.width, 20);
+          assert.equal(this.height, 20);
+          
+          assert.equal(this.boundsx, 0);
+          assert.equal(this.boundsy, 0);
+          assert.closeTo(this.boundsxdiff, 3.66, 0.1);
+          assert.closeTo(this.boundsydiff, 3.66, 0.1);
+          assert.closeTo(this.boundswidth, 27.32, 0.1);
+          assert.closeTo(this.boundsheight, 27.32, 0.1);
+        </handler>
+      </item>
+      <handler event="oninit">
+        assert.equal(this.x, 80);
+        assert.equal(this.y, 150);
+        assert.closeTo(this.width, 27.32 + 6, 0.1);
+        assert.closeTo(this.height, 27.32 + 6, 0.1);
+        
+        assert.equal(this.boundsx, 80);
+        assert.equal(this.boundsy, 150);
+        assert.equal(this.boundsxdiff, 0);
+        assert.equal(this.boundsydiff, 0);
+        assert.closeTo(this.boundswidth, 27.32 + 6, 0.1);
+        assert.closeTo(this.boundsheight, 27.32 + 6, 0.1);
+      </handler>
+    </block>
+    
+    <block name="auto4" x="120" y="150"
+      width="auto"
+      height="auto"
+      padding="2" border="1" bordercolor="black"
+    >
+      <item name="inner" x="left" y="top" rotation="15" xanchor="0" yanchor="0" xscale="3" yscale="2">
+        <handler event="oninit">
+          assert.closeTo(this.x, 15.53, 0.1);
+          assert.closeTo(this.y, 0, 0.1);
+          assert.equal(this.width, 20);
+          assert.equal(this.height, 20);
+          
+          assert.equal(this.boundsx, 0);
+          assert.equal(this.boundsy, 0);
+          assert.closeTo(this.boundsxdiff, 15.53, 0.1);
+          assert.closeTo(this.boundsydiff, 0, 0.1);
+          assert.closeTo(this.boundswidth, 73.48, 0.1);
+          assert.closeTo(this.boundsheight, 48.99, 0.1);
+        </handler>
+      </item>
+      <handler event="oninit">
+        assert.equal(this.x, 120);
+        assert.equal(this.y, 150);
+        assert.closeTo(this.width, 73.48 + 6, 0.1);
+        assert.closeTo(this.height, 48.99 + 6, 0.1);
+        
+        assert.equal(this.boundsx, 120);
+        assert.equal(this.boundsy, 150);
+        assert.equal(this.boundsxdiff, 0);
+        assert.equal(this.boundsydiff, 0);
+        assert.closeTo(this.boundswidth, 73.48 + 6, 0.1);
+        assert.closeTo(this.boundsheight, 48.99 + 6, 0.1);
+      </handler>
+    </block>
+    
+    <block name="auto5" x="10" y="190" width="50" height="50" padding="2" border="1" bordercolor="black">
+      <item name="inner" x="center" y="center" xanchor="0" yanchor="0" rotation="30">
+        <handler event="oninit">
+          assert.closeTo(this.x, 18.33, 0.1);
+          assert.closeTo(this.y, 8.34, 0.1);
+          assert.equal(this.width, 20);
+          assert.equal(this.height, 20);
+          
+          assert.closeTo(this.boundsx, 8.34, 0.1);
+          assert.closeTo(this.boundsy, 8.34, 0.1);
+          assert.closeTo(this.boundswidth, 27.32, 0.1);
+          assert.closeTo(this.boundsheight, 27.32, 0.1);
+        </handler>
+      </item>
+      <handler event="oninit">
+        assert.equal(this.x, 10);
+        assert.equal(this.y, 190);
+        assert.equal(this.width, 50);
+        assert.equal(this.height, 50);
+        
+        assert.equal(this.boundsx, 10);
+        assert.equal(this.boundsy, 190);
+        assert.equal(this.boundswidth, 50);
+        assert.equal(this.boundsheight, 50);
+      </handler>
+    </block>
+    
+    <block name="auto6" x="10" y="250" width="50" height="50" padding="2" border="1" bordercolor="black">
+      <item name="inner" x="right" y="bottom" xanchor="right" yanchor="8" rotation="30">
+        <handler event="oninit">
+          assert.closeTo(this.x, 20, 0.1);
+          assert.closeTo(this.y, 25.61, 0.1);
+          assert.equal(this.width, 20);
+          assert.equal(this.height, 20);
+          
+          assert.closeTo(this.boundsx, 16.68, 0.1);
+          assert.closeTo(this.boundsy, 16.68, 0.1);
+          assert.closeTo(this.boundswidth, 27.32, 0.1);
+          assert.closeTo(this.boundsheight, 27.32, 0.1);
+        </handler>
+      </item>
+      <handler event="oninit">
+        assert.equal(this.x, 10);
+        assert.equal(this.y, 250);
+        assert.equal(this.width, 50);
+        assert.equal(this.height, 50);
+        
+        assert.equal(this.boundsx, 10);
+        assert.equal(this.boundsy, 250);
+        assert.equal(this.boundswidth, 50);
+        assert.equal(this.boundsheight, 50);
+      </handler>
+    </block>
+    
     
     <handler event="oninit">
       var block = this.basic,
@@ -274,6 +461,33 @@
       assert.equal(item.boundsy, 20);
       assert.equal(item.boundswidth, 120);
       assert.equal(item.boundsheight, 20);
+      
+      
+      //// Auto sizing and bounds ////
+      block = this.auto;
+      item = block.inner;
+      
+      item.setAttribute('rotation', 45);
+      
+      assert.equal(item.x, 0);
+      assert.equal(item.y, 0);
+      assert.equal(item.width, 20);
+      assert.equal(item.height, 20);
+      
+      assert.closeTo(item.boundsx, -4.14, .01);
+      assert.closeTo(item.boundsy, -4.14, .01);
+      assert.closeTo(item.boundswidth, 28.28, .01);
+      assert.closeTo(item.boundsheight, 28.28, .01);
+      
+      assert.equal(block.x, 10);
+      assert.equal(block.y, 150);
+      assert.closeTo(block.width, 24.14, .01);
+      assert.closeTo(block.height, 24.14, .01);
+      
+      assert.equal(block.boundsx, 10);
+      assert.equal(block.boundsy, 150);
+      assert.closeTo(block.boundswidth, 24.14, .01);
+      assert.closeTo(block.boundsheight, 24.14, .01);
     </handler>
   </view>
 <!-- The MIT License (MIT)

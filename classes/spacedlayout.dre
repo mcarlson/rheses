@@ -22,11 +22,18 @@ SOFTWARE. -->
 <!--/**
       * @class dr.spacedlayout {Layout}
       * @extends dr.variablelayout
-      * A variableLayout that positions views along an axis using an inset, 
-      * outset and spacing value.
+      * An extension of variableLayout that positions views horizontally or
+      * vertically using an initial inset and spacing between each view. If
+      * collapseparent is true an outset is also used to leave space after
+      * the last subview.
+      *
+      * This spacedlayout will position the first view at a y of 5 and each
+      * subsequent view will be 2 pixels below the bottom of the preceding one.
+      * Since collapseparent is true and an outset is defined the parent view
+      * will be sized to 5 pixels more than the bottom of the last view.
       *
       *     @example
-      *     <spacedlayout axis="y" spacing="2" inset="5" outset="5">
+      *     <spacedlayout axis="y" spacing="2" inset="5" outset="5" collapseparent="true">
       *     </spacedlayout>
       *
       *     <view width="100" height="25" bgcolor="lightpink"></view>
@@ -50,7 +57,8 @@ SOFTWARE. -->
   
   <!--/**
     * @attribute {Number} [inset=0]
-    * Space before the first view.
+    * Space before the first view. This is an alias for the "value" attribute.
+    * attribute.
     */-->
   <attribute name="inset" type="number" value="0"></attribute>
   <setter name="inset" args="inset">
@@ -63,7 +71,8 @@ SOFTWARE. -->
     * @attribute {String} [axis='x']
     * The orientation of the layout. Supported values are 'x' and 'y'.
     * A value of 'x' will orient the views horizontally and a value of 'y'
-    * will orient them vertically.
+    * will orient them vertically. This is an alias for the "attribute" 
+    * attribute.
     */-->
   <attribute name="axis" type="string" value="x"></attribute>
   <setter name="axis" args="axis">
@@ -72,42 +81,70 @@ SOFTWARE. -->
     return axis
   </setter>
   
+  <!--/**
+    * The axis attribute is an alias for this attribute.
+    */-->
   <setter name="attribute" args="attribute">
-    @measureAttrName ?= 'height'
-    
+    # Stop monitoring since the "axis" changed. This needs to
+    # be done before the new "axis" value is set since stopMonitoringSubview
+    # needs to know the old values.
     @stopMonitoringAllSubviews()
     
+    # Setup private attributes based on axis
     if attribute == 'y'
-      @measureAttrName = 'height'
+      # The layout is oriented vertically
+      @__parentAttrName = 'height'        # The attr to update on the parent if collapseparent is true
+      @__innerAttrName = 'innerheight'    # The attr used to get available space
+      @__measureAttrName = 'boundsheight' # The attr to measure the size needed for a subview
+      @__diffAttrName = 'boundsydiff'     # The attr used to offset the position of a transformed subview so it will not overlap adjacent views
     else
-      @measureAttrName = 'width'
+      # The layout is oriented horizontally
+      @__parentAttrName = 'width'
+      @__innerAttrName = 'innerwidth'
+      @__measureAttrName = 'boundswidth'
+      @__diffAttrName = 'boundsxdiff'
+    
     return attribute
   </setter>
   <handler event="onattribute">
+    # Start monitoring again and update since we have a new axis. This needs
+    # to be done after the new axis value is set since startMonitoringSubview
+    # needs to use the new values.
     @startMonitoringAllSubviews()
     @update()
   </handler>
   
   <method name="startMonitoringSubview" args="view">
     @super();
-
-    @listenTo(view, @measureAttrName, @update)
+    
+    # Monitor each subview's measure and bounds offset
+    @listenTo(view, @__measureAttrName, @update)
+    @listenTo(view, @__diffAttrName, @update)
   </method>
   
   <method name="stopMonitoringSubview" args="view">
     @super();
-
-    @stopListening(view, @measureAttrName, @update)
+    
+    # No longer monitor each subview's measure and bounds offset
+    @stopListening(view, @__measureAttrName, @update)
+    @stopListening(view, @__diffAttrName, @update)
   </method>
   
   <method name="updateSubview" args="count, view, attribute, value">
-    view.setAttribute(attribute, value)
-    return value + view[@measureAttrName] + @spacing
+    # Position the view at the provided value and compensate for 
+    # any transformation position difference
+    view.setAttribute(attribute, view[@__diffAttrName] + value)
+    
+    # The next view should be positioned after this view plus the spacing.
+    return value + view[@__measureAttrName] + @spacing
   </method>
   
   <method name="updateParent" args="attribute, value">
+    # Resize the parent to the last returned value from updateLayout plus
+    # the outset less spacing since updateSubview added an extra spacing.
+    # Also allow for the difference between innersize and size due to border 
+    # and padding.
     parent = @parent
-    man = @measureAttrName
-    parent.setAttribute(man, value + @outset - @spacing + parent[man] - parent['inner' + man])
+    parent.setAttribute(@__parentAttrName, value + @outset - @spacing + parent[@__parentAttrName] - parent[@__innerAttrName])
   </method>
 </class>

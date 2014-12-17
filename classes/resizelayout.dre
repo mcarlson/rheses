@@ -22,7 +22,21 @@ SOFTWARE. -->
 <!--/**
       * @class dr.resizelayout {Layout}
       * @extends dr.spacedlayout
-      * Resizes one or more views to fill in any remaining space.
+      * An extension of spaced layout that allows one or more "stretchy" views 
+      * to fill in any remaining space.
+      *
+      * A view can be made stretchy by giving it a layouthint with a numerical
+      * value, typically 1. Extra space is divided proportionally between all
+      * sretchy views based on that views percentage of the sum of the
+      * "stretchiness" of all stretchy views. For example, a view with a
+      * layouthint of 2 will get twice as much space as another view with
+      * a layouthint of 1.
+      *
+      * Since resizelayouts rely on the presence of extra space, the
+      * collapseparent attribute is not applicable to a resizelayout. Similarly,
+      * using auto sizing on the parent view along the same axis as the
+      * resizelayout will result in unexpected behavior and should therefore
+      * be avoided.
       *
       *     @example
       *     <resizelayout spacing="2" inset="5" outset="5">
@@ -40,19 +54,20 @@ SOFTWARE. -->
   
   <method name="stopMonitoringAllSubviews" args="view">
     @super()
-    @stopListening(@parent, 'inner' + @measureAttrName, @update)
+    if @__innerAttrName? then @stopListening(@parent, @__innerAttrName, @update)
   </method>
   
   <method name="startMonitoringAllSubviews" args="view">
     @super()
-    @listenTo(@parent, 'inner' + @measureAttrName, @update)
+    @listenTo(@parent, @__innerAttrName, @update)
   </method>
   
   <method name="startMonitoringSubview" args="view">
     # Don't monitor width/height of the "stretchy" subviews since this 
     # layout resizes them so you would get an infinite loop.
     if !(Number(view.layouthint) > 0)
-      @listenTo(view, @measureAttrName, @update)
+      @listenTo(view, @__measureAttrName, @update)
+      @listenTo(view, @__diffAttrName, @update)
     @listenTo(view, 'visible', @update)
     @listenTo(view, 'layouthint', @update)
   </method>
@@ -61,15 +76,16 @@ SOFTWARE. -->
     # Don't monitor width/height of the "stretchy" subviews since this 
     # layout resizes them so you would get an infinite loop.
     if !(Number(view.layouthint) > 0)
-      @stopListening(view, @measureAttrName, @update)
+      @stopListening(view, @__measureAttrName, @update)
+      @stopListening(view, @__diffAttrName, @update)
     @stopListening(view, 'visible', @update)
     @stopListening(view, 'layouthint', @update)
   </method>
   
   <method name="doBeforeUpdate">
     # Get size to fill
-    measureAttrName = @measureAttrName
-    remainder = @parent['inner' + measureAttrName]
+    measureAttrName = @__measureAttrName
+    remainder = @parent[@__innerAttrName]
     
     # Calculate minimum required size
     remainder -= @value + @outset
@@ -107,7 +123,15 @@ SOFTWARE. -->
       size = if @resizeSum == @resizeSumUsed then @remainder - @remainderUsed else Math.round(hint * @scalingFactor)
       
       @remainderUsed += size
-      view.setAttribute(@measureAttrName, size)
+      
+      # If the stretchy view is transformed then convert the width to compensate
+      # Note that this will only work as expected with scaling, not with 
+      # rotation since compensation for rotation requires an adjustment of both
+      # with and height which is beyond the scope of this layout.
+      if view.__boundsAreDifferent
+        size *= view[@__parentAttrName] / view[@__measureAttrName]
+      
+      view.setAttribute(@__parentAttrName, size) # parent attr name is also suitable for resize views since it will just be width or height
     
     return @super()
   </method>
