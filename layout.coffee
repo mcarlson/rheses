@@ -73,6 +73,11 @@ window.dr = do ->
   # Common noop function
   noop = () ->
 
+  # Common float comparison function
+  closeTo = (a, b, epsilon) ->
+    epsilon ||= 0.01 # Default is appropriate for many pixel related comparisons
+    Math.abs(a - b) < epsilon
+
   # from http://coffeescriptcookbook.com/chapters/classes_and_objects/mixins
   mixOf = (base, mixins...) ->
     class Mixed extends base
@@ -1110,8 +1115,8 @@ window.dr = do ->
       if target
         x = domElement.scrollLeft
         y = domElement.scrollTop
-        if target.scrollx isnt x then target.setAttribute('scrollx', x, true, true, true)
-        if target.scrolly isnt y then target.setAttribute('scrolly', y, true, true, true)
+        if target.scrollx isnt x then target.setAttribute('scrollx', x, true, true, true, true)
+        if target.scrolly isnt y then target.setAttribute('scrolly', y, true, true, true, true)
 
         # Prevent extra events when data has not changed
         oldEvt = @_lastScrollEvent
@@ -1357,6 +1362,16 @@ window.dr = do ->
     # This view's x position
     ###
     ###*
+    # @attribute {Number} isaligned Indicates that the x attribute is
+    # set to one of the "special" alignment values.
+    # @readonly
+    ###
+    ###*
+    # @attribute {Number} isvaligned Indicates that the y attribute is
+    # set to one of the "special" alignment values.
+    # @readonly
+    ###
+    ###*
     # @attribute {Number} [y=0]
     # This view's y position
     ###
@@ -1378,6 +1393,28 @@ window.dr = do ->
     # @attribute {Number} innerheight The height of the view less padding and
     # border. This is the height child views should use if border or padding
     # is being used by the view.
+    # @readonly
+    ###
+    ###*
+    # @attribute {Number} boundsx The x position of the bounding box for the
+    # view. This value accounts for rotation and scaling of the view.
+    # @readonly
+    ###
+    ###*
+    # @attribute {Number} boundsy The y position of the bounding box for the
+    # view. This value accounts for rotation and scaling of the view.
+    # @readonly
+    ###
+    ###*
+    # @attribute {Number} boundsxdiff The difference between the x position
+    # of the view and the boundsx of the view. Useful when you need to offset
+    # a view to make it line up when it is scaled or rotated.
+    # @readonly
+    ###
+    ###*
+    # @attribute {Number} boundsydiff The difference between the y position
+    # of the view and the boundsy of the view. Useful when you need to offset
+    # a view to make it line up when it is scaled or rotated.
     # @readonly
     ###
     ###*
@@ -1557,7 +1594,7 @@ window.dr = do ->
       types = {
         x: 'number', y: 'number', z: 'number',
         xscale: 'number', yscale: 'number',
-        rotation: 'string', opacity: 'number',
+        rotation: 'number', opacity: 'number',
         width: 'positivenumber', height: 'positivenumber',
         clickable: 'boolean', clip: 'boolean', scrollable: 'boolean', visible: 'boolean',
         border: 'positivenumber', padding: 'positivenumber', ignorelayout:'boolean',
@@ -1570,18 +1607,16 @@ window.dr = do ->
 
       @_setDefaults(attributes, defaults)
       
-      # Used in many calculations so precalculating
-      @_twiceBorderPadding = 0
+      # Used in many calculations so precalculating for performance.
+      @__twiceBorderPadding = 0
       
       # prevent sprite updates for these
       @xanchor = @yanchor = 'center'
-      @border = @padding = @width = @height = @zanchor = 0
-      @clip = @scrollable = @clickable = false
-
-      if (el instanceof View)
-        el = el.sprite
+      @border = @padding = @width = @height = @zanchor = @boundsxdiff = @boundsydiff = @boundsx = @boundsy = @boundswidth = @boundsheight = 0
+      @clip = @scrollable = @clickable = @isaligned = @isvaligned = false
 
       # console.log 'sprite tagname', attributes.$tagname
+      if el instanceof View then el = el.sprite
       @_createSprite(el, attributes)
       super
       # console.log 'new view', el, attributes, @
@@ -1589,22 +1624,23 @@ window.dr = do ->
     initialize: (skipevents) ->
       if @__autoLayoutwidth then @__autoLayoutwidth.setAttribute('locked', false)
       if @__autoLayoutheight then @__autoLayoutheight.setAttribute('locked', false)
-      @__updateBounds(@width, @height, @xscale, @yscale, @rotation, @xanchor, @yanchor)
+      @__updateBounds()
       super
 
     _createSprite: (el, attributes) ->
       @sprite = new Sprite(el, @, attributes.$tagname)
 
-    setAttribute: (name, value, skipDomChange, skipConstraintSetup, skipconstraintunregistration) ->
-      # catch percent constraints
+    # FIXME: explore using a hash for the attributes since there are so many now.
+    setAttribute: (name, value, skipDomChange, skipConstraintSetup, skipconstraintunregistration, skipBounds) ->
+      # Handle special values for x, y, width and height
       unless skipConstraintSetup
         switch name
           when 'x'
             if @__setupPercentConstraint(name, value, 'innerwidth') then return
-            if @__setupAlignConstraint(name, value, 'innerwidth', 'width') then return
+            if @__setupAlignConstraint(name, value) then return
           when 'y'
             if @__setupPercentConstraint(name, value, 'innerheight') then return
-            if @__setupAlignConstraint(name, value, 'innerheight', 'height') then return
+            if @__setupAlignConstraint(name, value) then return
           when 'width'
             if @__setupPercentConstraint(name, value, 'innerwidth') then return
             if @__setupAutoConstraint(name, value, 'x') then return
@@ -1617,18 +1653,27 @@ window.dr = do ->
       super(name, value, false, skipConstraintSetup, skipconstraintunregistration)
       value = @[name]
 
-      if not (skipDomChange or name of ignoredAttributes or name of hiddenAttributes or existing is value)
-        # console.log 'setting style', name, value, @
-        if name of domElementAttributes
-          @sprite.setProperty(name, value)
-        else if @inited or defaults[name] isnt value
-          @sprite.setStyle(name, value)
-      
-      if @inited and (name is 'x' or name is 'y' or name is 'width' or name is 'height' or name is 'xscale' or name is 'yscale' or name is 'rotation' or name is 'xanchor' or name is 'yanchor')
-        @__updateBounds(@width, @height, @xscale, @yscale, @rotation, @xanchor, @yanchor)
+      if existing isnt value and not (name of ignoredAttributes)
+        # Update dom element
+        if not (skipDomChange or name of hiddenAttributes)
+          # console.log 'setting style', name, value, @
+          if name of domElementAttributes
+            @sprite.setProperty(name, value)
+          else if @inited or defaults[name] isnt value
+            @sprite.setStyle(name, value)
+        
+        # Update bounds if any of the attributes that could modify the bounds
+        # are being updated
+        if not skipBounds and @inited
+          switch name
+            when 'x', 'y', 'width', 'height', 'xscale', 'yscale', 'rotation', 'xanchor', 'yanchor'
+              @__updateBounds()
 
-    getBoundsRelativeToParent: (x1, y1, w, h, xscale, yscale, rotation, xanchor, yanchor) ->
-      rotation = Number(rotation) unless typeof rotation is 'number'
+    getBoundsRelativeToParent: () ->
+      xanchor = @xanchor
+      yanchor = @yanchor
+      w = @width
+      h = @height
       
       if xanchor is 'left'
         xanchor = 0
@@ -1638,7 +1683,6 @@ window.dr = do ->
         xanchor = w
       else
         xanchor = Number(xanchor)
-      xanchor += x1
       
       if yanchor is 'top'
         yanchor = 0
@@ -1648,76 +1692,100 @@ window.dr = do ->
         yanchor = h
       else
         yanchor = Number(yanchor)
-      yanchor += y1
       
+      # Create a path from the 4 corners of the normal view box and then apply
+      # the transform to get the bounding box.
+      x1 = @x
       x2 = x1 + w
+      y1 = @y
       y2 = y1 + h
-      (new Path([x1,y1,x2,y1,x2,y2,x1,y2])).transformAroundOrigin(xscale, yscale, rotation, xanchor, yanchor).getBoundingBox()
+      (new Path([x1,y1,x2,y1,x2,y2,x1,y2])).transformAroundOrigin(@xscale, @yscale, @rotation, xanchor + x1, yanchor + y1).getBoundingBox()
     
-    __updateBounds: (width, height, xscale, yscale, rotation, xanchor, yanchor) ->
-      return unless width? and height?
-      
-      if (!xscale? or xscale is 1) and (!yscale? or yscale is 1) and (!rotation? or rotation % 360 is 0)
-        x = @x
-        y = @y
-      else
-        bounds = @getBoundsRelativeToParent(@x, @y, width, height, xscale, yscale, rotation, xanchor, yanchor)
+    __updateBounds: () ->
+      if @__boundsAreDifferent
+        bounds = @getBoundsRelativeToParent()
         width = bounds.width
         height = bounds.height
         x = bounds.x
         y = bounds.y
+        xdiff = @x - x
+        ydiff = @y - y
+      else
+        x = @x
+        y = @y
+        xdiff = ydiff = 0
+        width = @width
+        height = @height
       
-      @setAttribute('boundsx', x, true)
-      @setAttribute('boundsy', y, true)
-      @setAttribute('boundswidth', width, true)
-      @setAttribute('boundsheight', height, true)
+      if not closeTo(@boundsx, x) then @setAttribute('boundsx', x, true, true, true, true)
+      if not closeTo(@boundsy, y) then @setAttribute('boundsy', y, true, true, true, true)
+      if not closeTo(@boundswidth, width) then @setAttribute('boundswidth', width, true, true, true, true)
+      if not closeTo(@boundsheight, height) then @setAttribute('boundsheight', height, true, true, true, true)
+      if not closeTo(@boundsxdiff, xdiff) then @setAttribute('boundsxdiff', xdiff, true, true, true, true)
+      if not closeTo(@boundsydiff, ydiff) then @setAttribute('boundsydiff', ydiff, true, true, true, true)
 
-    __setupAlignConstraint: (name, value, axis, selfAxis) ->
+    # Returns true if a special value is encountered for alignment so that
+    # the setAttribute method can stop processing the value.
+    __setupAlignConstraint: (name, value) ->
+      # The root view can't be aligned
+      parent = @parent
+      return unless parent instanceof Node
+      
+      if name is 'x'
+        isX = true
+        axis = 'innerwidth'
+        boundsdiff = 'boundsxdiff'
+        boundssize = 'boundswidth'
+        alignattr = 'isaligned'
+      else
+        isX = false
+        axis = 'innerheight'
+        boundsdiff = 'boundsydiff'
+        boundssize = 'boundsheight'
+        alignattr = 'isvaligned'
+
+      # Remove existing function if found
       funcKey = '__alignFunc' + name
       oldFunc = @[funcKey]
-      parent = @parent
-
-      # rootview can't be aligned
-      return unless parent instanceof Node
-
       if oldFunc
-        @stopListening(parent, axis, oldFunc) # FIXME: could we make a prop on the function to call?
-        @stopListening(@, selfAxis, oldFunc)
+        @stopListening(parent, axis, oldFunc)
+        @stopListening(@, boundsdiff, oldFunc)
+        @stopListening(@, boundssize, oldFunc)
         delete @[funcKey]
+        if @[alignattr] then @setAttribute(alignattr, false, true, true, true, true)
 
       # Only process new values that are strings
       return unless typeof value is 'string'
 
       # Normalize to lowercase
       normValue = value.toLowerCase()
-
-      isX = name is 'x'
       
-      # Handle top/left
-      if normValue is 'begin' or (isX and normValue is 'left') or (not isX and normValue is 'top')
-        @.setAttribute(name, 0, false, true)
-        return true
-
+      # Handle special values
       self = @
-
-      if normValue is 'middle' or normValue is 'center'
+      if normValue is 'begin' or (isX and normValue is 'left') or (not isX and normValue is 'top')
         func = @[funcKey] = () ->
-          self.setAttribute(name, (parent[axis] - self[selfAxis]) / 2, false, true)
+          val = self[boundsdiff]
+          if self[name] isnt val then self.setAttribute(name, val, false, true, false, true)
+        func.autoOk = true # Allow auto width/height to work with top/left aligned subviews.
+      else if normValue is 'middle' or normValue is 'center'
+        func = @[funcKey] = () ->
+          self.setAttribute(name, ((parent[axis] - self[boundssize]) / 2) + self[boundsdiff], false, true, false, true)
         @listenTo(parent, axis, func)
-        @listenTo(@, selfAxis, func)
+        @listenTo(@, boundssize, func)
+      else if normValue is 'end' or (isX and normValue is 'right') or (not isX and normValue is 'bottom')
+        func = @[funcKey] = () ->
+          self.setAttribute(name, parent[axis] - self[boundssize] + self[boundsdiff], false, true, false, true)
+        @listenTo(parent, axis, func)
+        @listenTo(@, boundssize, func)
+      
+      if func
+        @listenTo(@, boundsdiff, func)
         func.call()
+        if not @[alignattr] then @setAttribute(alignattr, true, true, true, true, true)
         return true
 
-      if normValue is 'end' or (isX and normValue is 'right') or (not isX and normValue is 'bottom')
-        func = @[funcKey] = () ->
-          self.setAttribute(name, parent[axis] - self[selfAxis], false, true)
-        @listenTo(parent, axis, func)
-        @listenTo(@, selfAxis, func)
-        func.call()
-        return true
-
-      return
-
+    # Returns true if a special value is encountered for auto sizing so that
+    # the setAttribute method can stop processing the value.
     __setupAutoConstraint: (name, value, axis) ->
       layoutKey = '__autoLayout' + name
       oldLayout = @[layoutKey]
@@ -1731,6 +1799,8 @@ window.dr = do ->
         return true
 
     matchPercent = /%$/
+    # Returns true if a special value is encountered for percent position or
+    # size so that the setAttribute method can stop processing the value.
     __setupPercentConstraint: (name, value, axis) ->
       funcKey = '__percentFunc' + name
       oldFunc = @[funcKey]
@@ -1753,18 +1823,30 @@ window.dr = do ->
         func.call()
         return true
 
+    set_x: (x) ->
+      # Update boundsx since it won't get updated if we're in an event loop
+      if @__boundsAreDifferent and x - @boundsxdiff isnt @boundsx
+        @sendEvent('boundsx', @boundsx = x - @boundsxdiff)
+      x
+
+    set_y: (y) ->
+      # Update boundsy since it won't get updated if we're in an event loop
+      if @__boundsAreDifferent and y - @boundsydiff isnt @boundsy
+        @sendEvent('boundsy', @boundsy = y - @boundsydiff)
+      y
+
     set_width: (width) ->
       # Prevent width smaller than border and padding
-      width = Math.max(width, @_twiceBorderPadding)
+      width = Math.max(width, @__twiceBorderPadding)
       
-      @setAttribute('innerwidth', width - @_twiceBorderPadding, true)
+      @setAttribute('innerwidth', width - @__twiceBorderPadding, true, true, true, true)
       width
 
     set_height: (height) ->
       # Prevent height smaller than border and padding
-      height = Math.max(height, @_twiceBorderPadding)
+      height = Math.max(height, @__twiceBorderPadding)
       
-      @setAttribute('innerheight', height - @_twiceBorderPadding, true)
+      @setAttribute('innerheight', height - @__twiceBorderPadding, true, true, true, true)
       height
 
     set_border: (border) ->
@@ -1776,18 +1858,14 @@ window.dr = do ->
       padding
 
     __updateInnerMeasures: (inset) ->
-      @_twiceBorderPadding = inset
+      @__twiceBorderPadding = inset
+
       # Prevent width/height less than twice border padding
       if inset > @width then @setAttribute('width', inset, false, true, true)
       if inset > @height then @setAttribute('height', inset, false, true, true)
-      
-      # Ensures innerwidth and innerheight will both be correct before
-      # oninnerwidth and oninnerheight fire. Needed by wrappinglayout.
-      @innerwidth = @width - inset
-      @innerheight = @height - inset
 
-      @setAttribute('innerwidth', @width - inset, true)
-      @setAttribute('innerheight', @height - inset, true)
+      @setAttribute('innerwidth', @width - inset, true, true, true, true)
+      @setAttribute('innerheight', @height - inset, true, true, true, true)
 
     set_clickable: (clickable) ->
       @sprite.set_clickable(clickable) if clickable isnt @clickable
@@ -1798,36 +1876,37 @@ window.dr = do ->
       transform = ''
       prefix = capabilities.prefix.css
 
-      @z ||= 0
-      xlate = 'translate3d(0, 0, ' + @z + 'px)'
-      if @z isnt 0
-        transform = xlate
-        @parent.sprite.setStyle(prefix + 'transform-style', 'preserve-3d')
-
+      # Generate scale CSS
       xscale = @xscale
       if !@xscale? then xscale = @xscale = 1
       yscale = @yscale
       if !@yscale? then yscale = @yscale = 1
-      if xscale isnt 1 or yscale isnt 1
-        transform += ' scale3d(' + xscale + ', ' + yscale + ', 1.0)'
+      if xscale isnt 1 or yscale isnt 1 then transform += 'scale3d(' + xscale + ',' + yscale + ',1.0)'
 
+      # Generate rotation CSS
       @rotation ||= 0
-      if @rotation isnt 0
-        transform += ' rotate3d(0, 0, 1.0, ' + @rotation + 'deg)'
+      if @rotation % 360 isnt 0
+        transform += ' rotate3d(0,0,1.0,' + @rotation + 'deg)'
 
+      # Make it easy to determine that the bounds are different than the
+      # simple x, y, width, height box
+      @__boundsAreDifferent = transform isnt ''
+      
+      # Generate z-order CSS
+      @z ||= 0
+      if @z isnt 0
+        transform += ' translate3d(0,0,' + @z + 'px)'
+        @parent.sprite.setStyle(prefix + 'transform-style', 'preserve-3d')
+
+      # Generate and apply transform-origin CSS if a transform exists
       if transform isnt ''
         xanchor = @xanchor
-        if xanchor isnt 'left' and xanchor isnt 'right' and xanchor isnt 'center'
-          xanchor += 'px'
-        
+        if xanchor isnt 'left' and xanchor isnt 'right' and xanchor isnt 'center' then xanchor += 'px'
         yanchor = @yanchor
-        if yanchor isnt 'top' and yanchor isnt 'bottom' and yanchor isnt 'center'
-          yanchor += 'px'
-        
-        zanchor = @zanchor + 'px'
-        
-        @sprite.setStyle(prefix + 'transform-origin', xanchor + ' ' + yanchor + ' ' + zanchor)
+        if yanchor isnt 'top' and yanchor isnt 'bottom' and yanchor isnt 'center' then yanchor += 'px'
+        @sprite.setStyle(prefix + 'transform-origin', xanchor + ' ' + yanchor + ' ' + @zanchor + 'px')
 
+      # Apply transform CSS
       @sprite.setStyle(prefix + 'transform', transform)
 
     set_xscale: (xscale) ->
@@ -3084,20 +3163,20 @@ window.dr = do ->
   #
   #     @example
   #     <spacedlayout axis="y"></spacedlayout>
-  #     <view bgcolor="oldlace" width="auto" height="auto">
-  #       <spacedlayout></spacedlayout>
   #
+  #     <view bgcolor="oldlace" width="auto" height="auto">
+  #       <spacedlayout>
+  #         <method name="startMonitoringSubview" args="view">
+  #           output.setAttribute('text', output.text + "View Added: " + view.$tagname + ":" + view.bgcolor + "\n");
+  #           this.super();
+  #         </method>
+  #       </spacedlayout>
   #       <view width="50" height="50" bgcolor="lightpink" opacity=".3"></view>
   #       <view width="50" height="50" bgcolor="plum" opacity=".3"></view>
   #       <view width="50" height="50" bgcolor="lightblue" opacity=".3"></view>
-  #
-  #       <handler event="onlayouts" args="layouts">
-  #         output.setAttribute('text', output.text||'' + "New layout added: " + layouts[layouts.length-1].$tagname + "\n");
-  #       </handler>
   #     </view>
   #
   #     <text id="output" multiline="true" width="300"></text>
-  #
   #
   ###
   class Layout extends Node
@@ -3105,21 +3184,26 @@ window.dr = do ->
       types = {locked:'boolean'}
       defaults = {locked:false}
 
+      # Remember initial lock state so we can restore it after initialization
+      # is complete. We will always lock a layout during initialization to
+      # prevent extraneous updates
       if attributes.locked?
         attrLocked = if attributes.locked is 'true' then true else false
-
       @locked = true
+
+      # Holds the views managed by the layout in the order they will be
+      # layed out.
       @subviews = []
 
       super
 
-      # listen for changes in the parent
-      # Bind needed because the callback scope is the monitored object not the monitoring object.
+      # Listen to the parent for added/removed views. Bind needed because the 
+      # callback scope is the monitored object not the monitoring object.
       @listenTo(@parent, 'subviewAdded', @addSubview.bind(@))
       @listenTo(@parent, 'subviewRemoved', @removeSubview.bind(@))
       @listenTo(@parent, 'init', @update.bind(@))
 
-      # Store ourself in the parent layouts
+      # Store ourself in the parent layouts and fire event
       @parent.layouts ?= []
       @parent.layouts.push(@)
       @parent.sendEvent('layouts', @parent.layouts)
@@ -3130,11 +3214,13 @@ window.dr = do ->
         for subview in subviews
           @addSubview(subview)
 
+      # Restore initial lock state or unlock now that initialization is done.
       if attrLocked?
         @locked = attrLocked
       else
         @locked = false
 
+      # Finally, update the layout once
       @update()
 
     destroy: (skipevents) ->
@@ -3144,7 +3230,8 @@ window.dr = do ->
       @_removeFromParent('layouts') unless skipevents
 
     ###*
-    # Adds the provided view to the subviews array of this layout.
+    # Adds the provided view to the subviews array of this layout, starts
+    # monitoring the view for changes and updates the layout.
     # @param {dr.view} view The view to add to this layout.
     # @return {void}
     ###
@@ -3158,7 +3245,8 @@ window.dr = do ->
         @update()
 
     ###*
-    # Removes the provided View from the subviews array of this Layout.
+    # Removes the provided View from the subviews array of this Layout,
+    # stops monitoring the view for changes and updates the layout.
     # @param {dr.view} view The view to remove from this layout.
     # @return {number} the index of the removed subview or -1 if not removed.
     ###
@@ -3176,7 +3264,7 @@ window.dr = do ->
 
     ###*
     # Checks if a subview can be added to this Layout or not. The default
-    # implementation returns the 'ignorelayout' attributes of the subview.
+    # implementation checks the 'ignorelayout' attributes of the subview.
     # @param {dr.view} view The view to check.
     # @return {boolean} True means the subview will be skipped, false otherwise.
     ###
@@ -3185,7 +3273,8 @@ window.dr = do ->
 
     ###*
     # Subclasses should implement this method to start listening to
-    # events from the subview that should trigger the update method.
+    # events from the subview that should update the layout. The default
+    # implementation does nothing.
     # @param {dr.view} view The view to start monitoring for changes.
     # @return {void}
     ###
@@ -3206,8 +3295,9 @@ window.dr = do ->
 
     ###*
     # Subclasses should implement this method to stop listening to
-    # events from the subview that would trigger the update method. This
+    # events from the subview that should update the layout. This
     # should remove all listeners that were setup in startMonitoringSubview.
+    # The default implementation does nothing.
     # @param {dr.view} view The view to stop monitoring for changes.
     # @return {void}
     ###
@@ -3227,16 +3317,18 @@ window.dr = do ->
         @stopMonitoringSubview(svs[--i])
 
     ###*
-    # Checks if the layout is locked or not. Should be called by the
-    # "update" method of each layout to check if it is OK to do the update.
+    # Checks if the layout can be updated right now or not. Should be called 
+    # by the "update" method of the layout to check if it is OK to do the 
+    # update. The default implementation checks if the layout is locked and
+    # the parent is inited.
     # @return {boolean} true if not locked, false otherwise.
     ###
     canUpdate: ->
       return not @locked and @parent.inited
 
     ###*
-    # Updates the layout. Subclasses should call canUpdate to check lock state
-    # before doing anything.
+    # Updates the layout. Subclasses should call canUpdate to check if it is
+    # OK to update or not. The defualt implementation does nothing.
     # @return {void}
     ###
     update: ->
@@ -3249,15 +3341,21 @@ window.dr = do ->
         @update()
       return v
 
+  # A private layout used by the special value for width/height of 'auto'.
+  # This layout sizes the view to fit its child views.
   class AutoPropertyLayout extends Layout
     startMonitoringSubview: (view) ->
       func = @update.bind(@)
       if @axis is 'x'
         @listenTo(view, 'x', func)
         @listenTo(view, 'width', func)
+        @listenTo(view, 'boundsx', func)
+        @listenTo(view, 'boundswidth', func)
       else
         @listenTo(view, 'y', func)
         @listenTo(view, 'height', func)
+        @listenTo(view, 'boundsy', func)
+        @listenTo(view, 'boundsheight', func)
       @listenTo(view, 'visible', func)
 
     stopMonitoringSubview: (view) ->
@@ -3265,9 +3363,13 @@ window.dr = do ->
       if @axis is 'x'
         @stopListening(view, 'x', func)
         @stopListening(view, 'width', func)
+        @stopListening(view, 'boundsx', func)
+        @stopListening(view, 'boundswidth', func)
       else
         @stopListening(view, 'y', func)
         @stopListening(view, 'height', func)
+        @stopListening(view, 'boundsy', func)
+        @stopListening(view, 'boundsheight', func)
       @stopListening(view, 'visible', func)
 
     update: ->
@@ -3283,25 +3385,30 @@ window.dr = do ->
         max = 0
 
         if @axis is 'x'
+          # Find the farthest horizontal extent of any subview
           while i
             sv = svs[--i]
-            unless @_skipX(sv) then max = maxFunc(max, sv.x + maxFunc(0, sv.width))
-          parent.setAttribute('width', max + parent.width - parent.innerwidth, false, true)
+            unless @_skipX(sv) then max = maxFunc(max, sv.boundsx + maxFunc(0, sv.boundswidth))
+          val = max + parent.__twiceBorderPadding
+          if parent.width isnt val then parent.setAttribute('width', val, false, true)
         else
+          # Find the farthest vertical extent of any subview
           while i
             sv = svs[--i]
-            unless @_skipY(sv) then max = maxFunc(max, sv.y + maxFunc(0, sv.height))
-          parent.setAttribute('height', max + parent.height - parent.innerheight, false, true)
+            unless @_skipY(sv) then max = maxFunc(max, sv.boundsy + maxFunc(0, sv.boundsheight))
+          val = max + parent.__twiceBorderPadding
+          if parent.height isnt val then parent.setAttribute('height', val, false, true)
 
         @locked = false
 
-    # Skip children that use a percent position or size since this leads
-    # to circular sizing constraints. Also skip children that use an align
-    # of bottom/right or center/middle
+    # No need to measure children that are not visible or that use a percent 
+    # position or size since this leads to circular sizing constraints. 
+    # Also skip children that use an align of bottom/right or center/middle
+    # since those also lead to circular sizing constraints.
     _skipX: (view) ->
-      return not view.visible or view.__percentFuncwidth? or view.__percentFuncx? or view.__alignFuncx?
+      return not view.visible or view.__percentFuncwidth? or view.__percentFuncx? or (view.__alignFuncx? and not view.__alignFuncx.autoOk)
     _skipY: (view) ->
-      return not view.visible or view.__percentFuncheight? or view.__percentFuncy? or view.__alignFuncy?
+      return not view.visible or view.__percentFuncheight? or view.__percentFuncy? or (view.__alignFuncy? and not view.__alignFuncy.autoOk)
 
   # An ordered collection of points that can be transformed in various ways.
   class Path

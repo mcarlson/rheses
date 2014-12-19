@@ -32,6 +32,23 @@
   
   <spacedlayout axis="y" spacing="5" collapseparent="true"></spacedlayout>
   
+  <view padding="5" border="2" bordercolor="black" height="auto" bgcolor="#999999">
+    <spacedlayout name="layoutX" inset="4" spacing="1" outset="3" collapseparent="true"></spacedlayout>
+    
+    <view name="inner" width="100%" height="100%" ignorelayout="true" bgcolor="#cccccc"></view>
+    
+    <item name="v1" y="top" width="25" height="25">
+      <animator attribute="rotation" from="0" to="360" duration="1000" repeat="25"></animator>
+    </item>
+    <item name="v2" width="20"></item>
+    <item name="v3" y="top" width="30" height="30" xscale="2" xanchor="right">
+      <animator attribute="rotation" from="0" to="360" duration="5000" repeat="5"></animator>
+      <animator attribute="yscale" from="1" to="3" duration="5000" repeat="5" bounce="true"></animator>
+    </item>
+    <item name="v4" width="40"></item>
+    <item name="v5" width="50"></item>
+  </view>
+  
   <view width="300" height="auto" bgcolor="#999999" padding="2" border="1" bordercolor="black">
     <item width="10" height="20" bgcolor="green"></item>
     <item height="20" layouthint="1"></item>
@@ -47,7 +64,10 @@
     <item2 layouthint="break"></item2>
     <item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2>
     <item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2>
-    <item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2>
+    <item2 bgcolor="orange">
+      <animator attribute="rotation" from="0" to="360" duration="1000" repeat="25"></animator>
+    </item2>
+    <item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2>
     <item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2>
     <item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2>
     <item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2>

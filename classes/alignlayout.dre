@@ -31,113 +31,161 @@ SOFTWARE. -->
       * be aligned within the inner extent of the parent view.
       *
       *     @example
-      *     <alignlayout align="middle" collapseparent="true">
-      *     </alignlayout>
+      *     <alignlayout align="middle" collapseparent="true"></alignlayout>
       *
-      *     <view width="100" height="35" bgcolor="plum"></view>
-      *     <view width="100" height="25" bgcolor="lightpink"></view>
-      *     <view width="100" height="15" bgcolor="lightblue"></view>
+      *     <view x="0" width="50" height="35" bgcolor="plum"></view>
+      *     <view x="55" width="50" height="25" bgcolor="lightpink"></view>
+      *     <view x="110" width="50" height="15" bgcolor="lightblue"></view>
       */-->
 <class name="alignlayout" extends="variablelayout" type="coffee">
   <!--/**
     * @attribute {String} [align='middle']
     * Determines which way the views are aligned. Supported values are 
-    * 'left', 'center', 'right' and 'top', 'middle' and 'bottom'.
+    * 'left', 'center', 'right' for horizontal alignment and 'top', 'middle' 
+    * and 'bottom' for vertical alignment.
     */-->
   <attribute name="align" type="string" value="middle"></attribute>
   <setter name="align" args="align">
-    @measureAttrName ?= 'height'
-    @setterAttrName ?= 'y'
-    
+    # Stop monitoring since we may end up changing the axis. This needs to
+    # be done before the new align value is set since stopMonitoringSubview
+    # needs to know the old values.
     @stopMonitoringAllSubviews()
     
+    # Setup private attributes based on axis
     switch align
       when 'left', 'center', 'right'
-        @measureAttrName = 'width'
-        @setterAttrName = 'x'
+        # The layout is oriented horizontally
+        @__parentAttrName = 'width'        # The attr to update on the parent if collapseparent is true
+        @__innerAttrName = 'innerwidth'    # The attr used to get available space
+        @__measureAttrName = 'boundswidth' # The attr to measure the size needed for a subview
+        @__diffAttrName = 'boundsxdiff'    # The attr used to offset the position of a transformed subview so it will appear to be aligned
+        @__setterAttrName = 'x'            # The attr to set on a subview to position it
+        @__alignattr = 'isaligned'         # The attr on a subview to determine if it is aligning itself and should thus be ignored.
       when 'top', 'middle', 'bottom'
-        @measureAttrName = 'height'
-        @setterAttrName = 'y'
+        # The layout is oriented vertically
+        @__parentAttrName = 'height'
+        @__innerAttrName = 'innerheight'
+        @__measureAttrName = 'boundsheight'
+        @__diffAttrName = 'boundsydiff'
+        @__setterAttrName = 'y'
+        @__alignattr = 'isvaligned'
     return align
   </setter>
   <handler event="onalign">
+    # Start monitoring again and update since we have new alignment. This needs
+    # to be done after the new align value is set since startMonitoringSubview
+    # needs to use the new values.
     @startMonitoringAllSubviews()
     @update()
   </handler>
   
   <setter name="collapseparent" args="collapseparent">
+    # Stop monitoring since we will have different collapseparent behavior
     @stopMonitoringAllSubviews()
     return collapseparent
   </setter>
   <handler event="oncollapseparent">
+    # Start monitoring again and update since we have new collapseparent 
+    # behavior
     @startMonitoringAllSubviews()
   </handler>
   
   <method name="stopMonitoringAllSubviews" args="view">
     @super()
-    if !@collapseparent
-      @stopListening(@parent, 'inner' + @measureAttrName, @update)
+    
+    # When not collapsing we were monitoring the parent's inner measure
+    # Also verify that __innerAttrName exists, otherwise stopListening will
+    # clear all the listeners.
+    if not @collapseparent and @__innerAttrName? then @stopListening(@parent, @__innerAttrName, @update)
   </method>
   
   <method name="startMonitoringAllSubviews" args="view">
     @super()
-    if !@collapseparent
-      @listenTo(@parent, 'inner' + @measureAttrName, @update)
+    
+    # When not collapsing we need to monitor the parent's inner measure
+    if not @collapseparent then @listenTo(@parent, @__innerAttrName, @update)
   </method>
   
   <method name="startMonitoringSubview" args="view">
     @super()
-    @listenTo(view, @measureAttrName, @update)
+    
+    # Monitor each subview's measure, bounds offset and self alignment state
+    @listenTo(view, @__measureAttrName, @update)
+    @listenTo(view, @__diffAttrName, @update)
+    @listenTo(view, @__alignattr, @update)
   </method>
   
   <method name="stopMonitoringSubview" args="view">
     @super()
-    @stopListening(view, @measureAttrName, @update)
+    
+    # No longer monitor each subview's measure, bounds offset and self 
+    # alignment state
+    @stopListening(view, @__measureAttrName, @update)
+    @stopListening(view, @__diffAttrName, @update)
+    @stopListening(view, @__alignattr, @update)
+  </method>
+  
+  <method name="skipSubview" args="view">
+    # Don't position subviews that are handling their own alignment
+    if view[@__alignattr] then return true
+    
+    # Use visibility as well
+    return @super()
   </method>
   
   <!--/**
     * @method doBeforeUpdate
     * Determine the maximum subview width/height according to the alignment.
+    * This is only necessary if collapseparent is true since we will need to
+    * know what size to make the parent as well as what size to align the
+    * subviews within.
     */-->
   <method name="doBeforeUpdate">
     if @collapseparent
-      measureAttrName = @measureAttrName
+      # Walk all the subviews to determine the largest size needed to fit
+      # them all.
+      measureAttrName = @__measureAttrName
       svs = @subviews
       i = svs.length
       value = 0
-      
       while i
         sv = svs[--i]
         if @skipSubview(sv) then continue
         value = Math.max(value, sv[measureAttrName])
       
-      if (isNaN(value) || 0 >= value)
-        value = 0
+      # Convert invalid values into a size of 0
+      if isNaN(value) or 0 >= value then value = 0
       
+      # Store the value to use for alignment
       @setAttribute('value', value)
   </method>
   
   <method name="updateSubview" args="count, view, attribute, value">
+    diff = view[@__diffAttrName]
+    
     switch @align
       when 'center','middle'
         if @collapseparent
-          view.setAttribute(@setterAttrName, (value - view[@measureAttrName]) / 2)
+          view.setAttribute(@__setterAttrName, diff + (value - view[@__measureAttrName]) / 2)
         else
-          view.setAttribute(@setterAttrName, (@parent['inner' + @measureAttrName] - view[@measureAttrName]) / 2)
+          view.setAttribute(@__setterAttrName, diff + (@parent[@__innerAttrName] - view[@__measureAttrName]) / 2)
+      
       when 'right','bottom'
         if @collapseparent
-          view.setAttribute(@setterAttrName, value - view[@measureAttrName])
+          view.setAttribute(@__setterAttrName, diff + value - view[@__measureAttrName])
         else
-          view.setAttribute(@setterAttrName, @parent['inner' + @measureAttrName] - view[@measureAttrName])
+          view.setAttribute(@__setterAttrName, diff + @parent[@__innerAttrName] - view[@__measureAttrName])
+      
       else
-        view.setAttribute(@setterAttrName, 0)
+        view.setAttribute(@__setterAttrName, diff)
     
     return value
   </method>
   
   <method name="updateParent" args="attribute, value">
+    # Resize the parent and allow for the difference between innersize and size
+    # due to border and padding.
     parent = @parent
-    man = @measureAttrName
-    parent.setAttribute(man, value + parent[man] - parent['inner' + man])
+    parent.setAttribute(@__parentAttrName, value + parent[@__parentAttrName] - parent[@__innerAttrName])
   </method>
 </class>

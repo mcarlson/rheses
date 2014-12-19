@@ -15,8 +15,12 @@
   <view width="100%" height="100%" bgcolor="#cccccc">
     <class name="item" width="10" height="10" bgcolor="#666666"></class>
     
+    <spacedlayout axis="y" spacing="5" inset="5"></spacedlayout>
+    <!-- Basic tests -->
     <view name="container" padding="5" border="2" bordercolor="black" height="120" bgcolor="#999999">
       <spacedlayout name="layoutX" inset="4" spacing="1" outset="3" collapseparent="true"></spacedlayout>
+      
+      <view name="inner" width="100%" height="100%" ignorelayout="true" bgcolor="#cccccc"></view>
       
       <item name="v1" width="10"></item>
       <item name="v2" width="20"></item>
@@ -25,7 +29,45 @@
       <item name="v5" width="50"></item>
       
       <spacedlayout name="layoutY" axis="y" inset="3" spacing="-5" outset="4" collapseparent="true"></spacedlayout>
+      
+      <handler event="oninit">
+        assert.equal(4, this.v1.x, 'View one should have an x of 4.');
+        assert.equal(15, this.v2.x, 'View two should have an x of 15.');
+        assert.equal(36, this.v3.x, 'View three should have an x of 36.');
+        assert.equal(67, this.v4.x, 'View four should have an x of 67.');
+        assert.equal(108, this.v5.x, 'View five should have an x of 108.');
+        
+        assert.equal(3, this.v1.y, 'View one should have a y of 3.');
+        assert.equal(8, this.v2.y, 'View two should have a y of 8.');
+        assert.equal(13, this.v3.y, 'View three should have a y of 13.');
+        assert.equal(18, this.v4.y, 'View four should have a y of 18.');
+        assert.equal(23, this.v5.y, 'View five should have a y of 23.');
+      </handler>
     </view>
+    
+    <!-- Transformed views tests -->
+    <view name="container2" padding="5" border="2" bordercolor="black" height="50" bgcolor="#999999">
+      <spacedlayout name="layoutX" inset="4" spacing="1" outset="3" collapseparent="true"></spacedlayout>
+      
+      <view name="inner" width="100%" height="100%" ignorelayout="true" bgcolor="#cccccc"></view>
+      
+      <item name="v1" width="25" height="25" rotation="45"></item>
+      <item name="v2" width="20"></item>
+      <item name="v3" width="30" height="30" xscale="2" xanchor="right"></item>
+      <item name="v4" width="40"></item>
+      <item name="v5" width="50"></item>
+      
+      <handler event="oninit">
+        assert.closeTo(9.18, this.v1.x, 0.1, 'View one should have an x of 9.18.');
+        assert.closeTo(40.35, this.v2.x, 0.1, 'View two should have an x of 40.35.');
+        assert.closeTo(91.36, this.v3.x, 0.1, 'View three should have an x of 91.36.');
+        assert.closeTo(122.36, this.v4.x, 0.1, 'View four should have an x of 122.36.');
+        assert.closeTo(163.36, this.v5.x, 0.1, 'View five should have an x of 163.36.');
+        
+        assert.closeTo(230.36, this.width, 0.1, 'This view should have a width of 230.36.');
+      </handler>
+    </view>
+    
     
     <handler event="oninit">
       var container = this.container,
@@ -111,6 +153,35 @@
       assert.equal(8, v3.y, 'View three should have a y of 8.');
       assert.equal(13, v4.y, 'View four should have a y of 13.');
       assert.equal(18, v5.y, 'View five should have a y of 18.');
+      
+      
+      // Verify transformed children
+      container = this.container2;
+      layoutX = container.layoutX;
+      v1 = container.v1;
+      v2 = container.v2;
+      v3 = container.v3;
+      v4 = container.v4;
+      v5 = container.v5;
+      
+      assert.closeTo(9.18, v1.x, 0.1, 'View one should have an x of 9.18.');
+      assert.closeTo(40.35, v2.x, 0.1, 'View two should have an x of 40.35.');
+      assert.closeTo(91.36, v3.x, 0.1, 'View three should have an x of 91.36.');
+      assert.closeTo(122.36, v4.x, 0.1, 'View four should have an x of 122.36.');
+      assert.closeTo(163.36, v5.x, 0.1, 'View five should have an x of 163.36.');
+      
+      assert.closeTo(230.36, container.width, 0.1, 'This view should have a width of 230.36.');
+      
+      // Rotate the last view
+      v5.setAttribute('rotation', 15);
+      
+      assert.closeTo(9.18, v1.x, 0.1, 'View one should have an x of 9.18.');
+      assert.closeTo(40.35, v2.x, 0.1, 'View two should have an x of 40.35.');
+      assert.closeTo(91.36, v3.x, 0.1, 'View three should have an x of 91.36.');
+      assert.closeTo(122.36, v4.x, 0.1, 'View four should have an x of 122.36.');
+      assert.closeTo(163.78, v5.x, 0.1, 'View five should have an x of 163.78.');
+      
+      assert.closeTo(231.24, container.width, 0.1, 'This view should have a width of 231.24.');
     </handler>
   </view>
 <!-- The MIT License (MIT)
