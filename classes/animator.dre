@@ -252,7 +252,7 @@ SOFTWARE. -->
       */-->
 
     <!-- Internal prepare animation to play -->
-    <method name="prepare">
+    <method name="prepare" args='standalone'>
 
       // lets create the animator
       this.animator = Animator.createAnimator()
@@ -263,7 +263,12 @@ SOFTWARE. -->
       if(!this.track)this.track = {}
       this.track[0] = this.from === ""? this.target_obj[this.attribute]: this.from
 
-      this.animator.play(this.track)
+      if(standalone){
+        this.animator.play(this.track)
+      }
+      else
+        this.animator.playStateless(this.track)
+
       if(this.track.paused) this.animator.pause()
     
       // returns the length of the animation and track
@@ -283,12 +288,13 @@ SOFTWARE. -->
       }
       var value = this.animator.timestep(time)
       if(this.debug) console.log(time, value)
+
       this.target_obj.setAttribute(this.attribute, value)
     </method>
 
     <!-- Internal start animation-->
     <method name="startAnim">
-      this.prepare()
+      this.prepare(true)
 
       var dup = 0
       var animTick = function(time){
