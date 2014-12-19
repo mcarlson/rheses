@@ -39,9 +39,9 @@ SOFTWARE. -->
       * @attribute {Boolean} parallel
       * Wether child animations are run in parallel, or serial
       */-->
-    <attribute name="parallel" value="true" type="boolean"/>
-    <setter name="parallel" args="parallel">
-      return parallel
+    <attribute name="sequential" value="false" type="boolean"/>
+    <setter name="sequential" args="sequential">
+      return sequential
     </setter>
 
     <!--/**
@@ -185,7 +185,7 @@ SOFTWARE. -->
       */-->
 
     <!-- Internal prepare animation to play -->
-    <method name="prepare"><!--
+    <method name="prepare" args="standalone"><!--
       this.animator = Animator.createAnimator()
 
       if(!this.slave_anims){
@@ -198,7 +198,7 @@ SOFTWARE. -->
         var len = this.slave_anims[i].prepare()
         this.slave_anims[i]._computed_len = len
 
-        if(this.parallel){
+        if(!this.sequential){
           max_len = Math.max(max_len, len)
         }
         else{
@@ -211,7 +211,10 @@ SOFTWARE. -->
       this.track[0] = 0
       this.track[max_len] = max_len
       // and play it
-      this.animator.play(this.track)
+      if(standalone)
+        this.animator.play(this.track)
+      else
+        this.animator.playStateless(this.track)
       // return our length
       return max_len * this.repeat + this.delay
     --></method>
@@ -219,7 +222,8 @@ SOFTWARE. -->
     <!-- Internal do timestep -->
     <method name="timestep" args='time, sample_first'><!--
       var local_time = this.animator.timestep(time)
-      if(this.parallel){
+      //console.log(this.animator.ended, local_time)
+      if(!this.sequential){
         for(var i = 0;i < this.slave_anims.length; i++){
           this.slave_anims[i].timestep(local_time, sample_first)
         }
@@ -232,14 +236,12 @@ SOFTWARE. -->
 
           // make sure we do the last key of the last animation
           if(i == this.slave_anims.length - 1){
-            next = next * 2          
+            next = next * 2
           }
-
           if(local_time >= accum && local_time < next){
             var forwards = (this.last_time || 0 )< local_time
-
             if(this.last_anim != anim){
-              if(forwards){ // 
+              if(forwards){ //  if we are moving forwards fire the last timestep of the things we skipped.
                 var found = false
                 for(var j = 0; j < this.slave_anims.length; j++){
                   var iter_anim = this.slave_anims[j]
@@ -248,7 +250,7 @@ SOFTWARE. -->
                   if(found) iter_anim.timestep(iter_anim._computed_len)
                 }
               }
-              else{
+              else{ // if we are moving backwards, fire the 0 timesteps of the things we skipped
                 var found = false
                 for(var j = this.slave_anims.length - 1; j >= 0; j--){
                   var iter_anim = this.slave_anims[j]
@@ -258,16 +260,15 @@ SOFTWARE. -->
                 }
               }
             }
-            // if we are moving backwards, fire the 0 timesteps of the things we skipped
-            // if we are moving forwards fire the last timestep of the things we skipped.
             anim.timestep(local_time - accum,  sample_first || forwards && this.last_anim != anim)
             this.last_time = local_time
             this.last_anim = anim
           }
           accum = next
         }
-        return local_time
       }
+      return local_time
+
     --></method>
 
     <!-- Internal start animation -->
@@ -277,22 +278,21 @@ SOFTWARE. -->
 
       var dup = 0
       var animTick = function(time){
-        var time = this.timestep(time)
-        if(this.start_fire && time !== 0){
+
+        var mytime = this.timestep(time)
+        if(this.start_fire && mytime !== 0){
           this.sendEvent('start')
           this.start_fire = false
         }
-
-        this.sendEvent('tick', time)
+        this.sendEvent('tick', mytime)
         if(this.animator.ended){
-          this.sendEvent('end')
           // remove the animator so it reinitializes when putting paused on false again
           this.animator = undefined
+          this.sendEvent('end')
         }
         else{
           dr.idle.callOnIdle(animTick)
         }
-        // the animator works with timelines, so lets set up our timeline from the childlist.
       }.bind(this)
       dr.idle.callOnIdle(animTick)
 
