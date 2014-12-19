@@ -88,16 +88,16 @@ SOFTWARE. -->
       *             this.parent.setAttribute('height', value + 10);
       *         </method>
       *         <method name="startMonitoringSubview" args="view">
-      *             super();
-      *             this.listenTo(view, 'opacity', @update)
+      *             this.super();
+      *             this.listenTo(view, 'opacity', this.update)
       *         </method>
       *         <method name="stopMonitoringSubview" args="view">
-      *             super();
-      *             this.stopListening(view, 'opacity', @update)
+      *             this.super();
+      *             this.stopListening(view, 'opacity', this.update)
       *         </method>
       *         <method name="skipSubview" args="view">
-      *             if (0.5 >= view.opacity) return false;
-      *             return super();
+      *             if (0.5 >= view.opacity) return true;
+      *             return this.super();
       *         </method>
       *     </variablelayout>
       *
