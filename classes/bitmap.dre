@@ -26,6 +26,11 @@ SOFTWARE. -->
      *
      *     @example
      *     <bitmap src="../api-examples-resources/shasta.jpg" width="230" height="161"></bitmap>
+     *
+     * Stretch an image to fill the entire view.
+     *     @example
+     *     <bitmap src="../api-examples-resources/shasta.jpg" width="300" height="150" stretches="true"></bitmap>
+     *
      */-->
     <class name="bitmap">
       <!--/**
@@ -40,7 +45,7 @@ SOFTWARE. -->
         }
         if (this.src != src) {
           this.setAttribute('background-image', 'url("' + src + '")');
-          this.setAttribute('background-size', 'cover');
+          this.setAttribute('background-repeat', 'no-repeat');
   
           var img = this._img;
           if (! img) {
@@ -68,5 +73,28 @@ SOFTWARE. -->
           }
         }
         return src
+      </setter>
+      <!--/**
+        * @attribute {String} [stretches=false]
+        * How the image is scaled to the size of the view.
+        * Supported values are 'true', 'false', 'scale'.
+        * false will scale the image to completely fill the view, but may obscure parts of the image.
+        * true will stretch the image to fit the view.
+        * scale will scale the image so it visible within the view, but the image may not fill the entire view.
+        */-->
+      <attribute name="stretches" type="string" value="false"></attribute>
+      <setter name="stretches" args="stretches">
+        if (this.stretches != stretches) {
+          var value = 'cover';
+          if (stretches == 'scale') {
+            value = 'contain'
+          }
+          else if (stretches == 'true'){
+            value = '100% 100%';
+          }
+
+          this.setAttribute('background-size', value);
+        }
+        return stretches;
       </setter>
     </class>
