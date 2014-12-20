@@ -31,7 +31,7 @@ SOFTWARE. -->
       * have at least "outset" space after it.
       *
       * Lines/Columns are positioned in a similar fashion to the individual views
-      * using lineinset, linespacing and lineoutset. If collapseparent is true
+      * using lineinset, linespacing and lineoutset. If updateparent is true
       * the lineoutset is used to leave space after the last line.
       *
       * A line break can be forced by using a "break" layouthint on a managed
@@ -56,6 +56,20 @@ SOFTWARE. -->
       *     <view width="100" height="15" bgcolor="lightblue"></view>
       */-->
 <class name="wrappinglayout" extends="variablelayout" type="coffee">
+  <method name="construct" args="el, attributes">
+    # Use whichever attribute or aliases attribute is not the default and
+    # delete the unnecessary initial value.
+    if attributes.value isnt '0' and attributes.inset is '0'
+      attributes.inset = attributes.value
+    delete attributes.value
+    
+    if attributes.attribute isnt 'x' and attributes.axis is 'x'
+      attributes.axis = attributes.attribute
+    delete attributes.attribute
+    
+    @super()
+  </method>
+  
   <!--/**
     * @attribute {Number} [spacing=0]
     * The spacing between views.
@@ -90,7 +104,7 @@ SOFTWARE. -->
   
   <!--/**
     * @attribute {Number} [lineoutset=0]
-    * Space after the last line of views. Only used when collapseparent is true.
+    * Space after the last line of views. Only used when updateparent is true.
     */-->
   <attribute name="lineoutset" type="number" value="0"></attribute>
   <handler event="onlineoutset" method="update"></handler>
@@ -130,7 +144,7 @@ SOFTWARE. -->
     # Setup private attributes based on axis
     if attribute == 'y'
       # The layout is oriented vertically
-      @__parentAttrName = 'width'             # The attr to update on the parent if collapseparent is true
+      @__parentAttrName = 'width'             # The attr to update on the parent if updateparent is true
       @__innerAttrName = 'innerheight'        # The attr used to get available space
       @__measureAttrName = 'boundsheight'     # The attr to measure the size needed for a subview
       @__diffAttrName = 'boundsydiff'         # The attr used to offset the position of a transformed subview so it will not overlap adjacent views

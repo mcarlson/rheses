@@ -48,14 +48,14 @@ SOFTWARE. -->
       * and each subsequent view will be positioned with a y value 1 pixel
       * below the bottom of the previous view. In addition, all views with
       * an even count will be positioned at an x of 5 and odd views at an
-      * x of 10. Also, collapseparent has been set to true so the
+      * x of 10. Also, updateparent has been set to true so the
       * updateParent method will be called with the attribute and last value
       * returned from updateSubview. In this case updateParent will resize
       * the parent view to a height that fits all the subviews plus an
       * additional 10 pixels.
       *
       *     @example
-      *     <variablelayout attribute="y" value="10" collapseparent="true">
+      *     <variablelayout attribute="y" value="10" updateparent="true">
       *         <method name="updateSubview" args="count, view, attribute, value">
       *             view.setAttribute(attribute, value);
       *             view.setAttribute('x', count % 2 === 0 ? 5 : 10);
@@ -78,7 +78,7 @@ SOFTWARE. -->
       * be updated.
       *
       *     @example
-      *     <variablelayout attribute="y" value="10" collapseparent="true">
+      *     <variablelayout attribute="y" value="10" updateparent="true">
       *         <method name="updateSubview" args="count, view, attribute, value">
       *             view.setAttribute(attribute, value);
       *             view.setAttribute('x', count % 2 === 0 ? 5 : 10);
@@ -108,15 +108,15 @@ SOFTWARE. -->
       */-->
 <class name="variablelayout" extends="constantlayout" type="coffee">
   <!--/**
-    * @attribute {boolean} [collapseparent=false]
+    * @attribute {boolean} [updateparent=false]
     * If true the updateParent method of the variablelayout will be called. 
     * The updateParent method provides an opportunity for the layout to
     * modify the parent view in some way each time update completes. A typical
     * implementation is to resize the parent to fit the newly layed out child 
     * views.
     */-->
-  <attribute name="collapseparent" type="boolean" value="false"></attribute>
-  <handler event="oncollapseparent" method="update"></handler>
+  <attribute name="updateparent" type="boolean" value="false"></attribute>
+  <handler event="onupdateparent" method="update"></handler>
 
   <!--/**
     * @attribute {boolean} [reverse=false]
@@ -214,7 +214,7 @@ SOFTWARE. -->
 
   <!--/**
     * @method updateParent
-    * Called if the collapseparent attribute is true. Subclasses should
+    * Called if the updateparent attribute is true. Subclasses should
     * implement this if they want to modify the parent view.
     * @param {String} attribute The name of the attribute to update.
     * @param {*} value The value to set on the parent.
@@ -252,7 +252,7 @@ SOFTWARE. -->
 
       @doAfterUpdate()
 
-      if @collapseparent then @updateParent(attribute, value)
+      if @updateparent then @updateParent(attribute, value)
 
       @locked = false
   </method>

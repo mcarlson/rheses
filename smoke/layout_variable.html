@@ -46,7 +46,7 @@
       <item name="v5" height="5" width="5"></item>
       <item name="v6" visible="false"></item>
       
-      <variablelayout name="layoutY" attribute="y" value="5" collapseparent="true">
+      <variablelayout name="layoutY" attribute="y" value="5" updateparent="true">
         <method name="updateSubview" args="count, view, attribute, value">
           return this.super() + count + view.height;
         </method>
@@ -144,7 +144,7 @@
       
       assert.equal(55, container.y, 'Update parent should set the container y to 55.');
       
-      layoutX.setAttribute('collapseparent', true);
+      layoutX.setAttribute('updateparent', true);
       assert.equal(4, layoutX.beforeCallCount, 'doBeforeUpdate should be called once again.');
       assert.equal(4, layoutX.afterCallCount, 'doAfterUpdate should be called once again.');
       

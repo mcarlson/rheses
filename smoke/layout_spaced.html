@@ -18,7 +18,7 @@
     <spacedlayout axis="y" spacing="5" inset="5"></spacedlayout>
     <!-- Basic tests -->
     <view name="container" padding="5" border="2" bordercolor="black" height="120" bgcolor="#999999">
-      <spacedlayout name="layoutX" inset="4" spacing="1" outset="3" collapseparent="true"></spacedlayout>
+      <spacedlayout name="layoutX" inset="4" spacing="1" outset="3" updateparent="true"></spacedlayout>
       
       <view name="inner" width="100%" height="100%" ignorelayout="true" bgcolor="#cccccc"></view>
       
@@ -28,7 +28,7 @@
       <item name="v4" width="40"></item>
       <item name="v5" width="50"></item>
       
-      <spacedlayout name="layoutY" axis="y" inset="3" spacing="-5" outset="4" collapseparent="true"></spacedlayout>
+      <spacedlayout name="layoutY" axis="y" value="${1 + 2}" inset="${1 + 1 + 1}" spacing="-5" outset="4" updateparent="true"></spacedlayout>
       
       <handler event="oninit">
         assert.equal(4, this.v1.x, 'View one should have an x of 4.');
@@ -47,7 +47,7 @@
     
     <!-- Transformed views tests -->
     <view name="container2" padding="5" border="2" bordercolor="black" height="50" bgcolor="#999999">
-      <spacedlayout name="layoutX" inset="4" spacing="1" outset="3" collapseparent="true"></spacedlayout>
+      <spacedlayout name="layoutX" inset="4" spacing="1" outset="3" updateparent="true"></spacedlayout>
       
       <view name="inner" width="100%" height="100%" ignorelayout="true" bgcolor="#cccccc"></view>
       
@@ -79,7 +79,7 @@
           v4 = container.v4,
           v5 = container.v5;
       
-      // Verify collapseparent works
+      // Verify updateparent works
       assert.equal(150 + 4 + 7 + 14, container.width, 'Container should have a width of 175.');
       assert.equal(50 - 20 + 7 + 14, container.height, 'Container should have a width of 51.');
       

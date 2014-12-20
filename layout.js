@@ -81,7 +81,7 @@
   })();
 
   window.dr = (function() {
-    var AutoPropertyLayout, Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Path, Sprite, StartEventable, State, Text, View, Window, callOnIdle, capabilities, closeTo, compiler, constraintScopes, debug, dom, domElementAttributes, eventq, exports, fcamelCase, handlerq, hiddenAttributes, idle, ignoredAttributes, instantiating, knownstyles, matchEvent, mixOf, moduleKeywords, mouseEvents, noop, querystring, rdashAlpha, showWarnings, specialtags, ss, ss2, starttime, test, triggerlock, warnings, _initConstraints;
+    var AutoPropertyLayout, Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Path, Sprite, StartEventable, State, View, Window, callOnIdle, capabilities, closeTo, compiler, constraintScopes, debug, dom, domElementAttributes, eventq, exports, fcamelCase, handlerq, hiddenAttributes, idle, ignoredAttributes, instantiating, knownstyles, matchEvent, mixOf, moduleKeywords, mouseEvents, noop, querystring, rdashAlpha, showWarnings, specialtags, ss, ss2, starttime, test, triggerlock, warnings, _initConstraints;
     noop = function() {};
     closeTo = function(a, b, epsilon) {
       epsilon || (epsilon = 0.01);
@@ -786,16 +786,44 @@
       lateattributes = ['data'];
 
       function Node(el, attributes) {
-        var deferbindings, name, parent, skiponinit, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref, _ref1, _ref2, _ref3, _ref4;
+        var args, hassuper, method, methodName, methodObj, methods, _i, _j, _len, _len1, _ref, _ref1;
         if (attributes == null) {
           attributes = {};
         }
+        methods = attributes.$methods;
+        if (methods) {
+          methodName = 'construct';
+          methodObj = methods[methodName];
+          if (methodObj) {
+            for (_i = 0, _len = methodObj.length; _i < _len; _i++) {
+              _ref = methodObj[_i], method = _ref.method, args = _ref.args;
+              hassuper = matchSuper.test(method);
+              _installMethod(this, methodName, compiler.compile(method, args, attributes.$tagname + "$" + methodName).bind(this), hassuper);
+            }
+            delete methods[methodName];
+          }
+          methodName = '_createSprite';
+          methodObj = methods[methodName];
+          if (methodObj) {
+            for (_j = 0, _len1 = methodObj.length; _j < _len1; _j++) {
+              _ref1 = methodObj[_j], method = _ref1.method, args = _ref1.args;
+              hassuper = matchSuper.test(method);
+              _installMethod(this, methodName, compiler.compile(method, args, attributes.$tagname + "$" + methodName).bind(this), hassuper);
+            }
+            delete methods[methodName];
+          }
+        }
+        this.construct(el, attributes);
+      }
+
+      Node.prototype.construct = function(el, attributes) {
 
         /**
          * @attribute {dr.node[]} subnodes
          * @readonly
          * An array of this node's child nodes
          */
+        var deferbindings, name, parent, skiponinit, tagname, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref, _ref1, _ref2, _ref3, _ref4;
         this.subnodes = [];
         this.types = (_ref = attributes.$types) != null ? _ref : {};
         delete attributes.$types;
@@ -813,12 +841,13 @@
           el.$view = this;
           attributes.$textcontent = el.textContent;
         }
+        tagname = attributes.$tagname;
         if (attributes.$methods) {
-          this.installMethods(attributes.$methods, attributes.$tagname);
+          this.installMethods(attributes.$methods, tagname);
           delete attributes.$methods;
         }
         if (attributes.$handlers) {
-          this.installHandlers(attributes.$handlers, attributes.$tagname);
+          this.installHandlers(attributes.$handlers, tagname);
           if (attributes.clickable !== "false") {
             _ref1 = (function() {
               var _j, _len, _ref1, _ref2, _results;
@@ -870,7 +899,7 @@
         })();
         for (_k = 0, _len2 = _ref3.length; _k < _len2; _k++) {
           name = _ref3[_k];
-          this.bindAttribute(name, attributes[name], attributes.$tagname);
+          this.bindAttribute(name, attributes[name], tagname);
         }
         parent = this.parent;
         if (parent && parent instanceof Node) {
@@ -890,7 +919,7 @@
         })();
         for (_l = 0, _len3 = _ref4.length; _l < _len3; _l++) {
           name = _ref4[_l];
-          this.bindAttribute(name, attributes[name], attributes.$tagname);
+          this.bindAttribute(name, attributes[name], tagname);
         }
         if (this.constraints) {
           constraintScopes.push(this);
@@ -909,10 +938,10 @@
          */
         if (!skiponinit) {
           if (!this.inited) {
-            this.initialize();
+            return this.initialize();
           }
         }
-      }
+      };
 
       Node.prototype.initialize = function(skipevents) {
         if (!instantiating) {
@@ -1966,6 +1995,10 @@
 
       __extends(View, _super);
 
+      function View() {
+        return View.__super__.constructor.apply(this, arguments);
+      }
+
       defaults = {
         x: 0,
         y: 0,
@@ -1983,11 +2016,7 @@
         ignorelayout: false
       };
 
-      function View(el, attributes) {
-        var key, type, types, _ref;
-        if (attributes == null) {
-          attributes = {};
-        }
+      View.prototype.construct = function(el, attributes) {
 
         /**
          * @attribute {dr.view[]} subviews
@@ -2005,6 +2034,7 @@
          * @attribute {Boolean} [ignorelayout=false]
          * If true, layouts should ignore this view
          */
+        var key, type, types, _ref;
         this.subviews = [];
         types = {
           x: 'number',
@@ -2041,8 +2071,8 @@
           el = el.sprite;
         }
         this._createSprite(el, attributes);
-        View.__super__.constructor.apply(this, arguments);
-      }
+        return View.__super__.construct.apply(this, arguments);
+      };
 
       View.prototype.initialize = function(skipevents) {
         if (this.__autoLayoutwidth) {
@@ -2716,6 +2746,10 @@
     InputText = (function(_super) {
       __extends(InputText, _super);
 
+      function InputText() {
+        return InputText.__super__.constructor.apply(this, arguments);
+      }
+
 
       /**
        * @event onselect
@@ -2776,11 +2810,8 @@
        * The width of this input text field
        */
 
-      function InputText(el, attributes) {
+      InputText.prototype.construct = function(el, attributes) {
         var defaults, key, type, types, _ref;
-        if (attributes == null) {
-          attributes = {};
-        }
         types = {
           multiline: 'boolean'
         };
@@ -2796,7 +2827,7 @@
         }
         attributes.$types = types;
         this._setDefaults(attributes, defaults);
-        InputText.__super__.constructor.apply(this, arguments);
+        InputText.__super__.construct.apply(this, arguments);
         if (!this.height) {
           this.setAttribute('height', this._getDefaultHeight());
         }
@@ -2809,10 +2840,10 @@
           return this.sprite.setStyle('height', ih, true, this.sprite.input);
         });
         this.sprite.setStyle('height', this.innerheight, true, this.sprite.input);
-        this.listenTo(this, 'click', function() {
+        return this.listenTo(this, 'click', function() {
           return this.sprite.input.focus();
         });
-      }
+      };
 
       InputText.prototype._createSprite = function(el, attributes) {
         var multiline;
@@ -2874,181 +2905,6 @@
       };
 
       return InputText;
-
-    })(View);
-
-    /**
-     * @class dr.text {UI Components}
-     * @extends dr.view
-     * Text component that supports single and multi-line text.
-     *
-     * The text component can be fixed size, or sized to fit the size of the text.
-     *
-     *     @example
-     *     <text text="Hello World!" bgcolor="red"></text>
-     *
-     * Here is a multiline text
-     *
-     *     @example
-     *     <text multiline="true" text="Lorem ipsum dolor sit amet, consectetur adipiscing elit"></text>
-     *
-     * You might want to set the value of a text element based on the value of other attributes via a constraint. Here we set the value by concatenating three attributes together.
-     *
-     *     @example
-     *     <attribute name="firstName" type="string" value="Lumpy"></attribute>
-     *     <attribute name="middleName" type="string" value="Space"></attribute>
-     *     <attribute name="lastName" type="string" value="Princess"></attribute>
-     *
-     *     <text text="${this.parent.firstName + ' ' + this.parent.middleName + ' ' + this.parent.lastName}" color="hotpink"></text>
-     *
-     * Constraints can contain more complex JavaScript code
-     *
-     *     @example
-     *     <attribute name="firstName" type="string" value="Lumpy"></attribute>
-     *     <attribute name="middleName" type="string" value="Space"></attribute>
-     *     <attribute name="lastName" type="string" value="Princess"></attribute>
-     *
-     *     <text text="${this.parent.firstName.charAt(0) + ' ' + this.parent.middleName.charAt(0) + ' ' + this.parent.lastName.charAt(0)}" color="hotpink"></text>
-     *
-     * We can simplify this by using a method to return the concatenation and constraining the text value to the return value of the method
-     *
-     *     @example
-     *     <attribute name="firstName" type="string" value="Lumpy"></attribute>
-     *     <attribute name="middleName" type="string" value="Space"></attribute>
-     *     <attribute name="lastName" type="string" value="Princess"></attribute>
-     *
-     *     <method name="initials">
-     *       return this.firstName.charAt(0) + ' ' + this.middleName.charAt(0) + ' ' + this.lastName.charAt(0);
-     *     </method>
-     *
-     *     <text text="${this.parent.initials()}" color="hotpink"></text>
-     *
-     * You can override the format method to provide custom formatting for text elements. Here is a subclass of text, timetext, with the format method overridden to convert the text given in seconds into a formatted string.
-     *
-     *     @example
-     *     <class name="timetext" extends="text">
-     *       <method name="format" args="seconds">
-     *         var minutes = Math.floor(seconds / 60);
-     *         var seconds = Math.floor(seconds) - minutes * 60;
-     *         if (seconds < 10) {
-     *           seconds = '0' + seconds;
-     *         }
-     *         return minutes + ':' + seconds;
-     *       </method>
-     *     </class>
-     *
-     *     <timetext text="240"></timetext>
-     *
-     */
-    Text = (function(_super) {
-      __extends(Text, _super);
-
-
-      /**
-       * @attribute {Boolean} [multiline=false]
-       * Set to true to show multi-line text.
-       */
-
-
-      /**
-       * @attribute {Boolean} [resize=true]
-       * By default, the text component is sized to the size of the text.
-       * By setting resize=false, the component size is not modified
-       * when the text changes.
-       */
-
-
-      /**
-       * @attribute {String} [text=""]
-       * Component text.
-       */
-
-      function Text(el, attributes) {
-        var defaults, key, type, types, _ref;
-        if (attributes == null) {
-          attributes = {};
-        }
-        types = {
-          resize: 'boolean',
-          multiline: 'boolean'
-        };
-        defaults = {
-          resize: true,
-          multiline: false
-        };
-        _ref = attributes.$types;
-        for (key in _ref) {
-          type = _ref[key];
-          types[key] = type;
-        }
-        attributes.$types = types;
-        this._setDefaults(attributes, defaults);
-        if ('width' in attributes) {
-          this._initialwidth = attributes.width;
-        }
-        this.listenTo(this, 'multiline', this.updateSize);
-        this.listenTo(this, 'resize', this.updateSize);
-        this.listenTo(this, 'init', this.updateSize);
-        Text.__super__.constructor.apply(this, arguments);
-      }
-
-      Text.prototype._createSprite = function(el, attributes) {
-        Text.__super__._createSprite.apply(this, arguments);
-        attributes.text || (attributes.text = this.sprite.getText(true));
-        return this.sprite.createTextElement();
-      };
-
-
-      /**
-       * @method format
-       * Format the text to be displayed. The default behavior is to
-       * return the text intact. Override to change formatting.
-       * @param {String} str The current value of the text component.
-       * @return {String} The formated string to display in the component.
-       *
-       */
-
-      Text.prototype.format = function(str) {
-        return str;
-      };
-
-      Text.prototype.updateSize = function() {
-        var parent, parents, size, width, _i, _j, _len, _len1;
-        if (!this.inited) {
-          return;
-        }
-        width = this.multiline ? this._initialwidth : this.width;
-        size = this.sprite.measureTextSize(this.multiline, width, this.resize);
-        if (size.width === 0 && size.height === 0) {
-          parents = this._findParents('visible', false);
-          for (_i = 0, _len = parents.length; _i < _len; _i++) {
-            parent = parents[_i];
-            parent.sprite.el.style.display = '';
-          }
-          size = this.sprite.measureTextSize(this.multiline, width, this.resize);
-          for (_j = 0, _len1 = parents.length; _j < _len1; _j++) {
-            parent = parents[_j];
-            parent.sprite.el.style.display = 'none';
-          }
-        }
-        this.setAttribute('width', size.width, true);
-        return this.setAttribute('height', size.height, true);
-      };
-
-      Text.prototype.set_data = function(d) {
-        this.setAttribute('text', d, true);
-        return d;
-      };
-
-      Text.prototype.set_text = function(text) {
-        if (text !== this.text) {
-          this.sprite.setText(this.format(text));
-          this.updateSize();
-        }
-        return text;
-      };
-
-      return Text;
 
     })(View);
     warnings = [];
@@ -3594,32 +3450,32 @@
         processSpecialTags: processSpecialTags,
         writeCSS: writeCSS
       };
-
-      /**
-         * @class dr.state {Core Dreem}
-         * @extends dr.node
-         * Allows a group of attributes, methods, handlers and instances to be removed and applied as a group.
-         *
-         * Like views and nodes, states can contain methods, handlers, setters, constraints, attributes and other view, node or class instances.
-         *
-         * Currently, states must end with the string 'state' in their name to work properly.
-         *
-         *     @example
-         *     <spacedlayout axis="y"></spacedlayout>
-         *     <view id="square" width="100" height="100" bgcolor="lightgrey">
-         *       <attribute name="ispink" type="boolean" value="false"></attribute>
-         *       <state name="pinkstate" applied="${this.parent.ispink}">
-         *         <attribute name="bgcolor" value="pink" type="string"></attribute>
-         *       </state>
-         *     </view>
-         *     <labelbutton text="pinkify!">
-         *       <handler event="onclick">
-         *         square.setAttribute('ispink', true);
-         *       </handler>
-         *     </labelbutton>
-         *
-       */
     })();
+
+    /**
+     * @class dr.state {Core Dreem}
+     * @extends dr.node
+     * Allows a group of attributes, methods, handlers and instances to be removed and applied as a group.
+     *
+     * Like views and nodes, states can contain methods, handlers, setters, constraints, attributes and other view, node or class instances.
+     *
+     * Currently, states must end with the string 'state' in their name to work properly.
+     *
+     *     @example
+     *     <spacedlayout axis="y"></spacedlayout>
+     *     <view id="square" width="100" height="100" bgcolor="lightgrey">
+     *       <attribute name="ispink" type="boolean" value="false"></attribute>
+     *       <state name="pinkstate" applied="${this.parent.ispink}">
+     *         <attribute name="bgcolor" value="pink" type="string"></attribute>
+     *       </state>
+     *     </view>
+     *     <labelbutton text="pinkify!">
+     *       <handler event="onclick">
+     *         square.setAttribute('ispink', true);
+     *       </handler>
+     *     </labelbutton>
+     *
+     */
     State = (function(_super) {
       __extends(State, _super);
 
@@ -3975,11 +3831,12 @@
     Layout = (function(_super) {
       __extends(Layout, _super);
 
-      function Layout(el, attributes) {
+      function Layout() {
+        return Layout.__super__.constructor.apply(this, arguments);
+      }
+
+      Layout.prototype.construct = function(el, attributes) {
         var attrLocked, defaults, subview, subviews, types, _base, _i, _len;
-        if (attributes == null) {
-          attributes = {};
-        }
         types = {
           locked: 'boolean'
         };
@@ -3991,7 +3848,7 @@
         }
         this.locked = true;
         this.subviews = [];
-        Layout.__super__.constructor.apply(this, arguments);
+        Layout.__super__.construct.apply(this, arguments);
         this.listenTo(this.parent, 'subviewAdded', this.addSubview.bind(this));
         this.listenTo(this.parent, 'subviewRemoved', this.removeSubview.bind(this));
         this.listenTo(this.parent, 'init', this.update.bind(this));
@@ -4012,8 +3869,8 @@
         } else {
           this.locked = false;
         }
-        this.update();
-      }
+        return this.update();
+      };
 
       Layout.prototype.destroy = function(skipevents) {
         this.locked = true;
@@ -4947,7 +4804,6 @@
      */
     return exports = {
       view: View,
-      text: Text,
       inputtext: InputText,
       "class": Class,
       node: Node,

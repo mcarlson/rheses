@@ -12,7 +12,7 @@
   <spacedlayout axis="y" spacing="20"></spacedlayout>
 
   <view name="labeltoggle" height="auto" bgcolor="white">
-    <spacedlayout axis="x" spacing="12" collapseparent="true"></spacedlayout>
+    <spacedlayout axis="x" spacing="12" updateparent="true"></spacedlayout>
     <text text="Label Toggle:"></text>
     <labeltoggle name="lt1" width="100" height="50" text="Fixed Size"></labeltoggle>
     <labeltoggle name="lt2" text="Variable"></labeltoggle>
@@ -20,7 +20,7 @@
   </view>
 
   <view name="labelbutton" height="auto">
-    <spacedlayout axis="x" spacing="12" collapseparent="true"></spacedlayout>
+    <spacedlayout axis="x" spacing="12" updateparent="true"></spacedlayout>
     <text name="lblabel" text="Label Button:"></text>
     <labelbutton name="lb1" width="100" height="50" text="Fixed Size"></labelbutton>
     <labelbutton name="lb2" text="Variable"></labelbutton>
@@ -30,7 +30,7 @@
   <class name="mycheckbutton" extends="checkbutton" defaultcolor="red" selectcolor="green"></class>
 
   <view name="checkbutton" height="auto">
-    <spacedlayout axis="x" spacing="12" collapseparent="true"></spacedlayout>
+    <spacedlayout axis="x" spacing="12" updateparent="true"></spacedlayout>
     <text name="cblabel" text="Check Button:"></text>
     <mycheckbutton name="cb1" width="100" height="50" text="Fixed Size"></mycheckbutton>
     <mycheckbutton name="cb2" text="Variable"></mycheckbutton>
@@ -40,7 +40,7 @@
   <!-- Create 3 sliders and store color in attribute -->
   <class name="rgbslider" width="auto">
     <attribute name="color" type="string" value="${'#' + this.tohex(this.rslide.value) + this.tohex(this.gslide.value) + this.tohex(this.bslide.value)}"></attribute>
-    <spacedlayout axis="y" spacing="3" collapseparent="true"></spacedlayout>
+    <spacedlayout axis="y" spacing="3" updateparent="true"></spacedlayout>
     
     <!-- Convert floating point value to 2 digit hex string -->
     <method name="tohex" args="val">
@@ -63,14 +63,14 @@
 
     <!-- Show x slider with value -->
     <view height="auto">
-      <spacedlayout axis="x" spacing="8" collapseparent="true"></spacedlayout>
+      <spacedlayout axis="x" spacing="8" updateparent="true"></spacedlayout>
       <slider name="hslide" y="5" width="250" height="10" value="50" bgcolor="#808080"></slider>
       <text text="${Math.round(this.parent.hslide.value)}" y="${this.parent.hslide.y + (this.parent.hslide.height-this.height)/2}"></text>
     </view>
 
     <!-- Show rgb slider with color view -->
     <view height="auto">
-      <spacedlayout axis="x" spacing="3" collapseparent="true"></spacedlayout>
+      <spacedlayout axis="x" spacing="3" updateparent="true"></spacedlayout>
       <rgbslider name="rgb" ></rgbslider>
       <view width="50" height="50" bgcolor="${this.parent.rgb.color}"></view>
     </view>

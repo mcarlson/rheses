@@ -595,6 +595,30 @@ window.dr = do ->
     lateattributes = ['data']
 
     constructor: (el, attributes = {}) ->
+      # Immediately install the 'construct' method if it exists and then call 
+      # it with the element and attributes so that construct has a chance to
+      # modify things.
+      methods = attributes.$methods
+      if methods
+        methodName = 'construct'
+        methodObj = methods[methodName]
+        if methodObj
+          for {method, args} in methodObj
+            hassuper = matchSuper.test(method)
+            _installMethod(@, methodName, compiler.compile(method, args, attributes.$tagname + "$" + methodName).bind(@), hassuper)
+          delete methods[methodName]
+        
+        methodName = '_createSprite'
+        methodObj = methods[methodName]
+        if methodObj
+          for {method, args} in methodObj
+            hassuper = matchSuper.test(method)
+            _installMethod(@, methodName, compiler.compile(method, args, attributes.$tagname + "$" + methodName).bind(@), hassuper)
+          delete methods[methodName]
+      
+      @construct(el, attributes)
+
+    construct: (el, attributes) ->
       ###*
       # @attribute {dr.node[]} subnodes
       # @readonly
@@ -620,12 +644,14 @@ window.dr = do ->
         # store textual content
         attributes.$textcontent = el.textContent
 
+      # Install the rest of the methods
+      tagname = attributes.$tagname
       if attributes.$methods
-        @installMethods(attributes.$methods, attributes.$tagname)
+        @installMethods(attributes.$methods, tagname)
         delete attributes.$methods
 
       if attributes.$handlers
-        @installHandlers(attributes.$handlers, attributes.$tagname)
+        @installHandlers(attributes.$handlers, tagname)
         # set clickable=true for elements listening for mouse events here for now - ugly though
         unless attributes.clickable is "false"
           for name in (name for name in attributes.$handlers when name.ev.substr(2) in mouseEvents)
@@ -643,7 +669,7 @@ window.dr = do ->
 
       # Bind to event expressions and set attributes
       for name in (name for name of attributes when not (name in lateattributes or name in earlyattributes))
-        @bindAttribute(name, attributes[name], attributes.$tagname)
+        @bindAttribute(name, attributes[name], tagname)
 
       # Need to fire subnode added events after attributes have been set since
       # we aren't fully configured until now so listeners may be notified
@@ -657,7 +683,7 @@ window.dr = do ->
         parent.doSubnodeAdded(@)
 
       for name in (name for name in lateattributes when name of attributes)
-        @bindAttribute(name, attributes[name], attributes.$tagname)
+        @bindAttribute(name, attributes[name], tagname)
 
       constraintScopes.push(@) if @constraints
 
@@ -1574,7 +1600,7 @@ window.dr = do ->
       bordercolor:'transparent', borderstyle:'solid', border:0,
       padding:0, ignorelayout:false,
     }
-    constructor: (el, attributes = {}) ->
+    construct: (el, attributes) ->
       ###*
       # @attribute {dr.view[]} subviews
       # @readonly
@@ -2180,7 +2206,7 @@ window.dr = do ->
     # @attribute {Number} [width=100]
     # The width of this input text field
     ###
-    constructor: (el, attributes = {}) ->
+    construct: (el, attributes) ->
       types = {multiline: 'boolean'}
       defaults = {clickable:true, multiline:false, width: 100}
       for key, type of attributes.$types
@@ -2257,147 +2283,6 @@ window.dr = do ->
         if @text isnt value
           @text = value
           @sendEvent('text', value)
-
-  ###*
-  # @class dr.text {UI Components}
-  # @extends dr.view
-  # Text component that supports single and multi-line text.
-  #
-  # The text component can be fixed size, or sized to fit the size of the text.
-  #
-  #     @example
-  #     <text text="Hello World!" bgcolor="red"></text>
-  #
-  # Here is a multiline text
-  #
-  #     @example
-  #     <text multiline="true" text="Lorem ipsum dolor sit amet, consectetur adipiscing elit"></text>
-  #
-  # You might want to set the value of a text element based on the value of other attributes via a constraint. Here we set the value by concatenating three attributes together.
-  #
-  #     @example
-  #     <attribute name="firstName" type="string" value="Lumpy"></attribute>
-  #     <attribute name="middleName" type="string" value="Space"></attribute>
-  #     <attribute name="lastName" type="string" value="Princess"></attribute>
-  #
-  #     <text text="${this.parent.firstName + ' ' + this.parent.middleName + ' ' + this.parent.lastName}" color="hotpink"></text>
-  #
-  # Constraints can contain more complex JavaScript code
-  #
-  #     @example
-  #     <attribute name="firstName" type="string" value="Lumpy"></attribute>
-  #     <attribute name="middleName" type="string" value="Space"></attribute>
-  #     <attribute name="lastName" type="string" value="Princess"></attribute>
-  #
-  #     <text text="${this.parent.firstName.charAt(0) + ' ' + this.parent.middleName.charAt(0) + ' ' + this.parent.lastName.charAt(0)}" color="hotpink"></text>
-  #
-  # We can simplify this by using a method to return the concatenation and constraining the text value to the return value of the method
-  #
-  #     @example
-  #     <attribute name="firstName" type="string" value="Lumpy"></attribute>
-  #     <attribute name="middleName" type="string" value="Space"></attribute>
-  #     <attribute name="lastName" type="string" value="Princess"></attribute>
-  #
-  #     <method name="initials">
-  #       return this.firstName.charAt(0) + ' ' + this.middleName.charAt(0) + ' ' + this.lastName.charAt(0);
-  #     </method>
-  #
-  #     <text text="${this.parent.initials()}" color="hotpink"></text>
-  #
-  # You can override the format method to provide custom formatting for text elements. Here is a subclass of text, timetext, with the format method overridden to convert the text given in seconds into a formatted string.
-  #
-  #     @example
-  #     <class name="timetext" extends="text">
-  #       <method name="format" args="seconds">
-  #         var minutes = Math.floor(seconds / 60);
-  #         var seconds = Math.floor(seconds) - minutes * 60;
-  #         if (seconds < 10) {
-  #           seconds = '0' + seconds;
-  #         }
-  #         return minutes + ':' + seconds;
-  #       </method>
-  #     </class>
-  #
-  #     <timetext text="240"></timetext>
-  #
-  ###
-  class Text extends View
-    ###*
-    # @attribute {Boolean} [multiline=false]
-    # Set to true to show multi-line text.
-    ###
-    ###*
-    # @attribute {Boolean} [resize=true]
-    # By default, the text component is sized to the size of the text.
-    # By setting resize=false, the component size is not modified
-    # when the text changes.
-    ###
-    ###*
-    # @attribute {String} [text=""]
-    # Component text.
-    ###
-    constructor: (el, attributes = {}) ->
-      types = {resize: 'boolean', multiline: 'boolean'}
-      defaults = {resize:true, multiline:false}
-
-      for key, type of attributes.$types
-        types[key] = type
-      attributes.$types = types
-
-      @_setDefaults(attributes, defaults)
-
-      if 'width' of attributes
-        @_initialwidth = attributes.width
-
-      @listenTo(@, 'multiline', @updateSize)
-      @listenTo(@, 'resize', @updateSize)
-      @listenTo(@, 'init', @updateSize)
-
-      super
-
-    _createSprite: (el, attributes) ->
-      super
-      attributes.text ||= @sprite.getText(true) #so the text attribute has value when the text is set between the tags
-      @sprite.createTextElement()
-
-    ###*
-    # @method format
-    # Format the text to be displayed. The default behavior is to
-    # return the text intact. Override to change formatting.
-    # @param {String} str The current value of the text component.
-    # @return {String} The formated string to display in the component.
-    #
-    ###
-    format: (str) ->
-      return str
-
-    updateSize: () ->
-      return unless @inited
-      width = if @multiline then @_initialwidth else @width
-      size = @sprite.measureTextSize(@multiline, width, @resize)
-      if size.width is 0 and size.height is 0
-        # check for hidden parents
-        parents = @_findParents('visible', false)
-        for parent in parents
-          parent.sprite.el.style.display = ''
-        size = @sprite.measureTextSize(@multiline, width, @resize)
-        for parent in parents
-          parent.sprite.el.style.display = 'none'
-
-      # console.log('updateSize', @multiline, width, @resize, size, @)
-      @setAttribute 'width', size.width, true
-      @setAttribute 'height', size.height, true
-
-    set_data: (d) ->
-      @setAttribute('text', d, true)
-      d
-
-    set_text: (text) ->
-      if (text isnt @text)
-        @sprite.setText(@format(text))
-        @updateSize()
-      text
-
 
   warnings = []
   showWarnings = (data) ->
@@ -2832,7 +2717,7 @@ window.dr = do ->
       processSpecialTags: processSpecialTags
       writeCSS: writeCSS
 
-    ###*
+  ###*
   # @class dr.state {Core Dreem}
   # @extends dr.node
   # Allows a group of attributes, methods, handlers and instances to be removed and applied as a group.
@@ -3180,7 +3065,7 @@ window.dr = do ->
   #
   ###
   class Layout extends Node
-    constructor: (el, attributes = {}) ->
+    construct: (el, attributes) ->
       types = {locked:'boolean'}
       defaults = {locked:false}
 
@@ -3950,7 +3835,6 @@ window.dr = do ->
   ###
   exports =
     view: View
-    text: Text
     inputtext: InputText
     class: Class
     node: Node

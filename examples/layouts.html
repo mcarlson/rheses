@@ -30,10 +30,10 @@
   
   <class name="item2" extends="item" height="20" width="40" bgcolor="red"></class>
   
-  <spacedlayout axis="y" spacing="5" collapseparent="true"></spacedlayout>
+  <spacedlayout axis="y" spacing="5" updateparent="true"></spacedlayout>
   
   <view padding="5" border="2" bordercolor="black" height="auto" bgcolor="#999999">
-    <spacedlayout name="layoutX" inset="4" spacing="1" outset="3" collapseparent="true"></spacedlayout>
+    <spacedlayout name="layoutX" inset="4" spacing="1" outset="3" updateparent="true"></spacedlayout>
     
     <view name="inner" width="100%" height="100%" ignorelayout="true" bgcolor="#cccccc"></view>
     
@@ -73,7 +73,9 @@
     <item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2>
     <item2 bgcolor="yellow"></item2>
     
-    <wrappinglayout id="bar" inset="5" outset="10" spacing="1" lineinset="2" lineoutset="8" linespacing="4" collapseparent="true"></wrappinglayout>
+    <wrappinglayout id="bar" inset="5" outset="10" spacing="1"
+      lineinset="2" lineoutset="8" linespacing="4" updateparent="true"
+    ></wrappinglayout>
   </view>
   
   <view bgcolor="#999999" width="auto">
@@ -89,7 +91,7 @@
     
     <constantlayout value="20"></constantlayout>
     
-    <variablelayout attribute="y" value="10" collapseparent="true">
+    <variablelayout attribute="y" value="10" updateparent="true">
       <method name="updateSubview" args="count, view, attribute, value">
         view.setAttribute(attribute, value)
         return value + view.height + 5
@@ -107,7 +109,7 @@
     <item width="40" height="20"></item>
     <item width="50" height="75" bgcolor="yellow"></item>
     
-    <alignlayout align="top" collapseparent="true"></alignlayout>
+    <alignlayout align="top" updateparent="true"></alignlayout>
     <spacedlayout></spacedlayout>
   </view>
   
@@ -118,8 +120,8 @@
     <item width="40" height="20"></item>
     <item width="50" height="75" bgcolor="yellow"></item>
     
-    <alignlayout collapseparent="true"></alignlayout>
-    <spacedlayout axis="x" inset="1" spacing="1" outset="2" reverse="true" collapseparent="true"></spacedlayout>
+    <alignlayout updateparent="true"></alignlayout>
+    <spacedlayout axis="x" inset="1" spacing="1" outset="2" reverse="true" updateparent="true"></spacedlayout>
   </view>
   
   <view bgcolor="#999999">
@@ -129,8 +131,8 @@
     <item width="40" height="20"></item>
     <item width="50" height="75" bgcolor="yellow"></item>
     
-    <alignlayout align="bottom" collapseparent="true"></alignlayout>
-    <spacedlayout axis="x" inset="5" spacing="1" outset="10" collapseparent="true"></spacedlayout>
+    <alignlayout align="bottom" updateparent="true"></alignlayout>
+    <spacedlayout axis="x" inset="5" spacing="1" outset="10" updateparent="true"></spacedlayout>
   </view>
 </view>
 <!-- The MIT License (MIT)
