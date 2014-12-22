@@ -16,7 +16,7 @@
     <class name="item" width="10" height="10" bgcolor="#666666"></class>
     
     <view name="container" padding="5" border="2" bordercolor="black" height="120" bgcolor="#999999">
-      <alignlayout name="layout" align="right" collapseparent="true"></alignlayout>
+      <alignlayout name="layout" align="right" updateparent="true"></alignlayout>
       
       <item name="v1" y="10" width="10"></item>
       <item name="v2" y="30" width="20"></item>
@@ -43,7 +43,7 @@
     </view>
     
     <view name="container2" x="150" padding="5" border="2" bordercolor="black" width="120" bgcolor="#999999">
-      <alignlayout name="layout" align="bottom" collapseparent="true"></alignlayout>
+      <alignlayout name="layout" align="bottom" updateparent="true"></alignlayout>
       
       <item name="v1" x="10" height="10"></item>
       <item name="v2" x="30" height="20"></item>
@@ -140,7 +140,7 @@
       assert.equal(0, v5.x, 'View five has an x of 0.');
       
       // Align within the parent
-      layout.setAttribute('collapseparent', false);
+      layout.setAttribute('updateparent', false);
       layout.setAttribute('align', 'right');
       container.setAttribute('width', 100);
       
@@ -180,7 +180,7 @@
       assert.equal(0, v5.x, 'View five has an x of 0.');
       
       // Recollapse
-      layout.setAttribute('collapseparent', true);
+      layout.setAttribute('updateparent', true);
       
       assert.equal(54, container.width, 'The container should now have a width of 54.');
       assert.equal(40, container.innerwidth, 'The container should have an innerwidth of 40.');
@@ -249,7 +249,7 @@
       assert.equal(0, v5.y, 'View five has an y of 0.');
       
       // Align within the parent
-      layout.setAttribute('collapseparent', false);
+      layout.setAttribute('updateparent', false);
       layout.setAttribute('align', 'bottom');
       container.setAttribute('height', 100);
       
@@ -289,7 +289,7 @@
       assert.equal(0, v5.y, 'View five has an y of 0.');
       
       // Recollapse
-      layout.setAttribute('collapseparent', true);
+      layout.setAttribute('updateparent', true);
       
       assert.equal(54, container.height, 'The container should now have a height of 54.');
       assert.equal(40, container.innerheight, 'The container should have an innerheight of 40.');

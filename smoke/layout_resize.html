@@ -69,8 +69,8 @@
       assert.equal(382, v4.x, 'The fourth view is at 382.');
       assert.equal(434, v5.x, 'The fifth view is at 434.');
       
-      // Collapseparent should be ignored
-      layout.setAttribute('collapseparent', true);
+      // The updateparent attributes should be ignored
+      layout.setAttribute('updateparent', true);
       assert.equal(5, v1.x, 'The first view is at inset.');
       assert.equal(271, v1.width, 'The first view has a width of 271.');
       assert.equal(278, v2.x, 'The second view is at 278.');

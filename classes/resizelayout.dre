@@ -33,10 +33,10 @@ SOFTWARE. -->
       * a layouthint of 1.
       *
       * Since resizelayouts rely on the presence of extra space, the
-      * collapseparent attribute is not applicable to a resizelayout. Similarly,
-      * using auto sizing on the parent view along the same axis as the
-      * resizelayout will result in unexpected behavior and should therefore
-      * be avoided.
+      * updateparent and updateparent attributes are not applicable to a 
+      * resizelayout. Similarly, using auto sizing on the parent view along 
+      * the same axis as the resizelayout will result in unexpected behavior 
+      * and should therefore be avoided.
       *
       *     @example
       *     <resizelayout spacing="2" inset="5" outset="5">
@@ -47,9 +47,9 @@ SOFTWARE. -->
       *     <view height="15" bgcolor="lightblue"></view>
       */-->
 <class name="resizelayout" extends="spacedlayout" type="coffee">
-  <setter name="collapseparent" args="collapseparent">
-    # collapseparent attribute is unused in resizelayout.
-    return collapseparent
+  <setter name="updateparent" args="updateparent">
+    # The updateparent attribute is unused in resizelayout.
+    return updateparent
   </setter>
   
   <method name="stopMonitoringAllSubviews" args="view">

@@ -24,16 +24,16 @@ SOFTWARE. -->
       * @extends dr.variablelayout
       * An extension of variableLayout that positions views horizontally or
       * vertically using an initial inset and spacing between each view. If
-      * collapseparent is true an outset is also used to leave space after
+      * updateparent is true an outset is also used to leave space after
       * the last subview.
       *
       * This spacedlayout will position the first view at a y of 5 and each
       * subsequent view will be 2 pixels below the bottom of the preceding one.
-      * Since collapseparent is true and an outset is defined the parent view
+      * Since updateparent is true and an outset is defined the parent view
       * will be sized to 5 pixels more than the bottom of the last view.
       *
       *     @example
-      *     <spacedlayout axis="y" spacing="2" inset="5" outset="5" collapseparent="true">
+      *     <spacedlayout axis="y" spacing="2" inset="5" outset="5" updateparent="true">
       *     </spacedlayout>
       *
       *     <view width="100" height="25" bgcolor="lightpink"></view>
@@ -41,6 +41,20 @@ SOFTWARE. -->
       *     <view width="100" height="15" bgcolor="lightblue"></view>
       */-->
 <class name="spacedlayout" extends="variablelayout" type="coffee">
+  <method name="construct" args="el, attributes">
+    # Use whichever attribute or aliases attribute is not the default and
+    # delete the unnecessary initial value.
+    if attributes.value isnt '0' and attributes.inset is '0'
+      attributes.inset = attributes.value
+    delete attributes.value
+    
+    if attributes.attribute isnt 'x' and attributes.axis is 'x'
+      attributes.axis = attributes.attribute
+    delete attributes.attribute
+    
+    @super()
+  </method>
+  
   <!--/**
     * @attribute {Number} [spacing=0]
     * The spacing between views.
@@ -50,7 +64,7 @@ SOFTWARE. -->
   
   <!--/**
     * @attribute {Number} [outset=0]
-    * Space after the last view. Only used when collapseparent is true.
+    * Space after the last view. Only used when updateparent is true.
     */-->
   <attribute name="outset" type="number" value="0"></attribute>
   <handler event="onoutset" method="update"></handler>
@@ -63,7 +77,7 @@ SOFTWARE. -->
   <attribute name="inset" type="number" value="0"></attribute>
   <setter name="inset" args="inset">
     # An alias for value.
-    @setAttribute('value', inset);
+    @setAttribute('value', inset)
     return inset
   </setter>
   
@@ -77,7 +91,7 @@ SOFTWARE. -->
   <attribute name="axis" type="string" value="x"></attribute>
   <setter name="axis" args="axis">
     # An alias for attribute.
-    @setAttribute('attribute', axis);
+    @setAttribute('attribute', axis)
     return axis
   </setter>
   
@@ -93,7 +107,7 @@ SOFTWARE. -->
     # Setup private attributes based on axis
     if attribute == 'y'
       # The layout is oriented vertically
-      @__parentAttrName = 'height'        # The attr to update on the parent if collapseparent is true
+      @__parentAttrName = 'height'        # The attr to update on the parent if updateparent is true
       @__innerAttrName = 'innerheight'    # The attr used to get available space
       @__measureAttrName = 'boundsheight' # The attr to measure the size needed for a subview
       @__diffAttrName = 'boundsydiff'     # The attr used to offset the position of a transformed subview so it will not overlap adjacent views
@@ -115,7 +129,7 @@ SOFTWARE. -->
   </handler>
   
   <method name="startMonitoringSubview" args="view">
-    @super();
+    @super()
     
     # Monitor each subview's measure and bounds offset
     @listenTo(view, @__measureAttrName, @update)
@@ -123,7 +137,7 @@ SOFTWARE. -->
   </method>
   
   <method name="stopMonitoringSubview" args="view">
-    @super();
+    @super()
     
     # No longer monitor each subview's measure and bounds offset
     @stopListening(view, @__measureAttrName, @update)
