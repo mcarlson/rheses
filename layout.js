@@ -792,25 +792,17 @@
         }
         methods = attributes.$methods;
         if (methods) {
-          methodName = 'construct';
-          methodObj = methods[methodName];
-          if (methodObj) {
-            for (_i = 0, _len = methodObj.length; _i < _len; _i++) {
-              _ref = methodObj[_i], method = _ref.method, args = _ref.args;
-              hassuper = matchSuper.test(method);
-              _installMethod(this, methodName, compiler.compile(method, args, attributes.$tagname + "$" + methodName).bind(this), hassuper);
+          _ref = ['construct', '_createSprite'];
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            methodName = _ref[_i];
+            methodObj = methods[methodName];
+            if (methodObj) {
+              for (_j = 0, _len1 = methodObj.length; _j < _len1; _j++) {
+                _ref1 = methodObj[_j], method = _ref1.method, args = _ref1.args;
+                hassuper = matchSuper.test(method);
+                _installMethod(this, methodName, compiler.compile(method, args, attributes.$tagname + "$" + methodName).bind(this), hassuper);
+              }
             }
-            delete methods[methodName];
-          }
-          methodName = '_createSprite';
-          methodObj = methods[methodName];
-          if (methodObj) {
-            for (_j = 0, _len1 = methodObj.length; _j < _len1; _j++) {
-              _ref1 = methodObj[_j], method = _ref1.method, args = _ref1.args;
-              hassuper = matchSuper.test(method);
-              _installMethod(this, methodName, compiler.compile(method, args, attributes.$tagname + "$" + methodName).bind(this), hassuper);
-            }
-            delete methods[methodName];
           }
         }
         this.construct(el, attributes);
@@ -966,6 +958,9 @@
           methodlist = methods[name];
           for (_i = 0, _len = methodlist.length; _i < _len; _i++) {
             _ref = methodlist[_i], method = _ref.method, args = _ref.args, allocation = _ref.allocation;
+            if (name === 'construct' || name === '_createSprite') {
+              continue;
+            }
             hassuper = matchSuper.test(method);
             _installMethod(scope, name, compiler.compile(method, args, "" + tagname + "$" + name).bind(callbackscope), hassuper, allocation);
           }

@@ -600,21 +600,12 @@ window.dr = do ->
       # modify things.
       methods = attributes.$methods
       if methods
-        methodName = 'construct'
-        methodObj = methods[methodName]
-        if methodObj
-          for {method, args} in methodObj
-            hassuper = matchSuper.test(method)
-            _installMethod(@, methodName, compiler.compile(method, args, attributes.$tagname + "$" + methodName).bind(@), hassuper)
-          delete methods[methodName]
-        
-        methodName = '_createSprite'
-        methodObj = methods[methodName]
-        if methodObj
-          for {method, args} in methodObj
-            hassuper = matchSuper.test(method)
-            _installMethod(@, methodName, compiler.compile(method, args, attributes.$tagname + "$" + methodName).bind(@), hassuper)
-          delete methods[methodName]
+        for methodName in ['construct','_createSprite']
+          methodObj = methods[methodName]
+          if methodObj
+            for {method, args} in methodObj
+              hassuper = matchSuper.test(method)
+              _installMethod(@, methodName, compiler.compile(method, args, attributes.$tagname + "$" + methodName).bind(@), hassuper)
       
       @construct(el, attributes)
 
@@ -714,6 +705,7 @@ window.dr = do ->
       # Install methods
       for name, methodlist of methods
         for {method, args, allocation} in methodlist
+          continue if name is 'construct' or name is '_createSprite'
           hassuper = matchSuper.test(method)
           # console.log 'installing method', name, hassuper, args, method, allocation, @
           _installMethod(scope, name, compiler.compile(method, args, "#{tagname}$#{name}").bind(callbackscope), hassuper, allocation)
