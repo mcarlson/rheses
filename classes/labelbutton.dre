@@ -41,44 +41,40 @@ SOFTWARE. -->
     <class name="labelbutton" type="coffee" extends="buttonbase">
 
       <handler event="oninit">
-        #TODO Remove this hack when oninit works
-        $this = @;
-        func = () -> $this.realinit()
-        setTimeout(func, 0)
-      </handler>
-
-      <method name="realinit">
+        if !@text or @text.length == 0
+          @inline = @sprite.getText(true)
+          if @inline
+            @setAttribute('text', @inline) if !@text
+  
         # visual is the object that makes a visual change when selected
         @visual = @
-
-        @realinited = true
-
-        # Detect if the button was supplied with a size
-        @_fixedsize = true if (@width > 0 || @height > 0)
 
         @handleResize()
 
         @visualize()
-      </method>
+      </handler>
 
       <method name="handleResize">
-        return unless @realinited  #Hack. Should be @inited
+        @super()
         return if @_resize_lock
 
-        if (@label.width > 0 && @label.height > 0)
-          if @_fixedsize
-            #Fixed size button. position text in center of button
-            xoffset = (@width - 2*@padding - @label.width)/2
-            yoffset = (@height - 2*@padding - @label.height)/2
-            @setAttributes(textx:xoffset, texty:yoffset)
-          else
-            #Variable size button. Resize button to text
-            @_resize_lock = true
-            xoffset = (@width - 2*@padding - @label.width)/2
-            yoffset = (@height - 2*@padding - @label.height)/2
+        xoffset = yoffset = 0
+        width = @width
+        height = @height
 
-            @setAttributes({width:(@label.width + 2*@padding), height:(@label.height + 2*@padding), textx:0, texty:0})
-            @_resize_lock = false
+        if @_fixedwidth
+          xoffset = (@width - 2*@padding - @label.width)/2
+        else
+          width = @label.width + 2*@padding
+
+        if @_fixedheight
+          yoffset = (@height - 2*@padding - @label.height)/2
+        else
+          height = @label.height + 2*@padding
+
+        @_resize_lock = true
+        @setAttributes({width:width, height:height, textx:xoffset, texty:yoffset})
+        @_resize_lock = true
       </method>
 
       <handler event="onmousedown">

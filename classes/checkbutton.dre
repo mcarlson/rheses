@@ -69,67 +69,43 @@ SOFTWARE. -->
       <view name="check" x="${this.parent.checkx}" y="${this.parent.checky}" width="${this.parent.checkw}" height="${this.parent.checkh}"></view>
 
       <handler event="oninit">
-        #TODO Remove this hack when oninit works
-        $this = @;
-        func = () -> $this.realinit()
-        setTimeout(func, 0)
-      </handler>
-
-      <method name="realinit">
-        @realinited = true
-        # return unless @check   # oninit can fire before children are inited
-
         # visual is the object that makes a visual change when selected
         @visual = @check
 
-        # Detect if the button was supplied with a size
-        if (@width > 0 || @height > 0)
-          @_fixedsize = true
         @handleResize()
 
         @visualize()
-      </method>
+      </handler>
 
       <method name="handleResize">
-        return unless @realinited  #Hack. Should be @inited
+        @super()
         return if @_resize_lock
 
+        checkx = checky = 0
+        checkw = checkh = @label.height
+        textx = texty = 0
+        width = @width
+        height = @height
+
+        if @_fixedwidth
+          xoffset = (@width - 2*@padding - @label.width - @checkw)/2
+          checkx = xoffset
+          textx = checkx + checkw + @innerspacing
+        else
+          width = @checkw + @label.width + @innerspacing + @padding*2
+          textx = checkx + @checkw + @innerspacing
+
+        if @_fixedheight
+          yoffset = (@height - 2*@padding - @label.height)/2
+          checky = yoffset
+          texty = yoffset
+        else
+          height= @label.height + @padding*2
+
         @_resize_lock = true
-        if (@label.width > 0 && @label.height > 0)
-          # Checkbox size
-          if @checkw != @label.height || @checkh != @check.height
-            settings =
-              checkw: @label.height
-              checkh: @label.height
-            @setAttributes(settings)
 
-          if @_fixedsize
-            #Fixed size button. position text in center of button
-
-            xoffset = (@width + @padding - @label.width - @checkw)/2
-            yoffset = (@height + @padding - @label.height)/2
-
-            settings =
-              checkx:xoffset
-              checky:yoffset
-            @setAttributes(settings)
-
-            settings =
-              #width: @checkw + @label.width
-              #height: @label.height
-              textx: @checkx + @checkw + @innerspacing
-              texty: yoffset
-            @setAttributes(settings)
-          else
-            #Variable size button. Resize button to text
-            settings =
-              checkx: @padding
-              checky: @padding
-              width: @checkw + @label.width + @innerspacing + @padding*2
-              height: @label.height + @padding*2
-              textx: @padding + @checkx + @checkw + @innerspacing
-              texty: @padding
-            @setAttributes(settings)
+        settings = {checkx: checkx, checky: checky, checkw: checkw, checkh: checkh, width: width, height: height, textx: textx, texty: texty}
+        @setAttributes(settings)
 
         @_resize_lock = false
       </method>
