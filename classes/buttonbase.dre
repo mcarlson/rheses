@@ -31,7 +31,7 @@ SOFTWARE. -->
      * element. For a checkbutton, the visual element is a square dr.view
      * that is inside the button.
      */-->
-    <class name="buttonbase" type="coffee" width="0" height="0" clickable="true" clip="true">
+    <class name="buttonbase" type="coffee" clickable="true" clip="true">
 
       <!--/**
         * @attribute {Number} [padding=3]
@@ -94,10 +94,8 @@ SOFTWARE. -->
         # Custom behavior in subclasses
 
         # Detect if the button was supplied with a size. Computed once
-        if !@_fixedwidth?
-          @_fixedwidth = if @width and @width > 2*@padding then true else false
-        if !@_fixedheight?
-          @_fixedheight = if @height and @height > 2*@padding then true else false
+        if !@_fixedwidth? then @_fixedwidth = @innerwidth > 0
+        if !@_fixedheight? then @_fixedheight = @innerheight > 0
       </method>
 
     </class>

@@ -88,19 +88,19 @@ SOFTWARE. -->
         height = @height
 
         if @_fixedwidth
-          xoffset = (@width - 2*@padding - @label.width - @checkw)/2
+          xoffset = (@innerwidth - @label.width - @checkw)/2
           checkx = xoffset
           textx = checkx + checkw + @innerspacing
         else
-          width = @checkw + @label.width + @innerspacing + @padding*2
+          width = @checkw + @label.width + @innerspacing + (@border+@padding)*2
           textx = checkx + @checkw + @innerspacing
 
         if @_fixedheight
-          yoffset = (@height - 2*@padding - @label.height)/2
+          yoffset = (@innerheight - @label.height)/2
           checky = yoffset
           texty = yoffset
         else
-          height= @label.height + @padding*2
+          height= @label.height + (@border+@padding)*2
 
         @_resize_lock = true
 

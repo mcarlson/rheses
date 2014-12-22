@@ -63,14 +63,14 @@ SOFTWARE. -->
         height = @height
 
         if @_fixedwidth
-          xoffset = (@width - 2*@padding - @label.width)/2
+          xoffset = (@innerwidth - @label.width)/2
         else
-          width = @label.width + 2*@padding
+          width = @label.width + (@border+@padding)*2
 
         if @_fixedheight
-          yoffset = (@height - 2*@padding - @label.height)/2
+          yoffset = (@innerheight - @label.height)/2
         else
-          height = @label.height + 2*@padding
+          height = @label.height + (@border+@padding)*2
 
         @_resize_lock = true
         @setAttributes({width:width, height:height, textx:xoffset, texty:yoffset})
