@@ -1361,6 +1361,39 @@
 </span>        * @attribute {Object[]} touches (readonly)
         * An array of x/y coordinates for all fingers, where available. See [https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Touch_events](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Touch_events) for more details
         */
+<span id='dr-twojs'>/**
+</span>   * @class dr.twojs {UI Components}
+   * @extends dr.view
+   * View that is enabled with two dimensional drawing capabilities by making use of the twojs library.
+   *
+   *     @example
+   *     &lt;twojs bgcolor=&quot;MistyRose&quot; width=&quot;285&quot; height=&quot;200&quot;&gt;
+   *       &lt;handler event=&quot;oninit&quot;&gt;
+   *         var circle = this.two.makeCircle(72, 72, 50);
+   *         circle.fill = &#39;#FF8000&#39;;
+   *         circle.stroke = &#39;orangered&#39;;
+   *         circle.linewidth = 5;
+   *         this.two.update();
+   *       &lt;/handler&gt;
+   *     &lt;/twojs&gt;
+   *
+   * In addition to having access to the &quot;two&quot; instance, you also have access to the Two namespace, which provides methods and types you may need. Here we create Two.Anchor instances to create a bezier curve. 
+   *
+   *     @example
+   *     &lt;twojs bgcolor=&quot;pink&quot; width=&quot;100&quot; height=&quot;100&quot;&gt;
+   *       &lt;handler event=&quot;oninit&quot;&gt;
+   *         var a1 = new Two.Anchor(0, 100, 0, 0, 60, -10, Two.Commands.curve);
+   *         var a2 = new Two.Anchor(100, 0, -90, 30, 0, 0, Two.Commands.curve);
+   *         var poly = this.two.makeCurve([a1,a2], true);
+   *         poly.fill = &quot;pink&quot;;
+   *         this.two.update();
+   *       &lt;/handler&gt;
+   *     &lt;/twojs&gt;
+   */
+<span id='dr-twojs-attribute-two'>/**
+</span>    * @attribute {Two} two
+    * Reference to the twojs context that provides API&#39;s for two dimensional drawing.
+    */
 <span id='dr-variablelayout'>/**
 </span>      * @class dr.variablelayout {Layout}
       * @extends dr.constantlayout
