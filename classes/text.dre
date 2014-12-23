@@ -116,11 +116,11 @@ SOFTWARE. -->
     @super()
     
     if 'width' of attributes then @_initialwidth = attributes.width
-
-    @listenTo(@, 'multiline', @updateSize)
-    @listenTo(@, 'resize', @updateSize)
-    @listenTo(@, 'init', @updateSize)
   </method>
+
+  <handler event="oninit" method="updateSize"></handler>
+  <handler event="onmultiline" method="updateSize"></handler>
+  <handler event="onresize" method="updateSize"></handler>
   
   <method name="_createSprite" args="el, attributes">
     @super()
