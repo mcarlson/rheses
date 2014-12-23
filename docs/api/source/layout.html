@@ -1373,13 +1373,6 @@
           } else {
             return &#39;none&#39;;
           }
-        },
-        cursor: function(clickable) {
-          if (clickable) {
-            return &#39;pointer&#39;;
-          } else {
-            return &#39;&#39;;
-          }
         }
       };
 
@@ -1456,10 +1449,23 @@
         return this.jqel.animate.apply(this.jqel, arguments);
       };
 
+      Sprite.prototype._cursorVal = function() {
+        if (this.__clickable) {
+          return this.__cursor || &#39;pointer&#39;;
+        } else {
+          return &#39;&#39;;
+        }
+      };
+
+      Sprite.prototype.set_cursor = function(cursor) {
+        this.__cursor = cursor;
+        return this.setStyle(&#39;cursor&#39;, this._cursorVal(), true);
+      };
+
       Sprite.prototype.set_clickable = function(clickable) {
         this.__clickable = clickable;
         this.__updatePointerEvents();
-        return this.setStyle(&#39;cursor&#39;, clickable, true);
+        return this.setStyle(&#39;cursor&#39;, this._cursorVal(), true);
       };
 
       Sprite.prototype.set_clip = function(clip) {
@@ -1953,6 +1959,11 @@
        * Sets the z-axis center of the view&#39;s transformations (such as rotation)
        */
 
+<span id='dr-view-attribute-cursor'>      /**
+</span>       * @attribute {String} [cursor=&#39;pointer&#39;]
+       * Cursor that should be used when the mouse is over this view, can be any CSS cursor value. Only applies when clickable is true.
+       */
+
 <span id='dr-view-event-onclick'>      /**
 </span>       * @event onclick
        * Fired when this view is clicked
@@ -2021,6 +2032,7 @@
         clip: false,
         scrollable: false,
         visible: true,
+        cursor: &#39;pointer&#39;,
         bordercolor: &#39;transparent&#39;,
         borderstyle: &#39;solid&#39;,
         border: 0,
@@ -2402,6 +2414,13 @@
           this.sprite.set_clickable(clickable);
         }
         return clickable;
+      };
+
+      View.prototype.set_cursor = function(cursor) {
+        if (cursor !== this.cursor) {
+          this.sprite.set_cursor(cursor);
+        }
+        return cursor;
       };
 
       View.prototype.__updateTransform = function() {

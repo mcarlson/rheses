@@ -151,7 +151,34 @@
   <view bgcolor="red" width="100" height="50" opacity="0.22">
     <!-- Note: the Math.round is due to floating point errors not matching 0.22 with 0.22 -->
     <handler event="oninit">
-        assert.equal(Math.round($(this.sprite.el).css('opacity') * 100), 22)
+        assert.equal(Math.round($(this.sprite.el).css('opacity') * 100), 22);
+    </handler>
+  </view>
+  
+  <!-- Setting cursor -->
+  <view bgcolor="PaleVioletRed" width="100" height="50" cursor="crosshair" clickable="true">
+    <handler event="oninit">
+      assert.equal(this.cursor, 'crosshair', 'cursor should be crosshair when set');
+      assert.equal($(this.sprite.el).css('cursor'), 'crosshair', 'sprite cursor should be crosshair when clickable is true');
+    </handler>
+  </view>
+  <view bgcolor="PaleVioletRed" width="100" height="50" clickable="true">
+    <handler event="oninit">
+      assert.equal($(this.sprite.el).css('cursor'), 'pointer', 'sprite cursor should be pointer by default when clickable is true');
+    </handler>
+  </view>
+  <view bgcolor="PaleVioletRed" width="100" height="50" cursor="crosshair" clickable="false">
+    <handler event="oninit">
+      this.setAttribute('clickable', true)
+      assert.equal(this.cursor, 'crosshair', 'cursor should be crosshair after clickable set true');
+      assert.equal($(this.sprite.el).css('cursor'), 'crosshair', 'sprite cursor should be crosshair after clickable set true');
+    </handler>
+  </view>
+  <view bgcolor="PaleVioletRed" width="100" height="50" cursor="crosshair" clickable="true">
+    <handler event="oninit">
+      this.setAttribute('cursor', 'progress')
+      assert.equal(this.cursor, 'progress', 'cursor should be progress when set at runtime');
+      assert.equal($(this.sprite.el).css('cursor'), 'progress', 'sprite cursor should be progress when set at runtime');
     </handler>
   </view>
 </view>

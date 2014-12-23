@@ -1356,13 +1356,6 @@
           } else {
             return 'none';
           }
-        },
-        cursor: function(clickable) {
-          if (clickable) {
-            return 'pointer';
-          } else {
-            return '';
-          }
         }
       };
 
@@ -1439,10 +1432,23 @@
         return this.jqel.animate.apply(this.jqel, arguments);
       };
 
+      Sprite.prototype._cursorVal = function() {
+        if (this.__clickable) {
+          return this.__cursor || 'pointer';
+        } else {
+          return '';
+        }
+      };
+
+      Sprite.prototype.set_cursor = function(cursor) {
+        this.__cursor = cursor;
+        return this.setStyle('cursor', this._cursorVal(), true);
+      };
+
       Sprite.prototype.set_clickable = function(clickable) {
         this.__clickable = clickable;
         this.__updatePointerEvents();
-        return this.setStyle('cursor', clickable, true);
+        return this.setStyle('cursor', this._cursorVal(), true);
       };
 
       Sprite.prototype.set_clip = function(clip) {
@@ -1937,6 +1943,11 @@
        */
 
       /**
+       * @attribute {String} [cursor='pointer']
+       * Cursor that should be used when the mouse is over this view, can be any CSS cursor value. Only applies when clickable is true.
+       */
+
+      /**
        * @event onclick
        * Fired when this view is clicked
        * @param {dr.view} view The dr.view that fired the event
@@ -2004,6 +2015,7 @@
         clip: false,
         scrollable: false,
         visible: true,
+        cursor: 'pointer',
         bordercolor: 'transparent',
         borderstyle: 'solid',
         border: 0,
@@ -2385,6 +2397,13 @@
           this.sprite.set_clickable(clickable);
         }
         return clickable;
+      };
+
+      View.prototype.set_cursor = function(cursor) {
+        if (cursor !== this.cursor) {
+          this.sprite.set_cursor(cursor);
+        }
+        return cursor;
       };
 
       View.prototype.__updateTransform = function() {
