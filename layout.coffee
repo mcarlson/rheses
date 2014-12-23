@@ -1039,8 +1039,6 @@ window.dr = do ->
     styleval =
       display: (isVisible) ->
         if isVisible then '' else 'none'
-      cursor: (clickable) ->
-        if clickable then 'pointer' else ''
 
     constructor: (jqel, view, tagname = 'div') ->
       # console.log 'new sprite', jqel, view, tagname
@@ -1099,12 +1097,19 @@ window.dr = do ->
           delete arguments[0][name]
       # console.log 'sprite animate', arguments[0], @jqel
       @jqel.animate.apply(@jqel, arguments)
+      
+    _cursorVal: () ->
+      return if @__clickable then @__cursor || 'pointer' else ''
+ 
+    set_cursor: (cursor) ->
+      @__cursor = cursor
+      @setStyle('cursor', @_cursorVal(), true)
 
     set_clickable: (clickable) ->
       # console.log('set_clickable', clickable)
       @__clickable = clickable
       @__updatePointerEvents()
-      @setStyle('cursor', clickable, true)
+      @setStyle('cursor', @_cursorVal(), true)
 
       # TODO: retrigger the event for the element below for IE and Opera? See http://stackoverflow.com/questions/3680429/click-through-a-div-to-underlying-elements
       # el = $(event.target)
@@ -1536,6 +1541,10 @@ window.dr = do ->
     # @attribute {Number} [zanchor=0]
     # Sets the z-axis center of the view's transformations (such as rotation)
     ###
+    ###*
+    # @attribute {String} [cursor='pointer']
+    # Cursor that should be used when the mouse is over this view, can be any CSS cursor value. Only applies when clickable is true.
+    ###
 
     ###*
     # @event onclick
@@ -1588,7 +1597,7 @@ window.dr = do ->
       x:0, y:0,
       width:0, height:0,
       opacity: 1,
-      clickable:false, clip:false, scrollable:false, visible:true,
+      clickable:false, clip:false, scrollable:false, visible:true, cursor:'pointer',
       bordercolor:'transparent', borderstyle:'solid', border:0,
       padding:0, ignorelayout:false,
     }
@@ -1889,6 +1898,10 @@ window.dr = do ->
       @sprite.set_clickable(clickable) if clickable isnt @clickable
       # super?(clickable)
       clickable
+      
+    set_cursor: (cursor) ->
+      @sprite.set_cursor(cursor) if cursor isnt @cursor
+      cursor
 
     __updateTransform: () ->
       transform = ''
