@@ -1,0 +1,28 @@
+  <class name="device" extends="text" bgcolor="white">
+    <method name="format" args="d">
+      if (! d) return
+      // console.log(d)
+      if (d.device.vendor) {
+        return d.device.vendor + ' ' + d.device.model
+      } else {
+        return d.os.name + ' ' + d.browser.name
+      }
+    </method>
+    <handler event="onconnectionid" method="update" reference="bus"></handler>
+    <handler event="ondata" method="update"></handler>
+    <method name="update">
+      if (! this.data) return
+      this.setAttribute('visible', bus.connectionid != this.data.id)
+      // console.log(this.connectionid, bus.connectionid, this.visible, this.format(this.text),this)
+      if (this.visible) {
+        this.setAttribute('opacity', 0)
+        this.animate({opacity: 1}, 400)
+      }
+    </method>
+  </class>
+
+  <class name="devices" width="auto" height="auto" options="ignorelayout">
+    <spacedlayout axis="y"></spacedlayout>
+    <view bgcolor="${bus.connected ? 'green' : 'red'}" width="20" height="20"></view>
+    <replicator name="repl" classname="device" data="${bus.devices}"></replicator>
+  </class>
