@@ -96,6 +96,8 @@ SOFTWARE. -->
   </setter>
   
   <!--/**
+    * @attribute attribute
+    * @private
     * The axis attribute is an alias for this attribute.
     */-->
   <setter name="attribute" args="attribute">

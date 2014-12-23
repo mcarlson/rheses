@@ -45,27 +45,37 @@
       * A variablelayout that aligns each view vertically or horizontally
       * relative to all the other views.
       *
-      * If collapseparent is true the parent will be sized to fit the
+      * If updateparent is true the parent will be sized to fit the
       * aligned views such that the view with the greatest extent will have
-      * a position of 0. If instead collapseparent is false the views will
+      * a position of 0. If instead updateparent is false the views will
       * be aligned within the inner extent of the parent view.
       *
       *     @example
-      *     <alignlayout align="middle" collapseparent="true">
-      *     </alignlayout>
+      *     <alignlayout align="middle" updateparent="true"></alignlayout>
       *
-      *     <view width="100" height="35" bgcolor="plum"></view>
-      *     <view width="100" height="25" bgcolor="lightpink"></view>
-      *     <view width="100" height="15" bgcolor="lightblue"></view>
+      *     <view x="0" width="50" height="35" bgcolor="plum"></view>
+      *     <view x="55" width="50" height="25" bgcolor="lightpink"></view>
+      *     <view x="110" width="50" height="15" bgcolor="lightblue"></view>
       */
 /**
     * @attribute {String} [align='middle']
     * Determines which way the views are aligned. Supported values are 
-    * 'left', 'center', 'right' and 'top', 'middle' and 'bottom'.
+    * 'left', 'center', 'right' for horizontal alignment and 'top', 'middle' 
+    * and 'bottom' for vertical alignment.
+    */
+/**
+    * @attribute {boolean} [inset=0]
+    * Determines if the parent will be sized to fit the aligned views such 
+    * that the view with the greatest extent will have a position of 0. If 
+    * instead updateparent is false the views will be aligned within the 
+    * inner extent of the parent view.
     */
 /**
     * @method doBeforeUpdate
     * Determine the maximum subview width/height according to the alignment.
+    * This is only necessary if updateparent is true since we will need to
+    * know what size to make the parent as well as what size to align the
+    * subviews within.
     */
 /**
     * @class dr.animator {Animation}
@@ -94,7 +104,7 @@
       * The value to animate to. Is identical to specifying a <keyframe at='{duration}'>{to}</keyframe>
       */
 /**
-      * @attribute {number} duration
+      * @attribute {Number} duration
       * The duration of the animation. Is identical to specifying a <keyframe at='{duration}'>{to}</keyframe>
       */
 /**
@@ -158,7 +168,7 @@
       * control points for the bret and bezier motions
       */
 /**
-      * @attribute {number} repeat
+      * @attribute {Number} repeat
       * how many times to repeat the loop (repeat 2 runs something twice)
       */
 /**
@@ -447,6 +457,11 @@
      *
      *     @example
      *     <bitmap src="../api-examples-resources/shasta.jpg" width="230" height="161"></bitmap>
+     *
+     * Stretch an image to fill the entire view.
+     *     @example
+     *     <bitmap src="../api-examples-resources/shasta.jpg" width="300" height="150" stretches="true"></bitmap>
+     *
      */
 /**
         * @attribute {String} src
@@ -461,6 +476,14 @@
                * @event onerror 
                * Fired when there is an error loading the bitmap
                */
+/**
+        * @attribute {String} [stretches=false]
+        * How the image is scaled to the size of the view.
+        * Supported values are 'true', 'false', 'scale'.
+        * false will scale the image to completely fill the view, but may obscure parts of the image.
+        * true will stretch the image to fit the view.
+        * scale will scale the image so it visible within the view, but the image may not fill the entire view.
+        */
 /**
       * @class dr.bitmapbutton {Deprecated}
       * @extends dr.statebutton
@@ -551,13 +574,30 @@
       * @class dr.constantlayout {Layout}
       * @extends dr.layout
       * A layout that sets the target attribute name to the target value for
-      * each subview.
+      * each sibling view of the layout.
+      *
+      * This layout is useful if you want to ensure that an attribute value is 
+      * shared in common by most or all children of a view. It also makes
+      * updating that value easy since you can change the value on the
+      * constant layout and it will be applied to all the managed sibling views.
+      *
+      * This constant layout will set the y attribute to 10 for every sibling
+      * view. Furthermore, since it's a layout, any new sibling view added
+      * will also have its y attribute set to 10. Also, notice that the sibling
+      * view with the black bgcolor has ignorelayout set to true. This means
+      * that view will be ignored by the layout and will thus not have its
+      * y attribute set to 10. You can change ignorelayout at runtime and the
+      * view will be added to, or removed from the layout. If you do remove a 
+      * view at runtime from the layout the y attribute for that view will not 
+      * be changed, but subsequent changes to the layout will no longer effect
+      * the view.
       *
       *     @example
       *     <constantlayout attribute="y" value="10"></constantlayout>
       *
       *     <view width="100" height="25" bgcolor="lightpink"></view>
       *     <view width="100" height="25" bgcolor="plum"></view>
+      *     <view ignorelayout="true" width="100" height="25" bgcolor="black"></view>
       *     <view width="100" height="25" bgcolor="lightblue"></view>
       */
 /**
@@ -566,7 +606,11 @@
     */
 /**
     * @attribute {*} [value=0]
-    * The value to set the attribute to.
+    * The value to set the attribute to on each subview.
+    */
+/**
+    * @method update
+    * Set the attribute to the value on every subview managed by this layout.
     */
 /**
      * @class dr.dataset {Data}
@@ -1069,7 +1113,21 @@
 /**
       * @class dr.resizelayout {Layout}
       * @extends dr.spacedlayout
-      * Resizes one or more views to fill in any remaining space.
+      * An extension of spaced layout that allows one or more "stretchy" views 
+      * to fill in any remaining space.
+      *
+      * A view can be made stretchy by giving it a layouthint with a numerical
+      * value, typically 1. Extra space is divided proportionally between all
+      * sretchy views based on that views percentage of the sum of the
+      * "stretchiness" of all stretchy views. For example, a view with a
+      * layouthint of 2 will get twice as much space as another view with
+      * a layouthint of 1.
+      *
+      * Since resizelayouts rely on the presence of extra space, the
+      * updateparent and updateparent attributes are not applicable to a 
+      * resizelayout. Similarly, using auto sizing on the parent view along 
+      * the same axis as the resizelayout will result in unexpected behavior 
+      * and should therefore be avoided.
       *
       *     @example
       *     <resizelayout spacing="2" inset="5" outset="5">
@@ -1191,11 +1249,18 @@
 /**
       * @class dr.spacedlayout {Layout}
       * @extends dr.variablelayout
-      * A variableLayout that positions views along an axis using an inset, 
-      * outset and spacing value.
+      * An extension of variableLayout that positions views horizontally or
+      * vertically using an initial inset and spacing between each view. If
+      * updateparent is true an outset is also used to leave space after
+      * the last subview.
+      *
+      * This spacedlayout will position the first view at a y of 5 and each
+      * subsequent view will be 2 pixels below the bottom of the preceding one.
+      * Since updateparent is true and an outset is defined the parent view
+      * will be sized to 5 pixels more than the bottom of the last view.
       *
       *     @example
-      *     <spacedlayout axis="y" spacing="2" inset="5" outset="5">
+      *     <spacedlayout axis="y" spacing="2" inset="5" outset="5" updateparent="true">
       *     </spacedlayout>
       *
       *     <view width="100" height="25" bgcolor="lightpink"></view>
@@ -1208,17 +1273,24 @@
     */
 /**
     * @attribute {Number} [outset=0]
-    * Space after the last view. Only used when collapseparent is true.
+    * Space after the last view. Only used when updateparent is true.
     */
 /**
     * @attribute {Number} [inset=0]
-    * Space before the first view.
+    * Space before the first view. This is an alias for the "value" attribute.
+    * attribute.
     */
 /**
     * @attribute {String} [axis='x']
     * The orientation of the layout. Supported values are 'x' and 'y'.
     * A value of 'x' will orient the views horizontally and a value of 'y'
-    * will orient them vertically.
+    * will orient them vertically. This is an alias for the "attribute" 
+    * attribute.
+    */
+/**
+    * @attribute attribute
+    * @private
+    * The axis attribute is an alias for this attribute.
     */
 /**
  * @class dr.statebutton {UI Components}
@@ -1328,6 +1400,90 @@
         * @param {Object} data The data to be sent.
         */
 /**
+      * @class dr.text {UI Components}
+      * @extends dr.view
+      * Text component that supports single and multi-line text.
+      * 
+      *  The text component can be fixed size, or sized to fit the size of the text.
+      * 
+      *      @example
+      *      <text text="Hello World!" bgcolor="red"></text>
+      * 
+      *  Here is a multiline text
+      * 
+      *      @example
+      *      <text multiline="true" text="Lorem ipsum dolor sit amet, consectetur adipiscing elit"></text>
+      * 
+      *  You might want to set the value of a text element based on the value of other attributes via a constraint. Here we set the value by concatenating three attributes together.
+      * 
+      *      @example
+      *      <attribute name="firstName" type="string" value="Lumpy"></attribute>
+      *      <attribute name="middleName" type="string" value="Space"></attribute>
+      *      <attribute name="lastName" type="string" value="Princess"></attribute>
+      * 
+      *      <text text="${this.parent.firstName + ' ' + this.parent.middleName + ' ' + this.parent.lastName}" color="hotpink"></text>
+      * 
+      *  Constraints can contain more complex JavaScript code
+      * 
+      *      @example
+      *      <attribute name="firstName" type="string" value="Lumpy"></attribute>
+      *      <attribute name="middleName" type="string" value="Space"></attribute>
+      *      <attribute name="lastName" type="string" value="Princess"></attribute>
+      * 
+      *      <text text="${this.parent.firstName.charAt(0) + ' ' + this.parent.middleName.charAt(0) + ' ' + this.parent.lastName.charAt(0)}" color="hotpink"></text>
+      * 
+      *  We can simplify this by using a method to return the concatenation and constraining the text value to the return value of the method
+      * 
+      *      @example
+      *      <attribute name="firstName" type="string" value="Lumpy"></attribute>
+      *      <attribute name="middleName" type="string" value="Space"></attribute>
+      *      <attribute name="lastName" type="string" value="Princess"></attribute>
+      * 
+      *      <method name="initials">
+      *        return this.firstName.charAt(0) + ' ' + this.middleName.charAt(0) + ' ' + this.lastName.charAt(0);
+      *      </method>
+      * 
+      *      <text text="${this.parent.initials()}" color="hotpink"></text>
+      * 
+      *  You can override the format method to provide custom formatting for text elements. Here is a subclass of text, timetext, with the format method overridden to convert the text given in seconds into a formatted string.
+      * 
+      *      @example
+      *      <class name="timetext" extends="text">
+      *        <method name="format" args="seconds">
+      *          var minutes = Math.floor(seconds / 60);
+      *          var seconds = Math.floor(seconds) - minutes * 60;
+      *          if (seconds < 10) {
+      *            seconds = '0' + seconds;
+      *          }
+      *          return minutes + ':' + seconds;
+      *        </method>
+      *      </class>
+      * 
+      *      <timetext text="240"></timetext>
+      * 
+      */
+/**
+    * 
+    * @attribute {Boolean} [multiline=false]
+    * Set to true to show multi-line text.
+    * 
+    * @attribute {Boolean} [resize=true]
+    * By default, the text component is sized to the size of the text.
+    * By setting resize=false, the component size is not modified
+    * when the text changes.
+    * 
+    * @attribute {String} [text=""]
+    * Component text.
+    * 
+    */
+/**
+    * @method format
+    * Format the text to be displayed. The default behavior is to
+    * return the text intact. Override to change formatting.
+    * @param {String} str The current value of the text component.
+    * @return {String} The formated string to display in the component.
+    */
+/**
      * @class dr.touch {Input}
      * @extends dr.node
      * Receives touch and multitouch data where available.
@@ -1374,50 +1530,134 @@
    *     </twojs>
    */
 /**
-    * @attribute {Two} two
+    * @attribute {Object} two
     * Reference to the twojs context that provides API's for two dimensional drawing.
     */
 /**
       * @class dr.variablelayout {Layout}
       * @extends dr.constantlayout
-      * Allows for variation based on the index and subview. An updateSubview
-      * method is provided that can be overriden to provide variable behavior.
+      * This layout extends constantlayout adding the capability to control
+      * what value is set on each managed view. The to set on each vies is
+      * controlled by implementing the updateSubview method of this layout.
+      *
+      * The updateSubview method has four arguments: 'count', 'view', 
+      * 'attribute' and 'value'.
+      *     Count: The 1 based index of the view being updated, i.e. the 
+      *         first view updated will have a count of 1, the second, a count 
+      *         of 2, etc.
+      *     View: The view being updated. Your updateSubview method will
+      *         most likely modify this view in some way.
+      *     Attribute: The name of the attribute this layout is supposedly
+      *         updating. This will be set to the value of 
+      *         the 'attribute' attribute of the variablelayout. You can use 
+      *         this value if you wish or ignore it if you want to.
+      *     Value: The suggested value to set on the view. You can use it as
+      *         is or ignore it if you want. The value provided for the first 
+      *         view will be the value of the 'value' attribute of the
+      *         variablelayout. Subsequent values will be the return value of
+      *         the updateSubview method for the previous view. This allows
+      *         you to feed values forward as each view is updated.
+      *
+      * This variable layout will position the first view at a y value of 10
+      * and each subsequent view will be positioned with a y value 1 pixel
+      * below the bottom of the previous view. In addition, all views with
+      * an even count will be positioned at an x of 5 and odd views at an
+      * x of 10. Also, updateparent has been set to true so the
+      * updateParent method will be called with the attribute and last value
+      * returned from updateSubview. In this case updateParent will resize
+      * the parent view to a height that fits all the subviews plus an
+      * additional 10 pixels.
       *
       *     @example
-      *     <variablelayout attribute="x" value="10">
+      *     <variablelayout attribute="y" value="10" updateparent="true">
+      *         <method name="updateSubview" args="count, view, attribute, value">
+      *             view.setAttribute(attribute, value);
+      *             view.setAttribute('x', count % 2 === 0 ? 5 : 10);
+      *             return value + view.height + 1;
+      *         </method>
+      *         <method name="updateParent" args="attribute, value">
+      *             this.parent.setAttribute('height', value + 10);
+      *         </method>
       *     </variablelayout>
       *
-      *     <view width="100" height="25" bgcolor="lightpink"></view>
-      *     <view width="100" height="25" bgcolor="plum"></view>
-      *     <view width="100" height="25" bgcolor="lightblue"></view>
+      *     <view width="50" height="25" bgcolor="lightpink"></view>
+      *     <view width="50" height="25" bgcolor="plum"></view>
+      *     <view width="50" height="25" bgcolor="lightblue"></view>
+      *
+      * This variable layout works similar to the one above except it will
+      * skip any view that has an opacity less that 0.5. To accomplish this
+      * the skipSubview method has been implemented. Also, the 
+      * startMonitoringSubview and stopMonitoringSubview methods have been
+      * implemented so that if the opacity of a view changes the layout will
+      * be updated.
+      *
+      *     @example
+      *     <variablelayout attribute="y" value="10" updateparent="true">
+      *         <method name="updateSubview" args="count, view, attribute, value">
+      *             view.setAttribute(attribute, value);
+      *             view.setAttribute('x', count % 2 === 0 ? 5 : 10);
+      *             return value + view.height + 1;
+      *         </method>
+      *         <method name="updateParent" args="attribute, value">
+      *             this.parent.setAttribute('height', value + 10);
+      *         </method>
+      *         <method name="startMonitoringSubview" args="view">
+      *             this.super();
+      *             this.listenTo(view, 'opacity', this.update)
+      *         </method>
+      *         <method name="stopMonitoringSubview" args="view">
+      *             this.super();
+      *             this.stopListening(view, 'opacity', this.update)
+      *         </method>
+      *         <method name="skipSubview" args="view">
+      *             if (0.5 >= view.opacity) return true;
+      *             return this.super();
+      *         </method>
+      *     </variablelayout>
+      *
+      *     <view width="50" height="25" bgcolor="lightpink"></view>
+      *     <view width="50" height="25" bgcolor="plum"></view>
+      *     <view width="50" height="25" bgcolor="black" opacity="0.25"></view>
+      *     <view width="50" height="25" bgcolor="lightblue"></view>
       */
 /**
-    * @attribute {boolean} [collapseparent=false]
-    * If true the updateParent method will be called. The updateParent method
-    * will typically resize the parent to fit the newly layed out child views.
+    * @attribute {boolean} [updateparent=false]
+    * If true the updateParent method of the variablelayout will be called. 
+    * The updateParent method provides an opportunity for the layout to
+    * modify the parent view in some way each time update completes. A typical
+    * implementation is to resize the parent to fit the newly layed out child 
+    * views.
     */
 /**
     * @attribute {boolean} [reverse=false]
-    * If true the layout will position the items in the opposite order. For
-    * example, right to left instead of left to right.
+    * If true the layout will run through the views in the opposite order when
+    * calling updateSubview. For subclasses of variablelayout this will
+    * typically result in views being layed out in the opposite direction,
+    * right to left instead of left to right, bottom to top instead of top to
+    * bottom, etc.
     */
 /**
     * @method doBeforeUpdate
-    * Called by update before any processing is done. Gives subviews a
-    * chance to do any special setup before update is processed.
+    * Called by the update method before any processing is done. This method 
+    * gives the variablelayout a chance to do any special setup before update is 
+    * processed for each view. This is a good place to calculate any values
+    * that will be needed during the calls to updateSubview.
     * @return {void}
     */
 /**
     * @method doAfterUpdate
-    * Called by update after any processing is done but before the optional
-    * collapsing of parent is done. Gives subviews a chance to do any
-    * special teardown after update is processed.
+    * Called by the update method after any processing is done but before the
+    * optional updateParent method is called. This method gives the variablelayout
+    * a chance to do any special teardown after updateSubview has been called
+    * for each managed view.
     * @return {void}
     */
 /**
     * @method startMonitoringSubview
     * Provides a default implementation that calls update when the
-    * visibility of a subview changes.
+    * visibility of a subview changes. Monitoring the visible attribute of
+    * a view is useful since most layouts will want to "reflow" as views
+    * become visible or hidden.
     * @param {dr.view} view
     */
 /**
@@ -1441,14 +1681,22 @@
     * @method skipSubview
     * Called for each subview in the layout to determine if the view should
     * be updated or not. The default implementation returns true if the
-    * subview is not visible.
+    * subview is not visible since views that can't be seen don't typically 
+    * need to be positioned. You could implement your own skipSubview method
+    * to use other attributes of a view to determine if a view should be
+    * updated or not. An important point is that skipped views are still
+    * monitored by the layout. Therefore, if you use a different attribute to
+    * determine wether to skip a view or not you should probably also provide
+    * custom implementations of startMonitoringSubview and stopMonitoringSubview
+    * so that when the attribute changes to/from a value that would result in
+    * the view being skipped the layout will update.
     * @param {dr.view} view The subview to check.
     * @return {Boolean} True if the subview should be skipped during
     *   layout updates.
     */
 /**
     * @method updateParent
-    * Called if the collapseparent attribute is true. Subclasses should
+    * Called if the updateparent attribute is true. Subclasses should
     * implement this if they want to modify the parent view.
     * @param {String} attribute The name of the attribute to update.
     * @param {*} value The value to set on the parent.
@@ -1499,19 +1747,37 @@
 /**
       * @class dr.wrappinglayout {Layout}
       * @extends dr.variablelayout
-      * An extension of VariableLayout that positions views along an axis using
-      * an inset, outset and spacing value. Views will be wrapped when they
-      * overflow the available space.
+      * An extension of variableLayout similar to spaced layout but with the
+      * added functionality of wrapping the views onto a new line (or column
+      * if the axis is "y") whenever they would overflow the available space. 
+      * This layout positions views horizontally or vertically using an initial
+      * inset and spacing between each view. The outset is used in the 
+      * calculation of available space so that the last view in each line will 
+      * have at least "outset" space after it.
       *
-      * Supported Layout Hints:
-      *   break:string Will force the subview to start a new line/column.
+      * Lines/Columns are positioned in a similar fashion to the individual views
+      * using lineinset, linespacing and lineoutset. If updateparent is true
+      * the lineoutset is used to leave space after the last line.
       *
+      * A line break can be forced by using a "break" layouthint on a managed
+      * view. The layout hint "break" will force the subview to start a new
+      * line/column with that subview as the first view in the line/column.
+      *
+      * Since wrappinglayouts rely on the innerwidth/height of the parent view
+      * to determine when to wrap auto sizing on the parent view along the same
+      * axis as the wrappinglayout will result in unexpected behavior and 
+      * should therefore be avoided.
+      * 
       *     @example
       *     <wrappinglayout axis="y" spacing="2" inset="5" outset="5" lineinset="10" linespacing="5" lineoutset="10">
       *     </wrappinglayout>
       *
       *     <view width="100" height="25" bgcolor="lightpink"></view>
-      *     <view width="100" height="35" bgcolor="plum"></view>
+      *     <view width="100" height="35" bgcolor="plum" layouthint="break"></view>
+      *     <view width="100" height="15" bgcolor="lightblue"></view>
+      *     <view width="100" height="15" bgcolor="lightblue"></view>
+      *     <view width="100" height="15" bgcolor="lightblue"></view>
+      *     <view width="100" height="15" bgcolor="lightblue"></view>
       *     <view width="100" height="15" bgcolor="lightblue"></view>
       */
 /**
@@ -1524,7 +1790,7 @@
     */
 /**
     * @attribute {Number} [inset=0]
-    * Space before the first view.
+    * Space before the first view. This is an alias for the "value" attribute.
     */
 /**
     * @attribute {Number} [linespacing=0]
@@ -1532,7 +1798,7 @@
     */
 /**
     * @attribute {Number} [lineoutset=0]
-    * Space after the last line of views. Only used when collapseparent is true.
+    * Space after the last line of views. Only used when updateparent is true.
     */
 /**
     * @attribute {Number} [lineinset=0]
@@ -1541,6 +1807,14 @@
 /**
     * @attribute {String} [axis='x']
     * The orientation of the layout. Supported values are 'x' and 'y'.
-    * A value of 'x' will orient the views horizontally and a value of 'y'
-    * will orient them vertically.
+    * A value of 'x' will orient the views horizontally with lines being
+    * positioned vertically below the preceding line. A value of 'y' will 
+    * orient the views vertically with columns positioned horizontally to 
+    * the right of the preceding column. This is an alias for the "attribute" 
+    * attribute.
+    */
+/**
+    * @attribute attribute
+    * @private
+    * The axis attribute is an alias for this attribute.
     */

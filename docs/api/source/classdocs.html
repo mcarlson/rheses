@@ -62,27 +62,37 @@
       * A variablelayout that aligns each view vertically or horizontally
       * relative to all the other views.
       *
-      * If collapseparent is true the parent will be sized to fit the
+      * If updateparent is true the parent will be sized to fit the
       * aligned views such that the view with the greatest extent will have
-      * a position of 0. If instead collapseparent is false the views will
+      * a position of 0. If instead updateparent is false the views will
       * be aligned within the inner extent of the parent view.
       *
       *     @example
-      *     &lt;alignlayout align=&quot;middle&quot; collapseparent=&quot;true&quot;&gt;
-      *     &lt;/alignlayout&gt;
+      *     &lt;alignlayout align=&quot;middle&quot; updateparent=&quot;true&quot;&gt;&lt;/alignlayout&gt;
       *
-      *     &lt;view width=&quot;100&quot; height=&quot;35&quot; bgcolor=&quot;plum&quot;&gt;&lt;/view&gt;
-      *     &lt;view width=&quot;100&quot; height=&quot;25&quot; bgcolor=&quot;lightpink&quot;&gt;&lt;/view&gt;
-      *     &lt;view width=&quot;100&quot; height=&quot;15&quot; bgcolor=&quot;lightblue&quot;&gt;&lt;/view&gt;
+      *     &lt;view x=&quot;0&quot; width=&quot;50&quot; height=&quot;35&quot; bgcolor=&quot;plum&quot;&gt;&lt;/view&gt;
+      *     &lt;view x=&quot;55&quot; width=&quot;50&quot; height=&quot;25&quot; bgcolor=&quot;lightpink&quot;&gt;&lt;/view&gt;
+      *     &lt;view x=&quot;110&quot; width=&quot;50&quot; height=&quot;15&quot; bgcolor=&quot;lightblue&quot;&gt;&lt;/view&gt;
       */
 <span id='dr-alignlayout-attribute-align'>/**
 </span>    * @attribute {String} [align=&#39;middle&#39;]
     * Determines which way the views are aligned. Supported values are 
-    * &#39;left&#39;, &#39;center&#39;, &#39;right&#39; and &#39;top&#39;, &#39;middle&#39; and &#39;bottom&#39;.
+    * &#39;left&#39;, &#39;center&#39;, &#39;right&#39; for horizontal alignment and &#39;top&#39;, &#39;middle&#39; 
+    * and &#39;bottom&#39; for vertical alignment.
+    */
+<span id='dr-alignlayout-attribute-inset'>/**
+</span>    * @attribute {boolean} [inset=0]
+    * Determines if the parent will be sized to fit the aligned views such 
+    * that the view with the greatest extent will have a position of 0. If 
+    * instead updateparent is false the views will be aligned within the 
+    * inner extent of the parent view.
     */
 <span id='dr-alignlayout-method-doBeforeUpdate'>/**
 </span>    * @method doBeforeUpdate
     * Determine the maximum subview width/height according to the alignment.
+    * This is only necessary if updateparent is true since we will need to
+    * know what size to make the parent as well as what size to align the
+    * subviews within.
     */
 <span id='dr-animator'>/**
 </span>    * @class dr.animator {Animation}
@@ -111,7 +121,7 @@
       * The value to animate to. Is identical to specifying a &lt;keyframe at=&#39;{duration}&#39;&gt;{to}&lt;/keyframe&gt;
       */
 <span id='dr-animator-attribute-duration'>/**
-</span>      * @attribute {number} duration
+</span>      * @attribute {Number} duration
       * The duration of the animation. Is identical to specifying a &lt;keyframe at=&#39;{duration}&#39;&gt;{to}&lt;/keyframe&gt;
       */
 <span id='dr-animator-attribute-attribute'>/**
@@ -175,7 +185,7 @@
       * control points for the bret and bezier motions
       */
 <span id='dr-animator-attribute-repeat'>/**
-</span>      * @attribute {number} repeat
+</span>      * @attribute {Number} repeat
       * how many times to repeat the loop (repeat 2 runs something twice)
       */
 <span id='dr-animator-attribute-bounce'>/**
@@ -464,6 +474,11 @@
      *
      *     @example
      *     &lt;bitmap src=&quot;../api-examples-resources/shasta.jpg&quot; width=&quot;230&quot; height=&quot;161&quot;&gt;&lt;/bitmap&gt;
+     *
+     * Stretch an image to fill the entire view.
+     *     @example
+     *     &lt;bitmap src=&quot;../api-examples-resources/shasta.jpg&quot; width=&quot;300&quot; height=&quot;150&quot; stretches=&quot;true&quot;&gt;&lt;/bitmap&gt;
+     *
      */
 <span id='dr-bitmap-attribute-src'>/**
 </span>        * @attribute {String} src
@@ -478,6 +493,14 @@
 </span>               * @event onerror 
                * Fired when there is an error loading the bitmap
                */
+<span id='dr-bitmap-attribute-stretches'>/**
+</span>        * @attribute {String} [stretches=false]
+        * How the image is scaled to the size of the view.
+        * Supported values are &#39;true&#39;, &#39;false&#39;, &#39;scale&#39;.
+        * false will scale the image to completely fill the view, but may obscure parts of the image.
+        * true will stretch the image to fit the view.
+        * scale will scale the image so it visible within the view, but the image may not fill the entire view.
+        */
 <span id='dr-bitmapbutton'>/**
 </span>      * @class dr.bitmapbutton {Deprecated}
       * @extends dr.statebutton
@@ -568,13 +591,30 @@
 </span>      * @class dr.constantlayout {Layout}
       * @extends dr.layout
       * A layout that sets the target attribute name to the target value for
-      * each subview.
+      * each sibling view of the layout.
+      *
+      * This layout is useful if you want to ensure that an attribute value is 
+      * shared in common by most or all children of a view. It also makes
+      * updating that value easy since you can change the value on the
+      * constant layout and it will be applied to all the managed sibling views.
+      *
+      * This constant layout will set the y attribute to 10 for every sibling
+      * view. Furthermore, since it&#39;s a layout, any new sibling view added
+      * will also have its y attribute set to 10. Also, notice that the sibling
+      * view with the black bgcolor has ignorelayout set to true. This means
+      * that view will be ignored by the layout and will thus not have its
+      * y attribute set to 10. You can change ignorelayout at runtime and the
+      * view will be added to, or removed from the layout. If you do remove a 
+      * view at runtime from the layout the y attribute for that view will not 
+      * be changed, but subsequent changes to the layout will no longer effect
+      * the view.
       *
       *     @example
       *     &lt;constantlayout attribute=&quot;y&quot; value=&quot;10&quot;&gt;&lt;/constantlayout&gt;
       *
       *     &lt;view width=&quot;100&quot; height=&quot;25&quot; bgcolor=&quot;lightpink&quot;&gt;&lt;/view&gt;
       *     &lt;view width=&quot;100&quot; height=&quot;25&quot; bgcolor=&quot;plum&quot;&gt;&lt;/view&gt;
+      *     &lt;view ignorelayout=&quot;true&quot; width=&quot;100&quot; height=&quot;25&quot; bgcolor=&quot;black&quot;&gt;&lt;/view&gt;
       *     &lt;view width=&quot;100&quot; height=&quot;25&quot; bgcolor=&quot;lightblue&quot;&gt;&lt;/view&gt;
       */
 <span id='dr-constantlayout-attribute-attribute'>/**
@@ -583,7 +623,11 @@
     */
 <span id='dr-constantlayout-attribute-value'>/**
 </span>    * @attribute {*} [value=0]
-    * The value to set the attribute to.
+    * The value to set the attribute to on each subview.
+    */
+<span id='dr-constantlayout-method-update'>/**
+</span>    * @method update
+    * Set the attribute to the value on every subview managed by this layout.
     */
 <span id='dr-dataset'>/**
 </span>     * @class dr.dataset {Data}
@@ -1086,7 +1130,21 @@
 <span id='dr-resizelayout'>/**
 </span>      * @class dr.resizelayout {Layout}
       * @extends dr.spacedlayout
-      * Resizes one or more views to fill in any remaining space.
+      * An extension of spaced layout that allows one or more &quot;stretchy&quot; views 
+      * to fill in any remaining space.
+      *
+      * A view can be made stretchy by giving it a layouthint with a numerical
+      * value, typically 1. Extra space is divided proportionally between all
+      * sretchy views based on that views percentage of the sum of the
+      * &quot;stretchiness&quot; of all stretchy views. For example, a view with a
+      * layouthint of 2 will get twice as much space as another view with
+      * a layouthint of 1.
+      *
+      * Since resizelayouts rely on the presence of extra space, the
+      * updateparent and updateparent attributes are not applicable to a 
+      * resizelayout. Similarly, using auto sizing on the parent view along 
+      * the same axis as the resizelayout will result in unexpected behavior 
+      * and should therefore be avoided.
       *
       *     @example
       *     &lt;resizelayout spacing=&quot;2&quot; inset=&quot;5&quot; outset=&quot;5&quot;&gt;
@@ -1208,11 +1266,18 @@
 <span id='dr-spacedlayout'>/**
 </span>      * @class dr.spacedlayout {Layout}
       * @extends dr.variablelayout
-      * A variableLayout that positions views along an axis using an inset, 
-      * outset and spacing value.
+      * An extension of variableLayout that positions views horizontally or
+      * vertically using an initial inset and spacing between each view. If
+      * updateparent is true an outset is also used to leave space after
+      * the last subview.
+      *
+      * This spacedlayout will position the first view at a y of 5 and each
+      * subsequent view will be 2 pixels below the bottom of the preceding one.
+      * Since updateparent is true and an outset is defined the parent view
+      * will be sized to 5 pixels more than the bottom of the last view.
       *
       *     @example
-      *     &lt;spacedlayout axis=&quot;y&quot; spacing=&quot;2&quot; inset=&quot;5&quot; outset=&quot;5&quot;&gt;
+      *     &lt;spacedlayout axis=&quot;y&quot; spacing=&quot;2&quot; inset=&quot;5&quot; outset=&quot;5&quot; updateparent=&quot;true&quot;&gt;
       *     &lt;/spacedlayout&gt;
       *
       *     &lt;view width=&quot;100&quot; height=&quot;25&quot; bgcolor=&quot;lightpink&quot;&gt;&lt;/view&gt;
@@ -1225,17 +1290,24 @@
     */
 <span id='dr-spacedlayout-attribute-outset'>/**
 </span>    * @attribute {Number} [outset=0]
-    * Space after the last view. Only used when collapseparent is true.
+    * Space after the last view. Only used when updateparent is true.
     */
 <span id='dr-spacedlayout-attribute-inset'>/**
 </span>    * @attribute {Number} [inset=0]
-    * Space before the first view.
+    * Space before the first view. This is an alias for the &quot;value&quot; attribute.
+    * attribute.
     */
 <span id='dr-spacedlayout-attribute-axis'>/**
 </span>    * @attribute {String} [axis=&#39;x&#39;]
     * The orientation of the layout. Supported values are &#39;x&#39; and &#39;y&#39;.
     * A value of &#39;x&#39; will orient the views horizontally and a value of &#39;y&#39;
-    * will orient them vertically.
+    * will orient them vertically. This is an alias for the &quot;attribute&quot; 
+    * attribute.
+    */
+<span id='dr-spacedlayout-attribute-attribute'>/**
+</span>    * @attribute attribute
+    * @private
+    * The axis attribute is an alias for this attribute.
     */
 <span id='dr-statebutton'>/**
 </span> * @class dr.statebutton {UI Components}
@@ -1344,6 +1416,90 @@
         * @param {String} type The type of event to be sent.
         * @param {Object} data The data to be sent.
         */
+<span id='dr-text'>/**
+</span>      * @class dr.text {UI Components}
+      * @extends dr.view
+      * Text component that supports single and multi-line text.
+      * 
+      *  The text component can be fixed size, or sized to fit the size of the text.
+      * 
+      *      @example
+      *      &lt;text text=&quot;Hello World!&quot; bgcolor=&quot;red&quot;&gt;&lt;/text&gt;
+      * 
+      *  Here is a multiline text
+      * 
+      *      @example
+      *      &lt;text multiline=&quot;true&quot; text=&quot;Lorem ipsum dolor sit amet, consectetur adipiscing elit&quot;&gt;&lt;/text&gt;
+      * 
+      *  You might want to set the value of a text element based on the value of other attributes via a constraint. Here we set the value by concatenating three attributes together.
+      * 
+      *      @example
+      *      &lt;attribute name=&quot;firstName&quot; type=&quot;string&quot; value=&quot;Lumpy&quot;&gt;&lt;/attribute&gt;
+      *      &lt;attribute name=&quot;middleName&quot; type=&quot;string&quot; value=&quot;Space&quot;&gt;&lt;/attribute&gt;
+      *      &lt;attribute name=&quot;lastName&quot; type=&quot;string&quot; value=&quot;Princess&quot;&gt;&lt;/attribute&gt;
+      * 
+      *      &lt;text text=&quot;${this.parent.firstName + &#39; &#39; + this.parent.middleName + &#39; &#39; + this.parent.lastName}&quot; color=&quot;hotpink&quot;&gt;&lt;/text&gt;
+      * 
+      *  Constraints can contain more complex JavaScript code
+      * 
+      *      @example
+      *      &lt;attribute name=&quot;firstName&quot; type=&quot;string&quot; value=&quot;Lumpy&quot;&gt;&lt;/attribute&gt;
+      *      &lt;attribute name=&quot;middleName&quot; type=&quot;string&quot; value=&quot;Space&quot;&gt;&lt;/attribute&gt;
+      *      &lt;attribute name=&quot;lastName&quot; type=&quot;string&quot; value=&quot;Princess&quot;&gt;&lt;/attribute&gt;
+      * 
+      *      &lt;text text=&quot;${this.parent.firstName.charAt(0) + &#39; &#39; + this.parent.middleName.charAt(0) + &#39; &#39; + this.parent.lastName.charAt(0)}&quot; color=&quot;hotpink&quot;&gt;&lt;/text&gt;
+      * 
+      *  We can simplify this by using a method to return the concatenation and constraining the text value to the return value of the method
+      * 
+      *      @example
+      *      &lt;attribute name=&quot;firstName&quot; type=&quot;string&quot; value=&quot;Lumpy&quot;&gt;&lt;/attribute&gt;
+      *      &lt;attribute name=&quot;middleName&quot; type=&quot;string&quot; value=&quot;Space&quot;&gt;&lt;/attribute&gt;
+      *      &lt;attribute name=&quot;lastName&quot; type=&quot;string&quot; value=&quot;Princess&quot;&gt;&lt;/attribute&gt;
+      * 
+      *      &lt;method name=&quot;initials&quot;&gt;
+      *        return this.firstName.charAt(0) + &#39; &#39; + this.middleName.charAt(0) + &#39; &#39; + this.lastName.charAt(0);
+      *      &lt;/method&gt;
+      * 
+      *      &lt;text text=&quot;${this.parent.initials()}&quot; color=&quot;hotpink&quot;&gt;&lt;/text&gt;
+      * 
+      *  You can override the format method to provide custom formatting for text elements. Here is a subclass of text, timetext, with the format method overridden to convert the text given in seconds into a formatted string.
+      * 
+      *      @example
+      *      &lt;class name=&quot;timetext&quot; extends=&quot;text&quot;&gt;
+      *        &lt;method name=&quot;format&quot; args=&quot;seconds&quot;&gt;
+      *          var minutes = Math.floor(seconds / 60);
+      *          var seconds = Math.floor(seconds) - minutes * 60;
+      *          if (seconds &lt; 10) {
+      *            seconds = &#39;0&#39; + seconds;
+      *          }
+      *          return minutes + &#39;:&#39; + seconds;
+      *        &lt;/method&gt;
+      *      &lt;/class&gt;
+      * 
+      *      &lt;timetext text=&quot;240&quot;&gt;&lt;/timetext&gt;
+      * 
+      */
+<span id='dr-text-attribute-multiline'>/**
+</span>    * 
+    * @attribute {Boolean} [multiline=false]
+    * Set to true to show multi-line text.
+    * 
+    * @attribute {Boolean} [resize=true]
+    * By default, the text component is sized to the size of the text.
+    * By setting resize=false, the component size is not modified
+    * when the text changes.
+    * 
+    * @attribute {String} [text=&quot;&quot;]
+    * Component text.
+    * 
+    */
+<span id='dr-text-method-format'>/**
+</span>    * @method format
+    * Format the text to be displayed. The default behavior is to
+    * return the text intact. Override to change formatting.
+    * @param {String} str The current value of the text component.
+    * @return {String} The formated string to display in the component.
+    */
 <span id='dr-touch'>/**
 </span>     * @class dr.touch {Input}
      * @extends dr.node
@@ -1391,50 +1547,134 @@
    *     &lt;/twojs&gt;
    */
 <span id='dr-twojs-attribute-two'>/**
-</span>    * @attribute {Two} two
+</span>    * @attribute {Object} two
     * Reference to the twojs context that provides API&#39;s for two dimensional drawing.
     */
 <span id='dr-variablelayout'>/**
 </span>      * @class dr.variablelayout {Layout}
       * @extends dr.constantlayout
-      * Allows for variation based on the index and subview. An updateSubview
-      * method is provided that can be overriden to provide variable behavior.
+      * This layout extends constantlayout adding the capability to control
+      * what value is set on each managed view. The to set on each vies is
+      * controlled by implementing the updateSubview method of this layout.
+      *
+      * The updateSubview method has four arguments: &#39;count&#39;, &#39;view&#39;, 
+      * &#39;attribute&#39; and &#39;value&#39;.
+      *     Count: The 1 based index of the view being updated, i.e. the 
+      *         first view updated will have a count of 1, the second, a count 
+      *         of 2, etc.
+      *     View: The view being updated. Your updateSubview method will
+      *         most likely modify this view in some way.
+      *     Attribute: The name of the attribute this layout is supposedly
+      *         updating. This will be set to the value of 
+      *         the &#39;attribute&#39; attribute of the variablelayout. You can use 
+      *         this value if you wish or ignore it if you want to.
+      *     Value: The suggested value to set on the view. You can use it as
+      *         is or ignore it if you want. The value provided for the first 
+      *         view will be the value of the &#39;value&#39; attribute of the
+      *         variablelayout. Subsequent values will be the return value of
+      *         the updateSubview method for the previous view. This allows
+      *         you to feed values forward as each view is updated.
+      *
+      * This variable layout will position the first view at a y value of 10
+      * and each subsequent view will be positioned with a y value 1 pixel
+      * below the bottom of the previous view. In addition, all views with
+      * an even count will be positioned at an x of 5 and odd views at an
+      * x of 10. Also, updateparent has been set to true so the
+      * updateParent method will be called with the attribute and last value
+      * returned from updateSubview. In this case updateParent will resize
+      * the parent view to a height that fits all the subviews plus an
+      * additional 10 pixels.
       *
       *     @example
-      *     &lt;variablelayout attribute=&quot;x&quot; value=&quot;10&quot;&gt;
+      *     &lt;variablelayout attribute=&quot;y&quot; value=&quot;10&quot; updateparent=&quot;true&quot;&gt;
+      *         &lt;method name=&quot;updateSubview&quot; args=&quot;count, view, attribute, value&quot;&gt;
+      *             view.setAttribute(attribute, value);
+      *             view.setAttribute(&#39;x&#39;, count % 2 === 0 ? 5 : 10);
+      *             return value + view.height + 1;
+      *         &lt;/method&gt;
+      *         &lt;method name=&quot;updateParent&quot; args=&quot;attribute, value&quot;&gt;
+      *             this.parent.setAttribute(&#39;height&#39;, value + 10);
+      *         &lt;/method&gt;
       *     &lt;/variablelayout&gt;
       *
-      *     &lt;view width=&quot;100&quot; height=&quot;25&quot; bgcolor=&quot;lightpink&quot;&gt;&lt;/view&gt;
-      *     &lt;view width=&quot;100&quot; height=&quot;25&quot; bgcolor=&quot;plum&quot;&gt;&lt;/view&gt;
-      *     &lt;view width=&quot;100&quot; height=&quot;25&quot; bgcolor=&quot;lightblue&quot;&gt;&lt;/view&gt;
+      *     &lt;view width=&quot;50&quot; height=&quot;25&quot; bgcolor=&quot;lightpink&quot;&gt;&lt;/view&gt;
+      *     &lt;view width=&quot;50&quot; height=&quot;25&quot; bgcolor=&quot;plum&quot;&gt;&lt;/view&gt;
+      *     &lt;view width=&quot;50&quot; height=&quot;25&quot; bgcolor=&quot;lightblue&quot;&gt;&lt;/view&gt;
+      *
+      * This variable layout works similar to the one above except it will
+      * skip any view that has an opacity less that 0.5. To accomplish this
+      * the skipSubview method has been implemented. Also, the 
+      * startMonitoringSubview and stopMonitoringSubview methods have been
+      * implemented so that if the opacity of a view changes the layout will
+      * be updated.
+      *
+      *     @example
+      *     &lt;variablelayout attribute=&quot;y&quot; value=&quot;10&quot; updateparent=&quot;true&quot;&gt;
+      *         &lt;method name=&quot;updateSubview&quot; args=&quot;count, view, attribute, value&quot;&gt;
+      *             view.setAttribute(attribute, value);
+      *             view.setAttribute(&#39;x&#39;, count % 2 === 0 ? 5 : 10);
+      *             return value + view.height + 1;
+      *         &lt;/method&gt;
+      *         &lt;method name=&quot;updateParent&quot; args=&quot;attribute, value&quot;&gt;
+      *             this.parent.setAttribute(&#39;height&#39;, value + 10);
+      *         &lt;/method&gt;
+      *         &lt;method name=&quot;startMonitoringSubview&quot; args=&quot;view&quot;&gt;
+      *             this.super();
+      *             this.listenTo(view, &#39;opacity&#39;, this.update)
+      *         &lt;/method&gt;
+      *         &lt;method name=&quot;stopMonitoringSubview&quot; args=&quot;view&quot;&gt;
+      *             this.super();
+      *             this.stopListening(view, &#39;opacity&#39;, this.update)
+      *         &lt;/method&gt;
+      *         &lt;method name=&quot;skipSubview&quot; args=&quot;view&quot;&gt;
+      *             if (0.5 &gt;= view.opacity) return true;
+      *             return this.super();
+      *         &lt;/method&gt;
+      *     &lt;/variablelayout&gt;
+      *
+      *     &lt;view width=&quot;50&quot; height=&quot;25&quot; bgcolor=&quot;lightpink&quot;&gt;&lt;/view&gt;
+      *     &lt;view width=&quot;50&quot; height=&quot;25&quot; bgcolor=&quot;plum&quot;&gt;&lt;/view&gt;
+      *     &lt;view width=&quot;50&quot; height=&quot;25&quot; bgcolor=&quot;black&quot; opacity=&quot;0.25&quot;&gt;&lt;/view&gt;
+      *     &lt;view width=&quot;50&quot; height=&quot;25&quot; bgcolor=&quot;lightblue&quot;&gt;&lt;/view&gt;
       */
-<span id='dr-variablelayout-attribute-collapseparent'>/**
-</span>    * @attribute {boolean} [collapseparent=false]
-    * If true the updateParent method will be called. The updateParent method
-    * will typically resize the parent to fit the newly layed out child views.
+<span id='dr-variablelayout-attribute-updateparent'>/**
+</span>    * @attribute {boolean} [updateparent=false]
+    * If true the updateParent method of the variablelayout will be called. 
+    * The updateParent method provides an opportunity for the layout to
+    * modify the parent view in some way each time update completes. A typical
+    * implementation is to resize the parent to fit the newly layed out child 
+    * views.
     */
 <span id='dr-variablelayout-attribute-reverse'>/**
 </span>    * @attribute {boolean} [reverse=false]
-    * If true the layout will position the items in the opposite order. For
-    * example, right to left instead of left to right.
+    * If true the layout will run through the views in the opposite order when
+    * calling updateSubview. For subclasses of variablelayout this will
+    * typically result in views being layed out in the opposite direction,
+    * right to left instead of left to right, bottom to top instead of top to
+    * bottom, etc.
     */
 <span id='dr-variablelayout-method-doBeforeUpdate'>/**
 </span>    * @method doBeforeUpdate
-    * Called by update before any processing is done. Gives subviews a
-    * chance to do any special setup before update is processed.
+    * Called by the update method before any processing is done. This method 
+    * gives the variablelayout a chance to do any special setup before update is 
+    * processed for each view. This is a good place to calculate any values
+    * that will be needed during the calls to updateSubview.
     * @return {void}
     */
 <span id='dr-variablelayout-method-doAfterUpdate'>/**
 </span>    * @method doAfterUpdate
-    * Called by update after any processing is done but before the optional
-    * collapsing of parent is done. Gives subviews a chance to do any
-    * special teardown after update is processed.
+    * Called by the update method after any processing is done but before the
+    * optional updateParent method is called. This method gives the variablelayout
+    * a chance to do any special teardown after updateSubview has been called
+    * for each managed view.
     * @return {void}
     */
 <span id='dr-variablelayout-method-startMonitoringSubview'>/**
 </span>    * @method startMonitoringSubview
     * Provides a default implementation that calls update when the
-    * visibility of a subview changes.
+    * visibility of a subview changes. Monitoring the visible attribute of
+    * a view is useful since most layouts will want to &quot;reflow&quot; as views
+    * become visible or hidden.
     * @param {dr.view} view
     */
 <span id='dr-variablelayout-method-stopMonitoringSubview'>/**
@@ -1458,14 +1698,22 @@
 </span>    * @method skipSubview
     * Called for each subview in the layout to determine if the view should
     * be updated or not. The default implementation returns true if the
-    * subview is not visible.
+    * subview is not visible since views that can&#39;t be seen don&#39;t typically 
+    * need to be positioned. You could implement your own skipSubview method
+    * to use other attributes of a view to determine if a view should be
+    * updated or not. An important point is that skipped views are still
+    * monitored by the layout. Therefore, if you use a different attribute to
+    * determine wether to skip a view or not you should probably also provide
+    * custom implementations of startMonitoringSubview and stopMonitoringSubview
+    * so that when the attribute changes to/from a value that would result in
+    * the view being skipped the layout will update.
     * @param {dr.view} view The subview to check.
     * @return {Boolean} True if the subview should be skipped during
     *   layout updates.
     */
 <span id='dr-variablelayout-method-updateParent'>/**
 </span>    * @method updateParent
-    * Called if the collapseparent attribute is true. Subclasses should
+    * Called if the updateparent attribute is true. Subclasses should
     * implement this if they want to modify the parent view.
     * @param {String} attribute The name of the attribute to update.
     * @param {*} value The value to set on the parent.
@@ -1516,19 +1764,37 @@
 <span id='dr-wrappinglayout'>/**
 </span>      * @class dr.wrappinglayout {Layout}
       * @extends dr.variablelayout
-      * An extension of VariableLayout that positions views along an axis using
-      * an inset, outset and spacing value. Views will be wrapped when they
-      * overflow the available space.
+      * An extension of variableLayout similar to spaced layout but with the
+      * added functionality of wrapping the views onto a new line (or column
+      * if the axis is &quot;y&quot;) whenever they would overflow the available space. 
+      * This layout positions views horizontally or vertically using an initial
+      * inset and spacing between each view. The outset is used in the 
+      * calculation of available space so that the last view in each line will 
+      * have at least &quot;outset&quot; space after it.
       *
-      * Supported Layout Hints:
-      *   break:string Will force the subview to start a new line/column.
+      * Lines/Columns are positioned in a similar fashion to the individual views
+      * using lineinset, linespacing and lineoutset. If updateparent is true
+      * the lineoutset is used to leave space after the last line.
       *
+      * A line break can be forced by using a &quot;break&quot; layouthint on a managed
+      * view. The layout hint &quot;break&quot; will force the subview to start a new
+      * line/column with that subview as the first view in the line/column.
+      *
+      * Since wrappinglayouts rely on the innerwidth/height of the parent view
+      * to determine when to wrap auto sizing on the parent view along the same
+      * axis as the wrappinglayout will result in unexpected behavior and 
+      * should therefore be avoided.
+      * 
       *     @example
       *     &lt;wrappinglayout axis=&quot;y&quot; spacing=&quot;2&quot; inset=&quot;5&quot; outset=&quot;5&quot; lineinset=&quot;10&quot; linespacing=&quot;5&quot; lineoutset=&quot;10&quot;&gt;
       *     &lt;/wrappinglayout&gt;
       *
       *     &lt;view width=&quot;100&quot; height=&quot;25&quot; bgcolor=&quot;lightpink&quot;&gt;&lt;/view&gt;
-      *     &lt;view width=&quot;100&quot; height=&quot;35&quot; bgcolor=&quot;plum&quot;&gt;&lt;/view&gt;
+      *     &lt;view width=&quot;100&quot; height=&quot;35&quot; bgcolor=&quot;plum&quot; layouthint=&quot;break&quot;&gt;&lt;/view&gt;
+      *     &lt;view width=&quot;100&quot; height=&quot;15&quot; bgcolor=&quot;lightblue&quot;&gt;&lt;/view&gt;
+      *     &lt;view width=&quot;100&quot; height=&quot;15&quot; bgcolor=&quot;lightblue&quot;&gt;&lt;/view&gt;
+      *     &lt;view width=&quot;100&quot; height=&quot;15&quot; bgcolor=&quot;lightblue&quot;&gt;&lt;/view&gt;
+      *     &lt;view width=&quot;100&quot; height=&quot;15&quot; bgcolor=&quot;lightblue&quot;&gt;&lt;/view&gt;
       *     &lt;view width=&quot;100&quot; height=&quot;15&quot; bgcolor=&quot;lightblue&quot;&gt;&lt;/view&gt;
       */
 <span id='dr-wrappinglayout-attribute-spacing'>/**
@@ -1541,7 +1807,7 @@
     */
 <span id='dr-wrappinglayout-attribute-inset'>/**
 </span>    * @attribute {Number} [inset=0]
-    * Space before the first view.
+    * Space before the first view. This is an alias for the &quot;value&quot; attribute.
     */
 <span id='dr-wrappinglayout-attribute-linespacing'>/**
 </span>    * @attribute {Number} [linespacing=0]
@@ -1549,7 +1815,7 @@
     */
 <span id='dr-wrappinglayout-attribute-lineoutset'>/**
 </span>    * @attribute {Number} [lineoutset=0]
-    * Space after the last line of views. Only used when collapseparent is true.
+    * Space after the last line of views. Only used when updateparent is true.
     */
 <span id='dr-wrappinglayout-attribute-lineinset'>/**
 </span>    * @attribute {Number} [lineinset=0]
@@ -1558,8 +1824,16 @@
 <span id='dr-wrappinglayout-attribute-axis'>/**
 </span>    * @attribute {String} [axis=&#39;x&#39;]
     * The orientation of the layout. Supported values are &#39;x&#39; and &#39;y&#39;.
-    * A value of &#39;x&#39; will orient the views horizontally and a value of &#39;y&#39;
-    * will orient them vertically.
+    * A value of &#39;x&#39; will orient the views horizontally with lines being
+    * positioned vertically below the preceding line. A value of &#39;y&#39; will 
+    * orient the views vertically with columns positioned horizontally to 
+    * the right of the preceding column. This is an alias for the &quot;attribute&quot; 
+    * attribute.
+    */
+<span id='dr-wrappinglayout-attribute-attribute'>/**
+</span>    * @attribute attribute
+    * @private
+    * The axis attribute is an alias for this attribute.
     */
 </pre>
 </body>

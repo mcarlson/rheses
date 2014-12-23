@@ -65,6 +65,7 @@ SOFTWARE. -->
   <handler event="onvalue" method="update"></handler>
 
   <!--/**
+    * @method update
     * Set the attribute to the value on every subview managed by this layout.
     */-->
   <method name="update">

@@ -52,7 +52,7 @@ SOFTWARE. -->
 <class name="twojs" width="800" height="400" type="coffee" scriptincludes="/lib/two.min.js" bgcolor="lightgrey">
 
   <!--/**
-    * @attribute {Two} two
+    * @attribute {Object} two
     * Reference to the twojs context that provides API's for two dimensional drawing.
     */-->
   

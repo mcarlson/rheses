@@ -4148,7 +4148,6 @@
        * Shift this path by the provided x and y amount.
        * @param {Number} dx The x amount to shift.
        * @param {Number} dy The y amount to shift.
-       * @return {self}
        */
 
       Path.prototype.translate = function(dx, dy) {
@@ -4167,7 +4166,6 @@
       /**
        * Rotates this path around 0,0 by the provided angle in radians.
        * @param {Number} a The angle in degrees to rotate
-       * @return {self}
        */
 
       Path.prototype.rotate = function(a) {
@@ -4193,7 +4191,6 @@
        * Scales this path around the origin by the provided scale amount
        * @param {Number} sx The amount to scale along the x-axis.
        * @param {Number} sy The amount to scale along the y-axis.
-       * @return {self}
        */
 
       Path.prototype.scale = function(sx, sy) {
@@ -4217,7 +4214,6 @@
        * @param {Number} angle The amount to scale.
        * @param {Number} xOrigin The amount to scale.
        * @param {Number} yOrign The amount to scale.
-       * @return {self}
        */
 
       Path.prototype.transformAroundOrigin = function(scalex, scaley, angle, xOrigin, yOrigin) {
