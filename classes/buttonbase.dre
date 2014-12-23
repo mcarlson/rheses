@@ -68,8 +68,6 @@ SOFTWARE. -->
 
       <!-- visualize: Show the current button state -->
       <method name="visualize">
-        # Hack. Should be @inited
-        return unless @realinited
         return unless @visual
         @visual.setAttribute('bgcolor', if @selected then @selectcolor else @defaultcolor);
       </method>
@@ -84,14 +82,9 @@ SOFTWARE. -->
         * Button text.
         */-->
       <text name="label" type="coffee" x="${this.parent.textx}" y="${this.parent.texty}" text="${this.parent.text}">
-        <!-- Temporary until I figure how to add handlers with references -->
-        <handler event="onwidth" method="handleResize"></handler>
-        <handler event="onheight" method="handleResize"></handler>
-
-        <method name="handleResize">
-          # Force an onwidth event in the parent to resize the button
-          @parent.sendEvent('width', @parent.width)
-        </method>
+        <handler event="onwidth" method="handleResize" reference="parent"></handler>
+        <handler event="onheight" method="handleResize" reference="parent"></handler>
+        <handler event="ontext" method="handleResize" reference="parent"></handler>
       </text>
 
       <handler event="onwidth" method="handleResize"></handler>
@@ -99,6 +92,10 @@ SOFTWARE. -->
 
       <method name="handleResize">
         # Custom behavior in subclasses
+
+        # Detect if the button was supplied with a size. Computed once
+        if !@_fixedwidth? then @_fixedwidth = @innerwidth > 0
+        if !@_fixedheight? then @_fixedheight = @innerheight > 0
       </method>
 
     </class>
