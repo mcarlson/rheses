@@ -3143,26 +3143,29 @@
                 cache: true,
                 url: oneurl
               }).done(function() {
-                var scriptloaded, _k, _l, _len2, _len3, _ref2, _ref3, _ref4;
+                var _k, _len2, _ref2, _results;
                 ONE.base_.call(Eventable.prototype);
                 Eventable.prototype.enumfalse(Eventable.prototype.keys());
                 Node.prototype.enumfalse(Node.prototype.keys());
                 View.prototype.enumfalse(View.prototype.keys());
                 Layout.prototype.enumfalse(Layout.prototype.keys());
-                scriptloaded = false;
                 loadScript('/lib/animator.js', callback, 'Missing /lib/animator.js');
                 _ref2 = jqel.find('[scriptincludes]');
+                _results = [];
                 for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
                   el = _ref2[_k];
-                  _ref3 = el.attributes.scriptincludes.value.split(',');
-                  for (_l = 0, _len3 = _ref3.length; _l < _len3; _l++) {
-                    url = _ref3[_l];
-                    scriptloaded = loadScript(url.trim(), callback, (_ref4 = el.attributes.scriptincludeserror) != null ? _ref4.value.toString() : void 0);
-                  }
+                  _results.push((function() {
+                    var _l, _len3, _ref3, _ref4, _results1;
+                    _ref3 = el.attributes.scriptincludes.value.split(',');
+                    _results1 = [];
+                    for (_l = 0, _len3 = _ref3.length; _l < _len3; _l++) {
+                      url = _ref3[_l];
+                      _results1.push(loadScript(url.trim(), callback, (_ref4 = el.attributes.scriptincludeserror) != null ? _ref4.value.toString() : void 0));
+                    }
+                    return _results1;
+                  })());
                 }
-                if (!scriptloaded) {
-                  return callback();
-                }
+                return _results;
               }).fail(function() {
                 return console.warn("failed to load " + oneurl);
               });

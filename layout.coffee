@@ -2514,12 +2514,10 @@ window.dr = do ->
               Layout::enumfalse(Layout::keys())
 
               # load scriptincludes
-              scriptloaded = false
               loadScript('/lib/animator.js', callback, 'Missing /lib/animator.js')
               for el in jqel.find('[scriptincludes]')
                 for url in el.attributes.scriptincludes.value.split(',')
-                  scriptloaded = loadScript(url.trim(), callback, el.attributes.scriptincludeserror?.value.toString())
-              callback() unless scriptloaded
+                  loadScript(url.trim(), callback, el.attributes.scriptincludeserror?.value.toString())
             ).fail(() ->
               console.warn("failed to load #{oneurl}")
             )
