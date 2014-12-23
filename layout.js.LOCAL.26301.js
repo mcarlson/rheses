@@ -35,6 +35,7 @@
   stylemap = {
     x: 'marginLeft',
     y: 'marginTop',
+    z: 'z-index',
     bgcolor: 'backgroundColor',
     visible: 'display',
     border: 'borderWidth',
@@ -80,8 +81,12 @@
   })();
 
   window.dr = (function() {
-    var AutoPropertyLayout, Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Path, Sprite, StartEventable, State, View, Window, callOnIdle, capabilities, compiler, constraintScopes, debug, dom, domElementAttributes, eventq, exports, fcamelCase, handlerq, hiddenAttributes, idle, ignoredAttributes, instantiating, knownstyles, matchEvent, mixOf, moduleKeywords, mouseEvents, noop, querystring, rdashAlpha, showWarnings, specialtags, ss, ss2, starttime, test, triggerlock, warnings, _initConstraints;
+    var AutoPropertyLayout, Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Path, Sprite, StartEventable, State, View, Window, callOnIdle, capabilities, closeTo, compiler, constraintScopes, debug, dom, domElementAttributes, eventq, exports, fcamelCase, handlerq, hiddenAttributes, idle, ignoredAttributes, instantiating, knownstyles, matchEvent, mixOf, moduleKeywords, mouseEvents, noop, querystring, rdashAlpha, showWarnings, specialtags, ss, ss2, starttime, test, triggerlock, warnings, _initConstraints;
     noop = function() {};
+    closeTo = function(a, b, epsilon) {
+      epsilon || (epsilon = 0.01);
+      return Math.abs(a - b) < epsilon;
+    };
     mixOf = function() {
       var Mixed, base, i, method, mixin, mixins, name, _i, _ref;
       base = arguments[0], mixins = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
@@ -387,6 +392,12 @@
             return;
           }
           value = typemappings[type](value);
+          if (type === 'number' && isNaN(value)) {
+            value = this[name];
+            if (isNaN(value)) {
+              value = 0;
+            }
+          }
         } else if (value == null) {
           value = '';
         }
@@ -490,7 +501,19 @@
       })(),
       touch: 'ontouchstart' in window || 'onmsgesturechange' in window,
       camelcss: navigator.userAgent.toLowerCase().indexOf('firefox') > -1,
-      raf: window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame
+      raf: window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame,
+      prefix: (function() {
+        var dom, pre, styles;
+        styles = window.getComputedStyle(document.documentElement, '');
+        pre = (Array.prototype.slice.call(styles).join('').match(/-(moz|webkit|ms)-/) || (styles.OLink === '' && ['', 'o']))[1];
+        dom = 'WebKit|Moz|MS|O'.match(new RegExp('(' + pre + ')', 'i'))[1];
+        return {
+          dom: dom,
+          lowercase: pre,
+          css: '-' + pre + '-',
+          js: pre[0].toUpperCase() + pre.substr(1)
+        };
+      })()
     };
     querystring = window.location.search;
     debug = querystring.indexOf('debug') > 0;
@@ -901,7 +924,7 @@
          */
 
         /**
-         * @property {Boolean} inited
+         * @attribute {Boolean} inited
          * @readonly
          * True when this node and all its children are completely initialized
          */
@@ -1148,26 +1171,32 @@
         }
       };
 
-      Node.prototype._bindHandlers = function() {
-        var binding, bindings, callback, ev, name, reference, refeval, scope, _i, _len;
+      Node.prototype._bindHandlers = function(send) {
+        var binding, callback, ev, name, reference, refeval, scope, _i, _len, _ref;
+        if (!this.handlers) {
+          return;
+        }
         if (instantiating) {
           handlerq.push(this);
           return;
         }
-        bindings = this.handlers;
-        if (!bindings) {
-          return;
-        }
-        for (_i = 0, _len = bindings.length; _i < _len; _i++) {
-          binding = bindings[_i];
+        _ref = this.handlers;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          binding = _ref[_i];
           scope = binding.scope, name = binding.name, ev = binding.ev, callback = binding.callback, reference = binding.reference;
           if (reference) {
             refeval = this._valueLookup(reference)();
             if (refeval instanceof Eventable) {
               scope.listenTo(refeval, ev, callback);
+              if (send && ev in refeval) {
+                callback(refeval[ev]);
+              }
             }
           } else {
             scope.register(ev, callback);
+            if (send && ev in scope) {
+              callback(scope[ev]);
+            }
           }
         }
         this.handlers = [];
@@ -1335,6 +1364,7 @@
           tagname = 'div';
         }
         this._handleScroll = __bind(this._handleScroll, this);
+        this.animate = __bind(this.animate, this);
         if (jqel == null) {
           this.el = document.createElement(tagname);
           this.el.$init = true;
@@ -1342,7 +1372,8 @@
           this.el = jqel;
         }
         this.el.$view = view;
-        this.el.setAttribute('class', 'sprite');
+        this.css_baseclass = 'sprite';
+        this.set_class();
       }
 
       Sprite.prototype.setStyle = function(name, value, internal, el) {
@@ -1386,41 +1417,19 @@
       };
 
       Sprite.prototype.animate = function() {
-        var anim, animTick, animators, first, name, track, value, _ref;
-        animators = {};
+        var name, value, _ref;
+        if (this.jqel == null) {
+          this.jqel = $(this.el);
+        }
         _ref = arguments[0];
         for (name in _ref) {
           value = _ref[name];
-          track = {};
-          track[0] = this[name] || 0;
-          track[arguments[1] || 1000] = value;
-          anim = Animator.createAnimator();
-          anim.playStateless(track);
-          animators[name] = anim;
+          if (name in stylemap) {
+            arguments[0][stylemap[name]] = value;
+            delete arguments[0][name];
+          }
         }
-        first = void 0;
-        animTick = (function(_this) {
-          return function(time) {
-            var ended, local_time, myvalue;
-            if (first === void 0) {
-              first = time;
-            }
-            local_time = time - first;
-            ended = false;
-            for (name in animators) {
-              anim = animators[name];
-              myvalue = anim.timestep(local_time);
-              _this.setAttribute(name, myvalue);
-              if (anim.ended) {
-                ended = true;
-              }
-            }
-            if (!ended) {
-              return dr.idle.callOnIdle(animTick);
-            }
-          };
-        })(this);
-        return dr.idle.callOnIdle(animTick);
+        return this.jqel.animate.apply(this.jqel, arguments);
       };
 
       Sprite.prototype._cursorVal = function() {
@@ -1466,10 +1475,10 @@
           x = domElement.scrollLeft;
           y = domElement.scrollTop;
           if (target.scrollx !== x) {
-            target.setAttribute('scrollx', x, true, true, true);
+            target.setAttribute('scrollx', x, true, true, true, true);
           }
           if (target.scrolly !== y) {
-            target.setAttribute('scrolly', y, true, true, true);
+            target.setAttribute('scrolly', y, true, true, true, true);
           }
           oldEvt = this._lastScrollEvent;
           newEvt = {
@@ -1505,8 +1514,17 @@
       };
 
       Sprite.prototype.getText = function(textOnly) {
+        var child, texts;
         if (textOnly) {
-          return this.el.innerText;
+          child = this.el.firstChild;
+          texts = [];
+          while (child) {
+            if (child.nodeType === 3) {
+              texts.push(child.data.trim());
+            }
+            child = child.nextSibling;
+          }
+          return texts.join("");
         } else {
           return this.el.innerHTML;
         }
@@ -1551,12 +1569,14 @@
       };
 
       Sprite.prototype.createTextElement = function() {
-        return this.el.setAttribute('class', 'sprite sprite-text noselect');
+        this.css_baseclass = 'sprite sprite-text noselect';
+        return this.set_class();
       };
 
       Sprite.prototype.createInputtextElement = function(text, multiline, width, height) {
         var input;
-        this.el.setAttribute('class', 'sprite noselect');
+        this.css_baseclass = 'sprite noselect';
+        this.set_class();
         if (multiline) {
           input = document.createElement('textarea');
         } else {
@@ -1591,7 +1611,7 @@
       };
 
       Sprite.prototype.set_class = function(classname) {
-        return this.el.setAttribute('class', classname);
+        return this.el.setAttribute('class', "" + this.css_baseclass + " " + classname);
       };
 
       return Sprite;
@@ -1614,7 +1634,7 @@
       };
     }
     if (debug) {
-      knownstyles = ['width', 'height', 'background-color', 'opacity'];
+      knownstyles = ['width', 'height', 'background-color', 'opacity', 'padding', 'transform', 'transform-style', 'transform-origin', 'z-index', 'perspective'];
       ss2 = Sprite.prototype.setStyle;
       Sprite.prototype.setStyle = function(name, value, internal, el) {
         if (el == null) {
@@ -1639,7 +1659,13 @@
       resize: true,
       multiline: true,
       ignorelayout: true,
-      initchildren: true
+      initchildren: true,
+      rotation: true,
+      xscale: true,
+      yscale: true,
+      xanchor: true,
+      yanchor: true,
+      zanchor: true
     };
     domElementAttributes = {
       scrollx: true,
@@ -1727,6 +1753,18 @@
        */
 
       /**
+       * @attribute {Number} isaligned Indicates that the x attribute is
+       * set to one of the "special" alignment values.
+       * @readonly
+       */
+
+      /**
+       * @attribute {Number} isvaligned Indicates that the y attribute is
+       * set to one of the "special" alignment values.
+       * @readonly
+       */
+
+      /**
        * @attribute {Number} [y=0]
        * This view's y position
        */
@@ -1739,6 +1777,62 @@
       /**
        * @attribute {Number} [height=0]
        * This view's height
+       */
+
+      /**
+       * @attribute {Number} innerwidth The width of the view less padding and
+       * border. This is the width child views should use if border or padding
+       * is being used by the view.
+       * @readonly
+       */
+
+      /**
+       * @attribute {Number} innerheight The height of the view less padding and
+       * border. This is the height child views should use if border or padding
+       * is being used by the view.
+       * @readonly
+       */
+
+      /**
+       * @attribute {Number} boundsx The x position of the bounding box for the
+       * view. This value accounts for rotation and scaling of the view.
+       * @readonly
+       */
+
+      /**
+       * @attribute {Number} boundsy The y position of the bounding box for the
+       * view. This value accounts for rotation and scaling of the view.
+       * @readonly
+       */
+
+      /**
+       * @attribute {Number} boundsxdiff The difference between the x position
+       * of the view and the boundsx of the view. Useful when you need to offset
+       * a view to make it line up when it is scaled or rotated.
+       * @readonly
+       */
+
+      /**
+       * @attribute {Number} boundsydiff The difference between the y position
+       * of the view and the boundsy of the view. Useful when you need to offset
+       * a view to make it line up when it is scaled or rotated.
+       * @readonly
+       */
+
+      /**
+       * @attribute {Number} boundswidth The width of the bounding box for the
+       * view. This value accounts for rotation and scaling of the view. This is
+       * the width non-descendant views should use if the view is rotated or
+       * scaled.
+       * @readonly
+       */
+
+      /**
+       * @attribute {Number} boundsheight The height of the bounding box for the
+       * view. This value accounts for rotation and scaling of the view. This is
+       * the height non-descendant views should use if the view is rotated or
+       * scaled.
+       * @readonly
        */
 
       /**
@@ -1955,7 +2049,7 @@
           z: 'number',
           xscale: 'number',
           yscale: 'number',
-          rotation: 'string',
+          rotation: 'number',
           opacity: 'number',
           width: 'positivenumber',
           height: 'positivenumber',
@@ -1976,7 +2070,10 @@
         }
         attributes.$types = types;
         this._setDefaults(attributes, defaults);
-        this.clip = this.scrollable = this.clickable = false;
+        this.__twiceBorderPadding = 0;
+        this.xanchor = this.yanchor = 'center';
+        this.border = this.padding = this.width = this.height = this.zanchor = this.boundsxdiff = this.boundsydiff = this.boundsx = this.boundsy = this.boundswidth = this.boundsheight = 0;
+        this.clip = this.scrollable = this.clickable = this.isaligned = this.isvaligned = false;
         if (el instanceof View) {
           el = el.sprite;
         }
@@ -1991,6 +2088,7 @@
         if (this.__autoLayoutheight) {
           this.__autoLayoutheight.setAttribute('locked', false);
         }
+        this.__updateBounds();
         return View.__super__.initialize.apply(this, arguments);
       };
 
@@ -1998,7 +2096,7 @@
         return this.sprite = new Sprite(el, this, attributes.$tagname);
       };
 
-      View.prototype.setAttribute = function(name, value, skipDomChange, skipConstraintSetup, skipconstraintunregistration) {
+      View.prototype.setAttribute = function(name, value, skipDomChange, skipConstraintSetup, skipconstraintunregistration, skipBounds) {
         var existing;
         if (!skipConstraintSetup) {
           switch (name) {
@@ -2006,9 +2104,15 @@
               if (this.__setupPercentConstraint(name, value, 'innerwidth')) {
                 return;
               }
+              if (this.__setupAlignConstraint(name, value)) {
+                return;
+              }
               break;
             case 'y':
               if (this.__setupPercentConstraint(name, value, 'innerheight')) {
+                return;
+              }
+              if (this.__setupAlignConstraint(name, value)) {
                 return;
               }
               break;
@@ -2029,16 +2133,166 @@
               }
           }
         }
-        value = this._coerceType(name, value);
         existing = this[name];
-        View.__super__.setAttribute.call(this, name, value, true, skipConstraintSetup, skipconstraintunregistration);
+        View.__super__.setAttribute.call(this, name, value, false, skipConstraintSetup, skipconstraintunregistration);
         value = this[name];
-        if (!(skipDomChange || name in ignoredAttributes || name in hiddenAttributes || existing === value)) {
-          if (name in domElementAttributes) {
-            return this.sprite.setProperty(name, value);
-          } else if (this.inited || defaults[name] !== value) {
-            return this.sprite.setStyle(name, value);
+        if (existing !== value && !(name in ignoredAttributes)) {
+          if (!(skipDomChange || name in hiddenAttributes)) {
+            if (name in domElementAttributes) {
+              this.sprite.setProperty(name, value);
+            } else if (this.inited || defaults[name] !== value) {
+              this.sprite.setStyle(name, value);
+            }
           }
+          if (!skipBounds && this.inited) {
+            switch (name) {
+              case 'x':
+              case 'y':
+              case 'width':
+              case 'height':
+              case 'xscale':
+              case 'yscale':
+              case 'rotation':
+              case 'xanchor':
+              case 'yanchor':
+                return this.__updateBounds();
+            }
+          }
+        }
+      };
+
+      View.prototype.getBoundsRelativeToParent = function() {
+        var h, w, x1, x2, xanchor, y1, y2, yanchor;
+        xanchor = this.xanchor;
+        yanchor = this.yanchor;
+        w = this.width;
+        h = this.height;
+        if (xanchor === 'left') {
+          xanchor = 0;
+        } else if (xanchor === 'center') {
+          xanchor = w / 2;
+        } else if (xanchor === 'right') {
+          xanchor = w;
+        } else {
+          xanchor = Number(xanchor);
+        }
+        if (yanchor === 'top') {
+          yanchor = 0;
+        } else if (yanchor === 'center') {
+          yanchor = h / 2;
+        } else if (yanchor === 'bottom') {
+          yanchor = h;
+        } else {
+          yanchor = Number(yanchor);
+        }
+        x1 = this.x;
+        x2 = x1 + w;
+        y1 = this.y;
+        y2 = y1 + h;
+        return (new Path([x1, y1, x2, y1, x2, y2, x1, y2])).transformAroundOrigin(this.xscale, this.yscale, this.rotation, xanchor + x1, yanchor + y1).getBoundingBox();
+      };
+
+      View.prototype.__updateBounds = function() {
+        var bounds, height, width, x, xdiff, y, ydiff;
+        if (this.__boundsAreDifferent) {
+          bounds = this.getBoundsRelativeToParent();
+          width = bounds.width;
+          height = bounds.height;
+          x = bounds.x;
+          y = bounds.y;
+          xdiff = this.x - x;
+          ydiff = this.y - y;
+        } else {
+          x = this.x;
+          y = this.y;
+          xdiff = ydiff = 0;
+          width = this.width;
+          height = this.height;
+        }
+        if (!closeTo(this.boundsx, x)) {
+          this.setAttribute('boundsx', x, true, true, true, true);
+        }
+        if (!closeTo(this.boundsy, y)) {
+          this.setAttribute('boundsy', y, true, true, true, true);
+        }
+        if (!closeTo(this.boundswidth, width)) {
+          this.setAttribute('boundswidth', width, true, true, true, true);
+        }
+        if (!closeTo(this.boundsheight, height)) {
+          this.setAttribute('boundsheight', height, true, true, true, true);
+        }
+        if (!closeTo(this.boundsxdiff, xdiff)) {
+          this.setAttribute('boundsxdiff', xdiff, true, true, true, true);
+        }
+        if (!closeTo(this.boundsydiff, ydiff)) {
+          return this.setAttribute('boundsydiff', ydiff, true, true, true, true);
+        }
+      };
+
+      View.prototype.__setupAlignConstraint = function(name, value) {
+        var alignattr, axis, boundsdiff, boundssize, func, funcKey, isX, normValue, oldFunc, parent, self;
+        parent = this.parent;
+        if (!(parent instanceof Node)) {
+          return;
+        }
+        if (name === 'x') {
+          isX = true;
+          axis = 'innerwidth';
+          boundsdiff = 'boundsxdiff';
+          boundssize = 'boundswidth';
+          alignattr = 'isaligned';
+        } else {
+          isX = false;
+          axis = 'innerheight';
+          boundsdiff = 'boundsydiff';
+          boundssize = 'boundsheight';
+          alignattr = 'isvaligned';
+        }
+        funcKey = '__alignFunc' + name;
+        oldFunc = this[funcKey];
+        if (oldFunc) {
+          this.stopListening(parent, axis, oldFunc);
+          this.stopListening(this, boundsdiff, oldFunc);
+          this.stopListening(this, boundssize, oldFunc);
+          delete this[funcKey];
+          if (this[alignattr]) {
+            this.setAttribute(alignattr, false, true, true, true, true);
+          }
+        }
+        if (typeof value !== 'string') {
+          return;
+        }
+        normValue = value.toLowerCase();
+        self = this;
+        if (normValue === 'begin' || (isX && normValue === 'left') || (!isX && normValue === 'top')) {
+          func = this[funcKey] = function() {
+            var val;
+            val = self[boundsdiff];
+            if (self[name] !== val) {
+              return self.setAttribute(name, val, false, true, false, true);
+            }
+          };
+          func.autoOk = true;
+        } else if (normValue === 'middle' || normValue === 'center') {
+          func = this[funcKey] = function() {
+            return self.setAttribute(name, ((parent[axis] - self[boundssize]) / 2) + self[boundsdiff], false, true, false, true);
+          };
+          this.listenTo(parent, axis, func);
+          this.listenTo(this, boundssize, func);
+        } else if (normValue === 'end' || (isX && normValue === 'right') || (!isX && normValue === 'bottom')) {
+          func = this[funcKey] = function() {
+            return self.setAttribute(name, parent[axis] - self[boundssize] + self[boundsdiff], false, true, false, true);
+          };
+          this.listenTo(parent, axis, func);
+          this.listenTo(this, boundssize, func);
+        }
+        if (func) {
+          this.listenTo(this, boundsdiff, func);
+          func.call();
+          if (!this[alignattr]) {
+            this.setAttribute(alignattr, true, true, true, true, true);
+          }
+          return true;
         }
       };
 
@@ -2090,13 +2344,29 @@
         }
       };
 
+      View.prototype.set_x = function(x) {
+        if (this.__boundsAreDifferent && x - this.boundsxdiff !== this.boundsx) {
+          this.sendEvent('boundsx', this.boundsx = x - this.boundsxdiff);
+        }
+        return x;
+      };
+
+      View.prototype.set_y = function(y) {
+        if (this.__boundsAreDifferent && y - this.boundsydiff !== this.boundsy) {
+          this.sendEvent('boundsy', this.boundsy = y - this.boundsydiff);
+        }
+        return y;
+      };
+
       View.prototype.set_width = function(width) {
-        this.setAttribute('innerwidth', width - 2 * (this.border + this.padding), true);
+        width = Math.max(width, this.__twiceBorderPadding);
+        this.setAttribute('innerwidth', width - this.__twiceBorderPadding, true, true, true, true);
         return width;
       };
 
       View.prototype.set_height = function(height) {
-        this.setAttribute('innerheight', height - 2 * (this.border + this.padding), true);
+        height = Math.max(height, this.__twiceBorderPadding);
+        this.setAttribute('innerheight', height - this.__twiceBorderPadding, true, true, true, true);
         return height;
       };
 
@@ -2111,10 +2381,15 @@
       };
 
       View.prototype.__updateInnerMeasures = function(inset) {
-        this.innerwidth = this.width - inset;
-        this.innerheight = this.height - inset;
-        this.setAttribute('innerwidth', this.width - inset, true);
-        return this.setAttribute('innerheight', this.height - inset, true);
+        this.__twiceBorderPadding = inset;
+        if (inset > this.width) {
+          this.setAttribute('width', inset, false, true, true);
+        }
+        if (inset > this.height) {
+          this.setAttribute('height', inset, false, true, true);
+        }
+        this.setAttribute('innerwidth', this.width - inset, true, true, true, true);
+        return this.setAttribute('innerheight', this.height - inset, true, true, true, true);
       };
 
       View.prototype.set_clickable = function(clickable) {
@@ -2132,25 +2407,42 @@
       };
 
       View.prototype.__updateTransform = function() {
-        var transform, xlate;
+        var prefix, transform, xanchor, xscale, yanchor, yscale;
         transform = '';
-        this.z || (this.z = 0);
-        xlate = 'translate3d(0, 0, ' + this.z + 'px)';
-        if (this.z !== 0) {
-          transform = xlate;
-          this.parent.sprite.setStyle('transform-style', 'preserve-3d');
+        prefix = capabilities.prefix.css;
+        xscale = this.xscale;
+        if (this.xscale == null) {
+          xscale = this.xscale = 1;
         }
-        this.xscale || (this.xscale = 1);
-        this.yscale || (this.yscale = 1);
-        if (this.xscale * this.yscale !== 1) {
-          transform += ' scale3d(' + this.xscale + ', ' + this.yscale + ', 1.0)';
+        yscale = this.yscale;
+        if (this.yscale == null) {
+          yscale = this.yscale = 1;
+        }
+        if (xscale !== 1 || yscale !== 1) {
+          transform += 'scale3d(' + xscale + ',' + yscale + ',1.0)';
         }
         this.rotation || (this.rotation = 0);
-        if (this.rotation !== 0) {
-          transform += ' rotate3d(0, 0, 1.0, ' + this.rotation + 'deg)';
+        if (this.rotation % 360 !== 0) {
+          transform += ' rotate3d(0,0,1.0,' + this.rotation + 'deg)';
         }
-        this.sprite.setStyle('z-index', this.z);
-        return this.sprite.setStyle('transform', transform);
+        this.__boundsAreDifferent = transform !== '';
+        this.z || (this.z = 0);
+        if (this.z !== 0) {
+          transform += ' translate3d(0,0,' + this.z + 'px)';
+          this.parent.sprite.setStyle(prefix + 'transform-style', 'preserve-3d');
+        }
+        if (transform !== '') {
+          xanchor = this.xanchor;
+          if (xanchor !== 'left' && xanchor !== 'right' && xanchor !== 'center') {
+            xanchor += 'px';
+          }
+          yanchor = this.yanchor;
+          if (yanchor !== 'top' && yanchor !== 'bottom' && yanchor !== 'center') {
+            yanchor += 'px';
+          }
+          this.sprite.setStyle(prefix + 'transform-origin', xanchor + ' ' + yanchor + ' ' + this.zanchor + 'px');
+        }
+        return this.sprite.setStyle(prefix + 'transform', transform);
       };
 
       View.prototype.set_xscale = function(xscale) {
@@ -2175,6 +2467,33 @@
         this.z = depth;
         this.__updateTransform();
         return depth;
+      };
+
+      View.prototype.set_xanchor = function(xanchor) {
+        if ((xanchor == null) || xanchor === '') {
+          xanchor = 'center';
+        }
+        this.xanchor = xanchor;
+        this.__updateTransform();
+        return xanchor;
+      };
+
+      View.prototype.set_yanchor = function(yanchor) {
+        if ((yanchor == null) || yanchor === '') {
+          yanchor = 'center';
+        }
+        this.yanchor = yanchor;
+        this.__updateTransform();
+        return yanchor;
+      };
+
+      View.prototype.set_zanchor = function(zanchor) {
+        if ((zanchor == null) || zanchor === '') {
+          zanchor = 0;
+        }
+        this.zanchor = zanchor;
+        this.__updateTransform();
+        return zanchor;
       };
 
       View.prototype.moveToFront = function() {
@@ -2616,19 +2935,7 @@
     specialtags = ['handler', 'method', 'attribute', 'setter', 'include'];
     matchEvent = /^on/;
     dom = (function() {
-      var builtinTags, checkRequiredAttributes, exports, findAutoIncludes, flattenattributes, getChildren, htmlDecode, initAllElements, initElement, initFromElement, processSpecialTags, requiredAttributes, sendInit, writeCSS;
-      getChildren = function(el) {
-        var child, _i, _len, _ref, _ref1, _results;
-        _ref = el.childNodes;
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          child = _ref[_i];
-          if (child.nodeType === 1 && (_ref1 = child.localName, __indexOf.call(specialtags, _ref1) >= 0)) {
-            _results.push(child);
-          }
-        }
-        return _results;
-      };
+      var builtinTags, checkRequiredAttributes, exports, findAutoIncludes, flattenattributes, htmlDecode, initAllElements, initElement, initFromElement, processSpecialTags, requiredAttributes, sendInit, writeCSS;
       flattenattributes = function(namednodemap) {
         var attributes, i, _i, _len;
         attributes = {};
@@ -2656,7 +2963,7 @@
         });
       };
       findAutoIncludes = function(parentel, finalcallback) {
-        var dependencies, fileloaded, filereloader, filerequests, findIncludeURLs, findMissingClasses, includedScripts, inlineclasses, jqel, loadInclude, loadIncludes, loadScript, loadqueue, scriptloading, validator;
+        var blacklist, dependencies, fileloaded, filereloader, filerequests, findIncludeURLs, findMissingClasses, includedScripts, inlineclasses, jqel, loadInclude, loadIncludes, loadScript, loadqueue, scriptloading, validator;
         jqel = $(parentel);
         includedScripts = {};
         loadqueue = [];
@@ -2815,23 +3122,25 @@
                 cache: true,
                 url: oneurl
               }).done(function() {
-                var _k, _l, _len2, _len3, _ref2, _ref3, _ref4;
+                var scriptloaded, _k, _l, _len2, _len3, _ref2, _ref3, _ref4;
                 ONE.base_.call(Eventable.prototype);
                 Eventable.prototype.enumfalse(Eventable.prototype.keys());
                 Node.prototype.enumfalse(Node.prototype.keys());
                 View.prototype.enumfalse(View.prototype.keys());
                 Layout.prototype.enumfalse(Layout.prototype.keys());
-                loadScript('/lib/animator.js', callback, 'Missing /lib/animator.js');
+                scriptloaded = false;
                 _ref2 = jqel.find('[scriptincludes]');
                 for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
                   el = _ref2[_k];
                   _ref3 = el.attributes.scriptincludes.value.split(',');
                   for (_l = 0, _len3 = _ref3.length; _l < _len3; _l++) {
                     url = _ref3[_l];
-                    loadScript(url.trim(), callback, (_ref4 = el.attributes.scriptincludeserror) != null ? _ref4.value.toString() : void 0);
+                    scriptloaded = loadScript(url.trim(), callback, (_ref4 = el.attributes.scriptincludeserror) != null ? _ref4.value.toString() : void 0);
                   }
                 }
-                return callback();
+                if (!scriptloaded) {
+                  return callback();
+                }
               }).fail(function() {
                 return console.warn("failed to load " + oneurl);
               });
@@ -2858,17 +3167,24 @@
             }
           });
         };
+        blacklist = ['/primus/primus.io.js'];
         filereloader = function() {
+          var paths;
           dependencies.push(window.location.pathname);
           dependencies.push('/layout.js');
+          paths = dependencies.filter(function(path) {
+            if (__indexOf.call(blacklist, path) < 0) {
+              return true;
+            }
+          });
           return $.ajax({
             url: '/watchfile/',
             datatype: 'text',
             data: {
-              url: dependencies
+              url: paths
             },
             success: function(url) {
-              if (__indexOf.call(dependencies, url) >= 0) {
+              if (__indexOf.call(paths, url) >= 0) {
                 return window.location.reload();
               }
             }
@@ -2943,9 +3259,6 @@
         }
         el.$init = true;
         tagname = el.localName;
-        if (__indexOf.call(specialtags, tagname) >= 0) {
-          return;
-        }
         if (!tagname in dr) {
           if (__indexOf.call(builtinTags, tagname) < 0) {
             console.warn('could not find class for tag', tagname, el);
@@ -3010,19 +3323,19 @@
           return;
         }
         if (!(isClass || isState)) {
-          children = (function() {
-            var _j, _len1, _ref, _results;
-            _ref = el.childNodes;
-            _results = [];
-            for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
-              child = _ref[_j];
-              if (child.nodeType === 1) {
-                _results.push(child);
-              }
-            }
-            return _results;
-          })();
           if (!dr[tagname].skipinitchildren) {
+            children = (function() {
+              var _j, _len1, _ref, _ref1, _results;
+              _ref = el.childNodes;
+              _results = [];
+              for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+                child = _ref[_j];
+                if (child.nodeType === 1 && (_ref1 = child.localName, __indexOf.call(specialtags, _ref1) < 0)) {
+                  _results.push(child);
+                }
+              }
+              return _results;
+            })();
             for (_j = 0, _len1 = children.length; _j < _len1; _j++) {
               child = children[_j];
               initElement(child, parent);
@@ -3033,6 +3346,7 @@
               if (parent.inited) {
                 return;
               }
+              parent._bindHandlers(true);
               parent.initialize();
             };
             callOnIdle(checkChildren);
@@ -3083,7 +3397,18 @@
         if (classattributes.$handlers == null) {
           classattributes.$handlers = [];
         }
-        children = getChildren(el);
+        children = (function() {
+          var _i, _len, _ref, _ref1, _results;
+          _ref = el.childNodes;
+          _results = [];
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            child = _ref[_i];
+            if (child.nodeType === 1 && (_ref1 = child.localName, __indexOf.call(specialtags, _ref1) >= 0)) {
+              _results.push(child);
+            }
+          }
+          return _results;
+        })();
         for (_i = 0, _len = children.length; _i < _len; _i++) {
           child = children[_i];
           attributes = flattenattributes(child.attributes);
@@ -3472,7 +3797,7 @@
               if (parent.inited) {
                 return;
               }
-              parent._bindHandlers();
+              parent._bindHandlers(true);
               return parent.initialize();
             };
             if (internal) {
@@ -3501,20 +3826,20 @@
      *
      *     @example
      *     <spacedlayout axis="y"></spacedlayout>
-     *     <view bgcolor="oldlace" width="auto" height="auto">
-     *       <spacedlayout></spacedlayout>
      *
+     *     <view bgcolor="oldlace" width="auto" height="auto">
+     *       <spacedlayout>
+     *         <method name="startMonitoringSubview" args="view">
+     *           output.setAttribute('text', output.text + "View Added: " + view.$tagname + ":" + view.bgcolor + "\n");
+     *           this.super();
+     *         </method>
+     *       </spacedlayout>
      *       <view width="50" height="50" bgcolor="lightpink" opacity=".3"></view>
      *       <view width="50" height="50" bgcolor="plum" opacity=".3"></view>
      *       <view width="50" height="50" bgcolor="lightblue" opacity=".3"></view>
-     *
-     *       <handler event="onlayouts" args="layouts">
-     *         output.setAttribute('text', output.text||'' + "New layout added: " + layouts[layouts.length-1].$tagname + "\n");
-     *       </handler>
      *     </view>
      *
      *     <text id="output" multiline="true" width="300"></text>
-     *
      *
      */
     Layout = (function(_super) {
@@ -3571,7 +3896,8 @@
 
 
       /**
-       * Adds the provided view to the subviews array of this layout.
+       * Adds the provided view to the subviews array of this layout, starts
+       * monitoring the view for changes and updates the layout.
        * @param {dr.view} view The view to add to this layout.
        * @return {void}
        */
@@ -3589,7 +3915,8 @@
 
 
       /**
-       * Removes the provided View from the subviews array of this Layout.
+       * Removes the provided View from the subviews array of this Layout,
+       * stops monitoring the view for changes and updates the layout.
        * @param {dr.view} view The view to remove from this layout.
        * @return {number} the index of the removed subview or -1 if not removed.
        */
@@ -3613,7 +3940,7 @@
 
       /**
        * Checks if a subview can be added to this Layout or not. The default
-       * implementation returns the 'ignorelayout' attributes of the subview.
+       * implementation checks the 'ignorelayout' attributes of the subview.
        * @param {dr.view} view The view to check.
        * @return {boolean} True means the subview will be skipped, false otherwise.
        */
@@ -3625,7 +3952,8 @@
 
       /**
        * Subclasses should implement this method to start listening to
-       * events from the subview that should trigger the update method.
+       * events from the subview that should update the layout. The default
+       * implementation does nothing.
        * @param {dr.view} view The view to start monitoring for changes.
        * @return {void}
        */
@@ -3654,8 +3982,9 @@
 
       /**
        * Subclasses should implement this method to stop listening to
-       * events from the subview that would trigger the update method. This
+       * events from the subview that should update the layout. This
        * should remove all listeners that were setup in startMonitoringSubview.
+       * The default implementation does nothing.
        * @param {dr.view} view The view to stop monitoring for changes.
        * @return {void}
        */
@@ -3683,8 +4012,10 @@
 
 
       /**
-       * Checks if the layout is locked or not. Should be called by the
-       * "update" method of each layout to check if it is OK to do the update.
+       * Checks if the layout can be updated right now or not. Should be called 
+       * by the "update" method of the layout to check if it is OK to do the 
+       * update. The default implementation checks if the layout is locked and
+       * the parent is inited.
        * @return {boolean} true if not locked, false otherwise.
        */
 
@@ -3694,8 +4025,8 @@
 
 
       /**
-       * Updates the layout. Subclasses should call canUpdate to check lock state
-       * before doing anything.
+       * Updates the layout. Subclasses should call canUpdate to check if it is
+       * OK to update or not. The defualt implementation does nothing.
        * @return {void}
        */
 
@@ -3725,9 +4056,13 @@
         if (this.axis === 'x') {
           this.listenTo(view, 'x', func);
           this.listenTo(view, 'width', func);
+          this.listenTo(view, 'boundsx', func);
+          this.listenTo(view, 'boundswidth', func);
         } else {
           this.listenTo(view, 'y', func);
           this.listenTo(view, 'height', func);
+          this.listenTo(view, 'boundsy', func);
+          this.listenTo(view, 'boundsheight', func);
         }
         return this.listenTo(view, 'visible', func);
       };
@@ -3738,15 +4073,19 @@
         if (this.axis === 'x') {
           this.stopListening(view, 'x', func);
           this.stopListening(view, 'width', func);
+          this.stopListening(view, 'boundsx', func);
+          this.stopListening(view, 'boundswidth', func);
         } else {
           this.stopListening(view, 'y', func);
           this.stopListening(view, 'height', func);
+          this.stopListening(view, 'boundsy', func);
+          this.stopListening(view, 'boundsheight', func);
         }
         return this.stopListening(view, 'visible', func);
       };
 
       AutoPropertyLayout.prototype.update = function() {
-        var i, max, maxFunc, parent, sv, svs;
+        var i, max, maxFunc, parent, sv, svs, val;
         if (!this.locked && this.axis) {
           this.locked = true;
           svs = this.subviews;
@@ -3758,25 +4097,31 @@
             while (i) {
               sv = svs[--i];
               if (!this._skipX(sv)) {
-                max = maxFunc(max, sv.x + maxFunc(0, sv.width));
+                max = maxFunc(max, sv.boundsx + maxFunc(0, sv.boundswidth));
               }
             }
-            parent.setAttribute('width', max + parent.width - parent.innerwidth, false, true);
+            val = max + parent.__twiceBorderPadding;
+            if (parent.width !== val) {
+              parent.setAttribute('width', val, false, true);
+            }
           } else {
             while (i) {
               sv = svs[--i];
               if (!this._skipY(sv)) {
-                max = maxFunc(max, sv.y + maxFunc(0, sv.height));
+                max = maxFunc(max, sv.boundsy + maxFunc(0, sv.boundsheight));
               }
             }
-            parent.setAttribute('height', max + parent.height - parent.innerheight, false, true);
+            val = max + parent.__twiceBorderPadding;
+            if (parent.height !== val) {
+              parent.setAttribute('height', val, false, true);
+            }
           }
           return this.locked = false;
         }
       };
 
       AutoPropertyLayout.prototype._skipX = function(view) {
-        return !view.visible || (view.__percentFuncwidth != null) || (view.__percentFuncx != null);
+        return !view.visible || (view.__percentFuncwidth != null) || (view.__percentFuncx != null) || ((view.__alignFuncx != null) && !view.__alignFuncx.autoOk);
       };
 
       AutoPropertyLayout.prototype._skipY = function(view) {
@@ -4598,7 +4943,7 @@
      */
 
     /**
-     * @class dr.handler {Core Dreem}
+     * @class dr.handler {Core Dreem, Events}
      * Declares a handler in a node, view, class or other class instance. Handlers can only be created with the `<handler></handler>` tag syntax.
      *
      * Handlers are called when an event fires with new value, if available.
@@ -4674,7 +5019,7 @@
      */
 
     /**
-     * @class dr.attribute {Core Dreem}
+     * @class dr.attribute {Core Dreem, Events}
      * Adds a variable to a node, view, class or other class instance. Attributes can only be created with the &lt;attribute>&lt;/attribute> tag syntax.
      *
      * Attributes allow classes to declare new variables with a specific type and default value.
