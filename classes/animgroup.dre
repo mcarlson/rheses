@@ -27,17 +27,17 @@ SOFTWARE. -->
     *
     *     @example nestedr="red" x="0" y="0" width="100" height="100"/>
     *     <view id='obj1' bgcolor="green" x="0" y="0" width="100" height="100">
-    *       <animgroup parallel='true'>
-    *         <animator attribute="x" to="200" duration="1000" motion="outBounce" repeat="2"/>
-    *         <animator delay="100" attribute="y" to="200" duration="1000" motion="outBounce" repeat="2"/>
+    *       <animgroup>
+    *         <animator attribute="x" to="100" duration="1000" motion="outBounce" repeat="2"/>
+    *         <animator delay="100" attribute="y" to="50" duration="1000" motion="outBounce" repeat="2"/>
     *         <animator attribute="bgcolor" to="red" duration="1000"/>
     *       </animgroup>
     *     </view>
     */-->
   <class name="animgroup" extends='node'>
     <!--/**
-      * @attribute {Boolean} parallel
-      * Wether child animations are run in parallel, or serial
+      * @attribute {Boolean} sequential=false
+      * If true, animations run in sequence
       */-->
     <attribute name="sequential" value="false" type="boolean"/>
     <setter name="sequential" args="sequential">
@@ -45,7 +45,7 @@ SOFTWARE. -->
     </setter>
 
     <!--/**
-      * @attribute {String} delay
+      * @attribute {String} delay=0
       * The delay time of the animation
       */-->
     <attribute name="delay" value="0" type="number"/>
@@ -57,7 +57,7 @@ SOFTWARE. -->
     </setter>
 
      <!--/**
-      * @attribute {boolean} paused
+      * @attribute {Boolean} paused=false
       * wether or not the animgroup is paused
       */-->
     <attribute name="paused" value="false" type="boolean"/>
@@ -81,7 +81,7 @@ SOFTWARE. -->
     </setter>
 
    <!--/** 
-      * @attribute {string} motion
+      * @attribute {String} motion=bret
       * name of the motion the animation is following
       * valid values are:
       * 'bezier' use a cubic bezier motion function
@@ -124,7 +124,7 @@ SOFTWARE. -->
       * 'outBounce' Bouncing curve on end
       * 'inOutBounce' mix of inBounce and outBounce
       */-->
-    <attribute name="motion" value="linear" type="string"/>
+    <attribute name="motion" value="bret" type="string"/>
     <setter name="motion" args="motion">
       if(!this.track)this.track = {}
       this.track.motion = motion
@@ -132,10 +132,10 @@ SOFTWARE. -->
       return motion
     </setter>
     <!--/**
-      * @attribute {string} control
+      * @attribute {String} control=0.01
       * control points for the bret and bezier motions
       */-->
-    <attribute name="control" value="" type="string"/>
+    <attribute name="control" value="0.01" type="string"/>
     <setter name="control" args="control">
       if(!this.track)this.track = {}
       this.track.control = control.split(',').map(function(v){
@@ -146,7 +146,7 @@ SOFTWARE. -->
     </setter>
 
     <!--/**
-      * @attribute {number} times
+      * @attribute {Number} times=1
       * how many times to times the loop (times 2 runs something twice)
       */-->
     <attribute name="repeat" value="1" type="number"/>
@@ -158,7 +158,7 @@ SOFTWARE. -->
     </setter>
 
     <!--/**
-      * @attribute {boolean} bounce
+      * @attribute {Boolean} bounce=false
       * turn on bounce looping
       */-->
     <attribute name="bounce" value="false" type="boolean"/>

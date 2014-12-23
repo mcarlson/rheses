@@ -101,43 +101,43 @@
     *
     *     @example nested
     *     &lt;view bgcolor=&quot;red&quot; x=&quot;0&quot; y=&quot;0&quot; width=&quot;100&quot; height=&quot;100&quot;&gt;
-    *       &lt;animator start=&quot;100&quot; attribute=&quot;x&quot; to=&quot;200&quot; duration=&quot;1000&quot; motion=&quot;outBounce&quot; repeat=&quot;1&quot;&gt;
+    *       &lt;animator attribute=&quot;x&quot; to=&quot;200&quot; duration=&quot;1000&quot;&gt;
     *         &lt;handler event=&quot;onend&quot;&gt;
-    *           console.log(&#39;it ended&#39;)
+    *           console.log(&#39;the animation ended&#39;)
     *         &lt;/handler&gt;
     *       &lt;/animator&gt;
     *     &lt;/view&gt;
     */
-<span id='dr-animator-attribute-start'>/**
-</span>      * @attribute {String} start
-      * The start time of the animation
+<span id='dr-animator-attribute-delay'>/**
+</span>      * @attribute {Number} delay=0
+      * The amount of time to delay the start of the animation
       */
 <span id='dr-animator-attribute-from'>/**
 </span>      * @attribute {String} from
       * The value to start the animation from, if not specified is read from the target attribute
       */
 <span id='dr-animator-attribute-to'>/**
-</span>      * @attribute {String} to
+</span>      * @attribute {String} to=0
       * The value to animate to. Is identical to specifying a &lt;keyframe at=&#39;{duration}&#39;&gt;{to}&lt;/keyframe&gt;
       */
 <span id='dr-animator-attribute-duration'>/**
-</span>      * @attribute {Number} duration
+</span>      * @attribute {Number} duration=1000
       * The duration of the animation. Is identical to specifying a &lt;keyframe at=&#39;{duration}&#39;&gt;{to}&lt;/keyframe&gt;
       */
 <span id='dr-animator-attribute-attribute'>/**
-</span>      * @attribute {string} attribute
+</span>      * @attribute {String} attribute
       * The name of the attribute this animator is animating
       */
 <span id='dr-animator-attribute-target'>/**
-</span>      * @attribute {string} target
+</span>      * @attribute {String} target
       * Name of the target object id, not needed if animator is used as a child tag in the target node
       */
 <span id='dr-animator-attribute-paused'>/**
-</span>      * @attribute {boolean} paused
+</span>      * @attribute {Boolean} paused=false
       * wether or not the animator is paused
       */
 <span id='dr-animator-attribute-motion'>/** 
-</span>      * @attribute {string} motion
+</span>      * @attribute {String} motion=bret
       * name of the motion the animation is following
       * valid values are:
       * &#39;bezier&#39; use a cubic bezier motion function
@@ -181,19 +181,19 @@
       * &#39;inOutBounce&#39; mix of inBounce and outBounce
       */
 <span id='dr-animator-attribute-control'>/**
-</span>      * @attribute {string} control
+</span>      * @attribute {String} control=0.01
       * control points for the bret and bezier motions
       */
 <span id='dr-animator-attribute-repeat'>/**
-</span>      * @attribute {Number} repeat
+</span>      * @attribute {Number} repeat=1
       * how many times to repeat the loop (repeat 2 runs something twice)
       */
 <span id='dr-animator-attribute-bounce'>/**
-</span>      * @attribute {boolean} bounce
+</span>      * @attribute {Boolean} bounce=false
       * turn on bounce looping
       */
 <span id='dr-animator-attribute-relative'>/**
-</span>      * @attribute {boolean} relative
+</span>      * @attribute {Boolean} relative=false
       * animation is relative to original value
       */
 <span id='dr-animator-event-onstart'>/**
@@ -215,27 +215,27 @@
     *
     *     @example nestedr=&quot;red&quot; x=&quot;0&quot; y=&quot;0&quot; width=&quot;100&quot; height=&quot;100&quot;/&gt;
     *     &lt;view id=&#39;obj1&#39; bgcolor=&quot;green&quot; x=&quot;0&quot; y=&quot;0&quot; width=&quot;100&quot; height=&quot;100&quot;&gt;
-    *       &lt;animgroup parallel=&#39;true&#39;&gt;
-    *         &lt;animator attribute=&quot;x&quot; to=&quot;200&quot; duration=&quot;1000&quot; motion=&quot;outBounce&quot; repeat=&quot;2&quot;/&gt;
-    *         &lt;animator delay=&quot;100&quot; attribute=&quot;y&quot; to=&quot;200&quot; duration=&quot;1000&quot; motion=&quot;outBounce&quot; repeat=&quot;2&quot;/&gt;
+    *       &lt;animgroup&gt;
+    *         &lt;animator attribute=&quot;x&quot; to=&quot;100&quot; duration=&quot;1000&quot; motion=&quot;outBounce&quot; repeat=&quot;2&quot;/&gt;
+    *         &lt;animator delay=&quot;100&quot; attribute=&quot;y&quot; to=&quot;50&quot; duration=&quot;1000&quot; motion=&quot;outBounce&quot; repeat=&quot;2&quot;/&gt;
     *         &lt;animator attribute=&quot;bgcolor&quot; to=&quot;red&quot; duration=&quot;1000&quot;/&gt;
     *       &lt;/animgroup&gt;
     *     &lt;/view&gt;
     */
-<span id='dr-animgroup-attribute-parallel'>/**
-</span>      * @attribute {Boolean} parallel
-      * Wether child animations are run in parallel, or serial
+<span id='dr-animgroup-attribute-sequential'>/**
+</span>      * @attribute {Boolean} sequential=false
+      * If true, animations run in sequence
       */
 <span id='dr-animgroup-attribute-delay'>/**
-</span>      * @attribute {String} delay
+</span>      * @attribute {String} delay=0
       * The delay time of the animation
       */
 <span id='dr-animgroup-attribute-paused'>/**
-</span>      * @attribute {boolean} paused
+</span>      * @attribute {Boolean} paused=false
       * wether or not the animgroup is paused
       */
 <span id='dr-animgroup-attribute-motion'>/** 
-</span>      * @attribute {string} motion
+</span>      * @attribute {String} motion=bret
       * name of the motion the animation is following
       * valid values are:
       * &#39;bezier&#39; use a cubic bezier motion function
@@ -279,15 +279,15 @@
       * &#39;inOutBounce&#39; mix of inBounce and outBounce
       */
 <span id='dr-animgroup-attribute-control'>/**
-</span>      * @attribute {string} control
+</span>      * @attribute {String} control=0.01
       * control points for the bret and bezier motions
       */
 <span id='dr-animgroup-attribute-times'>/**
-</span>      * @attribute {number} times
+</span>      * @attribute {Number} times=1
       * how many times to times the loop (times 2 runs something twice)
       */
 <span id='dr-animgroup-attribute-bounce'>/**
-</span>      * @attribute {boolean} bounce
+</span>      * @attribute {Boolean} bounce=false
       * turn on bounce looping
       */
 <span id='dr-animgroup-event-onstart'>/**

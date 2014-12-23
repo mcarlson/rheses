@@ -84,43 +84,43 @@
     *
     *     @example nested
     *     <view bgcolor="red" x="0" y="0" width="100" height="100">
-    *       <animator start="100" attribute="x" to="200" duration="1000" motion="outBounce" repeat="1">
+    *       <animator attribute="x" to="200" duration="1000">
     *         <handler event="onend">
-    *           console.log('it ended')
+    *           console.log('the animation ended')
     *         </handler>
     *       </animator>
     *     </view>
     */
 /**
-      * @attribute {String} start
-      * The start time of the animation
+      * @attribute {Number} delay=0
+      * The amount of time to delay the start of the animation
       */
 /**
       * @attribute {String} from
       * The value to start the animation from, if not specified is read from the target attribute
       */
 /**
-      * @attribute {String} to
+      * @attribute {String} to=0
       * The value to animate to. Is identical to specifying a <keyframe at='{duration}'>{to}</keyframe>
       */
 /**
-      * @attribute {Number} duration
+      * @attribute {Number} duration=1000
       * The duration of the animation. Is identical to specifying a <keyframe at='{duration}'>{to}</keyframe>
       */
 /**
-      * @attribute {string} attribute
+      * @attribute {String} attribute
       * The name of the attribute this animator is animating
       */
 /**
-      * @attribute {string} target
+      * @attribute {String} target
       * Name of the target object id, not needed if animator is used as a child tag in the target node
       */
 /**
-      * @attribute {boolean} paused
+      * @attribute {Boolean} paused=false
       * wether or not the animator is paused
       */
 /** 
-      * @attribute {string} motion
+      * @attribute {String} motion=bret
       * name of the motion the animation is following
       * valid values are:
       * 'bezier' use a cubic bezier motion function
@@ -164,19 +164,19 @@
       * 'inOutBounce' mix of inBounce and outBounce
       */
 /**
-      * @attribute {string} control
+      * @attribute {String} control=0.01
       * control points for the bret and bezier motions
       */
 /**
-      * @attribute {Number} repeat
+      * @attribute {Number} repeat=1
       * how many times to repeat the loop (repeat 2 runs something twice)
       */
 /**
-      * @attribute {boolean} bounce
+      * @attribute {Boolean} bounce=false
       * turn on bounce looping
       */
 /**
-      * @attribute {boolean} relative
+      * @attribute {Boolean} relative=false
       * animation is relative to original value
       */
 /**
@@ -198,27 +198,27 @@
     *
     *     @example nestedr="red" x="0" y="0" width="100" height="100"/>
     *     <view id='obj1' bgcolor="green" x="0" y="0" width="100" height="100">
-    *       <animgroup parallel='true'>
-    *         <animator attribute="x" to="200" duration="1000" motion="outBounce" repeat="2"/>
-    *         <animator delay="100" attribute="y" to="200" duration="1000" motion="outBounce" repeat="2"/>
+    *       <animgroup>
+    *         <animator attribute="x" to="100" duration="1000" motion="outBounce" repeat="2"/>
+    *         <animator delay="100" attribute="y" to="50" duration="1000" motion="outBounce" repeat="2"/>
     *         <animator attribute="bgcolor" to="red" duration="1000"/>
     *       </animgroup>
     *     </view>
     */
 /**
-      * @attribute {Boolean} parallel
-      * Wether child animations are run in parallel, or serial
+      * @attribute {Boolean} sequential=false
+      * If true, animations run in sequence
       */
 /**
-      * @attribute {String} delay
+      * @attribute {String} delay=0
       * The delay time of the animation
       */
 /**
-      * @attribute {boolean} paused
+      * @attribute {Boolean} paused=false
       * wether or not the animgroup is paused
       */
 /** 
-      * @attribute {string} motion
+      * @attribute {String} motion=bret
       * name of the motion the animation is following
       * valid values are:
       * 'bezier' use a cubic bezier motion function
@@ -262,15 +262,15 @@
       * 'inOutBounce' mix of inBounce and outBounce
       */
 /**
-      * @attribute {string} control
+      * @attribute {String} control=0.01
       * control points for the bret and bezier motions
       */
 /**
-      * @attribute {number} times
+      * @attribute {Number} times=1
       * how many times to times the loop (times 2 runs something twice)
       */
 /**
-      * @attribute {boolean} bounce
+      * @attribute {Boolean} bounce=false
       * turn on bounce looping
       */
 /**
