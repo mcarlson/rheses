@@ -1356,6 +1356,13 @@
           } else {
             return 'none';
           }
+        },
+        cursor: function(clickable) {
+          if (clickable) {
+            return 'pointer';
+          } else {
+            return '';
+          }
         }
       };
 
@@ -1364,6 +1371,7 @@
           tagname = 'div';
         }
         this._handleScroll = __bind(this._handleScroll, this);
+        this.animate = __bind(this.animate, this);
         if (jqel == null) {
           this.el = document.createElement(tagname);
           this.el.$init = true;
@@ -1416,60 +1424,25 @@
       };
 
       Sprite.prototype.animate = function() {
-        var anim, animTick, animators, first, name, track, value, _ref;
-        animators = {};
+        var name, value, _ref;
+        if (this.jqel == null) {
+          this.jqel = $(this.el);
+        }
         _ref = arguments[0];
         for (name in _ref) {
           value = _ref[name];
-          track = {};
-          track[0] = this[name] || 0;
-          track[arguments[1] || 1000] = value;
-          anim = Animator.createAnimator();
-          anim.playStateless(track);
-          animators[name] = anim;
+          if (name in stylemap) {
+            arguments[0][stylemap[name]] = value;
+            delete arguments[0][name];
+          }
         }
-        first = void 0;
-        animTick = (function(_this) {
-          return function(time) {
-            var ended, local_time, myvalue;
-            if (first === void 0) {
-              first = time;
-            }
-            local_time = time - first;
-            ended = false;
-            for (name in animators) {
-              anim = animators[name];
-              myvalue = anim.timestep(local_time);
-              _this.setAttribute(name, myvalue);
-              if (anim.ended) {
-                ended = true;
-              }
-            }
-            if (!ended) {
-              return dr.idle.callOnIdle(animTick);
-            }
-          };
-        })(this);
-        return dr.idle.callOnIdle(animTick);
-      };
-
-      Sprite.prototype._cursorVal = function() {
-        if (this.__clickable) {
-          return this.__cursor || 'pointer';
-        } else {
-          return '';
-        }
-      };
-
-      Sprite.prototype.set_cursor = function(cursor) {
-        this.__cursor = cursor;
-        return this.setStyle('cursor', this._cursorVal(), true);
+        return this.jqel.animate.apply(this.jqel, arguments);
       };
 
       Sprite.prototype.set_clickable = function(clickable) {
         this.__clickable = clickable;
         this.__updatePointerEvents();
-        return this.setStyle('cursor', this._cursorVal(), true);
+        return this.setStyle('cursor', clickable, true);
       };
 
       Sprite.prototype.set_clip = function(clip) {
@@ -1964,11 +1937,6 @@
        */
 
       /**
-       * @attribute {String} [cursor='pointer']
-       * Cursor that should be used when the mouse is over this view, can be any CSS cursor value. Only applies when clickable is true.
-       */
-
-      /**
        * @event onclick
        * Fired when this view is clicked
        * @param {dr.view} view The dr.view that fired the event
@@ -2036,7 +2004,6 @@
         clip: false,
         scrollable: false,
         visible: true,
-        cursor: 'pointer',
         bordercolor: 'transparent',
         borderstyle: 'solid',
         border: 0,
@@ -2418,13 +2385,6 @@
           this.sprite.set_clickable(clickable);
         }
         return clickable;
-      };
-
-      View.prototype.set_cursor = function(cursor) {
-        if (cursor !== this.cursor) {
-          this.sprite.set_cursor(cursor);
-        }
-        return cursor;
       };
 
       View.prototype.__updateTransform = function() {
@@ -3143,29 +3103,25 @@
                 cache: true,
                 url: oneurl
               }).done(function() {
-                var _k, _len2, _ref2, _results;
+                var scriptloaded, _k, _l, _len2, _len3, _ref2, _ref3, _ref4;
                 ONE.base_.call(Eventable.prototype);
                 Eventable.prototype.enumfalse(Eventable.prototype.keys());
                 Node.prototype.enumfalse(Node.prototype.keys());
                 View.prototype.enumfalse(View.prototype.keys());
                 Layout.prototype.enumfalse(Layout.prototype.keys());
-                loadScript('/lib/animator.js', callback, 'Missing /lib/animator.js');
+                scriptloaded = false;
                 _ref2 = jqel.find('[scriptincludes]');
-                _results = [];
                 for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
                   el = _ref2[_k];
-                  _results.push((function() {
-                    var _l, _len3, _ref3, _ref4, _results1;
-                    _ref3 = el.attributes.scriptincludes.value.split(',');
-                    _results1 = [];
-                    for (_l = 0, _len3 = _ref3.length; _l < _len3; _l++) {
-                      url = _ref3[_l];
-                      _results1.push(loadScript(url.trim(), callback, (_ref4 = el.attributes.scriptincludeserror) != null ? _ref4.value.toString() : void 0));
-                    }
-                    return _results1;
-                  })());
+                  _ref3 = el.attributes.scriptincludes.value.split(',');
+                  for (_l = 0, _len3 = _ref3.length; _l < _len3; _l++) {
+                    url = _ref3[_l];
+                    scriptloaded = loadScript(url.trim(), callback, (_ref4 = el.attributes.scriptincludeserror) != null ? _ref4.value.toString() : void 0);
+                  }
                 }
-                return _results;
+                if (!scriptloaded) {
+                  return callback();
+                }
               }).fail(function() {
                 return console.warn("failed to load " + oneurl);
               });
@@ -4037,8 +3993,8 @@
 
 
       /**
-       * Checks if the layout can be updated right now or not. Should be called
-       * by the "update" method of the layout to check if it is OK to do the
+       * Checks if the layout can be updated right now or not. Should be called 
+       * by the "update" method of the layout to check if it is OK to do the 
        * update. The default implementation checks if the layout is locked and
        * the parent is inited.
        * @return {boolean} true if not locked, false otherwise.
