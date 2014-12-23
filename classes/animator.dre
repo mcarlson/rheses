@@ -39,7 +39,7 @@ SOFTWARE. -->
       * @attribute {String} start
       * The start time of the animation
       */-->
-    <attribute name="delay" value="0" type="number"/>
+    <attribute name="delay" value="0" type="expression"/>
     <setter name="delay" args="delay">
       if(!this.track)this.track = {}
       this.track.delay = delay
@@ -51,7 +51,7 @@ SOFTWARE. -->
       * @attribute {String} from
       * The value to start the animation from, if not specified is read from the target attribute
       */-->
-    <attribute name="from" value="" type="string"/>
+    <attribute name="from" value="" type="expression"/>
     <setter name="from" args="from">
       if(!this.track)this.track = {}
       if(this.animator){
@@ -76,10 +76,10 @@ SOFTWARE. -->
     </setter>
 
     <!--/**
-      * @attribute {number} duration
+      * @attribute {Number} duration
       * The duration of the animation. Is identical to specifying a <keyframe at='{duration}'>{to}</keyframe>
       */-->
-    <attribute name="duration" value="1000" type="number"/>
+    <attribute name="duration" value="1000" type="expression"/>
     <setter name="duration" args="duration">
       if(!this.track)this.track = {}
       if(this.to !== undefined){
@@ -207,10 +207,10 @@ SOFTWARE. -->
     </setter>
 
     <!--/**
-      * @attribute {number} repeat
+      * @attribute {Number} repeat
       * how many times to repeat the loop (repeat 2 runs something twice)
       */-->
-    <attribute name="repeat" value="1" type="number"/>
+    <attribute name="repeat" value="1" type="expression"/>
     <setter name="repeat" args="repeat">
       if(!this.track)this.track = {}
       this.track.repeat = repeat
