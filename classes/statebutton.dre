@@ -137,7 +137,8 @@ SOFTWARE. -->
     
     @_setActiveState(@state)
 
-    @interactive = false unless @states.join(',').indexOf('default,over,down') >= 0
+    @interactive = false unless @states.join(',').indexOf('default,over') >= 0
+    @__hasDown = @states.join(',').indexOf('down') >= 0
   </handler>
 
   <handler event="onmouseover">
@@ -145,7 +146,7 @@ SOFTWARE. -->
     @setAttribute('state', 'over')
   </handler>
   <handler event="onmousedown">
-    return unless @interactive
+    return unless @interactive && @__hasDown
     @setAttribute('state', 'down')
   </handler>
   <handler event="onmouseup">

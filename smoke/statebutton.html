@@ -259,6 +259,47 @@
     </handler>
   </defaultextrastatebutton>
 
+  <!-- Interactive events with default and over states, no down -->
+  <statebutton width="100" height="100">
+    <bitmap name="defaultv" width="100%" height="100%" src="./default.png">
+      <attribute name="state" type="string" value="default"></attribute>
+    </bitmap>
+
+    <bitmap name="overv" width="100%" height="100%" src="./over.png">
+      <attribute name="state" type="string" value="over"></attribute>
+    </bitmap>
+    
+    <handler event="oninit">
+      assert.testCaseLabel = 'Interactive events with default and over states, no down';
+
+      assert.isTrue(this.interactive, 'interactive flag should be true')
+
+      $(this.sprite.el).trigger('mouseover')
+      assert.equal(this.state, 'over', 'Interactive 1: should be over')
+      $(this.sprite.el).trigger('mousedown')
+      assert.equal(this.state, 'over', 'Interactive 1: should be over II')
+      $(this.sprite.el).trigger('mouseout')
+      assert.equal(this.state, 'default', 'Interactive 1: should be default')
+      $(this.sprite.el).trigger('mouseup')
+      assert.equal(this.state, 'default', 'Interactive 1: should be default II')
+    </handler>
+  </statebutton>
+
+  <!-- Interactive events with default state, no over, down -->
+  <statebutton width="100" height="100">
+    <bitmap name="defaultv" width="100%" height="100%" src="./default.png">
+      <attribute name="state" type="string" value="default"></attribute>
+    </bitmap>
+
+    <handler event="oninit">
+      assert.testCaseLabel = 'Interactive events with default state, no over, down';
+
+      assert.isFalse(this.interactive, 'interactive flag should be false')
+      $(this.sprite.el).trigger('mouseover')
+      assert.equal(this.state, 'default', 'should be default')
+    </handler>
+  </statebutton>
+
   <!-- Interactive events with custom states -->
   <customstatebutton>
     <handler event="oninit">
