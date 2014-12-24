@@ -124,6 +124,15 @@ SOFTWARE. -->
   <handler event="onjustify" method="update"></handler>
   
   <!--/**
+    * @attribute {String} [align='left']
+    * Aligns lines/columns left/top, right/bottom or center/middle. If
+    * justification is true this has no effect except on a line or column that
+    * has only one item.
+    */-->
+  <attribute name="align" type="string" value="left"></attribute>
+  <handler event="onalign" method="update"></handler>
+  
+  <!--/**
     * @attribute {String} [axis='x']
     * The orientation of the layout. Supported values are 'x' and 'y'.
     * A value of 'x' will orient the views horizontally with lines being
@@ -313,6 +322,21 @@ SOFTWARE. -->
           while itemcount > i
             item = items[i++]
             item.setAttribute(attribute, item[attribute] + (i - 1) * amount)
+        return
+    
+    # No justification case or justification of 1 item falls through to here.
+    switch @align
+      when 'right', 'bottom'
+        extra = @__parentSizeLessOutset - value
+      when 'center', 'middle'
+        extra = (@__parentSizeLessOutset - value) / 2
+      else
+        extra = -1
+    if extra > 0
+      # Reposition each item in the line
+      attribute = @attribute
+      for item in items
+        item.setAttribute(attribute, item[attribute] + extra)
   </method>
   
   <!--/**
