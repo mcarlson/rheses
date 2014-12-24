@@ -38,9 +38,9 @@
     <view bgcolor='red' id="koala1" x="0" y="200" width="100" height="80">
       <handler event='oninit' type="coffee">
         this.animate({x:100, y:200, width:50, height:100, bgcolor:'green'},2000)
-        setTimeout(() =>
+        setTimeout(function(){
           this.destroy()
-        , 1500)
+        }.bind(this),300)
       </handler>
     </view>
 

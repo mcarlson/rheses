@@ -308,6 +308,16 @@ SOFTWARE. -->
       dr.idle.callOnIdle(animTick)
 
     </method>
+    
+    <method name="construct" args="element, attributes">
+      // lets provide sensible defaults
+      if(element.getAttribute('from') === null && attributes.parent.from !== undefined) attributes.from = attributes.parent.from
+      if(element.getAttribute('to') === null && attributes.parent.to !== undefined)  attributes.to = attributes.parent.to
+      if(element.getAttribute('duration') === null && attributes.parent.duration !== undefined) attributes.duration = attributes.parent.duration
+      if(element.getAttribute('attribute') === null && attributes.parent.attribute !== undefined) attributes.attribute = attributes.parent.attribute
+      if(element.getAttribute('target') === null && attributes.parent.target !== undefined) attributes.target = attributes.parent.target
+      this.super(element, attributes)
+    </method>
 
     <handler event="oninit"><!--
       var parent = this.parent
