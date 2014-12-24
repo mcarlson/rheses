@@ -1116,7 +1116,8 @@ window.dr = do ->
           # compute the value of the animation
           myvalue = anim.timestep(local_time)
           # set the attribute
-          this.setAttribute(name, myvalue)
+          if(this.sprite) # maybe fix in setattribute
+            this.setAttribute(name, myvalue)
           # flag ended if we ended
           if anim.ended then ended = true
         # only do idle again if none ended

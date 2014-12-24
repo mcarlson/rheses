@@ -1440,7 +1440,9 @@
             for (name in animators) {
               anim = animators[name];
               myvalue = anim.timestep(local_time);
-              _this.setAttribute(name, myvalue);
+              if (_this.sprite) {
+                _this.setAttribute(name, myvalue);
+              }
               if (anim.ended) {
                 ended = true;
               }

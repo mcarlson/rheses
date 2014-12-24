@@ -74,7 +74,7 @@
       </animgroup>
     </view>
 
-    <view bgcolor='red' id="koala2" x="10" y="210" width="auto" height="auto">
+    <view bgcolor='red' id="koala3" x="10" y="210" width="auto" height="auto">
       <text text='Pause mid'></text>
       <animgroup delay='100' repeat="3" bounce="true" parallel='true'>
         <handler event='ontick' args='time'>
@@ -87,6 +87,16 @@
         </handler>      
         <animator attribute="x" to="100" duration="100" repeat='4' bounce='true' motion="inOutExpo"></animator>
         <animator attribute="bgcolor" to="orange" repeat='6' bounce='true' duration="100" control="0.01,0.01" motion="bret" ></animator>
+      </animgroup>
+    </view>
+
+    <view bgcolor='red' id="koala4" x="10" y="260" width="auto" height="auto">
+      <text text='Inheritance'></text>
+      <animgroup delay='0' to='200' duration="1000" bounce="true" parallel='true'>
+        <handler event='onend'>
+          chai.assert.equal(this.parent.x, 200)
+        </handler>         
+        <animator attribute="x" repeat='1' bounce='true' motion="inOutExpo"></animator>
       </animgroup>
     </view>
 
