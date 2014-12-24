@@ -15,6 +15,8 @@
   <view width="100%" height="100%" bgcolor="#cccccc">
     <class name="item" width="100" height="20" bgcolor="#666666"></class>
     
+    <spacedlayout axis="y" spacing="5"></spacedlayout>
+    
     <view name="container" padding="1" border="2" bordercolor="black" width="414" bgcolor="#999999">
       <wrappinglayout name="layout"
         inset="2" spacing="1" outset="3"
@@ -35,7 +37,7 @@
     
     <!-- Test transformed views and ensure auto works event though
          updateparent is better for wrappinglayouts. -->
-    <view name="container2" y="120" width="204" height="auto"
+    <view name="container2" width="204" height="auto"
       padding="1" border="2" bordercolor="black" bgcolor="#999999"
     >
       <wrappinglayout name="layout"
@@ -86,7 +88,7 @@
     </view>
     
     <!-- Verify linecount and maxsize events. -->
-    <view name="container3" y="360" padding="1" border="2" bordercolor="black" width="400" bgcolor="#999999">
+    <view name="container3" padding="1" border="2" bordercolor="black" width="400" bgcolor="#999999">
       <wrappinglayout name="layout"
         inset="2" spacing="1" outset="3"
         lineinset="4" linespacing="2" lineoutset="6"
@@ -149,8 +151,117 @@
       </handler>
     </view>
     
+    <!-- Verify alignment. -->
+    <view name="container4" padding="1" border="2" bordercolor="black" width="400" bgcolor="#999999">
+      <wrappinglayout name="layout"
+        inset="2" spacing="1" outset="3"
+        lineinset="4" linespacing="2" lineoutset="6"
+        updateparent="true" align="right"
+      >
+        <handler event="onlinecount" args="linecount">
+          this.parent.linecount = linecount;
+        </handler>
+        <handler event="onmaxsize" args="maxsize">
+          this.parent.maxsize = maxsize;
+        </handler>
+        <method name="doBeforeUpdate">
+          this.parent.lineCalls = [];
+          this.super();
+        </method>
+        <method name="doLineStart" args="lineindex, value">
+          this.parent.lineCalls.push('start ' + lineindex, 'value ' + value);
+          this.super();
+        </method>
+        <method name="doLineEnd" args="lineindex, items, value">
+          this.parent.lineCalls.push('end ' + lineindex, 'item ' + items.length, 'value ' + value);
+          this.super();
+        </method>
+      </wrappinglayout>
+      
+      <item name="v1" width="60" bgcolor="#eeeeee"></item>
+      <item name="v2" width="70" bgcolor="#ddddcc"></item>
+      <item name="v3" width="80" bgcolor="#ccccaa"></item>
+      <item name="v4" width="90" bgcolor="#bbbb88"></item>
+      <item name="v5" width="100" bgcolor="#aaaa66"></item>
+      <item name="v6" width="90" bgcolor="#999944"></item>
+      <item name="v7" width="80" bgcolor="#888822"></item>
+      <item name="v8" width="70" bgcolor="#777700"></item>
+      <item name="v9" width="60" bgcolor="#666622"></item>
+      
+      <handler event="oninit">
+        var layout = this.layout,
+          v1 = this.v1,
+          v2 = this.v2,
+          v3 = this.v3,
+          v4 = this.v4,
+          v5 = this.v5,
+          v6 = this.v6,
+          v7 = this.v7,
+          v8 = this.v8,
+          v9 = this.v9;
+        
+        assert.equal(88, v1.x);
+        assert.equal(149, v2.x);
+        assert.equal(220, v3.x);
+        assert.equal(301, v4.x);
+        assert.equal(48, v5.x);
+        assert.equal(149, v6.x);
+        assert.equal(240, v7.x);
+        assert.equal(321, v8.x);
+        assert.equal(331, v9.x);
+        
+        layout.setAttribute('align', 'center')
+        
+        assert.equal(45, v1.x);
+        assert.equal(106, v2.x);
+        assert.equal(177, v3.x);
+        assert.equal(258, v4.x);
+        assert.equal(25, v5.x);
+        assert.equal(126, v6.x);
+        assert.equal(217, v7.x);
+        assert.equal(298, v8.x);
+        assert.closeTo(166.5, v9.x, 0.1);
+        
+        layout.setAttribute('align', 'top')
+        
+        assert.equal(2, v1.x);
+        assert.equal(63, v2.x);
+        assert.equal(134, v3.x);
+        assert.equal(215, v4.x);
+        assert.equal(2, v5.x);
+        assert.equal(103, v6.x);
+        assert.equal(194, v7.x);
+        assert.equal(275, v8.x);
+        assert.equal(2, v9.x);
+        
+        // Justify and then verify the single line item is positioned correctly
+        layout.setAttribute('justify', true);
+        assert.equal(2, v9.x);
+        
+        layout.setAttribute('align', 'middle')
+        assert.closeTo(166.5, v9.x, 0.1);
+        
+        layout.setAttribute('align', 'bottom')
+        assert.equal(331, v9.x);
+        
+        // flip axis and force a single lines
+        layout.setAttribute('axis', 'y')
+        v2.setAttribute('layouthint', 'break')
+        
+        assert.equal(51, v1.y);
+        
+        layout.setAttribute('align', 'middle')
+        
+        assert.closeTo(26.5, v1.y, 0.1);
+        
+        layout.setAttribute('align', 'top')
+        
+        assert.equal(2, v1.y);
+      </handler>
+    </view>
+    
     <!-- justification -->
-    <view name="justification" y="470" padding="1" border="2" bordercolor="black" width="343" bgcolor="#999999">
+    <view name="justification" padding="1" border="2" bordercolor="black" width="343" bgcolor="#999999">
       <wrappinglayout name="layout"
         inset="2" spacing="1" outset="3"
         lineinset="4" linespacing="2" lineoutset="6"
