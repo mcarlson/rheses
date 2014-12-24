@@ -85,6 +85,89 @@
       </handler>
     </view>
     
+    <!-- Verify linecount and maxsize events. -->
+    <view name="container3" y="360" padding="1" border="2" bordercolor="black" width="400" bgcolor="#999999">
+      <wrappinglayout name="layout"
+        inset="2" spacing="1" outset="3"
+        lineinset="4" linespacing="2" lineoutset="6"
+        updateparent="true"
+      >
+        <handler event="onlinecount" args="linecount">
+          this.parent.linecount = linecount;
+        </handler>
+        <handler event="onmaxsize" args="maxsize">
+          this.parent.maxsize = maxsize;
+        </handler>
+        <method name="doBeforeUpdate">
+          this.parent.lineCalls = [];
+          this.super();
+        </method>
+        <method name="doLineStart" args="lineindex, value">
+          this.parent.lineCalls.push('start ' + lineindex, 'value ' + value);
+          this.super();
+        </method>
+        <method name="doLineEnd" args="lineindex, items, value">
+          this.parent.lineCalls.push('end ' + lineindex, 'item ' + items.length, 'value ' + value);
+          this.super();
+        </method>
+      </wrappinglayout>
+      
+      <item name="v1" width="60" bgcolor="#eeeeee"></item>
+      <item name="v2" width="70" bgcolor="#ddddcc"></item>
+      <item name="v3" width="80" bgcolor="#ccccaa"></item>
+      <item name="v4" width="90" bgcolor="#bbbb88"></item>
+      <item name="v5" width="100" bgcolor="#aaaa66"></item>
+      <item name="v6" width="110" bgcolor="#999944"></item>
+      <item name="v7" width="120" bgcolor="#888822"></item>
+      <item name="v8" width="110" bgcolor="#777700"></item>
+      <item name="v9" width="100" bgcolor="#666622"></item>
+      
+      <handler event="oninit">
+        assert.equal(3, this.linecount, 'The line count is 3.')
+        assert.equal(337, this.maxsize, 'The max size is 337.')
+        
+        assert.equal(this.lineCalls.join(', '), 'start 1, value 2, end 1, item 4, value 305, start 2, value 2, end 2, item 3, value 334, start 3, value 2, end 3, item 2, value 213');
+        
+        // Make another line occur.
+        this.v2.setAttribute('layouthint', 'break')
+        
+        assert.equal(4, this.linecount, 'The line count is 4.')
+        assert.equal(348, this.maxsize, 'The max size is 348.')
+        
+        // Switch axis
+        this.layout.setAttribute('axis', 'y')
+        
+        assert.equal(3, this.linecount, 'The line count is 3.')
+        assert.equal(88, this.maxsize, 'The max size is 88.')
+        
+        this.v9.setAttribute('height', 25);
+        
+        assert.equal(3, this.linecount, 'The line count is 3.')
+        assert.equal(93, this.maxsize, 'The max size is 93.')
+        
+        assert.equal(this.lineCalls.join(', '), 'start 1, value 2, end 1, item 1, value 22, start 2, value 2, end 2, item 4, value 85, start 3, value 2, end 3, item 4, value 90');
+      </handler>
+    </view>
+    
+    <!-- justification -->
+    <view name="justification" y="470" padding="1" border="2" bordercolor="black" width="343" bgcolor="#999999">
+      <wrappinglayout name="layout"
+        inset="2" spacing="1" outset="3"
+        lineinset="4" linespacing="2" lineoutset="6"
+        updateparent="true" justify="true"
+      ></wrappinglayout>
+      
+      <item name="v1" width="60" bgcolor="#eeeeee"></item>
+      <item name="v2" width="70" bgcolor="#ddddcc"></item>
+      <item name="v3" width="80" bgcolor="#ccccaa"></item>
+      <item name="v4" width="90" bgcolor="#bbbb88"></item>
+      <item name="v5" width="100" bgcolor="#aaaa66"></item>
+      <item name="v6" width="110" bgcolor="#999944"></item>
+      <item name="v7" width="120" bgcolor="#888822"></item>
+      <item name="v8" width="110" bgcolor="#777700"></item>
+      <item name="v9" width="100" bgcolor="#666622"></item>
+    </view>
+    
     <handler event="oninit">
       var container = this.container,
           layout = container.layout,
@@ -254,6 +337,37 @@
       assert.equal(2, v2.x, 'The second view is now at 2 since it is no longer a break.');
       assert.equal(104, v3.x, 'The third view is now at 104.');
       assert.equal(306, container.innerwidth, 'The innerwidth of the container should be 306.');
+      
+      
+      // Verify Justification
+      container = this.justification;
+      layout = container.layout;
+      v1 = container.v1;
+      v2 = container.v2;
+      v3 = container.v3;
+      v4 = container.v4;
+      v5 = container.v5;
+      v6 = container.v6;
+      v7 = container.v7;
+      v8 = container.v8;
+      v9 = container.v9;
+      
+      assert.equal(2, v1.x);
+      assert.closeTo(72.67, v2.x, 0.1);
+      assert.closeTo(153.33, v3.x, 0.1);
+      assert.equal(244, v4.x);
+      assert.equal(2, v5.x);
+      assert.equal(103, v6.x);
+      assert.equal(214, v7.x);
+      assert.equal(2, v8.x);
+      assert.equal(234, v9.x);
+      
+      v1.setAttribute('width', 80);
+      
+      assert.equal(2, v1.x);
+      assert.equal(86, v2.x);
+      assert.equal(160, v3.x);
+      assert.equal(244, v4.x);
     </handler>
   </view>
 <!-- The MIT License (MIT)

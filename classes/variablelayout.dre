@@ -147,9 +147,10 @@ SOFTWARE. -->
     * optional updateParent method is called. This method gives the variablelayout
     * a chance to do any special teardown after updateSubview has been called
     * for each managed view.
+    * @param {*} value The last value calculated by the updateSubview calls.
     * @return {void}
     */-->
-  <method name="doAfterUpdate">
+  <method name="doAfterUpdate" args="value">
     # Subclasses to implement as needed.
   </method>
 
@@ -250,7 +251,7 @@ SOFTWARE. -->
           if @skipSubview(sv) then continue
           value = @updateSubview(++count, sv, attribute, value)
 
-      @doAfterUpdate()
+      @doAfterUpdate(value)
 
       if @updateparent then @updateParent(attribute, value)
 
