@@ -117,6 +117,13 @@ SOFTWARE. -->
   <handler event="onlineinset" method="update"></handler>
   
   <!--/**
+    * @attribute {boolean} [justify=false]
+    * Justifies lines/columns
+    */-->
+  <attribute name="justify" type="boolean" value="false"></attribute>
+  <handler event="onjustify" method="update"></handler>
+  
+  <!--/**
     * @attribute {String} [axis='x']
     * The orientation of the layout. Supported values are 'x' and 'y'.
     * A value of 'x' will orient the views horizontally with lines being
@@ -209,10 +216,13 @@ SOFTWARE. -->
   
   <method name="doBeforeUpdate">
     # The number of lines layed out.
-    @lineCount = 1
+    @linecount = 1
+    
+    # An array of the items layed out in the current line
+    @__lineItems = []
     
     # The maximum size achieved by any line.
-    @maxSize = 0
+    @maxsize = 0
     
     # Track the maximum size of a line. Used to determine how much to
     # update __linePos by when wrapping occurs.
@@ -225,6 +235,8 @@ SOFTWARE. -->
     # The size of the parent view. Needed to determine when to wrap. The
     # outset is already subtracted as a performance optimization.
     @__parentSizeLessOutset = @parent[@__innerAttrName] - @outset
+    
+    @doLineStart(@linecount, @value)
   </method>
   
   <method name="updateSubview" args="count, view, attribute, value">
@@ -233,13 +245,21 @@ SOFTWARE. -->
     # The amount the view extends beyond the line/column position
     otherSize = view[@__otherMeasureAttrName] - view[@__otherDiffAttrName]
     
+    # Check for overflow or 'break'
     if value + size > @__parentSizeLessOutset or view.layouthint is 'break'
-      # Check for overflow
+      @doLineEnd(@linecount, @__lineItems, value - @spacing)
+      
+      # Track max size achieved during layout.
+      @maxsize = Math.max(@maxsize, value + @outset - @spacing)
+      
+      # Reset to the beginning of the line/column and push down/over by line size.
       value = @value # Reset to inset.
       @__linePos += @__lineSize + @linespacing
       @__lineSize = otherSize
+      @__lineItems = []
       
-      ++@lineCount
+      ++@linecount
+      @doLineStart(@linecount, value)
     else if otherSize > @__lineSize
       # Update line size if this subview is larger
       @__lineSize = otherSize
@@ -251,11 +271,72 @@ SOFTWARE. -->
     # any transformation position difference
     view.setAttribute(attribute, view[@__diffAttrName] + value)
     
-    # Track max size achieved during layout.
-    @maxSize = Math.max(@maxSize, value + size + @outset)
+    @__lineItems.push(view)
     
     # The next view should be positioned after this view plus the spacing.
     return value + size + @spacing
+  </method>
+  
+  <!--/**
+    * @method doLineStart
+    * Called at the start of the laying out of each line.
+    * @param {Number} lineindex The index of the line being layed out.
+    * @param {*} value The value at the start of laying out the line.
+    * @return {void}
+    */-->
+  <method name="doLineStart" args="lineindex, value">
+    # Subclasses to implement as needed.
+  </method>
+  
+  <!--/**
+    * @method doLineEnd
+    * Called at the end of the laying out of each line.
+    * @param {Number} lineindex The index of the line being layed out.
+    * @param {Array} items The items layed out in the line in the order they
+    * were layed out.
+    * @param {*} value The value at the end of laying out the line.
+    * @return {void}
+    */-->
+  <method name="doLineEnd" args="lineindex, items, value">
+    # Justify lines with extra space if justify is turned on.
+    if @justify
+      itemcount = items.length
+      # Can't justify only 1 item
+      if itemcount > 1
+        extra = @__parentSizeLessOutset - value
+        if extra > 0
+          amount = extra / (itemcount - 1)
+          
+          # Reposition each item in the line after the first one by the amount
+          attribute = @attribute
+          i = 1
+          while itemcount > i
+            item = items[i++]
+            item.setAttribute(attribute, item[attribute] + (i - 1) * amount)
+  </method>
+  
+  <!--/**
+    * @event onlinecount
+    * Fired after update.
+    * @param {Number} The number of lines layed out for x-axis layouts or 
+    * columns for layed out for y-axis layouts.
+    */-->
+  <!--/**
+    * @event onmaxsize
+    * Fired after update.
+    * @param {Number} The maximum width achieved by any line for x-axis layouts
+    * or maximum height achieved by any column for y-axis layouts.
+    */-->
+  <method name="doAfterUpdate" args="value">
+    # Need the call here too since the last line/column falls through to here 
+    # without going into the overflow check.
+    @doLineEnd(@linecount, @__lineItems, value - @spacing)
+    
+    # Track max size achieved during layout.
+    @maxsize = Math.max(@maxsize, value + @outset - @spacing)
+    
+    @sendEvent('linecount', @linecount)
+    @sendEvent('maxsize', @maxsize)
   </method>
   
   <method name="updateParent" args="attribute, value">

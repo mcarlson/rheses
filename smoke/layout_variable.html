@@ -27,8 +27,9 @@
         <method name="updateSubview" args="count, view, attribute, value">
           return this.super() + count + view.width;
         </method>
-        <method name="doAfterUpdate">
+        <method name="doAfterUpdate" args="value">
           this.afterCallCount++;
+          this.afterValue = value;
         </method>
         <method name="updateParent" args="attribute, value">
           this.parent.setAttribute('width', value);
@@ -74,6 +75,7 @@
       // Verify doBeforeUpdate and doAfterUpdate we're called
       assert.equal(1, layoutX.beforeCallCount, 'doBeforeUpdate should be called once.');
       assert.equal(1, layoutX.afterCallCount, 'doAfterUpdate should be called once.');
+      assert.equal(70, layoutX.afterValue, 'The value passed to doAfterUpdate should be 70.');
       
       // Verify updateSubview works and default as well as overridden 
       // skipSubview works
@@ -105,6 +107,7 @@
       v3.setAttribute('visible', false);
       assert.equal(2, layoutX.beforeCallCount, 'doBeforeUpdate should be called once again.');
       assert.equal(2, layoutX.afterCallCount, 'doAfterUpdate should be called once again.');
+      assert.equal(55, layoutX.afterValue, 'The value passed to doAfterUpdate should be 55.');
       
       assert.equal(10, v1.x, 'View one should have an x of 10.');
       assert.equal(21, v2.x, 'View two should have an x of 21.');
