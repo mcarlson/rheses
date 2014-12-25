@@ -309,12 +309,12 @@ SOFTWARE. -->
     </method>
     
     <method name="construct" args="element, attributes">
-      // lets provide sensible defaults
-      if(element.getAttribute('from') === null && attributes.parent.from !== undefined) attributes.from = attributes.parent.from
-      if(element.getAttribute('to') === null && attributes.parent.to !== undefined)  attributes.to = attributes.parent.to
-      if(element.getAttribute('duration') === null && attributes.parent.duration !== undefined) attributes.duration = attributes.parent.duration
-      if(element.getAttribute('attribute') === null && attributes.parent.attribute !== undefined) attributes.attribute = attributes.parent.attribute
-      if(element.getAttribute('target') === null && attributes.parent.target !== undefined) attributes.target = attributes.parent.target
+      // inherit these properties from the parent node
+      var inherit_set = ['from', 'to', 'duration', 'attribute', 'target']
+      for(var i = 0; i < inherit_set.length; i++){
+        var inherit = inherit_set[i]
+        if(element.getAttribute(inherit) === null && attributes.parent[inherit] !== undefined) attributes[inherit] = attributes.parent[inherit]
+      }
       this.super(element, attributes)
     </method>
 
