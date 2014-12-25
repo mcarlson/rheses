@@ -49,6 +49,15 @@
         </handler>
       </animator>
     </bitmap>
+    
+    <view bgcolor='red' id="koala4" x="10" y="610" width="auto" height="auto">
+      <text text='Relative'></text>
+      <animator relative='true' attribute="x" duration="500" to="10" motion="inOutExpo">
+        <handler event='onend'>
+          chai.assert.equal(this.parent.x, 20)
+        </handler>     
+      </animator>
+    </view>
 
     <handler event="oninit">
     </handler>
