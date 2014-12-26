@@ -1,2 +1,4 @@
 categories.json -diff
 guides.json -diff
+api/*.html -diff
+api/*.js -diff
