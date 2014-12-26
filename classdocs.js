@@ -1650,6 +1650,7 @@
     * optional updateParent method is called. This method gives the variablelayout
     * a chance to do any special teardown after updateSubview has been called
     * for each managed view.
+    * @param {*} value The last value calculated by the updateSubview calls.
     * @return {void}
     */
 /**
@@ -1805,6 +1806,23 @@
     * Space before the first line of views.
     */
 /**
+    * @attribute {boolean} [justify=false]
+    * Justifies lines/columns
+    */
+/**
+    * @attribute {String} [align='left']
+    * Aligns lines/columns left/top, right/bottom or center/middle. If
+    * justification is true this has no effect except on a line or column that
+    * has only one item.
+    */
+/**
+    * @attribute {String} [linealign='none']
+    * Aligns the items in a line relative to each other. Supported values are
+    * top/left, bottom/right and middle/center and none. If the value is
+    * none, no line alignment will be performed which means transformed views
+    * may overlap preceeding lines.
+    */
+/**
     * @attribute {String} [axis='x']
     * The orientation of the layout. Supported values are 'x' and 'y'.
     * A value of 'x' will orient the views horizontally with lines being
@@ -1817,4 +1835,32 @@
     * @attribute attribute
     * @private
     * The axis attribute is an alias for this attribute.
+    */
+/**
+    * @method doLineStart
+    * Called at the start of the laying out of each line.
+    * @param {Number} lineindex The index of the line being layed out.
+    * @param {*} value The value at the start of laying out the line.
+    * @return {void}
+    */
+/**
+    * @method doLineEnd
+    * Called at the end of the laying out of each line.
+    * @param {Number} lineindex The index of the line being layed out.
+    * @param {Array} items The items layed out in the line in the order they
+    * were layed out.
+    * @param {*} value The value at the end of laying out the line.
+    * @return {void}
+    */
+/**
+    * @event onlinecount
+    * Fired after update.
+    * @param {Number} The number of lines layed out for x-axis layouts or 
+    * columns for layed out for y-axis layouts.
+    */
+/**
+    * @event onmaxsize
+    * Fired after update.
+    * @param {Number} The maximum width achieved by any line for x-axis layouts
+    * or maximum height achieved by any column for y-axis layouts.
     */

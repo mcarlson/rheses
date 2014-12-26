@@ -1667,6 +1667,7 @@
     * optional updateParent method is called. This method gives the variablelayout
     * a chance to do any special teardown after updateSubview has been called
     * for each managed view.
+    * @param {*} value The last value calculated by the updateSubview calls.
     * @return {void}
     */
 <span id='dr-variablelayout-method-startMonitoringSubview'>/**
@@ -1821,6 +1822,23 @@
 </span>    * @attribute {Number} [lineinset=0]
     * Space before the first line of views.
     */
+<span id='dr-wrappinglayout-attribute-justify'>/**
+</span>    * @attribute {boolean} [justify=false]
+    * Justifies lines/columns
+    */
+<span id='dr-wrappinglayout-attribute-align'>/**
+</span>    * @attribute {String} [align=&#39;left&#39;]
+    * Aligns lines/columns left/top, right/bottom or center/middle. If
+    * justification is true this has no effect except on a line or column that
+    * has only one item.
+    */
+<span id='dr-wrappinglayout-attribute-linealign'>/**
+</span>    * @attribute {String} [linealign=&#39;none&#39;]
+    * Aligns the items in a line relative to each other. Supported values are
+    * top/left, bottom/right and middle/center and none. If the value is
+    * none, no line alignment will be performed which means transformed views
+    * may overlap preceeding lines.
+    */
 <span id='dr-wrappinglayout-attribute-axis'>/**
 </span>    * @attribute {String} [axis=&#39;x&#39;]
     * The orientation of the layout. Supported values are &#39;x&#39; and &#39;y&#39;.
@@ -1834,6 +1852,34 @@
 </span>    * @attribute attribute
     * @private
     * The axis attribute is an alias for this attribute.
+    */
+<span id='dr-wrappinglayout-method-doLineStart'>/**
+</span>    * @method doLineStart
+    * Called at the start of the laying out of each line.
+    * @param {Number} lineindex The index of the line being layed out.
+    * @param {*} value The value at the start of laying out the line.
+    * @return {void}
+    */
+<span id='dr-wrappinglayout-method-doLineEnd'>/**
+</span>    * @method doLineEnd
+    * Called at the end of the laying out of each line.
+    * @param {Number} lineindex The index of the line being layed out.
+    * @param {Array} items The items layed out in the line in the order they
+    * were layed out.
+    * @param {*} value The value at the end of laying out the line.
+    * @return {void}
+    */
+<span id='dr-wrappinglayout-event-onlinecount'>/**
+</span>    * @event onlinecount
+    * Fired after update.
+    * @param {Number} The number of lines layed out for x-axis layouts or 
+    * columns for layed out for y-axis layouts.
+    */
+<span id='dr-wrappinglayout-event-onmaxsize'>/**
+</span>    * @event onmaxsize
+    * Fired after update.
+    * @param {Number} The maximum width achieved by any line for x-axis layouts
+    * or maximum height achieved by any column for y-axis layouts.
     */
 </pre>
 </body>

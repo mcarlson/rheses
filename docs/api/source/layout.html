@@ -1381,7 +1381,6 @@
           tagname = &#39;div&#39;;
         }
         this._handleScroll = __bind(this._handleScroll, this);
-        this.animate = __bind(this.animate, this);
         if (jqel == null) {
           this.el = document.createElement(tagname);
           this.el.$init = true;
@@ -1434,19 +1433,41 @@
       };
 
       Sprite.prototype.animate = function() {
-        var name, value, _ref;
-        if (this.jqel == null) {
-          this.jqel = $(this.el);
-        }
+        var anim, animTick, animators, first, name, track, value, _ref;
+        animators = {};
         _ref = arguments[0];
         for (name in _ref) {
           value = _ref[name];
-          if (name in stylemap) {
-            arguments[0][stylemap[name]] = value;
-            delete arguments[0][name];
-          }
+          track = {};
+          track[0] = this[name] || 0;
+          track[arguments[1] || 1000] = value;
+          anim = Animator.createAnimator();
+          anim.playStateless(track);
+          animators[name] = anim;
         }
-        return this.jqel.animate.apply(this.jqel, arguments);
+        first = void 0;
+        animTick = (function(_this) {
+          return function(time) {
+            var ended, local_time, myvalue;
+            if (first === void 0) {
+              first = time;
+            }
+            local_time = time - first;
+            ended = false;
+            for (name in animators) {
+              anim = animators[name];
+              myvalue = anim.timestep(local_time);
+              _this.setAttribute(name, myvalue);
+              if (anim.ended) {
+                ended = true;
+              }
+            }
+            if (!ended) {
+              return dr.idle.callOnIdle(animTick);
+            }
+          };
+        })(this);
+        return dr.idle.callOnIdle(animTick);
       };
 
       Sprite.prototype._cursorVal = function() {
@@ -3139,25 +3160,29 @@
                 cache: true,
                 url: oneurl
               }).done(function() {
-                var scriptloaded, _k, _l, _len2, _len3, _ref2, _ref3, _ref4;
+                var _k, _len2, _ref2, _results;
                 ONE.base_.call(Eventable.prototype);
                 Eventable.prototype.enumfalse(Eventable.prototype.keys());
                 Node.prototype.enumfalse(Node.prototype.keys());
                 View.prototype.enumfalse(View.prototype.keys());
                 Layout.prototype.enumfalse(Layout.prototype.keys());
-                scriptloaded = false;
+                loadScript(&#39;/lib/animator.js&#39;, callback, &#39;Missing /lib/animator.js&#39;);
                 _ref2 = jqel.find(&#39;[scriptincludes]&#39;);
+                _results = [];
                 for (_k = 0, _len2 = _ref2.length; _k &lt; _len2; _k++) {
                   el = _ref2[_k];
-                  _ref3 = el.attributes.scriptincludes.value.split(&#39;,&#39;);
-                  for (_l = 0, _len3 = _ref3.length; _l &lt; _len3; _l++) {
-                    url = _ref3[_l];
-                    scriptloaded = loadScript(url.trim(), callback, (_ref4 = el.attributes.scriptincludeserror) != null ? _ref4.value.toString() : void 0);
-                  }
+                  _results.push((function() {
+                    var _l, _len3, _ref3, _ref4, _results1;
+                    _ref3 = el.attributes.scriptincludes.value.split(&#39;,&#39;);
+                    _results1 = [];
+                    for (_l = 0, _len3 = _ref3.length; _l &lt; _len3; _l++) {
+                      url = _ref3[_l];
+                      _results1.push(loadScript(url.trim(), callback, (_ref4 = el.attributes.scriptincludeserror) != null ? _ref4.value.toString() : void 0));
+                    }
+                    return _results1;
+                  })());
                 }
-                if (!scriptloaded) {
-                  return callback();
-                }
+                return _results;
               }).fail(function() {
                 return console.warn(&quot;failed to load &quot; + oneurl);
               });
@@ -4029,8 +4054,8 @@
 
 
 <span id='dr-layout-method-canUpdate'>      /**
-</span>       * Checks if the layout can be updated right now or not. Should be called 
-       * by the &quot;update&quot; method of the layout to check if it is OK to do the 
+</span>       * Checks if the layout can be updated right now or not. Should be called
+       * by the &quot;update&quot; method of the layout to check if it is OK to do the
        * update. The default implementation checks if the layout is locked and
        * the parent is inited.
        * @return {boolean} true if not locked, false otherwise.
