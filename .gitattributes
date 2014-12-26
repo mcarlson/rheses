@@ -1,2 +1,3 @@
 *.map -diff
 classdocs.js -diff
+layout.js -diff
