@@ -1274,7 +1274,7 @@ window.dr = do ->
       pos = @jqel.offset()
       {x: pos.left - window.pageXOffset, y: pos.top - window.pageYOffset}
 
-    set_class: (classname) ->
+    set_class: (classname='') ->
       # console.log('setid', @id)
       @el.setAttribute('class', "#{@css_baseclass} #{classname}")
 
@@ -1292,7 +1292,7 @@ window.dr = do ->
 
   if (debug)
     # add warnings for unknown CSS properties
-    knownstyles = ['width', 'height', 'background-color', 'opacity', 'padding', 'transform', 'transform-style', 'transform-origin', 'z-index', 'perspective']
+    knownstyles = ['width', 'height', 'background-color', 'opacity', 'padding', 'transform', 'transform-style', 'transform-origin', 'z-index', 'perspective', 'cursor', capabilities.prefix.css + 'transform', capabilities.prefix.css + 'transform-style', capabilities.prefix.css + 'transform-origin']
     ss2 = Sprite::setStyle
     Sprite::setStyle = (name, value, internal, el=@el) ->
       if not internal and not (name of stylemap) and not (name in knownstyles)

@@ -1632,6 +1632,9 @@
       };
 
       Sprite.prototype.set_class = function(classname) {
+        if (classname == null) {
+          classname = '';
+        }
         return this.el.setAttribute('class', "" + this.css_baseclass + " " + classname);
       };
 
@@ -1655,7 +1658,7 @@
       };
     }
     if (debug) {
-      knownstyles = ['width', 'height', 'background-color', 'opacity', 'padding', 'transform', 'transform-style', 'transform-origin', 'z-index', 'perspective'];
+      knownstyles = ['width', 'height', 'background-color', 'opacity', 'padding', 'transform', 'transform-style', 'transform-origin', 'z-index', 'perspective', 'cursor', capabilities.prefix.css + 'transform', capabilities.prefix.css + 'transform-style', capabilities.prefix.css + 'transform-origin'];
       ss2 = Sprite.prototype.setStyle;
       Sprite.prototype.setStyle = function(name, value, internal, el) {
         if (el == null) {
