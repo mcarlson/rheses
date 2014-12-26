@@ -919,7 +919,7 @@ window.dr = do ->
       # console.log('binding to constraint function', name, fn, @)
       return `(function constraintCallback(){`
       # console.log 'setting', name, fn(), @
-      @setAttribute(name, fn(), false, false, true)
+      @.setAttribute(name, fn(), false, false, true)
       `}).bind(this)`
 
     set_parent: (parent) ->
@@ -1233,17 +1233,7 @@ window.dr = do ->
           @setStyle('width', 'auto', true)
           @setStyle('height', 'auto', true)
         @setStyle('whiteSpace', '', true)
-      size = {width: @el.clientWidth, height: @el.clientHeight}
-
-      if size.width is 0 and size.height is 0
-        # check for hidden parents
-        parents = @_findParents('visible', false)
-        for parent in parents
-          parent.sprite.el.style.display = ''
-        size = @sprite.measureTextSize(@multiline, width, @resize)
-        for parent in parents
-          parent.sprite.el.style.display = 'none'
-      size
+      {width: @el.clientWidth, height: @el.clientHeight}
 
     handle: (event) ->
       view = event.target.$view
