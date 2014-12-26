@@ -408,6 +408,71 @@
       assert.equal(this.activeview, this.defaultv, 'activeview should be the default view')
     </handler>
   </defaultstatebutton>
+
+  <!-- selected state, over by default -->
+  <defaultstatebutton>
+    <handler event="oninit">
+      assert.testCaseLabel = 'selected state, over by default';
+      this.setAttribute('state', 'selected')
+      assert.equal(this.state, 'selected', 'state should be selected')
+      assert.equal(this.activeview.state, 'over', 'view should be over view')
+    </handler>
+  </defaultstatebutton>
+
+  <!-- selected state, selected state included -->
+  <defaultstatebutton>
+    <handler event="oninit">
+      assert.testCaseLabel = 'selected state, selected state included';
+      this.setAttribute('state', 'selected')
+      assert.equal(this.state, 'selected', 'state should be selected')
+      assert.equal(this.activeview.state, 'selected', 'view should be selected view')
+    </handler>
+
+    <bitmap name="selectedv" width="100%" height="100%" src="./shoarma.jpg">
+      <attribute name="state" type="string" value="selected"></attribute>
+    </bitmap>
+  </defaultstatebutton>
+
+  <!-- disabled state, default by default -->
+  <defaultstatebutton>
+    <handler event="oninit">
+      assert.testCaseLabel = 'disabled state, default by default';
+      this.setAttribute('state', 'disabled')
+      assert.equal(this.state, 'disabled', 'state should be disabled')
+      assert.equal(this.activeview.state, 'default', 'view should be default view')
+      assert.isFalse(this.clickable, 'clickable should be false')
+      this.setAttribute('state', 'default')
+      assert.isTrue(this.clickable, 'clickable should be true')
+    </handler>
+  </defaultstatebutton>
+
+  <!-- disabled state, disabled state included -->
+  <defaultstatebutton>
+    <handler event="oninit">
+      assert.testCaseLabel = 'disabled state, disabled state included';
+      this.setAttribute('state', 'disabled')
+      assert.equal(this.state, 'disabled', 'state should be disabled')
+      assert.equal(this.activeview.state, 'disabled', 'view should be disabled view')
+      assert.isFalse(this.clickable, 'clickable should be false')
+    </handler>
+
+    <bitmap name="selectedv" width="100%" height="100%" src="./shoarma.jpg">
+      <attribute name="state" type="string" value="disabled"></attribute>
+    </bitmap>
+  </defaultstatebutton>
+
+  <!-- disabled state, disabled view -->
+  <defaultstatebutton>
+    <handler event="oninit">
+      assert.testCaseLabel = 'disabled state, disabled view';
+      assert.isFalse(this.__disabledView.visible, 'disabled view should be hidden')
+      this.setAttribute('state', 'disabled')
+      assert.isTrue(this.__disabledView.visible, 'disabled view should be visible')
+      this.setAttribute('state', 'default')
+      assert.isFalse(this.__disabledView.visible, 'disabled view should be hidden again')
+    </handler>
+  </defaultstatebutton>
+
 </view>
 <!-- The MIT License (MIT)
 
