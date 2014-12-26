@@ -133,6 +133,26 @@ SOFTWARE. -->
   <handler event="onalign" method="update"></handler>
   
   <!--/**
+    * @attribute {String} [linealign='none']
+    * Aligns the items in a line relative to each other. Supported values are
+    * top/left, bottom/right and middle/center and none. If the value is
+    * none, no line alignment will be performed which means transformed views
+    * may overlap preceeding lines.
+    */-->
+  <attribute name="linealign" type="string" value="none"></attribute>
+  <handler event="onlinealign" method="update"></handler>
+  <setter name="linealign" args="linealign">
+    switch linealign
+      when 'right', 'bottom','center', 'middle','top', 'left'
+        # __isLineAligned indicates that some form of line alignemnt is being 
+        # used. This means full bounds will be used for line heights.
+        @__isLineAligned = true
+      else
+        @__isLineAligned = false
+    return linealign
+  </setter>
+  
+  <!--/**
     * @attribute {String} [axis='x']
     * The orientation of the layout. Supported values are 'x' and 'y'.
     * A value of 'x' will orient the views horizontally with lines being
@@ -252,7 +272,9 @@ SOFTWARE. -->
     size = view[@__measureAttrName]
     
     # The amount the view extends beyond the line/column position
-    otherSize = view[@__otherMeasureAttrName] - view[@__otherDiffAttrName]
+    otherSize = view[@__otherMeasureAttrName]
+    if not @__isLineAligned
+      otherSize -= view[@__otherDiffAttrName]
     
     # Check for overflow or 'break'
     if value + size > @__parentSizeLessOutset or view.layouthint is 'break'
@@ -307,6 +329,24 @@ SOFTWARE. -->
     * @return {void}
     */-->
   <method name="doLineEnd" args="lineindex, items, value">
+    # Do linealign
+    if @__isLineAligned
+      otherAttribute = @__otherAttribute
+      otherDiffAttrName = @__otherDiffAttrName
+      otherMeasureAttrName = @__otherMeasureAttrName
+      lineMaxSize = @__lineSize
+      
+      switch @linealign
+        when 'right', 'bottom'
+          for item in items
+            item.setAttribute(otherAttribute, item[otherDiffAttrName] + item[otherAttribute] + lineMaxSize - item[otherMeasureAttrName])
+        when 'center', 'middle'
+          for item in items
+            item.setAttribute(otherAttribute, item[otherDiffAttrName] + item[otherAttribute] + (lineMaxSize - item[otherMeasureAttrName]) / 2)
+        when 'top', 'left'
+          for item in items
+            item.setAttribute(otherAttribute, item[otherDiffAttrName] + item[otherAttribute])
+    
     # Justify lines with extra space if justify is turned on.
     if @justify
       itemcount = items.length

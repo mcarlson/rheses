@@ -12,7 +12,7 @@
   </script>
 </head>
 <body>
-  <view width="100%" height="100%" bgcolor="#cccccc">
+  <view width="100%" height="auto" bgcolor="#cccccc">
     <class name="item" width="100" height="20" bgcolor="#666666"></class>
     
     <spacedlayout axis="y" spacing="5"></spacedlayout>
@@ -37,7 +37,7 @@
     
     <!-- Test transformed views and ensure auto works event though
          updateparent is better for wrappinglayouts. -->
-    <view name="container2" width="204" height="auto"
+    <view name="transforms" width="204" height="auto"
       padding="1" border="2" bordercolor="black" bgcolor="#999999"
     >
       <wrappinglayout name="layout"
@@ -87,8 +87,89 @@
       </handler>
     </view>
     
+    <!-- Verify linealign -->
+    <view name="linealignment" width="204" padding="4" border="1" bordercolor="black" bgcolor="#999999">
+      <wrappinglayout name="layout"
+        inset="2" spacing="1" outset="3"
+        lineinset="2" linespacing="1" lineoutset="4"
+        updateparent="true" linealign="top"
+      ></wrappinglayout>
+      
+      <view width="100%" height="100%" ignorelayout="true" bgcolor="#bbbbbb"></view>
+      
+      <item name="v1" width="40" height="35" bgcolor="#eeeeee"></item>
+      <item name="v2" width="50" height="25" bgcolor="#ddddcc"></item>
+      <item name="v3" width="60" height="35" bgcolor="#ccccaa"></item>
+      <item name="v4" width="70" height="45" bgcolor="#bbbb88" rotation="45"></item>
+      <item name="v5" width="80" height="60" bgcolor="#aaaa66"></item>
+      <item name="v6" width="70" height="25" bgcolor="#999944"></item>
+      <item name="v7" width="60" height="35" bgcolor="#888822"></item>
+      <item name="v8" width="50" height="45" bgcolor="#777700"></item>
+      <item name="v9" width="40" height="35" bgcolor="#666622" rotation="45"></item>
+      
+      <handler event="oninit">
+        var layout = this.layout,
+          v1 = this.v1,
+          v2 = this.v2,
+          v3 = this.v3,
+          v4 = this.v4,
+          v5 = this.v5,
+          v6 = this.v6,
+          v7 = this.v7,
+          v8 = this.v8,
+          v9 = this.v9;
+        
+        assert.equal(2, v1.y);
+        assert.equal(2, v2.y);
+        assert.equal(2, v3.y);
+        assert.closeTo(56.16, v4.y, 0.1);
+        assert.equal(38, v5.y);
+        assert.closeTo(120.32, v6.y, 0.1);
+        assert.closeTo(120.32, v7.y, 0.1);
+        assert.closeTo(120.32, v8.y, 0.1);
+        assert.closeTo(175.33, v9.y, 0.1);
+        
+        layout.setAttribute('linealign', 'middle');
+        
+        assert.equal(2, v1.y);
+        assert.equal(7, v2.y);
+        assert.equal(2, v3.y);
+        assert.closeTo(56.16, v4.y, 0.1);
+        assert.closeTo(48.65, v5.y, 0.1);
+        assert.closeTo(130.32, v6.y, 0.1);
+        assert.closeTo(125.32, v7.y, 0.1);
+        assert.closeTo(120.32, v8.y, 0.1);
+        assert.closeTo(175.33, v9.y, 0.1);
+        
+        layout.setAttribute('linealign', 'bottom');
+        
+        assert.equal(2, v1.y);
+        assert.equal(12, v2.y);
+        assert.equal(2, v3.y);
+        assert.closeTo(56.16, v4.y, 0.1);
+        assert.closeTo(59.32, v5.y, 0.1);
+        assert.closeTo(140.32, v6.y, 0.1);
+        assert.closeTo(130.32, v7.y, 0.1);
+        assert.closeTo(120.32, v8.y, 0.1);
+        assert.closeTo(175.33, v9.y, 0.1);
+        
+        // Flip axis
+        layout.setAttribute('axis', 'y');
+        
+        assert.closeTo(43.32, v1.x, 0.1);
+        assert.closeTo(33.32, v2.x, 0.1);
+        assert.closeTo(23.32, v3.x, 0.1);
+        assert.closeTo(7.66, v4.x, 0.1);
+        assert.closeTo(84.32, v5.x, 0.1);
+        assert.closeTo(94.32, v6.x, 0.1);
+        assert.closeTo(104.32, v7.x, 0.1);
+        assert.closeTo(114.32, v8.x, 0.1);
+        assert.closeTo(171.84, v9.x, 0.1);
+      </handler>
+    </view>
+    
     <!-- Verify linecount and maxsize events. -->
-    <view name="container3" padding="1" border="2" bordercolor="black" width="400" bgcolor="#999999">
+    <view name="linecount_and_maxsize" padding="1" border="2" bordercolor="black" width="400" bgcolor="#999999">
       <wrappinglayout name="layout"
         inset="2" spacing="1" outset="3"
         lineinset="4" linespacing="2" lineoutset="6"
@@ -152,7 +233,7 @@
     </view>
     
     <!-- Verify alignment. -->
-    <view name="container4" padding="1" border="2" bordercolor="black" width="400" bgcolor="#999999">
+    <view name="alignment" padding="1" border="2" bordercolor="black" width="400" bgcolor="#999999">
       <wrappinglayout name="layout"
         inset="2" spacing="1" outset="3"
         lineinset="4" linespacing="2" lineoutset="6"
@@ -260,7 +341,7 @@
       </handler>
     </view>
     
-    <!-- justification -->
+    <!-- Verify justification -->
     <view name="justification" padding="1" border="2" bordercolor="black" width="343" bgcolor="#999999">
       <wrappinglayout name="layout"
         inset="2" spacing="1" outset="3"
@@ -277,6 +358,36 @@
       <item name="v7" width="120" bgcolor="#888822"></item>
       <item name="v8" width="110" bgcolor="#777700"></item>
       <item name="v9" width="100" bgcolor="#666622"></item>
+      
+      <handler event="oninit">
+        var layout = this.layout,
+          v1 = this.v1,
+          v2 = this.v2,
+          v3 = this.v3,
+          v4 = this.v4,
+          v5 = this.v5,
+          v6 = this.v6,
+          v7 = this.v7,
+          v8 = this.v8,
+          v9 = this.v9;
+        
+        assert.equal(2, v1.x);
+        assert.closeTo(72.67, v2.x, 0.1);
+        assert.closeTo(153.33, v3.x, 0.1);
+        assert.equal(244, v4.x);
+        assert.equal(2, v5.x);
+        assert.equal(103, v6.x);
+        assert.equal(214, v7.x);
+        assert.equal(2, v8.x);
+        assert.equal(234, v9.x);
+        
+        v1.setAttribute('width', 80);
+        
+        assert.equal(2, v1.x);
+        assert.equal(86, v2.x);
+        assert.equal(160, v3.x);
+        assert.equal(244, v4.x);
+      </handler>
     </view>
     
     <handler event="oninit">
@@ -448,37 +559,6 @@
       assert.equal(2, v2.x, 'The second view is now at 2 since it is no longer a break.');
       assert.equal(104, v3.x, 'The third view is now at 104.');
       assert.equal(306, container.innerwidth, 'The innerwidth of the container should be 306.');
-      
-      
-      // Verify Justification
-      container = this.justification;
-      layout = container.layout;
-      v1 = container.v1;
-      v2 = container.v2;
-      v3 = container.v3;
-      v4 = container.v4;
-      v5 = container.v5;
-      v6 = container.v6;
-      v7 = container.v7;
-      v8 = container.v8;
-      v9 = container.v9;
-      
-      assert.equal(2, v1.x);
-      assert.closeTo(72.67, v2.x, 0.1);
-      assert.closeTo(153.33, v3.x, 0.1);
-      assert.equal(244, v4.x);
-      assert.equal(2, v5.x);
-      assert.equal(103, v6.x);
-      assert.equal(214, v7.x);
-      assert.equal(2, v8.x);
-      assert.equal(234, v9.x);
-      
-      v1.setAttribute('width', 80);
-      
-      assert.equal(2, v1.x);
-      assert.equal(86, v2.x);
-      assert.equal(160, v3.x);
-      assert.equal(244, v4.x);
     </handler>
   </view>
 <!-- The MIT License (MIT)
