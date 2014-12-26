@@ -1563,6 +1563,7 @@
       };
 
       Sprite.prototype.measureTextSize = function(multiline, width, resize) {
+        var parent, parents, size, _i, _j, _len, _len1;
         if (multiline) {
           this.setStyle('width', width, true);
           this.setStyle('height', 'auto', true);
@@ -1574,10 +1575,23 @@
           }
           this.setStyle('whiteSpace', '', true);
         }
-        return {
+        size = {
           width: this.el.clientWidth,
           height: this.el.clientHeight
         };
+        if (size.width === 0 && size.height === 0) {
+          parents = this._findParents('visible', false);
+          for (_i = 0, _len = parents.length; _i < _len; _i++) {
+            parent = parents[_i];
+            parent.sprite.el.style.display = '';
+          }
+          size = this.sprite.measureTextSize(this.multiline, width, this.resize);
+          for (_j = 0, _len1 = parents.length; _j < _len1; _j++) {
+            parent = parents[_j];
+            parent.sprite.el.style.display = 'none';
+          }
+        }
+        return size;
       };
 
       Sprite.prototype.handle = function(event) {
