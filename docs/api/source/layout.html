@@ -57,7 +57,8 @@
     visible: &#39;display&#39;,
     border: &#39;borderWidth&#39;,
     borderstyle: &#39;borderStyle&#39;,
-    bordercolor: &#39;borderColor&#39;
+    bordercolor: &#39;borderColor&#39;,
+    boxshadow: &#39;boxShadow&#39;
   };
 
   propmap = {
@@ -179,14 +180,16 @@
         if (!list) {
           return;
         }
-        if (triggerlock &amp;&amp; triggerlock.scope === this &amp;&amp; triggerlock.ev === ev) {
-          return this;
-        }
-        if (!triggerlock) {
-          triggerlock = {
-            ev: ev,
-            scope: this
-          };
+        if (triggerlock) {
+          if (triggerlock.scope === this) {
+            if (__indexOf.call(triggerlock, ev) &gt;= 0) {
+              return this;
+            }
+            triggerlock.push(ev);
+          }
+        } else {
+          triggerlock = [ev];
+          triggerlock.scope = this;
         }
         for (_i = 0, _len = list.length; _i &lt; _len; _i++) {
           callback = list[_i];
@@ -358,7 +361,7 @@
 </span>       * @method include
        * @hide
        */
-      var eventlock, typemappings;
+      var typemappings;
 
       __extends(Eventable, _super);
 
@@ -398,8 +401,6 @@
           }
         }
       };
-
-      eventlock = {};
 
       Eventable.prototype._coerceType = function(name, value, type) {
         type || (type = this.types[name]);
@@ -1322,13 +1323,14 @@
        */
 
       Node.prototype.destroy = function(skipevents) {
+        var property, subnode, _i, _len, _ref, _ref1;
+        this.destroyed = true;
 
 <span id='dr-node-event-ondestroy'>        /**
 </span>         * @event ondestroy
          * Fired when this node and all its children are about to be destroyed
          * @param {dr.node} node The dr.node that fired the event
          */
-        var property, subnode, _i, _len, _ref, _ref1;
         this.sendEvent(&#39;destroy&#39;, this);
         if (this.constraints) {
           for (property in this.constraints) {
@@ -1449,6 +1451,9 @@
         animTick = (function(_this) {
           return function(time) {
             var ended, local_time, myvalue;
+            if (_this.destroyed) {
+              return;
+            }
             if (first === void 0) {
               first = time;
             }
@@ -1649,6 +1654,9 @@
       };
 
       Sprite.prototype.set_class = function(classname) {
+        if (classname == null) {
+          classname = &#39;&#39;;
+        }
         return this.el.setAttribute(&#39;class&#39;, &quot;&quot; + this.css_baseclass + &quot; &quot; + classname);
       };
 
@@ -1672,7 +1680,7 @@
       };
     }
     if (debug) {
-      knownstyles = [&#39;width&#39;, &#39;height&#39;, &#39;background-color&#39;, &#39;opacity&#39;, &#39;padding&#39;, &#39;transform&#39;, &#39;transform-style&#39;, &#39;transform-origin&#39;, &#39;z-index&#39;, &#39;perspective&#39;];
+      knownstyles = [&#39;width&#39;, &#39;height&#39;, &#39;background-color&#39;, &#39;opacity&#39;, &#39;padding&#39;, &#39;transform&#39;, &#39;transform-style&#39;, &#39;transform-origin&#39;, &#39;z-index&#39;, &#39;perspective&#39;, &#39;cursor&#39;, capabilities.prefix.css + &#39;transform&#39;, capabilities.prefix.css + &#39;transform-style&#39;, capabilities.prefix.css + &#39;transform-origin&#39;];
       ss2 = Sprite.prototype.setStyle;
       Sprite.prototype.setStyle = function(name, value, internal, el) {
         if (el == null) {
@@ -1985,6 +1993,11 @@
        * Cursor that should be used when the mouse is over this view, can be any CSS cursor value. Only applies when clickable is true.
        */
 
+<span id='dr-view-attribute-boxshadow'>      /**
+</span>       * @attribute {String} [boxshadow]
+       * Drop shadow using standard CSS format (offset-x offset-y blur-radius spread-radius color). For example: &quot;10px 10px 5px 0px #888888&quot;.
+       */
+
 <span id='dr-view-event-onclick'>      /**
 </span>       * @event onclick
        * Fired when this view is clicked
@@ -2076,8 +2089,13 @@
          */
 
 <span id='dr-view-attribute-ignorelayout'>        /**
-</span>         * @attribute {Boolean} [ignorelayout=false]
-         * If true, layouts should ignore this view
+</span>         * @attribute {String} [ignorelayout=&#39;false&#39;]
+         * Indicates if layouts should ignore this view or not. A variety of
+         * configuration mechanisms are supported. Provided true or false will
+         * cause the view to be ignored or not by all layouts. If instead a
+         * serialized map is provided the keys of the map will target values
+         * the layouts with matching names. A special key of &#39;*&#39; indicates a
+         * default value for all layouts not specifically mentioned in the map.
          */
         var key, type, types, _ref;
         this.subviews = [];
@@ -2097,7 +2115,7 @@
           visible: &#39;boolean&#39;,
           border: &#39;positivenumber&#39;,
           padding: &#39;positivenumber&#39;,
-          ignorelayout: &#39;boolean&#39;,
+          ignorelayout: &#39;json&#39;,
           scrollx: &#39;number&#39;,
           scrolly: &#39;number&#39;
         };
@@ -2589,28 +2607,6 @@
         retval = View.__super__.set_id.apply(this, arguments);
         this.sprite.set_id(id);
         return retval;
-      };
-
-      View.prototype.set_ignorelayout = function(ignorelayout) {
-        var layout, layouts, _i, _j, _len, _len1;
-        if (this.inited &amp;&amp; ignorelayout !== this.ignorelayout) {
-          layouts = this.parent.layouts;
-          if (layouts) {
-            if (ignorelayout) {
-              for (_i = 0, _len = layouts.length; _i &lt; _len; _i++) {
-                layout = layouts[_i];
-                layout.removeSubview(this);
-              }
-            } else {
-              this.ignorelayout = ignorelayout;
-              for (_j = 0, _len1 = layouts.length; _j &lt; _len1; _j++) {
-                layout = layouts[_j];
-                layout.addSubview(this);
-              }
-            }
-          }
-        }
-        return ignorelayout;
       };
 
 
@@ -3627,11 +3623,8 @@
           parentname = this.parent.$tagname;
           for (name in this.applyattributes) {
             val = this.parent[name];
-            if (val === void 0) {
-              continue;
-            }
-            this.parent[name] = !val;
-            this.parent.bindAttribute(name, val, parentname);
+            delete this.parent[name];
+            this.parent.setAttribute(name, val, false, false, true);
           }
         }
         return applied;
@@ -3945,6 +3938,18 @@
        */
 
       Layout.prototype.addSubview = function(view) {
+        var func, self;
+        self = this;
+        func = this.__ignoreFunc = function(ignorelayout) {
+          if (self.__removeSubview(this) === -1) {
+            return self.__addSubview(this);
+          }
+        };
+        this.startMonitoringSubviewForIgnore(view, func);
+        return this.__addSubview(view);
+      };
+
+      Layout.prototype.__addSubview = function(view) {
         if (this.ignore(view)) {
           return;
         }
@@ -3964,10 +3969,16 @@
        */
 
       Layout.prototype.removeSubview = function(view) {
-        var idx;
+        this.stopMonitoringSubviewForIgnore(view, this.__ignoreFunc);
         if (this.ignore(view)) {
           return -1;
+        } else {
+          return this.__removeSubview(view);
         }
+      };
+
+      Layout.prototype.__removeSubview = function(view) {
+        var idx;
         idx = this.subviews.indexOf(view);
         if (idx !== -1) {
           this.stopMonitoringSubview(view);
@@ -3980,6 +3991,36 @@
       };
 
 
+<span id='dr-layout-method-startMonitoringSubviewForIgnore'>      /**
+</span>       * Use this method to add listeners for any properties that need to be
+       * monitored on a subview that determine if it will be ignored by the layout.
+       * Each listenTo should look like: @listenTo(view, propname, func)
+       * The default implementation monitors ignorelayout.
+       * @param {dr.view} view The view to monitor.
+       * @param {function) The function to bind
+       * @return {void}
+       */
+
+      Layout.prototype.startMonitoringSubviewForIgnore = function(view, func) {
+        return this.listenTo(view, &#39;ignorelayout&#39;, func);
+      };
+
+
+<span id='dr-layout-method-stopMonitoringSubviewForIgnore'>      /**
+</span>       * Use this method to remove listeners for any properties that need to be
+       * monitored on a subview that determine if it will be ignored by the layout.
+       * Each stopListening should look like: @stopListening(view, propname, func)
+       * The default implementation monitors ignorelayout.
+       * @param {dr.view} view The view to monitor.
+       * @param {function) The function to unbind
+       * @return {void}
+       */
+
+      Layout.prototype.stopMonitoringSubviewForIgnore = function(view, func) {
+        return this.stopListening(view, &#39;ignorelayout&#39;, func);
+      };
+
+
 <span id='dr-layout-method-ignore'>      /**
 </span>       * Checks if a subview can be added to this Layout or not. The default
        * implementation checks the &#39;ignorelayout&#39; attributes of the subview.
@@ -3988,7 +4029,23 @@
        */
 
       Layout.prototype.ignore = function(view) {
-        return view.ignorelayout;
+        var ignore, name, v;
+        ignore = view.ignorelayout;
+        if (typeof ignore === &#39;object&#39;) {
+          name = this.name;
+          if (name) {
+            v = ignore[name];
+            if (v != null) {
+              return v;
+            } else {
+              return ignore[&#39;*&#39;];
+            }
+          } else {
+            return ignore[&#39;*&#39;];
+          }
+        } else {
+          return ignore;
+        }
       };
 
 

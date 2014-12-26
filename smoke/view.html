@@ -182,6 +182,14 @@
       assert.equal($(this.sprite.el).css('cursor'), 'progress', 'sprite cursor should be progress when set at runtime');
     </handler>
   </view>
+  
+  <!-- Box shadow -->
+  <view bgcolor="Orange" width="100" height="50" boxshadow="10px 10px 5px 0px #888888">
+    <handler event="oninit">
+      assert.equal($(this.sprite.el).css('box-shadow'), 'rgb(136, 136, 136) 10px 10px 5px 0px', 'box-shadow style should be set on sprite');
+    </handler>
+  </view>
+  
 </view>
 <!-- The MIT License (MIT)
 
