@@ -127,23 +127,24 @@
     ></view>
 
     <handler event="oninit">
-      var transform = this.topView.sprite.el.style['-webkit-transform'];
-      assert.equal((transform == 'translate3d(0, 0, 1px)') || (transform == 'translate3d(0px, 0px, 1px)'), true)
+      // Check both generic and vendor syntax so that the tests will pass in firefox.
+      var transform = this.topView.sprite.el.style['transform'] || this.topView.sprite.el.style['-webkit-transform'];
+      assert.equal((transform == 'translate3d(0, 0, 1px)') || (transform == 'translate3d(0px, 0px, 1px)'), true, 'Verify translate.')
 
-      transform = this.rotateViewDeg.sprite.el.style['-webkit-transform'];
-      assert.equal((transform == ' rotate3d(0, 0, 1.0, 45deg)') || (transform == 'rotate3d(0, 0, 1, 45deg)'), true)
+      transform = this.rotateViewDeg.sprite.el.style['transform'] || this.rotateViewDeg.sprite.el.style['-webkit-transform'];
+      assert.equal((transform == ' rotate3d(0, 0, 1.0, 45deg)') || (transform == 'rotate3d(0, 0, 1, 45deg)'), true, 'Verify roate.')
 
-      transformOrigin = this.rotateViewDeg.sprite.el.style['-webkit-transform-origin'];
-      assert.equal('5px 10px 1px', transformOrigin)
+      transformOrigin = this.rotateViewDeg.sprite.el.style['transform-origin'] || this.rotateViewDeg.sprite.el.style['-webkit-transform-origin'];
+      assert.equal('5px 10px 1px', transformOrigin, 'Verify transform origin.')
 
-      transform = this.xScaleView.sprite.el.style['-webkit-transform'];
-      assert.equal((transform == ' scale3d(0.1, 1, 1.0)') || (transform == 'scale3d(0.1, 1, 1)'), true)
+      transform = this.xScaleView.sprite.el.style['transform'] || this.xScaleView.sprite.el.style['-webkit-transform'];
+      assert.equal((transform == ' scale3d(0.1, 1, 1.0)') || (transform == 'scale3d(0.1, 1, 1)'), true, 'Verify x-scale.')
       
-      transform = this.yScaleView.sprite.el.style['-webkit-transform'];
-      assert.equal((transform == ' scale3d(1, 0.2, 1.0)') || (transform == 'scale3d(1, 0.2, 1)'), true)
+      transform = this.yScaleView.sprite.el.style['transform'] || this.yScaleView.sprite.el.style['-webkit-transform'];
+      assert.equal((transform == ' scale3d(1, 0.2, 1.0)') || (transform == 'scale3d(1, 0.2, 1)'), true, 'Verify y-scale.')
       
-      transform = this.scaleRotateBottomView.sprite.el.style['-webkit-transform'];
-      assert.equal((transform == 'scale3d(10.5, 10.4, 1.0) rotate3d(0, 0, 1.0, -115deg) translate3d(0, 0, -10px)') || (transform == 'scale3d(10.5, 10.4, 1) rotate3d(0, 0, 1, -115deg) translate3d(0px, 0px, -10px)'), true)
+      transform = this.scaleRotateBottomView.sprite.el.style['transform'] || this.scaleRotateBottomView.sprite.el.style['-webkit-transform'];
+      assert.equal((transform == 'scale3d(10.5, 10.4, 1.0) rotate3d(0, 0, 1.0, -115deg) translate3d(0, 0, -10px)') || (transform == 'scale3d(10.5, 10.4, 1) rotate3d(0, 0, 1, -115deg) translate3d(0px, 0px, -10px)'), true, 'Verify all transforms.')
     </handler>
   </view>
 
