@@ -3617,11 +3617,8 @@
           parentname = this.parent.$tagname;
           for (name in this.applyattributes) {
             val = this.parent[name];
-            if (val === void 0) {
-              continue;
-            }
-            this.parent[name] = !val;
-            this.parent.bindAttribute(name, val, parentname);
+            delete this.parent[name];
+            this.parent.setAttribute(name, val, false, false, true);
           }
         }
         return applied;

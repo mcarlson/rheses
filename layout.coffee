@@ -2875,11 +2875,11 @@ window.dr = do ->
         # Hack to set attributes for now - not needed when using signals
         for name of @applyattributes
           val = @parent[name]
-          continue if val is undefined
-          # learn/forget will have set the value already. Invert to cache bust setAttribute()
-          @parent[name] = not val
-          # console.log('bindAttribute', name, val)
-          @parent.bindAttribute(name, val, parentname)
+          # learn/forget will have set the value already. Delete it so it can be reset
+          delete @parent[name]
+          # console.log('setAttribute', name, val, @parent)
+          # call with same signature used in _constraintCallback
+          @parent.setAttribute(name, val, false, false, true)
       return applied
 
     apply: () ->

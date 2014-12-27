@@ -55,32 +55,41 @@
   </script>
 </head>
 <body>
-  <view id="container" y="300" width="100" height="100" bgcolor="purple" border-radius="4px" clip="true">
-    <class name="mouseview">
-      <attribute name="mouseisover" value="false" type="boolean"></attribute>
-      <attribute name="mouseisdown" value="false" type="boolean"></attribute>
-      <handler event="onmouseover">
-        this.setAttribute('mouseisover', true)
-      </handler>
-      <handler event="onmouseout">
-        this.setAttribute('mouseisover', false)
-      </handler>
-      <handler event="onmousedown">
-        this.setAttribute('mouseisdown', true)
-      </handler>
-      <handler event="onmouseup">
-        this.setAttribute('mouseisdown', false)
-      </handler>
-    </class>
-
-    <mouseview bgcolor="${this.mouseisdown ? 'red' : (this.mouseisover ? 'green' : 'blue')}" width="100" height="100">
-      <dragstate bgcolor="red" applied="${this.parent.mouseisdown}" dragaxis="x">
-        <attribute name="width" value="200" type="number"></attribute>
-        <handler event="onapplied" args="applied">
-          assert.equal(this.applied, false)
+  <view id="container" y="300" width="auto" height="100" bgcolor="purple" border-radius="4px" clip="true">
+    <view width="100">
+      <state name="foo" width="200">
+        <attribute name="baz" value="biff" type="string"></attribute>
+        <handler event="onwidth">
         </handler>
-      </dragstate>
-    </mouseview>
+      </state>
+      <handler event="oninit">
+        assert.equal(this.baz, undefined)
+        assert.equal(this.width, 100)
+        count = 0
+        for (event in this.events){
+          count += this.events[event].length
+        }
+        assert.equal(count, 6)
+        
+        this.foo.setAttribute('applied', true)
+        assert.equal(this.width, 200)
+        assert.equal(this.baz, 'biff')
+        count = 0
+        for (event in this.events){
+          count += this.events[event].length
+        }
+        assert.equal(count, 7)
+
+        this.foo.setAttribute('applied', false)
+        assert.equal(this.baz, '')
+        assert.equal(this.width, 200)
+        count = 0
+        for (event in this.events){
+          count += this.events[event].length
+        }
+        assert.equal(count, 6)
+      </handler>
+    </view>
 
   </view>
 <!-- The MIT License (MIT)
