@@ -162,14 +162,16 @@
         if (!list) {
           return;
         }
-        if (triggerlock && triggerlock.scope === this && triggerlock.ev === ev) {
-          return this;
-        }
-        if (!triggerlock) {
-          triggerlock = {
-            ev: ev,
-            scope: this
-          };
+        if (triggerlock) {
+          if (triggerlock.scope === this) {
+            if (__indexOf.call(triggerlock, ev) >= 0) {
+              return this;
+            }
+            triggerlock.push(ev);
+          }
+        } else {
+          triggerlock = [ev];
+          triggerlock.scope = this;
         }
         for (_i = 0, _len = list.length; _i < _len; _i++) {
           callback = list[_i];
@@ -341,7 +343,7 @@
        * @method include
        * @hide
        */
-      var eventlock, typemappings;
+      var typemappings;
 
       __extends(Eventable, _super);
 
@@ -381,8 +383,6 @@
           }
         }
       };
-
-      eventlock = {};
 
       Eventable.prototype._coerceType = function(name, value, type) {
         type || (type = this.types[name]);

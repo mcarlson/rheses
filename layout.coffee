@@ -93,6 +93,8 @@ window.dr = do ->
   # A lightweight event system, used internally.
   ###
   # based on https://github.com/spine/spine/tree/dev/src
+
+  # Tracks events sent by setAttribute() to prevent recursion
   triggerlock = null
   Events =
     ###*
@@ -125,17 +127,19 @@ window.dr = do ->
     trigger: (ev, args...) ->
       list = @hasOwnProperty('events') and @events?[ev]
       return unless list
-      if triggerlock and triggerlock.scope is @ and triggerlock.ev is ev
-        return @
-      unless triggerlock
-        triggerlock = {
-          ev: ev
-          scope: @
-        }
-        # console.log triggerlock
-      # else
-      #   console.log 'old', triggerlock
-      # if list then console.log 'trigger', ev, list
+      if triggerlock
+        if triggerlock.scope is @
+          if ev in triggerlock
+            # console.log 'found lock', ev, triggerlock
+            return @
+          # store new event
+          triggerlock.push(ev)
+      else
+        # store current scope and event
+        triggerlock = [ev]
+        triggerlock.scope = @
+
+      # console.log 'trigger', ev, list
       for callback in list
         callback.apply(@, args)
       triggerlock = null
@@ -264,9 +268,6 @@ window.dr = do ->
       positivenumber: (val) ->
         val = parseFloat(val)
         if isNaN val then 0 else Math.max(0, val)
-
-    # Tracks events sent by setAttribute() to prevent recursion
-    eventlock = {}
 
     _coerceType: (name, value, type) ->
       type ||= @types[name]
@@ -919,7 +920,7 @@ window.dr = do ->
       # console.log('binding to constraint function', name, fn, @)
       return `(function constraintCallback(){`
       # console.log 'setting', name, fn(), @
-      @.setAttribute(name, fn(), false, false, true)
+      @setAttribute(name, fn(), false, false, true)
       `}).bind(this)`
 
     set_parent: (parent) ->
