@@ -124,7 +124,8 @@ SOFTWARE. -->
   
   <method name="_createSprite" args="el, attributes">
     @super()
-    attributes.text ||= @sprite.getText(true) #so the text attribute has value when the text is set between the tags
+    #so the text attribute has value when the text is set between the tags
+    attributes.text ||= @sprite.getText(true) 
     @sprite.createTextElement()
   </method>
   
@@ -145,7 +146,8 @@ SOFTWARE. -->
     width = if @multiline then @_initialwidth else @width
     size = @sprite.measureTextSize(@multiline, width, @resize)
     
-    if size.width is 0 and size.height is 0
+    # deal with text inside hidden parents. TODO: move to the sprite
+    if @text isnt '' and size.width is 0 and size.height is 0
       # check for hidden parents
       parents = @_findParents('visible', false)
       for parent in parents
@@ -154,7 +156,7 @@ SOFTWARE. -->
       for parent in parents
         parent.sprite.el.style.display = 'none'
 
-    @setAttribute('width', size.width, true)
-    @setAttribute('height', size.height, true)
+    @setAttribute('width', size.width, true) if size.width != @width
+    @setAttribute('height', size.height, true) if size.height != @height
   </method>
 </class>
