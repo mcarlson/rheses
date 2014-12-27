@@ -1643,8 +1643,13 @@ window.dr = do ->
       # An array of this views's layouts. Only defined when needed.
       ###
       ###*
-      # @attribute {Boolean} [ignorelayout=false]
-      # If true, layouts should ignore this view
+      # @attribute {String} [ignorelayout='false']
+      # Indicates if layouts should ignore this view or not. A variety of
+      # configuration mechanisms are supported. Provided true or false will
+      # cause the view to be ignored or not by all layouts. If instead a
+      # serialized map is provided the keys of the map will target values
+      # the layouts with matching names. A special key of '*' indicates a
+      # default value for all layouts not specifically mentioned in the map.
       ###
 
       @subviews = []
@@ -1654,7 +1659,7 @@ window.dr = do ->
         rotation: 'number', opacity: 'number',
         width: 'positivenumber', height: 'positivenumber',
         clickable: 'boolean', clip: 'boolean', scrollable: 'boolean', visible: 'boolean',
-        border: 'positivenumber', padding: 'positivenumber', ignorelayout:'boolean',
+        border: 'positivenumber', padding: 'positivenumber', ignorelayout:'json',
         scrollx:'number', scrolly:'number'
       }
 
@@ -2045,19 +2050,6 @@ window.dr = do ->
       retval = super
       @sprite.set_id(id)
       retval
-
-    set_ignorelayout: (ignorelayout) ->
-      if @inited and ignorelayout isnt @ignorelayout
-        layouts = @parent.layouts
-        if layouts
-          if ignorelayout
-            for layout in layouts
-              layout.removeSubview(@)
-          else
-            @ignorelayout = ignorelayout
-            for layout in layouts
-              layout.addSubview(@)
-      ignorelayout
 
     ###*
     # Animates this view's attribute(s)
@@ -3155,13 +3147,17 @@ window.dr = do ->
     # @return {void}
     ###
     addSubview: (view) ->
-      if @ignore(view)
-        return
+      self = @
+      func = this.__ignoreFunc = (ignorelayout) ->
+        if self.__removeSubview(@) is -1 then self.__addSubview(@)
+      @startMonitoringSubviewForIgnore(view, func)
+      @__addSubview(view)
 
+    __addSubview: (view) ->
+      if @ignore(view) then return
       @subviews.push(view)
       @startMonitoringSubview(view)
-      unless @locked
-        @update()
+      @update() unless @locked
 
     ###*
     # Removes the provided View from the subviews array of this Layout,
@@ -3170,16 +3166,40 @@ window.dr = do ->
     # @return {number} the index of the removed subview or -1 if not removed.
     ###
     removeSubview: (view) ->
-      if @ignore(view)
-        return -1
+      @stopMonitoringSubviewForIgnore(view, this.__ignoreFunc)
+      if @ignore(view) then return -1 else return @__removeSubview(view)
 
+    __removeSubview: (view) ->
       idx = @subviews.indexOf(view)
       if idx isnt -1
         @stopMonitoringSubview(view)
         @subviews.splice(idx, 1)
-        unless @locked
-          @update()
+        @update() unless @locked
       return idx
+
+    ###*
+    # Use this method to add listeners for any properties that need to be
+    # monitored on a subview that determine if it will be ignored by the layout.
+    # Each listenTo should look like: @listenTo(view, propname, func)
+    # The default implementation monitors ignorelayout.
+    # @param {dr.view} view The view to monitor.
+    # @param {function) The function to bind
+    # @return {void}
+    ###
+    startMonitoringSubviewForIgnore: (view, func) ->
+      @listenTo(view, 'ignorelayout', func)
+
+    ###*
+    # Use this method to remove listeners for any properties that need to be
+    # monitored on a subview that determine if it will be ignored by the layout.
+    # Each stopListening should look like: @stopListening(view, propname, func)
+    # The default implementation monitors ignorelayout.
+    # @param {dr.view} view The view to monitor.
+    # @param {function) The function to unbind
+    # @return {void}
+    ###
+    stopMonitoringSubviewForIgnore: (view, func) ->
+      @stopListening(view, 'ignorelayout', func)
 
     ###*
     # Checks if a subview can be added to this Layout or not. The default
@@ -3188,7 +3208,16 @@ window.dr = do ->
     # @return {boolean} True means the subview will be skipped, false otherwise.
     ###
     ignore: (view) ->
-      return view.ignorelayout
+      ignore = view.ignorelayout
+      if typeof ignore is 'object'
+        name = this.name
+        if name
+          v = ignore[name]
+          if v? then return v else return ignore['*']
+        else
+          return ignore['*']
+      else
+        return ignore
 
     ###*
     # Subclasses should implement this method to start listening to

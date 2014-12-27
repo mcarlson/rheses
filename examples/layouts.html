@@ -33,6 +33,27 @@
   <spacedlayout axis="y" spacing="5" updateparent="true"></spacedlayout>
   
   <view padding="5" border="2" bordercolor="black" height="auto" bgcolor="#999999">
+    <spacedlayout name="layoutX" inset="4" spacing="1" outset="4" updateparent="true"></spacedlayout>
+    <spacedlayout name="layoutY1" axis="y" inset="4" spacing="5"></spacedlayout>
+    <spacedlayout name="layoutY2" axis="y" inset="4" spacing="10"></spacedlayout>
+    <constantlayout name="bgcolor" attribute="bgcolor" value="'green'"></constantlayout>
+    
+    <view name="inner" width="100%" height="100%" ignorelayout="true" bgcolor="#cccccc"></view>
+    
+    <item width="15" height="15" ignorelayout='{"layoutY1":true}'></item>
+    <item width="15" height="15" ignorelayout='{"layoutY2":true}'></item>
+    <item width="15" height="15" ignorelayout='{"layoutY1":true}'></item>
+    <item width="15" height="15" ignorelayout='{"layoutY2":true, "bgcolor":true}'></item>
+    <item width="15" height="15" ignorelayout='{"layoutY1":true}'></item>
+    <item width="15" height="15" ignorelayout='{"layoutY2":true}'></item>
+    <item width="15" height="15" ignorelayout='{"layoutY1":true}'></item>
+    <item width="15" height="15" ignorelayout='{"layoutY2":true}'></item>
+    <item width="15" height="15" ignorelayout='{"layoutY1":true}'></item>
+    <item width="15" height="15" ignorelayout='{"layoutY2":true, "bgcolor":true}'></item>
+    <item width="15" height="15" ignorelayout='{"layoutY1":true}'></item>
+  </view>
+  
+  <view padding="5" border="2" bordercolor="black" height="auto" bgcolor="#999999">
     <spacedlayout name="layoutX" inset="4" spacing="1" outset="3" updateparent="true"></spacedlayout>
     
     <view name="inner" width="100%" height="100%" ignorelayout="true" bgcolor="#cccccc"></view>
