@@ -359,7 +359,7 @@ window.dr = do ->
     prefix: (
       () ->
         styles = window.getComputedStyle(document.documentElement, '')
-        pre = (Array.prototype.slice.call(styles).join('').match(/-(moz|webkit|ms)-/) or (styles.OLink is '' and ['', 'o']))[1]
+        pre = (Array.prototype.slice.call(styles).join('').match(/-(moz|webkit|ms)- /) or (styles.OLink is '' and ['', 'o']))[1]
         dom = ('WebKit|Moz|MS|O').match(new RegExp('(' + pre + ')', 'i'))[1]
         {
           dom:dom

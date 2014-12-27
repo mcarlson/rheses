@@ -915,6 +915,31 @@
    *     &lt;dataset name=&quot;topmovies&quot; url=&quot;/top_movies.json&quot;&gt;&lt;/dataset&gt;
    *     &lt;replicator datapath=&quot;$topmovies/searchResponse/results[*]/movie[take(/releaseYear,/duration,/rating)]&quot; classname=&quot;logger&quot;&gt;&lt;/replicator&gt;
    */
+<span id='dr-markup'>/**
+</span>      * @class dr.markup {UI Components}
+      * @extends dr.view
+      * A view that uses the sizetodom mixin. You can also put HTML inside
+      * the element and it will show up in the page.
+      * 
+      * This example creates a view that contains some HTML text. The view
+      * will be sized to fit the text.
+      * 
+      *     @example
+      *     &lt;markup&gt;
+      *         &lt;b&gt;Here is some text&lt;/b&gt; that is really just HTML.
+      *     &lt;/markup&gt;
+      * 
+      * This example creates a view that contains some HTML text. The view
+      * will flow the text at a width of 50 pixels and have its height
+      * automatically sized to fit the flowed text. If you later want to
+      * let the view size its width to the dom just call 
+      * setAttribute(&#39;width&#39;, &#39;auto&#39;).
+      * 
+      *     @example
+      *     &lt;markup width=&quot;50&quot;&gt;
+      *         &lt;b&gt;Here is some text&lt;/b&gt; that is really just HTML.
+      *     &lt;/markup&gt;
+      */
 <span id='dr-mixin'>/**
 </span>      * @class dr.mixin
       * @extends dr.state
@@ -1308,6 +1333,62 @@
       * @extends dr.layout
       * simplelayout has been deprecated, use dr.spacedlayout instead
       */
+<span id='dr-sizetodom'>/**
+</span>      * @class dr.sizetodom {UI Components}
+      * @extends dr.state
+      * Enables a view to size itself to the dom elements it contains. This
+      * is a reversal of the standard relationship where the &quot;model&quot; pushes
+      * changes into the DOM.
+      * 
+      * You can configure the markup either via the &#39;markup&#39; attribute, or
+      * you can put HTML inside the element and it will be used during
+      * initialization. Once a component has been created you should only
+      * update via the markup attribute.
+      * 
+      * If you set an explicit width or height sizing to dom will be suspended
+      * for that axis. If later you want to restore the size to dom behavior
+      * set the width or height to a value of &#39;auto&#39;.
+      *
+      * If you make a modification to the DOM through a means other than
+      * setting the markup attribute and that modification results in a change
+      * in the size of the DOM you will need to call the sizeToDom method
+      * to trigger an update of the width and height of the view.
+      * 
+      */
+<span id='dr-sizetodom-attribute-markup'>/**
+</span>    * @attribute {String} [markup=&#39;&#39;]
+    * Sets the inner HTML of this view. Since the &lt; and &gt; characters are
+    * not typically supported in the places you&#39;ll be configuring this
+    * attributes, you can use [ and ] and they will be transformed into &lt; and &gt;.
+    * If you need to insert a literal [ character use &amp;amp;#91;. If you need
+    * to insert a literal ] character use &amp;amp;#93;.
+    */
+<span id='dr-sizetodom-property-'>/**
+</span>    * We need to sizeToDom once after initialization since we may have started
+    * with HTML inside the element.
+    * @private
+    */
+<span id='dr-sizetodom-property-'>/**
+</span>    * Look for special value of &#39;auto&#39; for width and height and handle them
+    * here rather than letting them bubble up to view.
+    * @private
+    */
+<span id='dr-sizetodom-method-sizeToDom'>/**
+</span>    * @method sizeToDom
+    * Sizes this view to the current size of the DOM elements within it.
+    * @returns {void}
+    */
+<span id='dr-sizetodom-method-unescape'>/**
+</span>    * @method unescape
+    * Used to support an alternate syntax for markup since the &lt; and &gt;
+    * characters are restricted in most places you will want assign the
+    * markup to this view. The alternte syntax uses the [ and ] characters to
+    * represent &lt; and &gt; respectively. If you need to insert a literal [ or ]
+    * character use &amp;amp;#91; or &amp;amp;#93; respectively.
+    * @param str The string to unescape.
+    * @returns {String} The unescaped string.
+    * @private
+    */
 <span id='dr-slider'>/**
 </span>     * @class dr.slider {UI Components}
      * @extends dr.view

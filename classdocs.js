@@ -899,6 +899,31 @@
    *     <replicator datapath="$topmovies/searchResponse/results[*]/movie[take(/releaseYear,/duration,/rating)]" classname="logger"></replicator>
    */
 /**
+      * @class dr.markup {UI Components}
+      * @extends dr.view
+      * A view that uses the sizetodom mixin. You can also put HTML inside
+      * the element and it will show up in the page.
+      * 
+      * This example creates a view that contains some HTML text. The view
+      * will be sized to fit the text.
+      * 
+      *     @example
+      *     <markup>
+      *         <b>Here is some text</b> that is really just HTML.
+      *     </markup>
+      * 
+      * This example creates a view that contains some HTML text. The view
+      * will flow the text at a width of 50 pixels and have its height
+      * automatically sized to fit the flowed text. If you later want to
+      * let the view size its width to the dom just call 
+      * setAttribute('width', 'auto').
+      * 
+      *     @example
+      *     <markup width="50">
+      *         <b>Here is some text</b> that is really just HTML.
+      *     </markup>
+      */
+/**
       * @class dr.mixin
       * @extends dr.state
       * Mixins allow methods, handlers, attributes and instances to be mixed 
@@ -1291,6 +1316,62 @@
       * @extends dr.layout
       * simplelayout has been deprecated, use dr.spacedlayout instead
       */
+/**
+      * @class dr.sizetodom {UI Components}
+      * @extends dr.state
+      * Enables a view to size itself to the dom elements it contains. This
+      * is a reversal of the standard relationship where the "model" pushes
+      * changes into the DOM.
+      * 
+      * You can configure the markup either via the 'markup' attribute, or
+      * you can put HTML inside the element and it will be used during
+      * initialization. Once a component has been created you should only
+      * update via the markup attribute.
+      * 
+      * If you set an explicit width or height sizing to dom will be suspended
+      * for that axis. If later you want to restore the size to dom behavior
+      * set the width or height to a value of 'auto'.
+      *
+      * If you make a modification to the DOM through a means other than
+      * setting the markup attribute and that modification results in a change
+      * in the size of the DOM you will need to call the sizeToDom method
+      * to trigger an update of the width and height of the view.
+      * 
+      */
+/**
+    * @attribute {String} [markup='']
+    * Sets the inner HTML of this view. Since the < and > characters are
+    * not typically supported in the places you'll be configuring this
+    * attributes, you can use [ and ] and they will be transformed into < and >.
+    * If you need to insert a literal [ character use &amp;#91;. If you need
+    * to insert a literal ] character use &amp;#93;.
+    */
+/**
+    * We need to sizeToDom once after initialization since we may have started
+    * with HTML inside the element.
+    * @private
+    */
+/**
+    * Look for special value of 'auto' for width and height and handle them
+    * here rather than letting them bubble up to view.
+    * @private
+    */
+/**
+    * @method sizeToDom
+    * Sizes this view to the current size of the DOM elements within it.
+    * @returns {void}
+    */
+/**
+    * @method unescape
+    * Used to support an alternate syntax for markup since the < and >
+    * characters are restricted in most places you will want assign the
+    * markup to this view. The alternte syntax uses the [ and ] characters to
+    * represent < and > respectively. If you need to insert a literal [ or ]
+    * character use &amp;#91; or &amp;#93; respectively.
+    * @param str The string to unescape.
+    * @returns {String} The unescaped string.
+    * @private
+    */
 /**
      * @class dr.slider {UI Components}
      * @extends dr.view
