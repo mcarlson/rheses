@@ -1305,13 +1305,14 @@
        */
 
       Node.prototype.destroy = function(skipevents) {
+        var property, subnode, _i, _len, _ref, _ref1;
+        this.destroyed = true;
 
         /**
          * @event ondestroy
          * Fired when this node and all its children are about to be destroyed
          * @param {dr.node} node The dr.node that fired the event
          */
-        var property, subnode, _i, _len, _ref, _ref1;
         this.sendEvent('destroy', this);
         if (this.constraints) {
           for (property in this.constraints) {
@@ -1432,6 +1433,9 @@
         animTick = (function(_this) {
           return function(time) {
             var ended, local_time, myvalue;
+            if (_this.destroyed) {
+              return;
+            }
             if (first === void 0) {
               first = time;
             }

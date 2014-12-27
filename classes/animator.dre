@@ -292,6 +292,7 @@ SOFTWARE. -->
 
       var dup = 0
       var animTick = function(time){
+        if (this.target_obj.destroyed) return
         this.timestep(time)
         this.sendEvent('tick')
         if(this.animator.ended){

@@ -1000,6 +1000,7 @@ window.dr = do ->
     # @ignore
     ###
     destroy: (skipevents) ->
+      @destroyed = true
       # console.log 'destroy node', @
 
       ###*
@@ -1106,6 +1107,7 @@ window.dr = do ->
       first = undefined
 
       animTick = (time) =>
+        return if @destroyed
         # lazy init so we start at 0
         if first == undefined then first = time
         # compute the local time relative to the lazy initialized first
@@ -1117,7 +1119,7 @@ window.dr = do ->
           # compute the value of the animation
           myvalue = anim.timestep(local_time)
           # set the attribute
-          this.setAttribute(name, myvalue)
+          @setAttribute(name, myvalue)
           # flag ended if we ended
           if anim.ended then ended = true
         # only do idle again if none ended
@@ -2487,7 +2489,7 @@ window.dr = do ->
               jqel.prepend(xhr[0])
               if debug
                 jqel.contents().each(() ->
-                  if(this.nodeType is 8)
+                  if(@nodeType is 8)
                     $(this).remove()
                 )
 

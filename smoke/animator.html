@@ -50,6 +50,17 @@
       </animator>
     </bitmap>
 
+    <bitmap x="100" y="600" width="200" height="200" src="./shoarma.jpg">
+      <animator attribute="x" to="300" duration="1000" motion="linear" repeat="2" bounce="true">
+        <handler event="onend">
+          chai.assert.equal(this.parent.x, 100)
+        </handler>
+        <handler event="ontick">
+          this.parent.destroy()
+        </handler>
+      </animator>
+    </bitmap>
+
     <handler event="oninit">
     </handler>
   </view>
