@@ -41,7 +41,7 @@
     
     <!-- Test update method only gets called once during the 
          standard initialization sequence. -->
-    <view name="container2" width="100" height="100" bgcolor="#999999">
+    <view name="container2" y="110" width="100" height="100" bgcolor="#999999">
       <!-- The extra layer isolates the test from initialization of the root
            view since update happens oninit of the layout's parent -->
       <view name="inner">
@@ -64,6 +64,59 @@
           </method>
         </constantlayout>
       </view>
+    </view>
+    
+    <!-- Test targeted ignorelayout -->
+    <class name="item2" width="10" height="10" bgcolor="#666666"></class>
+    <view name="container3" y="220" width="100" height="100" bgcolor="#999999" border="1" padding="4" bordercolor="black">
+      <constantlayout name="layoutX" attribute="x" value="10"></constantlayout>
+      <constantlayout name="layoutY" attribute="y" value="10"></constantlayout>
+      <constantlayout name="layoutBgcolor" attribute="bgcolor" value="'#00ff00'"></constantlayout>
+      
+      <!-- Basic ignorelayout works -->
+      <view name="inner" width="100%" height="100%" ignorelayout="true" bgcolor="#cccccc"></view>
+      
+      <item2 name="v1" bgcolor="red"></item2>
+      <item2 name="v2" ignorelayout='{"layoutX":true}' bgcolor="red"></item2>
+      <item2 name="v3" ignorelayout='{"layoutY":true}' bgcolor="red"></item2>
+      <item2 name="v4" ignorelayout='{"*":true, "layoutY":false}' bgcolor="#ff0000"></item2>
+      
+      <handler event="oninit">
+        assert.equal(0, this.inner.x);
+        assert.equal(0, this.inner.y);
+        assert.equal('#cccccc', this.inner.bgcolor);
+        
+        assert.equal(10, this.v1.x);
+        assert.equal(10, this.v1.y);
+        assert.equal('#00ff00', this.v1.bgcolor);
+        
+        assert.equal(0, this.v2.x);
+        assert.equal(10, this.v2.y);
+        assert.equal('#00ff00', this.v2.bgcolor);
+        
+        assert.equal(10, this.v3.x);
+        assert.equal(0, this.v3.y);
+        assert.equal('#00ff00', this.v3.bgcolor);
+        
+        assert.equal(0, this.v4.x);
+        assert.equal(10, this.v4.y);
+        assert.equal('#ff0000', this.v4.bgcolor);
+        
+        // Verify changing ignorelayout notifies the correct layouts.
+        assert.equal(2, this.layoutX.subviews.length, '2 subview are managed for layoutX.');
+        assert.equal(3, this.layoutY.subviews.length, '3 subview are managed for layoutY.');
+        assert.equal(3, this.layoutBgcolor.subviews.length, '3 subview are managed for layoutBgcolor.');
+        
+        this.v4.setAttribute('ignorelayout', true);
+        assert.equal(2, this.layoutX.subviews.length, '2 subview are managed for layoutX.');
+        assert.equal(2, this.layoutY.subviews.length, '2 subview are managed for layoutY.');
+        assert.equal(3, this.layoutBgcolor.subviews.length, '3 subview are managed for layoutBgcolor.');
+        
+        this.v4.setAttribute('ignorelayout', '{"*":true, "layoutY":false}');
+        assert.equal(2, this.layoutX.subviews.length, '2 subview are managed for layoutX.');
+        assert.equal(3, this.layoutY.subviews.length, '3 subview are managed for layoutY.');
+        assert.equal(3, this.layoutBgcolor.subviews.length, '3 subview are managed for layoutBgcolor.');
+      </handler>
     </view>
     
     <handler event="oninit">

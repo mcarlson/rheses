@@ -69,7 +69,7 @@
         for (event in this.events){
           count += this.events[event].length
         }
-        assert.equal(count, 6)
+        assert.equal(count, 7)
         
         this.foo.setAttribute('applied', true)
         assert.equal(this.width, 200)
@@ -78,7 +78,7 @@
         for (event in this.events){
           count += this.events[event].length
         }
-        assert.equal(count, 7)
+        assert.equal(count, 8)
 
         this.foo.setAttribute('applied', false)
         assert.equal(this.baz, '')
@@ -87,7 +87,7 @@
         for (event in this.events){
           count += this.events[event].length
         }
-        assert.equal(count, 6)
+        assert.equal(count, 7)
       </handler>
     </view>
 

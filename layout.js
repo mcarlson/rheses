@@ -2066,8 +2066,13 @@
          */
 
         /**
-         * @attribute {Boolean} [ignorelayout=false]
-         * If true, layouts should ignore this view
+         * @attribute {String} [ignorelayout='false']
+         * Indicates if layouts should ignore this view or not. A variety of
+         * configuration mechanisms are supported. Provided true or false will
+         * cause the view to be ignored or not by all layouts. If instead a
+         * serialized map is provided the keys of the map will target values
+         * the layouts with matching names. A special key of '*' indicates a
+         * default value for all layouts not specifically mentioned in the map.
          */
         var key, type, types, _ref;
         this.subviews = [];
@@ -2087,7 +2092,7 @@
           visible: 'boolean',
           border: 'positivenumber',
           padding: 'positivenumber',
-          ignorelayout: 'boolean',
+          ignorelayout: 'json',
           scrollx: 'number',
           scrolly: 'number'
         };
@@ -2579,28 +2584,6 @@
         retval = View.__super__.set_id.apply(this, arguments);
         this.sprite.set_id(id);
         return retval;
-      };
-
-      View.prototype.set_ignorelayout = function(ignorelayout) {
-        var layout, layouts, _i, _j, _len, _len1;
-        if (this.inited && ignorelayout !== this.ignorelayout) {
-          layouts = this.parent.layouts;
-          if (layouts) {
-            if (ignorelayout) {
-              for (_i = 0, _len = layouts.length; _i < _len; _i++) {
-                layout = layouts[_i];
-                layout.removeSubview(this);
-              }
-            } else {
-              this.ignorelayout = ignorelayout;
-              for (_j = 0, _len1 = layouts.length; _j < _len1; _j++) {
-                layout = layouts[_j];
-                layout.addSubview(this);
-              }
-            }
-          }
-        }
-        return ignorelayout;
       };
 
 
@@ -3932,6 +3915,18 @@
        */
 
       Layout.prototype.addSubview = function(view) {
+        var func, self;
+        self = this;
+        func = this.__ignoreFunc = function(ignorelayout) {
+          if (self.__removeSubview(this) === -1) {
+            return self.__addSubview(this);
+          }
+        };
+        this.startMonitoringSubviewForIgnore(view, func);
+        return this.__addSubview(view);
+      };
+
+      Layout.prototype.__addSubview = function(view) {
         if (this.ignore(view)) {
           return;
         }
@@ -3951,10 +3946,16 @@
        */
 
       Layout.prototype.removeSubview = function(view) {
-        var idx;
+        this.stopMonitoringSubviewForIgnore(view, this.__ignoreFunc);
         if (this.ignore(view)) {
           return -1;
+        } else {
+          return this.__removeSubview(view);
         }
+      };
+
+      Layout.prototype.__removeSubview = function(view) {
+        var idx;
         idx = this.subviews.indexOf(view);
         if (idx !== -1) {
           this.stopMonitoringSubview(view);
@@ -3968,6 +3969,36 @@
 
 
       /**
+       * Use this method to add listeners for any properties that need to be
+       * monitored on a subview that determine if it will be ignored by the layout.
+       * Each listenTo should look like: @listenTo(view, propname, func)
+       * The default implementation monitors ignorelayout.
+       * @param {dr.view} view The view to monitor.
+       * @param {function) The function to bind
+       * @return {void}
+       */
+
+      Layout.prototype.startMonitoringSubviewForIgnore = function(view, func) {
+        return this.listenTo(view, 'ignorelayout', func);
+      };
+
+
+      /**
+       * Use this method to remove listeners for any properties that need to be
+       * monitored on a subview that determine if it will be ignored by the layout.
+       * Each stopListening should look like: @stopListening(view, propname, func)
+       * The default implementation monitors ignorelayout.
+       * @param {dr.view} view The view to monitor.
+       * @param {function) The function to unbind
+       * @return {void}
+       */
+
+      Layout.prototype.stopMonitoringSubviewForIgnore = function(view, func) {
+        return this.stopListening(view, 'ignorelayout', func);
+      };
+
+
+      /**
        * Checks if a subview can be added to this Layout or not. The default
        * implementation checks the 'ignorelayout' attributes of the subview.
        * @param {dr.view} view The view to check.
@@ -3975,7 +4006,23 @@
        */
 
       Layout.prototype.ignore = function(view) {
-        return view.ignorelayout;
+        var ignore, name, v;
+        ignore = view.ignorelayout;
+        if (typeof ignore === 'object') {
+          name = this.name;
+          if (name) {
+            v = ignore[name];
+            if (v != null) {
+              return v;
+            } else {
+              return ignore['*'];
+            }
+          } else {
+            return ignore['*'];
+          }
+        } else {
+          return ignore;
+        }
       };
 
 
