@@ -1279,6 +1279,7 @@
        * method to add a subnode. Instead call setParent.
        * @param {dr.node} node The subnode that was added.
        * @return {void}
+       * @private
        */
 
       Node.prototype.doSubnodeAdded = function(node) {};
@@ -1290,6 +1291,7 @@
        * method to remove a subnode. Instead call _removeFromParent.
        * @param {dr.node} node The subnode that was removed.
        * @return {void}
+       * @private
        */
 
       Node.prototype.doSubnodeRemoved = function(node) {};
@@ -2644,6 +2646,7 @@
       /**
        * Calls doSubviewAdded/doLayoutAdded if the added subnode is a view or
        * layout respectively. Subclasses should call super.
+       * @private
        */
 
       View.prototype.doSubnodeAdded = function(node) {
@@ -2665,6 +2668,7 @@
       /**
        * Calls doSubviewRemoved/doLayoutRemoved if the removed subnode is a view or
        * layout respectively. Subclasses should call super.
+       * @private
        */
 
       View.prototype.doSubnodeRemoved = function(node) {

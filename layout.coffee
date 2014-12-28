@@ -979,6 +979,7 @@ window.dr = do ->
     # method to add a subnode. Instead call setParent.
     # @param {dr.node} node The subnode that was added.
     # @return {void}
+    # @private
     ###
     doSubnodeAdded: (node) ->
       # Empty implementation by default
@@ -989,6 +990,7 @@ window.dr = do ->
     # method to remove a subnode. Instead call _removeFromParent.
     # @param {dr.node} node The subnode that was removed.
     # @return {void}
+    # @private
     ###
     doSubnodeRemoved: (node) ->
       # Empty implementation by default
@@ -2085,6 +2087,7 @@ window.dr = do ->
     ###*
     # Calls doSubviewAdded/doLayoutAdded if the added subnode is a view or
     # layout respectively. Subclasses should call super.
+    # @private
     ###
     doSubnodeAdded: (node) ->
       if node instanceof View
@@ -2101,6 +2104,7 @@ window.dr = do ->
     ###*
     # Calls doSubviewRemoved/doLayoutRemoved if the removed subnode is a view or
     # layout respectively. Subclasses should call super.
+    # @private
     ###
     doSubnodeRemoved: (node) ->
       if node instanceof View
