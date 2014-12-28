@@ -809,6 +809,30 @@
         this.construct(el, attributes);
       }
 
+
+      /**
+       * Used to create child instances on a node.
+       * @param Object options Should include a class attribute: 'class', e.g. {class: 'view'} unless a dr.node is desired.
+       * @return {dr.node}
+       */
+
+      Node.prototype.createChild = function(attributes) {
+        var classname, el, _ref;
+        if (attributes == null) {
+          attributes = {};
+        }
+        classname = (_ref = attributes["class"]) != null ? _ref : 'node';
+        delete attributes["class"];
+        if (typeof dr[classname] !== 'function') {
+          showWarnings(["Unrecognized class " + classname + " in createChild()"]);
+          return;
+        }
+        el = attributes.element;
+        delete attributes.element;
+        attributes.parent = this;
+        return new dr[classname](el, attributes, true);
+      };
+
       Node.prototype.construct = function(el, attributes) {
 
         /**
@@ -3981,10 +4005,10 @@
       /**
        * Use this method to add listeners for any properties that need to be
        * monitored on a subview that determine if it will be ignored by the layout.
-       * Each listenTo should look like: @listenTo(view, propname, func)
+       * Each listenTo should look like: this.listenTo(view, propname, func)
        * The default implementation monitors ignorelayout.
        * @param {dr.view} view The view to monitor.
-       * @param {function) The function to bind
+       * @param {Function} func The function to bind
        * @return {void}
        */
 
@@ -3996,10 +4020,10 @@
       /**
        * Use this method to remove listeners for any properties that need to be
        * monitored on a subview that determine if it will be ignored by the layout.
-       * Each stopListening should look like: @stopListening(view, propname, func)
+       * Each stopListening should look like: this.stopListening(view, propname, func)
        * The default implementation monitors ignorelayout.
        * @param {dr.view} view The view to monitor.
-       * @param {function) The function to unbind
+       * @param {Function} func The function to unbind
        * @return {void}
        */
 

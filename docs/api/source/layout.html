@@ -826,6 +826,30 @@
         this.construct(el, attributes);
       }
 
+
+<span id='dr-node-method-createChild'>      /**
+</span>       * Used to create child instances on a node.
+       * @param Object options Should include a class attribute: &#39;class&#39;, e.g. {class: &#39;view&#39;} unless a dr.node is desired.
+       * @return {dr.node}
+       */
+
+      Node.prototype.createChild = function(attributes) {
+        var classname, el, _ref;
+        if (attributes == null) {
+          attributes = {};
+        }
+        classname = (_ref = attributes[&quot;class&quot;]) != null ? _ref : &#39;node&#39;;
+        delete attributes[&quot;class&quot;];
+        if (typeof dr[classname] !== &#39;function&#39;) {
+          showWarnings([&quot;Unrecognized class &quot; + classname + &quot; in createChild()&quot;]);
+          return;
+        }
+        el = attributes.element;
+        delete attributes.element;
+        attributes.parent = this;
+        return new dr[classname](el, attributes, true);
+      };
+
       Node.prototype.construct = function(el, attributes) {
 
 <span id='dr-node-attribute-subnodes'>        /**
@@ -1296,6 +1320,7 @@
        * method to add a subnode. Instead call setParent.
        * @param {dr.node} node The subnode that was added.
        * @return {void}
+       * @private
        */
 
       Node.prototype.doSubnodeAdded = function(node) {};
@@ -1307,6 +1332,7 @@
        * method to remove a subnode. Instead call _removeFromParent.
        * @param {dr.node} node The subnode that was removed.
        * @return {void}
+       * @private
        */
 
       Node.prototype.doSubnodeRemoved = function(node) {};
@@ -2661,6 +2687,7 @@
 <span id='dr-view-method-doSubnodeAdded'>      /**
 </span>       * Calls doSubviewAdded/doLayoutAdded if the added subnode is a view or
        * layout respectively. Subclasses should call super.
+       * @private
        */
 
       View.prototype.doSubnodeAdded = function(node) {
@@ -2682,6 +2709,7 @@
 <span id='dr-view-method-doSubnodeRemoved'>      /**
 </span>       * Calls doSubviewRemoved/doLayoutRemoved if the removed subnode is a view or
        * layout respectively. Subclasses should call super.
+       * @private
        */
 
       View.prototype.doSubnodeRemoved = function(node) {
@@ -3994,10 +4022,10 @@
 <span id='dr-layout-method-startMonitoringSubviewForIgnore'>      /**
 </span>       * Use this method to add listeners for any properties that need to be
        * monitored on a subview that determine if it will be ignored by the layout.
-       * Each listenTo should look like: @listenTo(view, propname, func)
+       * Each listenTo should look like: this.listenTo(view, propname, func)
        * The default implementation monitors ignorelayout.
        * @param {dr.view} view The view to monitor.
-       * @param {function) The function to bind
+       * @param {Function} func The function to bind
        * @return {void}
        */
 
@@ -4009,10 +4037,10 @@
 <span id='dr-layout-method-stopMonitoringSubviewForIgnore'>      /**
 </span>       * Use this method to remove listeners for any properties that need to be
        * monitored on a subview that determine if it will be ignored by the layout.
-       * Each stopListening should look like: @stopListening(view, propname, func)
+       * Each stopListening should look like: this.stopListening(view, propname, func)
        * The default implementation monitors ignorelayout.
        * @param {dr.view} view The view to monitor.
-       * @param {function) The function to unbind
+       * @param {Function} func The function to unbind
        * @return {void}
        */
 

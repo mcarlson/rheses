@@ -611,6 +611,23 @@ window.dr = do ->
       
       @construct(el, attributes)
 
+    ###*
+    # Used to create child instances on a node.
+    # @param Object options Should include a class attribute: 'class', e.g. {class: 'view'} unless a dr.node is desired.
+    # @return {dr.node}
+    ###
+    createChild: (attributes = {}) ->
+      classname = attributes.class ? 'node'
+      delete attributes.class
+      if typeof dr[classname] isnt 'function'
+        showWarnings(["Unrecognized class #{classname} in createChild()"])
+        return
+
+      el = attributes.element
+      delete attributes.element
+      attributes.parent = @
+      new dr[classname](el, attributes, true)
+
     construct: (el, attributes) ->
       ###*
       # @attribute {dr.node[]} subnodes
@@ -3189,10 +3206,10 @@ window.dr = do ->
     ###*
     # Use this method to add listeners for any properties that need to be
     # monitored on a subview that determine if it will be ignored by the layout.
-    # Each listenTo should look like: @listenTo(view, propname, func)
+    # Each listenTo should look like: this.listenTo(view, propname, func)
     # The default implementation monitors ignorelayout.
     # @param {dr.view} view The view to monitor.
-    # @param {function) The function to bind
+    # @param {Function} func The function to bind
     # @return {void}
     ###
     startMonitoringSubviewForIgnore: (view, func) ->
@@ -3201,10 +3218,10 @@ window.dr = do ->
     ###*
     # Use this method to remove listeners for any properties that need to be
     # monitored on a subview that determine if it will be ignored by the layout.
-    # Each stopListening should look like: @stopListening(view, propname, func)
+    # Each stopListening should look like: this.stopListening(view, propname, func)
     # The default implementation monitors ignorelayout.
     # @param {dr.view} view The view to monitor.
-    # @param {function) The function to unbind
+    # @param {Function} func The function to unbind
     # @return {void}
     ###
     stopMonitoringSubviewForIgnore: (view, func) ->

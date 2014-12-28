@@ -182,6 +182,23 @@
   <handler event="oninit">
     assert.equal(output.text, ' testing testing testing')
   </handler>
+
+  <view>
+    <handler event="oninit">
+      // create a new node
+      child = this.createChild()
+      assert.equal(this.subnodes.length, 1)
+      assert.equal(this.subviews.length, 0)
+      // create a new view
+      child = this.createChild({class: 'view'})
+      assert.equal(this.subnodes.length, 2)
+      assert.equal(this.subviews.length, 1)
+      // create a new view with attributes
+      child = this.createChild({class: 'view', bgcolor: 'blue', width: 10, height: 10, opacity: .5})
+      assert.equal(this.subnodes.length, 3)
+      assert.equal(this.subviews.length, 2)
+    </handler>
+  </view>
 </view>
 <!-- The MIT License (MIT)
 
