@@ -40,7 +40,8 @@
     visible: 'display',
     border: 'borderWidth',
     borderstyle: 'borderStyle',
-    bordercolor: 'borderColor'
+    bordercolor: 'borderColor',
+    boxshadow: 'boxShadow'
   };
 
   propmap = {
@@ -1973,6 +1974,11 @@
       /**
        * @attribute {String} [cursor='pointer']
        * Cursor that should be used when the mouse is over this view, can be any CSS cursor value. Only applies when clickable is true.
+       */
+
+      /**
+       * @attribute {String} [boxshadow]
+       * Drop shadow using standard CSS format (offset-x offset-y blur-radius spread-radius color). For example: "10px 10px 5px 0px #888888".
        */
 
       /**
