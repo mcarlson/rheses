@@ -224,7 +224,7 @@
       assert.equal(v1.y, 4);
       
       // Add a view with an alignment should get positioned correctly
-      v2 = new dr.item(null, {parent:block, x:'center', y:'center'});
+      v2 = this.createChild({class: 'item', parent:block, x:'center', y:'center'});
       assert.equal(v2.x, (200 - 6 - 20) / 2);
       assert.equal(v2.y, (30 - 6 - 20) / 2);
       

@@ -151,7 +151,7 @@
       layout.setAttribute('axis', 'y');
       container.setAttribute('width', 56);
       
-      var layoutH = new dr.constantlayout(null, {parent:container, attribute:'x', value:0});
+      var layoutH = this.createChild({class: 'constantlayout', parent:container, attribute:'x', value:0});
       layoutH.setAttribute('attribute', 'width');
       layoutH.setAttribute('value', 50);
       layoutH.destroy();

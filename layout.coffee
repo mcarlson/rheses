@@ -616,7 +616,8 @@ window.dr = do ->
     # @param Object options Should include a class attribute: 'class', e.g. {class: 'view'} unless a dr.node is desired.
     # @return {dr.node}
     ###
-    createChild: (attributes = {}) ->
+    createChild: (attributes = {}, async=false) ->
+      # async argument is used by replicators.
       classname = attributes.class ? 'node'
       delete attributes.class
       if typeof dr[classname] isnt 'function'
@@ -625,8 +626,8 @@ window.dr = do ->
 
       el = attributes.element
       delete attributes.element
-      attributes.parent = @
-      new dr[classname](el, attributes, true)
+      attributes.parent ?= @
+      new dr[classname](el, attributes, async)
 
     construct: (el, attributes) ->
       ###*
@@ -1702,7 +1703,6 @@ window.dr = do ->
       @clip = @scrollable = @clickable = @isaligned = @isvaligned = false
 
       # console.log 'sprite tagname', attributes.$tagname
-      if el instanceof View then el = el.sprite
       @_createSprite(el, attributes)
       super
       # console.log 'new view', el, attributes, @

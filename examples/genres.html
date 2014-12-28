@@ -49,7 +49,7 @@
     </method>
     <method name="show">
       if (! this.repl) {
-        this.repl = new dr.replicator(null, {datapath: "/subgenres[*]/name", classname: "subgenre", parent: this})
+        this.repl = this.createChild({class: 'replicator', datapath: "/subgenres[*]/name", classname: "subgenre"})
         if (parent.openedgenre) {
           parent.openedgenre.hide()
         }

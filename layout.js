@@ -816,10 +816,13 @@
        * @return {dr.node}
        */
 
-      Node.prototype.createChild = function(attributes) {
+      Node.prototype.createChild = function(attributes, async) {
         var classname, el, _ref;
         if (attributes == null) {
           attributes = {};
+        }
+        if (async == null) {
+          async = false;
         }
         classname = (_ref = attributes["class"]) != null ? _ref : 'node';
         delete attributes["class"];
@@ -829,8 +832,10 @@
         }
         el = attributes.element;
         delete attributes.element;
-        attributes.parent = this;
-        return new dr[classname](el, attributes, true);
+        if (attributes.parent == null) {
+          attributes.parent = this;
+        }
+        return new dr[classname](el, attributes, async);
       };
 
       Node.prototype.construct = function(el, attributes) {
@@ -2139,9 +2144,6 @@
         this.xanchor = this.yanchor = 'center';
         this.border = this.padding = this.width = this.height = this.zanchor = this.boundsxdiff = this.boundsydiff = this.boundsx = this.boundsy = this.boundswidth = this.boundsheight = 0;
         this.clip = this.scrollable = this.clickable = this.isaligned = this.isvaligned = false;
-        if (el instanceof View) {
-          el = el.sprite;
-        }
         this._createSprite(el, attributes);
         return View.__super__.construct.apply(this, arguments);
       };

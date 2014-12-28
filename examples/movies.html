@@ -50,7 +50,7 @@
       if @myRep
         @myRep.destroy()
       else
-        new dr.replicator(null, {name:"myRep", datapath: "/cast[0..4]/name", classname: "castmember", parent: this})
+        @createChild({class: 'replicator', name:"myRep", datapath: "/cast[0..4]/name", classname: "castmember"})
     </handler>
     <handler event="ondata" args="data">
       if data.images

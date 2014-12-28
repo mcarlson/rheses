@@ -198,7 +198,7 @@
       assert.equal(3, layoutBgcolor.subviews.length, 'Three views should be managed.');
       
       // Creating a view should manage it
-      var v5 = new dr.item(null, {parent:container, name:'v5'});
+      var v5 = this.createChild({class: 'item', parent:container, name:'v5'});
       assert.equal(4, layoutX.subviews.length, 'Four views should be managed.');
       assert.equal(4, layoutY.subviews.length, 'Four views should be managed.');
       assert.equal(4, layoutBgcolor.subviews.length, 'Four views should be managed.');
@@ -206,7 +206,7 @@
       assert.equal(5, v5.y, 'Fifth view should now have a y value of 5.');
       
       // Creating a view with ignorelayout:true should leave it unmanaged
-      var v6 = new dr.item(null, {parent:container, name:'v6', ignorelayout:true});
+      var v6 = this.createChild({class: 'item', parent:container, name:'v6', ignorelayout:true});
       assert.equal(4, layoutX.subviews.length, 'Four views should be managed.');
       assert.equal(4, layoutY.subviews.length, 'Four views should be managed.');
       assert.equal(4, layoutBgcolor.subviews.length, 'Four views should be managed.');
@@ -253,7 +253,7 @@
       assert.equal(10, v3.height, 'Third view should have a height of 10.');
       assert.equal(10, v5.height, 'Fourth view should have a height of 10.');
       assert.equal(10, v6.height, 'Sixth view should have a height of 10.');
-      var layoutH = new dr.constantlayout(null, {parent:container, name:'layoutH', attribute:'height', value:8});
+      var layoutH = this.createChild({class: 'constantlayout', parent:container, name:'layoutH', attribute:'height', value:8});
       assert.equal(3, container.layouts.length, 'Two layouts should exist.');
       assert.equal(5, layoutH.subviews.length, 'Five views should be managed.');
       assert.equal(8, v1.height, 'First view should have a width of 8.');

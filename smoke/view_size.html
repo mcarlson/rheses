@@ -184,7 +184,7 @@
       block = this.auto1;
       
       // Add a view
-      v1 = new dr.item(null, {parent:block});
+      v1 = this.createChild({class: 'item', parent:block});
       assert.equal(block.width, 25);
       assert.equal(block.height, 25);
       

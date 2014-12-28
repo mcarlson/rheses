@@ -439,13 +439,13 @@ SOFTWARE. -->
             i = @children.length;
             while @data.length > @children.length
               datum = @data[i++]
-              @children.push(new dr[@classname](null, {data: datum, parent: @parent, replicator: @}, @async))
+              @children.push(@createChild({class: @classname, data: datum, parent: @parent, replicator: @}, @async))
               # console.log 'replicator created', @classname, @children[@children.length - 1]
         else
           @clear()
           for datum in @data
             # console.log 'replicator creating', @classname, 'in', @parent
-            @children.push(new dr[@classname](null, {data: datum, parent: @parent, replicator: @}, @async))
+            @children.push(@createChild({class: @classname, data: datum, parent: @parent, replicator: @}, @async))
             # console.log 'replicator created', @classname, @children[@children.length - 1]
 
         finalize = () =>

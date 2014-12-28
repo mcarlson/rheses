@@ -22,7 +22,7 @@
           @setAttribute('width', @width / 2)
           @setAttribute('height', @height / 2)
         when 3
-          new dr.item(null, {parent:@parent, width:50, height:50, bgcolor:'purple'})
+          @createChild({class: 'item', parent:@parent, width:50, height:50, bgcolor:'purple'})
         when 4
           @destroy()
     </handler>

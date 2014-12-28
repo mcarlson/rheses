@@ -43,7 +43,7 @@
     
     <handler event="oninit">
       var count = 500;
-      while (--count) new dr.item(null, {parent:this});
+      while (--count) this.createChild({class: 'item'});
       this.layout.setAttribute('locked', false);
     </handler>
   </view>
