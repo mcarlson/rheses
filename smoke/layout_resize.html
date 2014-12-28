@@ -20,7 +20,7 @@
       
       <view name="inner" width="100%" height="100%" ignorelayout="true" bgcolor="#cccccc"></view>
       
-      <item name="v1" bgcolor="#eeeeee" layouthint="1"></item>
+      <item name="v1" bgcolor="#eeeeee" layouthint='{"weight":1}'></item>
       <item name="v2" bgcolor="#ddddcc"></item>
       <item name="v3" bgcolor="#ccccaa"></item>
       <item name="v4" bgcolor="#bbbb88"></item>
@@ -34,11 +34,11 @@
       
       <view name="inner" width="100%" height="100%" ignorelayout="true" bgcolor="#cccccc"></view>
       
-      <item name="v1" bgcolor="#eeeeee" layouthint="1"></item>
+      <item name="v1" bgcolor="#eeeeee" layouthint='{"weight":1}'></item>
       <item name="v2" bgcolor="#ddddcc" rotation="15" y="top"></item>
       <item name="v3" bgcolor="#ccccaa"></item>
       <item name="v4" bgcolor="#bbbb88"></item>
-      <item name="v5" bgcolor="#aaaa66" xscale="2" layouthint="1"></item>
+      <item name="v5" bgcolor="#aaaa66" xscale="2" layouthint='{"weight":1}'></item>
       
       <handler event="oninit">
         assert.equal(2, this.v1.x, 'The first view is at inset.');
@@ -115,7 +115,7 @@
       assert.equal(444, v5.x, 'The fifth view is at 444.');
       
       // Make another view stretchy. No change should occur until a layout update occurs.
-      v5.setAttribute('layouthint', 1);
+      v5.setAttribute('layouthint', '{"weight":1}');
       assert.equal(5, v1.x, 'The first view is at inset.');
       assert.equal(141, v1.width, 'The first view has a width of 141 since it shares space equally with v5.');
       assert.equal(148, v2.x, 'The second view is at 148.');

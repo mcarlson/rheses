@@ -46,7 +46,7 @@
       ></wrappinglayout>
       
       <item name="v1" width="40" height="35" bgcolor="#eeeeee"></item>
-      <item name="v2" width="50" height="25" bgcolor="#ddddcc" layouthint="break"></item>
+      <item name="v2" width="50" height="25" bgcolor="#ddddcc" layouthint='{"break":true}'></item>
       <item name="v3" width="60" height="35" bgcolor="#ccccaa"></item>
       <item name="v4" width="70" height="45" bgcolor="#bbbb88" rotation="45"></item>
       <item name="v5" width="80" height="35" bgcolor="#aaaa66"></item>
@@ -212,7 +212,7 @@
         assert.equal(this.lineCalls.join(', '), 'start 1, value 2, end 1, item 4, value 305, start 2, value 2, end 2, item 3, value 334, start 3, value 2, end 3, item 2, value 213');
         
         // Make another line occur.
-        this.v2.setAttribute('layouthint', 'break')
+        this.v2.setAttribute('layouthint', '{"break":true}')
         
         assert.equal(4, this.linecount, 'The line count is 4.')
         assert.equal(348, this.maxsize, 'The max size is 348.')
@@ -327,7 +327,7 @@
         
         // flip axis and force a single lines
         layout.setAttribute('axis', 'y')
-        v2.setAttribute('layouthint', 'break')
+        v2.setAttribute('layouthint', '{"break":true}')
         
         assert.equal(51, v1.y);
         
@@ -548,14 +548,14 @@
       assert.equal(306, container.innerwidth, 'The innerwidth of the container should be 306.');
       
       // Force a few breaks
-      v2.setAttribute('layouthint', 'break');
-      v3.setAttribute('layouthint', 'break');
+      v2.setAttribute('layouthint', '{"break":true}');
+      v3.setAttribute('layouthint', '{"break":true}');
       assert.equal(104, v2.x, 'The second view is now at 104 since it is a break.');
       assert.equal(205, v3.x, 'The third view is now at 205 since it is a break.');
       assert.equal(407, container.innerwidth, 'The innerwidth of the container should be 407.');
       
       // Remove a break
-      v2.setAttribute('layouthint', '');
+      v2.setAttribute('layouthint', null);
       assert.equal(2, v2.x, 'The second view is now at 2 since it is no longer a break.');
       assert.equal(104, v3.x, 'The third view is now at 104.');
       assert.equal(306, container.innerwidth, 'The innerwidth of the container should be 306.');

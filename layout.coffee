@@ -1342,6 +1342,7 @@ window.dr = do ->
     resize: true,
     multiline: true,
     ignorelayout: true,
+    layouthint: true,
     initchildren: true,
     rotation: true,
     xscale: true,
@@ -1604,6 +1605,23 @@ window.dr = do ->
     # @attribute {String} [boxshadow]
     # Drop shadow using standard CSS format (offset-x offset-y blur-radius spread-radius color). For example: "10px 10px 5px 0px #888888".
     ###
+    ###*
+    # @attribute {String} [ignorelayout='false']
+    # Indicates if layouts should ignore this view or not. A variety of
+    # configuration mechanisms are supported. Provided true or false will
+    # cause the view to be ignored or not by all layouts. If instead a
+    # serialized map is provided the keys of the map will target values
+    # the layouts with matching names. A special key of '*' indicates a
+    # default value for all layouts not specifically mentioned in the map.
+    ###
+    ###*
+    # @attribute {String} [layouthint='']
+    # Provides per view hinting to layouts. The specific hints supported
+    # are layout specific. Hints are provided as a map. A map key may
+    # be prefixied with the name of a layout followed by a '/'. This will
+    # target that hint at a specific layout. If the prefix is ommitted or
+    # a prefix of '*' is used the hint will be targeted to all layouts.
+    ###
 
     ###*
     # @event onclick
@@ -1658,7 +1676,7 @@ window.dr = do ->
       opacity: 1,
       clickable:false, clip:false, scrollable:false, visible:true, cursor:'pointer',
       bordercolor:'transparent', borderstyle:'solid', border:0,
-      padding:0, ignorelayout:false,
+      padding:0, ignorelayout:false
     }
     construct: (el, attributes) ->
       ###*
@@ -1671,15 +1689,6 @@ window.dr = do ->
       # @readonly
       # An array of this views's layouts. Only defined when needed.
       ###
-      ###*
-      # @attribute {String} [ignorelayout='false']
-      # Indicates if layouts should ignore this view or not. A variety of
-      # configuration mechanisms are supported. Provided true or false will
-      # cause the view to be ignored or not by all layouts. If instead a
-      # serialized map is provided the keys of the map will target values
-      # the layouts with matching names. A special key of '*' indicates a
-      # default value for all layouts not specifically mentioned in the map.
-      ###
 
       @subviews = []
       types = {
@@ -1688,7 +1697,8 @@ window.dr = do ->
         rotation: 'number', opacity: 'number',
         width: 'positivenumber', height: 'positivenumber',
         clickable: 'boolean', clip: 'boolean', scrollable: 'boolean', visible: 'boolean',
-        border: 'positivenumber', padding: 'positivenumber', ignorelayout:'json',
+        border: 'positivenumber', padding: 'positivenumber',
+        ignorelayout:'json', layouthint:'json',
         scrollx:'number', scrolly:'number'
       }
 
@@ -2189,6 +2199,26 @@ window.dr = do ->
 
     getAbsolute: () ->
       @sprite.getAbsolute()
+
+    ###*
+    # Gets the value of a named layout hint.
+    # @param {String} layoutName The name of the layout to match.
+    # @param {String} key The name of the hint to match.
+    # @return {*} The value of the hint or undefined if not found.
+    ###
+    getLayoutHint: (layoutName, hintName) ->
+      hints = this.layouthint
+      if hints
+        hint = hints[layoutName + '/' + hintName]
+        if hint? then return hint
+        
+        hint = hints[hintName]
+        if hint? then return hint
+        
+        hint = hints['*/' + hintName]
+        if hint? then return hint
+      else
+        # No hints exist
 
     set_class: (classname) ->
       @sprite.set_class(classname)
