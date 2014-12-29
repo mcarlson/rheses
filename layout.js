@@ -373,7 +373,7 @@
           if (typeof val !== 'string') {
             return val;
           }
-          return eval(val);
+          return compiler.compile("return " + val)();
         },
         positivenumber: function(val) {
           val = parseFloat(val);

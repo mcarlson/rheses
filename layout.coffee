@@ -265,7 +265,7 @@ window.dr = do ->
       expression: (val) ->
         if typeof val isnt 'string'
           return val
-        eval(val)
+        compiler.compile("return #{val}")()
       positivenumber: (val) ->
         val = parseFloat(val)
         if isNaN val then 0 else Math.max(0, val)
