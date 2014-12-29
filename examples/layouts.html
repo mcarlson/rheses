@@ -72,9 +72,9 @@
   
   <view width="300" height="auto" bgcolor="#999999" padding="2" border="1" bordercolor="black">
     <item width="10" height="20" bgcolor="green"></item>
-    <item height="20" layouthint="1"></item>
-    <item layouthint="2" height="20" bgcolor="purple"></item>
-    <item height="20" layouthint="1"></item>
+    <item height="20" layouthint='{"weight":1}'></item>
+    <item layouthint='{"weight":2}' height="20" bgcolor="purple"></item>
+    <item height="20" layouthint='{"weight":1}'></item>
     <item width="10" height="20" bgcolor="yellow"></item>
     
     <resizelayout spacing="1" inset="1" outset="1"></resizelayout>
@@ -82,7 +82,7 @@
   
   <view bgcolor="#999999" width="300" id="foo" padding="10" border="2" bordercolor="#99ff33">
     <item2 bgcolor="green"></item2>
-    <item2 layouthint="break"></item2>
+    <item2 layouthint='{"break":true}'></item2>
     <item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2>
     <item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2>
     <item2 bgcolor="orange">

@@ -43,7 +43,7 @@ SOFTWARE. -->
       *     </resizelayout>
       *
       *     <view height="25" bgcolor="lightpink"></view>
-      *     <view height="35" bgcolor="plum" layouthint="1"></view>
+      *     <view height="35" bgcolor="plum" layouthint='{"weight":1}'></view>
       *     <view height="15" bgcolor="lightblue"></view>
       */-->
 <class name="resizelayout" extends="spacedlayout" type="coffee">
@@ -65,7 +65,8 @@ SOFTWARE. -->
   <method name="startMonitoringSubview" args="view">
     # Don't monitor width/height of the "stretchy" subviews since this 
     # layout resizes them so you would get an infinite loop.
-    if !(Number(view.layouthint) > 0)
+    hint = view.getLayoutHint(@name, 'weight')
+    if !(Number(hint) > 0)
       @listenTo(view, @__measureAttrName, @update)
       @listenTo(view, @__diffAttrName, @update)
     @listenTo(view, 'visible', @update)
@@ -75,7 +76,8 @@ SOFTWARE. -->
   <method name="stopMonitoringSubview" args="view">
     # Don't monitor width/height of the "stretchy" subviews since this 
     # layout resizes them so you would get an infinite loop.
-    if !(Number(view.layouthint) > 0)
+    hint = view.getLayoutHint(@name, 'weight')
+    if !(Number(hint) > 0)
       @stopListening(view, @__measureAttrName, @update)
       @stopListening(view, @__diffAttrName, @update)
     @stopListening(view, 'visible', @update)
@@ -99,7 +101,7 @@ SOFTWARE. -->
       sv = svs[--i]
       if @skipSubview(sv) then continue
       ++count
-      hint = Number(sv.layouthint)
+      hint = Number(sv.getLayoutHint(@name, 'weight'))
       if hint > 0
         resizeSum += hint
       else
@@ -116,7 +118,7 @@ SOFTWARE. -->
   </method>
 
   <method name="updateSubview" args="count, view, attribute, value">
-    hint = Number(view.layouthint)
+    hint = Number(view.getLayoutHint(@name, 'weight'))
     if hint > 0
       @resizeSumUsed += hint
       

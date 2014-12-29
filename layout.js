@@ -1728,6 +1728,7 @@
       resize: true,
       multiline: true,
       ignorelayout: true,
+      layouthint: true,
       initchildren: true,
       rotation: true,
       xscale: true,
@@ -2022,6 +2023,25 @@
        */
 
       /**
+       * @attribute {String} [ignorelayout='false']
+       * Indicates if layouts should ignore this view or not. A variety of
+       * configuration mechanisms are supported. Provided true or false will
+       * cause the view to be ignored or not by all layouts. If instead a
+       * serialized map is provided the keys of the map will target values
+       * the layouts with matching names. A special key of '*' indicates a
+       * default value for all layouts not specifically mentioned in the map.
+       */
+
+      /**
+       * @attribute {String} [layouthint='']
+       * Provides per view hinting to layouts. The specific hints supported
+       * are layout specific. Hints are provided as a map. A map key may
+       * be prefixied with the name of a layout followed by a '/'. This will
+       * target that hint at a specific layout. If the prefix is ommitted or
+       * a prefix of '*' is used the hint will be targeted to all layouts.
+       */
+
+      /**
        * @event onclick
        * Fired when this view is clicked
        * @param {dr.view} view The dr.view that fired the event
@@ -2110,16 +2130,6 @@
          * @readonly
          * An array of this views's layouts. Only defined when needed.
          */
-
-        /**
-         * @attribute {String} [ignorelayout='false']
-         * Indicates if layouts should ignore this view or not. A variety of
-         * configuration mechanisms are supported. Provided true or false will
-         * cause the view to be ignored or not by all layouts. If instead a
-         * serialized map is provided the keys of the map will target values
-         * the layouts with matching names. A special key of '*' indicates a
-         * default value for all layouts not specifically mentioned in the map.
-         */
         var key, type, types, _ref;
         this.subviews = [];
         types = {
@@ -2139,6 +2149,7 @@
           border: 'positivenumber',
           padding: 'positivenumber',
           ignorelayout: 'json',
+          layouthint: 'json',
           scrollx: 'number',
           scrolly: 'number'
         };
@@ -2776,6 +2787,35 @@
 
       View.prototype.getAbsolute = function() {
         return this.sprite.getAbsolute();
+      };
+
+
+      /**
+       * Gets the value of a named layout hint.
+       * @param {String} layoutName The name of the layout to match.
+       * @param {String} key The name of the hint to match.
+       * @return {*} The value of the hint or undefined if not found.
+       */
+
+      View.prototype.getLayoutHint = function(layoutName, hintName) {
+        var hint, hints;
+        hints = this.layouthint;
+        if (hints) {
+          hint = hints[layoutName + '/' + hintName];
+          if (hint != null) {
+            return hint;
+          }
+          hint = hints[hintName];
+          if (hint != null) {
+            return hint;
+          }
+          hint = hints['*/' + hintName];
+          if (hint != null) {
+            return hint;
+          }
+        } else {
+
+        }
       };
 
       View.prototype.set_class = function(classname) {

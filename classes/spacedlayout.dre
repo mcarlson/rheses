@@ -27,10 +27,22 @@ SOFTWARE. -->
       * updateparent is true an outset is also used to leave space after
       * the last subview.
       *
+      * Each view managed by a spaced layout supports two layout hints.
+      *     spacingbefore {Number} Indicates custom spacing to use before the
+      *         view. This value overrides spacing for the view it is defined
+      *         on. If spacingafter was used on the previous view this will
+      *         override that. Ignored for the first view layed out.
+      *     spacingafter {Number} Indicates custom spacing to use after the
+      *         view. This value overrides spacing for the view it is defined
+      *         on. Ignord on the last view layed out.
+      *
       * This spacedlayout will position the first view at a y of 5 and each
       * subsequent view will be 2 pixels below the bottom of the preceding one.
       * Since updateparent is true and an outset is defined the parent view
-      * will be sized to 5 pixels more than the bottom of the last view.
+      * will be sized to 5 pixels more than the bottom of the last view. A
+      * layout hint has been used on the fourth view so that it will have
+      * 10 pixels of space before it and 5 pixels of space after it instead
+      * of the spacing of 2 defined on the layout.
       *
       *     @example
       *     <spacedlayout axis="y" spacing="2" inset="5" outset="5" updateparent="true">
@@ -38,6 +50,8 @@ SOFTWARE. -->
       *
       *     <view width="100" height="25" bgcolor="lightpink"></view>
       *     <view width="100" height="35" bgcolor="plum"></view>
+      *     <view width="100" height="15" bgcolor="lightblue"></view>
+      *     <view width="100" height="35" bgcolor="plum" layouthint='{"spacingbefore":10, "spacingafter":5}'></view>
       *     <view width="100" height="15" bgcolor="lightblue"></view>
       */-->
 <class name="spacedlayout" extends="variablelayout" type="coffee">
@@ -136,6 +150,7 @@ SOFTWARE. -->
     # Monitor each subview's measure and bounds offset
     @listenTo(view, @__measureAttrName, @update)
     @listenTo(view, @__diffAttrName, @update)
+    @listenTo(view, 'layouthint', @update)
   </method>
   
   <method name="stopMonitoringSubview" args="view">
@@ -144,15 +159,26 @@ SOFTWARE. -->
     # No longer monitor each subview's measure and bounds offset
     @stopListening(view, @__measureAttrName, @update)
     @stopListening(view, @__diffAttrName, @update)
+    @stopListening(view, 'layouthint', @update)
   </method>
   
   <method name="updateSubview" args="count, view, attribute, value">
+    # Determine hint based spacing
+    if count > 1
+      before = view.getLayoutHint(@name, 'spacingbefore')
+      unless isNaN before
+        value += before - @__spacingAfter
+    
     # Position the view at the provided value and compensate for 
     # any transformation position difference
     view.setAttribute(attribute, view[@__diffAttrName] + value)
     
+    # Use spacingafter hint if defined instead of spacing
+    @__spacingAfter = view.getLayoutHint(@name, 'spacingafter')
+    if isNaN @__spacingAfter then @__spacingAfter = @spacing
+    
     # The next view should be positioned after this view plus the spacing.
-    return value + view[@__measureAttrName] + @spacing
+    return value + view[@__measureAttrName] + @__spacingAfter
   </method>
   
   <method name="updateParent" args="attribute, value">
@@ -161,6 +187,6 @@ SOFTWARE. -->
     # Also allow for the difference between innersize and size due to border 
     # and padding.
     parent = @parent
-    parent.setAttribute(@__parentAttrName, value + @outset - @spacing + parent[@__parentAttrName] - parent[@__innerAttrName])
+    parent.setAttribute(@__parentAttrName, value + @outset - @__spacingAfter + parent[@__parentAttrName] - parent[@__innerAttrName])
   </method>
 </class>
