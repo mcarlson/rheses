@@ -40,6 +40,19 @@ SOFTWARE. -->
      */-->
     <class name="labelbutton" type="coffee" extends="buttonbase">
 
+      <!--/**
+        * @attribute {String} [bgcolor]
+        * Sets this view's background color, same as setting defaultcolor.
+        */-->
+      
+      <method name="construct" args="el, attributes">
+        if attributes.bgcolor
+          attributes.defaultcolor = attributes.bgcolor
+          delete attributes.bgcolor
+        
+        this.super()
+      </method>
+
       <handler event="oninit">
         if !@text or @text.length == 0
           @inline = @sprite.getText(true)

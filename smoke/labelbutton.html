@@ -13,9 +13,7 @@
   <script type="text/javascript" src="/lib/coffee-script.js"></script>
   <script type="text/javascript" src="/layout.js"></script>
   <script type="text/javascript" src="/lib/chai.js"></script>
-  <script>
-    var assert = chai.assert
-  </script>
+  <script type="text/javascript" src="/lib/smoke_helper.js"></script>
 </head>
 <body>
 <view id="all" width="100%" height="100%" clip="true">
@@ -24,9 +22,26 @@
   <!-- Setting text values, see text.html for more text tests -->
   <labelbutton width="100" height="30">
     <handler event="oninit">
+      assert.testCaseLabel = 'Setting text values';
       assert.equal(this.text, undefined)
       assert.equal(this.label.text, '')
       assert.equal(this.label.sprite.el.innerText, '')
+    </handler>
+  </labelbutton>
+  
+  <!-- Setting bgcolor should override defaultcolor -->
+  <labelbutton width="100" height="30" bgcolor="OliveDrab">
+    <handler event="oninit">
+      assert.testCaseLabel = 'Setting bgcolor should set default color';
+      assert.equal(this.defaultcolor, 'OliveDrab')
+    </handler>
+  </labelbutton>
+
+  <!-- Setting bgcolor should override defaultcolor if defaultcolor set -->
+  <labelbutton width="100" height="30" bgcolor="OliveDrab" defaultcolor="thistle">
+    <handler event="oninit">
+      assert.testCaseLabel = 'Setting bgcolor should override defaultcolor if defaultcolor set';
+      assert.equal(this.defaultcolor, 'OliveDrab')
     </handler>
   </labelbutton>
 

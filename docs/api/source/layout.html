@@ -390,7 +390,7 @@
           if (typeof val !== &#39;string&#39;) {
             return val;
           }
-          return eval(val);
+          return compiler.compile(&quot;return &quot; + val)();
         },
         positivenumber: function(val) {
           val = parseFloat(val);
@@ -833,10 +833,13 @@
        * @return {dr.node}
        */
 
-      Node.prototype.createChild = function(attributes) {
+      Node.prototype.createChild = function(attributes, async) {
         var classname, el, _ref;
         if (attributes == null) {
           attributes = {};
+        }
+        if (async == null) {
+          async = false;
         }
         classname = (_ref = attributes[&quot;class&quot;]) != null ? _ref : &#39;node&#39;;
         delete attributes[&quot;class&quot;];
@@ -846,8 +849,10 @@
         }
         el = attributes.element;
         delete attributes.element;
-        attributes.parent = this;
-        return new dr[classname](el, attributes, true);
+        if (attributes.parent == null) {
+          attributes.parent = this;
+        }
+        return new dr[classname](el, attributes, async);
       };
 
       Node.prototype.construct = function(el, attributes) {
@@ -1453,22 +1458,28 @@
         if (parent instanceof Sprite) {
           parent = parent.el;
         }
-        return parent.appendChild(this.el);
+        if (this.el.parentNode !== parent) {
+          return parent.appendChild(this.el);
+        }
       };
 
       Sprite.prototype.set_id = function(id) {
         return this.el.setAttribute(&#39;id&#39;, id);
       };
 
-      Sprite.prototype.animate = function() {
-        var anim, animTick, animators, first, name, track, value, _ref;
+      Sprite.prototype.animate = function(attributes, time) {
+        var anim, animTick, animators, first, name, track, value;
+        if (time == null) {
+          time = 400;
+        }
         animators = {};
-        _ref = arguments[0];
-        for (name in _ref) {
-          value = _ref[name];
+        for (name in attributes) {
+          value = attributes[name];
           track = {};
           track[0] = this[name] || 0;
-          track[arguments[1] || 1000] = value;
+          track[time] = value;
+          track.motion = &#39;bret&#39;;
+          track.control = [0.01];
           anim = Animator.createAnimator();
           anim.playStateless(track);
           animators[name] = anim;
@@ -1573,7 +1584,10 @@
 
       Sprite.prototype.destroy = function() {
         this.el.parentNode.removeChild(this.el);
-        return this.el = this.jqel = null;
+        if (this.input) {
+          this.input = this.input.$view = null;
+        }
+        return this.el = this.jqel = this.el.$view = null;
       };
 
       Sprite.prototype.setText = function(txt) {
@@ -2156,9 +2170,6 @@
         this.xanchor = this.yanchor = &#39;center&#39;;
         this.border = this.padding = this.width = this.height = this.zanchor = this.boundsxdiff = this.boundsydiff = this.boundsx = this.boundsy = this.boundswidth = this.boundsheight = 0;
         this.clip = this.scrollable = this.clickable = this.isaligned = this.isvaligned = false;
-        if (el instanceof View) {
-          el = el.sprite;
-        }
         this._createSprite(el, attributes);
         return View.__super__.construct.apply(this, arguments);
       };
@@ -2972,10 +2983,12 @@
       InputText.prototype.sendEvent = function(name, value) {
         InputText.__super__.sendEvent.apply(this, arguments);
         if (name === &#39;keydown&#39; || name === &#39;keyup&#39; || name === &#39;blur&#39; || name === &#39;change&#39;) {
-          value = this.sprite.value();
-          if (this.text !== value) {
-            this.text = value;
-            return this.sendEvent(&#39;text&#39;, value);
+          if (this.sprite) {
+            value = this.sprite.value();
+            if (this.text !== value) {
+              this.text = value;
+              return this.sendEvent(&#39;text&#39;, value);
+            }
           }
         }
       };
@@ -2997,7 +3010,7 @@
     specialtags = [&#39;handler&#39;, &#39;method&#39;, &#39;attribute&#39;, &#39;setter&#39;, &#39;include&#39;];
     matchEvent = /^on/;
     dom = (function() {
-      var builtinTags, checkRequiredAttributes, exports, findAutoIncludes, flattenattributes, htmlDecode, initAllElements, initElement, initFromElement, processSpecialTags, requiredAttributes, sendInit, writeCSS;
+      var builtinTags, checkRequiredAttributes, exports, findAutoIncludes, flattenattributes, getChildElements, htmlDecode, initAllElements, initElement, initFromElement, processSpecialTags, requiredAttributes, sendInit, writeCSS;
       flattenattributes = function(namednodemap) {
         var attributes, i, _i, _len;
         attributes = {};
@@ -3023,6 +3036,18 @@
           window.DREEM_INITED = true;
           return sendInit();
         });
+      };
+      getChildElements = function(el) {
+        var child, _i, _len, _ref, _results;
+        _ref = el.childNodes;
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i &lt; _len; _i++) {
+          child = _ref[_i];
+          if (child.nodeType === 1) {
+            _results.push(child);
+          }
+        }
+        return _results;
       };
       findAutoIncludes = function(parentel, finalcallback) {
         var blacklist, dependencies, fileloaded, filereloader, filerequests, findIncludeURLs, findMissingClasses, includedScripts, inlineclasses, jqel, loadInclude, loadIncludes, loadScript, loadqueue, scriptloading, validator;
@@ -3137,7 +3162,7 @@
             loadInclude(url, el);
           }
           return $.when.apply($, filerequests).done(function() {
-            var args, html, includeRE, name, xhr, _i, _len, _ref1;
+            var args, file, html, includeRE, name, xhr, _i, _len, _ref1, _results;
             args = 1 &lt;= arguments.length ? __slice.call(arguments, 0) : [];
             if (filerequests.length === 1) {
               args = [args];
@@ -3155,7 +3180,7 @@
               fileloaded[name] = true;
               loadInclude(&quot;/classes/&quot; + name + &quot;.dre&quot;, el);
             }
-            return $.when.apply($, filerequests).done(function() {
+            $.when.apply($, filerequests).done(function() {
               var args, includes, oneurl, _j, _len1;
               args = 1 &lt;= arguments.length ? __slice.call(arguments, 0) : [];
               if (filerequests.length === 1) {
@@ -3190,6 +3215,7 @@
                 Node.prototype.enumfalse(Node.prototype.keys());
                 View.prototype.enumfalse(View.prototype.keys());
                 Layout.prototype.enumfalse(Layout.prototype.keys());
+                State.prototype.enumfalse(State.prototype.keys());
                 loadScript(&#39;/lib/animator.js&#39;, callback, &#39;Missing /lib/animator.js&#39;);
                 _ref2 = jqel.find(&#39;[scriptincludes]&#39;);
                 _results = [];
@@ -3221,6 +3247,11 @@
                 showWarnings([&quot;failed to load &quot; + xhr.url + &quot; for element &quot; + xhr.el.outerHTML]);
               }
             });
+            _results = [];
+            for (file in fileloaded) {
+              _results.push(fileloaded[file] = true);
+            }
+            return _results;
           }).fail(function() {
             var args, xhr, _i, _len;
             args = 1 &lt;= arguments.length ? __slice.call(arguments, 0) : [];
@@ -3366,18 +3397,7 @@
         if (!(isClass || isState)) {
           dom.processSpecialTags(el, attributes, attributes.type);
         }
-        children = (function() {
-          var _j, _len1, _ref, _results;
-          _ref = el.childNodes;
-          _results = [];
-          for (_j = 0, _len1 = _ref.length; _j &lt; _len1; _j++) {
-            child = _ref[_j];
-            if (child.nodeType === 1) {
-              _results.push(child);
-            }
-          }
-          return _results;
-        })();
+        children = dom.getChildElements(el);
         attributes.$skiponinit = skiponinit = children.length &gt; 0;
         if (typeof dr[tagname] === &#39;function&#39;) {
           parent = new dr[tagname](el, attributes, true);
@@ -3392,11 +3412,11 @@
           if (!dr[tagname].skipinitchildren) {
             children = (function() {
               var _j, _len1, _ref, _ref1, _results;
-              _ref = el.childNodes;
+              _ref = dom.getChildElements(el);
               _results = [];
               for (_j = 0, _len1 = _ref.length; _j &lt; _len1; _j++) {
                 child = _ref[_j];
-                if (child.nodeType === 1 &amp;&amp; (_ref1 = child.localName, __indexOf.call(specialtags, _ref1) &lt; 0)) {
+                if (_ref1 = child.localName, __indexOf.call(specialtags, _ref1) &lt; 0) {
                   _results.push(child);
                 }
               }
@@ -3465,11 +3485,11 @@
         }
         children = (function() {
           var _i, _len, _ref, _ref1, _results;
-          _ref = el.childNodes;
+          _ref = dom.getChildElements(el);
           _results = [];
           for (_i = 0, _len = _ref.length; _i &lt; _len; _i++) {
             child = _ref[_i];
-            if (child.nodeType === 1 &amp;&amp; (_ref1 = child.localName, __indexOf.call(specialtags, _ref1) &gt;= 0)) {
+            if (_ref1 = child.localName, __indexOf.call(specialtags, _ref1) &gt;= 0) {
               _results.push(child);
             }
           }
@@ -3528,7 +3548,8 @@
         initAllElements: initAllElements,
         initElement: initElement,
         processSpecialTags: processSpecialTags,
-        writeCSS: writeCSS
+        writeCSS: writeCSS,
+        getChildElements: getChildElements
       };
     })();
 
@@ -3560,7 +3581,7 @@
       __extends(State, _super);
 
       function State(el, attributes) {
-        var child, compilertype, finish, handler, instancebody, name, oldbody, processedChildren, value, _i, _j, _len, _len1, _ref, _ref1;
+        var child, compilertype, finish, handler, name, oldbody, processedChildren, value, _i, _j, _len, _len1, _ref, _ref1;
         if (attributes == null) {
           attributes = {};
         }
@@ -3575,17 +3596,13 @@
           child = processedChildren[_i];
           child.parentNode.removeChild(child);
         }
-        instancebody = el.innerHTML.trim();
+        this.instancebody = el.innerHTML.trim();
         if (oldbody) {
           el.innerHTML = oldbody;
         }
         this.types = (_ref = attributes.$types) != null ? _ref : {};
         this.setAttribute(&#39;parent&#39;, attributes.parent);
         this.installMethods(attributes.$methods, this.parent.$tagname, this, this.parent);
-        if (attributes.name) {
-          this.setAttribute(&#39;name&#39;, attributes.name);
-          this.skipattributes.push(&#39;name&#39;);
-        }
         if (attributes.applied) {
           this.bindAttribute(&#39;applied&#39;, attributes.applied, &#39;state&#39;);
         }
@@ -3608,13 +3625,9 @@
           return function() {
             if (_this.constraints) {
               _this._bindConstraints();
-              _this.skipattributes.push(&#39;constraints&#39;);
             }
             if (_this.events) {
               _this.skipattributes.push(&#39;events&#39;);
-            }
-            if (_this.handlers) {
-              _this.skipattributes.push(&#39;handlers&#39;);
             }
             return _this.enumfalse(_this.skipattributes);
           };
@@ -3622,6 +3635,7 @@
         callOnIdle(finish);
         if (el) {
           el.$view = this;
+          this.children = [];
         }
         this.initialize(true);
       }
@@ -3635,18 +3649,10 @@
       State.prototype.set_applied = function(applied) {
         var name, parentname, val;
         if (this.parent &amp;&amp; this.applied !== applied) {
-          this.applied = applied;
           if (applied) {
-            this.parent.learn(this);
-            if (this.stateattributes.$handlers) {
-              this.parent.installHandlers(this.stateattributes.$handlers, this.parent.$tagname, this.parent);
-              this.parent._bindHandlers();
-            }
+            this._apply();
           } else {
-            this.parent.forget(this);
-            if (this.stateattributes.$handlers) {
-              this.parent.removeHandlers(this.stateattributes.$handlers, this.parent.$tagname, this.parent);
-            }
+            this._remove();
           }
           parentname = this.parent.$tagname;
           for (name in this.applyattributes) {
@@ -3658,15 +3664,54 @@
         return applied;
       };
 
-      State.prototype.apply = function() {
-        if (!this.applied) {
-          return this.setAttribute(&#39;applied&#39;, true);
+      State.prototype._apply = function() {
+        var children, childrenbefore, el, i, parentel, subnode, _i, _j, _len, _len1;
+        if (this.applied) {
+          return;
+        }
+        this.parent.learn(this);
+        if (this.instancebody) {
+          parentel = this.parent.sprite.el;
+          childrenbefore = dom.getChildElements(parentel);
+          for (_i = 0, _len = childrenbefore.length; _i &lt; _len; _i++) {
+            el = childrenbefore[_i];
+            if (el.$view) {
+              el.$view = null;
+            }
+          }
+          parentel.innerHTML += this.instancebody;
+          children = dom.getChildElements(parentel);
+          for (i = _j = 0, _len1 = children.length; _j &lt; _len1; i = ++_j) {
+            el = children[i];
+            if (i &lt; childrenbefore.length) {
+              subnode = this.parent.subnodes[i];
+              if (subnode != null ? subnode.sprite : void 0) {
+                subnode.sprite.el = el;
+              }
+              el.$view = subnode;
+            } else {
+              dom.initElement(el, this.parent);
+              this.children.push(el.$view);
+            }
+          }
+        }
+        if (this.stateattributes.$handlers) {
+          this.parent.installHandlers(this.stateattributes.$handlers, this.parent.$tagname, this.parent);
+          return this.parent._bindHandlers();
         }
       };
 
-      State.prototype.remove = function() {
-        if (this.applied) {
-          return this.setAttribute(&#39;applied&#39;, false);
+      State.prototype._remove = function() {
+        var child;
+        if (!this.applied) {
+          return;
+        }
+        while (child = this.children.pop()) {
+          child.destroy();
+        }
+        this.parent.forget(this);
+        if (this.stateattributes.$handlers) {
+          return this.parent.removeHandlers(this.stateattributes.$handlers, this.parent.$tagname, this.parent);
         }
       };
 
@@ -3772,18 +3817,7 @@
           child = processedChildren[_i];
           child.parentNode.removeChild(child);
         }
-        haschildren = ((function() {
-          var _j, _len1, _ref, _results;
-          _ref = el.childNodes;
-          _results = [];
-          for (_j = 0, _len1 = _ref.length; _j &lt; _len1; _j++) {
-            child = _ref[_j];
-            if (child.nodeType === 1) {
-              _results.push(child);
-            }
-          }
-          return _results;
-        })()).length &gt; 0;
+        haschildren = dom.getChildElements(el).length &gt; 0;
         instancebody = el.innerHTML.trim();
         if (oldbody) {
           el.innerHTML = oldbody;
@@ -3837,11 +3871,11 @@
             if (!skipchildren) {
               children = (function() {
                 var _j, _len1, _ref1, _ref2, _results;
-                _ref1 = viewel.childNodes;
+                _ref1 = dom.getChildElements(viewel);
                 _results = [];
                 for (_j = 0, _len1 = _ref1.length; _j &lt; _len1; _j++) {
                   child = _ref1[_j];
-                  if (child.nodeType === 1 &amp;&amp; (_ref2 = child.localName, __indexOf.call(specialtags, _ref2) &lt; 0)) {
+                  if (_ref2 = child.localName, __indexOf.call(specialtags, _ref2) &lt; 0) {
                     _results.push(child);
                   }
                 }
