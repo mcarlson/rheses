@@ -641,7 +641,7 @@
           return scriptCache[key] = func;
         } catch (_error) {
           e = _error;
-          return console.error('failed to compile', e.toString(), args, script);
+          return showWarnings(["Failed to compile " + (e.toString()) + " " + args + " " + script]);
         }
       };
       compile = function(script, args, name) {
@@ -801,7 +801,7 @@
               for (_j = 0, _len1 = methodObj.length; _j < _len1; _j++) {
                 _ref1 = methodObj[_j], method = _ref1.method, args = _ref1.args;
                 hassuper = matchSuper.test(method);
-                _installMethod(this, methodName, compiler.compile(method, args, attributes.$tagname + "$" + methodName).bind(this), hassuper);
+                _installMethod(this, methodName, compiler.compile(method, args, "" + attributes.$tagname + "$" + methodName).bind(this), hassuper);
               }
             }
           }
@@ -4989,6 +4989,9 @@
       return Keyboard;
 
     })(Eventable);
+    window.onerror = function(e) {
+      return showWarnings([e.toString()]);
+    };
 
     /**
      * @class dr {Core Dreem}

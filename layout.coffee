@@ -471,7 +471,7 @@ window.dr = do ->
         # console.log 'compiled', func
         scriptCache[key] = func
       catch e
-        console.error 'failed to compile', e.toString(), args, script
+        showWarnings(["Failed to compile #{e.toString()} #{args} #{script}"])
 
     # compile a string into a function
     compile = (script='', args=[], name='') ->
@@ -607,7 +607,7 @@ window.dr = do ->
           if methodObj
             for {method, args} in methodObj
               hassuper = matchSuper.test(method)
-              _installMethod(@, methodName, compiler.compile(method, args, attributes.$tagname + "$" + methodName).bind(@), hassuper)
+              _installMethod(@, methodName, compiler.compile(method, args, "#{attributes.$tagname}$#{methodName}").bind(@), hassuper)
       
       @construct(el, attributes)
 
@@ -3972,6 +3972,9 @@ window.dr = do ->
       ###
       @sendEvent('keys', @keys)
       # console.log 'handleKeyboard', type, target, out, event
+
+  window.onerror = (e) ->
+    showWarnings([e.toString()])
 
   ###*
   # @class dr {Core Dreem}
