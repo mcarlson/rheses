@@ -3136,7 +3136,7 @@
             loadInclude(url, el);
           }
           return $.when.apply($, filerequests).done(function() {
-            var args, html, includeRE, name, xhr, _i, _len, _ref1;
+            var args, file, html, includeRE, name, xhr, _i, _len, _ref1, _results;
             args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
             if (filerequests.length === 1) {
               args = [args];
@@ -3154,7 +3154,7 @@
               fileloaded[name] = true;
               loadInclude("/classes/" + name + ".dre", el);
             }
-            return $.when.apply($, filerequests).done(function() {
+            $.when.apply($, filerequests).done(function() {
               var args, includes, oneurl, _j, _len1;
               args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
               if (filerequests.length === 1) {
@@ -3220,6 +3220,11 @@
                 showWarnings(["failed to load " + xhr.url + " for element " + xhr.el.outerHTML]);
               }
             });
+            _results = [];
+            for (file in fileloaded) {
+              _results.push(fileloaded[file] = true);
+            }
+            return _results;
           }).fail(function() {
             var args, xhr, _i, _len;
             args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];

@@ -2552,6 +2552,9 @@ window.dr = do ->
               showWarnings(["failed to load #{xhr.url} for element #{xhr.el.outerHTML}"])
             return
           )
+          # now that we're done, avoid holding references to the elements
+          for file of fileloaded
+            fileloaded[file] = true
         ).fail((args...) ->
           args = [args] if (args.length is 1)
           for xhr in args
