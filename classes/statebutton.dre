@@ -108,6 +108,18 @@ SOFTWARE. -->
   */-->
   
   <method name="_setActiveState" args="state">
+    if (state == 'selected') && !@__hasSelected
+      state = 'over'
+    
+    if (state == 'disabled')
+      if !@__hasDisabled
+        state = 'default'
+      @setAttribute('clickable', false)
+      @__disabledView.setAttribute('visible', true)
+    else
+      @setAttribute('clickable', true) 
+      @__disabledView.setAttribute('visible', false)
+    
     for s,v of @_stateViews
       if (s == state)
         v.setAttribute('visible', true)
@@ -118,6 +130,8 @@ SOFTWARE. -->
   </method>
   
   <handler event="oninit">
+    @__disabledView = new dr.view(null, {parent:@, width:'100%', height:'100%', bgcolor:'white', opacity:.7, visible:false});
+    
     @_stateViews = {}
     @states = []
     
@@ -139,6 +153,8 @@ SOFTWARE. -->
 
     @interactive = false unless @states.join(',').indexOf('default,over') >= 0
     @__hasDown = @states.join(',').indexOf('down') >= 0
+    @__hasSelected = @states.join(',').indexOf('selected') >= 0
+    @__hasDisabled = @states.join(',').indexOf('disabled') >= 0
   </handler>
 
   <handler event="onmouseover">
@@ -172,7 +188,7 @@ SOFTWARE. -->
   <setter name="state" args="state">
     return state unless @inited
 
-    if $.inArray(state, @states) == -1
+    if (state != 'selected') && (state != 'disabled') && ($.inArray(state, @states) == -1)
       console.warn('statebutton: Invalid state set: ', state)
       return @state
 
