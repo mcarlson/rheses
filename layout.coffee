@@ -2379,6 +2379,9 @@ window.dr = do ->
         sendInit()
       )
 
+    getChildElements = (el) ->
+      child for child in el.childNodes when child.nodeType is 1
+
     findAutoIncludes = (parentel, finalcallback) ->
       jqel = $(parentel)
 
@@ -2653,7 +2656,7 @@ window.dr = do ->
         dom.processSpecialTags(el, attributes, attributes.type)
 
       # Defer oninit if we have children
-      children = (child for child in el.childNodes when child.nodeType is 1)
+      children = dom.getChildElements(el)
       attributes.$skiponinit = skiponinit = children.length > 0
 
       if typeof dr[tagname] is 'function'
@@ -2668,7 +2671,7 @@ window.dr = do ->
         # create children now, unless the class told us not to
         unless dr[tagname].skipinitchildren
           # grab children again in case any were added when the parent was instantiated
-          children = (child for child in el.childNodes when child.nodeType is 1 and child.localName not in specialtags)
+          children = (child for child in dom.getChildElements(el) when child.localName not in specialtags)
           for child in children
             # console.log 'initting class child', child.localName
             initElement(child, parent)
@@ -2719,7 +2722,7 @@ window.dr = do ->
       classattributes.$types ?= {}
       classattributes.$methods ?= {}
       classattributes.$handlers ?= []
-      children = (child for child in el.childNodes when child.nodeType is 1 and child.localName in specialtags)
+      children = (child for child in dom.getChildElements(el) when child.localName in specialtags)
       for child in children
         attributes = flattenattributes(child.attributes)
         # console.log child, attributes, classattributes
@@ -2769,6 +2772,7 @@ window.dr = do ->
       initElement: initElement
       processSpecialTags: processSpecialTags
       writeCSS: writeCSS
+      getChildElements: getChildElements
 
   ###*
   # @class dr.state {Core Dreem}
@@ -2997,7 +3001,7 @@ window.dr = do ->
 
       for child in processedChildren
         child.parentNode.removeChild(child)
-      haschildren = (child for child in el.childNodes when child.nodeType is 1).length > 0
+      haschildren = dom.getChildElements(el).length > 0
 
       # serialize the tag's contents for recreation with processedChildren removed
       instancebody = el.innerHTML.trim()
@@ -3067,7 +3071,7 @@ window.dr = do ->
             viewel.innerHTML = instancebody
 
           unless skipchildren
-            children = (child for child in viewel.childNodes when child.nodeType is 1 and child.localName not in specialtags)
+            children = (child for child in dom.getChildElements(viewel) when child.localName not in specialtags)
             unless skipinitchildren
               for child in children
                 # console.log 'creating class child in parent', child, parent, attributes

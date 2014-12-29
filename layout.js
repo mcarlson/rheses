@@ -2984,7 +2984,7 @@
     specialtags = ['handler', 'method', 'attribute', 'setter', 'include'];
     matchEvent = /^on/;
     dom = (function() {
-      var builtinTags, checkRequiredAttributes, exports, findAutoIncludes, flattenattributes, htmlDecode, initAllElements, initElement, initFromElement, processSpecialTags, requiredAttributes, sendInit, writeCSS;
+      var builtinTags, checkRequiredAttributes, exports, findAutoIncludes, flattenattributes, getChildElements, htmlDecode, initAllElements, initElement, initFromElement, processSpecialTags, requiredAttributes, sendInit, writeCSS;
       flattenattributes = function(namednodemap) {
         var attributes, i, _i, _len;
         attributes = {};
@@ -3010,6 +3010,18 @@
           window.DREEM_INITED = true;
           return sendInit();
         });
+      };
+      getChildElements = function(el) {
+        var child, _i, _len, _ref, _results;
+        _ref = el.childNodes;
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          child = _ref[_i];
+          if (child.nodeType === 1) {
+            _results.push(child);
+          }
+        }
+        return _results;
       };
       findAutoIncludes = function(parentel, finalcallback) {
         var blacklist, dependencies, fileloaded, filereloader, filerequests, findIncludeURLs, findMissingClasses, includedScripts, inlineclasses, jqel, loadInclude, loadIncludes, loadScript, loadqueue, scriptloading, validator;
@@ -3353,18 +3365,7 @@
         if (!(isClass || isState)) {
           dom.processSpecialTags(el, attributes, attributes.type);
         }
-        children = (function() {
-          var _j, _len1, _ref, _results;
-          _ref = el.childNodes;
-          _results = [];
-          for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
-            child = _ref[_j];
-            if (child.nodeType === 1) {
-              _results.push(child);
-            }
-          }
-          return _results;
-        })();
+        children = dom.getChildElements(el);
         attributes.$skiponinit = skiponinit = children.length > 0;
         if (typeof dr[tagname] === 'function') {
           parent = new dr[tagname](el, attributes, true);
@@ -3379,11 +3380,11 @@
           if (!dr[tagname].skipinitchildren) {
             children = (function() {
               var _j, _len1, _ref, _ref1, _results;
-              _ref = el.childNodes;
+              _ref = dom.getChildElements(el);
               _results = [];
               for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
                 child = _ref[_j];
-                if (child.nodeType === 1 && (_ref1 = child.localName, __indexOf.call(specialtags, _ref1) < 0)) {
+                if (_ref1 = child.localName, __indexOf.call(specialtags, _ref1) < 0) {
                   _results.push(child);
                 }
               }
@@ -3452,11 +3453,11 @@
         }
         children = (function() {
           var _i, _len, _ref, _ref1, _results;
-          _ref = el.childNodes;
+          _ref = dom.getChildElements(el);
           _results = [];
           for (_i = 0, _len = _ref.length; _i < _len; _i++) {
             child = _ref[_i];
-            if (child.nodeType === 1 && (_ref1 = child.localName, __indexOf.call(specialtags, _ref1) >= 0)) {
+            if (_ref1 = child.localName, __indexOf.call(specialtags, _ref1) >= 0) {
               _results.push(child);
             }
           }
@@ -3515,7 +3516,8 @@
         initAllElements: initAllElements,
         initElement: initElement,
         processSpecialTags: processSpecialTags,
-        writeCSS: writeCSS
+        writeCSS: writeCSS,
+        getChildElements: getChildElements
       };
     })();
 
@@ -3759,18 +3761,7 @@
           child = processedChildren[_i];
           child.parentNode.removeChild(child);
         }
-        haschildren = ((function() {
-          var _j, _len1, _ref, _results;
-          _ref = el.childNodes;
-          _results = [];
-          for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
-            child = _ref[_j];
-            if (child.nodeType === 1) {
-              _results.push(child);
-            }
-          }
-          return _results;
-        })()).length > 0;
+        haschildren = dom.getChildElements(el).length > 0;
         instancebody = el.innerHTML.trim();
         if (oldbody) {
           el.innerHTML = oldbody;
@@ -3824,11 +3815,11 @@
             if (!skipchildren) {
               children = (function() {
                 var _j, _len1, _ref1, _ref2, _results;
-                _ref1 = viewel.childNodes;
+                _ref1 = dom.getChildElements(viewel);
                 _results = [];
                 for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
                   child = _ref1[_j];
-                  if (child.nodeType === 1 && (_ref2 = child.localName, __indexOf.call(specialtags, _ref2) < 0)) {
+                  if (_ref2 = child.localName, __indexOf.call(specialtags, _ref2) < 0) {
                     _results.push(child);
                   }
                 }
