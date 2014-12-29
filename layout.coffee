@@ -1113,14 +1113,16 @@ window.dr = do ->
       # console.log('setid', @id)
       @el.setAttribute('id', id)
 
-    animate: ->
+    animate: (attributes, time=400) ->
       # decode argument block
       animators = {} # our set of animators
-      for name, value of arguments[0]
+      for name, value of attributes
         # for every name, value we have to create an animator with a to.
         track = {}
         track[0] = this[name] || 0 #original value
-        track[arguments[1] || 1000] = value
+        track[time] = value
+        track.motion = 'bret'
+        track.control = [0.01]
         anim = Animator.createAnimator()
         # start the animator stateless
         anim.playStateless(track)

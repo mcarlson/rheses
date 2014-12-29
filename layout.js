@@ -1450,15 +1450,19 @@
         return this.el.setAttribute('id', id);
       };
 
-      Sprite.prototype.animate = function() {
-        var anim, animTick, animators, first, name, track, value, _ref;
+      Sprite.prototype.animate = function(attributes, time) {
+        var anim, animTick, animators, first, name, track, value;
+        if (time == null) {
+          time = 400;
+        }
         animators = {};
-        _ref = arguments[0];
-        for (name in _ref) {
-          value = _ref[name];
+        for (name in attributes) {
+          value = attributes[name];
           track = {};
           track[0] = this[name] || 0;
-          track[arguments[1] || 1000] = value;
+          track[time] = value;
+          track.motion = 'bret';
+          track.control = [0.01];
           anim = Animator.createAnimator();
           anim.playStateless(track);
           animators[name] = anim;
