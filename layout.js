@@ -2966,10 +2966,12 @@
       InputText.prototype.sendEvent = function(name, value) {
         InputText.__super__.sendEvent.apply(this, arguments);
         if (name === 'keydown' || name === 'keyup' || name === 'blur' || name === 'change') {
-          value = this.sprite.value();
-          if (this.text !== value) {
-            this.text = value;
-            return this.sendEvent('text', value);
+          if (this.sprite) {
+            value = this.sprite.value();
+            if (this.text !== value) {
+              this.text = value;
+              return this.sendEvent('text', value);
+            }
           }
         }
       };

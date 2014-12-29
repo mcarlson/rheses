@@ -2336,10 +2336,11 @@ window.dr = do ->
       super
       # send text events for events that could cause text to change
       if name is 'keydown' or name is 'keyup' or name is 'blur' or name is 'change'
-        value = @sprite.value()
-        if @text isnt value
-          @text = value
-          @sendEvent('text', value)
+        if @sprite
+          value = @sprite.value()
+          if @text isnt value
+            @text = value
+            @sendEvent('text', value)
 
   warnings = []
   showWarnings = (data) ->
