@@ -50,30 +50,39 @@ SOFTWARE. -->
           var img = this._img;
           if (! img) {
             img = this._img = new Image();
+            img.$view = this;
           }
   
           img.src = src;
   
           // send load events 
-          var _this = this;
           img.onload = function() {
               /**
                * @event onload 
                * Fired when the bitmap is loaded
                * @param {Object} size An object containing the width and height
                */
-            _this.sendEvent('load', {width: img.width, height: img.height});
+            if (this.$view)
+              this.$view.sendEvent('load', {width: img.width, height: img.height});
           }
           img.onerror = function() {
               /**
                * @event onerror 
                * Fired when there is an error loading the bitmap
                */
-            _this.sendEvent('error', img);
+            if (this.$view)
+              this.$view.sendEvent('error', img);
           }
         }
         return src
       </setter>
+      <method name="destroy">
+        if (this._img) {
+          this._img.$view = null
+          this._img = null
+        }
+        this.super()
+      </method>
       <!--/**
         * @attribute {String} [stretches=false]
         * How the image is scaled to the size of the view.
