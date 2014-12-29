@@ -2224,154 +2224,6 @@ window.dr = do ->
       @sprite.set_class(classname)
       classname
 
-  ###*
-  # @class dr.inputtext {UI Components, Input}
-  # @extends dr.view
-  # Provides an editable input text field.
-  #
-  #     @example
-  #     <spacedlayout axis="y"></spacedlayout>
-  #
-  #     <text text="Enter your name"></text>
-  #
-  #     <inputtext id="nameinput" bgcolor="white" border="1px solid lightgrey" width="200"></inputtext>
-  #
-  #     <labelbutton text="submit">
-  #       <handler event="onclick">
-  #         welcome.setAttribute('text', 'Welcome ' + nameinput.text);
-  #       </handler>
-  #     </labelbutton>
-  #
-  #     <text id="welcome"></text>
-  #
-  # It's possible to listen for an onchange event to find out when the user changed the inputtext value:
-  #
-  #     @example
-  #     <inputtext id="nameinput" bgcolor="white" border="1px solid lightgrey" width="200" onchange="console.log('onchange', this.text)"></inputtext>
-  #
-  ###
-  class InputText extends View
-    ###*
-    # @event onselect
-    # Fired when an inputtext is selected
-    # @param {dr.view} view The view that fired the event
-    ###
-    ###*
-    # @event onchange
-    # Fired when an inputtext has changed
-    # @param {dr.view} view The view that fired the event
-    ###
-    ###*
-    # @event onfocus
-    # Fired when an inputtext is focused
-    # @param {dr.view} view The view that fired the event
-    ###
-    ###*
-    # @event onblur
-    # Fired when an inputtext is blurred or loses focus
-    # @param {dr.view} view The view that fired the event
-    ###
-    ###*
-    # @event onkeydown
-    # Fired when a key goes down
-    # @param {Object} keys An object representing the keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
-    ###
-    ###*
-    # @event onkeyup
-    # Fired when a key goes up
-    # @param {Object} keys An object representing the keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
-    ###
-    ###*
-    # @attribute {Boolean} [multiline=false]
-    # Set to true to show multi-line text.
-    ###
-    ###*
-    # @attribute {String} text
-    # The text inside this input text field
-    ###
-    ###*
-    # @attribute {Number} [width=100]
-    # The width of this input text field
-    ###
-    construct: (el, attributes) ->
-      types = {multiline: 'boolean'}
-      defaults = {clickable:true, multiline:false, width: 100}
-      for key, type of attributes.$types
-        types[key] = type
-      attributes.$types = types
-
-      @_setDefaults(attributes, defaults)
-
-      super
-
-      @setAttribute('height', @_getDefaultHeight()) unless @height
-
-      @listenTo(@, 'change', @_handleChange)
-
-      @listenTo(@, 'innerwidth',
-        (iw) ->
-          @sprite.setStyle('width', iw, true, @sprite.input)
-      )
-      @sprite.setStyle('width', @innerwidth, true, @sprite.input)
-      @listenTo(@, 'innerheight',
-        (ih) ->
-          @sprite.setStyle('height', ih, true, @sprite.input)
-      )
-      @sprite.setStyle('height', @innerheight, true, @sprite.input)
-
-      # fixes spec/inputext_spec.rb 'can be clicked into' by forwarding user-generated click events
-      # a click() without focus() wasn't enough... See http://stackoverflow.com/questions/210643/in-javascript-can-i-make-a-click-event-fire-programmatically-for-a-file-input
-      @listenTo(@, 'click',
-        () ->
-          @sprite.input.focus()
-      )
-
-    _createSprite: (el, attributes) ->
-      super
-      attributes.text ||= @sprite.getText(true)
-      @sprite.setText('')
-      multiline = @_coerceType('multiline', attributes.multiline, 'boolean')
-      @sprite.createInputtextElement('', multiline, attributes.width, attributes.height)
-
-    _getDefaultHeight: () ->
-      h = parseInt($(@sprite.input).css('height'))
-      domElem = $(@sprite.el)
-      borderH = parseInt(domElem.css('border-top-width')) + parseInt(domElem.css('border-bottom-width'))
-      paddingH = parseInt(domElem.css('padding-top')) + parseInt(domElem.css('padding-bottom'))
-      return h + borderH + paddingH
-
-    _handleChange: () ->
-      return unless @replicator
-      # attempt to coerce to the current type if it was a boolean or number (bad idea?)
-      newdata = @text
-      if (typeof @data is 'number')
-        if parseFloat(newdata) + '' is newdata
-          newdata = parseFloat(newdata)
-      else if (typeof @data is 'boolean')
-        if newdata is 'true'
-          newdata = true
-        else if newdata is 'false'
-          newdata = false
-      @replicator.updateData(newdata)
-
-    set_data: (d) ->
-      @setAttribute('text', d, true)
-      d
-
-    set_text: (text) ->
-      @sprite.value(text)
-      text
-
-    sendEvent: (name, value) ->
-      super
-      # send text events for events that could cause text to change
-      if name is 'keydown' or name is 'keyup' or name is 'blur' or name is 'change'
-        if @sprite
-          value = @sprite.value()
-          if @text isnt value
-            @text = value
-            @sendEvent('text', value)
-
   warnings = []
   showWarnings = (data) ->
     warnings = warnings.concat(data)
@@ -3764,7 +3616,7 @@ window.dr = do ->
                                 false, false, false, 0, null)
       first.target.dispatchEvent(simulatedEvent)
       if first.target.$view
-        skipEvent(event) unless first.target.$view instanceof InputText
+        skipEvent(event) unless first.target.$view.$tagname is 'inputtext'
 
     lastTouchDown = null
     lastTouchOver = null
@@ -3801,7 +3653,7 @@ window.dr = do ->
       if view
         if type is 'mousedown'
           @_lastMouseDown = view
-          skipEvent(event) unless view instanceof InputText
+          skipEvent(event) unless view.$tagname is 'inputtext'
 
       if type is 'mouseup' and @_lastMouseDown and @_lastMouseDown isnt view
         # send onmouseup and onmouseupoutside to the view that the mouse originally went down
@@ -3984,7 +3836,6 @@ window.dr = do ->
   ###
   exports =
     view: View
-    inputtext: InputText
     class: Class
     node: Node
     mouse: new Mouse()

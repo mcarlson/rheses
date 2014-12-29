@@ -82,7 +82,7 @@
   })();
 
   window.dr = (function() {
-    var AutoPropertyLayout, Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Path, Sprite, StartEventable, State, View, Window, callOnIdle, capabilities, closeTo, compiler, constraintScopes, debug, dom, domElementAttributes, eventq, exports, fcamelCase, handlerq, hiddenAttributes, idle, ignoredAttributes, instantiating, knownstyles, matchEvent, mixOf, moduleKeywords, mouseEvents, noop, querystring, rdashAlpha, showWarnings, specialtags, ss, ss2, starttime, test, triggerlock, warnings, _initConstraints;
+    var AutoPropertyLayout, Class, Eventable, Events, Idle, Keyboard, Layout, Module, Mouse, Node, Path, Sprite, StartEventable, State, View, Window, callOnIdle, capabilities, closeTo, compiler, constraintScopes, debug, dom, domElementAttributes, eventq, exports, fcamelCase, handlerq, hiddenAttributes, idle, ignoredAttributes, instantiating, knownstyles, matchEvent, mixOf, moduleKeywords, mouseEvents, noop, querystring, rdashAlpha, showWarnings, specialtags, ss, ss2, starttime, test, triggerlock, warnings, _initConstraints;
     noop = function() {};
     closeTo = function(a, b, epsilon) {
       epsilon || (epsilon = 0.01);
@@ -2826,199 +2826,6 @@
       return View;
 
     })(Node);
-
-    /**
-     * @class dr.inputtext {UI Components, Input}
-     * @extends dr.view
-     * Provides an editable input text field.
-     *
-     *     @example
-     *     <spacedlayout axis="y"></spacedlayout>
-     *
-     *     <text text="Enter your name"></text>
-     *
-     *     <inputtext id="nameinput" bgcolor="white" border="1px solid lightgrey" width="200"></inputtext>
-     *
-     *     <labelbutton text="submit">
-     *       <handler event="onclick">
-     *         welcome.setAttribute('text', 'Welcome ' + nameinput.text);
-     *       </handler>
-     *     </labelbutton>
-     *
-     *     <text id="welcome"></text>
-     *
-     * It's possible to listen for an onchange event to find out when the user changed the inputtext value:
-     *
-     *     @example
-     *     <inputtext id="nameinput" bgcolor="white" border="1px solid lightgrey" width="200" onchange="console.log('onchange', this.text)"></inputtext>
-     *
-     */
-    InputText = (function(_super) {
-      __extends(InputText, _super);
-
-      function InputText() {
-        return InputText.__super__.constructor.apply(this, arguments);
-      }
-
-
-      /**
-       * @event onselect
-       * Fired when an inputtext is selected
-       * @param {dr.view} view The view that fired the event
-       */
-
-
-      /**
-       * @event onchange
-       * Fired when an inputtext has changed
-       * @param {dr.view} view The view that fired the event
-       */
-
-
-      /**
-       * @event onfocus
-       * Fired when an inputtext is focused
-       * @param {dr.view} view The view that fired the event
-       */
-
-
-      /**
-       * @event onblur
-       * Fired when an inputtext is blurred or loses focus
-       * @param {dr.view} view The view that fired the event
-       */
-
-
-      /**
-       * @event onkeydown
-       * Fired when a key goes down
-       * @param {Object} keys An object representing the keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
-       */
-
-
-      /**
-       * @event onkeyup
-       * Fired when a key goes up
-       * @param {Object} keys An object representing the keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
-       */
-
-
-      /**
-       * @attribute {Boolean} [multiline=false]
-       * Set to true to show multi-line text.
-       */
-
-
-      /**
-       * @attribute {String} text
-       * The text inside this input text field
-       */
-
-
-      /**
-       * @attribute {Number} [width=100]
-       * The width of this input text field
-       */
-
-      InputText.prototype.construct = function(el, attributes) {
-        var defaults, key, type, types, _ref;
-        types = {
-          multiline: 'boolean'
-        };
-        defaults = {
-          clickable: true,
-          multiline: false,
-          width: 100
-        };
-        _ref = attributes.$types;
-        for (key in _ref) {
-          type = _ref[key];
-          types[key] = type;
-        }
-        attributes.$types = types;
-        this._setDefaults(attributes, defaults);
-        InputText.__super__.construct.apply(this, arguments);
-        if (!this.height) {
-          this.setAttribute('height', this._getDefaultHeight());
-        }
-        this.listenTo(this, 'change', this._handleChange);
-        this.listenTo(this, 'innerwidth', function(iw) {
-          return this.sprite.setStyle('width', iw, true, this.sprite.input);
-        });
-        this.sprite.setStyle('width', this.innerwidth, true, this.sprite.input);
-        this.listenTo(this, 'innerheight', function(ih) {
-          return this.sprite.setStyle('height', ih, true, this.sprite.input);
-        });
-        this.sprite.setStyle('height', this.innerheight, true, this.sprite.input);
-        return this.listenTo(this, 'click', function() {
-          return this.sprite.input.focus();
-        });
-      };
-
-      InputText.prototype._createSprite = function(el, attributes) {
-        var multiline;
-        InputText.__super__._createSprite.apply(this, arguments);
-        attributes.text || (attributes.text = this.sprite.getText(true));
-        this.sprite.setText('');
-        multiline = this._coerceType('multiline', attributes.multiline, 'boolean');
-        return this.sprite.createInputtextElement('', multiline, attributes.width, attributes.height);
-      };
-
-      InputText.prototype._getDefaultHeight = function() {
-        var borderH, domElem, h, paddingH;
-        h = parseInt($(this.sprite.input).css('height'));
-        domElem = $(this.sprite.el);
-        borderH = parseInt(domElem.css('border-top-width')) + parseInt(domElem.css('border-bottom-width'));
-        paddingH = parseInt(domElem.css('padding-top')) + parseInt(domElem.css('padding-bottom'));
-        return h + borderH + paddingH;
-      };
-
-      InputText.prototype._handleChange = function() {
-        var newdata;
-        if (!this.replicator) {
-          return;
-        }
-        newdata = this.text;
-        if (typeof this.data === 'number') {
-          if (parseFloat(newdata) + '' === newdata) {
-            newdata = parseFloat(newdata);
-          }
-        } else if (typeof this.data === 'boolean') {
-          if (newdata === 'true') {
-            newdata = true;
-          } else if (newdata === 'false') {
-            newdata = false;
-          }
-        }
-        return this.replicator.updateData(newdata);
-      };
-
-      InputText.prototype.set_data = function(d) {
-        this.setAttribute('text', d, true);
-        return d;
-      };
-
-      InputText.prototype.set_text = function(text) {
-        this.sprite.value(text);
-        return text;
-      };
-
-      InputText.prototype.sendEvent = function(name, value) {
-        InputText.__super__.sendEvent.apply(this, arguments);
-        if (name === 'keydown' || name === 'keyup' || name === 'blur' || name === 'change') {
-          if (this.sprite) {
-            value = this.sprite.value();
-            if (this.text !== value) {
-              this.text = value;
-              return this.sendEvent('text', value);
-            }
-          }
-        }
-      };
-
-      return InputText;
-
-    })(View);
     warnings = [];
     showWarnings = function(data) {
       var out, pre;
@@ -4730,7 +4537,7 @@
         simulatedEvent.initMouseEvent(type, true, true, window, 1, first.pageX, first.pageY, first.clientX, first.clientY, false, false, false, false, 0, null);
         first.target.dispatchEvent(simulatedEvent);
         if (first.target.$view) {
-          if (!(first.target.$view instanceof InputText)) {
+          if (first.target.$view.$tagname !== 'inputtext') {
             return skipEvent(event);
           }
         }
@@ -4781,7 +4588,7 @@
         if (view) {
           if (type === 'mousedown') {
             this._lastMouseDown = view;
-            if (!(view instanceof InputText)) {
+            if (view.$tagname !== 'inputtext') {
               skipEvent(event);
             }
           }
@@ -5001,7 +4808,6 @@
      */
     return exports = {
       view: View,
-      inputtext: InputText,
       "class": Class,
       node: Node,
       mouse: new Mouse(),

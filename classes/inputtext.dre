@@ -1,0 +1,209 @@
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+<!--/**
+     * @class dr.inputtext {UI Components, Input}
+     * @extends dr.view
+     * Provides an editable input text field.
+     *
+     *     @example
+     *     <spacedlayout axis="y"></spacedlayout>
+     *
+     *     <text text="Enter your name"></text>
+     *
+     *     <inputtext id="nameinput" bgcolor="white" border="1px solid lightgrey" width="200"></inputtext>
+     *
+     *     <labelbutton text="submit">
+     *       <handler event="onclick">
+     *         welcome.setAttribute('text', 'Welcome ' + nameinput.text);
+     *       </handler>
+     *     </labelbutton>
+     *
+     *     <text id="welcome"></text>
+     *
+     * It's possible to listen for an onchange event to find out when the user changed the inputtext value:
+     *
+     *     @example
+     *     <inputtext id="nameinput" bgcolor="white" border="1px solid lightgrey" width="200" onchange="console.log('onchange', this.text)"></inputtext>
+     *
+     */-->
+<class name="inputtext" extends="view" type="coffee">
+  <!--/**
+       * @event onselect
+       * Fired when an inputtext is selected
+       * @param {dr.view} view The view that fired the event
+       */
+
+
+      /**
+       * @event onchange
+       * Fired when an inputtext has changed
+       * @param {dr.view} view The view that fired the event
+       */
+
+
+      /**
+       * @event onfocus
+       * Fired when an inputtext is focused
+       * @param {dr.view} view The view that fired the event
+       */
+
+
+      /**
+       * @event onblur
+       * Fired when an inputtext is blurred or loses focus
+       * @param {dr.view} view The view that fired the event
+       */
+
+
+      /**
+       * @event onkeydown
+       * Fired when a key goes down
+       * @param {Object} keys An object representing the keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
+       */
+
+
+      /**
+       * @event onkeyup
+       * Fired when a key goes up
+       * @param {Object} keys An object representing the keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
+       */
+
+
+      /**
+       * @attribute {Boolean} [multiline=false]
+       * Set to true to show multi-line text.
+       */
+
+
+      /**
+       * @attribute {String} text
+       * The text inside this input text field
+       */
+
+
+      /**
+       * @attribute {Number} [width=100]
+       * The width of this input text field
+       */-->
+  <attribute name="multiline" type="boolean" value="false"></attribute>
+  
+  <setter name="data" args="data">
+    @setAttribute('text', data, true)
+    return data
+  </setter>
+  
+  <setter name="text" args="text">
+    @sprite.value(@format(text))
+    return text
+  </setter>
+  
+  <!--/**
+    * 
+    * @attribute {Boolean} [multiline=false]
+    * Set to true to show multi-line text.
+  <attribute name="multiline" type="boolean" value="false"></attribute>
+  <attribute name="resize" type="boolean" value="true"></attribute>
+    * 
+    * @attribute {Boolean} [resize=true]
+    * By default, the text component is sized to the size of the text.
+    * By setting resize=false, the component size is not modified
+    * when the text changes.
+    * 
+    * @attribute {String} [text=""]
+    * Component text.
+    * 
+    */-->
+  <method name="construct" args="el, attributes">
+    attributes.width ?= 100
+
+    @super()
+  </method>
+
+  <handler event="oninnerwidth" args="iw">
+    @sprite.setStyle('width', iw, true, @sprite.input)
+  </handler>
+
+  <handler event="oninnerheight" args="ih">
+    @sprite.setStyle('height', ih, true, @sprite.input)
+  </handler>
+
+  <handler event="onclick">
+    # fixes spec/inputext_spec.rb 'can be clicked into' by forwarding user-generated click events
+    # a click() without focus() is not enough... See http://stackoverflow.com/questions/210643/in-javascript-can-i-make-a-click-event-fire-programmatically-for-a-file-input
+    @sprite.input.focus()
+  </handler>
+
+  <handler event="onchange">
+    return unless @replicator
+    # attempt to coerce to the current type if it was a boolean or number (bad idea?)
+    newdata = @text
+    if (typeof @data is 'number')
+      if parseFloat(newdata) + '' is newdata
+        newdata = parseFloat(newdata)
+    else if (typeof @data is 'boolean')
+      if newdata is 'true'
+        newdata = true
+      else if newdata is 'false'
+        newdata = false
+    @replicator.updateData(newdata)
+  </handler>
+
+  <handler event="oninit">
+    @text ?= @sprite.getText(true)
+    @sprite.setText('')
+    @sprite.createInputtextElement(@text, @multiline, @width, @height)
+    #console.log('_createSprite', @sprite.input.$view == @, @sprite.el.$view == @)
+
+    unless @height
+      h = parseInt($(@sprite.input).css('height'))
+      domElem = $(@sprite.el)
+      borderH = parseInt(domElem.css('border-top-width')) + parseInt(domElem.css('border-bottom-width'))
+      paddingH = parseInt(domElem.css('padding-top')) + parseInt(domElem.css('padding-bottom'))
+      @setAttribute('height', h + borderH + paddingH) 
+
+    @sprite.setStyle('width', @innerwidth, true, @sprite.input)
+    @sprite.setStyle('height', @innerheight, true, @sprite.input)
+  </handler>
+  
+  <!--/**
+    * @method format
+    * Format the text to be displayed. The default behavior is to
+    * return the text intact. Override to change formatting.
+    * @param {String} str The current value of the text component.
+    * @return {String} The formated string to display in the component.
+    */-->
+  <method name="format" args="str">
+    return str
+  </method>
+
+  <method name="sendEvent" args="name, value">
+    # console.log('sendEvent', name, value)
+    @super()
+    # send text events for events that could cause text to change
+    if name is 'keydown' or name is 'keyup' or name is 'blur' or name is 'change'
+      if @sprite
+        value = @sprite.value()
+        if @text isnt value
+          @text = value
+          @sendEvent('text', value)
+  </method>
+</class>
