@@ -102,6 +102,13 @@ SOFTWARE. -->
         */-->
 
       <!--/**
+        * @attribute {Boolean} [resize=false]
+        * By default, the art component size is fixed to the specified size.
+        * By setting resize=true, the art component is sized to the size 
+        * embedded in the svg.
+        */-->
+
+      <!--/**
         * @attribute {String} src
         * The svg contents to load
         */-->
@@ -153,6 +160,8 @@ SOFTWARE. -->
         @show_frame(start_path, end_path, frame)
       </handler>
 
+      <attribute name="resize" type="boolean" value="false"></attribute>
+      <handler event="onresize" method="resizeChange"></handler>
       <attribute name="stretches" value="false" type="boolean"></attribute>
       <handler event="onstretches" method="resizeArt"></handler>
 
@@ -386,31 +395,12 @@ SOFTWARE. -->
 
         return unless @container
 
+        @resizeChange()
+
         # Normalize the svg by setting width and height to 100%, and
         # adding a viewBox if one is missing
         elements = $(@container).find('svg')
         for svg, index in elements
-          # If width_orig is found it means this method has already run
-          continue if svg.getAttribute('width_orig')
-
-          # Rewrite width and height, saving the original values
-          w = svg.getAttribute('width')
-          h = svg.getAttribute('height')
-          svg.setAttribute('width_orig', w)
-          svg.setAttribute('height_orig', h)
-          svg.setAttribute('width', '100%')
-          svg.setAttribute('height', '100%')
-          # console.log('svg size set from ', w, h)
-
-          # Add a viewPort if one is missing and w,h was absolute
-          viewBox = svg.getAttribute('viewBox')
-          svg.setAttribute('viewBox_orig', viewBox) if viewBox
-          if w && h && !viewBox
-            # Add a viewBox to match the size
-            viewBox = '0 0 ' + w + ' ' + h
-            svg.setAttribute('viewBox', viewBox)
-            # console.log('new viewBox', viewBox)
-
           # Add click events
           if @clickable
             $(svg).on 'click', => @sendEvent('click')
@@ -426,8 +416,65 @@ SOFTWARE. -->
         @animate_path(@path) if @path.length > 0
       </method>
 
-      <method name="resizeArt">
+      <method name="resizeChange">
+        # resize attribute has changed.
+        # If resize is true, set the view to the size of the svg. (Note: 
+        # There are some svg's where this does not work well because the svg
+        # size or viewBox is not defined.)
+        # If resize is false, alter the svg to fit within the view.
+        
+        # Normalize the svg by setting width and height to 100%, and
+        # adding a viewBox if one is missing
+        elements = $(@container).find('svg')
+        for svg, index in elements
 
+          # Find original size of svg. This runs once.
+          if !svg.getAttribute('width_orig')
+
+            # Save the original viewBox. Extract the width and height or
+            # use a fixed value (100,100) if none is specified
+            viewBox = svg.getAttribute('viewBox')
+            svg.setAttribute('viewBox_orig', viewBox) if viewBox
+
+            # Rewrite width and height, saving the original values
+            w = svg.getAttribute('width')
+            h = svg.getAttribute('height')
+
+            # Find the width and height from viewBox if necessary.
+            # If the original w,h are '%', use the viewBox value
+            if viewBox
+              elements = viewBox.split(' ')
+              w = elements[2] if elements.length == 4 && (!w || w.indexOf('%') > 0)
+              h = elements[3] if elements.length == 4 && (!h || h.indexOf('%') > 0)
+            
+            # Use a fixed width and height if none available
+            w = 100 if !w
+            h = 100 if !h
+
+            svg.setAttribute('width_orig', w)
+            svg.setAttribute('height_orig', h)
+
+            # Add a viewPort if one is missing
+            if !viewBox
+              viewBox = '0 0 ' + w + ' ' + h
+              svg.setAttribute('viewBox', viewBox)
+            
+          if @resize
+            w = svg.getAttribute('width_orig')
+            h = svg.getAttribute('height_orig')
+            svg.setAttribute('width', w)
+            svg.setAttribute('height', h)
+            @setAttribute('width', w);
+            @setAttribute('height', h);
+            # console.log('setting w, h', w, h);
+          else
+            svg.setAttribute('width', '100%')
+            svg.setAttribute('height', '100%')
+
+          # console.log('svg size set from ', w, h)
+      </method>
+
+      <method name="resizeArt">
         # Resize the art, if needed, for changes in container size
 
         # Apply stretches to the static svg
