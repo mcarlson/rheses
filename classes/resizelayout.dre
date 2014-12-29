@@ -92,24 +92,33 @@ SOFTWARE. -->
     # Calculate minimum required size
     remainder -= @value + @outset
     
-    svs = @subviews
-    i = svs.length
+    spacing = @spacing
+    name = @name
     count = 0
     resizeSum = 0
+    spacingAfter = spacing
     
-    while i
-      sv = svs[--i]
+    for sv in @subviews
       if @skipSubview(sv) then continue
       ++count
-      hint = Number(sv.getLayoutHint(@name, 'weight'))
-      if hint > 0
-        resizeSum += hint
+      weight = Number(sv.getLayoutHint(name, 'weight'))
+      if weight > 0
+        resizeSum += weight
       else
         remainder -= sv[measureAttrName]
+      
+      # Determine hint based spacing
+      if count > 1
+        before = sv.getLayoutHint(name, 'spacingbefore')
+        if isNaN before
+          remainder -= spacingAfter
+        else
+          remainder -= before
+      
+      spacingAfter = sv.getLayoutHint(name, 'spacingafter')
+      if isNaN spacingAfter then spacingAfter = spacing
     
     if count != 0
-      remainder -= (count - 1) * @spacing
-      
       # Store for update
       @remainder = remainder
       @resizeSum = resizeSum
@@ -133,7 +142,9 @@ SOFTWARE. -->
       if view.__boundsAreDifferent
         size *= view[@__parentAttrName] / view[@__measureAttrName]
       
-      view.setAttribute(@__parentAttrName, size) # parent attr name is also suitable for resize views since it will just be width or height
+      # parent attr name is also suitable for resize views since it will just
+      # be width or height
+      view.setAttribute(@__parentAttrName, size)
     
     return @super()
   </method>
