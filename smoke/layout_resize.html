@@ -15,6 +15,7 @@
   <view width="100%" height="100%" bgcolor="#eeeeee">
     <class name="item" width="50" height="50" bgcolor="#666666"></class>
     
+    <!-- Basic support -->
     <view name="container" padding="1" border="2" bordercolor="black" x="10" y="10" width="500" height="56" bgcolor="#999999">
       <resizelayout name="layout" inset="5" spacing="2" outset="10"></resizelayout>
       
@@ -27,8 +28,9 @@
       <item name="v5" bgcolor="#aaaa66"></item>
     </view>
     
-    <view name="container2" padding="2" border="1" bordercolor="black"
-        x="120" y="10" width="400" height="auto" bgcolor="#999999"
+    <!-- Verify transform support -->
+    <view name="transform" padding="2" border="1" bordercolor="black"
+      x="120" y="10" width="400" height="auto" bgcolor="#999999"
     >
       <resizelayout name="layout" inset="2" spacing="1" outset="2"></resizelayout>
       
@@ -49,6 +51,29 @@
         assert.closeTo(307.43, this.v5.x, 0.01, 'The fifth view is at 307.43.');
         
         assert.closeTo(67.24, this.height, 0.01, 'Auto sizing should set the height to 67.24.');
+      </handler>
+    </view>
+    
+    <!-- Verify spacing hint support -->
+    <view name="spacing" padding="4" border="1" bordercolor="black"
+      x="120" y="90" width="400" height="auto" bgcolor="#999999"
+    >
+      <resizelayout name="layout" inset="2" spacing="1" outset="2"></resizelayout>
+      
+      <view name="inner" width="100%" height="100%" ignorelayout="true" bgcolor="#cccccc"></view>
+      
+      <item name="v1" bgcolor="#eeeeee" layouthint='{"weight":1, "spacingafter":5}'></item>
+      <item name="v2" bgcolor="#ddddcc"></item>
+      <item name="v3" bgcolor="#ccccaa" layouthint='{"spacingbefore":10, "spacingafter":20}'></item>
+      <item name="v4" bgcolor="#bbbb88"></item>
+      <item name="v5" bgcolor="#aaaa66" layouthint='{"weight":1}'></item>
+      
+      <handler event="oninit">
+        assert.equal(2, this.v1.x);
+        assert.equal(107, this.v2.x);
+        assert.equal(167, this.v3.x);
+        assert.equal(237, this.v4.x);
+        assert.equal(288, this.v5.x);
       </handler>
     </view>
     
