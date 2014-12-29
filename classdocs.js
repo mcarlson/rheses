@@ -792,6 +792,10 @@
      *     <text id="hello"></text>
      */
 /**
+        * @attribute {String} [bgcolor]
+        * Sets this view's background color, same as setting defaultcolor.
+        */
+/**
      * @class dr.labeltoggle {UI Components}
      * @extends dr.labelbutton
      * Button class consisting of text centered in a view. The state of the
