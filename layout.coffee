@@ -1106,7 +1106,8 @@ window.dr = do ->
       # parent.append(@jqel)
       # parent = parent[0] if parent instanceof jQuery
       # console.log 'set_parent', parent, @el
-      parent.appendChild(@el)
+      # avoid appending twice, which messes with lexical order 
+      parent.appendChild(@el) unless @el.parentNode is parent
 
     set_id: (id) ->
       # console.log('setid', @id)

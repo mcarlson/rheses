@@ -1441,7 +1441,9 @@
         if (parent instanceof Sprite) {
           parent = parent.el;
         }
-        return parent.appendChild(this.el);
+        if (this.el.parentNode !== parent) {
+          return parent.appendChild(this.el);
+        }
       };
 
       Sprite.prototype.set_id = function(id) {
