@@ -1563,7 +1563,10 @@
 
       Sprite.prototype.destroy = function() {
         this.el.parentNode.removeChild(this.el);
-        return this.el = this.jqel = null;
+        if (this.input) {
+          this.input = this.input.$view = null;
+        }
+        return this.el = this.jqel = this.el.$view = null;
       };
 
       Sprite.prototype.setText = function(txt) {

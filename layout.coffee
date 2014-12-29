@@ -1220,7 +1220,8 @@ window.dr = do ->
 
     destroy: ->
       @el.parentNode.removeChild(@el)
-      @el = @jqel = null
+      @input = @input.$view = null if @input
+      @el = @jqel = @el.$view = null
 
     setText: (txt) ->
       if txt?
