@@ -14,9 +14,11 @@
 <body>
   <view width="100%" height="auto" bgcolor="#cccccc">
     <class name="item" width="100" height="20" bgcolor="#666666"></class>
+    <class name="item2" extends="item" opacity="0.5"></class>
     
     <spacedlayout axis="y" spacing="5"></spacedlayout>
     
+    <!-- Basic -->
     <view name="container" padding="1" border="2" bordercolor="black" width="414" bgcolor="#999999">
       <wrappinglayout name="layout"
         inset="2" spacing="1" outset="3"
@@ -33,6 +35,146 @@
       <item name="v7" bgcolor="#888822"></item>
       <item name="v8" bgcolor="#777700"></item>
       <item name="v9" bgcolor="#666622"></item>
+    </view>
+    
+    <!-- Spacing hints -->
+    <view name="spacing" padding="4" border="1" bordercolor="black" width="345" bgcolor="#999999">
+      <wrappinglayout name="layout"
+        inset="2" spacing="1" outset="3"
+        lineinset="2" linespacing="1" lineoutset="2"
+        updateparent="true"
+      ></wrappinglayout>
+      
+      <view width="100%" height="100%" ignorelayout="true" bgcolor="#cccccc"></view>
+      
+      <item2 name="v1" layouthint='{"spacingbefore":1, "spacingafter":5}'></item2>
+      <item2 name="v2" layouthint='{"spacingafter":0}'></item2>
+      <item2 name="v3" layouthint='{"spacingbefore":-5, "spacingafter":5}'></item2>
+      <item2 name="v4"></item2>
+      <item2 name="v5" layouthint='{"spacingbefore":5, "spacingafter":25}'></item2>
+      <item2 name="v6" layouthint='{"spacingafter":50}'></item2>
+      <item2 name="v7" layouthint='{"spacingbefore":25, "spacingafter":10}'></item2>
+      <item2 name="v8"></item2>
+      <item2 name="v9"></item2>
+      
+      <handler event="oninit">
+        assert.equal(2, this.v1.x);
+        assert.equal(2, this.v1.y);
+        
+        assert.equal(107, this.v2.x);
+        assert.equal(2, this.v2.y);
+        
+        assert.equal(202, this.v3.x);
+        assert.equal(2, this.v3.y);
+        
+        assert.equal(2, this.v4.x);
+        assert.equal(23, this.v4.y);
+        
+        assert.equal(107, this.v5.x);
+        assert.equal(23, this.v5.y);
+        
+        assert.equal(232, this.v6.x);
+        assert.equal(23, this.v6.y);
+        
+        assert.equal(2, this.v7.x);
+        assert.equal(44, this.v7.y);
+        
+        assert.equal(112, this.v8.x);
+        assert.equal(44, this.v8.y);
+        
+        assert.equal(213, this.v9.x);
+        assert.equal(44, this.v9.y);
+        
+        // Change alignment
+        this.layout.setAttribute('align', 'right');
+        
+        assert.equal(32, this.v1.x);
+        assert.equal(2, this.v1.y);
+        
+        assert.equal(137, this.v2.x);
+        assert.equal(2, this.v2.y);
+        
+        assert.equal(232, this.v3.x);
+        assert.equal(2, this.v3.y);
+        
+        assert.equal(2, this.v4.x);
+        assert.equal(23, this.v4.y);
+        
+        assert.equal(107, this.v5.x);
+        assert.equal(23, this.v5.y);
+        
+        assert.equal(232, this.v6.x);
+        assert.equal(23, this.v6.y);
+        
+        assert.equal(21, this.v7.x);
+        assert.equal(44, this.v7.y);
+        
+        assert.equal(131, this.v8.x);
+        assert.equal(44, this.v8.y);
+        
+        assert.equal(232, this.v9.x);
+        assert.equal(44, this.v9.y);
+        
+        // Change a hint
+        this.v5.setAttribute('layouthint', '{"spacingbefore":0, "spacingafter":0}');
+        
+        assert.equal(32, this.v1.x);
+        assert.equal(2, this.v1.y);
+        
+        assert.equal(137, this.v2.x);
+        assert.equal(2, this.v2.y);
+        
+        assert.equal(232, this.v3.x);
+        assert.equal(2, this.v3.y);
+        
+        assert.equal(32, this.v4.x);
+        assert.equal(23, this.v4.y);
+        
+        assert.equal(132, this.v5.x);
+        assert.equal(23, this.v5.y);
+        
+        assert.equal(232, this.v6.x);
+        assert.equal(23, this.v6.y);
+        
+        assert.equal(21, this.v7.x);
+        assert.equal(44, this.v7.y);
+        
+        assert.equal(131, this.v8.x);
+        assert.equal(44, this.v8.y);
+        
+        assert.equal(232, this.v9.x);
+        assert.equal(44, this.v9.y);
+        
+        // Justify
+        this.layout.setAttribute('justify', true);
+        
+        assert.equal(2, this.v1.x);
+        assert.equal(2, this.v1.y);
+        
+        assert.equal(117, this.v2.x);
+        assert.equal(2, this.v2.y);
+        
+        assert.equal(232, this.v3.x);
+        assert.equal(2, this.v3.y);
+        
+        assert.equal(2, this.v4.x);
+        assert.equal(23, this.v4.y);
+        
+        assert.equal(117, this.v5.x);
+        assert.equal(23, this.v5.y);
+        
+        assert.equal(232, this.v6.x);
+        assert.equal(23, this.v6.y);
+        
+        assert.equal(2, this.v7.x);
+        assert.equal(44, this.v7.y);
+        
+        assert.equal(117, this.v8.x);
+        assert.equal(44, this.v8.y);
+        
+        assert.equal(232, this.v9.x);
+        assert.equal(44, this.v9.y);
+      </handler>
     </view>
     
     <!-- Test transformed views and ensure auto works event though
