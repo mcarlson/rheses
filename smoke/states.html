@@ -61,6 +61,13 @@
         <attribute name="baz" value="biff" type="string"></attribute>
         <handler event="onwidth">
         </handler>
+        <view></view>
+        <node></node>
+        <method name="set_x" args="x">
+          x *= .5
+          this.super()
+          return x
+        </method>
       </state>
       <handler event="oninit">
         assert.equal(this.baz, undefined)
@@ -70,8 +77,12 @@
           count += this.events[event].length
         }
         assert.equal(count, 7)
+        this.setAttribute('x', 20)
+        assert.equal(this.x, 20)
         
         this.foo.setAttribute('applied', true)
+        assert.equal(this.subnodes.length, 3)
+        assert.equal(this.subviews.length, 1)
         assert.equal(this.width, 200)
         assert.equal(this.baz, 'biff')
         count = 0
@@ -80,7 +91,12 @@
         }
         assert.equal(count, 8)
 
+        this.setAttribute('x', 10)
+        assert.equal(this.x, 5)
+
         this.foo.setAttribute('applied', false)
+        assert.equal(this.subnodes.length, 1)
+        assert.equal(this.subviews.length, 0)
         assert.equal(this.baz, '')
         assert.equal(this.width, 200)
         count = 0
@@ -88,6 +104,8 @@
           count += this.events[event].length
         }
         assert.equal(count, 7)
+        this.setAttribute('x', 15)
+        assert.equal(this.x, 15)
       </handler>
     </view>
 

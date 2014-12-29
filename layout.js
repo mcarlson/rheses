@@ -3198,6 +3198,7 @@
                 Node.prototype.enumfalse(Node.prototype.keys());
                 View.prototype.enumfalse(View.prototype.keys());
                 Layout.prototype.enumfalse(Layout.prototype.keys());
+                State.prototype.enumfalse(State.prototype.keys());
                 loadScript('/lib/animator.js', callback, 'Missing /lib/animator.js');
                 _ref2 = jqel.find('[scriptincludes]');
                 _results = [];
@@ -3563,7 +3564,7 @@
       __extends(State, _super);
 
       function State(el, attributes) {
-        var child, compilertype, finish, handler, instancebody, name, oldbody, processedChildren, value, _i, _j, _len, _len1, _ref, _ref1;
+        var child, compilertype, finish, handler, name, oldbody, processedChildren, value, _i, _j, _len, _len1, _ref, _ref1;
         if (attributes == null) {
           attributes = {};
         }
@@ -3578,17 +3579,13 @@
           child = processedChildren[_i];
           child.parentNode.removeChild(child);
         }
-        instancebody = el.innerHTML.trim();
+        this.instancebody = el.innerHTML.trim();
         if (oldbody) {
           el.innerHTML = oldbody;
         }
         this.types = (_ref = attributes.$types) != null ? _ref : {};
         this.setAttribute('parent', attributes.parent);
         this.installMethods(attributes.$methods, this.parent.$tagname, this, this.parent);
-        if (attributes.name) {
-          this.setAttribute('name', attributes.name);
-          this.skipattributes.push('name');
-        }
         if (attributes.applied) {
           this.bindAttribute('applied', attributes.applied, 'state');
         }
@@ -3611,13 +3608,9 @@
           return function() {
             if (_this.constraints) {
               _this._bindConstraints();
-              _this.skipattributes.push('constraints');
             }
             if (_this.events) {
               _this.skipattributes.push('events');
-            }
-            if (_this.handlers) {
-              _this.skipattributes.push('handlers');
             }
             return _this.enumfalse(_this.skipattributes);
           };
@@ -3625,6 +3618,7 @@
         callOnIdle(finish);
         if (el) {
           el.$view = this;
+          this.children = [];
         }
         this.initialize(true);
       }
@@ -3638,18 +3632,10 @@
       State.prototype.set_applied = function(applied) {
         var name, parentname, val;
         if (this.parent && this.applied !== applied) {
-          this.applied = applied;
           if (applied) {
-            this.parent.learn(this);
-            if (this.stateattributes.$handlers) {
-              this.parent.installHandlers(this.stateattributes.$handlers, this.parent.$tagname, this.parent);
-              this.parent._bindHandlers();
-            }
+            this._apply();
           } else {
-            this.parent.forget(this);
-            if (this.stateattributes.$handlers) {
-              this.parent.removeHandlers(this.stateattributes.$handlers, this.parent.$tagname, this.parent);
-            }
+            this._remove();
           }
           parentname = this.parent.$tagname;
           for (name in this.applyattributes) {
@@ -3661,15 +3647,54 @@
         return applied;
       };
 
-      State.prototype.apply = function() {
-        if (!this.applied) {
-          return this.setAttribute('applied', true);
+      State.prototype._apply = function() {
+        var children, childrenbefore, el, i, parentel, subnode, _i, _j, _len, _len1;
+        if (this.applied) {
+          return;
+        }
+        this.parent.learn(this);
+        if (this.instancebody) {
+          parentel = this.parent.sprite.el;
+          childrenbefore = dom.getChildElements(parentel);
+          for (_i = 0, _len = childrenbefore.length; _i < _len; _i++) {
+            el = childrenbefore[_i];
+            if (el.$view) {
+              el.$view = null;
+            }
+          }
+          parentel.innerHTML += this.instancebody;
+          children = dom.getChildElements(parentel);
+          for (i = _j = 0, _len1 = children.length; _j < _len1; i = ++_j) {
+            el = children[i];
+            if (i < childrenbefore.length) {
+              subnode = this.parent.subnodes[i];
+              if (subnode != null ? subnode.sprite : void 0) {
+                subnode.sprite.el = el;
+              }
+              el.$view = subnode;
+            } else {
+              dom.initElement(el, this.parent);
+              this.children.push(el.$view);
+            }
+          }
+        }
+        if (this.stateattributes.$handlers) {
+          this.parent.installHandlers(this.stateattributes.$handlers, this.parent.$tagname, this.parent);
+          return this.parent._bindHandlers();
         }
       };
 
-      State.prototype.remove = function() {
-        if (this.applied) {
-          return this.setAttribute('applied', false);
+      State.prototype._remove = function() {
+        var child;
+        if (!this.applied) {
+          return;
+        }
+        while (child = this.children.pop()) {
+          child.destroy();
+        }
+        this.parent.forget(this);
+        if (this.stateattributes.$handlers) {
+          return this.parent.removeHandlers(this.stateattributes.$handlers, this.parent.$tagname, this.parent);
         }
       };
 

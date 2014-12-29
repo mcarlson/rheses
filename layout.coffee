@@ -2541,6 +2541,7 @@ window.dr = do ->
               Node::enumfalse(Node::keys())
               View::enumfalse(View::keys())
               Layout::enumfalse(Layout::keys())
+              State::enumfalse(State::keys())
 
               # load scriptincludes
               loadScript('/lib/animator.js', callback, 'Missing /lib/animator.js')
@@ -2825,7 +2826,7 @@ window.dr = do ->
         child.parentNode.removeChild(child)
 
       # serialize the tag's contents for recreation with processedChildren removed
-      instancebody = el.innerHTML.trim()
+      @instancebody = el.innerHTML.trim()
 
       # restore old contents
       el.innerHTML = oldbody if (oldbody)
@@ -2837,10 +2838,6 @@ window.dr = do ->
       # Install methods in the state with the run scope set to the parent
       # These will be applied to the parent by ONE with learn()
       @installMethods(attributes.$methods, @parent.$tagname, @, @parent)
-
-      if attributes.name
-        @setAttribute('name', attributes.name)
-        @skipattributes.push('name')
 
       # handle applied constraint bindings as local to the state
       if attributes.applied
@@ -2859,25 +2856,20 @@ window.dr = do ->
       # console.log('applyattributes', @applyattributes)
 
       finish = () =>
-        if @constraints
-          @_bindConstraints()
-          # prevent warnings if we have a constraint to @applied
-          @skipattributes.push('constraints')
+        @_bindConstraints() if @constraints
 
         if @events
           # prevent warnings for local events
           @skipattributes.push('events')
-
-        if @handlers
-          # prevent warnings for local handlers
-          @skipattributes.push('handlers')
 
         # hide local properties we don't want applied to the parent by learn()
         @enumfalse(@skipattributes)
 
       callOnIdle(finish)
 
-      el.$view = @ if el
+      if el
+        el.$view = @
+        @children = []
       @initialize(true)
 
     ###*
@@ -2886,20 +2878,8 @@ window.dr = do ->
     ###
     set_applied: (applied) ->
       if @parent and @applied isnt applied
-        @applied = applied
-
         # console.log('set_applied', applied, @, @parent)
-        if applied
-          @parent.learn @
-          if @stateattributes.$handlers
-            # console.log('installing handlers', @stateattributes.$handlers)
-            @parent.installHandlers(@stateattributes.$handlers, @parent.$tagname, @parent)
-            @parent._bindHandlers()
-        else
-          @parent.forget @
-          if @stateattributes.$handlers
-            # console.log('removing handlers', @stateattributes.$handlers)
-            @parent.removeHandlers(@stateattributes.$handlers, @parent.$tagname, @parent)
+        if applied then @_apply() else @_remove()
 
         parentname = @parent.$tagname
         # Hack to set attributes for now - not needed when using signals
@@ -2910,13 +2890,52 @@ window.dr = do ->
           # console.log('setAttribute', name, val, @parent)
           # call with same signature used in _constraintCallback
           @parent.setAttribute(name, val, false, false, true)
-      return applied
+      applied
 
-    apply: () ->
-      @setAttribute('applied', true) unless @applied
+    _apply: () ->
+      return if @applied
+      @parent.learn @
+      # create children, if we have any
+      if @instancebody
+        parentel = @parent.sprite.el
+        # count children before HTML is tweaked
+        childrenbefore = dom.getChildElements(parentel)
+        for el in childrenbefore
+          if el.$view
+            # console.log('clearing el', el)
+            el.$view = null
+        # console.log('size', childrenbefore)
+        parentel.innerHTML += @instancebody
+        # create child instances
+        children = dom.getChildElements(parentel)
+        for el, i in children
+          # reset class references on new elements created by innerHTML
+          if i < childrenbefore.length
+            subnode = @parent.subnodes[i]
+            if subnode?.sprite
+              # console.log('subnode', @parent.subnodes, subnode, subnode.sprite.el, el)
+              subnode.sprite.el = el
+            el.$view = subnode
+          else
+            # create new elements
+            # console.log('initting el', el, @parent)
+            dom.initElement(el, @parent)
+            @children.push(el.$view)
+      if @stateattributes.$handlers
+        # console.log('installing handlers', @stateattributes.$handlers)
+        @parent.installHandlers(@stateattributes.$handlers, @parent.$tagname, @parent)
+        @parent._bindHandlers()
 
-    remove: () ->
-      @setAttribute('applied', false) if @applied
+    _remove: () ->
+      return unless @applied
+      # destroy any children created
+      while child = @children.pop()
+        # console.log('destroying', child)
+        child.destroy()
+      @parent.forget @
+      if @stateattributes.$handlers
+        # console.log('removing handlers', @stateattributes.$handlers)
+        @parent.removeHandlers(@stateattributes.$handlers, @parent.$tagname, @parent)
 
 
   ###*
