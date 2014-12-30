@@ -63,14 +63,14 @@
         </handler>
         <view></view>
         <node></node>
-        <method name="set_x" args="x">
+        <setter name="x" args="x">
           return this.super(x) * .5
-        </method>
+        </setter>
       </state>
       <state name="bar">
-        <method name="set_x" args="x">
+        <setter name="x" args="x">
           return this.super(x) * 4
-        </method>
+        </setter>
       </state>
 
       <handler event="oninit">
@@ -104,7 +104,7 @@
 
         this.foo.setAttribute('applied', false)
         this.setAttribute('x', 10)
-        assert.equal(this.x, 40, 'x should be quadroupled')
+        assert.equal(this.x, 40, 'x should be quadrupled')
 
         this.bar.setAttribute('applied', false)
         assert.equal(this.subnodes.length, 2)
