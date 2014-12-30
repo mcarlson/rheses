@@ -199,6 +199,14 @@
       assert.equal(this.subviews.length, 2)
     </handler>
   </view>
+
+  <!-- Ensure setAttribute() and sendEvent() are chainable -->
+  <view>
+    <handler event="oninit">
+      var chainable = this.setAttribute('x', 1).sendEvent('foo', true)
+      assert.equal(chainable, this)
+    </handler>
+  </view>
 </view>
 <!-- The MIT License (MIT)
 

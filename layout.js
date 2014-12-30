@@ -2191,34 +2191,34 @@
           switch (name) {
             case 'x':
               if (this.__setupPercentConstraint(name, value, 'innerwidth')) {
-                return;
+                return this;
               }
               if (this.__setupAlignConstraint(name, value)) {
-                return;
+                return this;
               }
               break;
             case 'y':
               if (this.__setupPercentConstraint(name, value, 'innerheight')) {
-                return;
+                return this;
               }
               if (this.__setupAlignConstraint(name, value)) {
-                return;
+                return this;
               }
               break;
             case 'width':
               if (this.__setupPercentConstraint(name, value, 'innerwidth')) {
-                return;
+                return this;
               }
               if (this.__setupAutoConstraint(name, value, 'x')) {
-                return;
+                return this;
               }
               break;
             case 'height':
               if (this.__setupPercentConstraint(name, value, 'innerheight')) {
-                return;
+                return this;
               }
               if (this.__setupAutoConstraint(name, value, 'y')) {
-                return;
+                return this;
               }
           }
         }
@@ -2244,10 +2244,11 @@
               case 'rotation':
               case 'xanchor':
               case 'yanchor':
-                return this.__updateBounds();
+                this.__updateBounds();
             }
           }
         }
+        return this;
       };
 
       View.prototype.getBoundsRelativeToParent = function() {

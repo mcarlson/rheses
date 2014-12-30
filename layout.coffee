@@ -302,8 +302,7 @@ window.dr = do ->
       # TODO: add support for dynamic constraints
       value = @_coerceType(name, value) unless skipcoercion
 
-      unless skipconstraintunregistration
-        @_unbindConstraint(name)
+      @_unbindConstraint(name) unless skipconstraintunregistration
 
       # If a setter function exists, use its return value as the value for
       # the attribute.
@@ -1737,17 +1736,17 @@ window.dr = do ->
       unless skipConstraintSetup
         switch name
           when 'x'
-            if @__setupPercentConstraint(name, value, 'innerwidth') then return
-            if @__setupAlignConstraint(name, value) then return
+            return @ if @__setupPercentConstraint(name, value, 'innerwidth')
+            return @ if @__setupAlignConstraint(name, value)
           when 'y'
-            if @__setupPercentConstraint(name, value, 'innerheight') then return
-            if @__setupAlignConstraint(name, value) then return
+            return @ if @__setupPercentConstraint(name, value, 'innerheight')
+            return @ if @__setupAlignConstraint(name, value)
           when 'width'
-            if @__setupPercentConstraint(name, value, 'innerwidth') then return
-            if @__setupAutoConstraint(name, value, 'x') then return
+            return @ if @__setupPercentConstraint(name, value, 'innerwidth')
+            return @ if @__setupAutoConstraint(name, value, 'x')
           when 'height'
-            if @__setupPercentConstraint(name, value, 'innerheight') then return
-            if @__setupAutoConstraint(name, value, 'y') then return
+            return @ if @__setupPercentConstraint(name, value, 'innerheight')
+            return @ if @__setupAutoConstraint(name, value, 'y')
 
       # Do super first since setters may modify the actual value set.
       existing = @[name]
@@ -1769,6 +1768,7 @@ window.dr = do ->
           switch name
             when 'x', 'y', 'width', 'height', 'xscale', 'yscale', 'rotation', 'xanchor', 'yanchor'
               @__updateBounds()
+      @
 
     getBoundsRelativeToParent: () ->
       xanchor = @xanchor
