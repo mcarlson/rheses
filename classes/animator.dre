@@ -255,7 +255,14 @@ SOFTWARE. -->
       // call the setter to get our target_obj
       this.set_target(this.target)
 
-      this.track[0] = this.from === ""? this.target_obj[this.attribute]: this.from
+      if(this.from !== "") this.track[0] = this.from
+      else{
+        if(this.relative){
+          this.relative_to = this.target_obj[this.attribute]
+          this.track[0] = 0
+        }
+        else this.track[0] = this.target_obj[this.attribute]
+      }
 
       if(standalone){
         this.animator.play(this.track)
@@ -276,14 +283,25 @@ SOFTWARE. -->
     <method name="timestep" args="time, sample_first">
       // ok so how do we decide when we need to sample this thing?
       if(sample_first && this.from === ""){
-        // lets update the track
-        this.track[0] = this.target_obj[this.attribute]
+        // resample relative
+        if(this.relative){
+          this.relative_to = this.target_obj[this.attribute]
+          this.track[0] = 0
+        } 
+        else this.track[0] = this.target_obj[this.attribute]
+
         this.animator.update(this.track)
       }
       var value = this.animator.timestep(time)
       if(this.debug) console.log(time, value)
 
-      this.target_obj.setAttribute(this.attribute, value)
+      if(this.relative_to !== undefined){
+        this.target_obj.setAttribute(this.attribute, this.relative_to + value)
+      }
+      else{
+        this.target_obj.setAttribute(this.attribute, value)
+      }
+
     </method>
 
     <!-- Internal start animation-->
@@ -307,6 +325,16 @@ SOFTWARE. -->
       }.bind(this)
       dr.idle.callOnIdle(animTick)
 
+    </method>
+    
+    <method name="construct" args="element, attributes">
+      // inherit these properties from the parent node
+      var inherit_set = ['from', 'to', 'duration', 'attribute', 'target', 'relative']
+      for(var i = 0; i < inherit_set.length; i++){
+        var inherit = inherit_set[i]
+        if(element.getAttribute(inherit) === null && attributes.parent[inherit] !== undefined) attributes[inherit] = attributes.parent[inherit]
+      }
+      this.super(element, attributes)
     </method>
 
     <handler event="oninit"><!--
