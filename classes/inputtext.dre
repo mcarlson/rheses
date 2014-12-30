@@ -90,54 +90,26 @@ SOFTWARE. -->
 
       /**
        * @attribute {Boolean} [multiline=false]
-       * Set to true to show multi-line text.
+       * Set to true for a multi-line input text field
        */
-
-
-      /**
-       * @attribute {String} text
-       * The text inside this input text field
-       */
-
-
-      /**
-       * @attribute {Number} [width=100]
-       * The width of this input text field
-       */-->
+-->
   <attribute name="multiline" type="boolean" value="false"></attribute>
   
+<!--  /**
+       * @attribute {String} [text=""]
+       * The contents of this input text field
+       */-->
+  <setter name="text" args="text">
+    @sprite.value(@format(text))
+    return text
+  </setter>
   <setter name="data" args="data">
     @setAttribute('text', data, true)
     return data
   </setter>
   
-  <setter name="text" args="text">
-    @sprite.value(@format(text))
-    return text
-  </setter>
+  <attribute name="width" type="number" value="100"></attribute>
   
-  <!--/**
-    * 
-    * @attribute {Boolean} [multiline=false]
-    * Set to true to show multi-line text.
-  <attribute name="multiline" type="boolean" value="false"></attribute>
-  <attribute name="resize" type="boolean" value="true"></attribute>
-    * 
-    * @attribute {Boolean} [resize=true]
-    * By default, the text component is sized to the size of the text.
-    * By setting resize=false, the component size is not modified
-    * when the text changes.
-    * 
-    * @attribute {String} [text=""]
-    * Component text.
-    * 
-    */-->
-  <method name="construct" args="el, attributes">
-    attributes.width ?= 100
-
-    @super()
-  </method>
-
   <handler event="oninnerwidth" args="iw">
     @sprite.setStyle('width', iw, true, @sprite.input)
   </handler>

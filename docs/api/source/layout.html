@@ -99,7 +99,7 @@
   })();
 
   window.dr = (function() {
-    var AutoPropertyLayout, Class, Eventable, Events, Idle, InputText, Keyboard, Layout, Module, Mouse, Node, Path, Sprite, StartEventable, State, View, Window, callOnIdle, capabilities, closeTo, compiler, constraintScopes, debug, dom, domElementAttributes, eventq, exports, fcamelCase, handlerq, hiddenAttributes, idle, ignoredAttributes, instantiating, knownstyles, matchEvent, mixOf, moduleKeywords, mouseEvents, noop, querystring, rdashAlpha, showWarnings, specialtags, ss, ss2, starttime, test, triggerlock, warnings, _initConstraints;
+    var AutoPropertyLayout, Class, Eventable, Events, Idle, Keyboard, Layout, Module, Mouse, Node, Path, Sprite, StartEventable, State, View, Window, callOnIdle, capabilities, closeTo, compiler, constraintScopes, debug, dom, domElementAttributes, eventq, exports, fcamelCase, handlerq, hiddenAttributes, idle, ignoredAttributes, instantiating, knownstyles, matchEvent, mixOf, moduleKeywords, mouseEvents, noop, querystring, rdashAlpha, showWarnings, specialtags, ss, ss2, starttime, test, triggerlock, warnings, _initConstraints;
     noop = function() {};
     closeTo = function(a, b, epsilon) {
       epsilon || (epsilon = 0.01);
@@ -658,7 +658,7 @@
           return scriptCache[key] = func;
         } catch (_error) {
           e = _error;
-          return console.error(&#39;failed to compile&#39;, e.toString(), args, script);
+          return showWarnings([&quot;Failed to compile &quot; + (e.toString()) + &quot; &quot; + args + &quot; &quot; + script]);
         }
       };
       compile = function(script, args, name) {
@@ -818,7 +818,7 @@
               for (_j = 0, _len1 = methodObj.length; _j &lt; _len1; _j++) {
                 _ref1 = methodObj[_j], method = _ref1.method, args = _ref1.args;
                 hassuper = matchSuper.test(method);
-                _installMethod(this, methodName, compiler.compile(method, args, attributes.$tagname + &quot;$&quot; + methodName).bind(this), hassuper);
+                _installMethod(this, methodName, compiler.compile(method, args, &quot;&quot; + attributes.$tagname + &quot;$&quot; + methodName).bind(this), hassuper);
               }
             }
           }
@@ -1499,7 +1499,9 @@
             for (name in animators) {
               anim = animators[name];
               myvalue = anim.timestep(local_time);
-              _this.setAttribute(name, myvalue);
+              if (_this.sprite) {
+                _this.setAttribute(name, myvalue);
+              }
               if (anim.ended) {
                 ended = true;
               }
@@ -1745,6 +1747,7 @@
       resize: true,
       multiline: true,
       ignorelayout: true,
+      layouthint: true,
       initchildren: true,
       rotation: true,
       xscale: true,
@@ -2038,6 +2041,25 @@
        * Drop shadow using standard CSS format (offset-x offset-y blur-radius spread-radius color). For example: &quot;10px 10px 5px 0px #888888&quot;.
        */
 
+<span id='dr-view-attribute-ignorelayout'>      /**
+</span>       * @attribute {String} [ignorelayout=&#39;false&#39;]
+       * Indicates if layouts should ignore this view or not. A variety of
+       * configuration mechanisms are supported. Provided true or false will
+       * cause the view to be ignored or not by all layouts. If instead a
+       * serialized map is provided the keys of the map will target values
+       * the layouts with matching names. A special key of &#39;*&#39; indicates a
+       * default value for all layouts not specifically mentioned in the map.
+       */
+
+<span id='dr-view-attribute-layouthint'>      /**
+</span>       * @attribute {String} [layouthint=&#39;&#39;]
+       * Provides per view hinting to layouts. The specific hints supported
+       * are layout specific. Hints are provided as a map. A map key may
+       * be prefixied with the name of a layout followed by a &#39;/&#39;. This will
+       * target that hint at a specific layout. If the prefix is ommitted or
+       * a prefix of &#39;*&#39; is used the hint will be targeted to all layouts.
+       */
+
 <span id='dr-view-event-onclick'>      /**
 </span>       * @event onclick
        * Fired when this view is clicked
@@ -2127,16 +2149,6 @@
          * @readonly
          * An array of this views&#39;s layouts. Only defined when needed.
          */
-
-<span id='dr-view-attribute-ignorelayout'>        /**
-</span>         * @attribute {String} [ignorelayout=&#39;false&#39;]
-         * Indicates if layouts should ignore this view or not. A variety of
-         * configuration mechanisms are supported. Provided true or false will
-         * cause the view to be ignored or not by all layouts. If instead a
-         * serialized map is provided the keys of the map will target values
-         * the layouts with matching names. A special key of &#39;*&#39; indicates a
-         * default value for all layouts not specifically mentioned in the map.
-         */
         var key, type, types, _ref;
         this.subviews = [];
         types = {
@@ -2156,6 +2168,7 @@
           border: &#39;positivenumber&#39;,
           padding: &#39;positivenumber&#39;,
           ignorelayout: &#39;json&#39;,
+          layouthint: &#39;json&#39;,
           scrollx: &#39;number&#39;,
           scrolly: &#39;number&#39;
         };
@@ -2795,6 +2808,35 @@
         return this.sprite.getAbsolute();
       };
 
+
+<span id='dr-view-method-getLayoutHint'>      /**
+</span>       * Gets the value of a named layout hint.
+       * @param {String} layoutName The name of the layout to match.
+       * @param {String} key The name of the hint to match.
+       * @return {*} The value of the hint or undefined if not found.
+       */
+
+      View.prototype.getLayoutHint = function(layoutName, hintName) {
+        var hint, hints;
+        hints = this.layouthint;
+        if (hints) {
+          hint = hints[layoutName + &#39;/&#39; + hintName];
+          if (hint != null) {
+            return hint;
+          }
+          hint = hints[hintName];
+          if (hint != null) {
+            return hint;
+          }
+          hint = hints[&#39;*/&#39; + hintName];
+          if (hint != null) {
+            return hint;
+          }
+        } else {
+
+        }
+      };
+
       View.prototype.set_class = function(classname) {
         this.sprite.set_class(classname);
         return classname;
@@ -2803,199 +2845,6 @@
       return View;
 
     })(Node);
-
-<span id='dr-inputtext'>    /**
-</span>     * @class dr.inputtext {UI Components, Input}
-     * @extends dr.view
-     * Provides an editable input text field.
-     *
-     *     @example
-     *     &lt;spacedlayout axis=&quot;y&quot;&gt;&lt;/spacedlayout&gt;
-     *
-     *     &lt;text text=&quot;Enter your name&quot;&gt;&lt;/text&gt;
-     *
-     *     &lt;inputtext id=&quot;nameinput&quot; bgcolor=&quot;white&quot; border=&quot;1px solid lightgrey&quot; width=&quot;200&quot;&gt;&lt;/inputtext&gt;
-     *
-     *     &lt;labelbutton text=&quot;submit&quot;&gt;
-     *       &lt;handler event=&quot;onclick&quot;&gt;
-     *         welcome.setAttribute(&#39;text&#39;, &#39;Welcome &#39; + nameinput.text);
-     *       &lt;/handler&gt;
-     *     &lt;/labelbutton&gt;
-     *
-     *     &lt;text id=&quot;welcome&quot;&gt;&lt;/text&gt;
-     *
-     * It&#39;s possible to listen for an onchange event to find out when the user changed the inputtext value:
-     *
-     *     @example
-     *     &lt;inputtext id=&quot;nameinput&quot; bgcolor=&quot;white&quot; border=&quot;1px solid lightgrey&quot; width=&quot;200&quot; onchange=&quot;console.log(&#39;onchange&#39;, this.text)&quot;&gt;&lt;/inputtext&gt;
-     *
-     */
-    InputText = (function(_super) {
-      __extends(InputText, _super);
-
-      function InputText() {
-        return InputText.__super__.constructor.apply(this, arguments);
-      }
-
-
-<span id='dr-inputtext-event-onselect'>      /**
-</span>       * @event onselect
-       * Fired when an inputtext is selected
-       * @param {dr.view} view The view that fired the event
-       */
-
-
-<span id='dr-inputtext-event-onchange'>      /**
-</span>       * @event onchange
-       * Fired when an inputtext has changed
-       * @param {dr.view} view The view that fired the event
-       */
-
-
-<span id='dr-inputtext-event-onfocus'>      /**
-</span>       * @event onfocus
-       * Fired when an inputtext is focused
-       * @param {dr.view} view The view that fired the event
-       */
-
-
-<span id='dr-inputtext-event-onblur'>      /**
-</span>       * @event onblur
-       * Fired when an inputtext is blurred or loses focus
-       * @param {dr.view} view The view that fired the event
-       */
-
-
-<span id='dr-inputtext-event-onkeydown'>      /**
-</span>       * @event onkeydown
-       * Fired when a key goes down
-       * @param {Object} keys An object representing the keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
-       */
-
-
-<span id='dr-inputtext-event-onkeyup'>      /**
-</span>       * @event onkeyup
-       * Fired when a key goes up
-       * @param {Object} keys An object representing the keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
-       */
-
-
-<span id='dr-inputtext-attribute-multiline'>      /**
-</span>       * @attribute {Boolean} [multiline=false]
-       * Set to true to show multi-line text.
-       */
-
-
-<span id='dr-inputtext-attribute-text'>      /**
-</span>       * @attribute {String} text
-       * The text inside this input text field
-       */
-
-
-<span id='dr-inputtext-attribute-width'>      /**
-</span>       * @attribute {Number} [width=100]
-       * The width of this input text field
-       */
-
-      InputText.prototype.construct = function(el, attributes) {
-        var defaults, key, type, types, _ref;
-        types = {
-          multiline: &#39;boolean&#39;
-        };
-        defaults = {
-          clickable: true,
-          multiline: false,
-          width: 100
-        };
-        _ref = attributes.$types;
-        for (key in _ref) {
-          type = _ref[key];
-          types[key] = type;
-        }
-        attributes.$types = types;
-        this._setDefaults(attributes, defaults);
-        InputText.__super__.construct.apply(this, arguments);
-        if (!this.height) {
-          this.setAttribute(&#39;height&#39;, this._getDefaultHeight());
-        }
-        this.listenTo(this, &#39;change&#39;, this._handleChange);
-        this.listenTo(this, &#39;innerwidth&#39;, function(iw) {
-          return this.sprite.setStyle(&#39;width&#39;, iw, true, this.sprite.input);
-        });
-        this.sprite.setStyle(&#39;width&#39;, this.innerwidth, true, this.sprite.input);
-        this.listenTo(this, &#39;innerheight&#39;, function(ih) {
-          return this.sprite.setStyle(&#39;height&#39;, ih, true, this.sprite.input);
-        });
-        this.sprite.setStyle(&#39;height&#39;, this.innerheight, true, this.sprite.input);
-        return this.listenTo(this, &#39;click&#39;, function() {
-          return this.sprite.input.focus();
-        });
-      };
-
-      InputText.prototype._createSprite = function(el, attributes) {
-        var multiline;
-        InputText.__super__._createSprite.apply(this, arguments);
-        attributes.text || (attributes.text = this.sprite.getText(true));
-        this.sprite.setText(&#39;&#39;);
-        multiline = this._coerceType(&#39;multiline&#39;, attributes.multiline, &#39;boolean&#39;);
-        return this.sprite.createInputtextElement(&#39;&#39;, multiline, attributes.width, attributes.height);
-      };
-
-      InputText.prototype._getDefaultHeight = function() {
-        var borderH, domElem, h, paddingH;
-        h = parseInt($(this.sprite.input).css(&#39;height&#39;));
-        domElem = $(this.sprite.el);
-        borderH = parseInt(domElem.css(&#39;border-top-width&#39;)) + parseInt(domElem.css(&#39;border-bottom-width&#39;));
-        paddingH = parseInt(domElem.css(&#39;padding-top&#39;)) + parseInt(domElem.css(&#39;padding-bottom&#39;));
-        return h + borderH + paddingH;
-      };
-
-      InputText.prototype._handleChange = function() {
-        var newdata;
-        if (!this.replicator) {
-          return;
-        }
-        newdata = this.text;
-        if (typeof this.data === &#39;number&#39;) {
-          if (parseFloat(newdata) + &#39;&#39; === newdata) {
-            newdata = parseFloat(newdata);
-          }
-        } else if (typeof this.data === &#39;boolean&#39;) {
-          if (newdata === &#39;true&#39;) {
-            newdata = true;
-          } else if (newdata === &#39;false&#39;) {
-            newdata = false;
-          }
-        }
-        return this.replicator.updateData(newdata);
-      };
-
-      InputText.prototype.set_data = function(d) {
-        this.setAttribute(&#39;text&#39;, d, true);
-        return d;
-      };
-
-      InputText.prototype.set_text = function(text) {
-        this.sprite.value(text);
-        return text;
-      };
-
-      InputText.prototype.sendEvent = function(name, value) {
-        InputText.__super__.sendEvent.apply(this, arguments);
-        if (name === &#39;keydown&#39; || name === &#39;keyup&#39; || name === &#39;blur&#39; || name === &#39;change&#39;) {
-          if (this.sprite) {
-            value = this.sprite.value();
-            if (this.text !== value) {
-              this.text = value;
-              return this.sendEvent(&#39;text&#39;, value);
-            }
-          }
-        }
-      };
-
-      return InputText;
-
-    })(View);
     warnings = [];
     showWarnings = function(data) {
       var out, pre;
@@ -3581,7 +3430,7 @@
       __extends(State, _super);
 
       function State(el, attributes) {
-        var child, compilertype, finish, handler, name, oldbody, processedChildren, value, _i, _j, _len, _len1, _ref, _ref1;
+        var child, compilertype, finish, handler, name, oldbody, processedChildren, value, _base, _base1, _i, _j, _len, _len1, _ref, _ref1;
         if (attributes == null) {
           attributes = {};
         }
@@ -3602,7 +3451,15 @@
         }
         this.types = (_ref = attributes.$types) != null ? _ref : {};
         this.setAttribute(&#39;parent&#39;, attributes.parent);
-        this.installMethods(attributes.$methods, this.parent.$tagname, this, this.parent);
+        if ((_base = this.parent).states == null) {
+          _base.states = [];
+        }
+        if ((_base1 = this.parent.states).origmethods == null) {
+          _base1.origmethods = {};
+        }
+        this.parent.states.push(this);
+        this.parent.sendEvent(&#39;states&#39;, this.parent.states);
+        this.statemethods = attributes.$methods;
         if (attributes.applied) {
           this.bindAttribute(&#39;applied&#39;, attributes.applied, &#39;state&#39;);
         }
@@ -3647,8 +3504,12 @@
        */
 
       State.prototype.set_applied = function(applied) {
-        var name, parentname, val;
+        var name, origmethods, parentname, val;
         if (this.parent &amp;&amp; this.applied !== applied) {
+          origmethods = this.parent.states.origmethods;
+          for (name in origmethods) {
+            this.parent[name] = origmethods[name];
+          }
           if (applied) {
             this._apply();
           } else {
@@ -3665,23 +3526,38 @@
       };
 
       State.prototype._apply = function() {
-        var children, childrenbefore, el, i, parentel, subnode, _i, _j, _len, _len1;
+        var children, childrenbefore, el, i, name, origmethods, parentel, state, subnode, _i, _j, _k, _len, _len1, _len2, _ref;
         if (this.applied) {
           return;
         }
         this.parent.learn(this);
+        origmethods = this.parent.states.origmethods;
+        for (name in this.statemethods) {
+          if (name in this.parent) {
+            if (__indexOf.call(origmethods, name) &lt; 0) {
+              origmethods[name] = this.parent[name];
+            }
+          }
+        }
+        _ref = this.parent.states;
+        for (_i = 0, _len = _ref.length; _i &lt; _len; _i++) {
+          state = _ref[_i];
+          if (state.applied || state === this) {
+            this.parent.installMethods(state.statemethods, this.parent.$tagname, this.parent, this.parent);
+          }
+        }
         if (this.instancebody) {
           parentel = this.parent.sprite.el;
           childrenbefore = dom.getChildElements(parentel);
-          for (_i = 0, _len = childrenbefore.length; _i &lt; _len; _i++) {
-            el = childrenbefore[_i];
+          for (_j = 0, _len1 = childrenbefore.length; _j &lt; _len1; _j++) {
+            el = childrenbefore[_j];
             if (el.$view) {
               el.$view = null;
             }
           }
           parentel.innerHTML += this.instancebody;
           children = dom.getChildElements(parentel);
-          for (i = _j = 0, _len1 = children.length; _j &lt; _len1; i = ++_j) {
+          for (i = _k = 0, _len2 = children.length; _k &lt; _len2; i = ++_k) {
             el = children[i];
             if (i &lt; childrenbefore.length) {
               subnode = this.parent.subnodes[i];
@@ -3702,14 +3578,21 @@
       };
 
       State.prototype._remove = function() {
-        var child;
+        var child, state, _i, _len, _ref;
         if (!this.applied) {
           return;
         }
+        this.parent.forget(this);
         while (child = this.children.pop()) {
           child.destroy();
         }
-        this.parent.forget(this);
+        _ref = this.parent.states;
+        for (_i = 0, _len = _ref.length; _i &lt; _len; _i++) {
+          state = _ref[_i];
+          if (state.applied &amp;&amp; state !== this) {
+            this.parent.installMethods(state.statemethods, this.parent.$tagname, this.parent, this.parent);
+          }
+        }
         if (this.stateattributes.$handlers) {
           return this.parent.removeHandlers(this.stateattributes.$handlers, this.parent.$tagname, this.parent);
         }
@@ -4707,7 +4590,7 @@
         simulatedEvent.initMouseEvent(type, true, true, window, 1, first.pageX, first.pageY, first.clientX, first.clientY, false, false, false, false, 0, null);
         first.target.dispatchEvent(simulatedEvent);
         if (first.target.$view) {
-          if (!(first.target.$view instanceof InputText)) {
+          if (first.target.$view.$tagname !== &#39;inputtext&#39;) {
             return skipEvent(event);
           }
         }
@@ -4758,7 +4641,7 @@
         if (view) {
           if (type === &#39;mousedown&#39;) {
             this._lastMouseDown = view;
-            if (!(view instanceof InputText)) {
+            if (view.$tagname !== &#39;inputtext&#39;) {
               skipEvent(event);
             }
           }
@@ -4966,6 +4849,9 @@
       return Keyboard;
 
     })(Eventable);
+    window.onerror = function(e) {
+      return showWarnings([e.toString()]);
+    };
 
 <span id='dr'>    /**
 </span>     * @class dr {Core Dreem}
@@ -4975,7 +4861,6 @@
      */
     return exports = {
       view: View,
-      inputtext: InputText,
       &quot;class&quot;: Class,
       node: Node,
       mouse: new Mouse(),

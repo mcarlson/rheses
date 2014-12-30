@@ -103,13 +103,19 @@ SOFTWARE. -->
     * @attribute {Boolean} [multiline=false]
     * Set to true to show multi-line text.
     * 
+    */-->
+  <!--/**
+    * 
     * @attribute {Boolean} [resize=true]
     * By default, the text component is sized to the size of the text.
     * By setting resize=false, the component size is not modified
     * when the text changes.
     * 
+    */-->
+  <!--/**
+    * 
     * @attribute {String} [text=""]
-    * Component text.
+    * The contents of this input text field
     * 
     */-->
   <method name="construct" args="el, attributes">
@@ -142,6 +148,7 @@ SOFTWARE. -->
   
   <method name="updateSize">
     return unless @inited
+    return unless @resize
     
     width = if @multiline then @_initialwidth else @width
     size = @sprite.measureTextSize(@multiline, width, @resize)

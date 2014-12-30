@@ -198,10 +198,10 @@
     *
     *     @example nestedr="red" x="0" y="0" width="100" height="100"/>
     *     <view id='obj1' bgcolor="green" x="0" y="0" width="100" height="100">
-    *       <animgroup>
-    *         <animator attribute="x" to="100" duration="1000" motion="outBounce" repeat="2"/>
-    *         <animator delay="100" attribute="y" to="50" duration="1000" motion="outBounce" repeat="2"/>
-    *         <animator attribute="bgcolor" to="red" duration="1000"/>
+    *       <animgroup duration='1000'>
+    *         <animator attribute="x" to="100" motion="outBounce" repeat="2"/>
+    *         <animator delay="100" attribute="y" to="50" motion="outBounce" repeat="2"/>
+    *         <animator attribute="bgcolor" to="red"/>
     *       </animgroup>
     *     </view>
     */
@@ -362,6 +362,12 @@
 /**
         * @attribute {Boolean} stretches [stretches=false]
         * Set to true to stretch the svg to fill the view.
+        */
+/**
+        * @attribute {Boolean} [resize=false]
+        * By default, the art component size is fixed to the specified size.
+        * By setting resize=true, the art component is sized to the size 
+        * embedded in the svg.
         */
 /**
         * @attribute {String} src
@@ -774,6 +780,77 @@
         * The compass accuracy, see [https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html](https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html) for details.
         */
 /**
+     * @class dr.inputtext {UI Components, Input}
+     * @extends dr.view
+     * Provides an editable input text field.
+     *
+     *     @example
+     *     <spacedlayout axis="y"></spacedlayout>
+     *
+     *     <text text="Enter your name"></text>
+     *
+     *     <inputtext id="nameinput" bgcolor="white" border="1px solid lightgrey" width="200"></inputtext>
+     *
+     *     <labelbutton text="submit">
+     *       <handler event="onclick">
+     *         welcome.setAttribute('text', 'Welcome ' + nameinput.text);
+     *       </handler>
+     *     </labelbutton>
+     *
+     *     <text id="welcome"></text>
+     *
+     * It's possible to listen for an onchange event to find out when the user changed the inputtext value:
+     *
+     *     @example
+     *     <inputtext id="nameinput" bgcolor="white" border="1px solid lightgrey" width="200" onchange="console.log('onchange', this.text)"></inputtext>
+     *
+     */
+/**
+       * @event onselect
+       * Fired when an inputtext is selected
+       * @param {dr.view} view The view that fired the event
+       */
+/**
+       * @event onchange
+       * Fired when an inputtext has changed
+       * @param {dr.view} view The view that fired the event
+       */
+/**
+       * @event onfocus
+       * Fired when an inputtext is focused
+       * @param {dr.view} view The view that fired the event
+       */
+/**
+       * @event onblur
+       * Fired when an inputtext is blurred or loses focus
+       * @param {dr.view} view The view that fired the event
+       */
+/**
+       * @event onkeydown
+       * Fired when a key goes down
+       * @param {Object} keys An object representing the keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
+       */
+/**
+       * @event onkeyup
+       * Fired when a key goes up
+       * @param {Object} keys An object representing the keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
+       */
+/**
+       * @attribute {Boolean} [multiline=false]
+       * Set to true for a multi-line input text field
+       */
+/**
+       * @attribute {String} [text=""]
+       * The contents of this input text field
+       */
+/**
+    * @method format
+    * Format the text to be displayed. The default behavior is to
+    * return the text intact. Override to change formatting.
+    * @param {String} str The current value of the text component.
+    * @return {String} The formated string to display in the component.
+    */
+/**
      * @class dr.labelbutton {UI Components}
      * @extends dr.buttonbase
      * Button class consisting of text centered in a view. The onclick event
@@ -1138,7 +1215,7 @@
       *     </resizelayout>
       *
       *     <view height="25" bgcolor="lightpink"></view>
-      *     <view height="35" bgcolor="plum" layouthint="1"></view>
+      *     <view height="35" bgcolor="plum" layouthint='{"weight":1}'></view>
       *     <view height="15" bgcolor="lightblue"></view>
       */
 /**
@@ -1258,10 +1335,22 @@
       * updateparent is true an outset is also used to leave space after
       * the last subview.
       *
+      * Each view managed by a spaced layout supports two layout hints.
+      *     spacingbefore {Number} Indicates custom spacing to use before the
+      *         view. This value overrides spacing for the view it is defined
+      *         on. If spacingafter was used on the previous view this will
+      *         override that. Ignored for the first view layed out.
+      *     spacingafter {Number} Indicates custom spacing to use after the
+      *         view. This value overrides spacing for the view it is defined
+      *         on. Ignord on the last view layed out.
+      *
       * This spacedlayout will position the first view at a y of 5 and each
       * subsequent view will be 2 pixels below the bottom of the preceding one.
       * Since updateparent is true and an outset is defined the parent view
-      * will be sized to 5 pixels more than the bottom of the last view.
+      * will be sized to 5 pixels more than the bottom of the last view. A
+      * layout hint has been used on the fourth view so that it will have
+      * 10 pixels of space before it and 5 pixels of space after it instead
+      * of the spacing of 2 defined on the layout.
       *
       *     @example
       *     <spacedlayout axis="y" spacing="2" inset="5" outset="5" updateparent="true">
@@ -1269,6 +1358,8 @@
       *
       *     <view width="100" height="25" bgcolor="lightpink"></view>
       *     <view width="100" height="35" bgcolor="plum"></view>
+      *     <view width="100" height="15" bgcolor="lightblue"></view>
+      *     <view width="100" height="35" bgcolor="plum" layouthint='{"spacingbefore":10, "spacingafter":5}'></view>
       *     <view width="100" height="15" bgcolor="lightblue"></view>
       */
 /**
@@ -1471,13 +1562,19 @@
     * @attribute {Boolean} [multiline=false]
     * Set to true to show multi-line text.
     * 
+    */
+/**
+    * 
     * @attribute {Boolean} [resize=true]
     * By default, the text component is sized to the size of the text.
     * By setting resize=false, the component size is not modified
     * when the text changes.
     * 
+    */
+/**
+    * 
     * @attribute {String} [text=""]
-    * Component text.
+    * The contents of this input text field
     * 
     */
 /**
@@ -1778,7 +1875,7 @@
       *     </wrappinglayout>
       *
       *     <view width="100" height="25" bgcolor="lightpink"></view>
-      *     <view width="100" height="35" bgcolor="plum" layouthint="break"></view>
+      *     <view width="100" height="35" bgcolor="plum" layouthint='{"break":true}'></view>
       *     <view width="100" height="15" bgcolor="lightblue"></view>
       *     <view width="100" height="15" bgcolor="lightblue"></view>
       *     <view width="100" height="15" bgcolor="lightblue"></view>

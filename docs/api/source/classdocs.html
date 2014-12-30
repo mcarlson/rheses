@@ -215,10 +215,10 @@
     *
     *     @example nestedr=&quot;red&quot; x=&quot;0&quot; y=&quot;0&quot; width=&quot;100&quot; height=&quot;100&quot;/&gt;
     *     &lt;view id=&#39;obj1&#39; bgcolor=&quot;green&quot; x=&quot;0&quot; y=&quot;0&quot; width=&quot;100&quot; height=&quot;100&quot;&gt;
-    *       &lt;animgroup&gt;
-    *         &lt;animator attribute=&quot;x&quot; to=&quot;100&quot; duration=&quot;1000&quot; motion=&quot;outBounce&quot; repeat=&quot;2&quot;/&gt;
-    *         &lt;animator delay=&quot;100&quot; attribute=&quot;y&quot; to=&quot;50&quot; duration=&quot;1000&quot; motion=&quot;outBounce&quot; repeat=&quot;2&quot;/&gt;
-    *         &lt;animator attribute=&quot;bgcolor&quot; to=&quot;red&quot; duration=&quot;1000&quot;/&gt;
+    *       &lt;animgroup duration=&#39;1000&#39;&gt;
+    *         &lt;animator attribute=&quot;x&quot; to=&quot;100&quot; motion=&quot;outBounce&quot; repeat=&quot;2&quot;/&gt;
+    *         &lt;animator delay=&quot;100&quot; attribute=&quot;y&quot; to=&quot;50&quot; motion=&quot;outBounce&quot; repeat=&quot;2&quot;/&gt;
+    *         &lt;animator attribute=&quot;bgcolor&quot; to=&quot;red&quot;/&gt;
     *       &lt;/animgroup&gt;
     *     &lt;/view&gt;
     */
@@ -379,6 +379,12 @@
 <span id='dr-art-attribute-stretches'>/**
 </span>        * @attribute {Boolean} stretches [stretches=false]
         * Set to true to stretch the svg to fill the view.
+        */
+<span id='dr-art-attribute-resize'>/**
+</span>        * @attribute {Boolean} [resize=false]
+        * By default, the art component size is fixed to the specified size.
+        * By setting resize=true, the art component is sized to the size 
+        * embedded in the svg.
         */
 <span id='dr-art-attribute-src'>/**
 </span>        * @attribute {String} src
@@ -790,6 +796,77 @@
 </span>        * @attribute {Number} [compassaccuracy=0] (readonly)
         * The compass accuracy, see [https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html](https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html) for details.
         */
+<span id='dr-inputtext'>/**
+</span>     * @class dr.inputtext {UI Components, Input}
+     * @extends dr.view
+     * Provides an editable input text field.
+     *
+     *     @example
+     *     &lt;spacedlayout axis=&quot;y&quot;&gt;&lt;/spacedlayout&gt;
+     *
+     *     &lt;text text=&quot;Enter your name&quot;&gt;&lt;/text&gt;
+     *
+     *     &lt;inputtext id=&quot;nameinput&quot; bgcolor=&quot;white&quot; border=&quot;1px solid lightgrey&quot; width=&quot;200&quot;&gt;&lt;/inputtext&gt;
+     *
+     *     &lt;labelbutton text=&quot;submit&quot;&gt;
+     *       &lt;handler event=&quot;onclick&quot;&gt;
+     *         welcome.setAttribute(&#39;text&#39;, &#39;Welcome &#39; + nameinput.text);
+     *       &lt;/handler&gt;
+     *     &lt;/labelbutton&gt;
+     *
+     *     &lt;text id=&quot;welcome&quot;&gt;&lt;/text&gt;
+     *
+     * It&#39;s possible to listen for an onchange event to find out when the user changed the inputtext value:
+     *
+     *     @example
+     *     &lt;inputtext id=&quot;nameinput&quot; bgcolor=&quot;white&quot; border=&quot;1px solid lightgrey&quot; width=&quot;200&quot; onchange=&quot;console.log(&#39;onchange&#39;, this.text)&quot;&gt;&lt;/inputtext&gt;
+     *
+     */
+<span id='dr-inputtext-event-onselect'>/**
+</span>       * @event onselect
+       * Fired when an inputtext is selected
+       * @param {dr.view} view The view that fired the event
+       */
+<span id='dr-inputtext-event-onchange'>/**
+</span>       * @event onchange
+       * Fired when an inputtext has changed
+       * @param {dr.view} view The view that fired the event
+       */
+<span id='dr-inputtext-event-onfocus'>/**
+</span>       * @event onfocus
+       * Fired when an inputtext is focused
+       * @param {dr.view} view The view that fired the event
+       */
+<span id='dr-inputtext-event-onblur'>/**
+</span>       * @event onblur
+       * Fired when an inputtext is blurred or loses focus
+       * @param {dr.view} view The view that fired the event
+       */
+<span id='dr-inputtext-event-onkeydown'>/**
+</span>       * @event onkeydown
+       * Fired when a key goes down
+       * @param {Object} keys An object representing the keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
+       */
+<span id='dr-inputtext-event-onkeyup'>/**
+</span>       * @event onkeyup
+       * Fired when a key goes up
+       * @param {Object} keys An object representing the keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
+       */
+<span id='dr-inputtext-attribute-multiline'>/**
+</span>       * @attribute {Boolean} [multiline=false]
+       * Set to true for a multi-line input text field
+       */
+<span id='dr-inputtext-attribute-text'>/**
+</span>       * @attribute {String} [text=&quot;&quot;]
+       * The contents of this input text field
+       */
+<span id='dr-inputtext-method-format'>/**
+</span>    * @method format
+    * Format the text to be displayed. The default behavior is to
+    * return the text intact. Override to change formatting.
+    * @param {String} str The current value of the text component.
+    * @return {String} The formated string to display in the component.
+    */
 <span id='dr-labelbutton'>/**
 </span>     * @class dr.labelbutton {UI Components}
      * @extends dr.buttonbase
@@ -1155,7 +1232,7 @@
       *     &lt;/resizelayout&gt;
       *
       *     &lt;view height=&quot;25&quot; bgcolor=&quot;lightpink&quot;&gt;&lt;/view&gt;
-      *     &lt;view height=&quot;35&quot; bgcolor=&quot;plum&quot; layouthint=&quot;1&quot;&gt;&lt;/view&gt;
+      *     &lt;view height=&quot;35&quot; bgcolor=&quot;plum&quot; layouthint=&#39;{&quot;weight&quot;:1}&#39;&gt;&lt;/view&gt;
       *     &lt;view height=&quot;15&quot; bgcolor=&quot;lightblue&quot;&gt;&lt;/view&gt;
       */
 <span id='dr-shim'>/**
@@ -1275,10 +1352,22 @@
       * updateparent is true an outset is also used to leave space after
       * the last subview.
       *
+      * Each view managed by a spaced layout supports two layout hints.
+      *     spacingbefore {Number} Indicates custom spacing to use before the
+      *         view. This value overrides spacing for the view it is defined
+      *         on. If spacingafter was used on the previous view this will
+      *         override that. Ignored for the first view layed out.
+      *     spacingafter {Number} Indicates custom spacing to use after the
+      *         view. This value overrides spacing for the view it is defined
+      *         on. Ignord on the last view layed out.
+      *
       * This spacedlayout will position the first view at a y of 5 and each
       * subsequent view will be 2 pixels below the bottom of the preceding one.
       * Since updateparent is true and an outset is defined the parent view
-      * will be sized to 5 pixels more than the bottom of the last view.
+      * will be sized to 5 pixels more than the bottom of the last view. A
+      * layout hint has been used on the fourth view so that it will have
+      * 10 pixels of space before it and 5 pixels of space after it instead
+      * of the spacing of 2 defined on the layout.
       *
       *     @example
       *     &lt;spacedlayout axis=&quot;y&quot; spacing=&quot;2&quot; inset=&quot;5&quot; outset=&quot;5&quot; updateparent=&quot;true&quot;&gt;
@@ -1286,6 +1375,8 @@
       *
       *     &lt;view width=&quot;100&quot; height=&quot;25&quot; bgcolor=&quot;lightpink&quot;&gt;&lt;/view&gt;
       *     &lt;view width=&quot;100&quot; height=&quot;35&quot; bgcolor=&quot;plum&quot;&gt;&lt;/view&gt;
+      *     &lt;view width=&quot;100&quot; height=&quot;15&quot; bgcolor=&quot;lightblue&quot;&gt;&lt;/view&gt;
+      *     &lt;view width=&quot;100&quot; height=&quot;35&quot; bgcolor=&quot;plum&quot; layouthint=&#39;{&quot;spacingbefore&quot;:10, &quot;spacingafter&quot;:5}&#39;&gt;&lt;/view&gt;
       *     &lt;view width=&quot;100&quot; height=&quot;15&quot; bgcolor=&quot;lightblue&quot;&gt;&lt;/view&gt;
       */
 <span id='dr-spacedlayout-attribute-spacing'>/**
@@ -1488,13 +1579,19 @@
     * @attribute {Boolean} [multiline=false]
     * Set to true to show multi-line text.
     * 
+    */
+<span id='dr-text-attribute-resize'>/**
+</span>    * 
     * @attribute {Boolean} [resize=true]
     * By default, the text component is sized to the size of the text.
     * By setting resize=false, the component size is not modified
     * when the text changes.
     * 
+    */
+<span id='dr-text-attribute-text'>/**
+</span>    * 
     * @attribute {String} [text=&quot;&quot;]
-    * Component text.
+    * The contents of this input text field
     * 
     */
 <span id='dr-text-method-format'>/**
@@ -1795,7 +1892,7 @@
       *     &lt;/wrappinglayout&gt;
       *
       *     &lt;view width=&quot;100&quot; height=&quot;25&quot; bgcolor=&quot;lightpink&quot;&gt;&lt;/view&gt;
-      *     &lt;view width=&quot;100&quot; height=&quot;35&quot; bgcolor=&quot;plum&quot; layouthint=&quot;break&quot;&gt;&lt;/view&gt;
+      *     &lt;view width=&quot;100&quot; height=&quot;35&quot; bgcolor=&quot;plum&quot; layouthint=&#39;{&quot;break&quot;:true}&#39;&gt;&lt;/view&gt;
       *     &lt;view width=&quot;100&quot; height=&quot;15&quot; bgcolor=&quot;lightblue&quot;&gt;&lt;/view&gt;
       *     &lt;view width=&quot;100&quot; height=&quot;15&quot; bgcolor=&quot;lightblue&quot;&gt;&lt;/view&gt;
       *     &lt;view width=&quot;100&quot; height=&quot;15&quot; bgcolor=&quot;lightblue&quot;&gt;&lt;/view&gt;
