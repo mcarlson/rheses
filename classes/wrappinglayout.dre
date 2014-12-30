@@ -265,10 +265,15 @@ SOFTWARE. -->
     # outset is already subtracted as a performance optimization.
     @__parentSizeLessOutset = @parent[@__innerAttrName] - @outset
     
+    # Initialize the __spacingAfter var since it won't get set if no hint
+    # exists on the first view and justify is true.
+    if @justify then @__spacingAfter = @spacing
+    
     @doLineStart(@linecount, @value)
   </method>
   
   <method name="updateSubview" args="count, view, attribute, value">
+    name = @name
     size = view[@__measureAttrName]
     
     # The amount the view extends beyond the line/column position
@@ -277,17 +282,18 @@ SOFTWARE. -->
       otherSize -= view[@__otherDiffAttrName]
     
     # Check for overflow or 'break'
-    if value + size > @__parentSizeLessOutset or view.getLayoutHint(@name, 'break')
-      @doLineEnd(@linecount, @__lineItems, value - @spacing)
+    if value + size > @__parentSizeLessOutset or view.getLayoutHint(name, 'break')
+      @doLineEnd(@linecount, @__lineItems, value - @__spacingAfter)
       
       # Track max size achieved during layout.
-      @maxsize = Math.max(@maxsize, value + @outset - @spacing)
+      @maxsize = Math.max(@maxsize, value + @outset - @__spacingAfter)
       
       # Reset to the beginning of the line/column and push down/over by line size.
       value = @value # Reset to inset.
       @__linePos += @__lineSize + @linespacing
       @__lineSize = otherSize
       @__lineItems = []
+      @__spacingAfter = @spacing
       
       ++@linecount
       @doLineStart(@linecount, value)
@@ -298,14 +304,25 @@ SOFTWARE. -->
     # Position for the line/column
     view.setAttribute(@__otherAttribute, @__linePos)
     
+    
+    @__lineItems.push(view)
+    # Determine hint based spacing if not justified
+    if not @justify and @__lineItems.length > 1
+      before = view.getLayoutHint(name, 'spacingbefore')
+      unless isNaN before
+        value += before - @__spacingAfter
+    
     # Position the view at the provided value and compensate for 
     # any transformation position difference
     view.setAttribute(attribute, view[@__diffAttrName] + value)
     
-    @__lineItems.push(view)
+    # Use spacingafter hint if defined instead of spacing
+    if not @justify
+      @__spacingAfter = view.getLayoutHint(name, 'spacingafter')
+      if isNaN @__spacingAfter then @__spacingAfter = @spacing
     
     # The next view should be positioned after this view plus the spacing.
-    return value + size + @spacing
+    return value + size + @__spacingAfter
   </method>
   
   <!--/**
@@ -394,10 +411,10 @@ SOFTWARE. -->
   <method name="doAfterUpdate" args="value">
     # Need the call here too since the last line/column falls through to here 
     # without going into the overflow check.
-    @doLineEnd(@linecount, @__lineItems, value - @spacing)
+    @doLineEnd(@linecount, @__lineItems, value - @__spacingAfter)
     
     # Track max size achieved during layout.
-    @maxsize = Math.max(@maxsize, value + @outset - @spacing)
+    @maxsize = Math.max(@maxsize, value + @outset - @__spacingAfter)
     
     @sendEvent('linecount', @linecount)
     @sendEvent('maxsize', @maxsize)
