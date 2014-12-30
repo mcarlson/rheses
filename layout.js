@@ -3413,7 +3413,7 @@
       __extends(State, _super);
 
       function State(el, attributes) {
-        var child, compilertype, finish, handler, name, oldbody, processedChildren, value, _i, _j, _len, _len1, _ref, _ref1;
+        var child, compilertype, finish, handler, name, oldbody, processedChildren, value, _base, _base1, _i, _j, _len, _len1, _ref, _ref1;
         if (attributes == null) {
           attributes = {};
         }
@@ -3434,7 +3434,15 @@
         }
         this.types = (_ref = attributes.$types) != null ? _ref : {};
         this.setAttribute('parent', attributes.parent);
-        this.installMethods(attributes.$methods, this.parent.$tagname, this, this.parent);
+        if ((_base = this.parent).states == null) {
+          _base.states = [];
+        }
+        if ((_base1 = this.parent.states).origmethods == null) {
+          _base1.origmethods = {};
+        }
+        this.parent.states.push(this);
+        this.parent.sendEvent('states', this.parent.states);
+        this.statemethods = attributes.$methods;
         if (attributes.applied) {
           this.bindAttribute('applied', attributes.applied, 'state');
         }
@@ -3479,8 +3487,12 @@
        */
 
       State.prototype.set_applied = function(applied) {
-        var name, parentname, val;
+        var name, origmethods, parentname, val;
         if (this.parent && this.applied !== applied) {
+          origmethods = this.parent.states.origmethods;
+          for (name in origmethods) {
+            this.parent[name] = origmethods[name];
+          }
           if (applied) {
             this._apply();
           } else {
@@ -3497,23 +3509,38 @@
       };
 
       State.prototype._apply = function() {
-        var children, childrenbefore, el, i, parentel, subnode, _i, _j, _len, _len1;
+        var children, childrenbefore, el, i, name, origmethods, parentel, state, subnode, _i, _j, _k, _len, _len1, _len2, _ref;
         if (this.applied) {
           return;
         }
         this.parent.learn(this);
+        origmethods = this.parent.states.origmethods;
+        for (name in this.statemethods) {
+          if (name in this.parent) {
+            if (__indexOf.call(origmethods, name) < 0) {
+              origmethods[name] = this.parent[name];
+            }
+          }
+        }
+        _ref = this.parent.states;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          state = _ref[_i];
+          if (state.applied || state === this) {
+            this.parent.installMethods(state.statemethods, this.parent.$tagname, this.parent, this.parent);
+          }
+        }
         if (this.instancebody) {
           parentel = this.parent.sprite.el;
           childrenbefore = dom.getChildElements(parentel);
-          for (_i = 0, _len = childrenbefore.length; _i < _len; _i++) {
-            el = childrenbefore[_i];
+          for (_j = 0, _len1 = childrenbefore.length; _j < _len1; _j++) {
+            el = childrenbefore[_j];
             if (el.$view) {
               el.$view = null;
             }
           }
           parentel.innerHTML += this.instancebody;
           children = dom.getChildElements(parentel);
-          for (i = _j = 0, _len1 = children.length; _j < _len1; i = ++_j) {
+          for (i = _k = 0, _len2 = children.length; _k < _len2; i = ++_k) {
             el = children[i];
             if (i < childrenbefore.length) {
               subnode = this.parent.subnodes[i];
@@ -3534,14 +3561,21 @@
       };
 
       State.prototype._remove = function() {
-        var child;
+        var child, state, _i, _len, _ref;
         if (!this.applied) {
           return;
         }
+        this.parent.forget(this);
         while (child = this.children.pop()) {
           child.destroy();
         }
-        this.parent.forget(this);
+        _ref = this.parent.states;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          state = _ref[_i];
+          if (state.applied && state !== this) {
+            this.parent.installMethods(state.statemethods, this.parent.$tagname, this.parent, this.parent);
+          }
+        }
         if (this.stateattributes.$handlers) {
           return this.parent.removeHandlers(this.stateattributes.$handlers, this.parent.$tagname, this.parent);
         }

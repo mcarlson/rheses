@@ -2718,9 +2718,14 @@ window.dr = do ->
 
       @setAttribute('parent', attributes.parent)
 
+      @parent.states ?= []
+      @parent.states.origmethods ?= {}
+      @parent.states.push(@)
+      @parent.sendEvent('states', @parent.states)
+
       # Install methods in the state with the run scope set to the parent
       # These will be applied to the parent by ONE with learn()
-      @installMethods(attributes.$methods, @parent.$tagname, @, @parent)
+      @statemethods = attributes.$methods
 
       # handle applied constraint bindings as local to the state
       if attributes.applied
@@ -2762,6 +2767,13 @@ window.dr = do ->
     set_applied: (applied) ->
       if @parent and @applied isnt applied
         # console.log('set_applied', applied, @, @parent)
+
+        # restore orignal methods
+        origmethods = @parent.states.origmethods
+        for name of origmethods
+          # console.log('restoring method', name, @parent._originalstatemethods[name])
+          @parent[name] = origmethods[name]
+
         if applied then @_apply() else @_remove()
 
         parentname = @parent.$tagname
@@ -2777,7 +2789,22 @@ window.dr = do ->
 
     _apply: () ->
       return if @applied
+      # console.log('_apply', @applied, @)
       @parent.learn @
+
+      # store orignal methods from parent
+      origmethods = @parent.states.origmethods
+      for name of @statemethods
+        if name of @parent
+          origmethods[name] = @parent[name] unless name in origmethods
+          # console.log('storing _originalstatemethod', name)
+
+      # apply methods for applied states in order, including this one
+      for state in @parent.states
+        if state.applied or state is @
+          # console.log('applying methods', state.name, state.statemethods)
+          @parent.installMethods(state.statemethods, @parent.$tagname, @parent, @parent)
+
       # create children, if we have any
       if @instancebody
         parentel = @parent.sprite.el
@@ -2804,6 +2831,8 @@ window.dr = do ->
             # console.log('initting el', el, @parent)
             dom.initElement(el, @parent)
             @children.push(el.$view)
+
+      # bind handlers
       if @stateattributes.$handlers
         # console.log('installing handlers', @stateattributes.$handlers)
         @parent.installHandlers(@stateattributes.$handlers, @parent.$tagname, @parent)
@@ -2811,11 +2840,23 @@ window.dr = do ->
 
     _remove: () ->
       return unless @applied
+      # console.log('_remove', @applied, @)
+
+      # restore properties
+      @parent.forget @
+
       # destroy any children created
       while child = @children.pop()
         # console.log('destroying', child)
         child.destroy()
-      @parent.forget @
+
+      # apply methods for applied states in order, excluding this one
+      for state in @parent.states
+        if state.applied and state isnt @
+          # console.log('applying methods', state.name, state.statemethods)
+          @parent.installMethods(state.statemethods, @parent.$tagname, @parent, @parent)
+
+      # remove handlers
       if @stateattributes.$handlers
         # console.log('removing handlers', @stateattributes.$handlers)
         @parent.removeHandlers(@stateattributes.$handlers, @parent.$tagname, @parent)

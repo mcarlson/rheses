@@ -64,11 +64,15 @@
         <view></view>
         <node></node>
         <method name="set_x" args="x">
-          x *= .5
-          this.super()
-          return x
+          return this.super(x) * .5
         </method>
       </state>
+      <state name="bar">
+        <method name="set_x" args="x">
+          return this.super(x) * 4
+        </method>
+      </state>
+
       <handler event="oninit">
         assert.equal(this.baz, undefined)
         assert.equal(this.width, 100)
@@ -81,7 +85,7 @@
         assert.equal(this.x, 20)
         
         this.foo.setAttribute('applied', true)
-        assert.equal(this.subnodes.length, 3)
+        assert.equal(this.subnodes.length, 4)
         assert.equal(this.subviews.length, 1)
         assert.equal(this.width, 200)
         assert.equal(this.baz, 'biff')
@@ -92,10 +96,18 @@
         assert.equal(count, 8)
 
         this.setAttribute('x', 10)
-        assert.equal(this.x, 5)
+        assert.equal(this.x, 5, 'x should be halved')
+
+        this.bar.setAttribute('applied', true)
+        this.setAttribute('x', 40)
+        assert.equal(this.x, 80, 'x should be doubled')
 
         this.foo.setAttribute('applied', false)
-        assert.equal(this.subnodes.length, 1)
+        this.setAttribute('x', 10)
+        assert.equal(this.x, 40, 'x should be quadroupled')
+
+        this.bar.setAttribute('applied', false)
+        assert.equal(this.subnodes.length, 2)
         assert.equal(this.subviews.length, 0)
         assert.equal(this.baz, '')
         assert.equal(this.width, 200)
@@ -105,7 +117,7 @@
         }
         assert.equal(count, 7)
         this.setAttribute('x', 15)
-        assert.equal(this.x, 15)
+        assert.equal(this.x, 15, 'x should be normal')
       </handler>
     </view>
 
