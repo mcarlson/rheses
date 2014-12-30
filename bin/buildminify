@@ -1,1 +1,1 @@
-./bin/node_modules/uglify-js/bin/uglifyjs layout.js --source-map layout.min.js.map > layout.min.js
+./bin/node_modules/uglify-js/bin/uglifyjs layout.js -m --source-map layout.min.js.map > layout.min.js
