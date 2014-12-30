@@ -92,11 +92,13 @@
 
     <view bgcolor='red' id="koala4" x="10" y="260" width="auto" height="auto">
       <text text='Inheritance'></text>
-      <animgroup delay='0' to='200' duration="1000" bounce="true" parallel='true'>
-        <handler event='onend'>
-          chai.assert.equal(this.parent.x, 200)
-        </handler>         
-        <animator attribute="x" repeat='1' bounce='true' motion="inOutExpo"></animator>
+      <animgroup duration="1000">
+        <animgroup to='200' bounce="true" parallel='true'>
+          <handler event='onend'>
+            chai.assert.equal(this.parent.x, 200)
+          </handler>         
+          <animator attribute="x" repeat='1' bounce='true' motion="inOutExpo"></animator>
+        </animgroup>
       </animgroup>
     </view>
   </view>
