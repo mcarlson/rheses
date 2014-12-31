@@ -1,13 +1,18 @@
 var fs = require('fs');
 
 var timeout = 60;
+var filter = undefined
 var path = "/smoke/";
 var exitCode = 0;
 
 var system = require('system');
 var args = system.args;
+
 if (args[1]) {
-  timeout = parseInt(args[1]);
+  if(parseInt(args[1]) == args[1])
+    timeout = parseInt(args[1]);
+  else
+    filter = args[1]
 }
 
 var list = fs.list("." + path);
@@ -96,8 +101,17 @@ var runTest = function (file, callback) {
 var loadNext = function() {
   var file = files.pop();
   if (file) {
-    console.log("RUNNING TEST: ", file)
-    runTest(file, loadNext);
+    if(filter !== undefined){
+      if(file.indexOf(filter) !== -1){
+        console.log("FILTERED TEST: ", file)
+        runTest(file, loadNext);
+      }
+      else loadNext()
+    }
+    else{
+      console.log("RUNNING TEST: ", file)
+      runTest(file, loadNext);
+    }
   } else {
     phantom.exit(exitCode);
   }
