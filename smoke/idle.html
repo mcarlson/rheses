@@ -17,8 +17,9 @@
     this.setAttribute('time', t)
   </handler>
 
-  <method name="testCallOnIdle">
+  <method name="testCallOnIdle" args="time">
     this.counter++
+    this.lasttime = time
     dr.idle.callOnIdle(this.testCallOnIdle)
   </method>
 
@@ -28,6 +29,7 @@
       assert.isNumber(this.time, 'dr.idle.onidle should send a number')
       # console.log('counter', this.counter)
       assert.closeTo(this.counter, 7, 5)
+      assert.equal(typeof this.lasttime, 'number')
     , 100)
     this.testCallOnIdle()
   </handler>

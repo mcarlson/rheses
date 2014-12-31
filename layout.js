@@ -4358,16 +4358,18 @@
           }, 0);
         }
       };
-      return function(cb) {
-        if (capabilities.raf) {
+      if (capabilities.raf) {
+        return function(cb) {
           queue.push(cb);
           idle(2, callback);
-        } else {
+        };
+      } else {
+        return function(cb) {
           setTimeout(function() {
-            return cb(Date.now());
+            return cb(Date.now() - starttime);
           }, 0);
-        }
-      };
+        };
+      }
     })();
     StartEventable = (function(_super) {
       __extends(StartEventable, _super);

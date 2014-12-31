@@ -3495,16 +3495,18 @@ window.dr = do ->
         ,0)
       return
 
-    (cb) ->
-      if capabilities.raf
+    if capabilities.raf
+      (cb) ->
         queue.push(cb)
         # console.log('callOnIdle', queue)
         idle(2, callback)
-      else
+        return
+    else
+      (cb) ->
         setTimeout(() ->
-          cb(Date.now())
+          cb(Date.now() - starttime)
         , 0)
-      return
+        return
 
   # overrides bind/unbind to allow an event to be started/stopped automatically.
   # Used by Idle Mouse and Window to only register for events when they're used.
