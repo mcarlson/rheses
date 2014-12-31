@@ -767,12 +767,11 @@ window.dr = do ->
     # Bind an attribute to a constraint, event expression/handler or fall back to setAttribute()
     matchConstraint = /\${(.+)}/
     bindAttribute: (name, value, tagname) ->
-      constraint = value.match?(matchConstraint) if value
-      if constraint
+      if typeof value is 'string' and constraint = value.match(matchConstraint)
         # console.log('applying constraint', name, constraint[1])
         @setConstraint(name, constraint[1], true)
-      else if matchEvent.test(name)
-        name = name.substr(2)
+      else if eventname = name.match(matchEvent)
+        name = eventname[1]
         # console.log('binding to event expression', name, value, @)
         handler =
           scope: @
@@ -2229,7 +2228,7 @@ window.dr = do ->
 
   specialtags = ['handler', 'method', 'attribute', 'setter', 'include']
 
-  matchEvent = /^on/
+  matchEvent = /^on(.+)/
 
   dom = do ->
     # flatten element.attributes to a hash
@@ -3004,13 +3003,15 @@ window.dr = do ->
 
         # unpack instance children
         if viewel
-          if viewel.innerHTML
-            # Append class children on instances instead of replacing them
-            viewel.innerHTML = instancebody + viewel.innerHTML
-            # console.log 'instancebody', instancebody, viewel.innerHTML, viewel
-          else
-            # console.log 'normal'
-            viewel.innerHTML = instancebody
+          if instancebody
+            viewhtml = viewel.innerHTML.trim()
+            if viewhtml
+              # Append class children on instances instead of replacing them
+              viewel.innerHTML = instancebody + viewhtml
+              # console.log 'instancebody', instancebody, viewel.innerHTML, viewel
+            else
+              # console.log 'normal'
+              viewel.innerHTML = instancebody
 
           unless skipchildren
             children = (child for child in dom.getChildElements(viewel) when child.localName not in specialtags)
