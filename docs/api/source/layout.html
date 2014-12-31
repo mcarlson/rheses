@@ -1063,14 +1063,11 @@
       matchConstraint = /\${(.+)}/;
 
       Node.prototype.bindAttribute = function(name, value, tagname) {
-        var constraint, handler;
-        if (value) {
-          constraint = typeof value.match === &quot;function&quot; ? value.match(matchConstraint) : void 0;
-        }
-        if (constraint) {
+        var constraint, eventname, handler;
+        if (typeof value === &#39;string&#39; &amp;&amp; (constraint = value.match(matchConstraint))) {
           return this.setConstraint(name, constraint[1], true);
-        } else if (matchEvent.test(name)) {
-          name = name.substr(2);
+        } else if (eventname = name.match(matchEvent)) {
+          name = eventname[1];
           handler = {
             scope: this,
             ev: name,
@@ -2853,7 +2850,7 @@
       return console.error(out);
     };
     specialtags = [&#39;handler&#39;, &#39;method&#39;, &#39;attribute&#39;, &#39;setter&#39;, &#39;include&#39;];
-    matchEvent = /^on/;
+    matchEvent = /^on(.+)/;
     dom = (function() {
       var builtinTags, checkRequiredAttributes, exports, findAutoIncludes, flattenattributes, getChildElements, htmlDecode, initAllElements, initElement, initFromElement, processSpecialTags, requiredAttributes, sendInit, writeCSS;
       flattenattributes = function(namednodemap) {
@@ -3706,7 +3703,7 @@
           console.warn(&#39;overwriting class&#39;, name);
         }
         dr[name] = function(instanceel, instanceattributes, internal, skipchildren) {
-          var attributes, children, key, parent, propname, sendInit, val, value, viewel, _j, _len1, _ref;
+          var attributes, children, key, parent, propname, sendInit, val, value, viewel, viewhtml, _j, _len1, _ref;
           attributes = clone(classattributes);
           for (key in instanceattributes) {
             value = instanceattributes[key];
@@ -3743,10 +3740,13 @@
             }
           }
           if (viewel) {
-            if (viewel.innerHTML) {
-              viewel.innerHTML = instancebody + viewel.innerHTML;
-            } else {
-              viewel.innerHTML = instancebody;
+            if (instancebody) {
+              viewhtml = viewel.innerHTML.trim();
+              if (viewhtml) {
+                viewel.innerHTML = instancebody + viewhtml;
+              } else {
+                viewel.innerHTML = instancebody;
+              }
             }
             if (!skipchildren) {
               children = (function() {

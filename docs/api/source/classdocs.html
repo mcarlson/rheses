@@ -915,6 +915,17 @@
    *     &lt;dataset name=&quot;topmovies&quot; url=&quot;/top_movies.json&quot;&gt;&lt;/dataset&gt;
    *     &lt;replicator datapath=&quot;$topmovies/searchResponse/results[*]/movie[take(/releaseYear,/duration,/rating)]&quot; classname=&quot;logger&quot;&gt;&lt;/replicator&gt;
    */
+<span id='dr-mixin'>/**
+</span>      * @class dr.mixin
+      * @extends dr.state
+      * Mixins allow methods, handlers, attributes and instances to be mixed 
+      * into their parent.
+      */
+<span id='dr-mixin-attribute-applied'>/**
+</span>    * @attribute {Boolean} [applied=true]
+    * The spacing between views.
+    * @private
+    */
 <span id='dr-rangeslider'>/**
 </span>   * @class dr.rangeslider {UI Components}
    * @extends dr.view

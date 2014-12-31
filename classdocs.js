@@ -899,6 +899,17 @@
    *     <replicator datapath="$topmovies/searchResponse/results[*]/movie[take(/releaseYear,/duration,/rating)]" classname="logger"></replicator>
    */
 /**
+      * @class dr.mixin
+      * @extends dr.state
+      * Mixins allow methods, handlers, attributes and instances to be mixed 
+      * into their parent.
+      */
+/**
+    * @attribute {Boolean} [applied=true]
+    * The spacing between views.
+    * @private
+    */
+/**
    * @class dr.rangeslider {UI Components}
    * @extends dr.view
    * An input component whose upper and lower bounds are changed via mouse clicks or drags.
