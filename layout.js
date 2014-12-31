@@ -4363,7 +4363,9 @@
           queue.push(cb);
           idle(2, callback);
         } else {
-          setTimeout(cb, 0);
+          setTimeout(function() {
+            return cb(Date.now());
+          }, 0);
         }
       };
     })();

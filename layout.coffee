@@ -3501,7 +3501,9 @@ window.dr = do ->
         # console.log('callOnIdle', queue)
         idle(2, callback)
       else
-        setTimeout(cb, 0)
+        setTimeout(() ->
+          cb(Date.now())
+        , 0)
       return
 
   # overrides bind/unbind to allow an event to be started/stopped automatically.
