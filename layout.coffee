@@ -596,7 +596,7 @@ window.dr = do ->
     lateattributes = ['data']
 
     constructor: (el, attributes = {}) ->
-      # Immediately install the 'construct' method if it exists and then call 
+      # Immediately install the 'construct' method if it exists and then call
       # it with the element and attributes so that construct has a chance to
       # modify things.
       methods = attributes.$methods
@@ -1146,7 +1146,7 @@ window.dr = do ->
       # parent.append(@jqel)
       # parent = parent[0] if parent instanceof jQuery
       # console.log 'set_parent', parent, @el
-      # avoid appending twice, which messes with lexical order 
+      # avoid appending twice, which messes with lexical order
       parent.appendChild(@el) unless @el.parentNode is parent
 
     set_id: (id) ->
@@ -1154,7 +1154,7 @@ window.dr = do ->
       @el.setAttribute('id', id)
 
     _cursorVal: () ->
-      return if @__clickable then @__cursor || 'pointer' else ''
+      return if @__clickable then @__cursor or 'pointer' else ''
  
     set_cursor: (cursor) ->
       @__cursor = cursor
@@ -1984,9 +1984,9 @@ window.dr = do ->
 
       # Generate scale CSS
       xscale = @xscale
-      if !@xscale? then xscale = @xscale = 1
+      unless @xscale? then xscale = @xscale = 1
       yscale = @yscale
-      if !@yscale? then yscale = @yscale = 1
+      unless @yscale? then yscale = @yscale = 1
       if xscale isnt 1 or yscale isnt 1 then transform += 'scale3d(' + xscale + ',' + yscale + ',1.0)'
 
       # Generate rotation CSS
@@ -2036,19 +2036,19 @@ window.dr = do ->
       depth
 
     set_xanchor: (xanchor) ->
-      if !xanchor? or xanchor is '' then xanchor = 'center'
+      unless xanchor? or xanchor is '' then xanchor = 'center'
       @xanchor = xanchor
       @__updateTransform()
       xanchor
 
     set_yanchor: (yanchor) ->
-      if !yanchor? or yanchor is '' then yanchor = 'center'
+      unless yanchor? or yanchor is '' then yanchor = 'center'
       @yanchor = yanchor
       @__updateTransform()
       yanchor
 
     set_zanchor: (zanchor) ->
-      if !zanchor? or zanchor is '' then zanchor = 0
+      unless zanchor? or zanchor is '' then zanchor = 0
       @zanchor = zanchor
       @__updateTransform()
       zanchor
@@ -3404,7 +3404,7 @@ window.dr = do ->
       @
 
     ###*
-    # Rotates and scales this path around the provided origin by the angle in 
+    # Rotates and scales this path around the provided origin by the angle in
     # degrees, scalex and scaley.
     # @param {Number} scalex The amount to scale along the x axis.
     # @param {Number} scaley The amount to scale along the y axis.
@@ -3514,12 +3514,12 @@ window.dr = do ->
       if not @startEventTest()
         @stopEvent()
 
-    startEvent: (event) =>
+    startEvent: (event) ->
       return if @eventStarted
       @eventStarted = true
       # console.log 'start'
 
-    stopEvent: (event) =>
+    stopEvent: (event) ->
       return if not @eventStarted
       @eventStarted = false
       # console.log 'stop'

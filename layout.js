@@ -2564,7 +2564,7 @@
       };
 
       View.prototype.set_xanchor = function(xanchor) {
-        if ((xanchor == null) || xanchor === '') {
+        if (!((xanchor != null) || xanchor === '')) {
           xanchor = 'center';
         }
         this.xanchor = xanchor;
@@ -2573,7 +2573,7 @@
       };
 
       View.prototype.set_yanchor = function(yanchor) {
-        if ((yanchor == null) || yanchor === '') {
+        if (!((yanchor != null) || yanchor === '')) {
           yanchor = 'center';
         }
         this.yanchor = yanchor;
@@ -2582,7 +2582,7 @@
       };
 
       View.prototype.set_zanchor = function(zanchor) {
-        if ((zanchor == null) || zanchor === '') {
+        if (!((zanchor != null) || zanchor === '')) {
           zanchor = 0;
         }
         this.zanchor = zanchor;
@@ -4250,7 +4250,7 @@
 
 
       /**
-       * Rotates and scales this path around the provided origin by the angle in 
+       * Rotates and scales this path around the provided origin by the angle in
        * degrees, scalex and scaley.
        * @param {Number} scalex The amount to scale along the x axis.
        * @param {Number} scaley The amount to scale along the y axis.
@@ -4371,8 +4371,6 @@
       __extends(StartEventable, _super);
 
       function StartEventable() {
-        this.stopEvent = __bind(this.stopEvent, this);
-        this.startEvent = __bind(this.startEvent, this);
         return StartEventable.__super__.constructor.apply(this, arguments);
       }
 
