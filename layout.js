@@ -3355,7 +3355,7 @@
             case 'method':
             case 'setter':
               if (tagname === 'setter') {
-                name = 'set_' + name.toLowerCase();
+                name = "set_" + (name.toLowerCase());
               }
               if ((_base = classattributes.$methods)[name] == null) {
                 _base[name] = [];
@@ -3444,6 +3444,15 @@
         this.parent.states.push(this);
         this.parent.sendEvent('states', this.parent.states);
         this.statemethods = attributes.$methods;
+        for (name in attributes) {
+          value = attributes[name];
+          if (!(__indexOf.call(this.skipattributes, name) >= 0 || name.charAt(0) === '$')) {
+            if (name !== 'name') {
+              this.applyattributes[name] = value;
+            }
+            this.setAttribute(name, value);
+          }
+        }
         if (attributes.applied) {
           this.bindAttribute('applied', attributes.applied, 'state');
         }
@@ -3453,13 +3462,6 @@
           if (handler.ev === 'onapplied') {
             this.installHandlers([handler], 'state', this);
             this._bindHandlers();
-          }
-        }
-        for (name in attributes) {
-          value = attributes[name];
-          if (!(__indexOf.call(this.skipattributes, name) >= 0 || name.charAt(0) === '$')) {
-            this.applyattributes[name] = value;
-            this.setAttribute(name, value);
           }
         }
         finish = (function(_this) {
@@ -3476,8 +3478,8 @@
         callOnIdle(finish);
         if (el) {
           el.$view = this;
-          this.children = [];
         }
+        this.children = [];
         this.initialize(true);
       }
 
@@ -3488,7 +3490,7 @@
        */
 
       State.prototype.set_applied = function(applied) {
-        var name, origmethods, parentname, val;
+        var name, origmethods, val;
         if (this.parent && this.applied !== applied) {
           origmethods = this.parent.states.origmethods;
           for (name in origmethods) {
@@ -3499,7 +3501,6 @@
           } else {
             this._remove();
           }
-          parentname = this.parent.$tagname;
           for (name in this.applyattributes) {
             val = this.parent[name];
             delete this.parent[name];

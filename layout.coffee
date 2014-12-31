@@ -306,7 +306,7 @@ window.dr = do ->
 
       # If a setter function exists, use its return value as the value for
       # the attribute.
-      setterName = "set_" + name
+      setterName = "set_#{name}"
       if typeof this[setterName] is 'function'
         value = this[setterName](value)
       @[name] = value
@@ -2642,7 +2642,7 @@ window.dr = do ->
             classattributes.$handlers.push(handler)
             # console.log 'added handler', name, script, attributes
           when 'method','setter'
-            if tagname is 'setter' then name = 'set_' + name.toLowerCase()
+            if tagname is 'setter' then name = "set_#{name.toLowerCase()}"
             classattributes.$methods[name] ?= []
             classattributes.$methods[name].push({method: compiler.transform(script, type), args: args, allocation: attributes.allocation})
             # console.log 'added ' + tagname, 'set_' + name, args, classattributes.$methods
@@ -2727,21 +2727,23 @@ window.dr = do ->
       # These will be applied to the parent by ONE with learn()
       @statemethods = attributes.$methods
 
+      # store attributes that change when the state is applied
+      for name, value of attributes
+        unless name in @skipattributes or name.charAt(0) is '$'
+          @applyattributes[name] = value unless name is 'name'
+          @setAttribute(name, value)
+      # console.log('found applyattributes', @applyattributes)
+
       # handle applied constraint bindings as local to the state
       if attributes.applied
         @bindAttribute('applied', attributes.applied, 'state')
 
+      # install onapplied handlers now
       for handler in attributes.$handlers
         if handler.ev is 'onapplied'
           # console.log('found onapplied', handler)
           @installHandlers([handler], 'state', @)
           @_bindHandlers()
-
-      for name, value of attributes
-        unless name in @skipattributes or name.charAt(0) is '$'
-          @applyattributes[name] = value
-          @setAttribute(name, value)
-      # console.log('applyattributes', @applyattributes)
 
       finish = () =>
         @_bindConstraints() if @constraints
@@ -2755,9 +2757,8 @@ window.dr = do ->
 
       callOnIdle(finish)
 
-      if el
-        el.$view = @
-        @children = []
+      el.$view = @ if el
+      @children = []
       @initialize(true)
 
     ###*
@@ -2776,7 +2777,6 @@ window.dr = do ->
 
         if applied then @_apply() else @_remove()
 
-        parentname = @parent.$tagname
         # Hack to set attributes for now - not needed when using signals
         for name of @applyattributes
           val = @parent[name]

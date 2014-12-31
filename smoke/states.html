@@ -121,6 +121,19 @@
       </handler>
     </view>
 
+    <class name="testmixin" extends="state" applied="true" type="coffee">
+      <attribute name="markup" type="string" value=""></attribute>
+      <setter name="markup" args="markup">
+        @setterRan = true
+      </setter>
+    </class>
+    <view markup="This is some text&lt;br/>foo&lt;br/>bar&lt;br/>baz&lt;br/>">
+       <testmixin></testmixin>
+       <handler event="oninit">
+         assert.equal(this.setterRan, true)
+       </handler>
+    </view>
+
   </view>
 <!-- The MIT License (MIT)
 
