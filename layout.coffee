@@ -1984,9 +1984,9 @@ window.dr = do ->
 
       # Generate scale CSS
       xscale = @xscale
-      unless @xscale? then xscale = @xscale = 1
+      if !@xscale? then xscale = @xscale = 1
       yscale = @yscale
-      unless @yscale? then yscale = @yscale = 1
+      if !@yscale? then yscale = @yscale = 1
       if xscale isnt 1 or yscale isnt 1 then transform += 'scale3d(' + xscale + ',' + yscale + ',1.0)'
 
       # Generate rotation CSS
@@ -2036,19 +2036,19 @@ window.dr = do ->
       depth
 
     set_xanchor: (xanchor) ->
-      unless xanchor? or xanchor is '' then xanchor = 'center'
+      if !xanchor? or xanchor is '' then xanchor = 'center'
       @xanchor = xanchor
       @__updateTransform()
       xanchor
 
     set_yanchor: (yanchor) ->
-      unless yanchor? or yanchor is '' then yanchor = 'center'
+      if !yanchor? or yanchor is '' then yanchor = 'center'
       @yanchor = yanchor
       @__updateTransform()
       yanchor
 
     set_zanchor: (zanchor) ->
-      unless zanchor? or zanchor is '' then zanchor = 0
+      if !zanchor? or zanchor is '' then zanchor = 0
       @zanchor = zanchor
       @__updateTransform()
       zanchor

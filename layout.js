@@ -2564,7 +2564,7 @@
       };
 
       View.prototype.set_xanchor = function(xanchor) {
-        if (!((xanchor != null) || xanchor === '')) {
+        if ((xanchor == null) || xanchor === '') {
           xanchor = 'center';
         }
         this.xanchor = xanchor;
@@ -2573,7 +2573,7 @@
       };
 
       View.prototype.set_yanchor = function(yanchor) {
-        if (!((yanchor != null) || yanchor === '')) {
+        if ((yanchor == null) || yanchor === '') {
           yanchor = 'center';
         }
         this.yanchor = yanchor;
@@ -2582,7 +2582,7 @@
       };
 
       View.prototype.set_zanchor = function(zanchor) {
-        if (!((zanchor != null) || zanchor === '')) {
+        if ((zanchor == null) || zanchor === '') {
           zanchor = 0;
         }
         this.zanchor = zanchor;
