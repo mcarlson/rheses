@@ -28,7 +28,7 @@
 <view>
   <audioplayer id="audio" url="./music/YACHT_-_09_-_Im_In_Love_With_A_Ripper_Party_Mix_Instrumental.mp3" fftsize="2048" fftsmoothing="0" playing="true">
     <handler event="onkeydown" args="key" reference="dr.keyboard">
-      if (key.keyCode == 32) this.setAttribute('playing', ! this.playing);
+      if (key.keyCode == 32) this.setAttribute('paused', ! this.paused);
     </handler>
   </audioplayer>
 

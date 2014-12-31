@@ -18,6 +18,9 @@
       var copy = Array.apply([], fft);
       bus.send('fft', copy);
     </handler>
+    <handler event="onkeydown" args="key" reference="dr.keyboard">
+      if (key.keyCode == 32) this.setAttribute('paused', ! this.paused);
+    </handler>
   </audioplayer>
 
   <spacedlayout axis="y"></spacedlayout>
@@ -32,10 +35,10 @@
     </method>
   </class>
 
-  <view name="controls"
+  <class name="controls"
     bgcolor="${audio.playing ? 'green' : 'gray'}" 
     opacity="${audio.loaded ? 1 : .8}" 
-    width="${1 + (audio.loadprogress * audio.fftsize * 1.5)}" height="20"
+    width="${audio.loadprogress * audio.fftsize * 1.5}" height="20"
   >
     <view name="playhead" x="2" y="2" bgcolor="red"
       width="${(audio.time / audio.duration) * (this.parent.width - 4)}" height="16"
@@ -80,10 +83,11 @@
       
       <timetext y="-1" text="${audio.duration}"></timetext>
     </view>
-  </view>
+  </class>
 
-  <class name="bar" width="2" y="1" bgcolor="red" height="${this.data}"></class>
-  <view width="${this.parent.controls.width}" height="257" bgcolor="black">
+  <class name="bar" width="2" bgcolor="red" height="${this.data}" y="20"></class>
+  <view width="${audio.fftsize * 1.5}" height="277" bgcolor="black">
+    <controls id="ctrl" ignorelayout="true"></controls>
     <spacedlayout inset="1" spacing="1"></spacedlayout>
     <replicator name="foo" classname="bar" data="${audio.fft}" pooling="true"></replicator>
   </view>
