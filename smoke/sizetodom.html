@@ -1,0 +1,138 @@
+<html>
+<expectedoutput>
+<!--
+refusing to create a class that would overwrite the builtin tag div
+refusing to create a class that would overwrite the builtin tag div
+refusing to create a class that would overwrite the builtin tag div
+refusing to create a class that would overwrite the builtin tag div
+refusing to create a class that would overwrite the builtin tag div
+refusing to create a class that would overwrite the builtin tag div
+refusing to create a class that would overwrite the builtin tag div
+refusing to create a class that would overwrite the builtin tag div
+refusing to create a class that would overwrite the builtin tag div
+-->
+</expectedoutput>
+<head>
+  <title>dr33m | sizetodom mixin Tests</title>
+  <style type="text/css">
+      html,body{
+        height:100%;
+        margin:0px;
+        padding:0px;
+        border:0px none;
+      }
+      body {
+        font-size:0px;
+      }
+      .foo {
+          width:20px;
+          height:20px;
+          background-color:#ff0000;
+          display:inline-block;
+      }
+      .bar {
+          width:20px;
+          height:20px;
+          background-color:#00dd00;
+          display:inline-block;
+      }
+  </style>
+  <script type="text/javascript" src="../lib/jquery-1.9.1.js"></script>
+  <script type="text/javascript" src="../lib/acorn.js"></script>
+  <script type="text/javascript" src="../lib/coffee-script.js"></script>
+  <script type="text/javascript" src="../layout.js"></script>
+  <script type="text/javascript" src="../lib/chai.js"></script>
+  <script>
+    var assert = chai.assert
+  </script>
+</head>
+<body>
+  <view width="100%" height="auto" bgcolor="#eeeeee" padding="5">
+    <spacedlayout axis="y" spacing="5"></spacedlayout>
+    
+    <markup name="v1" bgcolor="#cccccc">
+        <div class="foo"></div><div class="bar"></div><div class="foo"></div>
+    </markup>
+    
+    <markup name="v2" bgcolor="#cccccc" width="50">
+        <div class="foo"></div> <div class="bar"></div> <div class="foo"></div>
+    </markup>
+    
+    <view name="v3" bgcolor="#cccccc" markup='[div class="foo"][/div] [div class="bar"][/div][br/][div class="foo"][/div]'>
+      <sizetodom></sizetodom>
+    </view>
+    
+    <markup name="v4" bgcolor="#cccccc" border="2" bordercolor="black" padding="4">
+        <div class="foo"></div> <div class="bar"></div> <div class="foo"></div>
+    </markup>
+    
+    <handler event="oninit">
+      var v1 = this.v1,
+        v2 = this.v2,
+        v3 = this.v3,
+        v4 = this.v4;
+      
+      // Initial sizing
+      assert.equal(60, v1.width);
+      assert.equal(20, v1.height);
+      assert.equal(60, v1.innerwidth);
+      assert.equal(20, v1.innerheight);
+      
+      assert.equal(50, v2.width);
+      assert.equal(40, v2.height);
+      assert.equal(50, v2.innerwidth);
+      assert.equal(40, v2.innerheight);
+      
+      assert.equal(40, v3.width);
+      assert.equal(40, v3.height);
+      assert.equal(40, v3.innerwidth);
+      assert.equal(40, v3.innerheight);
+      
+      // Restore auto sizing
+      v2.setAttribute('width', 'auto');
+      
+      assert.equal(60, v2.width);
+      assert.equal(20, v2.height);
+      
+      // Set new markup
+      v3.setAttribute('markup', '[div class="foo"][/div][br/][div class="bar"][/div]');
+      
+      assert.equal(20, v3.width);
+      assert.equal(40, v3.height);
+      
+      // Borders and padding
+      assert.equal(60 + 4 + 8, v4.width);
+      assert.equal(20 + 4 + 8, v4.height);
+      
+      v4.setAttribute('border', 1);
+      assert.equal(60 + 2 + 8, v4.width);
+      assert.equal(20 + 2 + 8, v4.height);
+      
+      v4.setAttribute('padding', 10);
+      assert.equal(60 + 2 + 20, v4.width);
+      assert.equal(20 + 2 + 20, v4.height);
+    </handler>
+  </view>
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+</body>
+</html>
