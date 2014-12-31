@@ -1,5 +1,6 @@
 <html>
 <head>
+  <testingtimer><!--1500--></testingtimer>
   <title>template-workshop 2nd</title>
   <style type="text/css">
     body {
@@ -21,6 +22,9 @@
   <script type="text/javascript" src="/lib/acorn.js"></script>
   <script type="text/javascript" src="/lib/coffee-script.js"></script>
   <script type="text/javascript" src="/lib/chai.js"></script>
+  <script>
+    var assert = chai.assert
+  </script>
   <script type="text/javascript" src="/layout.js"></script>
 </head>
 <body>
@@ -28,7 +32,7 @@
     <bitmap id="koala1" x="100" y="0" width="200" height="200" src="./shoarma.jpg">
       <animator start='500' attribute="x" to="300" duration="1000" motion="outBounce" repeat="1">
         <handler event="onend">
-          chai.assert.equal(this.parent.x, 300)
+          assert.equal(this.parent.x, 300)
         </handler>
       </animator>
     </bitmap>
@@ -37,7 +41,7 @@
       <handler event='ontick'>
       </handler>
       <handler event="onend">
-        chai.assert.equal(koala2.x, 100)
+        assert.equal(koala2.x, 100)
       </handler> 
     </animator>
     <bitmap id="koala2" x="100" y="200" width="200" height="200" src="./shoarma.jpg"></bitmap>
@@ -45,7 +49,7 @@
     <bitmap x="100" y="400" width="200" height="200" src="./shoarma.jpg">
       <animator attribute="x" to="300" duration="1000" motion="linear" repeat="2" bounce="true">
         <handler event="onend">
-          chai.assert.equal(this.parent.x, 100)
+          assert.equal(this.parent.x, 100)
         </handler>
       </animator>
     </bitmap>
@@ -54,7 +58,7 @@
       <text text='Relative'></text>
       <animator relative='true' attribute="x" duration="500" to="10" motion="inOutExpo">
         <handler event='onend'>
-          chai.assert.equal(this.parent.x, 20)
+          assert.equal(this.parent.x, 20)
         </handler>     
       </animator>
     </view>
@@ -62,7 +66,7 @@
     <bitmap x="100" y="600" width="200" height="200" src="./shoarma.jpg">
       <animator attribute="x" to="300" duration="1000" motion="linear" repeat="2" bounce="true">
         <handler event="onend">
-          chai.assert.equal(this.parent.x, 100)
+          assert.equal(this.parent.x, 100)
         </handler>
         <handler event="ontick">
           this.parent.destroy()

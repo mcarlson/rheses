@@ -1277,6 +1277,60 @@
         return id;
       };
 
+
+<span id='dr-node-method-animate'>      /**
+</span>       * Animates this node&#39;s attribute(s)
+       * @param {Object} obj A hash of attribute names and values to animate to
+       * @param Number duration The duration of the animation in milliseconds
+       */
+
+      Node.prototype.animate = function(attributes, time) {
+        var anim, animTick, animators, first, name, track, value;
+        if (time == null) {
+          time = 600;
+        }
+        animators = {};
+        for (name in attributes) {
+          value = attributes[name];
+          track = {
+            motion: &#39;bret&#39;,
+            control: [0.01]
+          };
+          track[0] = this[name] || 0;
+          track[time] = value;
+          anim = Animator.createAnimator();
+          anim.playStateless(track);
+          animators[name] = anim;
+        }
+        first = void 0;
+        animTick = (function(_this) {
+          return function(time) {
+            var ended, local_time, myvalue;
+            if (_this.destroyed) {
+              return;
+            }
+            if (first == null) {
+              first = time;
+            }
+            local_time = time - first;
+            ended = false;
+            for (name in animators) {
+              anim = animators[name];
+              myvalue = anim.timestep(local_time);
+              _this.setAttribute(name, myvalue);
+              if (anim.ended) {
+                ended = true;
+              }
+            }
+            if (!ended) {
+              return dr.idle.callOnIdle(animTick);
+            }
+          };
+        })(this);
+        dr.idle.callOnIdle(animTick);
+        return this;
+      };
+
       Node.prototype._removeFromParent = function(name) {
         var arr, index, removedNode;
         if (!this.parent) {
@@ -1465,53 +1519,6 @@
 
       Sprite.prototype.set_id = function(id) {
         return this.el.setAttribute(&#39;id&#39;, id);
-      };
-
-      Sprite.prototype.animate = function(attributes, time) {
-        var anim, animTick, animators, first, name, track, value;
-        if (time == null) {
-          time = 400;
-        }
-        animators = {};
-        for (name in attributes) {
-          value = attributes[name];
-          track = {};
-          track[0] = this[name] || 0;
-          track[time] = value;
-          track.motion = &#39;bret&#39;;
-          track.control = [0.01];
-          anim = Animator.createAnimator();
-          anim.playStateless(track);
-          animators[name] = anim;
-        }
-        first = void 0;
-        animTick = (function(_this) {
-          return function(time) {
-            var ended, local_time, myvalue;
-            if (_this.destroyed) {
-              return;
-            }
-            if (first === void 0) {
-              first = time;
-            }
-            local_time = time - first;
-            ended = false;
-            for (name in animators) {
-              anim = animators[name];
-              myvalue = anim.timestep(local_time);
-              if (_this.sprite) {
-                _this.setAttribute(name, myvalue);
-              }
-              if (anim.ended) {
-                ended = true;
-              }
-            }
-            if (!ended) {
-              return dr.idle.callOnIdle(animTick);
-            }
-          };
-        })(this);
-        return dr.idle.callOnIdle(animTick);
       };
 
       Sprite.prototype._cursorVal = function() {
@@ -2208,34 +2215,34 @@
           switch (name) {
             case &#39;x&#39;:
               if (this.__setupPercentConstraint(name, value, &#39;innerwidth&#39;)) {
-                return;
+                return this;
               }
               if (this.__setupAlignConstraint(name, value)) {
-                return;
+                return this;
               }
               break;
             case &#39;y&#39;:
               if (this.__setupPercentConstraint(name, value, &#39;innerheight&#39;)) {
-                return;
+                return this;
               }
               if (this.__setupAlignConstraint(name, value)) {
-                return;
+                return this;
               }
               break;
             case &#39;width&#39;:
               if (this.__setupPercentConstraint(name, value, &#39;innerwidth&#39;)) {
-                return;
+                return this;
               }
               if (this.__setupAutoConstraint(name, value, &#39;x&#39;)) {
-                return;
+                return this;
               }
               break;
             case &#39;height&#39;:
               if (this.__setupPercentConstraint(name, value, &#39;innerheight&#39;)) {
-                return;
+                return this;
               }
               if (this.__setupAutoConstraint(name, value, &#39;y&#39;)) {
-                return;
+                return this;
               }
           }
         }
@@ -2261,10 +2268,11 @@
               case &#39;rotation&#39;:
               case &#39;xanchor&#39;:
               case &#39;yanchor&#39;:
-                return this.__updateBounds();
+                this.__updateBounds();
             }
           }
         }
+        return this;
       };
 
       View.prototype.getBoundsRelativeToParent = function() {
@@ -2657,18 +2665,6 @@
         retval = View.__super__.set_id.apply(this, arguments);
         this.sprite.set_id(id);
         return retval;
-      };
-
-
-<span id='dr-view-method-animate'>      /**
-</span>       * Animates this view&#39;s attribute(s)
-       * @param {Object} obj A hash of attribute names and values to animate to
-       * @param Number duration The duration of the animation in milliseconds
-       */
-
-      View.prototype.animate = function() {
-        this.sprite.animate.apply(this, arguments);
-        return this;
       };
 
       View.prototype.set_clip = function(clip) {
@@ -3371,7 +3367,7 @@
             case &#39;method&#39;:
             case &#39;setter&#39;:
               if (tagname === &#39;setter&#39;) {
-                name = &#39;set_&#39; + name.toLowerCase();
+                name = &quot;set_&quot; + (name.toLowerCase());
               }
               if ((_base = classattributes.$methods)[name] == null) {
                 _base[name] = [];
@@ -3460,6 +3456,15 @@
         this.parent.states.push(this);
         this.parent.sendEvent(&#39;states&#39;, this.parent.states);
         this.statemethods = attributes.$methods;
+        for (name in attributes) {
+          value = attributes[name];
+          if (!(__indexOf.call(this.skipattributes, name) &gt;= 0 || name.charAt(0) === &#39;$&#39;)) {
+            if (name !== &#39;name&#39;) {
+              this.applyattributes[name] = value;
+            }
+            this.setAttribute(name, value);
+          }
+        }
         if (attributes.applied) {
           this.bindAttribute(&#39;applied&#39;, attributes.applied, &#39;state&#39;);
         }
@@ -3469,13 +3474,6 @@
           if (handler.ev === &#39;onapplied&#39;) {
             this.installHandlers([handler], &#39;state&#39;, this);
             this._bindHandlers();
-          }
-        }
-        for (name in attributes) {
-          value = attributes[name];
-          if (!(__indexOf.call(this.skipattributes, name) &gt;= 0 || name.charAt(0) === &#39;$&#39;)) {
-            this.applyattributes[name] = value;
-            this.setAttribute(name, value);
           }
         }
         finish = (function(_this) {
@@ -3492,8 +3490,8 @@
         callOnIdle(finish);
         if (el) {
           el.$view = this;
-          this.children = [];
         }
+        this.children = [];
         this.initialize(true);
       }
 
@@ -3504,7 +3502,7 @@
        */
 
       State.prototype.set_applied = function(applied) {
-        var name, origmethods, parentname, val;
+        var name, origmethods, val;
         if (this.parent &amp;&amp; this.applied !== applied) {
           origmethods = this.parent.states.origmethods;
           for (name in origmethods) {
@@ -3515,7 +3513,6 @@
           } else {
             this._remove();
           }
-          parentname = this.parent.$tagname;
           for (name in this.applyattributes) {
             val = this.parent[name];
             delete this.parent[name];
@@ -4374,14 +4371,18 @@
           }, 0);
         }
       };
-      return function(cb) {
-        if (capabilities.raf) {
+      if (capabilities.raf) {
+        return function(cb) {
           queue.push(cb);
           idle(2, callback);
-        } else {
-          setTimeout(cb, 0);
-        }
-      };
+        };
+      } else {
+        return function(cb) {
+          setTimeout(function() {
+            return cb(Date.now() - starttime);
+          }, 0);
+        };
+      }
     })();
     StartEventable = (function(_super) {
       __extends(StartEventable, _super);

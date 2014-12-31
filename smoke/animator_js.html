@@ -1,5 +1,6 @@
 <html>
 <head>
+  <testingtimer><!--2500--></testingtimer>
   <title>template-workshop 2nd</title>
   <style type="text/css">
     body {
@@ -22,6 +23,9 @@
   <script type="text/javascript" src="/lib/coffee-script.js"></script>
   <script type="text/javascript" src="/lib/chai.js"></script>
   <script type="text/javascript" src="/layout.js"></script>
+  <script>
+    var assert = chai.assert
+  </script>
 </head>
 <body>
   <view>
@@ -43,6 +47,16 @@
         ,300)
       </handler>
     </view>
+    <!-- Test animating attributes on a node -->
+    <node>
+      <attribute name="x" value="0" type="number"></attribute>
+      <handler event='oninit' type="coffee">
+        this.animate({x:100},80)
+        setTimeout(() =>
+          assert.equal(@x, 100)
+        200)
+      </handler>
+    </node>
 
   </view>
 

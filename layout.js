@@ -1260,6 +1260,60 @@
         return id;
       };
 
+
+      /**
+       * Animates this node's attribute(s)
+       * @param {Object} obj A hash of attribute names and values to animate to
+       * @param Number duration The duration of the animation in milliseconds
+       */
+
+      Node.prototype.animate = function(attributes, time) {
+        var anim, animTick, animators, first, name, track, value;
+        if (time == null) {
+          time = 600;
+        }
+        animators = {};
+        for (name in attributes) {
+          value = attributes[name];
+          track = {
+            motion: 'bret',
+            control: [0.01]
+          };
+          track[0] = this[name] || 0;
+          track[time] = value;
+          anim = Animator.createAnimator();
+          anim.playStateless(track);
+          animators[name] = anim;
+        }
+        first = void 0;
+        animTick = (function(_this) {
+          return function(time) {
+            var ended, local_time, myvalue;
+            if (_this.destroyed) {
+              return;
+            }
+            if (first == null) {
+              first = time;
+            }
+            local_time = time - first;
+            ended = false;
+            for (name in animators) {
+              anim = animators[name];
+              myvalue = anim.timestep(local_time);
+              _this.setAttribute(name, myvalue);
+              if (anim.ended) {
+                ended = true;
+              }
+            }
+            if (!ended) {
+              return dr.idle.callOnIdle(animTick);
+            }
+          };
+        })(this);
+        dr.idle.callOnIdle(animTick);
+        return this;
+      };
+
       Node.prototype._removeFromParent = function(name) {
         var arr, index, removedNode;
         if (!this.parent) {
@@ -1448,53 +1502,6 @@
 
       Sprite.prototype.set_id = function(id) {
         return this.el.setAttribute('id', id);
-      };
-
-      Sprite.prototype.animate = function(attributes, time) {
-        var anim, animTick, animators, first, name, track, value;
-        if (time == null) {
-          time = 400;
-        }
-        animators = {};
-        for (name in attributes) {
-          value = attributes[name];
-          track = {};
-          track[0] = this[name] || 0;
-          track[time] = value;
-          track.motion = 'bret';
-          track.control = [0.01];
-          anim = Animator.createAnimator();
-          anim.playStateless(track);
-          animators[name] = anim;
-        }
-        first = void 0;
-        animTick = (function(_this) {
-          return function(time) {
-            var ended, local_time, myvalue;
-            if (_this.destroyed) {
-              return;
-            }
-            if (first === void 0) {
-              first = time;
-            }
-            local_time = time - first;
-            ended = false;
-            for (name in animators) {
-              anim = animators[name];
-              myvalue = anim.timestep(local_time);
-              if (_this.sprite) {
-                _this.setAttribute(name, myvalue);
-              }
-              if (anim.ended) {
-                ended = true;
-              }
-            }
-            if (!ended) {
-              return dr.idle.callOnIdle(animTick);
-            }
-          };
-        })(this);
-        return dr.idle.callOnIdle(animTick);
       };
 
       Sprite.prototype._cursorVal = function() {
@@ -2641,18 +2648,6 @@
         retval = View.__super__.set_id.apply(this, arguments);
         this.sprite.set_id(id);
         return retval;
-      };
-
-
-      /**
-       * Animates this view's attribute(s)
-       * @param {Object} obj A hash of attribute names and values to animate to
-       * @param Number duration The duration of the animation in milliseconds
-       */
-
-      View.prototype.animate = function() {
-        this.sprite.animate.apply(this, arguments);
-        return this;
       };
 
       View.prototype.set_clip = function(clip) {

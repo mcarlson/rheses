@@ -959,6 +959,48 @@ window.dr = do ->
       window[id] = @
       id
 
+    ###*
+    # Animates this node's attribute(s)
+    # @param {Object} obj A hash of attribute names and values to animate to
+    # @param Number duration The duration of the animation in milliseconds
+    ###
+    animate: (attributes, time=600) ->
+      # decode argument block
+      animators = {} # our set of animators
+      for name, value of attributes
+        # for every name, value we have to create an animator with a to.
+        track = {motion: 'bret', control: [0.01]}
+        track[0] = this[name] or 0 #original value
+        track[time] = value
+        anim = Animator.createAnimator()
+        # start the animator stateless
+        anim.playStateless(track)
+        animators[name] = anim
+
+      first = undefined
+
+      animTick = (time) =>
+        return if @destroyed
+        # lazy init so we start at 0
+        first ?= time
+        # compute the local time relative to the lazy initialized first
+        local_time = time - first
+        # mark ended
+        ended = false
+        # loop over all our animators
+        for name, anim of animators
+          # compute the value of the animation
+          myvalue = anim.timestep(local_time)
+          # set the attribute
+          this.setAttribute(name, myvalue)
+          # flag ended if we ended
+          ended = true if anim.ended
+        # only do idle again if none ended
+        dr.idle.callOnIdle(animTick) unless ended
+        # TODO add termination promise call
+      dr.idle.callOnIdle(animTick)
+      @
+
     _removeFromParent: (name) ->
       return unless @parent
       arr = @parent[name]
@@ -1111,46 +1153,6 @@ window.dr = do ->
     set_id: (id) ->
       # console.log('setid', @id)
       @el.setAttribute('id', id)
-
-    animate: (attributes, time=400) ->
-      # decode argument block
-      animators = {} # our set of animators
-      for name, value of attributes
-        # for every name, value we have to create an animator with a to.
-        track = {}
-        track[0] = this[name] || 0 #original value
-        track[time] = value
-        track.motion = 'bret'
-        track.control = [0.01]
-        anim = Animator.createAnimator()
-        # start the animator stateless
-        anim.playStateless(track)
-        animators[name] = anim
-
-      first = undefined
-
-      animTick = (time) =>
-        return if @destroyed
-        # lazy init so we start at 0
-        if first == undefined then first = time
-        # compute the local time relative to the lazy initialized first
-        local_time = time - first
-        # mark ended
-        ended = false
-        # loop over all our animators
-        for name, anim of animators
-          # compute the value of the animation
-          myvalue = anim.timestep(local_time)
-          # set the attribute
-          if(this.sprite) # maybe fix in setattribute
-            this.setAttribute(name, myvalue)
-          # flag ended if we ended
-          if anim.ended then ended = true
-        # only do idle again if none ended
-        if(!ended)
-          dr.idle.callOnIdle(animTick)
-        # TODO add termination promise call
-      dr.idle.callOnIdle(animTick)
 
     _cursorVal: () ->
       return if @__clickable then @__cursor || 'pointer' else ''
@@ -2089,16 +2091,6 @@ window.dr = do ->
       retval = super
       @sprite.set_id(id)
       retval
-
-    ###*
-    # Animates this view's attribute(s)
-    # @param {Object} obj A hash of attribute names and values to animate to
-    # @param Number duration The duration of the animation in milliseconds
-    ###
-    animate: ->
-      # console.log 'animate', arguments, @sprite.animate
-      @sprite.animate.apply(@, arguments)
-      @
 
     set_clip: (clip) ->
       @sprite.set_clip(clip) if clip isnt @clip
