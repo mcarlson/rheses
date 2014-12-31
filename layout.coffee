@@ -125,7 +125,7 @@ window.dr = do ->
     # Fires an event
     # @param {String} ev the name of the event to fire
     ###
-    trigger: (ev, args...) ->
+    trigger: (ev, value, scope) ->
       list = @hasOwnProperty('events') and @events?[ev]
       return unless list
       if triggerlock
@@ -142,7 +142,7 @@ window.dr = do ->
 
       # console.log 'trigger', ev, list
       for callback in list
-        callback.apply(@, args)
+        callback.call(@, value, scope)
       triggerlock = null
       @
     ###*
@@ -1829,6 +1829,9 @@ window.dr = do ->
     # Returns true if a special value is encountered for alignment so that
     # the setAttribute method can stop processing the value.
     __setupAlignConstraint: (name, value) ->
+      funcKey = '__alignFunc' + name
+      return unless typeof value is 'string' or @[funcKey]
+
       # The root view can't be aligned
       parent = @parent
       return unless parent instanceof Node
@@ -1847,7 +1850,6 @@ window.dr = do ->
         alignattr = 'isvaligned'
 
       # Remove existing function if found
-      funcKey = '__alignFunc' + name
       oldFunc = @[funcKey]
       if oldFunc
         @stopListening(parent, axis, oldFunc)
@@ -1890,6 +1892,8 @@ window.dr = do ->
     # the setAttribute method can stop processing the value.
     __setupAutoConstraint: (name, value, axis) ->
       layoutKey = '__autoLayout' + name
+      return unless value is 'auto' or @[layoutKey]
+      
       oldLayout = @[layoutKey]
       if oldLayout
         oldLayout.destroy()
@@ -1905,6 +1909,7 @@ window.dr = do ->
     # size so that the setAttribute method can stop processing the value.
     __setupPercentConstraint: (name, value, axis) ->
       funcKey = '__percentFunc' + name
+      return unless typeof value is 'string' or @[funcKey]
       oldFunc = @[funcKey]
       parent = @parent
 

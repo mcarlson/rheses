@@ -156,9 +156,8 @@
        * Fires an event
        * @param {String} ev the name of the event to fire
        */
-      trigger: function() {
-        var args, callback, ev, list, _i, _len, _ref;
-        ev = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
+      trigger: function(ev, value, scope) {
+        var callback, list, _i, _len, _ref;
         list = this.hasOwnProperty('events') && ((_ref = this.events) != null ? _ref[ev] : void 0);
         if (!list) {
           return;
@@ -176,7 +175,7 @@
         }
         for (_i = 0, _len = list.length; _i < _len; _i++) {
           callback = list[_i];
-          callback.apply(this, args);
+          callback.call(this, value, scope);
         }
         triggerlock = null;
         return this;
@@ -2325,6 +2324,10 @@
 
       View.prototype.__setupAlignConstraint = function(name, value) {
         var alignattr, axis, boundsdiff, boundssize, func, funcKey, isX, normValue, oldFunc, parent, self;
+        funcKey = '__alignFunc' + name;
+        if (!(typeof value === 'string' || this[funcKey])) {
+          return;
+        }
         parent = this.parent;
         if (!(parent instanceof Node)) {
           return;
@@ -2342,7 +2345,6 @@
           boundssize = 'boundsheight';
           alignattr = 'isvaligned';
         }
-        funcKey = '__alignFunc' + name;
         oldFunc = this[funcKey];
         if (oldFunc) {
           this.stopListening(parent, axis, oldFunc);
@@ -2393,6 +2395,9 @@
       View.prototype.__setupAutoConstraint = function(name, value, axis) {
         var layoutKey, oldLayout;
         layoutKey = '__autoLayout' + name;
+        if (!(value === 'auto' || this[layoutKey])) {
+          return;
+        }
         oldLayout = this[layoutKey];
         if (oldLayout) {
           oldLayout.destroy();
@@ -2416,6 +2421,9 @@
       View.prototype.__setupPercentConstraint = function(name, value, axis) {
         var func, funcKey, oldFunc, parent, scale, self;
         funcKey = '__percentFunc' + name;
+        if (!(typeof value === 'string' || this[funcKey])) {
+          return;
+        }
         oldFunc = this[funcKey];
         parent = this.parent;
         if (!(parent instanceof Node)) {
