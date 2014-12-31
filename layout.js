@@ -1455,7 +1455,7 @@
         }
         this.el.$view = view;
         this.css_baseclass = 'sprite';
-        this.set_class();
+        this._updateClass();
       }
 
       Sprite.prototype.setStyle = function(name, value, internal, el) {
@@ -1533,6 +1533,11 @@
         } else {
           return $(this.el).off('scroll', this._handleScroll);
         }
+      };
+
+      Sprite.prototype.set_scrollbars = function(scrollbars) {
+        this.__scrollbars = scrollbars ? '' : 'noscrollbar';
+        return this._updateClass();
       };
 
       Sprite.prototype._handleScroll = function(event) {
@@ -1641,13 +1646,13 @@
 
       Sprite.prototype.createTextElement = function() {
         this.css_baseclass = 'sprite sprite-text noselect';
-        return this.set_class();
+        return this._updateClass();
       };
 
       Sprite.prototype.createInputtextElement = function(text, multiline, width, height) {
         var input;
         this.css_baseclass = 'sprite noselect';
-        this.set_class();
+        this._updateClass();
         if (multiline) {
           input = document.createElement('textarea');
         } else {
@@ -1685,7 +1690,20 @@
         if (classname == null) {
           classname = '';
         }
-        return this.el.setAttribute('class', "" + this.css_baseclass + " " + classname);
+        this.__classname = classname;
+        return this._updateClass();
+      };
+
+      Sprite.prototype._updateClass = function() {
+        var classes;
+        classes = this.css_baseclass;
+        if (this.__classname) {
+          classes += ' ' + this.__classname;
+        }
+        if (this.__scrollbars) {
+          classes += ' ' + this.__scrollbars;
+        }
+        return this.el.setAttribute('class', classes);
       };
 
       return Sprite;
@@ -1926,6 +1944,11 @@
        */
 
       /**
+       * @attribute {Boolean} [scrollbars=false]
+       * Controls the visibility of scrollbars if scrollable is true
+       */
+
+      /**
        * @attribute {Boolean} [visible=true]
        * If false, this view is invisible
        */
@@ -2119,7 +2142,8 @@
         borderstyle: 'solid',
         border: 0,
         padding: 0,
-        ignorelayout: false
+        ignorelayout: false,
+        scrollbars: false
       };
 
       View.prototype.construct = function(el, attributes) {
@@ -2156,7 +2180,8 @@
           ignorelayout: 'json',
           layouthint: 'json',
           scrollx: 'number',
-          scrolly: 'number'
+          scrolly: 'number',
+          scrollbars: 'boolean'
         };
         _ref = attributes.$types;
         for (key in _ref) {
@@ -2675,6 +2700,11 @@
         return scrollable;
       };
 
+      View.prototype.set_scrollbars = function(scrollable) {
+        this.sprite.set_scrollbars(this.scrollbars);
+        return scrollbars;
+      };
+
       View.prototype.set_scrollx = function(scrollx) {
         if (isNaN(scrollx)) {
           return 0;
@@ -2967,7 +2997,7 @@
           out = {};
           for (name in names) {
             el = names[name];
-            if (!(name in dr || name in fileloaded || __indexOf.call(specialtags, name) >= 0 || name in inlineclasses || __indexOf.call(builtinTags, name) >= 0)) {
+            if (!(name in dr || name in fileloaded || __indexOf.call(specialtags, name) >= 0 || name in inlineclasses || builtinTags[name])) {
               out[name] = el;
             }
           }
@@ -3141,7 +3171,117 @@
         };
         return loadIncludes(test ? finalcallback : validator);
       };
-      builtinTags = ['a', 'abbr', 'address', 'area', 'article', 'aside', 'audio', 'b', 'base', 'bdi', 'bdo', 'blockquote', 'body', 'br', 'button', 'canvas', 'caption', 'cite', 'code', 'col', 'colgroup', 'command', 'datalist', 'dd', 'del', 'details', 'dfn', 'div', 'dl', 'dt', 'em', 'embed', 'fieldset', 'figcaption', 'figure', 'footer', 'form', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'head', 'header', 'hgroup', 'hr', 'html', 'i', 'iframe', 'img', 'image', 'input', 'ins', 'kbd', 'keygen', 'label', 'legend', 'li', 'link', 'map', 'mark', 'menu', 'meta', 'meter', 'nav', 'noscript', 'object', 'ol', 'optgroup', 'option', 'output', 'p', 'param', 'pre', 'progress', 'q', 'rp', 'rt', 'ruby', 's', 'samp', 'script', 'section', 'select', 'small', 'source', 'span', 'strong', 'style', 'sub', 'summary', 'sup', 'table', 'tbody', 'td', 'textarea', 'tfoot', 'th', 'thead', 'time', 'title', 'tr', 'track', 'u', 'ul', 'var', 'video', 'wbr'];
+      builtinTags = {
+        'a': true,
+        'abbr': true,
+        'address': true,
+        'area': true,
+        'article': true,
+        'aside': true,
+        'audio': true,
+        'b': true,
+        'base': true,
+        'bdi': true,
+        'bdo': true,
+        'blockquote': true,
+        'body': true,
+        'br': true,
+        'button': true,
+        'canvas': true,
+        'caption': true,
+        'cite': true,
+        'code': true,
+        'col': true,
+        'colgroup': true,
+        'command': true,
+        'datalist': true,
+        'dd': true,
+        'del': true,
+        'details': true,
+        'dfn': true,
+        'div': true,
+        'dl': true,
+        'dt': true,
+        'em': true,
+        'embed': true,
+        'fieldset': true,
+        'figcaption': true,
+        'figure': true,
+        'footer': true,
+        'form': true,
+        'h1': true,
+        'h2': true,
+        'h3': true,
+        'h4': true,
+        'h5': true,
+        'h6': true,
+        'head': true,
+        'header': true,
+        'hgroup': true,
+        'hr': true,
+        'html': true,
+        'i': true,
+        'iframe': true,
+        'img': true,
+        'image': true,
+        'input': true,
+        'ins': true,
+        'kbd': true,
+        'keygen': true,
+        'label': true,
+        'legend': true,
+        'li': true,
+        'link': true,
+        'map': true,
+        'mark': true,
+        'menu': true,
+        'meta': true,
+        'meter': true,
+        'nav': true,
+        'noscript': true,
+        'object': true,
+        'ol': true,
+        'optgroup': true,
+        'option': true,
+        'output': true,
+        'p': true,
+        'param': true,
+        'pre': true,
+        'progress': true,
+        'q': true,
+        'rp': true,
+        'rt': true,
+        'ruby': true,
+        's': true,
+        'samp': true,
+        'script': true,
+        'section': true,
+        'select': true,
+        'small': true,
+        'source': true,
+        'span': true,
+        'strong': true,
+        'style': true,
+        'sub': true,
+        'summary': true,
+        'sup': true,
+        'table': true,
+        'tbody': true,
+        'td': true,
+        'textarea': true,
+        'tfoot': true,
+        'th': true,
+        'thead': true,
+        'time': true,
+        'title': true,
+        'tr': true,
+        'track': true,
+        'u': true,
+        'ul': true,
+        'var': true,
+        'video': true,
+        'wbr': true
+      };
       requiredAttributes = {
         "class": {
           "name": 1
@@ -3190,11 +3330,11 @@
         el.$init = true;
         tagname = el.localName;
         if (!tagname in dr) {
-          if (__indexOf.call(builtinTags, tagname) < 0) {
+          if (!builtinTags[tagname]) {
             console.warn('could not find class for tag', tagname, el);
           }
           return;
-        } else if (__indexOf.call(builtinTags, tagname) >= 0) {
+        } else if (builtinTags[tagname]) {
           if (tagname !== 'input') {
             console.warn('refusing to create a class that would overwrite the builtin tag', tagname);
           }
@@ -3276,7 +3416,7 @@
         var style;
         style = document.createElement('style');
         style.type = 'text/css';
-        style.innerHTML = '.sprite{ position: absolute; pointer-events: none; padding: 0; margin: 0; box-sizing: border-box; border-color: transparent; border-style: solid; border-width: 0} .sprite-text{ width: auto; height; auto; white-space: nowrap; padding: 0; margin: 0;} .sprite-inputtext{border: none; outline: none; background-color:transparent; resize:none;} .hidden{ display: none; } .noselect{ -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;} method { display: none; } handler { display: none; } setter { display: none; } class { display:none } node { display:none } dataset { display:none } .warnings {font-size: 14px; background-color: pink; margin: 0;}';
+        style.innerHTML = '.sprite{position: absolute; pointer-events: none; padding: 0; margin: 0; box-sizing: border-box; border-color: transparent; border-style: solid; border-width: 0} .sprite-text{width: auto; height; auto; white-space: nowrap; padding: 0; margin: 0} .sprite-inputtext{border: none; outline: none; background-color:transparent; resize:none} .hidden{display: none} .noselect{-webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none} .noscrollbar::-webkit-scrollbar{display: none;} .warnings{font-size: 14px; background-color: pink; margin: 0} method{display: none} handler{display: none} setter{display: none} class{display: none} node{display: none} dataset{display:none}';
         return document.getElementsByTagName('head')[0].appendChild(style);
       };
       initAllElements = function(selector) {

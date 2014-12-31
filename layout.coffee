@@ -1121,7 +1121,7 @@ window.dr = do ->
 #      guid++
 #      jqel.attr('id', 'jqel-' + guid) if not jqel.attr('id')
       @css_baseclass = 'sprite'
-      @set_class()
+      @_updateClass()
 
     setStyle: (name, value, internal, el=@el) ->
       value ?= ''
@@ -1186,6 +1186,10 @@ window.dr = do ->
         $(@el).on('scroll', @_handleScroll)
       else
         $(@el).off('scroll', @_handleScroll)
+
+    set_scrollbars: (scrollbars) ->
+      @__scrollbars = if (scrollbars) then '' else 'noscrollbar'
+      @_updateClass()
 
     _handleScroll: (event) =>
       domElement = event.target
@@ -1272,11 +1276,11 @@ window.dr = do ->
 
     createTextElement: () ->
       @css_baseclass = 'sprite sprite-text noselect'
-      @set_class()
+      @_updateClass()
 
     createInputtextElement: (text, multiline, width, height) ->
       @css_baseclass = 'sprite noselect'
-      @set_class()
+      @_updateClass()
 
       if multiline
         input = document.createElement('textarea')
@@ -1304,8 +1308,15 @@ window.dr = do ->
       {x: pos.left - window.pageXOffset, y: pos.top - window.pageYOffset}
 
     set_class: (classname='') ->
+      @__classname = classname
       # console.log('setid', @id)
-      @el.setAttribute('class', "#{@css_baseclass} #{classname}")
+      @_updateClass()
+
+    _updateClass: () ->
+      classes = @css_baseclass
+      classes += ' ' + @__classname if @__classname
+      classes += ' ' + @__scrollbars if @__scrollbars
+      @el.setAttribute('class', classes)
 
   if (capabilities.camelcss)
     # handle camelCasing CSS styles, e.g. background-color -> backgroundColor - not needed for webkit
@@ -1524,6 +1535,10 @@ window.dr = do ->
     # If true, this view clips to its bounds and provides scrolling to see content that overflows the bounds
     ###
     ###*
+    # @attribute {Boolean} [scrollbars=false]
+    # Controls the visibility of scrollbars if scrollable is true
+    ###
+    ###*
     # @attribute {Boolean} [visible=true]
     # If false, this view is invisible
     ###
@@ -1677,7 +1692,7 @@ window.dr = do ->
       opacity: 1,
       clickable:false, clip:false, scrollable:false, visible:true, cursor:'pointer',
       bordercolor:'transparent', borderstyle:'solid', border:0,
-      padding:0, ignorelayout:false
+      padding:0, ignorelayout:false, scrollbars:false
     }
     construct: (el, attributes) ->
       ###*
@@ -1700,7 +1715,7 @@ window.dr = do ->
         clickable: 'boolean', clip: 'boolean', scrollable: 'boolean', visible: 'boolean',
         border: 'positivenumber', padding: 'positivenumber',
         ignorelayout:'json', layouthint:'json',
-        scrollx:'number', scrolly:'number'
+        scrollx: 'number', scrolly: 'number', scrollbars: 'boolean'
       }
 
       for key, type of attributes.$types
@@ -2106,6 +2121,10 @@ window.dr = do ->
       @sprite.set_scrollable(scrollable) if scrollable isnt @scrollable
       scrollable
 
+    set_scrollbars: (scrollable) ->
+      @sprite.set_scrollbars(@scrollbars)
+      scrollbars
+
     set_scrollx: (scrollx) ->
       if isNaN scrollx then 0 else Math.max(0, Math.min(@sprite.el.scrollWidth - @width + 2*@border, scrollx))
 
@@ -2345,7 +2364,7 @@ window.dr = do ->
         # filter out classnames that may have already been loaded or should otherwise be ignored
         out = {}
         for name, el of names
-          unless name of dr or name of fileloaded or name in specialtags or name of inlineclasses or name in builtinTags
+          unless name of dr or name of fileloaded or name in specialtags or name of inlineclasses or builtinTags[name]
             out[name] = el
         out
 
@@ -2482,7 +2501,7 @@ window.dr = do ->
       loadIncludes(if test then finalcallback else validator)
 
     # tags built into the browser that should be ignored, from http://www.w3.org/TR/html-markup/elements.html
-    builtinTags = ['a', 'abbr', 'address', 'area', 'article', 'aside', 'audio', 'b', 'base', 'bdi', 'bdo', 'blockquote', 'body', 'br', 'button', 'canvas', 'caption', 'cite', 'code', 'col', 'colgroup', 'command', 'datalist', 'dd', 'del', 'details', 'dfn', 'div', 'dl', 'dt', 'em', 'embed', 'fieldset', 'figcaption', 'figure', 'footer', 'form', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'head', 'header', 'hgroup', 'hr', 'html', 'i', 'iframe', 'img', 'image', 'input', 'ins', 'kbd', 'keygen', 'label', 'legend', 'li', 'link', 'map', 'mark', 'menu', 'meta', 'meter', 'nav', 'noscript', 'object', 'ol', 'optgroup', 'option', 'output', 'p', 'param', 'pre', 'progress', 'q', 'rp', 'rt', 'ruby', 's', 'samp', 'script', 'section', 'select', 'small', 'source', 'span', 'strong', 'style', 'sub', 'summary', 'sup', 'table', 'tbody', 'td', 'textarea', 'tfoot', 'th', 'thead', 'time', 'title', 'tr', 'track', 'u', 'ul', 'var', 'video', 'wbr']
+    builtinTags = {'a': true, 'abbr': true, 'address': true, 'area': true, 'article': true, 'aside': true, 'audio': true, 'b': true, 'base': true, 'bdi': true, 'bdo': true, 'blockquote': true, 'body': true, 'br': true, 'button': true, 'canvas': true, 'caption': true, 'cite': true, 'code': true, 'col': true, 'colgroup': true, 'command': true, 'datalist': true, 'dd': true, 'del': true, 'details': true, 'dfn': true, 'div': true, 'dl': true, 'dt': true, 'em': true, 'embed': true, 'fieldset': true, 'figcaption': true, 'figure': true, 'footer': true, 'form': true, 'h1': true, 'h2': true, 'h3': true, 'h4': true, 'h5': true, 'h6': true, 'head': true, 'header': true, 'hgroup': true, 'hr': true, 'html': true, 'i': true, 'iframe': true, 'img': true, 'image': true, 'input': true, 'ins': true, 'kbd': true, 'keygen': true, 'label': true, 'legend': true, 'li': true, 'link': true, 'map': true, 'mark': true, 'menu': true, 'meta': true, 'meter': true, 'nav': true, 'noscript': true, 'object': true, 'ol': true, 'optgroup': true, 'option': true, 'output': true, 'p': true, 'param': true, 'pre': true, 'progress': true, 'q': true, 'rp': true, 'rt': true, 'ruby': true, 's': true, 'samp': true, 'script': true, 'section': true, 'select': true, 'small': true, 'source': true, 'span': true, 'strong': true, 'style': true, 'sub': true, 'summary': true, 'sup': true, 'table': true, 'tbody': true, 'td': true, 'textarea': true, 'tfoot': true, 'th': true, 'thead': true, 'time': true, 'title': true, 'tr': true, 'track': true, 'u': true, 'ul': true, 'var': true, 'video': true, 'wbr': true}
     # found by running './bin/builddocs' followed by 'node ./bin/findrequired.js'
     requiredAttributes = {"class":{"name":1},"method":{"name":1},"setter":{"name":1},"handler":{"event":1},"attribute":{"name":1,"type":1,"value":1},"dataset":{"name":1},"replicator":{"classname":1}}
 
@@ -2507,9 +2526,9 @@ window.dr = do ->
       tagname = el.localName
 
       if not tagname of dr
-        console.warn 'could not find class for tag', tagname, el unless tagname in builtinTags
+        console.warn 'could not find class for tag', tagname, el unless builtinTags[tagname]
         return
-      else if tagname in builtinTags
+      else if builtinTags[tagname]
         console.warn 'refusing to create a class that would overwrite the builtin tag', tagname unless tagname is 'input'
         return
 
@@ -2579,7 +2598,7 @@ window.dr = do ->
     writeCSS = ->
       style = document.createElement('style')
       style.type = 'text/css'
-      style.innerHTML = '.sprite{ position: absolute; pointer-events: none; padding: 0; margin: 0; box-sizing: border-box; border-color: transparent; border-style: solid; border-width: 0} .sprite-text{ width: auto; height; auto; white-space: nowrap; padding: 0; margin: 0;} .sprite-inputtext{border: none; outline: none; background-color:transparent; resize:none;} .hidden{ display: none; } .noselect{ -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;} method { display: none; } handler { display: none; } setter { display: none; } class { display:none } node { display:none } dataset { display:none } .warnings {font-size: 14px; background-color: pink; margin: 0;}'
+      style.innerHTML = '.sprite{position: absolute; pointer-events: none; padding: 0; margin: 0; box-sizing: border-box; border-color: transparent; border-style: solid; border-width: 0} .sprite-text{width: auto; height; auto; white-space: nowrap; padding: 0; margin: 0} .sprite-inputtext{border: none; outline: none; background-color:transparent; resize:none} .hidden{display: none} .noselect{-webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none} .noscrollbar::-webkit-scrollbar{display: none;} .warnings{font-size: 14px; background-color: pink; margin: 0} method{display: none} handler{display: none} setter{display: none} class{display: none} node{display: none} dataset{display:none}'
       document.getElementsByTagName('head')[0].appendChild(style)
 
     # init top-level views in the DOM recursively
