@@ -129,7 +129,7 @@
     </class>
     <view markup="This is some text&lt;br/>foo&lt;br/>bar&lt;br/>baz&lt;br/>">
        <testmixin></testmixin>
-       <handler event="oninit">
+       <handler event="onmarkup">
          assert.equal(this.setterRan, true)
        </handler>
     </view>
