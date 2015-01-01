@@ -332,7 +332,15 @@ SOFTWARE. -->
       var inherit_set = ['from', 'to', 'duration', 'attribute', 'target', 'relative']
       for(var i = 0; i < inherit_set.length; i++){
         var inherit = inherit_set[i]
-        if(element.getAttribute(inherit) === null && attributes.parent[inherit] !== undefined) attributes[inherit] = attributes.parent[inherit]
+        var parent = attributes.parent
+        var overloads = {}
+        while(parent && parent.$tagname == 'animgroup'){
+          if(element.getAttribute(inherit) === null && parent[inherit] !== undefined && !overloads[inherit]){
+            attributes[inherit] = parent[inherit]
+            overloads[inherit] = true
+          }
+          parent = parent.parent
+        }
       }
       this.super(element, attributes)
     </method>
