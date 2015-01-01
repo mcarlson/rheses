@@ -211,8 +211,9 @@ SOFTWARE. -->
       this.track[0] = 0
       this.track[max_len] = max_len
       // and play it
-      if(standalone)
+      if(standalone){
         this.animator.play(this.track)
+      }
       else
         this.animator.playStateless(this.track)
       // return our length
@@ -274,12 +275,12 @@ SOFTWARE. -->
     <!-- Internal start animation -->
     <method name="startAnim">
       this.start_fire = true
-      this.prepare()
+      this.prepare(true)
 
       var dup = 0
       var animTick = function(time){
-
         var mytime = this.timestep(time)
+
         if(this.start_fire && mytime !== 0){
           this.sendEvent('start')
           this.start_fire = false
