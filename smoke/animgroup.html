@@ -78,7 +78,8 @@
       <text text='Pause mid'></text>
       <animgroup delay='100' repeat="3" bounce="true" parallel='true'>
         <handler event='ontick' args='time'>
-          if(time>300){
+          if(time>300 && !this._trigger_){
+            this._trigger_ = true
             this.setAttribute('paused',true)
             setTimeout(function(){
               this.setAttribute('paused', false)
@@ -101,7 +102,27 @@
         </animgroup>
       </animgroup>
     </view>
+
+    <view bgcolor='red' id="koala3" x="10" y="310" width="auto" height="auto">
+      <text text='Paused start'></text>
+      <animgroup paused='true' repeat="1" bounce="true" parallel='true'>
+        <handler event='oninit' args='time'>
+          setTimeout(function(){
+            this.setAttribute('paused', false)
+          }.bind(this),500)
+          setTimeout(function(){
+            chai.assert.equal(this.parent.x, 101)
+          }.bind(this),700)
+        </handler>      
+        <animator attribute="x" to="101" duration="100" repeat='1' bounce='true' motion="inOutExpo"></animator>
+      </animgroup>
+    </view>
+
+
   </view>
+
+
+
 
   <!-- The MIT License (MIT)
   Copyright ( c ) 2014 Teem2 LLC
