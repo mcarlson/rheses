@@ -1,6 +1,6 @@
 <!-- The MIT License (MIT)
 
-Copyright ( c ) 2014 Teem2 LLC
+Copyright ( c ) 2014-2015 Teem2 LLC
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -87,7 +87,7 @@ SOFTWARE. -->
 
         @_resize_lock = true
         @setAttributes({width:width, height:height, textx:xoffset, texty:yoffset})
-        @_resize_lock = true
+        @_resize_lock = false
       </method>
 
       <handler event="onmousedown">
