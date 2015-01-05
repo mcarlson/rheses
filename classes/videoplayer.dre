@@ -1,0 +1,153 @@
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+<!--/**
+  * @class dr.videoplayer {UI Components, Media Components}
+  * @extends dr.view
+  *
+  *
+  *
+  */-->
+
+
+<class type="coffee" name="videoplayer" extends="view" clickable="true">
+
+
+    <handler event="oninit">
+
+        @__video = document.createElement 'video'
+
+        @__video.parent = @
+
+        @__video.setAttribute 'name',     'video'
+        @__video.setAttribute 'height',   @height
+        @__video.setAttribute 'width',    @width
+        @__video.setAttribute 'poster',   @poster if @poster
+        @__video.setAttribute 'controls', true    if @controls
+        @__video.setAttribute 'autoplay', true    if @playing
+        @__video.setAttribute 'loop',     true    if @loop
+        @__video.setAttribute 'volume',   @volume
+
+        if @preload
+          @__video.setAttribute 'preload', 'auto'
+        else
+          @__video.setAttribute 'preload', 'none'
+
+        @__video.addEventListener 'durationchange',(e) ->
+          @parent.setAttribute 'duration', @duration
+
+        @__video.addEventListener 'timeupdate', (e) ->
+          @parent.setAttribute 'currenttime', @currentTime
+
+        pplay = (e) ->
+          @parent.playing = (e.type == 'play')
+          @parent.sendEvent('playing', @parent.playing)
+
+        @__video.addEventListener 'play',  pplay
+        @__video.addEventListener 'pause', pplay
+        @__video.addEventListener 'ended', pplay
+
+        @__loadvideo(@src) if @src
+
+        @__video.$init = true  # Prevent warnings
+
+        @sprite.el.appendChild @__video
+
+    </handler>
+
+    <attribute name="controls" type="boolean" value="true"></attribute>
+    <setter name="controls" args="controls">
+        @__video.setAttribute 'controls', controls if @__video
+        return controls
+    </setter>
+    <attribute name="preload" type="boolean" value="true"></attribute>
+    <setter name="preload" args="preload">
+        @__video.setAttribute 'preload', preload if @__video
+        return preload
+    </setter>
+    <attribute name="loop" type="boolean" value="false"></attribute>
+    <setter name="loop" args="lp">
+        @__video.setAttribute 'loop', lp if @__video
+        return lp
+    </setter>
+    <attribute name="volume" type="number" value="0.5"></attribute>
+    <setter name="volume" args="volume">
+        @__video.setAttribute 'volume', volume if @__video
+        return volume
+    </setter>
+
+    <attribute name="duration" type="number" value="0"></attribute>
+    
+    <attribute name="playing" type="boolean" value="false"></attribute>
+    <setter name="playing" args="playing">
+        if @__video
+          if playing
+            @__video.play()
+          else
+            @__video.pause()
+
+        return playing
+    </setter>
+
+    <attribute name="currenttime" type="number" value="0"></attribute>
+    <setter name="currenttime" args="time">
+        @__video.currentTime = time if @__video
+        return time
+    </setter>
+
+    <attribute name="poster" type="string" value=""></attribute>
+    <setter name="poster" args="poster">
+        @__video.setAttribute('poster', poster) if @__video
+        return poster
+    </setter>
+
+    <attribute name="src" type="json" value="[]"></attribute>
+    <setter name="src" args="srcs">
+        sources = {}
+
+        if Array.isArray(srcs)
+          for src in srcs
+            if match = /^(.*)\.(mp4|ogv|webm|3gp)$/i.exec src
+              mime = "video/" + match[2].replace('ogv', 'ogg')
+              sources[mime] = src
+        else
+          sources = srcs
+
+        @__loadvideo(sources)
+
+        return sources
+    </setter>
+
+    <method name="__loadvideo" args="sources">
+        if @__video
+          @__video.pause() if @__video.pause && !@__video.paused
+          @__video.setAttribute 'src', undefined
+
+          for type, src of sources
+            if @__video.canPlayType && @__video.canPlayType(type)
+              @__video.setAttribute 'src', src
+              @__video.load()
+              return type
+
+        return null
+    </method>
+
+</class>

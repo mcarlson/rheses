@@ -1897,6 +1897,13 @@
     * @return {void}
     */
 /**
+  * @class dr.videoplayer {UI Components, Media Components}
+  * @extends dr.view
+  *
+  *
+  *
+  */
+/**
      * @class dr.webpage {UI Components}
      * @extends dr.view
      * iframe component for embedding dreem code or html in a dreem application.
