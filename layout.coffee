@@ -1908,7 +1908,7 @@ window.dr = do ->
     __setupAutoConstraint: (name, value, axis) ->
       layoutKey = '__autoLayout' + name
       return unless value is 'auto' or @[layoutKey]
-      
+
       oldLayout = @[layoutKey]
       if oldLayout
         oldLayout.destroy()

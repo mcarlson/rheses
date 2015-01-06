@@ -173,9 +173,8 @@
 </span>       * Fires an event
        * @param {String} ev the name of the event to fire
        */
-      trigger: function() {
-        var args, callback, ev, list, _i, _len, _ref;
-        ev = arguments[0], args = 2 &lt;= arguments.length ? __slice.call(arguments, 1) : [];
+      trigger: function(ev, value, scope) {
+        var callback, list, _i, _len, _ref;
         list = this.hasOwnProperty(&#39;events&#39;) &amp;&amp; ((_ref = this.events) != null ? _ref[ev] : void 0);
         if (!list) {
           return;
@@ -193,7 +192,7 @@
         }
         for (_i = 0, _len = list.length; _i &lt; _len; _i++) {
           callback = list[_i];
-          callback.apply(this, args);
+          callback.call(this, value, scope);
         }
         triggerlock = null;
         return this;
@@ -1473,7 +1472,7 @@
         }
         this.el.$view = view;
         this.css_baseclass = &#39;sprite&#39;;
-        this.set_class();
+        this._updateClass();
       }
 
       Sprite.prototype.setStyle = function(name, value, internal, el) {
@@ -1551,6 +1550,11 @@
         } else {
           return $(this.el).off(&#39;scroll&#39;, this._handleScroll);
         }
+      };
+
+      Sprite.prototype.set_scrollbars = function(scrollbars) {
+        this.__scrollbars = scrollbars ? &#39;&#39; : &#39;noscrollbar&#39;;
+        return this._updateClass();
       };
 
       Sprite.prototype._handleScroll = function(event) {
@@ -1659,13 +1663,13 @@
 
       Sprite.prototype.createTextElement = function() {
         this.css_baseclass = &#39;sprite sprite-text noselect&#39;;
-        return this.set_class();
+        return this._updateClass();
       };
 
       Sprite.prototype.createInputtextElement = function(text, multiline, width, height) {
         var input;
         this.css_baseclass = &#39;sprite noselect&#39;;
-        this.set_class();
+        this._updateClass();
         if (multiline) {
           input = document.createElement(&#39;textarea&#39;);
         } else {
@@ -1703,7 +1707,20 @@
         if (classname == null) {
           classname = &#39;&#39;;
         }
-        return this.el.setAttribute(&#39;class&#39;, &quot;&quot; + this.css_baseclass + &quot; &quot; + classname);
+        this.__classname = classname;
+        return this._updateClass();
+      };
+
+      Sprite.prototype._updateClass = function() {
+        var classes;
+        classes = this.css_baseclass;
+        if (this.__classname) {
+          classes += &#39; &#39; + this.__classname;
+        }
+        if (this.__scrollbars) {
+          classes += &#39; &#39; + this.__scrollbars;
+        }
+        return this.el.setAttribute(&#39;class&#39;, classes);
       };
 
       return Sprite;
@@ -1943,6 +1960,11 @@
        * If true, this view clips to its bounds and provides scrolling to see content that overflows the bounds
        */
 
+<span id='dr-view-attribute-scrollbars'>      /**
+</span>       * @attribute {Boolean} [scrollbars=false]
+       * Controls the visibility of scrollbars if scrollable is true
+       */
+
 <span id='dr-view-attribute-visible'>      /**
 </span>       * @attribute {Boolean} [visible=true]
        * If false, this view is invisible
@@ -2137,7 +2159,8 @@
         borderstyle: &#39;solid&#39;,
         border: 0,
         padding: 0,
-        ignorelayout: false
+        ignorelayout: false,
+        scrollbars: false
       };
 
       View.prototype.construct = function(el, attributes) {
@@ -2174,7 +2197,8 @@
           ignorelayout: &#39;json&#39;,
           layouthint: &#39;json&#39;,
           scrollx: &#39;number&#39;,
-          scrolly: &#39;number&#39;
+          scrolly: &#39;number&#39;,
+          scrollbars: &#39;boolean&#39;
         };
         _ref = attributes.$types;
         for (key in _ref) {
@@ -2342,6 +2366,10 @@
 
       View.prototype.__setupAlignConstraint = function(name, value) {
         var alignattr, axis, boundsdiff, boundssize, func, funcKey, isX, normValue, oldFunc, parent, self;
+        funcKey = &#39;__alignFunc&#39; + name;
+        if (!(typeof value === &#39;string&#39; || this[funcKey])) {
+          return;
+        }
         parent = this.parent;
         if (!(parent instanceof Node)) {
           return;
@@ -2359,7 +2387,6 @@
           boundssize = &#39;boundsheight&#39;;
           alignattr = &#39;isvaligned&#39;;
         }
-        funcKey = &#39;__alignFunc&#39; + name;
         oldFunc = this[funcKey];
         if (oldFunc) {
           this.stopListening(parent, axis, oldFunc);
@@ -2410,6 +2437,9 @@
       View.prototype.__setupAutoConstraint = function(name, value, axis) {
         var layoutKey, oldLayout;
         layoutKey = &#39;__autoLayout&#39; + name;
+        if (!(value === &#39;auto&#39; || this[layoutKey])) {
+          return;
+        }
         oldLayout = this[layoutKey];
         if (oldLayout) {
           oldLayout.destroy();
@@ -2433,6 +2463,9 @@
       View.prototype.__setupPercentConstraint = function(name, value, axis) {
         var func, funcKey, oldFunc, parent, scale, self;
         funcKey = &#39;__percentFunc&#39; + name;
+        if (!(typeof value === &#39;string&#39; || this[funcKey])) {
+          return;
+        }
         oldFunc = this[funcKey];
         parent = this.parent;
         if (!(parent instanceof Node)) {
@@ -2682,6 +2715,11 @@
           this.sprite.set_scrollable(scrollable);
         }
         return scrollable;
+      };
+
+      View.prototype.set_scrollbars = function(scrollable) {
+        this.sprite.set_scrollbars(this.scrollbars);
+        return scrollbars;
       };
 
       View.prototype.set_scrollx = function(scrollx) {
@@ -2976,7 +3014,7 @@
           out = {};
           for (name in names) {
             el = names[name];
-            if (!(name in dr || name in fileloaded || __indexOf.call(specialtags, name) &gt;= 0 || name in inlineclasses || __indexOf.call(builtinTags, name) &gt;= 0)) {
+            if (!(name in dr || name in fileloaded || __indexOf.call(specialtags, name) &gt;= 0 || name in inlineclasses || builtinTags[name])) {
               out[name] = el;
             }
           }
@@ -3150,7 +3188,117 @@
         };
         return loadIncludes(test ? finalcallback : validator);
       };
-      builtinTags = [&#39;a&#39;, &#39;abbr&#39;, &#39;address&#39;, &#39;area&#39;, &#39;article&#39;, &#39;aside&#39;, &#39;audio&#39;, &#39;b&#39;, &#39;base&#39;, &#39;bdi&#39;, &#39;bdo&#39;, &#39;blockquote&#39;, &#39;body&#39;, &#39;br&#39;, &#39;button&#39;, &#39;canvas&#39;, &#39;caption&#39;, &#39;cite&#39;, &#39;code&#39;, &#39;col&#39;, &#39;colgroup&#39;, &#39;command&#39;, &#39;datalist&#39;, &#39;dd&#39;, &#39;del&#39;, &#39;details&#39;, &#39;dfn&#39;, &#39;div&#39;, &#39;dl&#39;, &#39;dt&#39;, &#39;em&#39;, &#39;embed&#39;, &#39;fieldset&#39;, &#39;figcaption&#39;, &#39;figure&#39;, &#39;footer&#39;, &#39;form&#39;, &#39;h1&#39;, &#39;h2&#39;, &#39;h3&#39;, &#39;h4&#39;, &#39;h5&#39;, &#39;h6&#39;, &#39;head&#39;, &#39;header&#39;, &#39;hgroup&#39;, &#39;hr&#39;, &#39;html&#39;, &#39;i&#39;, &#39;iframe&#39;, &#39;img&#39;, &#39;image&#39;, &#39;input&#39;, &#39;ins&#39;, &#39;kbd&#39;, &#39;keygen&#39;, &#39;label&#39;, &#39;legend&#39;, &#39;li&#39;, &#39;link&#39;, &#39;map&#39;, &#39;mark&#39;, &#39;menu&#39;, &#39;meta&#39;, &#39;meter&#39;, &#39;nav&#39;, &#39;noscript&#39;, &#39;object&#39;, &#39;ol&#39;, &#39;optgroup&#39;, &#39;option&#39;, &#39;output&#39;, &#39;p&#39;, &#39;param&#39;, &#39;pre&#39;, &#39;progress&#39;, &#39;q&#39;, &#39;rp&#39;, &#39;rt&#39;, &#39;ruby&#39;, &#39;s&#39;, &#39;samp&#39;, &#39;script&#39;, &#39;section&#39;, &#39;select&#39;, &#39;small&#39;, &#39;source&#39;, &#39;span&#39;, &#39;strong&#39;, &#39;style&#39;, &#39;sub&#39;, &#39;summary&#39;, &#39;sup&#39;, &#39;table&#39;, &#39;tbody&#39;, &#39;td&#39;, &#39;textarea&#39;, &#39;tfoot&#39;, &#39;th&#39;, &#39;thead&#39;, &#39;time&#39;, &#39;title&#39;, &#39;tr&#39;, &#39;track&#39;, &#39;u&#39;, &#39;ul&#39;, &#39;var&#39;, &#39;video&#39;, &#39;wbr&#39;];
+      builtinTags = {
+        &#39;a&#39;: true,
+        &#39;abbr&#39;: true,
+        &#39;address&#39;: true,
+        &#39;area&#39;: true,
+        &#39;article&#39;: true,
+        &#39;aside&#39;: true,
+        &#39;audio&#39;: true,
+        &#39;b&#39;: true,
+        &#39;base&#39;: true,
+        &#39;bdi&#39;: true,
+        &#39;bdo&#39;: true,
+        &#39;blockquote&#39;: true,
+        &#39;body&#39;: true,
+        &#39;br&#39;: true,
+        &#39;button&#39;: true,
+        &#39;canvas&#39;: true,
+        &#39;caption&#39;: true,
+        &#39;cite&#39;: true,
+        &#39;code&#39;: true,
+        &#39;col&#39;: true,
+        &#39;colgroup&#39;: true,
+        &#39;command&#39;: true,
+        &#39;datalist&#39;: true,
+        &#39;dd&#39;: true,
+        &#39;del&#39;: true,
+        &#39;details&#39;: true,
+        &#39;dfn&#39;: true,
+        &#39;div&#39;: true,
+        &#39;dl&#39;: true,
+        &#39;dt&#39;: true,
+        &#39;em&#39;: true,
+        &#39;embed&#39;: true,
+        &#39;fieldset&#39;: true,
+        &#39;figcaption&#39;: true,
+        &#39;figure&#39;: true,
+        &#39;footer&#39;: true,
+        &#39;form&#39;: true,
+        &#39;h1&#39;: true,
+        &#39;h2&#39;: true,
+        &#39;h3&#39;: true,
+        &#39;h4&#39;: true,
+        &#39;h5&#39;: true,
+        &#39;h6&#39;: true,
+        &#39;head&#39;: true,
+        &#39;header&#39;: true,
+        &#39;hgroup&#39;: true,
+        &#39;hr&#39;: true,
+        &#39;html&#39;: true,
+        &#39;i&#39;: true,
+        &#39;iframe&#39;: true,
+        &#39;img&#39;: true,
+        &#39;image&#39;: true,
+        &#39;input&#39;: true,
+        &#39;ins&#39;: true,
+        &#39;kbd&#39;: true,
+        &#39;keygen&#39;: true,
+        &#39;label&#39;: true,
+        &#39;legend&#39;: true,
+        &#39;li&#39;: true,
+        &#39;link&#39;: true,
+        &#39;map&#39;: true,
+        &#39;mark&#39;: true,
+        &#39;menu&#39;: true,
+        &#39;meta&#39;: true,
+        &#39;meter&#39;: true,
+        &#39;nav&#39;: true,
+        &#39;noscript&#39;: true,
+        &#39;object&#39;: true,
+        &#39;ol&#39;: true,
+        &#39;optgroup&#39;: true,
+        &#39;option&#39;: true,
+        &#39;output&#39;: true,
+        &#39;p&#39;: true,
+        &#39;param&#39;: true,
+        &#39;pre&#39;: true,
+        &#39;progress&#39;: true,
+        &#39;q&#39;: true,
+        &#39;rp&#39;: true,
+        &#39;rt&#39;: true,
+        &#39;ruby&#39;: true,
+        &#39;s&#39;: true,
+        &#39;samp&#39;: true,
+        &#39;script&#39;: true,
+        &#39;section&#39;: true,
+        &#39;select&#39;: true,
+        &#39;small&#39;: true,
+        &#39;source&#39;: true,
+        &#39;span&#39;: true,
+        &#39;strong&#39;: true,
+        &#39;style&#39;: true,
+        &#39;sub&#39;: true,
+        &#39;summary&#39;: true,
+        &#39;sup&#39;: true,
+        &#39;table&#39;: true,
+        &#39;tbody&#39;: true,
+        &#39;td&#39;: true,
+        &#39;textarea&#39;: true,
+        &#39;tfoot&#39;: true,
+        &#39;th&#39;: true,
+        &#39;thead&#39;: true,
+        &#39;time&#39;: true,
+        &#39;title&#39;: true,
+        &#39;tr&#39;: true,
+        &#39;track&#39;: true,
+        &#39;u&#39;: true,
+        &#39;ul&#39;: true,
+        &#39;var&#39;: true,
+        &#39;video&#39;: true,
+        &#39;wbr&#39;: true
+      };
       requiredAttributes = {
         &quot;class&quot;: {
           &quot;name&quot;: 1
@@ -3199,11 +3347,11 @@
         el.$init = true;
         tagname = el.localName;
         if (!tagname in dr) {
-          if (__indexOf.call(builtinTags, tagname) &lt; 0) {
+          if (!builtinTags[tagname]) {
             console.warn(&#39;could not find class for tag&#39;, tagname, el);
           }
           return;
-        } else if (__indexOf.call(builtinTags, tagname) &gt;= 0) {
+        } else if (builtinTags[tagname]) {
           if (tagname !== &#39;input&#39;) {
             console.warn(&#39;refusing to create a class that would overwrite the builtin tag&#39;, tagname);
           }
@@ -3285,7 +3433,7 @@
         var style;
         style = document.createElement(&#39;style&#39;);
         style.type = &#39;text/css&#39;;
-        style.innerHTML = &#39;.sprite{ position: absolute; pointer-events: none; padding: 0; margin: 0; box-sizing: border-box; border-color: transparent; border-style: solid; border-width: 0} .sprite-text{ width: auto; height; auto; white-space: nowrap; padding: 0; margin: 0;} .sprite-inputtext{border: none; outline: none; background-color:transparent; resize:none;} .hidden{ display: none; } .noselect{ -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;} method { display: none; } handler { display: none; } setter { display: none; } class { display:none } node { display:none } dataset { display:none } .warnings {font-size: 14px; background-color: pink; margin: 0;}&#39;;
+        style.innerHTML = &#39;.sprite{position: absolute; pointer-events: none; padding: 0; margin: 0; box-sizing: border-box; border-color: transparent; border-style: solid; border-width: 0} .sprite-text{width: auto; height; auto; white-space: nowrap; padding: 0; margin: 0} .sprite-inputtext{border: none; outline: none; background-color:transparent; resize:none} .hidden{display: none} .noselect{-webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none} .noscrollbar::-webkit-scrollbar{display: none;} .warnings{font-size: 14px; background-color: pink; margin: 0} method{display: none} handler{display: none} setter{display: none} class{display: none} node{display: none} dataset{display:none}&#39;;
         return document.getElementsByTagName(&#39;head&#39;)[0].appendChild(style);
       };
       initAllElements = function(selector) {
@@ -4267,7 +4415,7 @@
 
 
 <span id='dr-layout-method-transformAroundOrigin'>      /**
-</span>       * Rotates and scales this path around the provided origin by the angle in 
+</span>       * Rotates and scales this path around the provided origin by the angle in
        * degrees, scalex and scaley.
        * @param {Number} scalex The amount to scale along the x axis.
        * @param {Number} scaley The amount to scale along the y axis.
@@ -4388,8 +4536,6 @@
       __extends(StartEventable, _super);
 
       function StartEventable() {
-        this.stopEvent = __bind(this.stopEvent, this);
-        this.startEvent = __bind(this.startEvent, this);
         return StartEventable.__super__.constructor.apply(this, arguments);
       }
 
