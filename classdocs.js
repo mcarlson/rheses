@@ -1920,6 +1920,13 @@
      */
 /**
   *
+  * @attribute {Object} [video]
+  * @readonly
+  * The underlying native video element.
+  *
+  */
+/**
+  *
   * @attribute {Boolean} [controls=true]
   * Set to false to hide the video controls.
   *

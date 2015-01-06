@@ -43,32 +43,41 @@ SOFTWARE. -->
      *
      */-->
 
+<!--/**
+  *
+  * @attribute {Object} [video]
+  * @readonly
+  * The underlying native video element.
+  *
+  */-->
+
+
 <class type="coffee" name="videoplayer" extends="view" clickable="true">
 
     <handler event="oninit">
 
-        @__video = document.createElement 'video'
+        @video = document.createElement 'video'
 
-        @__video.parent = @
+        @video.parent = @
 
-        @__video.setAttribute 'name',     'video'
-        @__video.setAttribute 'height',   @height
-        @__video.setAttribute 'width',    @width
-        @__video.setAttribute 'poster',   @poster if @poster
-        @__video.setAttribute 'controls', true    if @controls
-        @__video.setAttribute 'autoplay', true    if @playing
-        @__video.setAttribute 'loop',     true    if @loop
-        @__video.setAttribute 'volume',   @volume
+        @video.setAttribute 'name',     'video'
+        @video.setAttribute 'height',   @height
+        @video.setAttribute 'width',    @width
+        @video.setAttribute 'poster',   @poster if @poster
+        @video.setAttribute 'controls', true    if @controls
+        @video.setAttribute 'autoplay', true    if @playing
+        @video.setAttribute 'loop',     true    if @loop
+        @video.setAttribute 'volume',   @volume
 
         if @preload
-          @__video.setAttribute 'preload', 'auto'
+          @video.setAttribute 'preload', 'auto'
         else
-          @__video.setAttribute 'preload', 'none'
+          @video.setAttribute 'preload', 'none'
 
-        @__video.addEventListener 'durationchange',(e) ->
+        @video.addEventListener 'durationchange',(e) ->
           @parent.setAttribute 'duration', @duration
 
-        @__video.addEventListener 'timeupdate', (e) ->
+        @video.addEventListener 'timeupdate', (e) ->
           @parent.currenttime = @currentTime
           @parent.sendEvent('currenttime', @parent.currenttime)
 
@@ -76,15 +85,15 @@ SOFTWARE. -->
           @parent.playing = (e.type == 'play')
           @parent.sendEvent('playing', @parent.playing)
 
-        @__video.addEventListener 'play',  pplay
-        @__video.addEventListener 'pause', pplay
-        @__video.addEventListener 'ended', pplay
+        @video.addEventListener 'play',  pplay
+        @video.addEventListener 'pause', pplay
+        @video.addEventListener 'ended', pplay
 
         @__loadvideo(@src) if @src
 
-        @__video.$init = true  # Prevent warnings
+        @video.$init = true  # Prevent warnings
 
-        @sprite.el.appendChild @__video
+        @sprite.el.appendChild @video
 
     </handler>
 
@@ -97,7 +106,7 @@ SOFTWARE. -->
 
     <attribute name="controls" type="boolean" value="true"></attribute>
     <setter name="controls" args="controls">
-        @__video.controls = controls if @__video
+        @video.controls = controls if @video
         return controls
     </setter>
 
@@ -110,7 +119,7 @@ SOFTWARE. -->
 
     <attribute name="preload" type="boolean" value="true"></attribute>
     <setter name="preload" args="preload">
-        @__video.preload = preload if @__video
+        @video.preload = preload if @video
         return preload
     </setter>
 
@@ -123,7 +132,7 @@ SOFTWARE. -->
 
     <attribute name="loop" type="boolean" value="false"></attribute>
     <setter name="loop" args="lp">
-        @__video.loop = lp if @__video
+        @video.loop = lp if @video
         return lp
     </setter>
 
@@ -136,7 +145,7 @@ SOFTWARE. -->
 
     <attribute name="volume" type="number" value="0.5"></attribute>
     <setter name="volume" args="volume">
-        @__video.volume = volume if @__video
+        @video.volume = volume if @video
         return volume
     </setter>
 
@@ -161,11 +170,11 @@ SOFTWARE. -->
 
     <attribute name="playing" type="boolean" value="false"></attribute>
     <setter name="playing" args="playing">
-        if @__video
-          if playing && @__video.play
-            @__video.play()
-          else if @__video.pause
-            @__video.pause()
+        if @video
+          if playing && @video.play
+            @video.play()
+          else if @video.pause
+            @video.pause()
 
         return playing
     </setter>
@@ -180,7 +189,7 @@ SOFTWARE. -->
 
     <attribute name="currenttime" type="number" value="0"></attribute>
     <setter name="currenttime" args="time">
-        @__video.currentTime = time if @__video
+        @video.currentTime = time if @video
         return time
     </setter>
 
@@ -194,7 +203,7 @@ SOFTWARE. -->
 
     <attribute name="poster" type="string" value=""></attribute>
     <setter name="poster" args="poster">
-        @__video.poster = poster if @__video
+        @video.poster = poster if @video
         return poster
     </setter>
 
@@ -240,14 +249,14 @@ SOFTWARE. -->
     </setter>
 
     <method name="__loadvideo" args="sources">
-        if @__video && @__video.canPlayType && @__video.load
+        if @video && @video.canPlayType && @video.load
           @setAttribute 'playing', false
-          @__video.src = undefined
+          @video.src = undefined
 
           for type, src of sources
-            if @__video.canPlayType(type)
-              @__video.src = src
-              @__video.load()
+            if @video.canPlayType(type)
+              @video.src = src
+              @video.load()
               return type
 
         return null
