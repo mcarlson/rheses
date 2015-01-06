@@ -1581,7 +1581,7 @@ window.dr = do ->
     # Sets this view's rotation in degrees.
     ###
     ###*
-    # @attribute {String} [perspective=none]
+    # @attribute {String} [perspective=0]
     # Sets this view's perspective depth along the z access, values in pixels.
     # When this value is set, items further from the camera will appear smaller, and closer items will be larger.
     ###
@@ -2034,6 +2034,14 @@ window.dr = do ->
 
       # Apply transform CSS
       @sprite.setStyle(prefix + 'transform', transform)
+
+    set_perspective: (perspective) ->
+      prefix = capabilities.prefix.css
+      @perspective = perspective
+      per = perspective + 'px'
+      per = 'none' if per == 0
+      @sprite.setStyle(prefix + 'perspective', per)
+      perspective
 
     set_xscale: (xscale) ->
       @xscale = xscale
