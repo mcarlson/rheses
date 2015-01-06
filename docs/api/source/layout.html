@@ -522,7 +522,7 @@
       prefix: (function() {
         var dom, pre, styles;
         styles = window.getComputedStyle(document.documentElement, &#39;&#39;);
-        pre = (Array.prototype.slice.call(styles).join(&#39;&#39;).match(/-(moz|webkit|ms)- /) || (styles.OLink === &#39;&#39; &amp;&amp; [&#39;&#39;, &#39;o&#39;]))[1];
+        pre = (Array.prototype.slice.call(styles).join(&#39;&#39;).match(/-(moz|webkit|ms)-/) || (styles.OLink === &#39;&#39; &amp;&amp; [&#39;&#39;, &#39;o&#39;]))[1];
         dom = &#39;WebKit|Moz|MS|O&#39;.match(new RegExp(&#39;(&#39; + pre + &#39;)&#39;, &#39;i&#39;))[1];
         return {
           dom: dom,
