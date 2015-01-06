@@ -96,7 +96,8 @@
       assert.equal(this.width, 100, 'multiline true, checking width')
       assert.equal(this.height, 64, 'multiline true, checking height')
       this.setAttribute('multiline', false)
-      assert.equal((this.width == 362) || (this.width == 368), true, 'multiline set to false, checking width')
+      // Windows: width=363
+      assert.equal((this.width == 362) || (this.width == 368) || (this.width == 363), true, 'multiline set to false, checking width')
       assert.equal(this.height, 16, 'multiline set to false, checking height')
       this.setAttribute('multiline', true)
       assert.equal(this.width, 100, 'multiline set to back to true, checking width')
