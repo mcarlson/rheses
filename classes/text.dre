@@ -83,6 +83,128 @@ SOFTWARE. -->
       * 
       */-->
 <class name="text" extends="view" type="coffee">
+
+  <!--/**
+  *
+  * @attribute {Number} [fontsize=0]
+  * The size of the font to use.
+  *
+  */-->
+
+  <attribute name="fontsize" type="number" value="0"></attribute>
+  <setter name="fontsize" args="size">
+    if size != 0
+      @sprite.setStyle 'font-size', size + 'px'
+    else
+      @sprite.setStyle 'font-size', undefined
+
+    return size
+  </setter>
+
+  <!--/**
+  *
+  * @attribute {Number} [font=""]
+  * The name of the font family to use, e.g. "Helvetica"  Include multiple fonts on a line, separated by commas.
+  *
+  */-->
+  <attribute name="font" type="string" value=""></attribute>
+  <setter name="font" args="family">
+    if family
+      @sprite.setStyle 'font-family', family
+    else
+      @sprite.setStyle 'font-family', undefined
+
+    return family
+  </setter>
+
+  <!--/**
+  *
+  * @attribute {Boolean} [bold=false]
+  * Use bold text.
+  *
+  */-->
+
+  <attribute name="bold" type="boolean" value="false"></attribute>
+  <setter name="bold" args="bold">
+    if bold
+      @sprite.setStyle 'font-weight', 'bold'
+    else
+      @sprite.setStyle 'font-weight', undefined
+
+    return bold
+  </setter>
+
+  <!--/**
+  *
+  * @attribute {Boolean} [italic=false]
+  * Use italic text.
+  *
+  */-->
+
+  <attribute name="italic" type="boolean" value="false"></attribute>
+  <setter name="italic" args="italic">
+    if italic
+      @sprite.setStyle 'font-style', 'italic'
+    else
+      @sprite.setStyle 'font-style', undefined
+
+    return italic
+  </setter>
+
+  <!--/**
+  *
+  * @attribute {Boolean} [smallcaps=false]
+  * Use small caps style.
+  *
+  */-->
+  <attribute name="smallcaps" type="boolean" value="false"></attribute>
+  <setter name="smallcaps" args="caps">
+    if caps
+      @sprite.setStyle 'font-variant', 'small-caps'
+    else
+      @sprite.setStyle 'font-variant', undefined
+
+    return caps
+  </setter>
+
+  <!--/**
+  *
+  * @attribute {Boolean} [underline=false]
+  * Draw and underline under text (note, is incompatible with dr.text#strike)
+  *
+  */-->
+
+  <attribute name="underline" type="boolean" value="false"></attribute>
+  <setter name="underline" args="underline">
+    if underline
+      @sprite.setStyle 'text-decoration', 'underline'
+    else if @strike
+      @sprite.setStyle 'text-decoration', 'line-through'
+    else
+      @sprite.setStyle 'text-decoration', undefined
+
+    return underline
+  </setter>
+
+  <!--/**
+  *
+  * @attribute {Boolean} [strike=false]
+  * Draw and strike-through the text (note, is incompatible with dr.text#underline)
+  *
+  */-->
+
+  <attribute name="strike" type="boolean" value="false"></attribute>
+  <setter name="strike" args="strike">
+    if strike
+      @sprite.setStyle 'text-decoration', 'line-through'
+    else if @underline
+      @sprite.setStyle 'text-decoration', 'underline'
+    else
+      @sprite.setStyle 'text-decoration', undefined
+
+    return strike
+  </setter>
+
   <attribute name="multiline" type="boolean" value="false"></attribute>
   <attribute name="resize" type="boolean" value="true"></attribute>
   
