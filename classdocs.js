@@ -1650,6 +1650,48 @@
       * 
       */
 /**
+  *
+  * @attribute {Number} [fontsize=0]
+  * The size of the font to use.
+  *
+  */
+/**
+  *
+  * @attribute {Number} [font=""]
+  * The name of the font family to use, e.g. "Helvetica"  Include multiple fonts on a line, separated by commas.
+  *
+  */
+/**
+  *
+  * @attribute {Boolean} [bold=false]
+  * Use bold text.
+  *
+  */
+/**
+  *
+  * @attribute {Boolean} [italic=false]
+  * Use italic text.
+  *
+  */
+/**
+  *
+  * @attribute {Boolean} [smallcaps=false]
+  * Use small caps style.
+  *
+  */
+/**
+  *
+  * @attribute {Boolean} [underline=false]
+  * Draw and underline under text (note, is incompatible with dr.text#strike)
+  *
+  */
+/**
+  *
+  * @attribute {Boolean} [strike=false]
+  * Draw and strike-through the text (note, is incompatible with dr.text#underline)
+  *
+  */
+/**
     * 
     * @attribute {Boolean} [multiline=false]
     * Set to true to show multi-line text.
