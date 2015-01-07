@@ -2001,7 +2001,7 @@
        */
 
       /**
-       * @attribute {String} [perspective=none]
+       * @attribute {String} [perspective=0]
        * Sets this view's perspective depth along the z access, values in pixels.
        * When this value is set, items further from the camera will appear smaller, and closer items will be larger.
        */
@@ -2570,6 +2570,18 @@
           this.sprite.setStyle(prefix + 'transform-origin', xanchor + ' ' + yanchor + ' ' + this.zanchor + 'px');
         }
         return this.sprite.setStyle(prefix + 'transform', transform);
+      };
+
+      View.prototype.set_perspective = function(perspective) {
+        var per, prefix;
+        prefix = capabilities.prefix.css;
+        this.perspective = perspective;
+        per = perspective + 'px';
+        if (per === 0) {
+          per = 'none';
+        }
+        this.sprite.setStyle(prefix + 'perspective', per);
+        return perspective;
       };
 
       View.prototype.set_xscale = function(xscale) {
