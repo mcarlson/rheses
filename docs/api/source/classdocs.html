@@ -940,6 +940,68 @@
       *         &lt;b&gt;Here is some text&lt;/b&gt; that is really just HTML.
       *     &lt;/markup&gt;
       */
+<span id='dr-microphone'>/**
+</span> * @class dr.microphone {UI Components}
+ * @extends dr.node
+ * Enables audio capture from the microphone device.
+ *
+ */
+<span id='dr-microphone-attribute-fftsize'>/**
+</span>    * @attribute {Number} fftsize
+    * The number of fft frames to use when setting {@link #fft fft}. Must be a non-zero power of two in the range 32 to 2048.
+    */
+<span id='dr-microphone-attribute-fftsmoothing'>/**
+</span>    * @attribute {Number} [fftsmoothing=0.8]
+    * The amount of smoothing to apply to the FFT analysis. A value from 0 -&gt; 1 where 0 represents no time averaging with the last FFT analysis frame.
+    */
+<span id='dr-microphone-attribute-stream'>/**
+</span>    * @attribute {Boolean} [stream=false]
+    * When set to true the user will be asked permission to access the device, and if permission is granted the stream will be started. When set to false the stream will be stopped. The {@link #streaming streaming} attribute indicates when the device is actually streaming.
+    */
+<span id='dr-microphone-attribute-record'>/**
+</span>    * @attribute {Boolean} [record=false]
+    * Set this to true to started recording the input stream, set to false to stop. When recording is stopped the recording will be retained in memory until another recording is started. The URL to access the recording is saved in the playbackurl attribute. The {@link #recording recording} attribute indicates when the device is actually recording.  
+    */
+<span id='dr-microphone-attribute-mediastream'>/**
+</span>    * @attribute {LocalMediaStream} mediastream
+    * @readonly
+    * The input stream from the microphone.
+    */
+<span id='dr-microphone-attribute-streaming'>/**
+</span>    * @attribute {Boolean} [streaming=false]
+    * @readonly
+    * True when input is streaming from the device. False when it has been stopped, or if the user has denied access to the device.
+    */
+<span id='dr-microphone-attribute-recording'>/**
+</span>    * @attribute {Boolean} [recording=false]
+    * @readonly
+    * True when the stream is being recorded.
+    */
+<span id='dr-microphone-attribute-permissiondenied'>/**
+</span>    * @attribute {Boolean} [permissiondenied=false]
+    * @readonly
+    * True if the user has denied permission to access the device.
+    */
+<span id='dr-microphone-attribute-fft'>/**
+</span>    * @attribute {Number[]} fft
+    * @readonly
+    * An array of numbers representing the FFT analysis of the audio as it&#39;s playing.
+    */
+<span id='dr-microphone-attribute-playbackurl'>/**
+</span>    * @attribute {String} playbackurl
+    * @readonly
+    * Object URL of the latest recording, which can be used with an instance of dr.audioplayer to play back the recording.
+    */
+<span id='dr-microphone-attribute-supported'>/**
+</span>    * @attribute {Boolean} [supported=true]
+    * @readonly
+    * False if the microphone component is not supported in the users browser. 
+    */
+<span id='dr-microphone-attribute-recordingtime'>/**
+</span>    * @attribute {Number} recordingtime
+    * @readonly
+    * The length of the recording in seconds. 
+    */
 <span id='dr-mixin'>/**
 </span>      * @class dr.mixin
       * @extends dr.state
