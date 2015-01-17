@@ -18,7 +18,7 @@
   </script>
 </head>
 <body>
-<view id="all" width="100%" height="100%" clip="true">
+<view id="all" width="100%" height="100%">
   <spacedlayout axis="y" spacing="15"></spacedlayout>
 
   <!-- Replication -->
@@ -127,6 +127,7 @@
     </handler>
   </text>
 
+  <!-- Font styles -->
   <text id="fonts" width="100" height="100" underline="true" bold="true" italic="true" smallcaps="true" fontsize="128" font="'Brush Script MT', cursive" text="FONTS, BOLD ITALIC ETC." color="lightblue" bgcolor="rgba(200,0,0,0.5)">
     <handler event="oninit">
       assert.equal(this.sprite.el.style['font-family'], "'Brush Script MT', cursive", 'missing size style')
@@ -135,6 +136,20 @@
       assert.equal(this.sprite.el.style['font-style'], 'italic', 'missing italic style')
       assert.equal(this.sprite.el.style['text-decoration'], 'underline', 'missing underline style')
       assert.equal(this.sprite.el.style['font-variant'], 'small-caps', 'missing smallcaps style')
+    </handler>
+  </text>
+  
+  <!-- Fontsize in pt -->
+  <text id="fonts" width="100" height="100" fontsize="12pt" font="'Brush Script MT', cursive" text="FONTS, BOLD ITALIC ETC." color="lightblue" bgcolor="rgba(200,0,0,0.5)">
+    <handler event="oninit">
+      assert.equal(this.sprite.el.style['font-size'], '12px', 'fonts in pt format should be converted to pixels')
+    </handler>
+  </text>
+
+  <!-- Default fontsize -->
+  <text id="fonts" width="100" height="100" text="FONTS, BOLD ITALIC ETC." color="lightblue" bgcolor="rgba(200,0,0,0.5)">
+    <handler event="oninit">
+      assert.equal(this.sprite.el.style['font-size'], '', 'default font size')
     </handler>
   </text>
 

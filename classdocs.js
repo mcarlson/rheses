@@ -1651,8 +1651,8 @@
       */
 /**
   *
-  * @attribute {Number} [fontsize=0]
-  * The size of the font to use.
+  * @attribute {Number} [fontsize]
+  * The size of the font in pixels.
   *
   */
 /**
