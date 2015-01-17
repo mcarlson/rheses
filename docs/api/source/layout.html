@@ -2018,7 +2018,7 @@
        */
 
 <span id='dr-view-attribute-perspective'>      /**
-</span>       * @attribute {String} [perspective=none]
+</span>       * @attribute {String} [perspective=0]
        * Sets this view&#39;s perspective depth along the z access, values in pixels.
        * When this value is set, items further from the camera will appear smaller, and closer items will be larger.
        */
@@ -2587,6 +2587,18 @@
           this.sprite.setStyle(prefix + &#39;transform-origin&#39;, xanchor + &#39; &#39; + yanchor + &#39; &#39; + this.zanchor + &#39;px&#39;);
         }
         return this.sprite.setStyle(prefix + &#39;transform&#39;, transform);
+      };
+
+      View.prototype.set_perspective = function(perspective) {
+        var per, prefix;
+        prefix = capabilities.prefix.css;
+        this.perspective = perspective;
+        per = perspective + &#39;px&#39;;
+        if (per === 0) {
+          per = &#39;none&#39;;
+        }
+        this.sprite.setStyle(prefix + &#39;perspective&#39;, per);
+        return perspective;
       };
 
       View.prototype.set_xscale = function(xscale) {
