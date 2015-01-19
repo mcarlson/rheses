@@ -1842,34 +1842,98 @@
 
       /**
        * @attribute {Number} [x=0]
-       * This view's x position
-       */
-
-      /**
-       * @attribute {Number} isaligned Indicates that the x attribute is
-       * set to one of the "special" alignment values.
-       * @readonly
-       */
-
-      /**
-       * @attribute {Number} isvaligned Indicates that the y attribute is
-       * set to one of the "special" alignment values.
-       * @readonly
+       * This view's x-position. There are several categories of allowed values.
+       *   1) Fixed: If a number is provided the x-position will be a fixed
+       *      pixel position relative to the parent view.
+       *   2) Percentage: If a number followed by a '%' sign is provided the
+       *      x-position will constrained to a percent of the parent views
+       *      inner width.
+       *   3) Aligned Left: If the string 'left' is provided the x-position will
+       *      be constrained so that the view's left bound is aligned with the
+       *      inner left edge of the parent view. To clarify, aligning left is
+       *      different from a fixed x-position of 0 since it accounts for
+       *      transformations applied to the view.
+       *   4) Aligned Right: If the string 'right' is provided the x-position will
+       *      be constrained so that the view's right bound is aligned with the
+       *      inner right edge of the parent view. Like align left, this means
+       *      transformations applied to the view are accounted for.
+       *   5) Aligned Center: If the string 'center' or 'middle' is provided the 
+       *      x-position will be constrained so that the midpoint of the width
+       *      bound of the view is the same as the midpoint of the inner width of
+       *      the parent view. Like align left, this means transformations applied
+       *      to the view are accounted for.
        */
 
       /**
        * @attribute {Number} [y=0]
-       * This view's y position
+       * This view's y-position. There are several categories of allowed values.
+       *   1) Fixed: If a number is provided the y-position will be a fixed
+       *      pixel position relative to the parent view.
+       *   2) Percentage: If a number followed by a '%' sign is provided the
+       *      y-position will constrained to a percent of the parent views
+       *      inner height.
+       *   3) Aligned Top: If the string 'top' is provided the y-position will
+       *      be constrained so that the view's top bound is aligned with the
+       *      inner top edge of the parent view. To clarify, aligning top is
+       *      different from a fixed y-position of 0 since it accounts for
+       *      transformations applied to the view.
+       *   4) Aligned Bottom: If the string 'bottom' is provided the y-position
+       *      will be constrained so that the view's bottom bound is aligned with 
+       *      the inner bottom edge of the parent view. Like align top, this means
+       *      transformations applied to the view are accounted for.
+       *   5) Aligned Middle: If the string 'middle' or 'center' is provided the 
+       *      y-position will be constrained so that the midpoint of the height
+       *      bound of the view is the same as the midpoint of the inner height of
+       *      the parent view. Like align top, this means transformations applied
+       *      to the view are accounted for.
        */
 
       /**
        * @attribute {Number} [width=0]
-       * This view's width
+       * This view's width. There are several categories of allowed values.
+       *   1) Fixed: If a number is provided the width will be a fixed
+       *      pixel size.
+       *   2) Percentage: If a number followed by a '%' sign is provided the
+       *      width will constrained to a percent of the parent views
+       *      inner width.
+       *   3) Auto: If the string 'auto' is provided the width will be constrained
+       *      to the maximum x bounds of the view children of this view. This
+       *      feature is implemented like a Layout, so you can use ignorelayout
+       *      on a child view to disregard them for auto sizing. Furthermore,
+       *      views with a percentage width, percentage x, or an x-position of 
+       *      'center' or 'right' will also be disregarded. Note that 'left' is 
+       *      not ignored since it does not necessarily result in a circular
+       *      constraint.
        */
 
       /**
        * @attribute {Number} [height=0]
-       * This view's height
+       * This view's height. There are several categories of allowed values.
+       *   1) Fixed: If a number is provided the height will be a fixed
+       *      pixel size.
+       *   2) Percentage: If a number followed by a '%' sign is provided the
+       *      height will constrained to a percent of the parent views
+       *      inner height.
+       *   3) Auto: If the string 'auto' is provided the height will be constrained
+       *      to the maximum y bounds of the view children of this view. This
+       *      feature is implemented like a Layout, so you can use ignorelayout
+       *      on a child view to disregard them for auto sizing. Furthermore,
+       *      views with a percentage height, percentage y, or a y-position of 
+       *      'center', 'middle' or 'bottom' will also be disregarded. Note that 
+       *      'top' is not ignored since it does not necessarily result in a 
+       *      circular constraint.
+       */
+
+      /**
+       * @attribute {Boolean} isaligned Indicates that the x attribute is
+       * set to one of the "special" alignment values.
+       * @readonly
+       */
+
+      /**
+       * @attribute {Boolean} isvaligned Indicates that the y attribute is
+       * set to one of the "special" alignment values.
+       * @readonly
        */
 
       /**
@@ -2027,12 +2091,30 @@
 
       /**
        * @attribute {Number} [xanchor=0]
-       * Sets the horizontal center of the view's transformations (such as rotation)
+       * Sets the horizontal center of the view's transformations (such as 
+       * rotation) There are several categories of allowed values:
+       *   1) Fixed: If a number is provided the x anchor will be a fixed
+       *      pixel position.
+       *   2) Left: If the string 'left' is provided the left edge of the view
+       *      will be used. This is equivalent to a fixed value of 0.
+       *   3) Right: If the string 'right' is provided the right edge of the
+       *      view will be used.
+       *   4) Center: If the string 'center' is provided the midpoint of the
+       *      width of the view will be used.
        */
 
       /**
        * @attribute {Number} [yanchor=0]
-       * Sets the vertical center of the view's transformations (such as rotation)
+       * Sets the vertical center of the view's transformations (such as 
+       * rotation) There are several categories of allowed values:
+       *   1) Fixed: If a number is provided the y anchor will be a fixed
+       *      pixel position.
+       *   2) Top: If the string 'top' is provided the top edge of the view
+       *      will be used. This is equivalent to a fixed value of 0.
+       *   3) Bottom: If the string 'bottom' is provided the bottom edge of the
+       *      view will be used.
+       *   4) Center: If the string 'center' is provided the midpoint of the
+       *      height of the view will be used.
        */
 
       /**
