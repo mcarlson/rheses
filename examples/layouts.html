@@ -22,7 +22,10 @@
           @setAttribute('width', @width / 2)
           @setAttribute('height', @height / 2)
         when 3
-          @createChild({class: 'item', parent:@parent, width:50, height:50, bgcolor:'purple'})
+          attrs = {class: 'item', parent:@parent, width:50, height:50, bgcolor:'purple'}
+          if @layouthint then attrs.layouthint = JSON.stringify(@layouthint)
+          if @ignorelayout then attrs.ignorelayout = JSON.stringify(@ignorelayout)
+          @createChild(attrs)
         when 4
           @destroy()
     </handler>
@@ -71,11 +74,11 @@
   </view>
   
   <view width="300" height="auto" bgcolor="#999999" padding="2" border="1" bordercolor="black">
-    <item width="10" height="20" bgcolor="green"></item>
-    <item height="20" layouthint='{"weight":1}'></item>
-    <item layouthint='{"weight":2}' height="20" bgcolor="purple"></item>
-    <item height="20" layouthint='{"weight":1}'></item>
-    <item width="10" height="20" bgcolor="yellow"></item>
+    <view width="10" height="20" bgcolor="green"></view>
+    <view height="20" layouthint='{"weight":1}' bgcolor="red"></view>
+    <view layouthint='{"weight":2}' height="20" bgcolor="purple"></view>
+    <view height="20" layouthint='{"weight":1}' bgcolor="red"></view>
+    <view width="10" height="20" bgcolor="yellow"></view>
     
     <resizelayout spacing="1" inset="1" outset="1"></resizelayout>
   </view>
