@@ -43,13 +43,20 @@
     </view>
     
     <view name="container2" x="150" padding="5" border="2" bordercolor="black" width="120" bgcolor="#999999">
-      <alignlayout name="layout" align="bottom" updateparent="true"></alignlayout>
-      
       <item name="v1" x="10" height="10"></item>
       <item name="v2" x="30" height="20"></item>
       <item name="v3" x="50" height="30"></item>
       <item name="v4" x="70" height="40"></item>
       <item name="v5" x="90" height="50"></item>
+      
+      <alignlayout name="layout" align="bottom" updateparent="true">
+        <method name="update" type="coffee">
+          if @canUpdate()
+            if !@updateCount? then @updateCount = 0
+            @updateCount++
+          @super()
+        </method>
+      </alignlayout>
     </view>
     
     <view name="container3" y="140" padding="5" border="2" bordercolor="black" width="100" height="120" bgcolor="#999999">
@@ -88,6 +95,21 @@
       <alignlayout name="layout" align="bottom"></alignlayout>
       
       <item name="v1" x="25" width="50" height="50" rotation="45"></item>
+    </view>
+    
+    <view x="300" y="0" border="1" padding="2" bordercolor="black" width="auto" bgcolor="#999999">
+      <alignlayout name="layout" align="middle" updateparent="true"></alignlayout>
+      <spacedlayout axis="x" spacing="1"></spacedlayout>
+      
+      <item name="v1"></item>
+      
+      <handler event="oninit">
+        var v2 = this.createChild({class: 'item', name:'v4', bgcolor:'purple'});
+        
+        assert.equal(0, v2.y, 'The new view should have a y of 0.');
+        assert.equal(0, v2.boundsy, 'The new view should have a boundsy of 0.');
+        assert.equal('2', v2.sprite.el.offsetTop, 'The new dom element should have an offsetTop of 2 due to padding.');
+      </handler>
     </view>
     
     <handler event="oninit">
@@ -219,8 +241,13 @@
       assert.equal(64, container.height, 'The container should be collapsed to 64 due to border and padding.');
       assert.equal(50, container.innerheight, 'The container should have an innerheight of 50.');
       
+      // Verify only 1 update so far
+      assert.equal(1, layout.updateCount, 'The layout should only be updated 1 time so far.');
+      
       // Verify align center works
       layout.setAttribute('align', 'middle');
+      assert.equal(2, layout.updateCount, 'The layout should only be updated 2 times so far.');
+      
       assert.equal(20, v1.y, 'View one has an y of 20.');
       assert.equal(15, v2.y, 'View two has an y of 15.');
       assert.equal(10, v3.y, 'View three has an y of 10.');
@@ -229,6 +256,7 @@
       
       // Change a views height
       v5.setAttribute('height', 30);
+      assert.equal(3, layout.updateCount, 'The layout should only be updated 3 times so far.');
       
       assert.equal(15, v1.y, 'View one has an y of 20.');
       assert.equal(10, v2.y, 'View two has an y of 15.');
@@ -241,6 +269,7 @@
       
       // Verify align left works
       layout.setAttribute('align', 'top');
+      assert.equal(4, layout.updateCount, 'The layout should only be updated 4 times so far.');
       
       assert.equal(0, v1.y, 'View one has an y of 0.');
       assert.equal(0, v2.y, 'View two has an y of 0.');
@@ -250,8 +279,11 @@
       
       // Align within the parent
       layout.setAttribute('updateparent', false);
+      assert.equal(5, layout.updateCount, 'The layout should only be updated 5 times so far.');
       layout.setAttribute('align', 'bottom');
+      assert.equal(6, layout.updateCount, 'The layout should only be updated 6 times so far.');
       container.setAttribute('height', 100);
+      assert.equal(7, layout.updateCount, 'The layout should only be updated 7 times so far.');
       
       assert.equal(100, container.height, 'The container should now have a height of 100.');
       assert.equal(86, container.innerheight, 'The container should have an innerheight of 86.');
@@ -263,6 +295,7 @@
       assert.equal(56, v5.y, 'View five has an y of 56.');
       
       layout.setAttribute('align', 'middle');
+      assert.equal(8, layout.updateCount, 'The layout should only be updated 8 times so far.');
       
       assert.equal(38, v1.y, 'View one has an y of 38.');
       assert.equal(33, v2.y, 'View two has an y of 33.');
@@ -271,6 +304,7 @@
       assert.equal(28, v5.y, 'View five has an y of 28.');
       
       container.setAttribute('height', 120);
+      assert.equal(9, layout.updateCount, 'The layout should only be updated 9 times so far.');
       assert.equal(120, container.height, 'The container should now have a height of 120.');
       assert.equal(106, container.innerheight, 'The container should have an innerheight of 106.');
       
@@ -281,6 +315,7 @@
       assert.equal(38, v5.y, 'View five has an y of 38.');
       
       layout.setAttribute('align', 'top');
+      assert.equal(10, layout.updateCount, 'The layout should only be updated 10 times so far.');
       
       assert.equal(0, v1.y, 'View one has an y of 0.');
       assert.equal(0, v2.y, 'View two has an y of 0.');
@@ -290,6 +325,7 @@
       
       // Recollapse
       layout.setAttribute('updateparent', true);
+      assert.equal(11, layout.updateCount, 'The layout should only be updated 11 times so far.');
       
       assert.equal(54, container.height, 'The container should now have a height of 54.');
       assert.equal(40, container.innerheight, 'The container should have an innerheight of 40.');

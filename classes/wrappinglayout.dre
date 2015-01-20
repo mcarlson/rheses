@@ -204,11 +204,20 @@ SOFTWARE. -->
     return attribute
   </setter>
   <handler event="onattribute">
-    # Start monitoring again and update since we have a new axis. This needs
-    # to be done after the new axis value is set since startMonitoringSubview
-    # needs to use the new values.
-    @startMonitoringAllSubviews()
-    @update()
+    if @inited
+      # Start monitoring again and update since we have a new axis. This needs
+      # to be done after the new axis value is set since startMonitoringSubview
+      # needs to use the new values.
+      @startMonitoringAllSubviews()
+      @update()
+    else
+      @__redoMonitoring = true
+  </handler>
+  
+  <handler event="oninit">
+    if @__redoMonitoring
+      @stopMonitoringAllSubviews()
+      @startMonitoringAllSubviews()
   </handler>
   
   <method name="stopMonitoringAllSubviews" args="view">

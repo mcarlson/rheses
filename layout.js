@@ -2824,6 +2824,7 @@
 
       View.prototype.doSubnodeAdded = function(node) {
         if (node instanceof View) {
+          node.__updateBounds();
 
           /**
            * @event subviewAdded
