@@ -72,11 +72,14 @@ SOFTWARE. -->
     return align
   </setter>
   <handler event="onalign">
-    # Start monitoring again and update since we have new alignment. This needs
-    # to be done after the new align value is set since startMonitoringSubview
-    # needs to use the new values.
-    @startMonitoringAllSubviews()
-    @update()
+    if @inited
+      # Start monitoring again and update since we have new alignment. This needs
+      # to be done after the new align value is set since startMonitoringSubview
+      # needs to use the new values.
+      @startMonitoringAllSubviews()
+      @update()
+    else
+      @__redoMonitoring = true
   </handler>
   
   <!--/**
@@ -92,9 +95,18 @@ SOFTWARE. -->
     return updateparent
   </setter>
   <handler event="onupdateparent">
-    # Start monitoring again and update since we have new updateparent 
-    # behavior
-    @startMonitoringAllSubviews()
+    if @inited
+      # Start monitoring again and update since we have new updateparent 
+      # behavior
+      @startMonitoringAllSubviews()
+    else
+      @__redoMonitoring = true
+  </handler>
+  
+  <handler event="oninit">
+    if @__redoMonitoring
+      @stopMonitoringAllSubviews()
+      @startMonitoringAllSubviews()
   </handler>
   
   <method name="stopMonitoringAllSubviews" args="view">

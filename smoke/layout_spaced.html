@@ -29,7 +29,14 @@
       <item name="v4" width="40"></item>
       <item name="v5" width="50"></item>
       
-      <spacedlayout name="layoutY" axis="y" value="${1 + 2}" inset="${1 + 1 + 1}" spacing="-5" outset="4" updateparent="true"></spacedlayout>
+      <spacedlayout name="layoutY" axis="y" value="${1 + 2}" inset="${1 + 1 + 1}" spacing="-5" outset="4" updateparent="true">
+        <method name="update" type="coffee">
+          if @canUpdate()
+            if !@updateCount? then @updateCount = 0
+            @updateCount++
+          @super()
+        </method>
+      </spacedlayout>
       
       <handler event="oninit">
         assert.equal(4, this.v1.x, 'View one should have an x of 4.');
@@ -187,7 +194,9 @@
       assert.equal(3, v5.x, 'View five should have an x of 3.');
       
       // Hide a view
+      assert.equal(1, layoutY.updateCount, 'The Y layout should have only been updated 1 time so far.');
       v1.setAttribute('visible', false);
+      assert.equal(2, layoutY.updateCount, 'The Y layout should have only been updated 2 times so far.');
       
       assert.equal(130 + 6 + 5 + 14, container.width, 'Container should have a width of 155.');
       assert.equal(40 - 15 + 7 + 14, container.height, 'Container should have a width of 46.');
@@ -203,6 +212,14 @@
       assert.equal(8, v3.y, 'View three should have a y of 8.');
       assert.equal(13, v4.y, 'View four should have a y of 13.');
       assert.equal(18, v5.y, 'View five should have a y of 18.');
+      
+      // Resize a view and verify only 1 update occurs
+      v2.setAttribute('height', 20);
+      assert.equal(3, layoutY.updateCount, 'The Y layout should have only been updated 3 times so far.');
+      assert.equal(3, v2.y, 'View two should have a y of 3.');
+      assert.equal(18, v3.y, 'View three should have a y of 18.');
+      assert.equal(23, v4.y, 'View four should have a y of 23.');
+      assert.equal(28, v5.y, 'View five should have a y of 28.');
       
       
       // Verify transformed children

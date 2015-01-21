@@ -485,12 +485,6 @@
     
     <!-- Verify justification -->
     <view name="justification" padding="1" border="2" bordercolor="black" width="343" bgcolor="#999999">
-      <wrappinglayout name="layout"
-        inset="2" spacing="1" outset="3"
-        lineinset="4" linespacing="2" lineoutset="6"
-        updateparent="true" justify="true"
-      ></wrappinglayout>
-      
       <item name="v1" width="60" bgcolor="#eeeeee"></item>
       <item name="v2" width="70" bgcolor="#ddddcc"></item>
       <item name="v3" width="80" bgcolor="#ccccaa"></item>
@@ -500,6 +494,19 @@
       <item name="v7" width="120" bgcolor="#888822"></item>
       <item name="v8" width="110" bgcolor="#777700"></item>
       <item name="v9" width="100" bgcolor="#666622"></item>
+      
+      <wrappinglayout name="layout"
+        inset="2" spacing="1" outset="3"
+        lineinset="4" linespacing="2" lineoutset="6"
+        updateparent="true" justify="true"
+      >
+        <method name="update" type="coffee">
+          if @canUpdate()
+            if !@updateCount? then @updateCount = 0
+            @updateCount++
+          @super()
+        </method>
+      </wrappinglayout>
       
       <handler event="oninit">
         var layout = this.layout,
@@ -523,7 +530,10 @@
         assert.equal(2, v8.x);
         assert.equal(234, v9.x);
         
+        assert.equal(1, layout.updateCount, 'The layout should only be updated 1 time so far.');
+      
         v1.setAttribute('width', 80);
+        assert.equal(2, layout.updateCount, 'The layout should only be updated 2 times so far.');
         
         assert.equal(2, v1.x);
         assert.equal(86, v2.x);

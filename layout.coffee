@@ -2228,6 +2228,11 @@ window.dr = do ->
     ###
     doSubnodeAdded: (node) ->
       if node instanceof View
+        # update bounds before firing subviewAdded since some layouts
+        # (specifically alignlayout) expect the bounds of a view to be updated
+        # before updating the layout.
+        node.__updateBounds()
+        
         ###*
         # @event subviewAdded
         # Fired when a subview is added to this view.
