@@ -1,0 +1,88 @@
+<class type="coffee" name="skin" initchildren="false" visible="false">
+
+    <setter name="name" args="name">
+        window.dr.skins ||= {}
+        window.dr.skins[name] = @
+        return name
+    </setter>
+
+    <method name="templates">
+        unless @temps
+          @temps = {}
+
+          readnode = (template, node) ->
+            nodenamemap = node.attributes
+            for i in [0...nodenamemap.length] by 1
+              attr = nodenamemap[i]
+              template[attr.name] = attr.value
+
+            for child in node.children
+              childtmpl = {}
+              readnode(childtmpl, child)
+              name = childtmpl['name']
+              delete(childtmpl['name'])
+              template[name] = childtmpl
+
+          for child in @sprite.el.children
+            template = {}
+            @temps[child.tagName.toLowerCase()] = template
+            readnode(template, child)
+
+        return @temps
+    </method>
+
+    <handler event="oninit">
+        if @visible
+          y = 10
+          for tag, props of @templates()
+            props = { "class" : tag, "x" : 10, "y" : y, "width" : 300, "height" : 30 }
+            el = @createChild(props, false)
+            el.$tagname = tag
+            @apply(el)
+            y = y + 10 + el.height
+
+          @autoresize()
+    </handler>
+
+    <method name="autoresize">
+        h = 0
+        w = 0
+        for subview in @subviews
+          w = Math.max(w, subview.width + subview.x)
+          h = Math.max(h, subview.height + subview.y)
+
+        @setAttribute('height', h + 10)
+        @setAttribute('width', w + 10)
+
+    </method>
+
+    <method name="_attributesFor" args="tag">
+        tmpl = @templates()[tag.toLowerCase()] || {}
+        return jQuery.extend(true, {}, tmpl);
+    </method>
+
+    <method name="apply" args="view, override">
+        tag = view['$tagname'] || 'view'
+
+        attrs = @_attributesFor(tag)
+        if override
+          for key, value of override
+            attrs[key] = value
+
+        for key, value of attrs
+          continue if key == 'name'
+          if !view.$instanceattributes || !view.$instanceattributes[key]
+            if typeof(value) == 'string'
+              view.setAttribute(key, value)
+            else if child = view[key]
+              child.$skinleaf = true
+              @apply(child, value)
+
+        for subview in view.subviews
+          unless (subview.$instanceattributes && subview.$instanceattributes['skin']) || subview.$appliedskin == @name || subview.$skinleaf
+            @apply(subview)
+
+        view.$appliedskin = @name
+
+    </method>
+</class>

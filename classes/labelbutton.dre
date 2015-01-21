@@ -70,22 +70,21 @@ SOFTWARE. -->
     @super()
     return if @_resize_lock
 
-    xoffset = yoffset = 0
-    width = @width
-    height = @height
+    settings = {}
 
     if @_fixedwidth
-      xoffset = (@innerwidth - @label.width)/2
+      settings.textx = (@innerwidth - @label.width) / 2
     else
-      width = @label.width + (@border+@padding)*2
+      settings.width = @label.width + @leftpadding + @rightpadding + @leftborder + @rightborder + (@indicatorsize * 1.5) + 2
+      settings.textx = @indicatorsize + 1
 
     if @_fixedheight
-      yoffset = (@innerheight - @label.height)/2
+      settings.texty = (@innerheight - @label.height)/2.0
     else
-      height = @label.height + (@border+@padding)*2
+      settings.height = @label.height + @toppadding + @bottompadding + @topborder + @bottomborder
 
     @_resize_lock = true
-    @setAttributes({width:width, height:height, textx:xoffset, texty:yoffset})
+    @setAttributes(settings)
     @_resize_lock = false
   </method>
 
@@ -96,12 +95,14 @@ SOFTWARE. -->
   </handler>
 
   <handler event="onmouseup">
-    @visual.setAttribute('bgcolor', @defaulttecolor)
-    @label.setAttribute('color', @defaulttextcolor)
-    @indicator.setAttribute('fill', @defaulttextcolor)
+    @visual.setAttribute('bgcolor', @defaultcolor)
+    @label.setAttribute('color', @textcolor)
+    @indicator.setAttribute('fill', @textcolor)
   </handler>
 
-  <art name="indicator" clickable="false" inline="true" x="0" y="${this.parent.height - (this.parent.border || this.parent.bottomborder || 0) - this.height - 10}" height="10" width="10" fill="${this.parent.defaulttextcolor}" z="1">
+  <attribute name="indicatorsize" type="number" value="10"></attribute>
+
+  <art name="indicator" clickable="false" inline="true" x="0" y="${this.parent.height - (this.parent.border || this.parent.bottomborder || 0) - this.height - this.parent.indicatorsize}" height="${this.parent.indicatorsize}" width="${this.parent.indicatorsize}" z="1">
       <!--
       <svg name="triangle" height="100" width="100">
           <polygon name="polygon" points="0,100 0,0 100,100"/>

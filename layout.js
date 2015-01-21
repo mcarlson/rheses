@@ -42,6 +42,7 @@
     bgcolor: 'backgroundColor',
     ellipsis: 'textOverflow',
     fontfamily: 'fontFamily',
+    fontweight: 'fontWeight',
     fontsize: 'fontSize',
     italic: 'fontStyle',
     leftborder: 'borderLeftWidth',
@@ -959,7 +960,7 @@
 
       earlyattributes = ['name', 'parent'];
 
-      lateattributes = ['data'];
+      lateattributes = ['data', 'skin'];
 
       function Node(el, attributes) {
         var args, hassuper, method, methodName, methodObj, methods, mixedAttributes, supressTagname, _i, _j, _len, _len1, _ref, _ref1;
@@ -1650,7 +1651,7 @@
           case 'whitespace':
           case 'fontsize':
           case 'fontfamily':
-          case 'font-weight':
+          case 'fontweight':
           case 'text-transform':
           case 'boxshadow':
           case 'leftpadding':
@@ -1943,6 +1944,13 @@
         if (height) {
           this.setStyle('height', height, true, input);
         }
+        this.setStyle('color', 'inherit', false, input);
+        this.setStyle('background', 'inherit', false, input);
+        this.setStyle('font-variant', 'inherit', false, input);
+        this.setStyle('font-style', 'inherit', false, input);
+        this.setStyle('font-weight', 'inherit', false, input);
+        this.setStyle('font-size', 'inherit', false, input);
+        this.setStyle('font-family', 'inherit', false, input);
         this.el.appendChild(input);
         input.$view = this.el.$view;
         $(input).on('focus blur', this.handle);
@@ -2535,6 +2543,7 @@
           scrollbars: 'boolean',
           scrollx: 'number',
           scrolly: 'number',
+          skin: 'string',
           topborder: 'positivenumber',
           toppadding: 'positivenumber',
           visible: 'boolean',
@@ -2561,6 +2570,7 @@
         this.cursor = 'pointer';
         this.bgcolor = this.bordercolor = 'transparent';
         this.borderstyle = 'solid';
+        this.skin = '';
         this.leftborder = this.rightborder = this.topborder = this.bottomborder = this.border = this.leftpadding = this.rightpadding = this.toppadding = this.bottompadding = this.padding = this.x = this.y = this.width = this.height = this.innerwidth = this.innerheight = this.boundsxdiff = this.boundsydiff = this.boundsx = this.boundsy = this.boundswidth = this.boundsheight = this.zanchor = this.scrollx = this.scrolly = 0;
         this.opacity = 1;
         this.clip = this.scrollable = this.clickable = this.isaligned = this.isvaligned = this.ignorelayout = this.scrollbars = false;
@@ -3276,6 +3286,37 @@
           this.__updateTransform();
         }
         return noop;
+      };
+
+      View.prototype.set_skin = function(name) {
+        if (name !== this.skin) {
+          this.skin = name;
+          this.reskin();
+          this.setAndFire('skin', name);
+        }
+        return noop;
+      };
+
+      View.prototype.attachSkinListener = function() {
+        var v;
+        if (!this.$skinlistner) {
+          this.$skinlistner = true;
+          v = this;
+          return this.listenTo(this, 'subviewAdded', function(sv) {
+            sv.attachSkinListener();
+            return sv.reskin();
+          });
+        }
+      };
+
+      View.prototype.reskin = function() {
+        var skin;
+        if (this.skin && window.dr.skins && (skin = window.dr.skins[this.skin])) {
+          this.attachSkinListener();
+          return skin.apply(this);
+        } else if (this.parent && this.parent.reskin) {
+          return this.parent.reskin();
+        }
       };
 
       View.prototype.moveToFront = function() {
@@ -4469,6 +4510,9 @@
           var attributes, children, parent, sendInit, viewel, viewhtml, _k, _len2, _ref1;
           attributes = clone(classattributes);
           _processAttrs(instanceattributes, attributes);
+          if (attributes.$instanceattributes == null) {
+            attributes.$instanceattributes = instanceattributes;
+          }
           if (!(extend in dr)) {
             console.warn('could not find class for tag', extend);
             return;

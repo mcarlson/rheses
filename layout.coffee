@@ -33,6 +33,7 @@ stylemap =
   bgcolor: 'backgroundColor'
   ellipsis: 'textOverflow'
   fontfamily: 'fontFamily'
+  fontweight: 'fontWeight'
   fontsize: 'fontSize'
   italic: 'fontStyle'
   leftborder: 'borderLeftWidth'
@@ -741,7 +742,7 @@ window.dr = do ->
     # nodes can be identified
     earlyattributes = ['name', 'parent']
     # data must be set after text
-    lateattributes = ['data']
+    lateattributes = ['data', 'skin']
 
     constructor: (el, attributes = {}) ->
       # Process attributes if mixins are defined so that attributes from
@@ -1286,7 +1287,7 @@ window.dr = do ->
     setAttribute: (name, value) ->
       switch name
         # Attributes that map to DOM element style attributes
-        when 'width', 'height', 'z', 'opacity', 'bgcolor', 'color', 'whitespace', 'fontsize', 'fontfamily', 'font-weight', 'text-transform', 'boxshadow', 'leftpadding', 'rightpadding', 'toppadding', 'bottompadding', 'leftborder', 'rightborder', 'topborder', 'bottomborder', 'bordercolor', 'borderstyle'
+        when 'width', 'height', 'z', 'opacity', 'bgcolor', 'color', 'whitespace', 'fontsize', 'fontfamily', 'fontweight', 'text-transform', 'boxshadow', 'leftpadding', 'rightpadding', 'toppadding', 'bottompadding', 'leftborder', 'rightborder', 'topborder', 'bottomborder', 'bordercolor', 'borderstyle'
           @setStyle(name, value)
         when 'bold'
           @setStyle(name, if value then 'bold' else 'normal')
@@ -1319,8 +1320,8 @@ window.dr = do ->
           value ?= ''
           name = stylemap[name] if name of stylemap
           el.style[name] = value
-          
-          # WORKAROUND: Chrome and Safari (Webkit?) browsers only update position on 
+
+          # WORKAROUND: Chrome and Safari (Webkit?) browsers only update position on
           # borderLeftWidth and paddingLeft change. Fix is to tweak the padding 
           # by +/- a small value to trigger a change but prevent value drift.
           if name is 'borderTopWidth' or name is 'paddingTop'
@@ -1524,6 +1525,15 @@ window.dr = do ->
         @setStyle('width', width, true, input)
       if height
         @setStyle('height', height, true, input)
+
+      @setStyle('color', 'inherit', false, input)
+      @setStyle('background', 'inherit', false, input)
+      @setStyle('font-variant', 'inherit', false, input)
+      @setStyle('font-style', 'inherit', false, input)
+      @setStyle('font-weight', 'inherit', false, input)
+      @setStyle('font-size', 'inherit', false, input)
+      @setStyle('font-family', 'inherit', false, input)
+
       @el.appendChild(input)
       # console.log('createInputtextElement', text, multiline, width, height, input)
 
@@ -1990,6 +2000,7 @@ window.dr = do ->
         scrollbars:'boolean'
         scrollx:'number'
         scrolly:'number'
+        skin:'string',
         topborder:'positivenumber'
         toppadding:'positivenumber'
         visible:'boolean'
@@ -2018,6 +2029,7 @@ window.dr = do ->
       @cursor = 'pointer'
       @bgcolor = @bordercolor = 'transparent'
       @borderstyle = 'solid'
+      @skin = ''
       @leftborder = @rightborder = @topborder = @bottomborder = @border =
         @leftpadding = @rightpadding = @toppadding = @bottompadding = @padding =
         @x = @y = @width = @height = @innerwidth = @innerheight =
@@ -2050,6 +2062,7 @@ window.dr = do ->
       @sprite = null
 
     defaultSetAttributeBehavior: (name, value) ->
+      #xxxx
       existing = @[name]
       super
       value = @[name]
@@ -2372,7 +2385,7 @@ window.dr = do ->
       @setAttribute('leftborder', v)
       @setAttribute('rightborder', v)
       @__lockBPRecalc = false
-      
+
       @setAndFire('border', v)
       @__updateInnerWidth()
       @__updateInnerHeight()
@@ -2589,6 +2602,28 @@ window.dr = do ->
         @setAndFire('zanchor', v)
         @__updateTransform()
       noop
+
+    set_skin: (name) ->
+      if name isnt @skin
+        @skin = name
+        @reskin()
+        @setAndFire('skin', name)
+      noop
+
+    attachSkinListener: () ->
+      if !@$skinlistner
+        @$skinlistner = true
+        v = @
+        @listenTo @, 'subviewAdded', (sv)->
+          sv.attachSkinListener()
+          sv.reskin()
+
+    reskin: () ->
+      if @skin && window.dr.skins && skin = window.dr.skins[@skin]
+        @attachSkinListener()
+        skin.apply(@)
+      else if @parent && @parent.reskin
+        return @parent.reskin()
 
     moveToFront: () ->
       for subview in @parent.subviews
@@ -3527,6 +3562,7 @@ window.dr = do ->
         # override class attributes with instance attributes
         attributes = clone(classattributes)
         _processAttrs(instanceattributes, attributes)
+        attributes.$instanceattributes ?= instanceattributes
 
         if not (extend of dr)
           console.warn 'could not find class for tag', extend

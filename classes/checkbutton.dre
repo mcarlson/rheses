@@ -54,7 +54,7 @@ SOFTWARE. -->
      *     </view>
      *
      */-->
-    <class name="checkbutton" type="coffee" extends="buttonbase" defaultcolor="transparent" defaulttextcolor="rgb(140,140,140)" bgcolor="rgb(84,84,84)">
+    <class name="checkbutton" type="coffee" extends="buttonbase" defaultcolor="transparent">
 
       <!-- check_x, check_y: Location of check box with button -->
       <!-- check_w, check_h: Size of check box with button -->
@@ -62,7 +62,7 @@ SOFTWARE. -->
       <attribute name="checky" type="number" value="0"></attribute>
       <attribute name="checkw" type="number" value="0"></attribute>
       <attribute name="checkh" type="number" value="0"></attribute>
-      <attribute name="innerspacing" type="number" value="3"></attribute>
+      <attribute name="innerspacing" type="number" value="0"></attribute>
 
       <!-- check: Show button state -->
       <art name="check" clickable="false" inline="true" x="${this.parent.checkx}" y="${this.parent.checky}" width="${this.parent.checkw}" height="${this.parent.checkh}">
@@ -76,17 +76,12 @@ SOFTWARE. -->
       <method name="visualize">
         @super()
 
-        if @label.text.length == 0
-          @label.setAttribute('visible', false)
-        else
-          @label.setAttribute('visible', true)
-
         if @selected
           @check.setAttribute('fill', @selectcolor)
           @label.setAttribute('color', @selectcolor)
         else
-          @check.setAttribute('fill', @defaulttextcolor)
-          @label.setAttribute('color', @defaulttextcolor)
+          @check.setAttribute('fill', @textcolor)
+          @label.setAttribute('color', @textcolor)
 
       </method>
 
@@ -101,36 +96,51 @@ SOFTWARE. -->
 
       <method name="handleResize">
         @super()
+
         return if @_resize_lock
+        @_resize_lock = true
+
+        defaultchecksize = 20
 
         checkx = checky = 0
         textx = texty = 0
 
-        height = @height
-        width = @width
+        height = @innerheight
+        width = @innerwidth
 
         if !@_fixedheight
-          height = Math.max(@label.height + @__fullBorderPaddingHeight, 30)
+          height = Math.max(@label.height, defaultchecksize)
 
         if !@_fixedwidth
-          width = @label.height + @__fullBorderPaddingWidth
+          width = @label.height
           width += @innerspacing + @label.width if @label.visible
-          width = Math.max(width, 30)
+          width = Math.max(width, defaultchecksize)
 
-        checkw = width - @__fullBorderPaddingWidth
-        checkh = height - @__fullBorderPaddingHeight
+        checkw = width
+        checkh = height
 
         if @label.visible
-          checkw = checkw - @label.width - @innerspacing
+          checkw = Math.max(checkw - @label.width - @innerspacing, @label.height)
           textx = checkw + @innerspacing
-          texty = ((height - @__fullBorderPaddingHeight) / 2.0) - (@label.height / 2.0)
-
-        @_resize_lock = true
+          texty = (height / 2.0) - (@label.height / 2.0)
 
         checks = Math.min(checkw, checkh)
-        checky = (@innerheight / 2) - (checks / 2) if checky == 0
 
-        settings = {checkx: checkx, checky: checky, checkw: checks, checkh: checks, width: width, height: height, textx: textx, texty: texty}
+        checky = (height / 2.0) - (checks / 2.0) if checky == 0
+        checky = Math.max(checky, 0)
+        checky = Math.min(checky, height - checks)
+
+        checkx = (width / 2.0) - (checks / 2.0) if checkx ==0 && @_fixedwidth && !@label.visible
+        checkx = Math.max(checkx, 0)
+        checkx = Math.min(checkx, width - checks)
+
+        settings = {checkx: checkx, checky: checky, checkw: checks, checkh: checks, textx: textx, texty: texty}
+
+        bpw = @leftborder + @leftpadding + @rightborder + @rightpadding
+        bph = @topborder + @toppadding + @bottomborder + @bottompadding
+
+        settings.height = height + bph if !@_fixedheight
+        settings.width = width + bpw if !@_fixedwidth
 
         @setAttributes(settings)
 
@@ -140,5 +150,22 @@ SOFTWARE. -->
       <handler event="onclick">
         @setAttribute('selected', !@selected);
       </handler>
+
+      <method name="_showselection">
+
+        if !@selected
+          @check.setAttribute('fill', @selectcolor)
+          @check.setAttribute('bgcolor', @selectcolor)
+          @label.setAttribute('color', @selectcolor)
+        else
+          @check.setAttribute('fill', @textcolor)
+          @check.setAttribute('bgcolor', @defaultcolor)
+          @label.setAttribute('color', @textcolor)
+
+      </method>
+
+      <handler event="onmousedown" method="_showselection"></handler>
+      <handler event="onmouseup" method="_showselection"></handler>
+
 
     </class>

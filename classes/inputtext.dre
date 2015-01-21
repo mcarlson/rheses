@@ -45,11 +45,7 @@ SOFTWARE. -->
      *     <inputtext id="nameinput" bgcolor="white" border="1px solid lightgrey" width="200" onchange="console.log('onchange', this.text)"></inputtext>
      *
      */-->
-<class name="inputtext" extends="view" type="coffee"
-  bgcolor="rgb(63,63,63)" color="white"
-  leftborder="2" bottomborder="2" bordercolor="white"
-  width="100"
->
+<class name="inputtext" extends="view" type="coffee">
   <!--/**
        * @event onselect
        * Fired when an inputtext is selected
@@ -136,7 +132,7 @@ SOFTWARE. -->
     @replicator.updateData(newdata)
   </handler>
 
-  <art name="indicator" x="3" y="${this.parent.height - this.height - 7}" height="10" width="10" fill="white" z="1" inline="true">
+  <art name="indicator" y="${this.parent.height - this.height - 7}" height="10" width="10" z="1" inline="true">
       <!--
       <svg name="triangle" height="100" width="100">
           <polygon name="polygon" points="0,100 0,0 100,100"/>
@@ -157,14 +153,6 @@ SOFTWARE. -->
       paddingH = parseInt(domElem.css('padding-top')) + parseInt(domElem.css('padding-bottom'))
       @setAttribute('height', h + borderH + paddingH)
 
-    @sprite.setStyle('width', @innerwidth, true, @sprite.input)
-    @sprite.setStyle('height', @innerheight, true, @sprite.input)
-
-    @sprite.setStyle('color', 'white', true, @sprite.input)
-    @sprite.setStyle('padding-left', '10px', true, @sprite.input)
-    @sprite.setStyle('font-size', '20px', true, @sprite.input)
-    @sprite.setStyle('font-weight', '300', true, @sprite.input)
-    @sprite.setStyle('font-family', "'mission-gothic', 'Helvetica Neue', Helvetica, Arial, sans-serif", true, @sprite.input)
   </handler>
   
   <!--/**

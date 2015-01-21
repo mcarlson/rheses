@@ -31,12 +31,11 @@ SOFTWARE. -->
    * element. For a checkbutton, the visual element is a square dr.view
    * that is inside the button.
    */-->
-<class name="buttonbase" type="coffee" clickable="true" clip="true" border="2" bordercolor="${this.selectcolor}">
+<class name="buttonbase" type="coffee" clickable="true" clip="true" bordercolor="${this.selectcolor}">
   <!--/**
     * @attribute {Number} [padding=3]
     * Amount of padding pixels around the button.
     */-->
-  <attribute name="padding" type="number" value="3"></attribute>
 
   <!--/**
     * @attribute {String} [defaultcolor="#808080"]
@@ -46,11 +45,11 @@ SOFTWARE. -->
     * @attribute {String} [selectcolor="#a0a0a0"]
     * The selected color of the visual button element when selected.
     */-->
-  <attribute name="defaultcolor" type="string" value="rgb(63,63,63)"></attribute>
+  <attribute name="defaultcolor" type="string" value="black"></attribute>
   <handler event="ondefaultcolor" method="visualize"></handler>
 
-  <attribute name="defaulttextcolor" type="string" value="rgb(207,207,207)"></attribute>
-  <handler event="ondefaulttextcolor" method="visualize"></handler>
+  <attribute name="textcolor" type="string" value="white"></attribute>
+  <handler event="ontextcolor" method="visualize"></handler>
 
   <attribute name="selectcolor" type="string" value="white"></attribute>
   <handler event="onselectcolor" method="visualize"></handler>
@@ -77,10 +76,15 @@ SOFTWARE. -->
         @visual.setAttribute('bgcolor', @defaultcolor);
 
     if @label
+      if !@label.text || @label.text.length == 0
+        @label.setAttribute('visible', false)
+      else
+        @label.setAttribute('visible', true)
+
       if @selected
         @label.setAttribute('color', @defaultcolor);
       else
-        @label.setAttribute('color', @defaulttextcolor);
+        @label.setAttribute('color', @textcolor);
   </method>
 
   <handler event="oninit" method="visualize"></handler>
@@ -95,18 +99,24 @@ SOFTWARE. -->
     * @attribute {String} [text=""]
     * Button text.
     */-->
-  <dreem-text name="label" type="coffee" resize="true" fontsize="22"
-    x="${this.parent.textx}" y="${this.parent.texty}" text="${this.parent.text}"
-    text-transform="uppercase" bgcolor="transparent"
-  >
-  </dreem-text>
+  <text name="label" type="coffee" resize="true"
+    x="${this.parent.textx}" y="${this.parent.texty}" text="${this.parent.text}">
+  </text>
 
   <handler event="onwidth" method="handleResize" reference="this.label"></handler>
   <handler event="onheight" method="handleResize" reference="this.label"></handler>
   <handler event="ontext" method="handleResize" reference="this.label"></handler>
 
+  <handler event="oninnerheight" method="handleResize" reference="this.label"></handler>
+  <handler event="oninnerwidth" method="handleResize" reference="this.label"></handler>
+  <handler event="onskin" method="handleResize" reference="this.label"></handler>
+
   <handler event="onwidth" method="handleResize"></handler>
   <handler event="onheight" method="handleResize"></handler>
+
+  <handler event="oninnerheight" method="handleResize"></handler>
+  <handler event="oninnerwidth" method="handleResize"></handler>
+  <handler event="onskin" method="handleResize"></handler>
 
   <method name="handleResize">
     # Custom behavior in subclasses

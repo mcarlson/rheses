@@ -74,20 +74,97 @@
 
 </head>
 <body style="background-color:black">
-<view id="all" width="100%" height="100%" padding="30" bgcolor="rgb(63,63,63)">
-    <spacedlayout axis="y" spacing="15"></spacedlayout>
+<view id="all" width="100%" height="100%" padding="30">
+    <skin name="dreem">
+        <text fontweight="200" clip="true" color="white" fontsize="20" fontfamily="'mission-gothic', 'Helvetica Neue', Helvetica, Arial, sans-serif"></text>
 
-    <text        resize="true" height="41" width="181" text="420.20 some text here resize"></text>
-    <text        resize="false" height="28" width="181" text="420.20 some text here"></text>
+        <inputtext color="white" fontweight="300" fontsize="20" leftpadding="10" leftborder="2" bottomborder="2" bordercolor="white" fontfamily="'mission-gothic', 'Helvetica Neue', Helvetica, Arial, sans-serif">
+            <art name="indicator" fill="white" x="-5"></art>
+        </inputtext>
 
-    <inputtext   id="it" height="41" width="181" text="420.20 some text here"></inputtext>
-    <labelbutton height="41" width="181" text="click me"></labelbutton>
-    <rangeslider height="20" width="181"></rangeslider>
-    <slider      height="20" width="181"></slider>
-    <checkbutton></checkbutton>
-    <checkbutton height="50" width="50"></checkbutton>
-    <checkbutton text="pink" selectcolor="pink"></checkbutton>
-    <labeltoggle height="41" width="181" text="click me"></labeltoggle>
+        <labelbutton border="2" padding="3" textcolor="rgb(207,207,207)" defaultcolor="rgb(63,63,63)">
+            <art name="indicator" fill="white"></art>
+            <text color="rgb(207,207,207)" name="label" padding="0" fontweight="200" text-transform="uppercase" bgcolor="transparent" fontsize="20" fontfamily="'mission-gothic', 'Helvetica Neue', Helvetica, Arial, sans-serif"></text>
+        </labelbutton>
+
+        <rangeslider name="rs" bottomborder="2" bordercolor="white" lowselectcolor="#a0a0a0" highselectcolor="#a0a0a0">
+            <view name="highvalueview" bottomborder="2" bordercolor="white"></view>
+            <art name="highindicator" fill="white"></art>
+            <view name="lowvalueview" bottomborder="2" bordercolor="white"></view>
+            <art name="lowindicator" fill="white"></art>
+        </rangeslider>
+
+        <slider bottomborder="2" bordercolor="white">
+            <art name="indicator" fill="white"></art>
+        </slider>
+
+        <checkbutton border="2" padding="3" textcolor="rgb(140,140,140)" innerspacing="3">
+            <text color="rgb(140,140,140)" name="label" padding="0" text-transform="uppercase" bgcolor="transparent" fontweight="200" fontsize="20" fontfamily="'mission-gothic', 'Helvetica Neue', Helvetica, Arial, sans-serif"></text>
+        </checkbutton>
+
+        <labeltoggle border="2" padding="3" textcolor="rgb(207,207,207)" defaultcolor="rgb(63,63,63)">
+            <art name="indicator" fill="white"></art>
+            <text color="rgb(207,207,207)" name="label" padding="0" text-transform="uppercase" bgcolor="transparent" fontweight="200" fontsize="20" fontfamily="'mission-gothic', 'Helvetica Neue', Helvetica, Arial, sans-serif"></text>
+        </labeltoggle>
+
+        <custom name="outer" bgcolor="purple">
+            <view name="inner" bgcolor="orange"></view>
+            <text name="txt" color="lightblue" fontfamily="serif"></text>
+        </custom>
+    </skin>
+
+    <class name="custom" width="100" height="100" bgcolor="pink">
+        <view name="inner" x="${(this.parent.width - this.width)/2}" y="${(this.parent.height - this.height)/2}" width="50" height="50"></view>
+        <text name="txt" x="0" y="0" text="CUSTOM"></text>
+    </class>
+
+    <view id="a" name="vw" width="30%" height="auto" bgcolor="rgb(84,84,84)" padding="20" skin="dreem">
+        <spacedlayout axis="y" spacing="15"></spacedlayout>
+        <text       name="txt" resize="true" text='Skinned via skin="dreem" attribute in markup' color="cyan" bold="true"></text>
+
+        <custom name="cc"></custom>
+
+        <text        name="t1" id="ff" resize="true" text="420.20 some text here auto resize"></text>
+        <checkbutton name="c3" text="pink auto size" selectcolor="pink"></checkbutton>
+        <checkbutton name="c4" width="130" height="35" text="red fixed size" selectcolor="red"></checkbutton>
+        <text        name="t2" resize="false" height="30" width="100" text="fixed size text here"></text>
+        <rangeslider name="r1" height="20" width="200"></rangeslider>
+        <labelbutton name="b1" height="40" width="200" text="fixed w/h btn"></labelbutton>
+        <labelbutton name="b2" text="autoresizing"></labelbutton>
+        <slider      name="s1" height="20" width="200"></slider>
+        <checkbutton name="c1"></checkbutton>
+        <inputtext   name="i1" height="40" width="200" text="420.20 some text here"></inputtext>
+        <checkbutton name="c2" height="60" width="60"></checkbutton>
+        <labeltoggle name="l2" text="autosized toggle"></labeltoggle>
+        <labeltoggle name="l1" height="50" width="200" text="fixed h/w toggle"></labeltoggle>
+
+
+    </view>
+    <view id="b" name="bw" x="${a.width + 50}" y="0" width="30%" height="auto" bgcolor="rgb(84,84,84)" padding="20">
+        <spacedlayout axis="y" spacing="15"></spacedlayout>
+        <text        resize="true" text="Skinned via setAttribute('skin', 'dreem') in oninit" color="orange"></text>
+
+        <custom name="cc"></custom>
+
+        <text        name="t1" id="ff" resize="true" text="420.20 some text here auto resize"></text>
+        <checkbutton name="c3" text="pink auto size" selectcolor="pink"></checkbutton>
+        <checkbutton name="c4" width="130" height="35" text="red fixed size" selectcolor="red"></checkbutton>
+        <text        name="t2" resize="false" height="30" width="100" text="fixed size text here"></text>
+        <rangeslider name="r1" height="20" width="200"></rangeslider>
+        <labelbutton name="b1" height="40" width="200" text="fixed w/h btn"></labelbutton>
+        <labelbutton name="b2" text="autoresizing"></labelbutton>
+        <slider      name="s1" height="20" width="200"></slider>
+        <checkbutton name="c1"></checkbutton>
+        <inputtext   name="i1" height="40" width="200" text="420.20 some text here"></inputtext>
+        <checkbutton name="c2" height="60" width="60"></checkbutton>
+        <labeltoggle name="l2" text="autosized toggle"></labeltoggle>
+        <labeltoggle name="l1" height="50" width="200" text="fixed h/w toggle"></labeltoggle>
+
+        <handler type="coffee" event="oninit">
+            @setAttribute('skin', 'dreem')
+        </handler>
+
+    </view>
 
 </view>
 
