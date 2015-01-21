@@ -3064,11 +3064,12 @@
         }
         return attributes;
       };
-      sendInit = function() {
+      sendInit = function(el) {
         var event;
         event = document.createEvent('Event');
         event.initEvent('dreeminit', true, true);
-        return window.dispatchEvent(event);
+        window.dispatchEvent(event);
+        return $(el).addClass('dreeminited');
       };
       initFromElement = function(el) {
         instantiating = true;
@@ -3077,8 +3078,7 @@
           el.style.display = null;
           initElement(el);
           _initConstraints();
-          window.DREEM_INITED = true;
-          return sendInit();
+          return sendInit(el);
         });
       };
       getChildElements = function(el) {
