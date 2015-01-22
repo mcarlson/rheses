@@ -2165,21 +2165,42 @@ window.dr = do ->
 
     moveToFront: () ->
       for subview in @parent.subviews
+        subview.setAttribute 'z', 0 unless subview.z
         @z = subview.z + 1 if @z <= subview.z
       @__updateTransform()
 
+    ###*
+    # @method moveToBack
+    # Moves view behind all other sibling views
+    ###
+
     moveToBack: () ->
       for subview in @parent.subviews
+        subview.setAttribute 'z', 0 unless subview.z
         @z = subview.z - 1 if @z >= subview.z
       @__updateTransform()
 
+    ###*
+    # @method moveInFrontOf
+    # Moves view to the front of sibling view
+    # @param {dr.view} View to move in front of
+    ###
+
     moveInFrontOf: (otherView) ->
-      if otherView and otherView.z
+      if otherView
+        otherView.setAttribute 'z', 0 unless otherView.z
         @z = otherView.z + 1
         @__updateTransform()
 
+    ###*
+    # @method moveBehind
+    # Moves view to the behind sibling view
+    # @param {dr.view} View to move behind
+    ###
+
     moveBehind: (otherView) ->
-      if otherView and otherView.z
+      if otherView
+        otherView.setAttribute 'z', 0 unless otherView.z
         @z = otherView.z - 1
         @__updateTransform()
 

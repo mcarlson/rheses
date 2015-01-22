@@ -2722,6 +2722,9 @@
         _ref = this.parent.subviews;
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           subview = _ref[_i];
+          if (!subview.z) {
+            subview.setAttribute('z', 0);
+          }
           if (this.z <= subview.z) {
             this.z = subview.z + 1;
           }
@@ -2729,11 +2732,20 @@
         return this.__updateTransform();
       };
 
+
+      /**
+       * @method moveToBack
+       * Moves view behind all other sibling views
+       */
+
       View.prototype.moveToBack = function() {
         var subview, _i, _len, _ref;
         _ref = this.parent.subviews;
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           subview = _ref[_i];
+          if (!subview.z) {
+            subview.setAttribute('z', 0);
+          }
           if (this.z >= subview.z) {
             this.z = subview.z - 1;
           }
@@ -2741,15 +2753,35 @@
         return this.__updateTransform();
       };
 
+
+      /**
+       * @method moveInFrontOf
+       * Moves view to the front of sibling view
+       * @param {dr.view} View to move in front of
+       */
+
       View.prototype.moveInFrontOf = function(otherView) {
-        if (otherView && otherView.z) {
+        if (otherView) {
+          if (!otherView.z) {
+            otherView.setAttribute('z', 0);
+          }
           this.z = otherView.z + 1;
           return this.__updateTransform();
         }
       };
 
+
+      /**
+       * @method moveBehind
+       * Moves view to the behind sibling view
+       * @param {dr.view} View to move behind
+       */
+
       View.prototype.moveBehind = function(otherView) {
-        if (otherView && otherView.z) {
+        if (otherView) {
+          if (!otherView.z) {
+            otherView.setAttribute('z', 0);
+          }
           this.z = otherView.z - 1;
           return this.__updateTransform();
         }
