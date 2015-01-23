@@ -2822,7 +2822,8 @@ window.dr = do ->
   ###
   class State extends Node
     constructor: (el, attributes = {}) ->
-      @skipattributes = ['parent', 'types', 'applyattributes', 'applied', 'skipattributes', 'stateattributes']
+      @skipattributes = ['parent', 'types', 'applyattributes', 'applied', 'skipattributes', 'stateattributes', 'subnodes']
+      @subnodes = []
       @stateattributes = attributes
       @applyattributes = {}
       @applied = false

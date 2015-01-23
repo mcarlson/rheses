@@ -3685,7 +3685,8 @@
         if (attributes == null) {
           attributes = {};
         }
-        this.skipattributes = ['parent', 'types', 'applyattributes', 'applied', 'skipattributes', 'stateattributes'];
+        this.skipattributes = ['parent', 'types', 'applyattributes', 'applied', 'skipattributes', 'stateattributes', 'subnodes'];
+        this.subnodes = [];
         this.stateattributes = attributes;
         this.applyattributes = {};
         this.applied = false;
