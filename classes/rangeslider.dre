@@ -62,7 +62,7 @@ SOFTWARE. -->
    *           text="${Math.round(this.parent.range.lowvalue) + ' ~ ' + this.parent.range.minvalue}"></text>
    *
    */-->
-<class name="rangeslider" type="coffee" clickable="true" clip="true">
+<class name="rangeslider" type="coffee" clickable="true" clip="true" border-bottom="2px solid white">
 
     <handler event="oninit" method="visualize"></handler>
     <handler event="onwidth" method="visualize"></handler>
@@ -171,10 +171,14 @@ SOFTWARE. -->
     <handler event="onhighselectcolor" method="visualize"></handler>
 
     <!-- Internal view to show the current right slider value -->
-    <view name="highvalueview" bgcolor="${this.parent.highselectcolor}"></view>
+    <view name="highvalueview" bgcolor="${this.parent.highselectcolor}" border-bottom="2px solid white"></view>
+    <art name="highindicator" clickable="false" rotation="270" x="${this.parent.highvalueview.x - this.width}" y="${this.parent.height - this.height}"
+         height="${this.parent.highvalueview.height}" width="${this.parent.highvalueview.height}" src="/smoke/triangle.svg" fill="white"></art>
 
     <!-- Internal view to show the current left slider value -->
-    <view name="lowvalueview" bgcolor="${this.parent.lowselectcolor}"></view>
+    <view name="lowvalueview" bgcolor="${this.parent.lowselectcolor}" border-bottom="2px solid white"></view>
+    <art name="lowindicator" clickable="false" x="${this.parent.lowvalueview.x + this.parent.lowvalueview.width}" y="${this.parent.height - this.height}"
+         height="${this.parent.lowvalueview.height}" width="${this.parent.lowvalueview.height}" src="/smoke/triangle.svg" fill="white"></art>
 
     <!-- visualize: Show the current value -->
     <method name="visualize">

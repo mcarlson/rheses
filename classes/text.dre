@@ -82,7 +82,9 @@ SOFTWARE. -->
       *      <timetext text="240"></timetext>
       * 
       */-->
-<class name="text" extends="view" type="coffee">
+
+
+<class name="text" extends="view" type="coffee" bgcolor="rgb(63,63,63)" color="white" font-weight="200">
 
   <!--/**
   *
@@ -91,7 +93,7 @@ SOFTWARE. -->
   *
   */-->
 
-  <attribute name="fontsize" type="number" value="0"></attribute>
+  <attribute name="fontsize" type="number" value="20"></attribute>
   <setter name="fontsize" args="size">
     if size != 0
       @sprite.setStyle 'font-size', size + 'px'
@@ -107,7 +109,7 @@ SOFTWARE. -->
   * The name of the font family to use, e.g. "Helvetica"  Include multiple fonts on a line, separated by commas.
   *
   */-->
-  <attribute name="font" type="string" value=""></attribute>
+  <attribute name="font" type="string" value="'mission-gothic', 'Helvetica Neue', Helvetica, Arial, sans-serif"></attribute>
   <setter name="font" args="family">
     if family
       @sprite.setStyle 'font-family', family
@@ -129,7 +131,7 @@ SOFTWARE. -->
     if bold
       @sprite.setStyle 'font-weight', 'bold'
     else
-      @sprite.setStyle 'font-weight', undefined
+      @sprite.setStyle 'font-weight', 300
 
     return bold
   </setter>
@@ -207,6 +209,20 @@ SOFTWARE. -->
 
   <attribute name="multiline" type="boolean" value="false"></attribute>
   <attribute name="resize" type="boolean" value="true"></attribute>
+  <setter name="resize" args="value">
+    if value
+      @sprite.setStyle("padding-left", "20px")
+      @sprite.setStyle("padding-right", "20px")
+      @sprite.setStyle("padding-top", "10px")
+      @sprite.setStyle("padding-bottom", "10px")
+    else
+      @sprite.setStyle("padding-left", undefined)
+      @sprite.setStyle("padding-right", undefined)
+      @sprite.setStyle("padding-top", undefined)
+      @sprite.setStyle("padding-bottom", undefined)
+
+    return value
+  </setter>
   
   <setter name="data" args="data">
     @setAttribute('text', data, true)

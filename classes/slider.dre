@@ -36,7 +36,7 @@ SOFTWARE. -->
      *     <slider name="hslide" y="5" width="250" height="10" value="50" bgcolor="#808080"></slider>
      *     <text text="${Math.round(this.parent.hslide.value)}" y="${this.parent.hslide.y + (this.parent.hslide.height-this.height)/2}"></text>
      */-->
-    <class name="slider" type="coffee" clickable="true" clip="true">
+    <class name="slider" type="coffee" clickable="true" clip="true" border-bottom="2px solid" border-color="${this.selectcolor}">
       <!--/**
         * @attribute {Number} [minvalue=0]
         * The minimum value of the slider
@@ -93,12 +93,17 @@ SOFTWARE. -->
         * @attribute {String} [selectcolor="#a0a0a0"]
         * The selected color of the slider.
         */-->
-      <attribute name="selectcolor" type="string" value="#a0a0a0"></attribute>
+      <attribute name="selectcolor" type="string" value="rgb(140,140,140)"></attribute>
       <handler event="onselectcolor" method="visualize"></handler>
 
 
       <!-- Internal view to show the current slider value -->
-      <view name="valueview" bgcolor="${this.parent.selectcolor}"></view>
+      <view name="valueview"></view>
+      <art name="indicator" clickable="false"
+           x="${this.parent.valueview.width}" y="${this.parent.height - this.height}"
+           height="${this.parent.valueview.height}" width="${this.parent.valueview.height}"
+           src="/smoke/triangle.svg" fill="${this.parent.selectcolor}"></art>
+
 
       <!-- visualize: Show the current value -->
       <method name="visualize">
@@ -123,9 +128,13 @@ SOFTWARE. -->
       <handler event="onmousedown">
         @movePosition(if @axis == 'x' then dr.mouse.x else dr.mouse.y)
         @drag.setAttribute('applied', true);
+        @setAttribute('bordercolor', 'white')
+        @indicator.setAttribute('fill', 'white')
       </handler>
       <handler event="onmouseup">
         @drag.setAttribute('applied', false);
+        @setAttribute('bordercolor', @selectcolor)
+        @indicator.setAttribute('fill', @selectcolor)
       </handler>
       <handler event="onmouseupoutside">
         #console.log("onmouseupoutside");

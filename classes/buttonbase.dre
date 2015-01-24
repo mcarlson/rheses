@@ -31,7 +31,7 @@ SOFTWARE. -->
      * element. For a checkbutton, the visual element is a square dr.view
      * that is inside the button.
      */-->
-    <class name="buttonbase" type="coffee" clickable="true" clip="true">
+    <class name="buttonbase" type="coffee" clickable="true" clip="true" border="2" bordercolor="${this.selectcolor}">
 
       <!--/**
         * @attribute {Number} [padding=3]
@@ -47,10 +47,13 @@ SOFTWARE. -->
         * @attribute {String} [selectcolor="#a0a0a0"]
         * The selected color of the visual button element when selected.
         */-->
-      <attribute name="defaultcolor" type="string" value="#808080"></attribute>
+      <attribute name="defaultcolor" type="string" value="rgb(63,63,63)"></attribute>
       <handler event="ondefaultcolor" method="visualize"></handler>
 
-      <attribute name="selectcolor" type="string" value="#a0a0a0"></attribute>
+      <attribute name="defaulttextcolor" type="string" value="rgb(207,207,207)"></attribute>
+      <handler event="ondefaulttextcolor" method="visualize"></handler>
+
+      <attribute name="selectcolor" type="string" value="white"></attribute>
       <handler event="onselectcolor" method="visualize"></handler>
 
       <!--/**
@@ -68,9 +71,20 @@ SOFTWARE. -->
 
       <!-- visualize: Show the current button state -->
       <method name="visualize">
-        return unless @visual
-        @visual.setAttribute('bgcolor', if @selected then @selectcolor else @defaultcolor);
+        if @visual
+          if @selected
+            @visual.setAttribute('bgcolor', @selectcolor);
+          else
+            @visual.setAttribute('bgcolor', @defaultcolor);
+
+        if @label
+          if @selected
+            @label.setAttribute('color', @defaultcolor);
+          else
+            @label.setAttribute('color', @defaulttextcolor);
+
       </method>
+      <handler event="oninit" method="visualize"></handler>
 
       <!-- text_x, text_y: Location of button text within button -->
       <attribute name="textx" type="number" value="0"></attribute>
@@ -81,7 +95,8 @@ SOFTWARE. -->
         * @attribute {String} [text=""]
         * Button text.
         */-->
-      <text name="label" type="coffee" x="${this.parent.textx}" y="${this.parent.texty}" text="${this.parent.text}">
+      <text name="label" type="coffee" resize="true" fontsize="22" x="${this.parent.textx}" y="${this.parent.texty}" text="${this.parent.text}"
+            text-transform="uppercase" bgcolor="transparent">
       </text>
 
       <handler event="onwidth" method="handleResize" reference="this.label"></handler>
