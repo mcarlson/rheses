@@ -2739,6 +2739,9 @@
         _ref = this.parent.subviews;
         for (_i = 0, _len = _ref.length; _i &lt; _len; _i++) {
           subview = _ref[_i];
+          if (!subview.z) {
+            subview.setAttribute(&#39;z&#39;, 0);
+          }
           if (this.z &lt;= subview.z) {
             this.z = subview.z + 1;
           }
@@ -2746,11 +2749,20 @@
         return this.__updateTransform();
       };
 
+
+<span id='dr-view-method-moveToBack'>      /**
+</span>       * @method moveToBack
+       * Moves view behind all other sibling views
+       */
+
       View.prototype.moveToBack = function() {
         var subview, _i, _len, _ref;
         _ref = this.parent.subviews;
         for (_i = 0, _len = _ref.length; _i &lt; _len; _i++) {
           subview = _ref[_i];
+          if (!subview.z) {
+            subview.setAttribute(&#39;z&#39;, 0);
+          }
           if (this.z &gt;= subview.z) {
             this.z = subview.z - 1;
           }
@@ -2758,15 +2770,35 @@
         return this.__updateTransform();
       };
 
+
+<span id='dr-view-method-moveInFrontOf'>      /**
+</span>       * @method moveInFrontOf
+       * Moves view to the front of sibling view
+       * @param {dr.view} View to move in front of
+       */
+
       View.prototype.moveInFrontOf = function(otherView) {
-        if (otherView &amp;&amp; otherView.z) {
+        if (otherView) {
+          if (!otherView.z) {
+            otherView.setAttribute(&#39;z&#39;, 0);
+          }
           this.z = otherView.z + 1;
           return this.__updateTransform();
         }
       };
 
+
+<span id='dr-view-method-moveBehind'>      /**
+</span>       * @method moveBehind
+       * Moves view to the behind sibling view
+       * @param {dr.view} View to move behind
+       */
+
       View.prototype.moveBehind = function(otherView) {
-        if (otherView &amp;&amp; otherView.z) {
+        if (otherView) {
+          if (!otherView.z) {
+            otherView.setAttribute(&#39;z&#39;, 0);
+          }
           this.z = otherView.z - 1;
           return this.__updateTransform();
         }
@@ -2841,6 +2873,7 @@
 
       View.prototype.doSubnodeAdded = function(node) {
         if (node instanceof View) {
+          node.__updateBounds();
 
 <span id='dr-view-event-subviewAdded'>          /**
 </span>           * @event subviewAdded
@@ -3669,7 +3702,8 @@
         if (attributes == null) {
           attributes = {};
         }
-        this.skipattributes = [&#39;parent&#39;, &#39;types&#39;, &#39;applyattributes&#39;, &#39;applied&#39;, &#39;skipattributes&#39;, &#39;stateattributes&#39;];
+        this.skipattributes = [&#39;parent&#39;, &#39;types&#39;, &#39;applyattributes&#39;, &#39;applied&#39;, &#39;skipattributes&#39;, &#39;stateattributes&#39;, &#39;subnodes&#39;];
+        this.subnodes = [];
         this.stateattributes = attributes;
         this.applyattributes = {};
         this.applied = false;

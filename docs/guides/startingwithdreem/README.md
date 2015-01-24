@@ -26,29 +26,73 @@ Downloading and installing
 Building a thing with Dreem
 --------------------------
 * Start with a blank html document that loads the Dreem layout script and its dependencies in the header:
-    	<script type="text/javascript" src="../lib/jquery-1.9.1.js"></script>
-		<script type="text/javascript" src="../lib/acorn.js"></script>
-		<script type="text/javascript" src="../lib/coffee-script.js"></script>
-		<script type="text/javascript" src="../layout.js"></script>
-		<style>
-			html,body
-			{
-				height:100%;
-				margin:0px;
-				padding:0px;
-				border:0px none;
-			}
-			body 
-			{
-				font-family:Arial, Helvetica, sans-serif;
-				font-size:14px;
-			}
-		</style>
+~~~~~~~~~~~~~{.html}
+	<script type="text/javascript" src="../lib/jquery-1.9.1.js"></script>
+	<script type="text/javascript" src="../lib/acorn.js"></script>
+	<script type="text/javascript" src="../lib/coffee-script.js"></script>
+	<script type="text/javascript" src="../layout.js"></script>
+	<style>
+	html,body
+	{
+		height:100%;
+		margin:0px;
+		padding:0px;
+		border:0px none;
+	}
+	body 
+	{
+		font-family:Arial, Helvetica, sans-serif;
+		font-size:14px;
+	}
+	</style>
+~~~~~~~~~~~~~
 
+    @example 
+    <attribute name="firstName" type="string" value="Lumpy"></attribute>
+    <attribute name="middleName" type="string" value="Space"></attribute>
+    <attribute name="lastName" type="string" value="Princess"></attribute>
+    
+    <text text="${this.parent.firstName + ' ' + this.parent.middleName + ' ' + this.parent.lastName}" 
+          color="hotpink">
+    </text>		
+		
 * Add a root "view" tag to replace the usual "body"
+
+
+    @example small
+    <view width="200" height="100" bgcolor="lightpink">
+    <view width="100%" height="100%" bgcolor="lightblue"></view>
+    </view>
+	
+	
 * Add components
+	@example small
+	<view width="200" height="100" bgcolor="lightpink">
+		<labelbutton text="I'm a button!" x="0" y="40"></labelbutton>
+		<text text="I'm not!" x="20" y="30"></text>
+	</view>
 * Components are fixed to 0,0 unless you either give them an x or y property, or you add a "layout" class node to the main container
     * spacedlayout can stack things horizontally or vertically using fixed spacing
+	@example small
+    <view width="200" height="100" bgcolor="lightpink">
+		<spacedlayout axis="y" spacing="4" updateparent="true"></spacedlayout>
+		<view>
+			<spacedlayout axis="y" spacing="4" updateparent="true"></spacedlayout>
+			<labelbutton text="We" x="0" y="40"></labelbutton>
+			<labelbutton text="are" x="0" y="40"></labelbutton>
+			<labelbutton text="evenly" x="0" y="40"></labelbutton>
+			<labelbutton text="spaced" x="0" y="40"></labelbutton>
+			<labelbutton text="vertically!" x="0" y="40"></labelbutton>
+		</view>
+		<view>
+			<spacedlayout axis="x" spacing="4" updateparent="true"></spacedlayout>
+			<labelbutton text="We" x="0" y="40"></labelbutton>
+			<labelbutton text="are" x="0" y="40"></labelbutton>
+			<labelbutton text="evenly" x="0" y="40"></labelbutton>
+			<labelbutton text="spaced" x="0" y="40"></labelbutton>
+			<labelbutton text="horizontally!" x="0" y="40"></labelbutton>			
+		</view>
+	</view>
 
 General observations
 -------------------

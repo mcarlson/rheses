@@ -1,4 +1,4 @@
-git reset ./docs/api/
+
 rm -rf docs/api/
 ./docs/lib/config.rb
 coffee -mo ./ -c *.coffee
