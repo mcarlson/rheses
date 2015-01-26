@@ -1,17 +1,4 @@
 <html>
-<expectedoutput>
-<!--
-refusing to create a class that would overwrite the builtin tag div
-refusing to create a class that would overwrite the builtin tag div
-refusing to create a class that would overwrite the builtin tag div
-refusing to create a class that would overwrite the builtin tag div
-refusing to create a class that would overwrite the builtin tag div
-refusing to create a class that would overwrite the builtin tag div
-refusing to create a class that would overwrite the builtin tag div
-refusing to create a class that would overwrite the builtin tag div
-refusing to create a class that would overwrite the builtin tag div
--->
-</expectedoutput>
 <head>
   <title>dr33m | sizetodom mixin Tests</title>
   <style type="text/css">
@@ -51,19 +38,19 @@ refusing to create a class that would overwrite the builtin tag div
     <spacedlayout axis="y" spacing="5"></spacedlayout>
     
     <markup name="v1" bgcolor="#cccccc">
-        <div class="foo"></div><div class="bar"></div><div class="foo"></div>
+      <div class="foo"></div><div class="bar"></div><div class="foo"></div>
     </markup>
     
     <markup name="v2" bgcolor="#cccccc" width="50">
-        <div class="foo"></div> <div class="bar"></div> <div class="foo"></div>
+      <div class="foo"></div> <div class="bar"></div> <div class="foo"></div>
     </markup>
     
-    <view name="v3" bgcolor="#cccccc" markup='[div class="foo"][/div] [div class="bar"][/div][br/][div class="foo"][/div]'>
-      <sizetodom></sizetodom>
-    </view>
+    <view name="v3" with="sizetodom" bgcolor="#cccccc"
+      markup='[div class="foo"][/div] [div class="bar"][/div][br/][div class="foo"][/div]'
+    ></view>
     
     <markup name="v4" bgcolor="#cccccc" border="2" bordercolor="black" padding="4">
-        <div class="foo"></div> <div class="bar"></div> <div class="foo"></div>
+      <div class="foo"></div> <div class="bar"></div> <div class="foo"></div>
     </markup>
     
     <handler event="oninit">

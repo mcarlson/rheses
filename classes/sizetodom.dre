@@ -41,7 +41,7 @@ SOFTWARE. -->
       * to trigger an update of the width and height of the view.
       * 
       */-->
-<class name="sizetodom" extends="mixin" type="coffee">
+<class name="sizetodom" type="coffee" width="auto" height="auto">
   <!--/**
     * @attribute {String} [markup='']
     * Sets the inner HTML of this view. Since the < and > characters are
@@ -50,30 +50,15 @@ SOFTWARE. -->
     * If you need to insert a literal [ character use &amp;#91;. If you need
     * to insert a literal ] character use &amp;#93;.
     */-->
-  <!--attribute name="markup" type="string" value=""></attribute FIXME: should be OK to have this. -->
+  <attribute name="markup" type="string" value=""></attribute>
   <setter name="markup" args="markup">
     markup = @unescape(markup)
-    
-    if markup isnt @markup then @sprite.setText(markup)
-    @sizeToDom()
+    @markup ?= ''
+    if markup isnt @markup
+      @sprite.setText(markup)
+      if @inited then @sizeToDom()
     markup
   </setter>
-
-  <!--/**
-    * We need to sizeToDom once after initialization since we may have started
-    * with HTML inside the element.
-    * @private
-    */-->
-  <method name="initialize" args="skipevents">
-    @super()
-    
-    # FIXME: should not be necessary once setters are working
-    if @markup
-      @markup = @unescape(@markup)
-      @sprite.setText(@markup)
-    
-    @sizeToDom()
-  </method>
 
   <!--/**
     * Look for special value of 'auto' for width and height and handle them
@@ -87,7 +72,7 @@ SOFTWARE. -->
           if value is 'auto'
             @__hasSetWidth = false
             @sprite.setStyle('width', 'auto')
-            @sizeToDom()
+            if @inited then @sizeToDom()
             return
           else
             @__hasSetWidth = true
@@ -95,7 +80,7 @@ SOFTWARE. -->
           if value is 'auto'
             @__hasSetHeight = false
             @sprite.setStyle('height', 'auto')
-            @sizeToDom()
+            if @inited then @sizeToDom()
             return
           else
             @__hasSetHeight = true
@@ -103,9 +88,24 @@ SOFTWARE. -->
     retval = @super()
     
     # Border and padding changes the size of the DOM so do a sizeToDom.
-    if name is 'border' or name is 'padding' then @sizeToDom()
+    if name is 'border' or name is 'padding'
+      if @inited then @sizeToDom()
     
     retval
+  </method>
+
+  <!--/**
+    * Reduce number of sizeToDom calls during initialization.
+    * @private
+    */-->
+  <method name="initialize" args="skipevents">
+    @super()
+    
+    # Makes initial border and padding work
+    @sprite.setStyle('width', 'auto') if @width is @__twiceBorderPadding
+    @sprite.setStyle('height', 'auto') if @height is @__twiceBorderPadding
+    
+    @sizeToDom()
   </method>
 
   <!--/**
@@ -114,12 +114,6 @@ SOFTWARE. -->
     * @returns {void}
     */-->
   <method name="sizeToDom">
-    # Hack to make initial border and padding work since states can't inject
-    # themselves early enought to catch things that happen during
-    # initialization.
-    if @width is @__twiceBorderPadding then @sprite.setStyle('width', 'auto')
-    if @height is @__twiceBorderPadding then @sprite.setStyle('height', 'auto')
-    
     bounds = @sprite.el.getBoundingClientRect()
     
     @__internalUpdate = true
