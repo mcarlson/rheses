@@ -2420,12 +2420,14 @@ window.dr = do ->
         attributes[i.name] = i.value
       attributes
 
-    sendInit = () ->
+    sendInit = (el) ->
       # Create the event.
       event = document.createEvent('Event')
       event.initEvent('dreeminit', true, true)
       window.dispatchEvent(event)
-
+      $(el).addClass('dreeminited')
+      
+      
     # initialize a top-level view element
     initFromElement = (el) ->
       instantiating = true
@@ -2435,8 +2437,7 @@ window.dr = do ->
         initElement(el)
         # register constraints last
         _initConstraints()
-        window.DREEM_INITED = true
-        sendInit()
+        sendInit(el)
       )
 
     getChildElements = (el) ->

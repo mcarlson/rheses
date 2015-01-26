@@ -4,7 +4,7 @@ describe 'handlers', :type => :feature, :js => true do
 
   before :each do
     visit '/spec/features/handlers.html'
-    wait_for_javascript_event 'dreemInited'
+    expect(page).to have_selector('view.dreeminited')
   end
   
   describe 'by reference' do

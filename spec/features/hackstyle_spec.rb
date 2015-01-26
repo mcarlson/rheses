@@ -4,7 +4,7 @@ describe 'hackstyle', :type => :feature, :js => true do
 
   before :each do
     visit '/spec/features/hackstyle.html'
-    wait_for_javascript_event 'dreemInited'
+    expect(page).to have_selector('view.dreeminited')
   end
 
   it 'is updated via jquery and setAttribute' do

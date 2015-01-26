@@ -4,7 +4,7 @@ describe 'dragstate', :type => :feature, :js => true do
 
   before :each do
     visit '/spec/features/dragstate.html'
-    wait_for_javascript_event 'dreemInited'
+    expect(page).to have_selector('view.dreeminited')
   end
   
   #this is pretty hacky, I just couldn't figure out how else to test this other than simulating events from dr.mouse, hence

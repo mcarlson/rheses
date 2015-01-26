@@ -4,7 +4,7 @@ describe 'text', :type => :feature, :js => true do
 
   before :each do
     visit '/spec/features/text.html'
-    wait_for_javascript_event 'dreemInited'
+    expect(page).to have_selector('view.dreeminited')
   end
 
   context 'resize is true'
