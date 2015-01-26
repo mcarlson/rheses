@@ -82,7 +82,7 @@
   })();
 
   window.dr = (function() {
-    var AutoPropertyLayout, Class, Eventable, Events, Idle, Keyboard, Layout, Module, Mouse, Node, Path, Sprite, StartEventable, State, View, Window, callOnIdle, capabilities, closeTo, compiler, constraintScopes, debug, dom, domElementAttributes, eventq, exports, fcamelCase, handlerq, hiddenAttributes, idle, ignoredAttributes, instantiating, knownstyles, matchEvent, mixOf, moduleKeywords, mouseEvents, noop, querystring, rdashAlpha, showWarnings, specialtags, ss, ss2, starttime, test, triggerlock, warnings, _initConstraints;
+    var AutoPropertyLayout, Class, Eventable, Events, Idle, Keyboard, Layout, Module, Mouse, Node, Path, Sprite, StartEventable, State, View, Window, callOnIdle, capabilities, clone, closeTo, compiler, constraintScopes, debug, dom, domElementAttributes, eventq, exports, fcamelCase, handlerq, hiddenAttributes, idle, ignoredAttributes, instantiating, knownstyles, matchEvent, mixOf, moduleKeywords, mouseEvents, noop, querystring, rdashAlpha, showWarnings, specialtags, ss, ss2, starttime, test, triggerlock, warnings, _initConstraints, _processAttrs;
     noop = function() {};
     closeTo = function(a, b, epsilon) {
       epsilon || (epsilon = 0.01);
@@ -694,6 +694,55 @@
       }
       return constraintScopes = [];
     };
+    clone = function(obj) {
+      var name, newobj, val;
+      newobj = {};
+      for (name in obj) {
+        val = obj[name];
+        newobj[name] = val;
+      }
+      return newobj;
+    };
+    _processAttrs = function(sourceAttrs, targetAttrs) {
+      var key, mixin, mixinName, mixins, propname, val, value, _i, _len, _results;
+      if (sourceAttrs["with"] != null) {
+        mixins = sourceAttrs["with"].split(',');
+        for (_i = 0, _len = mixins.length; _i < _len; _i++) {
+          mixinName = mixins[_i];
+          mixin = dr[mixinName.trim()];
+          if (mixin) {
+            _processAttrs(mixin.classattributes, targetAttrs);
+          }
+        }
+      }
+      _results = [];
+      for (key in sourceAttrs) {
+        value = sourceAttrs[key];
+        if (key === 'with') {
+          continue;
+        } else if ((key === '$methods' || key === '$types') && key in targetAttrs) {
+          targetAttrs[key] = clone(targetAttrs[key]);
+          _results.push((function() {
+            var _results1;
+            _results1 = [];
+            for (propname in value) {
+              val = value[propname];
+              if (key === '$methods' && targetAttrs[key][propname]) {
+                _results1.push(targetAttrs[key][propname] = targetAttrs[key][propname].concat(val));
+              } else {
+                _results1.push(targetAttrs[key][propname] = val);
+              }
+            }
+            return _results1;
+          })());
+        } else if (key === '$handlers' && key in targetAttrs) {
+          _results.push(targetAttrs[key] = targetAttrs[key].concat(value));
+        } else {
+          _results.push(targetAttrs[key] = value);
+        }
+      }
+      return _results;
+    };
 
     /**
      * @class dr.node {Core Dreem}
@@ -786,9 +835,14 @@
       lateattributes = ['data'];
 
       function Node(el, attributes) {
-        var args, hassuper, method, methodName, methodObj, methods, _i, _j, _len, _len1, _ref, _ref1;
+        var args, hassuper, method, methodName, methodObj, methods, mixedAttributes, _i, _j, _len, _len1, _ref, _ref1;
         if (attributes == null) {
           attributes = {};
+        }
+        if (attributes["with"] != null) {
+          mixedAttributes = {};
+          _processAttrs(attributes, mixedAttributes);
+          attributes = mixedAttributes;
         }
         methods = attributes.$methods;
         if (methods) {
@@ -3923,18 +3977,6 @@
        * @attribute {Boolean} [initchildren=true]
        * If false, class instances won't initialize their children.
        */
-      var clone;
-
-      clone = function(obj) {
-        var name, newobj, val;
-        newobj = {};
-        for (name in obj) {
-          val = obj[name];
-          newobj[name] = val;
-        }
-        return newobj;
-      };
-
       function Class(el, classattributes) {
         var child, compilertype, extend, haschildren, ignored, instancebody, name, oldbody, processedChildren, skipinitchildren, _i, _len;
         if (classattributes == null) {
@@ -3962,26 +4004,9 @@
           console.warn('overwriting class', name);
         }
         dr[name] = function(instanceel, instanceattributes, internal, skipchildren) {
-          var attributes, children, key, parent, propname, sendInit, val, value, viewel, viewhtml, _j, _len1, _ref;
+          var attributes, children, parent, sendInit, viewel, viewhtml, _j, _len1, _ref;
           attributes = clone(classattributes);
-          for (key in instanceattributes) {
-            value = instanceattributes[key];
-            if ((key === '$methods' || key === '$types') && key in attributes) {
-              attributes[key] = clone(attributes[key]);
-              for (propname in value) {
-                val = value[propname];
-                if (key === '$methods' && attributes[key][propname]) {
-                  attributes[key][propname] = attributes[key][propname].concat(val);
-                } else {
-                  attributes[key][propname] = val;
-                }
-              }
-            } else if (key === '$handlers' && key in attributes) {
-              attributes[key] = attributes[key].concat(value);
-            } else {
-              attributes[key] = value;
-            }
-          }
+          _processAttrs(instanceattributes, attributes);
           if (!(extend in dr)) {
             console.warn('could not find class for tag', extend);
             return;
@@ -4045,6 +4070,7 @@
           return parent;
         };
         dr[name].skipinitchildren = skipinitchildren;
+        dr[name].classattributes = classattributes;
       }
 
       return Class;
