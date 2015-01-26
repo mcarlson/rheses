@@ -3094,7 +3094,7 @@
         return _results;
       };
       findAutoIncludes = function(parentel, finalcallback) {
-        var blacklist, dependencies, fileloaded, filereloader, filerequests, findIncludeURLs, findMissingClasses, includedScripts, inlineclasses, jqel, loadInclude, loadIncludes, loadScript, loadqueue, scriptloading, validator;
+        var blacklist, dependencies, fileloaded, filereloader, filerequests, findIncludeURLs, findMissingClasses, includedScripts, inlineclasses, jqel, loadInclude, loadIncludes, loadMixins, loadScript, loadqueue, scriptloading, validator;
         jqel = $(parentel);
         includedScripts = {};
         loadqueue = [];
@@ -3152,6 +3152,21 @@
           prom.el = el;
           return filerequests.push(prom);
         };
+        loadMixins = function(el, names) {
+          var mixin, _i, _len, _ref, _results;
+          if (names == null) {
+            names = {};
+          }
+          if (el.attributes["with"] && (el.attributes["with"].value != null)) {
+            _ref = el.attributes["with"].value.split(',');
+            _results = [];
+            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+              mixin = _ref[_i];
+              _results.push(names[mixin.trim()] = el);
+            }
+            return _results;
+          }
+        };
         findMissingClasses = function(names) {
           var el, name, out, _i, _len, _ref, _ref1, _ref2;
           if (names == null) {
@@ -3165,13 +3180,16 @@
               if (el.attributes["extends"]) {
                 names[el.attributes["extends"].value] = el;
               }
+              loadMixins(el, names);
               inlineclasses[(_ref1 = el.attributes.name) != null ? _ref1.value : void 0] = true;
             } else if (name === 'replicator') {
               names[name] = el;
               names[el.attributes.classname.value] = el;
+              loadMixins(el, names);
             } else {
               if (_ref2 = el.parentNode.localName, __indexOf.call(specialtags, _ref2) < 0) {
                 names[name] = el;
+                loadMixins(el, names);
               }
             }
           }
@@ -3222,7 +3240,9 @@
             for (name in _ref1) {
               el = _ref1[name];
               fileloaded[name] = true;
-              loadInclude("/classes/" + name + ".dre", el);
+              if (name) {
+                loadInclude("/classes/" + name + ".dre", el);
+              }
             }
             $.when.apply($, filerequests).done(function() {
               var args, includes, oneurl, _j, _len1;

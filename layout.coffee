@@ -2498,6 +2498,12 @@ window.dr = do ->
         prom.el = el
         filerequests.push(prom)
 
+      loadMixins = (el, names={}) ->
+        if el.attributes.with and el.attributes.with.value?
+          # load instance mixins with
+          for mixin in el.attributes.with.value.split(',')
+            names[mixin.trim()] = el
+
       findMissingClasses = (names={}) ->
         # look for class declarations and unloaded classes for tags
         for el in jqel.find('*')
@@ -2507,17 +2513,20 @@ window.dr = do ->
               # load load class extends
               names[el.attributes.extends.value] = el
             # track inline class declaration so we don't attempt to load it later
+            loadMixins(el, names)
             inlineclasses[el.attributes.name?.value] = true
           else if name is 'replicator'
             # load class instance for tag
             names[name] = el
             # load classname instance as well
             names[el.attributes.classname.value] = el
+            loadMixins(el, names)
           else
             # don't autoload elements found inside specialtags, e.g. setter
             unless el.parentNode.localName in specialtags
               # load class instance for tag
               names[name] = el
+              loadMixins(el, names)
 
         # filter out classnames that may have already been loaded or should otherwise be ignored
         out = {}
@@ -2557,7 +2566,7 @@ window.dr = do ->
           # load missing classes
           for name, el of findMissingClasses()
             fileloaded[name] = true
-            loadInclude("/classes/#{name}.dre", el)
+            loadInclude("/classes/#{name}.dre", el) if name
             # console.log 'loading dre', name, url, el
 
           # console.log(filerequests, fileloaded, inlineclasses)
