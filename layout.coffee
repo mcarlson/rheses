@@ -511,6 +511,41 @@ window.dr = do ->
       scope._bindConstraints()
     constraintScopes = []
 
+  clone = (obj) ->
+    newobj = {}
+    for name, val of obj
+      newobj[name] = val
+    newobj
+
+  _processAttrs = (sourceAttrs, targetAttrs) ->
+    # Make sure "with" is processed before the rest of the attributes
+    if sourceAttrs.with?
+      mixins = sourceAttrs.with.split(',')
+      for mixinName in mixins
+        mixin = dr[mixinName.trim()]
+        if mixin then _processAttrs(mixin.classattributes, targetAttrs)
+    
+    for key, value of sourceAttrs
+      if key is 'with'
+        # Don't process 'with' attribute
+        continue
+      else if (key is '$methods' or key is '$types') and key of targetAttrs
+        targetAttrs[key] = clone(targetAttrs[key])
+        # console.log('overwriting', key, targetAttrs[key], value)
+        for propname, val of value
+          if key is '$methods' and targetAttrs[key][propname]
+            targetAttrs[key][propname] = targetAttrs[key][propname].concat(val)
+            # console.log('method override found for', propname, targetAttrs[key][propname])
+          else
+            targetAttrs[key][propname] = val
+          # console.log 'overwrote class attribute', key, targetAttrs[key], value
+      else if key is '$handlers' and key of targetAttrs
+        # console.log 'concat', targetAttrs[key], value
+        targetAttrs[key] = targetAttrs[key].concat(value)
+        # console.log 'after concat', targetAttrs[key]
+      else
+        targetAttrs[key] = value
+
   ###*
   # @class dr.node {Core Dreem}
   # @extends Eventable
@@ -596,6 +631,13 @@ window.dr = do ->
     lateattributes = ['data']
 
     constructor: (el, attributes = {}) ->
+      # Process attributes if mixins are defined so that attributes from
+      # the mixins get applied
+      if attributes.with?
+        mixedAttributes = {}
+        _processAttrs(attributes, mixedAttributes)
+        attributes = mixedAttributes
+
       # Immediately install the 'construct' method if it exists and then call
       # it with the element and attributes so that construct has a chance to
       # modify things.
@@ -2456,6 +2498,12 @@ window.dr = do ->
         prom.el = el
         filerequests.push(prom)
 
+      loadMixins = (el, names={}) ->
+        if el.attributes.with and el.attributes.with.value?
+          # load instance mixins with
+          for mixin in el.attributes.with.value.split(',')
+            names[mixin.trim()] = el
+
       findMissingClasses = (names={}) ->
         # look for class declarations and unloaded classes for tags
         for el in jqel.find('*')
@@ -2465,17 +2513,20 @@ window.dr = do ->
               # load load class extends
               names[el.attributes.extends.value] = el
             # track inline class declaration so we don't attempt to load it later
+            loadMixins(el, names)
             inlineclasses[el.attributes.name?.value] = true
           else if name is 'replicator'
             # load class instance for tag
             names[name] = el
             # load classname instance as well
             names[el.attributes.classname.value] = el
+            loadMixins(el, names)
           else
             # don't autoload elements found inside specialtags, e.g. setter
             unless el.parentNode.localName in specialtags
               # load class instance for tag
               names[name] = el
+              loadMixins(el, names)
 
         # filter out classnames that may have already been loaded or should otherwise be ignored
         out = {}
@@ -2515,7 +2566,7 @@ window.dr = do ->
           # load missing classes
           for name, el of findMissingClasses()
             fileloaded[name] = true
-            loadInclude("/classes/#{name}.dre", el)
+            loadInclude("/classes/#{name}.dre", el) if name
             # console.log 'loading dre', name, url, el
 
           # console.log(filerequests, fileloaded, inlineclasses)
@@ -3058,12 +3109,6 @@ window.dr = do ->
     # @attribute {Boolean} [initchildren=true]
     # If false, class instances won't initialize their children.
     ###
-    clone = (obj) ->
-      newobj = {}
-      for name, val of obj
-        newobj[name] = val
-      newobj
-
     constructor: (el, classattributes = {}) ->
       name = (if classattributes.name then classattributes.name.toLowerCase() else classattributes.name)
       extend = classattributes.extends ?= 'view'
@@ -3098,24 +3143,7 @@ window.dr = do ->
       dr[name] = (instanceel, instanceattributes, internal, skipchildren) ->
         # override class attributes with instance attributes
         attributes = clone(classattributes)
-        for key, value of instanceattributes
-          # console.log 'overriding class attribute', key, value
-          if (key is '$methods' or key is '$types') and key of attributes
-            attributes[key] = clone(attributes[key])
-            # console.log('overwriting', key, attributes[key], value)
-            for propname, val of value
-              if key is '$methods' and attributes[key][propname]
-                attributes[key][propname] = attributes[key][propname].concat(val)
-                # console.log('method override found for', propname, attributes[key][propname])
-              else
-                attributes[key][propname] = val
-              # console.log 'overwrote class attribute', key, attributes[key], value
-          else if key is '$handlers' and key of attributes
-            # console.log 'concat', attributes[key], value
-            attributes[key] = attributes[key].concat(value)
-            # console.log 'after concat', attributes[key]
-          else
-            attributes[key] = value
+        _processAttrs(instanceattributes, attributes)
 
         if not (extend of dr)
           console.warn 'could not find class for tag', extend
@@ -3177,6 +3205,7 @@ window.dr = do ->
 
       # remember this for later when we're instantiating instances
       dr[name].skipinitchildren = skipinitchildren
+      dr[name].classattributes = classattributes
 
   ###*
   # @class dr.layout {Layout}

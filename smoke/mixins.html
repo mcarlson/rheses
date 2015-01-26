@@ -1,0 +1,166 @@
+<html>
+<head>
+  <title>dr33m | mixin Smoke Tests</title>
+  <link rel="stylesheet" href="../examples/css/example.css"/>
+  <script type="text/javascript" src="/lib/jquery-1.9.1.min.js"></script>
+  <script type="text/javascript" src="/lib/acorn.js"></script>
+  <script type="text/javascript" src="/lib/coffee-script.js"></script>
+  <script type="text/javascript" src="/layout.js"></script>
+  <script type="text/javascript" src="/lib/chai.js"></script>
+  <script>
+    var assert = chai.assert
+  </script>
+</head>
+<body>
+  <view id="container" width="100%" height="100%">
+    <class name="sizemixin" extends="mixin" type="coffee" width="100" height="10">
+      <attribute name="misc" type="string" value="hello"></attribute>
+      <attribute name="count" type="number" value="0"></attribute>
+      <handler event="onwidth" args="width">
+        this.count++;
+      </handler>
+      <method name="doFoo" args="foo">
+        return 'foo' + foo;
+      </method>
+    </class>
+    
+    <class name="colormixin" extends="mixin" type="coffee" bgcolor="green">
+      <method name="doBar" args="bar">
+        return 'bar' + bar;
+      </method>
+      <setter name="height" args="height">
+        return @super(2 * height)
+      </setter>
+    </class>
+    
+    <!-- Mixins don't have to be "states". In fact they work better as non-states. -->
+    <class name="sizeandcolormixin" extends="node" with="sizemixin, colormixin" type="coffee" bgcolor="orange" misc="welcome">
+      <handler event="onwidth">
+        this.count++;
+      </handler>
+      <method name="doFoo" args="foo">
+        return 'FOO' + this.super();
+      </method>
+      <setter name="height" args="height">
+        return @super(height + 5)
+      </setter>
+    </class>
+    
+    <spacedlayout axis="y" spacing="1"></spacedlayout>
+    
+    <!-- Test child syntax to verify that "states" still work. -->
+    <view>
+      <sizemixin></sizemixin>
+      <colormixin></colormixin>
+      <handler event="oninit">
+        assert.equal(this.width, 100);
+        assert.equal(this.height, 10); // colormixin gets applied after the sizemixin
+        assert.equal(this.bgcolor, 'green');
+        
+        assert.equal(this.doFoo('blah'), 'fooblah');
+        assert.equal(this.doBar('hey'), 'barhey');
+        
+        assert.equal(this.misc, 'hello');
+        assert.equal(this.count, 2); // I'm not sure why this happens twice, but I don't fully understand states!
+      </handler>
+    </view>
+    
+    <!-- Test "with" syntax. -->
+    <view with="sizemixin, colormixin">
+      <handler event="oninit">
+        assert.equal(this.width, 100);
+        assert.equal(this.height, 20);
+        assert.equal(this.bgcolor, 'green');
+        
+        assert.equal(this.doFoo('blah'), 'fooblah');
+        assert.equal(this.doBar('hey'), 'barhey');
+        
+        assert.equal(this.misc, 'hello');
+        assert.equal(this.count, 1);
+      </handler>
+    </view>
+    <view with="sizeandcolormixin,test_loadmixin,">
+      <handler event="oninit">
+        assert.equal(this.width, 100);
+        assert.equal(this.height, 30); // 2 * (10 + 5)
+        assert.equal(this.bgcolor, 'orange');
+        
+        assert.equal(this.doFoo('blah'), 'FOOfooblah');
+        assert.equal(this.doBar('hey'), 'barhey');
+        
+        assert.equal(this.misc, 'welcome');
+        assert.equal(this.count, 2);
+        assert.equal(typeof this.mixinloaded, 'boolean');
+        assert.equal(this.mixinloaded, true);
+      </handler>
+    </view>
+    <view with="sizeandcolormixin" bgcolor="purple" misc="greetings">
+      <handler event="onwidth">
+        this.count++;
+      </handler>
+      <method name="doBar" args="bar">
+        return 'BAR' + this.super();
+      </method>
+      <method name="doBaz" args="baz">
+        return 'baz' + baz;
+      </method>
+      <setter name="height" args="height">
+        return this.super(height + 4)
+      </setter>
+      <handler event="oninit">
+        assert.equal(this.width, 100);
+        assert.equal(this.height, 38); // 2 * (10 + 5 + 4)
+        assert.equal(this.bgcolor, 'purple');
+        
+        assert.equal(this.doFoo('blah'), 'FOOfooblah');
+        assert.equal(this.doBar('hey'), 'BARbarhey');
+        assert.equal(this.doBaz('you'), 'bazyou');
+        
+        assert.equal(this.misc, 'greetings');
+        assert.equal(this.count, 3);
+      </handler>
+    </view>
+    
+    <!-- Test "with" and child syntax together. -->
+    <view with="sizemixin">
+      <colormixin></colormixin>
+      <handler event="oninit">
+        assert.equal(this.width, 100);
+        assert.equal(this.height, 10); // colormixin gets applied too late since it's a state
+        assert.equal(this.bgcolor, 'green');
+        
+        assert.equal(this.doFoo('blah'), 'fooblah');
+        assert.equal(this.doBar('hey'), 'barhey');
+        
+        assert.equal(this.misc, 'hello');
+        assert.equal(this.count, 1);
+        
+        // Set height again since the state is now applied
+        this.setAttribute('height', 15);
+        assert.equal(this.height, 30);
+      </handler>
+    </view>
+  </view>
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+</body>
+</html>
