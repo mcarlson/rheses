@@ -1,8 +1,25 @@
 dependencies:
   post:
     - npm install simplehttpserver
+    - wget https://saucelabs.com/downloads/sc-latest-linux.tar.gz
+    - tar -xzf sc-latest-linux.tar.gz
+    - git submodule sync
+    - git submodule update --init
+    - cd server && npm install
+    - cd server && DREEM_ROOT=../ node server.js:
+        background: true
 test:
   pre:
     - python -m SimpleHTTPServer 8080:
         background: true
+  override:
+    - ./bin/sc -u $SAUCE_USERNAME -k $SAUCE_ACCESS_KEY -f ~/sc_ready:
+        background: true
+        pwd: sc-*-linux
+    # Wait for tunnel to be ready
+    - while [ ! -e ~/sc_ready ]; do sleep 1; done
+    # Wait for app to be ready
+    - curl --retry 10 --retry-delay 2 -v http://localhost:8080
+    # Run smoke tests
+    - grunt
   
