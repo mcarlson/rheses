@@ -46,6 +46,17 @@
       </setter>
     </class>
     
+    <class name="viewmixin" extends="node" type="coffee">
+      <method name="initialize" args="skipevents">
+        @createChild({class:'view', name:'v1', width:20, height:5, bgcolor:'red'})
+        @createChild({class:'view', with:'colormixin', name:'v2', x:25, width:20, height:5, bgcolor:'yellow'})
+        @super()
+      </method>
+    </class>
+    
+    <class name="everything" with="sizemixin, colormixin, viewmixin">
+    </class>
+    
     <spacedlayout axis="y" spacing="1"></spacedlayout>
     
     <!-- Test child syntax to verify that "states" still work. -->
@@ -66,11 +77,19 @@
     </view>
     
     <!-- Test "with" syntax. -->
-    <view with="sizemixin, colormixin">
+    <view with="sizemixin, colormixin, viewmixin">
       <handler event="oninit">
         assert.equal(this.width, 100);
         assert.equal(this.height, 20);
         assert.equal(this.bgcolor, 'green');
+        
+        assert.equal(this.v1.width, 20);
+        assert.equal(this.v1.height, 5);
+        assert.equal(this.v1.bgcolor, 'red');
+        assert.equal(this.v2.width, 20);
+        assert.equal(this.v2.height, 10);
+        assert.equal(this.v2.x, 25);
+        assert.equal(this.v2.bgcolor, 'yellow');
         
         assert.equal(this.doFoo('blah'), 'fooblah');
         assert.equal(this.doBar('hey'), 'barhey');
@@ -79,11 +98,19 @@
         assert.equal(this.count, 1);
       </handler>
     </view>
-    <view with="sizeandcolormixin,test_loadmixin,">
+    <view with="sizeandcolormixin, viewmixin,test_loadmixin,">
       <handler event="oninit">
         assert.equal(this.width, 100);
         assert.equal(this.height, 30); // 2 * (10 + 5)
         assert.equal(this.bgcolor, 'orange');
+        
+        assert.equal(this.v1.width, 20);
+        assert.equal(this.v1.height, 5);
+        assert.equal(this.v1.bgcolor, 'red');
+        assert.equal(this.v2.width, 20);
+        assert.equal(this.v2.height, 10);
+        assert.equal(this.v2.x, 25);
+        assert.equal(this.v2.bgcolor, 'yellow');
         
         assert.equal(this.doFoo('blah'), 'FOOfooblah');
         assert.equal(this.doBar('hey'), 'barhey');
@@ -140,6 +167,28 @@
         assert.equal(this.height, 30);
       </handler>
     </view>
+    
+    <everything>
+      <handler event="oninit">
+        assert.equal(this.width, 100);
+        assert.equal(this.height, 20);
+        assert.equal(this.bgcolor, 'green');
+        
+        assert.equal(this.v1.width, 20);
+        assert.equal(this.v1.height, 5);
+        assert.equal(this.v1.bgcolor, 'red');
+        assert.equal(this.v2.width, 20);
+        assert.equal(this.v2.height, 10);
+        assert.equal(this.v2.x, 25);
+        assert.equal(this.v2.bgcolor, 'yellow');
+        
+        assert.equal(this.doFoo('blah'), 'fooblah');
+        assert.equal(this.doBar('hey'), 'barhey');
+        
+        assert.equal(this.misc, 'hello');
+        assert.equal(this.count, 1);
+      </handler>
+    </everything>
   </view>
 <!-- The MIT License (MIT)
 

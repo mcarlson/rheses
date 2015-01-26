@@ -835,14 +835,20 @@
       lateattributes = ['data'];
 
       function Node(el, attributes) {
-        var args, hassuper, method, methodName, methodObj, methods, mixedAttributes, _i, _j, _len, _len1, _ref, _ref1;
+        var args, hassuper, method, methodName, methodObj, methods, mixedAttributes, supressTagname, _i, _j, _len, _len1, _ref, _ref1;
         if (attributes == null) {
           attributes = {};
         }
         if (attributes["with"] != null) {
+          if (attributes.$tagname == null) {
+            supressTagname = true;
+          }
           mixedAttributes = {};
           _processAttrs(attributes, mixedAttributes);
           attributes = mixedAttributes;
+          if (supressTagname) {
+            delete attributes.$tagname;
+          }
         }
         methods = attributes.$methods;
         if (methods) {
