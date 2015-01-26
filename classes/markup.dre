@@ -44,6 +44,5 @@ SOFTWARE. -->
       *         <b>Here is some text</b> that is really just HTML.
       *     </markup>
       */-->
-<class name="markup" type="coffee"><!--  initchildren="false" FIXME -->
-  <sizetodom></sizetodom>
+<class name="markup" with="sizetodom" type="coffee" initchildren="false">
 </class>
