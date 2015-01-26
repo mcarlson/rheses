@@ -3,3 +3,4 @@
 apidocs/
 .DS_Store
 *.marks
+sauce_connect.log

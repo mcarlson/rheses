@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'checkbutton', :type => :feature, :js => true do
+describe 'checkbutton', :type => :feature, :js => true, :sauce => true do
 
   before :each do
     visit '/spec/features/checkbutton.html'

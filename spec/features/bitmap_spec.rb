@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'bitmap', :type => :feature, :js => true do
+describe 'bitmap', :type => :feature, :js => true, :sauce => true do
 
   before :each do
     visit '/spec/features/bitmap.html'

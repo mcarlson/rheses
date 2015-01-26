@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'inputtext', :type => :feature, :js => true do
+describe 'inputtext', :type => :feature, :js => true, :sauce => true do
 
   before :each do
     visit '/spec/features/inputtext.html'
