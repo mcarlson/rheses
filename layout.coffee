@@ -634,9 +634,15 @@ window.dr = do ->
       # Process attributes if mixins are defined so that attributes from
       # the mixins get applied
       if attributes.with?
+        if !attributes.$tagname? then supressTagname = true
+        
         mixedAttributes = {}
         _processAttrs(attributes, mixedAttributes)
         attributes = mixedAttributes
+        
+        # Programatic instantiation doesn't work with a $tagname and 'class'
+        # was inherited from the mixins so delete it.
+        if supressTagname then delete attributes.$tagname
 
       # Immediately install the 'construct' method if it exists and then call
       # it with the element and attributes so that construct has a chance to
