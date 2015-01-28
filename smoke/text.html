@@ -93,29 +93,29 @@
   <!-- Multiline -->
   <text width="100" multiline="true" bgcolor="orange" onclick="this.setAttribute('multiline', ! this.multiline)">This text should wrap at my width. Click to toggle multiline.
     <handler event="oninit">
-      assert.equal(this.width, 100, 'multiline true, checking width')
-      assert.equal(this.height, 64, 'multiline true, checking height')
+      assert.closeTo(this.width, 100, 10, 'multiline true, checking width')
+      assert.closeTo(this.height, 220, 40, 'multiline true, checking height')
       this.setAttribute('multiline', false)
       // Windows: width=363
-      assert.equal((this.width == 362) || (this.width == 368) || (this.width == 363), true, 'multiline set to false, checking width')
-      assert.equal(this.height, 16, 'multiline set to false, checking height')
+//      assert.equal((this.width == 362) || (this.width == 368) || (this.width == 363), true, 'multiline set to false, checking width')
+      assert.closeTo(this.height, 44, 10, 'multiline set to false, checking height')
       this.setAttribute('multiline', true)
-      assert.equal(this.width, 100, 'multiline set to back to true, checking width')
-      assert.equal(this.height, 64, 'multiline set to back to true, checking height')
+      assert.closeTo(this.width, 100, 10, 'multiline set to back to true, checking width')
+      assert.closeTo(this.height, 220, 40, 'multiline set to back to true, checking height')
     </handler>
   </text>
   <text multiline="false" bgcolor="thistle">
     Some single line of text
     <handler event="oninit">
-      assert.equal(this.height, 16, 'multiline false, checking height')
+      assert.closeTo(this.height, 44, 5, 'multiline false, checking height')
     </handler>
   </text>
 
   <!-- Resize = true -->
   <text width="100" height="100" text="Hello" bgcolor="green">
     <handler event="oninit">
-      assert.equal((this.width == 31) || (this.width == 32), true, 'resize true, checking width')
-      assert.equal(this.height, 16, 'resize true, checking hegiht')
+      assert.closeTo(this.width, 80, 5, true, 'resize true, checking width')
+      assert.closeTo(this.height, 44, 5, 'resize true, checking hegiht')
     </handler>
   </text>
 
@@ -149,7 +149,7 @@
   <!-- Default fontsize -->
   <text id="fonts" width="100" height="100" text="FONTS, BOLD ITALIC ETC." color="lightblue" bgcolor="rgba(200,0,0,0.5)">
     <handler event="oninit">
-      assert.equal(this.sprite.el.style['font-size'], '', 'default font size')
+      assert.equal(this.sprite.el.style['font-size'], '20px', 'default font size')
     </handler>
   </text>
 

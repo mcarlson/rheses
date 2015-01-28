@@ -73,15 +73,15 @@
     <handler event="oninit">
       assert.equal(this.width, 100);
       assert.equal(this.height, 30);
-      assert.equal($(this.sprite.input).width(), 100)
-      assert.equal($(this.sprite.input).height(), 30)
+      assert.equal($(this.sprite.input).width(), 40)
+      assert.equal($(this.sprite.input).height(), 0)
 
-      this.setAttribute('width', 200)
+      this.setAttribute('width', 140)
       this.setAttribute('height', 100)
-      assert.equal(this.width, 200)
+      assert.equal(this.width, 140)
       assert.equal(this.height, 100)
-      assert.equal($(this.sprite.input).width(), 200)
-      assert.equal($(this.sprite.input).height(), 100)
+      assert.equal($(this.sprite.input).width(), 80)
+      assert.equal($(this.sprite.input).height(), 60)
     </handler>
   </inputtext>
   
@@ -90,15 +90,15 @@
     <handler event="oninit">
       assert.equal(this.width, 100);
       assert.equal(this.height, 30);
-      assert.equal($(this.sprite.input).width(), 90)
-      assert.equal($(this.sprite.input).height(), 20)
+      assert.equal($(this.sprite.input).width(), 38)
+      assert.equal($(this.sprite.input).height(), 0)
 
       this.setAttribute('width', 200)
       this.setAttribute('height', 100)
       assert.equal(this.width, 200)
       assert.equal(this.height, 100)
-      assert.equal($(this.sprite.input).width(), 190)
-      assert.equal($(this.sprite.input).height(), 90)
+      assert.equal($(this.sprite.input).width(), 138)
+      assert.equal($(this.sprite.input).height(), 58)
     </handler>
   </inputtext>
   
@@ -108,15 +108,15 @@
     <handler event="oninit">
       assert.equal(this.width, 100);
       assert.equal(this.height, 30);
-      assert.equal($(this.sprite.input).width(), 90)
-      assert.equal($(this.sprite.input).height(), 20)
+      assert.equal($(this.sprite.input).width(), 38)
+      assert.equal($(this.sprite.input).height(), 0)
 
       this.setAttribute('width', 200)
       this.setAttribute('height', 100)
       assert.equal(this.width, 200)
       assert.equal(this.height, 100)
-      assert.equal($(this.sprite.input).width(), 190)
-      assert.equal($(this.sprite.input).height(), 90)
+      assert.equal($(this.sprite.input).width(), 138)
+      assert.equal($(this.sprite.input).height(), 58)
     </handler>
   </inputtext>
 
@@ -134,7 +134,7 @@
     Text
     <handler event="oninit">
       assert.equal(this.width, 100)
-      assert.equal(this.height, 16)
+      assert.equal(this.height, 20)
     </handler>
   </inputtext>
 
