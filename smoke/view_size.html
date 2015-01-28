@@ -104,14 +104,50 @@
       </handler>
     </block>
     
+    <!-- Auto size with parent constrained children -->
+    <block name="auto6a" width="auto" height="auto" bgcolor="green">
+      <item name="v1"
+        x="${this.parent.width / 2}" y="${this.parent.height / 2}"
+        width="${this.parent.width / 2}" height="${this.parent.height / 2}"
+        bgcolor="#ff0000"
+      ></item>
+      <item name="v2" x="105"></item>
+      <item name="v3" y="55"></item>
+      <handler event="oninit">
+        assert.equal(this.width, 130);
+        assert.equal(this.height, 80);
+      </handler>
+    </block>
+    
+    <!-- Auto size with a single parent constrained child should result
+         in a view with 0 size. -->
+    <block name="auto6b" width="auto" height="auto" bgcolor="orange">
+      <item name="v1"
+        width="${this.parent.width}" height="${this.parent.height}"
+        bgcolor="#ff0000"
+      ></item>
+      <handler event="oninit">
+        assert.equal(this.width, 0);
+        assert.equal(this.height, 0);
+      </handler>
+    </block>
+    
     <!-- Auto size with right/center or middle/bottom aligned children -->
-    <block name="auto6" width="auto" height="auto">
+    <block name="auto7" width="auto" height="auto">
       <item name="v1" x="right" y="bottom" bgcolor="#ff0000"></item>
       <item name="v2" x="205"></item>
       <item name="v3" y="55"></item>
       <handler event="oninit">
         assert.equal(this.width, 230);
         assert.equal(this.height, 80);
+      </handler>
+    </block>
+    
+    <!-- Auto size works when initially empty and when finally left empty -->
+    <block name="auto8" width="auto" height="auto">
+      <handler event="oninit">
+        assert.equal(this.width, 0);
+        assert.equal(this.height, 0);
       </handler>
     </block>
     
@@ -265,9 +301,57 @@
       assert.equal(block.width, 195);
       assert.equal(block.height, 90);
       
+      // Change position of child of an auto sized view with a child
+      // that is constrained to the parent width/height. Because constraints
+      // prevent loops the constained child view will behave as expected even
+      // though the actual relationship is a circular reference.
+      block = this.auto6a;
+      v1 = block.v1;
+      v2 = block.v2;
+      v3 = block.v3;
+      
+      v2.setAttribute('x', 50);
+      
+      assert.equal(v2.x, 50);
+      assert.equal(v1.x, 65);
+      assert.equal(v1.width, 65);
+      assert.equal(block.width, 130);
+      assert.equal(block.height, 80);
+      
+      v2.setAttribute('x', 155);
+      
+      assert.equal(v2.x, 155);
+      assert.equal(v1.x, 90);
+      assert.equal(v1.width, 90);
+      assert.equal(block.width, 180);
+      assert.equal(block.height, 80);
+      
+      // Add a view to the empty block and we should see the constrained
+      // view resize itself.
+      block = this.auto6b;
+      v1 = block.v1;
+      
+      v2 = block.createChild({class: 'item', x:45, y:45});
+      
+      assert.equal(v2.x, 45);
+      assert.equal(v2.y, 45);
+      assert.equal(v1.width, 70);
+      assert.equal(v1.height, 70);
+      assert.equal(block.width, 70);
+      assert.equal(block.height, 70);
+      
+      // Nothing should change after view destruction
+      v2.destroy();
+      
+      assert.equal(v2.destroyed, true);
+      assert.equal(v1.width, 70);
+      assert.equal(v1.height, 70);
+      assert.equal(block.width, 70);
+      assert.equal(block.height, 70);
+      
       // Change position of child of an auto sized view with aligned children
       // The aligned children should be ignored.
-      block = this.auto6;
+      block = this.auto7;
       v1 = block.v1;
       v2 = block.v2;
       v3 = block.v3;
@@ -292,9 +376,25 @@
       assert.equal(block.width, 195);
       assert.equal(block.height, 90);
       
+      // Add and destroy a view to the "empty" block should leave things
+      // in the original state.
+      block = this.auto8;
+
+      v1 = block.createChild({class: 'item', x:45, y:45});
+      
+      assert.equal(v1.x, 45);
+      assert.equal(v1.y, 45);
+      assert.equal(block.width, 70);
+      assert.equal(block.height, 70);
+      
+      v1.destroy();
+      
+      assert.equal(block.width, 0);
+      assert.equal(block.height, 0);
+      
       // Finally, verify root view since we gave it a width of auto
       assert.equal(this.width, 210);
-      assert.equal(this.height, 587);
+      assert.equal(this.height, 752);
     </handler>
   </view>
 <!-- The MIT License (MIT)
