@@ -143,14 +143,6 @@
       </handler>
     </block>
     
-    <!-- Auto size works when initially empty and when finally left empty -->
-    <block name="auto8" width="auto" height="auto">
-      <handler event="oninit">
-        assert.equal(this.width, 0);
-        assert.equal(this.height, 0);
-      </handler>
-    </block>
-    
     <handler event="oninit">
       //// Verify Basic Sizing ////
       var block = this.basic, v1, v2, v3, v4, v5;
@@ -376,25 +368,9 @@
       assert.equal(block.width, 195);
       assert.equal(block.height, 90);
       
-      // Add and destroy a view to the "empty" block should leave things
-      // in the original state.
-      block = this.auto8;
-
-      v1 = block.createChild({class: 'item', x:45, y:45});
-      
-      assert.equal(v1.x, 45);
-      assert.equal(v1.y, 45);
-      assert.equal(block.width, 70);
-      assert.equal(block.height, 70);
-      
-      v1.destroy();
-      
-      assert.equal(block.width, 0);
-      assert.equal(block.height, 0);
-      
       // Finally, verify root view since we gave it a width of auto
       assert.equal(this.width, 210);
-      assert.equal(this.height, 752);
+      assert.equal(this.height, 747);
     </handler>
   </view>
 <!-- The MIT License (MIT)
