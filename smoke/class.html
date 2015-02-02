@@ -184,6 +184,26 @@
 
   <employee height="40" firstname="Donathan" lastname="Chillburger" jobtitle="COO"></employee>
 
+  <!-- Test: package support -->
+  <test-text text="blah">
+    <handler event="oninit">
+      // Verify this instance is a test-text instance.
+      assert.equal("test-text", this.$tagname);
+      assert.equal("blah", this.text);
+      assert.equal(true, this.bold);
+      
+      // Verify the 'text' class exists in the 'test' package
+      assert.equal(true, dr['test-text'] != null);
+      assert.equal(true, dr.test.text != null);
+      assert.equal(dr['test-text'], dr.test.text);
+      
+      // Make a new instance using a class from the 'test' package.
+      var child = this.parent.createChild({class:'test-text', text:'hello'});
+      assert.equal("hello", child.text);
+      assert.equal(true, child.bold);
+      assert.equal("test-text", child.$tagname);
+    </handler>
+  </test-text>
 </view>
 <!-- The MIT License (MIT)
 

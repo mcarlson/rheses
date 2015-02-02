@@ -82,7 +82,7 @@
   })();
 
   window.dr = (function() {
-    var AutoPropertyLayout, Class, Eventable, Events, Idle, Keyboard, Layout, Module, Mouse, Node, Path, Sprite, StartEventable, State, View, Window, callOnIdle, capabilities, clone, closeTo, compiler, constraintScopes, debug, dom, domElementAttributes, eventq, exports, fcamelCase, handlerq, hiddenAttributes, idle, ignoredAttributes, instantiating, knownstyles, matchEvent, mixOf, moduleKeywords, mouseEvents, noop, querystring, rdashAlpha, showWarnings, specialtags, ss, ss2, starttime, test, triggerlock, warnings, _initConstraints, _processAttrs;
+    var AutoPropertyLayout, Class, Eventable, Events, Idle, Keyboard, Layout, Module, Mouse, Node, Path, Sprite, StartEventable, State, View, Window, callOnIdle, capabilities, clone, closeTo, compiler, constraintScopes, debug, dom, domElementAttributes, eventq, exports, fcamelCase, handlerq, hiddenAttributes, idle, ignoredAttributes, instantiating, knownstyles, matchEvent, mixOf, moduleKeywords, mouseEvents, noop, querystring, rdashAlpha, showWarnings, specialtags, ss, ss2, starttime, tagPackageSeparator, test, triggerlock, warnings, _initConstraints, _processAttrs;
     noop = function() {};
     closeTo = function(a, b, epsilon) {
       epsilon || (epsilon = 0.01);
@@ -3059,6 +3059,7 @@
     };
     specialtags = ['handler', 'method', 'attribute', 'setter', 'include'];
     matchEvent = /^on(.+)/;
+    tagPackageSeparator = '-';
     dom = (function() {
       var builtinTags, checkRequiredAttributes, exports, findAutoIncludes, flattenattributes, getChildElements, htmlDecode, initAllElements, initElement, initFromElement, processSpecialTags, requiredAttributes, sendInit, writeCSS;
       flattenattributes = function(namednodemap) {
@@ -3247,7 +3248,7 @@
               el = _ref1[name];
               fileloaded[name] = true;
               if (name) {
-                loadInclude("/classes/" + name + ".dre", el);
+                loadInclude("/classes/" + name.split(tagPackageSeparator).join('/') + ".dre", el);
               }
             }
             $.when.apply($, filerequests).done(function() {
@@ -4004,7 +4005,7 @@
        * If false, class instances won't initialize their children.
        */
       function Class(el, classattributes) {
-        var child, compilertype, extend, haschildren, ignored, instancebody, name, oldbody, processedChildren, skipinitchildren, _i, _len;
+        var child, compilertype, context, extend, haschildren, idx, ignored, instancebody, klass, len, name, newContext, oldbody, part, parts, processedChildren, skipinitchildren, _i, _j, _len, _len1;
         if (classattributes == null) {
           classattributes = {};
         }
@@ -4029,7 +4030,7 @@
         if (name in dr) {
           console.warn('overwriting class', name);
         }
-        dr[name] = function(instanceel, instanceattributes, internal, skipchildren) {
+        dr[name] = klass = function(instanceel, instanceattributes, internal, skipchildren) {
           var attributes, children, parent, sendInit, viewel, viewhtml, _j, _len1, _ref;
           attributes = clone(classattributes);
           _processAttrs(instanceattributes, attributes);
@@ -4095,8 +4096,27 @@
           }
           return parent;
         };
-        dr[name].skipinitchildren = skipinitchildren;
-        dr[name].classattributes = classattributes;
+        if (name) {
+          parts = name.split(tagPackageSeparator);
+          len = parts.length;
+          if (len > 1) {
+            context = dr;
+            for (idx = _j = 0, _len1 = parts.length; _j < _len1; idx = ++_j) {
+              part = parts[idx];
+              if (idx === len - 1) {
+                context[part] = klass;
+              } else {
+                newContext = context[part];
+                if (!newContext) {
+                  context[part] = newContext = {};
+                }
+                context = newContext;
+              }
+            }
+          }
+        }
+        klass.skipinitchildren = skipinitchildren;
+        klass.classattributes = classattributes;
       }
 
       return Class;
