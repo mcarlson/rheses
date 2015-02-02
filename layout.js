@@ -706,7 +706,7 @@
     _processAttrs = function(sourceAttrs, targetAttrs) {
       var key, mixin, mixinName, mixins, propname, val, value, _i, _len, _results;
       if (sourceAttrs["with"] != null) {
-        mixins = sourceAttrs["with"].split(',');
+        mixins = sourceAttrs["with"].split(',').reverse();
         for (_i = 0, _len = mixins.length; _i < _len; _i++) {
           mixinName = mixins[_i];
           mixin = dr[mixinName.trim()];
