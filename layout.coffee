@@ -29,7 +29,6 @@ stylemap =
   z: 'z-index'
   bgcolor: 'backgroundColor'
   visible: 'display'
-  border: 'borderWidth'
   borderstyle: 'borderStyle'
   bordercolor: 'borderColor'
   boxshadow: 'boxShadow'
@@ -1821,8 +1820,8 @@ window.dr = do ->
       width:0, height:0,
       opacity: 1,
       clickable:false, clip:false, scrollable:false, visible:true, cursor:'pointer',
-      bordercolor:'transparent', borderstyle:'solid', border:0,
-      padding:0, ignorelayout:false, scrollbars:false
+      bordercolor:'transparent', borderstyle:'solid',
+      ignorelayout:false, scrollbars:false
     }
     construct: (el, attributes) ->
       ###*
@@ -1843,7 +1842,11 @@ window.dr = do ->
         rotation: 'number', opacity: 'number',
         width: 'positivenumber', height: 'positivenumber',
         clickable: 'boolean', clip: 'boolean', scrollable: 'boolean', visible: 'boolean',
+
         border: 'positivenumber', padding: 'positivenumber',
+        leftborder: 'positivenumber', rightborder: 'positivenumber', topborder: 'positivenumber', bottomborder: 'positivenumber',
+        leftpadding: 'positivenumber', rightpadding: 'positivenumber', toppadding: 'positivenumber', bottompadding: 'positivenumber',
+
         ignorelayout:'json', layouthint:'json',
         scrollx: 'number', scrolly: 'number', scrollbars: 'boolean'
       }
@@ -1855,11 +1858,14 @@ window.dr = do ->
       @_setDefaults(attributes, defaults)
 
       # Used in many calculations so precalculating for performance.
-      @__twiceBorderPadding = 0
+      @__fullBorderPaddingWidth = 0
+      @__fullBorderPaddingHeight = 0
 
       # prevent sprite updates for these
       @xanchor = @yanchor = 'center'
-      @border = @padding = @width = @height = @zanchor = @boundsxdiff = @boundsydiff = @boundsx = @boundsy = @boundswidth = @boundsheight = 0
+      @leftborder = @rightborder = @topborder = @bottomborder =
+        @leftpadding = @rightpadding = @toppadding = @bottompadding =
+        @width = @height = @zanchor = @boundsxdiff = @boundsydiff = @boundsx = @boundsy = @boundswidth = @boundsheight = 0
       @clip = @scrollable = @clickable = @isaligned = @isvaligned = false
 
       # console.log 'sprite tagname', attributes.$tagname
@@ -2089,35 +2095,107 @@ window.dr = do ->
 
     set_width: (width) ->
       # Prevent width smaller than border and padding
-      width = Math.max(width, @__twiceBorderPadding)
+      width = Math.max(width, @__fullBorderPaddingWidth)
 
-      @setAttribute('innerwidth', width - @__twiceBorderPadding, true, true, true, true)
+      @setAttribute('innerwidth', width - @__fullBorderPaddingWidth, true, true, true, true)
       width
 
     set_height: (height) ->
       # Prevent height smaller than border and padding
-      height = Math.max(height, @__twiceBorderPadding)
+      height = Math.max(height, @__fullBorderPaddingHeight)
 
-      @setAttribute('innerheight', height - @__twiceBorderPadding, true, true, true, true)
+      @setAttribute('innerheight', height - @__fullBorderPaddingHeight, true, true, true, true)
       height
 
-    set_border: (border) ->
-      @__updateInnerMeasures(2*(border + @padding))
+    set_topborder: (border) ->
+      return if border < 0
+      @sprite.setStyle('border-top-width', border)
+      @__updateInnerMeasuresFor(topborder: border)
       border
 
-    set_padding: (padding) ->
-      @__updateInnerMeasures(2*(@border + padding))
+    set_bottomborder: (border) ->
+      return if border < 0
+      @sprite.setStyle('border-bottom-width', border)
+      @__updateInnerMeasuresFor(bottomborder: border)
+      border
+
+    set_leftborder: (border) ->
+      return if border < 0
+      @sprite.setStyle('border-left-width', border)
+      @__updateInnerMeasuresFor(leftborder: border)
+      border
+
+    set_rightborder: (border) ->
+      return if border < 0
+      @sprite.setStyle('border-right-width', border)
+      @__updateInnerMeasuresFor(rightborder: border)
+      border
+
+    set_border: (border) ->
+      return if border < 0
+      @topborder    = @set_topborder(border)
+      @bottomborder = @set_bottomborder(border)
+      @leftborder   = @set_leftborder(border)
+      @rightborder  = @set_rightborder(border)
+      @__updateInnerMeasuresFor()
+      @border
+
+    set_toppadding: (padding) ->
+      return if padding < 0
+      @sprite.setStyle('padding-top', padding)
+      @__updateInnerMeasuresFor(toppadding: padding)
       padding
 
-    __updateInnerMeasures: (inset) ->
-      @__twiceBorderPadding = inset
+    set_bottompadding: (padding) ->
+      return if padding < 0
+      @sprite.setStyle('padding-bottom', padding)
+      @__updateInnerMeasuresFor(bottompadding: padding)
+      padding
+
+    set_leftpadding: (padding) ->
+      return if padding < 0
+      @sprite.setStyle('padding-left', padding)
+      @__updateInnerMeasuresFor(leftpadding: padding)
+      padding
+
+    set_rightpadding: (padding) ->
+      return if padding < 0
+      @sprite.setStyle('padding-right', padding)
+      @__updateInnerMeasuresFor(rightpadding: padding)
+      padding
+
+    set_padding: (padding) ->
+      return if padding < 0
+      @toppadding    = @set_toppadding(padding)
+      @bottompadding = @set_bottompadding(padding)
+      @leftpadding   = @set_leftpadding(padding)
+      @rightpadding  = @set_rightpadding(padding)
+      @__updateInnerMeasuresFor()
+      @padding
+
+    __updateInnerMeasuresFor: (o={}) ->
+      m = { leftborder: @leftborder, rightborder: @rightborder, topborder: @topborder, bottomborder: @bottomborder, leftpadding: @leftpadding, rightpadding: @rightpadding, toppadding: @toppadding, bottompadding: @bottompadding }
+
+      m[k] = v for k, v of o
+
+      w = m.leftborder + m.rightborder  + m.leftpadding + m.rightpadding
+      h = m.topborder  + m.bottomborder + m.toppadding  + m.bottompadding
+
+      @padding = (m.toppadding + m.bottompadding + m.leftpadding + m.rightpadding) / 4.0
+      @border  = (m.topborder  + m.bottomborder  + m.leftborder  + m.rightborder)  / 4.0
+
+      @__updateInnerMeasures(w, h)
+
+    __updateInnerMeasures: (widthinset, heightinset) ->
+      @__fullBorderPaddingWidth = widthinset
+      @__fullBorderPaddingHeight = heightinset
 
       # Prevent width/height less than twice border padding
-      if inset > @width then @setAttribute('width', inset, false, true, true)
-      if inset > @height then @setAttribute('height', inset, false, true, true)
+      if widthinset  > @width  then @setAttribute('width',  widthinset,  false, true, true)
+      if heightinset > @height then @setAttribute('height', heightinset, false, true, true)
 
-      @setAttribute('innerwidth', @width - inset, true, true, true, true)
-      @setAttribute('innerheight', @height - inset, true, true, true, true)
+      @setAttribute('innerwidth',  @width  - widthinset,  true, true, true, true)
+      @setAttribute('innerheight', @height - heightinset, true, true, true, true)
 
     set_clickable: (clickable) ->
       @sprite.set_clickable(clickable) if clickable isnt @clickable
@@ -2285,10 +2363,10 @@ window.dr = do ->
       scrollbars
 
     set_scrollx: (scrollx) ->
-      if isNaN scrollx then 0 else Math.max(0, Math.min(@sprite.el.scrollWidth - @width + 2*@border, scrollx))
+      if isNaN scrollx then 0 else Math.max(0, Math.min(@sprite.el.scrollWidth - @width + @leftborder + @rightborder, scrollx))
 
     set_scrolly: (scrolly) ->
-      if isNaN scrolly then 0 else Math.max(0, Math.min(@sprite.el.scrollHeight - @height + 2*@border, scrolly))
+      if isNaN scrolly then 0 else Math.max(0, Math.min(@sprite.el.scrollHeight - @height + @topborder + @bottomborder, scrolly))
 
     ###*
     # Calls doSubviewAdded/doLayoutAdded if the added subnode is a view or
@@ -3488,14 +3566,14 @@ window.dr = do ->
           while i
             sv = svs[--i]
             unless @_skipX(sv) then max = maxFunc(max, sv.boundsx + maxFunc(0, sv.boundswidth))
-          val = max + parent.__twiceBorderPadding
+          val = max + parent.__fullBorderPaddingWidth
           if parent.width isnt val then parent.setAttribute('width', val, false, true)
         else
           # Find the farthest vertical extent of any subview
           while i
             sv = svs[--i]
             unless @_skipY(sv) then max = maxFunc(max, sv.boundsy + maxFunc(0, sv.boundsheight))
-          val = max + parent.__twiceBorderPadding
+          val = max + parent.__fullBorderPaddingHeight
           if parent.height isnt val then parent.setAttribute('height', val, false, true)
 
         @locked = false
