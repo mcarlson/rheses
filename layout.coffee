@@ -520,7 +520,9 @@ window.dr = do ->
   _processAttrs = (sourceAttrs, targetAttrs) ->
     # Make sure "with" is processed before the rest of the attributes
     if sourceAttrs.with?
-      mixins = sourceAttrs.with.split(',')
+      # Process mixins from right to left since the rightmost mixin is more
+      # "super" than the leftmost.
+      mixins = sourceAttrs.with.split(',').reverse()
       for mixinName in mixins
         mixin = dr[mixinName.trim()]
         if mixin then _processAttrs(mixin.classattributes, targetAttrs)
