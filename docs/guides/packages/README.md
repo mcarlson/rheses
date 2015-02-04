@@ -12,6 +12,6 @@ The class name used within the .dre file must be fully qualified. A fully qualif
 
 For example, if you have a package named 'foo' and a class named 'bar' the .dre file would be found at classes/foo/bar.dre and the fully qualified name of the class used within the .dre file would be 'foo-bar'.
 
-If you need to programatically create an instance of a class that is within a package you can reference that class as dr.<package_name>.<class_name>. You can also reference the class as dr['<fully_qualified_class_name>'].
+If you need to programatically create an instance of a class that is within a package you can reference that class as dr.&lt;package_name&gt;.&lt;class_name&gt;. You can also reference the class as dr['&lt;fully_qualified_class_name&gt;'].
 
 If you are using the createChild method to create a class from a package you should use the fully qualified package-class name.
