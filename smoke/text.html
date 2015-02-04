@@ -153,6 +153,7 @@
     </handler>
   </text>
 
+    <!-- Test that setting fonsize alone isn't clobbered by an empty font-family -->
   <text id="fonts" width="100" height="100" text="FONTS, BOLD ITALIC ETC." fontsize="20" color="lightblue" bgcolor="rgba(200,0,0,0.5)">
     <handler event="oninit">
       assert.equal(this.sprite.el.style['font-size'], '20px', 'default font size')

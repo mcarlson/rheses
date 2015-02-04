@@ -42,7 +42,8 @@
     borderstyle: 'borderStyle',
     bordercolor: 'borderColor',
     boxshadow: 'boxShadow',
-    fontsize: 'fontSize'
+    fontsize: 'fontSize',
+    fontfamily: 'fontFamily'
   };
 
   propmap = {

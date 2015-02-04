@@ -92,14 +92,6 @@ SOFTWARE. -->
   */-->
 
   <attribute name="fontsize" type="number" value="14"></attribute>
-  <setter name="fontsize" args="size">
-    if size != 0
-      @sprite.setStyle('font-size', size)
-    else
-      @sprite.setStyle('font-size', undefined)
-
-    return size
-  </setter>
 
   <!--/**
   *
@@ -108,14 +100,6 @@ SOFTWARE. -->
   *
   */-->
   <attribute name="fontfamily" type="string" value=""></attribute>
-  <setter name="fontfamily" args="family">
-    if family
-      @sprite.setStyle 'font-family', family
-    else
-      @sprite.setStyle 'font-family', undefined
-
-    return family
-  </setter>
 
   <!--/**
   *

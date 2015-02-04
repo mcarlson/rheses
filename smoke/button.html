@@ -36,7 +36,7 @@
 
       @setAttribute('text', 'NewText');
       assert.equal(@text, 'NewText');
-      @testsize(0,0,66,24,0,0);
+      @testsize(0,0,58,24,0,0);
     </handler>
   </labelbuttontest>
 
@@ -69,7 +69,7 @@
 
       @setAttribute('text', 'NewText');
       assert.equal(@text, 'NewText');
-      @testsize(0,0,66,100,0,38);
+      @testsize(0,0,58,100,0,38);
     </handler>
   </labelbuttontest>
 
@@ -95,7 +95,7 @@
 
       @setAttribute('text', 'NewText');
       assert.equal(@text, 'NewText');
-      @testsize(0,0,66,24,0,0);
+      @testsize(0,0,58,24,0,0);
     </handler>
   </labeltoggletest>
 
@@ -124,7 +124,7 @@
 
       @setAttribute('text', 'NewText');
       assert.equal(@text, 'NewText');
-      @testsize(0,0,66,100,0,38);
+      @testsize(0,0,58,100,0,38);
     </handler>
   </labeltoggletest>
 
@@ -147,11 +147,11 @@
   <checkbuttontest type="coffee" text="Text">
     <handler event="oninit">
       assert.equal(@text, 'Text');
-      @testsize(0,0,56,24,21,0);
+      @testsize(0,0,50,24,21,0);
 
       @setAttribute('text', 'NewText');
       assert.equal(@text, 'NewText');
-      @testsize(0,0,87,24,21,0);
+      @testsize(0,0,76,24,21,0);
     </handler>
   </checkbuttontest>
 
@@ -180,11 +180,11 @@
   <checkbuttontest type="coffee" text="Text" height="100">
     <handler event="oninit">
       assert.equal(@text, 'Text');
-      @testsize(0,0,56,100,21,38);
+      @testsize(0,0,50,100,21,38);
 
       @setAttribute('text', 'NewText');
       assert.equal(@text, 'NewText');
-      @testsize(0,0,87,100,21,38);
+      @testsize(0,0,76,100,21,38);
     </handler>
   </checkbuttontest>
 
