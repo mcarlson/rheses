@@ -98,7 +98,7 @@
         assert.equal(this.count, 1);
       </handler>
     </view>
-    <view with="sizeandcolormixin, viewmixin,test_loadmixin,">
+    <view with="sizeandcolormixin, viewmixin,test-loadmixin,">
       <handler event="oninit">
         assert.equal(this.width, 100);
         assert.equal(this.height, 30); // 2 * (10 + 5)
@@ -189,6 +189,54 @@
         assert.equal(this.count, 1);
       </handler>
     </everything>
+    
+    <!-- Verify mixin ordering -->
+    <class name="a" extends="node" type="coffee">
+      <method name="doIt" args="value">
+        return 'a ' + (@super() || value)
+      </method>
+    </class>
+    <class name="b" extends="node" type="coffee">
+      <method name="doIt" args="value">
+        return 'b ' + (@super() || value)
+      </method>
+    </class>
+    <class name="c" extends="node" type="coffee">
+      <method name="doIt" args="value">
+        return 'c ' + (@super() || value)
+      </method>
+    </class>
+    
+    <class name="d" extends="node" type="coffee">
+      <method name="doIt" args="value">
+        return 'd ' + (@super() || value)
+      </method>
+    </class>
+    <class name="e" extends="node" type="coffee">
+      <method name="doIt" args="value">
+        return 'e ' + (@super() || value)
+      </method>
+    </class>
+    <class name="f" extends="node" type="coffee">
+      <method name="doIt" args="value">
+        return 'f ' + (@super() || value)
+      </method>
+    </class>
+    
+    <class name="def" with="d,e,f" extends="node" type="coffee">
+      <method name="doIt" args="value">
+        return 'parent ' + (@super() || value)
+      </method>
+    </class>
+    
+    <def with="a,b,c" type="coffee">
+      <method name="doIt" args="value">
+        return 'instance ' + (@super() || value)
+      </method>
+      <handler event="oninit">
+        assert.equal(@doIt('VALUE'), 'instance a b c parent d e f VALUE')
+      </handler>
+    </def>
   </view>
 <!-- The MIT License (MIT)
 

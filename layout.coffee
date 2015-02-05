@@ -519,7 +519,9 @@ window.dr = do ->
   _processAttrs = (sourceAttrs, targetAttrs) ->
     # Make sure "with" is processed before the rest of the attributes
     if sourceAttrs.with?
-      mixins = sourceAttrs.with.split(',')
+      # Process mixins from right to left since the rightmost mixin is more
+      # "super" than the leftmost.
+      mixins = sourceAttrs.with.split(',').reverse()
       for mixinName in mixins
         mixin = dr[mixinName.trim()]
         if mixin then _processAttrs(mixin.classattributes, targetAttrs)
@@ -2496,6 +2498,8 @@ window.dr = do ->
 
   matchEvent = /^on(.+)/
 
+  tagPackageSeparator = '-'
+
   dom = do ->
     # flatten element.attributes to a hash
     flattenattributes = (namednodemap)  ->
@@ -2651,7 +2655,7 @@ window.dr = do ->
           # load missing classes
           for name, el of findMissingClasses()
             fileloaded[name] = true
-            loadInclude("/classes/#{name}.dre", el) if name
+            loadInclude("/classes/" + name.split(tagPackageSeparator).join('/') + ".dre", el) if name
             # console.log 'loading dre', name, url, el
 
           # console.log(filerequests, fileloaded, inlineclasses)
@@ -3225,7 +3229,7 @@ window.dr = do ->
       console.warn 'overwriting class', name if name of dr
 
       # class instance constructor
-      dr[name] = (instanceel, instanceattributes, internal, skipchildren) ->
+      dr[name] = klass = (instanceel, instanceattributes, internal, skipchildren) ->
         # override class attributes with instance attributes
         attributes = clone(classattributes)
         _processAttrs(instanceattributes, attributes)
@@ -3288,9 +3292,24 @@ window.dr = do ->
             sendInit()
         return parent
 
+      if name
+        # Store a secondary reference under an object if tagPackageSeparator 
+        # syntax is used for the class name. This creates rudimentary namespacing.
+        parts = name.split(tagPackageSeparator)
+        len = parts.length
+        if len > 1
+          context = dr
+          for part, idx in parts
+            if idx is len - 1
+              context[part] = klass
+            else
+              newContext = context[part]
+              context[part] = newContext = {} unless newContext
+              context = newContext
+      
       # remember this for later when we're instantiating instances
-      dr[name].skipinitchildren = skipinitchildren
-      dr[name].classattributes = classattributes
+      klass.skipinitchildren = skipinitchildren
+      klass.classattributes = classattributes
 
   ###*
   # @class dr.layout {Layout}
