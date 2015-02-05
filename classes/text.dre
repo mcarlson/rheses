@@ -91,31 +91,15 @@ SOFTWARE. -->
   *
   */-->
 
-  <attribute name="fontsize" type="number" value="0"></attribute>
-  <setter name="fontsize" args="size">
-    if size != 0
-      @sprite.setStyle 'font-size', size + 'px'
-    else
-      @sprite.setStyle 'font-size', undefined
-
-    return size
-  </setter>
+  <attribute name="fontsize" type="number" value="14"></attribute>
 
   <!--/**
   *
-  * @attribute {Number} [font=""]
+  * @attribute {Number} [fontfamily=""]
   * The name of the font family to use, e.g. "Helvetica"  Include multiple fonts on a line, separated by commas.
   *
   */-->
-  <attribute name="font" type="string" value=""></attribute>
-  <setter name="font" args="family">
-    if family
-      @sprite.setStyle 'font-family', family
-    else
-      @sprite.setStyle 'font-family', undefined
-
-    return family
-  </setter>
+  <attribute name="fontfamily" type="string" value=""></attribute>
 
   <!--/**
   *

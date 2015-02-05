@@ -33,7 +33,8 @@ stylemap =
   borderstyle: 'borderStyle'
   bordercolor: 'borderColor'
   boxshadow: 'boxShadow'
-
+  fontsize: 'fontSize'
+  fontfamily: 'fontFamily'
 
 # Maps attribute names to dom element property names.
 propmap =
