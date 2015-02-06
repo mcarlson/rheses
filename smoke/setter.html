@@ -14,21 +14,44 @@
 <body>
   <view width="100%" height="100%" bgcolor="#eeeeee" scrollable="true">
     <!-- Test a setter can modify a value. -->
-    <class name="item" width="10" height="10" bgcolor="#999999">
+    <class name="item" type="coffee" width="10" height="10" bgcolor="#999999">
       <setter name="x" args="x">
         return Math.round(x / 10) * 10
       </setter>
+      
+      <attribute name="foo" type="string" value=""></attribute>
+      <setter name="foo" args="foo">
+        return foo
+      </setter>
+      
+      <handler event="onfoo">
+        @fooEventCount ?= 0
+        @fooEventCount++
+      </handler>
     </class>
     
     <!-- Test multiple setters can modify a value. -->
-    <class name="subitem" extends="item">
+    <class name="subitem" extends="item" type="coffee">
       <setter name="x" args="x">
-        return 2 * this.super()
+        return 2 * @super()
       </setter>
+      
+      <setter name="foo" args="foo">
+        if foo.length > 10
+          return @super()
+        else
+          @defaultSetAttributeBehavior('bar', foo)
+          return dr._noop
+      </setter>
+      
+      <handler event="onbar">
+        @barEventCount ?= 0
+        @barEventCount++
+      </handler>
     </class>
     
-    <item name="v1" x="5" y="5" ></item>
-    <subitem name="v2" x="5" y="25" ></subitem>
+    <item name="v1" x="5" y="5" foo="hey"></item>
+    <subitem name="v2" x="5" y="25" foo="there"></subitem>
     
     <handler event="oninit">
       var v1 = this.v1,
@@ -47,6 +70,21 @@
       v2.setAttribute('x', 17);
       
       assert.equal(40, v2.x, 'View one has an x of 40.');
+      
+      // Verify noop return type for setters and defaultSetAttriubteBehavior
+      assert.equal("hey", v1.foo, 'The foo attribute should have been set.');
+      assert.equal(1, v1.fooEventCount, '1 event should have fired');
+      
+      assert.equal(undefined, v2.foo, 'The foo attribute should not have been set since dr._noop was returned.');
+      assert.equal("there", v2.bar, 'The bar attribute should have been set instead.');
+      assert.equal(undefined, v2.fooEventCount, '0 foo events should have fired');
+      assert.equal(1, v2.barEventCount, '1 bar event should have fired');
+      
+      v2.setAttribute('foo', 'this is longer than 10 chars');
+      assert.equal('this is longer than 10 chars', v2.foo, 'Normal processing should have occurred.');
+      assert.equal("there", v2.bar, 'The bar attribute should not have changed.');
+      assert.equal(1, v2.fooEventCount, '1 foo event should have fired');
+      assert.equal(1, v2.barEventCount, '1 bar event should have fired');
     </handler>
   </view>
 <!-- The MIT License (MIT)
