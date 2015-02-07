@@ -328,8 +328,7 @@ window.dr = do ->
     # @param value the value to set to
     ###
     defaultSetAttributeBehavior: (name, value) ->
-      @[name] = value
-      @sendEvent(name, value)
+      @sendEvent(name, @[name] = value)
 
     ###*
     # Sends an event

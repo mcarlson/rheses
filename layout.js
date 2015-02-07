@@ -460,8 +460,7 @@
        */
 
       Eventable.prototype.defaultSetAttributeBehavior = function(name, value) {
-        this[name] = value;
-        return this.sendEvent(name, value);
+        return this.sendEvent(name, this[name] = value);
       };
 
 

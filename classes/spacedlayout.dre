@@ -115,37 +115,39 @@ SOFTWARE. -->
     * The axis attribute is an alias for this attribute.
     */-->
   <setter name="attribute" args="attribute">
-    # Stop monitoring since the "axis" changed. This needs to
-    # be done before the new "axis" value is set since stopMonitoringSubview
-    # needs to know the old values.
-    @stopMonitoringAllSubviews()
+    if @attribute isnt attribute
+      # Stop monitoring since the "axis" changed. This needs to
+      # be done before the new "axis" value is set since stopMonitoringSubview
+      # needs to know the old values.
+      @stopMonitoringAllSubviews()
+      
+      # Setup private attributes based on axis
+      if attribute == 'y'
+        # The layout is oriented vertically
+        @__parentAttrName = 'height'        # The attr to update on the parent if updateparent is true
+        @__innerAttrName = 'innerheight'    # The attr used to get available space
+        @__measureAttrName = 'boundsheight' # The attr to measure the size needed for a subview
+        @__diffAttrName = 'boundsydiff'     # The attr used to offset the position of a transformed subview so it will not overlap adjacent views
+      else
+        # The layout is oriented horizontally
+        @__parentAttrName = 'width'
+        @__innerAttrName = 'innerwidth'
+        @__measureAttrName = 'boundswidth'
+        @__diffAttrName = 'boundsxdiff'
+      
+      @defaultSetAttributeBehavior('attribute', attribute)
+      
+      if @inited
+        # Start monitoring again and update since we have a new axis. This needs
+        # to be done after the new axis value is set since startMonitoringSubview
+        # needs to use the new values.
+        @startMonitoringAllSubviews()
+        @update()
+      else
+        @__redoMonitoring = true
     
-    # Setup private attributes based on axis
-    if attribute == 'y'
-      # The layout is oriented vertically
-      @__parentAttrName = 'height'        # The attr to update on the parent if updateparent is true
-      @__innerAttrName = 'innerheight'    # The attr used to get available space
-      @__measureAttrName = 'boundsheight' # The attr to measure the size needed for a subview
-      @__diffAttrName = 'boundsydiff'     # The attr used to offset the position of a transformed subview so it will not overlap adjacent views
-    else
-      # The layout is oriented horizontally
-      @__parentAttrName = 'width'
-      @__innerAttrName = 'innerwidth'
-      @__measureAttrName = 'boundswidth'
-      @__diffAttrName = 'boundsxdiff'
-    
-    return attribute
+    return dr._noop
   </setter>
-  <handler event="onattribute">
-    if @inited
-      # Start monitoring again and update since we have a new axis. This needs
-      # to be done after the new axis value is set since startMonitoringSubview
-      # needs to use the new values.
-      @startMonitoringAllSubviews()
-      @update()
-    else
-      @__redoMonitoring = true
-  </handler>
   
   <handler event="oninit">
     if @__redoMonitoring
