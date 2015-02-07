@@ -1,6 +1,6 @@
 <!-- The MIT License (MIT)
 
-Copyright ( c ) 2014 Teem2 LLC
+Copyright ( c ) 2015 Teem2 LLC
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -20,70 +20,70 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. -->
 
-   <!--/**
-     * @class dr.dragstate {UI Components}
-     * @extends dr.state
-     * Allows views to be dragged by the mouse.
-     *
-     * Here is a view that contains a dragstate. The dragstate is applied when the mouse is down in the view, and then removed when the mouse is up. You can modify the attributes of the draggable view by setting them inside the dragstate, like we do here with bgcolor.
-     *
-     *     @example
-     *     <view width="100" height="100" bgcolor="plum">
-     *       <attribute name="mouseIsDown" type="boolean" value="false"></attribute>
-     *       <handler event="onmousedown">
-     *         this.setAttribute('mouseIsDown', true);
-     *       </handler>
-     *       <handler event="onmouseup">
-     *         this.setAttribute('mouseIsDown', false);
-     *       </handler>
-     *       <dragstate applied="${this.parent.mouseIsDown}">
-     *         <attribute name="bgcolor" type="string" value="purple"></attribute>
-     *       </dragstate>
-     *     </view>
-     *
-     * To constrain the motion of the element to either the x or y axis set the dragaxis property. Here the same purple square can only move horizontally.
-     *
-     *     @example
-     *     <view width="100" height="100" bgcolor="plum">
-     *       <attribute name="mouseIsDown" type="boolean" value="false"></attribute>
-     *       <handler event="onmousedown">
-     *         this.setAttribute('mouseIsDown', true);
-     *       </handler>
-     *       <handler event="onmouseup">
-     *         this.setAttribute('mouseIsDown', false);
-     *       </handler>
-     *       <dragstate applied="${this.parent.mouseIsDown}" dragaxis="x">
-     *         <attribute name="bgcolor" type="string" value="purple"></attribute>
-     *       </dragstate>
-     *     </view>
-     */-->
-    <class name="dragstate" extends="state">
-      <!--/**
-        * @attribute {"x"/"y"/"both"} [dragaxis="both"]
-        * The axes to drag on.
-        */-->
-      <attribute name="dragaxis" value="both" type="string"></attribute>
-      <handler event="onapplied" args="applied">
-        //console.log('onapplied', applied, this)
-        if (applied) {
-          var pos = this.parent.getAbsolute();
-          this.parent.startx = dr.mouse.x - pos.x;
-          this.parent.starty = dr.mouse.y - pos.y;
-          //console.log('startx', pos, dr.mouse.x, dr.mouse.y, this.startx, this.starty)
-        }
-      </handler>
-      <handler event="onx" reference="dr.mouse" args="x">
-        if (this.dragaxis == 'both' || this.dragaxis == 'x') {
-          this.updatePos('x', x - this.parent.getAbsolute().x - this.startx)
-        }
-      </handler>
-      <handler event="ony" reference="dr.mouse" args="y">
-        if (this.dragaxis == 'both' || this.dragaxis == 'y') {
-          this.updatePos('y', y - this.parent.getAbsolute().y - this.starty);
-        }
-      </handler>
-      <method name="updatePos" args="name, val">
-        //console.log('updatePos', name, val, this, this.updatePos)
-        this.setAttribute(name, val)
-      </method>
-    </class>
+<!--/**
+      * @class dr.dragstate {UI Components}
+      * @extends dr.state
+      * Allows views to be dragged by the mouse.
+      *
+      * Here is a view that contains a dragstate. The dragstate is applied when
+      * the mouse is down in the view, and then removed when the mouse is up. 
+      * You can modify the attributes of the draggable view by setting them 
+      * inside the dragstate, like we do here with bgcolor.
+      *
+      *     @example
+      *     <view width="100" height="100" bgcolor="plum">
+      *       <attribute name="mouseIsDown" type="boolean" value="false"></attribute>
+      *       <handler event="onmousedown">
+      *         this.setAttribute('mouseIsDown', true);
+      *       </handler>
+      *       <handler event="onmouseup">
+      *         this.setAttribute('mouseIsDown', false);
+      *       </handler>
+      *       <dragstate applied="${this.parent.mouseIsDown}">
+      *         <attribute name="bgcolor" type="string" value="purple"></attribute>
+      *       </dragstate>
+      *     </view>
+      *
+      * To constrain the motion of the element to either the x or y axis set 
+      * the dragaxis property. Here the same purple square can only move 
+      * horizontally.
+      *
+      *     @example
+      *     <view width="100" height="100" bgcolor="plum">
+      *       <attribute name="mouseIsDown" type="boolean" value="false"></attribute>
+      *       <handler event="onmousedown">
+      *         this.setAttribute('mouseIsDown', true);
+      *       </handler>
+      *       <handler event="onmouseup">
+      *         this.setAttribute('mouseIsDown', false);
+      *       </handler>
+      *       <dragstate applied="${this.parent.mouseIsDown}" dragaxis="x">
+      *         <attribute name="bgcolor" type="string" value="purple"></attribute>
+      *       </dragstate>
+      *     </view>
+      */-->
+<class name="dragstate" extends="state" type="coffee">
+  <!--/**
+    * @attribute {"x"/"y"/"both"} [dragaxis="both"]
+    * The axes to drag on.
+    */-->
+  <attribute name="dragaxis" value="both" type="string"></attribute>
+
+  <handler event="onapplied" args="applied">
+    if applied
+      pos = @parent.getAbsolute()
+      @parent.startx = dr.mouse.x - pos.x
+      @parent.starty = dr.mouse.y - pos.y
+  </handler>
+
+  <handler event="onmousemove" reference="dr.mouse" args="position">
+    absolute = @parent.getAbsolute()
+    @updatePosition(position.x - absolute.x - @startx, position.y - absolute.y - @starty)
+  </handler>
+  
+  <method name="updatePosition" args="x, y">
+    dragaxis = @dragaxis
+    if dragaxis is 'both' or dragaxis is 'x' then @setAttribute('x', x)
+    if dragaxis is 'both' or dragaxis is 'y' then @setAttribute('y', y)
+  </method>
+</class>

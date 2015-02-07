@@ -1,0 +1,141 @@
+<html>
+<head>
+  <title>dr33m | dragstate Smoke Tests</title>
+  <link rel="stylesheet" href="../examples/css/example.css"/>
+  <script type="text/javascript" src="../lib/jquery-1.9.1.js"></script>
+  <script type="text/javascript" src="../lib/acorn.js"></script>
+  <script type="text/javascript" src="../lib/coffee-script.js"></script>
+  <script type="text/javascript" src="../layout.js"></script>
+  <script type="text/javascript" src="../lib/chai.js"></script>
+  <script>
+    var assert = chai.assert
+  </script>
+</head>
+<body>
+  <view width="100%" height="100%" bgcolor="#cccccc">
+    
+    <view x="100" y="400" width="100" height="100" bgcolor="Bisque"></view>
+    
+    <view id="v1" x="100" y="100" width="50" height="50" bgcolor="red" clickable="true"
+      onmousedown="this.drag.setAttribute('applied', true)"
+      onmouseup="this.drag.setAttribute('applied', false)"
+    >
+      <dragstate name="drag">
+        <attribute name="bgcolor" type="string" value="BurlyWood"></attribute>
+      </dragstate>
+    </view>
+    
+    <view id="v2" x="200" y="100" width="50" height="50" bgcolor="red" clickable="true"
+      onmousedown="this.drag.setAttribute('applied', true)"
+      onmouseup="this.drag.setAttribute('applied', false)"
+    >
+      <dragstate name="drag" dragaxis="x">
+        <attribute name="bgcolor" type="string" value="BurlyWood"></attribute>
+      </dragstate>
+    </view>
+    
+    <view id="v3" x="300" y="100" width="50" height="50" bgcolor="red" clickable="true"
+      onmousedown="this.drag.setAttribute('applied', true)"
+      onmouseup="this.drag.setAttribute('applied', false)"
+    >
+      <dragstate name="drag" dragaxis="y">
+        <attribute name="bgcolor" type="string" value="BurlyWood"></attribute>
+      </dragstate>
+    </view>
+    
+    <handler event="oninit">
+      var mouse = dr.mouse;
+      
+      // Verify initial conditions
+      assert.equal(100, v1.x);
+      assert.equal(100, v1.y);
+      assert.equal('red', v1.bgcolor);
+      
+      // Emulate a drag
+      mouse.x = 100;
+      mouse.y = 100;
+      v1.trigger('mousedown');
+      
+      assert.equal('BurlyWood', v1.bgcolor);
+      
+      mouse.x = 150;
+      mouse.y = 450;
+      mouse.sender();
+      
+      assert.equal(150, v1.x);
+      assert.equal(450, v1.y);
+      
+      v1.trigger('mouseup');
+      
+      assert.equal('red', v1.bgcolor);
+      
+      
+      // Emulate a drag on the view with dragaxis x
+      assert.equal(200, v2.x);
+      assert.equal(100, v2.y);
+      assert.equal('red', v2.bgcolor);
+      
+      mouse.x = 200;
+      mouse.y = 100;
+      v2.trigger('mousedown');
+      
+      assert.equal('BurlyWood', v2.bgcolor);
+      
+      mouse.x = 50;
+      mouse.y = 450;
+      mouse.sender();
+      
+      assert.equal(50, v2.x);
+      assert.equal(100, v2.y);
+      
+      v2.trigger('mouseup');
+      
+      assert.equal('red', v2.bgcolor);
+      
+      
+      // Emulate a drag on the view with dragaxis y
+      assert.equal(300, v3.x);
+      assert.equal(100, v3.y);
+      assert.equal('red', v3.bgcolor);
+      
+      mouse.x = 300;
+      mouse.y = 100;
+      v3.trigger('mousedown');
+      
+      assert.equal('BurlyWood', v3.bgcolor);
+      
+      mouse.x = 50;
+      mouse.y = 450;
+      mouse.sender();
+      
+      assert.equal(300, v3.x);
+      assert.equal(450, v3.y);
+      
+      v3.trigger('mouseup');
+      
+      assert.equal('red', v3.bgcolor);
+    </handler>
+  </view>
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2015 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+</body>
+</html>
