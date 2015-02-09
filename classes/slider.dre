@@ -102,7 +102,13 @@ SOFTWARE. -->
       <art name="indicator" clickable="false"
            x="${this.parent.valueview.width}" y="${this.parent.height - this.height}"
            height="${this.parent.valueview.height}" width="${this.parent.valueview.height}"
-           src="/smoke/triangle.svg" fill="${this.parent.selectcolor}"></art>
+           fill="${this.parent.selectcolor}">
+          <!--
+          <svg name="triangle" height="100" width="100">
+              <polygon name="polygon" points="0,100 0,0 100,100"/>
+          </svg>
+          -->
+      </art>
 
 
       <!-- visualize: Show the current value -->

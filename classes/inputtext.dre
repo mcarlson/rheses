@@ -140,7 +140,13 @@ SOFTWARE. -->
     @replicator.updateData(newdata)
   </handler>
 
-  <art name="indicator" x="3" y="${this.parent.height - this.height - 7}" height="10" width="10" src="/smoke/triangle.svg" fill="white" z="1"></art>
+  <art name="indicator" x="3" y="${this.parent.height - this.height - 7}" height="10" width="10" fill="white" z="1" inline="true">
+      <!--
+      <svg name="triangle" height="100" width="100">
+          <polygon name="polygon" points="0,100 0,0 100,100"/>
+      </svg>
+      -->
+  </art>
 
   <handler event="oninit">
     @text ?= @sprite.getText(true)

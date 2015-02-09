@@ -173,12 +173,24 @@ SOFTWARE. -->
     <!-- Internal view to show the current right slider value -->
     <view name="highvalueview" bgcolor="${this.parent.highselectcolor}" bottomborder="2" bordercolor="white"></view>
     <art name="highindicator" clickable="false" rotation="270" x="${this.parent.highvalueview.x - this.width}" y="${this.parent.height - this.height}"
-         height="${this.parent.highvalueview.height}" width="${this.parent.highvalueview.height}" src="/smoke/triangle.svg" fill="white"></art>
+         height="${this.parent.highvalueview.height}" width="${this.parent.highvalueview.height}" fill="white" inline="true">
+        <!--
+        <svg name="triangle" height="100" width="100">
+            <polygon name="polygon" points="0,100 0,0 100,100"/>
+        </svg>
+        -->
+    </art>
 
     <!-- Internal view to show the current left slider value -->
     <view name="lowvalueview" bgcolor="${this.parent.lowselectcolor}" bottomborder="2" bordercolor="white"></view>
     <art name="lowindicator" clickable="false" x="${this.parent.lowvalueview.x + this.parent.lowvalueview.width}" y="${this.parent.height - this.height}"
-         height="${this.parent.lowvalueview.height}" width="${this.parent.lowvalueview.height}" src="/smoke/triangle.svg" fill="white"></art>
+         height="${this.parent.lowvalueview.height}" width="${this.parent.lowvalueview.height}" inline="true" fill="white">
+        <!--
+        <svg name="triangle" height="100" width="100">
+            <polygon name="polygon" points="0,100 0,0 100,100"/>
+        </svg>
+        -->
+    </art>
 
     <!-- visualize: Show the current value -->
     <method name="visualize">

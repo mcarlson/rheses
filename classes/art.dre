@@ -502,8 +502,9 @@ SOFTWARE. -->
         @createDOM()
 
         @inline_data = @inline_data.trim()
-        # Remove comments. Comments are used to prevent compile errors
-        match = new RegExp(/^\s*\<\!--(.*)--\>/).exec(@inline_data);
+        # Remove comments. Comments are used to prevent compile errors.
+        # To catch multi-line commented svg, using '[\s\S]' instead of '.' because javascript doesn't have a dotall operator (http://stackoverflow.com/questions/23455614/how-to-use-dotall-flag-for-regex-exec).
+        match = new RegExp(/\<\!--([\s\S]*)--\>/).exec(@inline_data);
         if !!match
           @inline_data = match[1]
 

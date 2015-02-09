@@ -66,7 +66,13 @@ SOFTWARE. -->
       <attribute name="innerspacing" type="number" value="3"></attribute>
 
       <!-- check: Show button state -->
-      <art name="check" clickable="false" src="/smoke/triangle.svg" x="${this.parent.checkx}" y="${this.parent.checky}" width="${this.parent.checkw}" height="${this.parent.checkh}"></art>
+      <art name="check" clickable="false" inline="true" x="${this.parent.checkx}" y="${this.parent.checky}" width="${this.parent.checkw}" height="${this.parent.checkh}">
+          <!--
+          <svg name="triangle" height="100" width="100">
+              <polygon name="polygon" points="0,100 0,0 100,100"/>
+          </svg>
+          -->
+      </art>
 
       <method name="visualize">
         @super()
