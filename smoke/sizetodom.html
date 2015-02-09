@@ -88,16 +88,16 @@
       assert.equal(40, v3.height);
       
       // Borders and padding
-      assert.equal(60 + 4 + 8, v4.width);
-      assert.equal(20 + 4 + 8, v4.height);
-      
+      assert.equal(4 + 8, v4.width);
+      assert.equal(4 + 8, v4.height);
+
       v4.setAttribute('border', 1);
-      assert.equal(60 + 2 + 8, v4.width);
-      assert.equal(20 + 2 + 8, v4.height);
-      
+      assert.equal(4 + 8, v4.width);
+      assert.equal(4 + 8, v4.height);
+
       v4.setAttribute('padding', 10);
-      assert.equal(60 + 2 + 20, v4.width);
-      assert.equal(20 + 2 + 20, v4.height);
+      assert.equal(2 + 20, v4.width);
+      assert.equal(2 + 20, v4.height);
     </handler>
   </view>
 <!-- The MIT License (MIT)

@@ -1823,7 +1823,7 @@ window.dr = do ->
       width:0, height:0,
       opacity: 1,
       clickable:false, clip:false, scrollable:false, visible:true, cursor:'pointer',
-      bordercolor:'red', borderstyle:'solid',
+      bordercolor:'transparent', borderstyle:'solid',
       ignorelayout:false, scrollbars:false
     }
     construct: (el, attributes) ->

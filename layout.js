@@ -2281,7 +2281,7 @@
         scrollable: false,
         visible: true,
         cursor: 'pointer',
-        bordercolor: 'red',
+        bordercolor: 'transparent',
         borderstyle: 'solid',
         ignorelayout: false,
         scrollbars: false
