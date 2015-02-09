@@ -40,7 +40,9 @@
     visible: 'display',
     borderstyle: 'borderStyle',
     bordercolor: 'borderColor',
-    boxshadow: 'boxShadow'
+    boxshadow: 'boxShadow',
+    fontsize: 'fontSize',
+    fontfamily: 'fontFamily'
   };
 
   propmap = {
@@ -2279,7 +2281,7 @@
         scrollable: false,
         visible: true,
         cursor: 'pointer',
-        bordercolor: 'transparent',
+        bordercolor: 'red',
         borderstyle: 'solid',
         ignorelayout: false,
         scrollbars: false
@@ -2315,6 +2317,7 @@
           scrollable: 'boolean',
           visible: 'boolean',
           border: 'positivenumber',
+          borderstyle: 'string',
           padding: 'positivenumber',
           leftborder: 'positivenumber',
           rightborder: 'positivenumber',

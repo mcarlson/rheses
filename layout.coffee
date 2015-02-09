@@ -32,7 +32,8 @@ stylemap =
   borderstyle: 'borderStyle'
   bordercolor: 'borderColor'
   boxshadow: 'boxShadow'
-
+  fontsize: 'fontSize'
+  fontfamily: 'fontFamily'
 
 # Maps attribute names to dom element property names.
 propmap =
@@ -1822,7 +1823,7 @@ window.dr = do ->
       width:0, height:0,
       opacity: 1,
       clickable:false, clip:false, scrollable:false, visible:true, cursor:'pointer',
-      bordercolor:'transparent', borderstyle:'solid',
+      bordercolor:'red', borderstyle:'solid',
       ignorelayout:false, scrollbars:false
     }
     construct: (el, attributes) ->
@@ -1845,7 +1846,8 @@ window.dr = do ->
         width: 'positivenumber', height: 'positivenumber',
         clickable: 'boolean', clip: 'boolean', scrollable: 'boolean', visible: 'boolean',
 
-        border: 'positivenumber', padding: 'positivenumber',
+        border: 'positivenumber', borderstyle: 'string',
+        padding: 'positivenumber',
         leftborder: 'positivenumber', rightborder: 'positivenumber', topborder: 'positivenumber', bottomborder: 'positivenumber',
         leftpadding: 'positivenumber', rightpadding: 'positivenumber', toppadding: 'positivenumber', bottompadding: 'positivenumber',
 

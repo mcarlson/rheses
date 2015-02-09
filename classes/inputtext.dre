@@ -46,7 +46,7 @@ SOFTWARE. -->
      *
      */-->
 <class name="inputtext" extends="view" type="coffee" bgcolor="rgb(63,63,63)" color="white"
-       border-left="2px solid white" border-bottom="2px solid white">
+       leftborder="2" bottomborder="2" bordercolor="white">
   <!--/**
        * @event onselect
        * Fired when an inputtext is selected
@@ -140,7 +140,7 @@ SOFTWARE. -->
     @replicator.updateData(newdata)
   </handler>
 
-  <art name="indicator" x="3" y="${this.parent.height - this.height - 5}" height="10" width="10" src="/smoke/triangle.svg" fill="white" z="1"></art>
+  <art name="indicator" x="3" y="${this.parent.height - this.height - 7}" height="10" width="10" src="/smoke/triangle.svg" fill="white" z="1"></art>
 
   <handler event="oninit">
     @text ?= @sprite.getText(true)

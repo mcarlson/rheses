@@ -36,7 +36,7 @@ SOFTWARE. -->
      *     <slider name="hslide" y="5" width="250" height="10" value="50" bgcolor="#808080"></slider>
      *     <text text="${Math.round(this.parent.hslide.value)}" y="${this.parent.hslide.y + (this.parent.hslide.height-this.height)/2}"></text>
      */-->
-    <class name="slider" type="coffee" clickable="true" clip="true" border-bottom="2px solid" border-color="${this.selectcolor}">
+    <class name="slider" type="coffee" clickable="true" clip="true" bottomborder="2" bordercolor="${this.selectcolor}">
       <!--/**
         * @attribute {Number} [minvalue=0]
         * The minimum value of the slider

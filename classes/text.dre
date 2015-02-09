@@ -94,30 +94,14 @@ SOFTWARE. -->
   */-->
 
   <attribute name="fontsize" type="number" value="20"></attribute>
-  <setter name="fontsize" args="size">
-    if size != 0
-      @sprite.setStyle 'font-size', size + 'px'
-    else
-      @sprite.setStyle 'font-size', undefined
-
-    return size
-  </setter>
 
   <!--/**
   *
-  * @attribute {Number} [font=""]
+  * @attribute {Number} [fontfamily=""]
   * The name of the font family to use, e.g. "Helvetica"  Include multiple fonts on a line, separated by commas.
   *
   */-->
-  <attribute name="font" type="string" value="'mission-gothic', 'Helvetica Neue', Helvetica, Arial, sans-serif"></attribute>
-  <setter name="font" args="family">
-    if family
-      @sprite.setStyle 'font-family', family
-    else
-      @sprite.setStyle 'font-family', undefined
-
-    return family
-  </setter>
+  <attribute name="fontfamily" type="string" value="'mission-gothic', 'Helvetica Neue', Helvetica, Arial, sans-serif"></attribute>
 
   <!--/**
   *
@@ -211,19 +195,19 @@ SOFTWARE. -->
   <attribute name="resize" type="boolean" value="true"></attribute>
   <setter name="resize" args="value">
     if value
-      @sprite.setStyle("padding-left", "20px")
-      @sprite.setStyle("padding-right", "20px")
-      @sprite.setStyle("padding-top", "10px")
-      @sprite.setStyle("padding-bottom", "10px")
+      @setAttribute("leftpadding", @leftpadding || 20)
+      @setAttribute("rightpadding", @rightpadding || 20)
+      @setAttribute("toppadding", @toppadding || 10)
+      @setAttribute("bottompadding", @bottompadding || 10)
     else
-      @sprite.setStyle("padding-left", undefined)
-      @sprite.setStyle("padding-right", undefined)
-      @sprite.setStyle("padding-top", undefined)
-      @sprite.setStyle("padding-bottom", undefined)
+      @setAttribute("leftpadding", undefined)
+      @setAttribute("rightpadding", undefined)
+      @setAttribute("toppadding", undefined)
+      @setAttribute("bottompadding", undefined)
 
     return value
   </setter>
-  
+
   <setter name="data" args="data">
     @setAttribute('text', data, true)
     return data

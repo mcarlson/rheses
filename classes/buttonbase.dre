@@ -31,7 +31,7 @@ SOFTWARE. -->
      * element. For a checkbutton, the visual element is a square dr.view
      * that is inside the button.
      */-->
-    <class name="buttonbase" type="coffee" clickable="true" clip="true" border="2" bordercolor="${this.selectcolor}">
+    <class name="buttonbase" type="coffee" clickable="true" clip="true" border="2" bordercolor="${this.selectcolor}" border-style="solid">
 
       <!--/**
         * @attribute {Number} [padding=3]
