@@ -12,13 +12,27 @@
   </script>
 </head>
 <body>
-  <view width="auto" height="auto" bgcolor="#eeeeee" padding="5">
+  <view name="root" width="auto" height="auto" bgcolor="#eeeeee" padding="5">
     <class name="block" x="10" y="5" width="100" height="50" bgcolor="#999999" bordercolor="black"></class>
     <class name="item" width="20" height="20" bgcolor="#666666"></class>
     
     <spacedlayout axis="y" spacing="5"></spacedlayout>
-    
-    <!-- Basic Borders -->
+
+      <!-- Complex Border and Padding -->
+      <block id="cpx" name="complex" leftborder="5" rightborder="5" topborder="3" bottomborder="1" leftpadding="5" rightpadding="35" toppadding="6" bottompadding="15">
+          <item name="inner" width="100%" height="100%" bgcolor="red"></item>
+          <handler event="oninit">
+              assert.equal(this.width, 100);
+              assert.equal(this.height, 50);
+              assert.equal(this.innerwidth, 50);
+              assert.equal(this.innerheight, 25);
+
+              assert.equal($(this.inner.sprite.el).css('marginLeft'), '0px');
+              assert.equal($(this.inner.sprite.el).css('marginTop'), '0px');
+          </handler>
+      </block>
+
+      <!-- Basic Borders -->
     <block>
       <item name="inner" width="100%" height="100%" bgcolor="#cccccc"></item>
       <handler event="oninit">
@@ -26,24 +40,23 @@
         assert.equal(this.height, 50);
         assert.equal(this.innerwidth, 100);
         assert.equal(this.innerheight, 50);
-        
+
         // Set border to a valid value
-        assert.equal(this.border, 0);
         this.setAttribute('border', 1);
         assert.equal(this.border, 1);
         assert.equal(this.inner.width, 98);
         assert.equal(this.inner.height, 48);
-        
+
         // Prevent negative values
         this.setAttribute('border', -1);
         assert.equal(this.border, 0);
-        
+
         // Set border to an invalid value
         this.setAttribute('border', 'foo');
         assert.equal(this.border, 0);
       </handler>
     </block>
-    
+
     <block border="2">
       <item name="inner" width="100%" height="100%" bgcolor="#cccccc"></item>
       <handler event="oninit">
@@ -51,12 +64,12 @@
         assert.equal(this.height, 50);
         assert.equal(this.innerwidth, 96);
         assert.equal(this.innerheight, 46);
-        
+
         assert.equal($(this.inner.sprite.el).css('marginLeft'), '0px');
         assert.equal($(this.inner.sprite.el).css('marginTop'), '0px');
       </handler>
     </block>
-    
+
     <!-- Basic Padding -->
     <block>
       <item name="inner" width="100%" height="100%" bgcolor="#cccccc"></item>
@@ -65,24 +78,23 @@
         assert.equal(this.height, 50);
         assert.equal(this.innerwidth, 100);
         assert.equal(this.innerheight, 50);
-        
+
         // Set padding to a valid value
-        assert.equal(this.padding, 0);
         this.setAttribute('padding', 1);
         assert.equal(this.padding, 1);
         assert.equal(this.inner.width, 98);
         assert.equal(this.inner.height, 48);
-        
+
         // Prevent negative values
         this.setAttribute('padding', -1);
         assert.equal(this.padding, 0);
-        
+
         // Set padding to an invalid value
         this.setAttribute('padding', 'foo');
         assert.equal(this.padding, 0);
       </handler>
     </block>
-    
+
     <block padding="2">
       <item name="inner" width="100%" height="100%" bgcolor="#cccccc"></item>
       <handler event="oninit">
@@ -90,12 +102,12 @@
         assert.equal(this.height, 50);
         assert.equal(this.innerwidth, 96);
         assert.equal(this.innerheight, 46);
-        
+
         assert.equal($(this.inner.sprite.el).css('marginLeft'), '0px');
         assert.equal($(this.inner.sprite.el).css('marginTop'), '0px');
       </handler>
     </block>
-    
+
     <!-- Basic Border and Padding -->
     <block name="basic" border="2" padding="3">
       <item name="inner" width="100%" height="100%" bgcolor="#cccccc"></item>
@@ -104,17 +116,17 @@
         assert.equal(this.height, 50);
         assert.equal(this.innerwidth, 90);
         assert.equal(this.innerheight, 40);
-        
+
         assert.equal($(this.inner.sprite.el).css('marginLeft'), '0px');
         assert.equal($(this.inner.sprite.el).css('marginTop'), '0px');
       </handler>
     </block>
-    
+
     <handler event="oninit">
       //// Verify width/height can't be smaller than border and padding ////
       var block = this.basic,
         item = block.inner;
-      
+
       // Initial conditions
       assert.equal(block.width, 100);
       assert.equal(block.height, 50);
@@ -122,7 +134,7 @@
       assert.equal(block.innerheight, 40);
       assert.equal(block.border, 2);
       assert.equal(block.padding, 3);
-      
+
       // Prevent sizing below 2 * (border + padding)
       block.setAttribute('width', 2);
       assert.equal(block.width, 10, 'Width should be limited by twice border + padding');
@@ -130,34 +142,35 @@
       block.setAttribute('height', 2);
       assert.equal(block.height, 10, 'Height should be limited by twice border + padding');
       assert.equal(block.innerheight, 0);
-      
+
       // Increasing Border/padding should increase width/height
       block.setAttribute('border', 4);
       assert.equal(block.width, 14, 'Width should increase by 4.');
       assert.equal(block.innerwidth, 0);
       assert.equal(block.height, 14, 'Height should increase by 4.');
       assert.equal(block.innerheight, 0);
-      
+
       block.setAttribute('padding', 5);
       assert.equal(block.width, 18, 'Width should increase by 4.');
       assert.equal(block.innerwidth, 0);
       assert.equal(block.height, 18, 'Height should increase by 4.');
       assert.equal(block.innerheight, 0);
-      
+
       // Decreasing Border/padding should increase inner width/height
       block.setAttribute('border', 1);
       assert.equal(block.width, 18);
       assert.equal(block.innerwidth, 6);
       assert.equal(block.height, 18);
       assert.equal(block.innerheight, 6);
-      
+
       block.setAttribute('padding', 2);
       assert.equal(block.width, 18);
       assert.equal(block.innerwidth, 12);
       assert.equal(block.height, 18);
       assert.equal(block.innerheight, 12);
     </handler>
-  </view>
+
+</view>
 <!-- The MIT License (MIT)
 
 Copyright ( c ) 2014 Teem2 LLC

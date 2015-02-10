@@ -92,10 +92,23 @@ SOFTWARE. -->
 
       <handler event="onmousedown">
         @visual.setAttribute('bgcolor', @selectcolor)
+        @label.setAttribute('color', @defaultcolor)
+        @indicator.setAttribute('fill', @defaultcolor)
       </handler>
 
       <handler event="onmouseup">
-        @visual.setAttribute('bgcolor', @defaultcolor)
+        @visual.setAttribute('bgcolor', @defaulttecolor)
+        @label.setAttribute('color', @defaulttextcolor)
+        @indicator.setAttribute('fill', @defaulttextcolor)
       </handler>
+
+      <art name="indicator" clickable="false" inline="true" x="0" y="${this.parent.height - this.height - 10}" height="10" width="10" fill="${this.parent.defaulttextcolor}" z="1">
+          <!--
+          <svg name="triangle" height="100" width="100">
+              <polygon name="polygon" points="0,100 0,0 100,100"/>
+          </svg>
+          -->
+      </art>
+
 
     </class>

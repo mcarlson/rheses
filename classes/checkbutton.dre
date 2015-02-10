@@ -54,7 +54,7 @@ SOFTWARE. -->
      *     </view>
      *
      */-->
-    <class name="checkbutton" type="coffee" extends="buttonbase" bgcolor="#808080">
+    <class name="checkbutton" type="coffee" extends="buttonbase" defaultcolor="transparent" defaulttextcolor="rgb(140,140,140)">
 
       <!-- check_x, check_y: Location of check box with button -->
       <!-- check_w, check_h: Size of check box with button -->
@@ -66,7 +66,31 @@ SOFTWARE. -->
       <attribute name="innerspacing" type="number" value="3"></attribute>
 
       <!-- check: Show button state -->
-      <view name="check" x="${this.parent.checkx}" y="${this.parent.checky}" width="${this.parent.checkw}" height="${this.parent.checkh}"></view>
+      <art name="check" clickable="false" inline="true" x="${this.parent.checkx}" y="${this.parent.checky}" width="${this.parent.checkw}" height="${this.parent.checkh}">
+          <!--
+          <svg name="triangle" height="100" width="100">
+              <polygon name="polygon" points="0,100 0,0 100,100"/>
+          </svg>
+          -->
+      </art>
+
+      <method name="visualize">
+        @super()
+
+        if @label.text.length == 0
+          @label.setAttribute('visible', false)
+        else
+          @label.setAttribute('visible', true)
+
+        if @selected
+          @check.setAttribute('fill', @selectcolor)
+          @label.setAttribute('color', @selectcolor)
+        else
+          @check.setAttribute('fill', @defaulttextcolor)
+          @label.setAttribute('color', @defaulttextcolor)
+
+
+      </method>
 
       <handler event="oninit">
         # visual is the object that makes a visual change when selected
@@ -92,8 +116,10 @@ SOFTWARE. -->
           checkx = xoffset
           textx = checkx + checkw + @innerspacing
         else
-          width = @checkw + @label.width + @innerspacing + (@border+@padding)*2
-          textx = checkx + @checkw + @innerspacing
+          width = @checkw + (@border+@padding)*2
+          if @label.visible
+            width += @label.width + @innerspacing
+        textx = checkx + @checkw + @innerspacing
 
         if @_fixedheight
           yoffset = (@innerheight - @label.height)/2

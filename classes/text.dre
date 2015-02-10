@@ -82,7 +82,9 @@ SOFTWARE. -->
       *      <timetext text="240"></timetext>
       * 
       */-->
-<class name="text" extends="view" type="coffee">
+
+
+<class name="text" extends="view" type="coffee" bgcolor="rgb(63,63,63)" color="white" font-weight="200">
 
   <!--/**
   *
@@ -91,7 +93,7 @@ SOFTWARE. -->
   *
   */-->
 
-  <attribute name="fontsize" type="number" value="14"></attribute>
+  <attribute name="fontsize" type="number" value="20"></attribute>
 
   <!--/**
   *
@@ -99,7 +101,7 @@ SOFTWARE. -->
   * The name of the font family to use, e.g. "Helvetica"  Include multiple fonts on a line, separated by commas.
   *
   */-->
-  <attribute name="fontfamily" type="string" value=""></attribute>
+  <attribute name="fontfamily" type="string" value="'mission-gothic', 'Helvetica Neue', Helvetica, Arial, sans-serif"></attribute>
 
   <!--/**
   *
@@ -113,7 +115,7 @@ SOFTWARE. -->
     if bold
       @sprite.setStyle 'font-weight', 'bold'
     else
-      @sprite.setStyle 'font-weight', undefined
+      @sprite.setStyle 'font-weight', 300
 
     return bold
   </setter>
@@ -191,7 +193,21 @@ SOFTWARE. -->
 
   <attribute name="multiline" type="boolean" value="false"></attribute>
   <attribute name="resize" type="boolean" value="true"></attribute>
-  
+  <setter name="resize" args="value">
+    if value
+      @setAttribute("leftpadding", @leftpadding || 20)
+      @setAttribute("rightpadding", @rightpadding || 20)
+      @setAttribute("toppadding", @toppadding || 10)
+      @setAttribute("bottompadding", @bottompadding || 10)
+    else
+      @setAttribute("leftpadding", undefined)
+      @setAttribute("rightpadding", undefined)
+      @setAttribute("toppadding", undefined)
+      @setAttribute("bottompadding", undefined)
+
+    return value
+  </setter>
+
   <setter name="data" args="data">
     @setAttribute('text', data, true)
     return data

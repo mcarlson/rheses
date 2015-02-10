@@ -88,7 +88,7 @@ SOFTWARE. -->
     retval = @super()
     
     # Border and padding changes the size of the DOM so do a sizeToDom.
-    if name is 'border' or name is 'padding'
+    if /^.*(?:border|padding)$/.test(name)
       if @inited then @sizeToDom()
     
     retval
@@ -102,8 +102,8 @@ SOFTWARE. -->
     @super()
     
     # Makes initial border and padding work
-    @sprite.setStyle('width', 'auto') if @width is @__twiceBorderPadding
-    @sprite.setStyle('height', 'auto') if @height is @__twiceBorderPadding
+    @sprite.setStyle('width', 'auto') if @width is @__fullBorderPaddingWidth
+    @sprite.setStyle('height', 'auto') if @height is @__fullBorderPaddingHeight
     
     @sizeToDom()
   </method>

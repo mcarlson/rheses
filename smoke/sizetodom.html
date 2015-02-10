@@ -49,7 +49,7 @@
       markup='[div class="foo"][/div] [div class="bar"][/div][br/][div class="foo"][/div]'
     ></view>
     
-    <markup name="v4" bgcolor="#cccccc" border="2" bordercolor="black" padding="4">
+    <markup name="v4" bgcolor="#cccccc" border="2" bordercolor="black" padding="4" border-style="solid">
       <div class="foo"></div> <div class="bar"></div> <div class="foo"></div>
     </markup>
     
@@ -90,14 +90,19 @@
       // Borders and padding
       assert.equal(60 + 4 + 8, v4.width);
       assert.equal(20 + 4 + 8, v4.height);
-      
-      v4.setAttribute('border', 1);
-      assert.equal(60 + 2 + 8, v4.width);
-      assert.equal(20 + 2 + 8, v4.height);
-      
+
       v4.setAttribute('padding', 10);
+      assert.equal(60 + 4 + 20, v4.width);
+      assert.equal(20 + 4 + 20, v4.height);
+
+      v4.setAttribute('leftborder', 1);
+      v4.setAttribute('rightborder', 1);
+      v4.setAttribute('topborder', 1);
+      v4.setAttribute('bottomborder', 1);
+
       assert.equal(60 + 2 + 20, v4.width);
       assert.equal(20 + 2 + 20, v4.height);
+        
     </handler>
   </view>
 <!-- The MIT License (MIT)

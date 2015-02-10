@@ -45,7 +45,8 @@ SOFTWARE. -->
      *     <inputtext id="nameinput" bgcolor="white" border="1px solid lightgrey" width="200" onchange="console.log('onchange', this.text)"></inputtext>
      *
      */-->
-<class name="inputtext" extends="view" type="coffee">
+<class name="inputtext" extends="view" type="coffee" bgcolor="rgb(63,63,63)" color="white"
+       leftborder="2" bottomborder="2" bordercolor="white">
   <!--/**
        * @event onselect
        * Fired when an inputtext is selected
@@ -139,9 +140,17 @@ SOFTWARE. -->
     @replicator.updateData(newdata)
   </handler>
 
+  <art name="indicator" x="3" y="${this.parent.height - this.height - 7}" height="10" width="10" fill="white" z="1" inline="true">
+      <!--
+      <svg name="triangle" height="100" width="100">
+          <polygon name="polygon" points="0,100 0,0 100,100"/>
+      </svg>
+      -->
+  </art>
+
   <handler event="oninit">
     @text ?= @sprite.getText(true)
-    @sprite.setText('')
+#    @sprite.setText('')
     @sprite.createInputtextElement(@text, @multiline, @width, @height)
     #console.log('_createSprite', @sprite.input.$view == @, @sprite.el.$view == @)
 
@@ -150,10 +159,12 @@ SOFTWARE. -->
       domElem = $(@sprite.el)
       borderH = parseInt(domElem.css('border-top-width')) + parseInt(domElem.css('border-bottom-width'))
       paddingH = parseInt(domElem.css('padding-top')) + parseInt(domElem.css('padding-bottom'))
-      @setAttribute('height', h + borderH + paddingH) 
+      @setAttribute('height', h + borderH + paddingH)
 
     @sprite.setStyle('width', @innerwidth, true, @sprite.input)
     @sprite.setStyle('height', @innerheight, true, @sprite.input)
+
+    $(@sprite.input).css({"color" : "white", "padding": "10px 20px", "font-size": "20px", "font-weight": "300", "font-family": "'mission-gothic', 'Helvetica Neue', Helvetica, Arial, sans-serif"})
   </handler>
   
   <!--/**
@@ -178,4 +189,6 @@ SOFTWARE. -->
           @text = value
           @sendEvent('text', value)
   </method>
+
+
 </class>
