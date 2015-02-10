@@ -71,7 +71,8 @@ hackstyle = do ->
 
 
 window.dr = do ->
-  # Common noop function
+  # Common noop function. Also used as a return value for setters to prevent
+  # the default setAttribute behavior.
   noop = () ->
 
   # Common float comparison function
@@ -294,7 +295,9 @@ window.dr = do ->
           attributes[key] = defaults[key]
 
     ###*
-    # Sets an attribute, calls a setter if there is one, then sends an event with the new value
+    # Sets an attribute on this object, calls a setter function if it exists.
+    # Also stores the attribute in a property on the object and sends an event
+    # with the new value.
     # @param {String} name the name of the attribute to set
     # @param value the value to set to
     ###
@@ -309,9 +312,22 @@ window.dr = do ->
       setterName = "set_#{name}"
       if typeof this[setterName] is 'function'
         value = this[setterName](value)
-      @[name] = value
-      @sendEvent(name, value)
+        
+        # If return value from the setter is noop do nothing
+        if value is noop then return @
+      
+      # Do normal set attribute behavior
+      @defaultSetAttributeBehavior(name, value)
       @
+
+    ###*
+    # The default behavior to execute in setAttribute once setters have been
+    # run. Stores the value on this object and fires an event.
+    # @param {String} name the name of the attribute to set
+    # @param value the value to set to
+    ###
+    defaultSetAttributeBehavior: (name, value) ->
+      @sendEvent(name, @[name] = value)
 
     ###*
     # Sends an event
@@ -4159,6 +4175,7 @@ window.dr = do ->
     layout: Layout
     idle: new Idle()
     state: State
+    _noop: noop
     ###*
     # @method initElements
     # Initializes all top-level views found in the document. Called automatically when the page loads, but can be called manually as needed.

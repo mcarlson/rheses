@@ -99,7 +99,7 @@ SOFTWARE. -->
 
       <!-- Internal view to show the current slider value -->
       <view name="valueview"></view>
-      <art name="indicator" clickable="false"
+      <art name="indicator" clickable="false" inline="true"
            x="${this.parent.valueview.width}" y="${this.parent.height - this.height}"
            height="${this.parent.valueview.height}" width="${this.parent.valueview.height}"
            fill="${this.parent.selectcolor}">

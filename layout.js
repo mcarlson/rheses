@@ -424,7 +424,9 @@
 
 
       /**
-       * Sets an attribute, calls a setter if there is one, then sends an event with the new value
+       * Sets an attribute on this object, calls a setter function if it exists.
+       * Also stores the attribute in a property on the object and sends an event
+       * with the new value.
        * @param {String} name the name of the attribute to set
        * @param value the value to set to
        */
@@ -440,10 +442,24 @@
         setterName = "set_" + name;
         if (typeof this[setterName] === 'function') {
           value = this[setterName](value);
+          if (value === noop) {
+            return this;
+          }
         }
-        this[name] = value;
-        this.sendEvent(name, value);
+        this.defaultSetAttributeBehavior(name, value);
         return this;
+      };
+
+
+      /**
+       * The default behavior to execute in setAttribute once setters have been
+       * run. Stores the value on this object and fires an event.
+       * @param {String} name the name of the attribute to set
+       * @param value the value to set to
+       */
+
+      Eventable.prototype.defaultSetAttributeBehavior = function(name, value) {
+        return this.sendEvent(name, this[name] = value);
       };
 
 
@@ -5337,6 +5353,7 @@
       layout: Layout,
       idle: new Idle(),
       state: State,
+      _noop: noop,
 
       /**
        * @method initElements

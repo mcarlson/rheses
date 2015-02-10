@@ -46,41 +46,44 @@ SOFTWARE. -->
     */-->
   <attribute name="align" type="string" value="middle"></attribute>
   <setter name="align" args="align">
-    # Stop monitoring since we may end up changing the axis. This needs to
-    # be done before the new align value is set since stopMonitoringSubview
-    # needs to know the old values.
-    @stopMonitoringAllSubviews()
+    if @align isnt align
+      # Stop monitoring since we may end up changing the axis. This needs to
+      # be done before the new align value is set since stopMonitoringSubview
+      # needs to know the old values.
+      @stopMonitoringAllSubviews()
+      
+      # Setup private attributes based on axis
+      switch align
+        when 'left', 'center', 'right'
+          # The layout is oriented horizontally
+          @__parentAttrName = 'width'        # The attr to update on the parent if updateparent is true
+          @__innerAttrName = 'innerwidth'    # The attr used to get available space
+          @__measureAttrName = 'boundswidth' # The attr to measure the size needed for a subview
+          @__diffAttrName = 'boundsxdiff'    # The attr used to offset the position of a transformed subview so it will appear to be aligned
+          @__setterAttrName = 'x'            # The attr to set on a subview to position it
+          @__alignattr = 'isaligned'         # The attr on a subview to determine if it is aligning itself and should thus be ignored.
+        when 'top', 'middle', 'bottom'
+          # The layout is oriented vertically
+          @__parentAttrName = 'height'
+          @__innerAttrName = 'innerheight'
+          @__measureAttrName = 'boundsheight'
+          @__diffAttrName = 'boundsydiff'
+          @__setterAttrName = 'y'
+          @__alignattr = 'isvaligned'
+      
+      @defaultSetAttributeBehavior('align', align)
+      
+      if @inited
+        # Start monitoring again and update since we have new alignment. This needs
+        # to be done after the new align value is set since startMonitoringSubview
+        # needs to use the new values.
+        @startMonitoringAllSubviews()
+        @update()
+      else
+        @__redoMonitoring = true
     
-    # Setup private attributes based on axis
-    switch align
-      when 'left', 'center', 'right'
-        # The layout is oriented horizontally
-        @__parentAttrName = 'width'        # The attr to update on the parent if updateparent is true
-        @__innerAttrName = 'innerwidth'    # The attr used to get available space
-        @__measureAttrName = 'boundswidth' # The attr to measure the size needed for a subview
-        @__diffAttrName = 'boundsxdiff'    # The attr used to offset the position of a transformed subview so it will appear to be aligned
-        @__setterAttrName = 'x'            # The attr to set on a subview to position it
-        @__alignattr = 'isaligned'         # The attr on a subview to determine if it is aligning itself and should thus be ignored.
-      when 'top', 'middle', 'bottom'
-        # The layout is oriented vertically
-        @__parentAttrName = 'height'
-        @__innerAttrName = 'innerheight'
-        @__measureAttrName = 'boundsheight'
-        @__diffAttrName = 'boundsydiff'
-        @__setterAttrName = 'y'
-        @__alignattr = 'isvaligned'
-    return align
+    return dr._noop
   </setter>
-  <handler event="onalign">
-    if @inited
-      # Start monitoring again and update since we have new alignment. This needs
-      # to be done after the new align value is set since startMonitoringSubview
-      # needs to use the new values.
-      @startMonitoringAllSubviews()
-      @update()
-    else
-      @__redoMonitoring = true
-  </handler>
   
   <!--/**
     * @attribute {boolean} [inset=0]
@@ -90,18 +93,21 @@ SOFTWARE. -->
     * inner extent of the parent view.
     */-->
   <setter name="updateparent" args="updateparent">
-    # Stop monitoring since we will have different updateparent behavior
-    @stopMonitoringAllSubviews()
-    return updateparent
+    if @updateparent isnt updateparent
+      # Stop monitoring since we will have different updateparent behavior
+      @stopMonitoringAllSubviews()
+      
+      @defaultSetAttributeBehavior('updateparent', updateparent)
+      
+      if @inited
+        # Start monitoring again and update since we have new updateparent 
+        # behavior
+        @startMonitoringAllSubviews()
+      else
+        @__redoMonitoring = true
+    
+    return dr._noop
   </setter>
-  <handler event="onupdateparent">
-    if @inited
-      # Start monitoring again and update since we have new updateparent 
-      # behavior
-      @startMonitoringAllSubviews()
-    else
-      @__redoMonitoring = true
-  </handler>
   
   <handler event="oninit">
     if @__redoMonitoring
