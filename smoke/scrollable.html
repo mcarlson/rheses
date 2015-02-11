@@ -216,7 +216,7 @@
       container.setAttribute('scrolly', 30);
       assert.equal(3, container.scrollYEventCount, 'Another onscrolly event should have happened.');
       assert.equal(26, container.scrolly, 'scrolly should now be 26.');
-      assert.equal(24, container.sprite.el.scrollTop, 'The scrollTop on the dom element should now be 24.');
+      assert.equal(26, container.sprite.el.scrollTop, 'The scrollTop on the dom element should now be 26.');
 
       // Verify that a value that is below the minimum allowed scroll position is 0
       container.setAttribute('scrolly', -5);
@@ -280,16 +280,16 @@
         assert.equal(1, container.scrollYEventCount, 'A scrolly event should have happened.');
         assert.equal(1, container.scrollEventCount, 'A scroll event should have happened.');
 
-        assert.equal(69, container.scrollx, 'scrollx should now be 69.');
-        assert.equal((container.sprite.el.scrollLeft == 69) || (container.sprite.el.scrollLeft == 88), true, 'The scrollLeft on the dom element should now be 69 or 88 on phantomrunner.');
-        assert.equal(0, container.scrolly, 'scrolly should now be 0.');
-        assert.equal((container.sprite.el.scrollTop == 0) || (container.sprite.el.scrollTop == 18), true, 'The scrollTop on the dom element should now be 0 or 18 on phantomrunner.');
+        assert.equal(73, container.scrollx, 'scrollx should now be 73.');
+        assert.equal((container.sprite.el.scrollLeft == 73) || (container.sprite.el.scrollLeft == 88), true, 'The scrollLeft on the dom element should now be 69 or 88 on phantomrunner.');
+        assert.equal(3, container.scrolly, 'scrolly should now be 3.');
+        assert.equal((container.sprite.el.scrollTop == 3) || (container.sprite.el.scrollTop == 18), true, 'The scrollTop on the dom element should now be 0 or 18 on phantomrunner.');
 
         var event = container.lastScrollEvent;
-        assert.equal((event.scrollx == 69) || (event.scrollx == 88), true, 'The scrollx property of the scroll event should be 73 or 88 on phantomrunner.');
-        assert.equal((event.scrolly == 0) || (event.scrolly == 18), true, 'The scrolly property of the scroll event should be 0 or 18 on phantomrunner.');
+        assert.equal((event.scrollx == 73) || (event.scrollx == 88), true, 'The scrollx property of the scroll event should be 73 or 88 on phantomrunner.');
+        assert.equal((event.scrolly == 3) || (event.scrolly == 18), true, 'The scrolly property of the scroll event should be 3 or 18 on phantomrunner.');
         assert.equal(179, event.scrollwidth, 'The scrollwidth property of the scroll event should be 179.');
-        assert.equal(100, event.scrollheight, 'The scrollheight property of the scroll event should be 99.');
+        assert.equal(99, event.scrollheight, 'The scrollheight property of the scroll event should be 99.');
 
         self.continueTesting3()
       }, 100);

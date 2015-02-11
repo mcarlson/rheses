@@ -34,6 +34,14 @@ stylemap =
   boxshadow: 'boxShadow'
   fontsize: 'fontSize'
   fontfamily: 'fontFamily'
+  topborder: 'borderTopWidth'
+  bottomborder: 'borderBottomWidth'
+  leftborder: 'borderLeftWidth'
+  rightborder: 'borderRightWidth'
+  toppadding: 'paddingTop'
+  bottompadding: 'paddingBottom'
+  leftpadding: 'paddingLeft'
+  rightpadding: 'paddingRight'
 
 # Maps attribute names to dom element property names.
 propmap =
@@ -1189,13 +1197,35 @@ window.dr = do ->
       @css_baseclass = 'sprite'
       @_updateClass()
 
-    setStyle: (name, value, internal, el=@el) ->
-      value ?= ''
-      name = stylemap[name] if name of stylemap
-      value = styleval[name](value) if name of styleval
-      # console.log('setStyle', name, value, @el)
-      el.style[name] = value
-      # @jqel.css(name, value)
+    setStyle: do (isWebkit = capabilities.prefix.dom is 'WebKit') ->
+      # WORKAROUND only needed for Webkit browsers.
+      if isWebkit
+        (name, value, internal, el=@el) ->
+          value ?= ''
+          name = stylemap[name] if name of stylemap
+          value = styleval[name](value) if name of styleval
+          el.style[name] = value
+          
+          # WORKAROUND: Chrome and Safari (Webkit?) browsers only update position on 
+          # borderLeftWidth and paddingLeft change. Fix is to tweak the padding 
+          # by +/- a small value to trigger a change but prevent value drift.
+          if name is 'borderTopWidth' or name is 'paddingTop'
+            # Perturb smaller since the browser appears to do a ceiling for
+            # calculating the DOM element scrollLeft. This will give the expected
+            # value whereas pertubing larger would give a value 1 greater than
+            # expected for scrollLeft.
+            if @__BP_TOGGLE = not @__BP_TOGGLE
+              perturb = -0.001
+            else
+              perturb = 0.001
+            v = el.style.paddingLeft
+            el.style.paddingLeft = Number(v.substring(0, v.length - 2)) + perturb + 'px'
+      else
+        (name, value, internal, el=@el) ->
+          value ?= ''
+          name = stylemap[name] if name of stylemap
+          value = styleval[name](value) if name of styleval
+          el.style[name] = value
 
     setProperty: (name, value, el=@el) ->
       value ?= ''
@@ -1428,6 +1458,8 @@ window.dr = do ->
     xanchor: true,
     yanchor: true,
     zanchor: true,
+    border: true,
+    padding: true
   }
 
   # Attributes that should be set on the dom element directly, not the
@@ -1863,8 +1895,9 @@ window.dr = do ->
         clickable: 'boolean', clip: 'boolean', scrollable: 'boolean', visible: 'boolean',
 
         border: 'positivenumber', borderstyle: 'string',
-        padding: 'positivenumber',
         leftborder: 'positivenumber', rightborder: 'positivenumber', topborder: 'positivenumber', bottomborder: 'positivenumber',
+        
+        padding: 'positivenumber',
         leftpadding: 'positivenumber', rightpadding: 'positivenumber', toppadding: 'positivenumber', bottompadding: 'positivenumber',
 
         ignorelayout:'json', layouthint:'json',
@@ -1883,8 +1916,8 @@ window.dr = do ->
 
       # prevent sprite updates for these
       @xanchor = @yanchor = 'center'
-      @leftborder = @rightborder = @topborder = @bottomborder =
-        @leftpadding = @rightpadding = @toppadding = @bottompadding =
+      @leftborder = @rightborder = @topborder = @bottomborder = @border =
+        @leftpadding = @rightpadding = @toppadding = @bottompadding = @padding =
         @width = @height = @zanchor = @boundsxdiff = @boundsydiff = @boundsx = @boundsy = @boundswidth = @boundsheight = 0
       @clip = @scrollable = @clickable = @isaligned = @isvaligned = false
 
@@ -2127,95 +2160,113 @@ window.dr = do ->
       @setAttribute('innerheight', height - @__fullBorderPaddingHeight, true, true, true, true)
       height
 
+    set_border: (border) ->
+      @__lockBPRecalc = true
+      @setAttribute('topborder', border)
+      @setAttribute('bottomborder', border)
+      @setAttribute('leftborder', border)
+      @setAttribute('rightborder', border)
+      @__lockBPRecalc = false
+      
+      @defaultSetAttributeBehavior('border', border)
+      @__updateInnerWidth()
+      @__updateInnerHeight()
+      noop
+
     set_topborder: (border) ->
-      return if border < 0
-      @sprite.setStyle('border-top-width', border)
-      @__updateInnerMeasuresFor(topborder: border)
-      border
+      @defaultSetAttributeBehavior('topborder', border)
+      unless @__lockBPRecalc
+        @__updateBorder()
+        @__updateInnerHeight()
+      noop
 
     set_bottomborder: (border) ->
-      return if border < 0
-      @sprite.setStyle('border-bottom-width', border)
-      @__updateInnerMeasuresFor(bottomborder: border)
-      border
+      @defaultSetAttributeBehavior('bottomborder', border)
+      unless @__lockBPRecalc
+        @__updateBorder()
+        @__updateInnerHeight()
+      noop
 
     set_leftborder: (border) ->
-      return if border < 0
-      @sprite.setStyle('border-left-width', border)
-      @__updateInnerMeasuresFor(leftborder: border)
-      border
+      @defaultSetAttributeBehavior('leftborder', border)
+      unless @__lockBPRecalc
+        @__updateBorder()
+        @__updateInnerWidth()
+      noop
 
     set_rightborder: (border) ->
-      return if border < 0
-      @sprite.setStyle('border-right-width', border)
-      @__updateInnerMeasuresFor(rightborder: border)
-      border
+      @defaultSetAttributeBehavior('rightborder', border)
+      unless @__lockBPRecalc
+        @__updateBorder()
+        @__updateInnerWidth()
+      noop
 
-    set_border: (border) ->
-      return if border < 0
-      @topborder    = @set_topborder(border)
-      @bottomborder = @set_bottomborder(border)
-      @leftborder   = @set_leftborder(border)
-      @rightborder  = @set_rightborder(border)
-      @__updateInnerMeasuresFor()
-      @border
-
-    set_toppadding: (padding) ->
-      return if padding < 0
-      @sprite.setStyle('padding-top', padding)
-      @__updateInnerMeasuresFor(toppadding: padding)
-      padding
-
-    set_bottompadding: (padding) ->
-      return if padding < 0
-      @sprite.setStyle('padding-bottom', padding)
-      @__updateInnerMeasuresFor(bottompadding: padding)
-      padding
-
-    set_leftpadding: (padding) ->
-      return if padding < 0
-      @sprite.setStyle('padding-left', padding)
-      @__updateInnerMeasuresFor(leftpadding: padding)
-      padding
-
-    set_rightpadding: (padding) ->
-      return if padding < 0
-      @sprite.setStyle('padding-right', padding)
-      @__updateInnerMeasuresFor(rightpadding: padding)
-      padding
+    __updateBorder: () ->
+      test = @topborder
+      if @bottomborder is test and @leftborder is test and @rightborder is test
+        @defaultSetAttributeBehavior('border', test)
+      else if @border?
+        @defaultSetAttributeBehavior('border', undefined)
 
     set_padding: (padding) ->
-      return if padding < 0
-      @toppadding    = @set_toppadding(padding)
-      @bottompadding = @set_bottompadding(padding)
-      @leftpadding   = @set_leftpadding(padding)
-      @rightpadding  = @set_rightpadding(padding)
-      @__updateInnerMeasuresFor()
-      @padding
+      @__lockBPRecalc = true
+      @setAttribute('toppadding', padding)
+      @setAttribute('bottompadding', padding)
+      @setAttribute('leftpadding', padding)
+      @setAttribute('rightpadding', padding)
+      @__lockBPRecalc = false
+      
+      @defaultSetAttributeBehavior('padding', padding)
+      @__updateInnerWidth()
+      @__updateInnerHeight()
+      noop
 
-    __updateInnerMeasuresFor: (o={}) ->
-      m = { leftborder: @leftborder, rightborder: @rightborder, topborder: @topborder, bottomborder: @bottomborder, leftpadding: @leftpadding, rightpadding: @rightpadding, toppadding: @toppadding, bottompadding: @bottompadding }
+    set_toppadding: (padding) ->
+      @defaultSetAttributeBehavior('toppadding', padding)
+      unless @__lockBPRecalc
+        @__updatePadding()
+        @__updateInnerHeight()
+      noop
 
-      m[k] = v for k, v of o
+    set_bottompadding: (padding) ->
+      @defaultSetAttributeBehavior('bottompadding', padding)
+      unless @__lockBPRecalc
+        @__updatePadding()
+        @__updateInnerHeight()
+      noop
 
-      w = m.leftborder + m.rightborder  + m.leftpadding + m.rightpadding
-      h = m.topborder  + m.bottomborder + m.toppadding  + m.bottompadding
+    set_leftpadding: (padding) ->
+      @defaultSetAttributeBehavior('leftpadding', padding)
+      unless @__lockBPRecalc
+        @__updatePadding()
+        @__updateInnerWidth()
+      noop
 
-      @padding = (m.toppadding + m.bottompadding + m.leftpadding + m.rightpadding) / 4.0
-      @border  = (m.topborder  + m.bottomborder  + m.leftborder  + m.rightborder)  / 4.0
+    set_rightpadding: (padding) ->
+      @defaultSetAttributeBehavior('rightpadding', padding)
+      unless @__lockBPRecalc
+        @__updatePadding()
+        @__updateInnerWidth()
+      noop
 
-      @__updateInnerMeasures(w, h)
+    __updatePadding: () ->
+      test = @toppadding
+      if @bottompadding is test and @leftpadding is test and @rightpadding is test
+        @defaultSetAttributeBehavior('padding', test)
+      else if @padding?
+        @defaultSetAttributeBehavior('padding', undefined)
 
-    __updateInnerMeasures: (widthinset, heightinset) ->
-      @__fullBorderPaddingWidth = widthinset
-      @__fullBorderPaddingHeight = heightinset
+    __updateInnerWidth: () ->
+      @__fullBorderPaddingWidth = inset = @leftborder + @rightborder  + @leftpadding + @rightpadding
+      # Prevent width less than horizontal border padding
+      if inset > @width  then @setAttribute('width', inset, false, true, true, false)
+      @setAttribute('innerwidth', @width - inset, true, true, true, true)
 
-      # Prevent width/height less than twice border padding
-      if widthinset  > @width  then @setAttribute('width',  widthinset,  false, true, true)
-      if heightinset > @height then @setAttribute('height', heightinset, false, true, true)
-
-      @setAttribute('innerwidth',  @width  - widthinset,  true, true, true, true)
-      @setAttribute('innerheight', @height - heightinset, true, true, true, true)
+    __updateInnerHeight: () ->
+      @__fullBorderPaddingHeight = inset = @topborder  + @bottomborder + @toppadding + @bottompadding
+      # Prevent height less than vertical border padding
+      if inset > @height then @setAttribute('height', inset, false, true, true, false)
+      @setAttribute('innerheight', @height - inset, true, true, true, true)
 
     set_clickable: (clickable) ->
       @sprite.set_clickable(clickable) if clickable isnt @clickable
