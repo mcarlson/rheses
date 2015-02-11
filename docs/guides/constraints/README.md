@@ -64,26 +64,33 @@ This works well, but would be a bit cumbersome to continue to use as more column
 Dynamic attributes are not limited to geometery, any attribute that can be set via javascript is settable in this way.  For example, You might want to set the value of a text element based on the value of other attributes. Here we set the value by concatenating three attributes together.
 
     @example
-    <attribute name="firstName" type="string" value="Lumpy"></attribute>
-    <attribute name="middleName" type="string" value="Space"></attribute>
-    <attribute name="lastName" type="string" value="Princess"></attribute>
-    
-    <text text="${this.parent.firstName + ' ' + this.parent.middleName + ' ' + this.parent.lastName}" 
+    <attribute name="firstname" type="string" value="Lumpy"></attribute>
+    <attribute name="middlename" type="string" value="Space"></attribute>
+    <attribute name="lastname" type="string" value="Princess"></attribute>
+
+    <text text="${this.parent.firstname + ' ' + this.parent.middlename + ' ' + this.parent.lastname}"
           color="hotpink">
     </text>
         
 Of course arbitrarily complex Javascript is available:
      
     @example    
-    <text text="${this.parent.firstName.charAt(0) + ' ' + ' ' + this.parent.lastName.charAt(0)}" 
+    <attribute name="firstname" type="string" value="Lumpy"></attribute>
+    <attribute name="lastname" type="string" value="Princess"></attribute>
+
+    <text text="${this.parent.firstname.charAt(0) + ' ' + ' ' + this.parent.lastname.charAt(0)}"
           color="hotpink">
     </text>
      
 And methods can be used to set attributes in any {@link dr.node} tag, not just views:
      
     @example
+    <attribute name="firstname" type="string" value="Lumpy"></attribute>
+    <attribute name="middlename" type="string" value="Space"></attribute>
+    <attribute name="lastname" type="string" value="Princess"></attribute>
+
     <method name="initials">
-        return this.firstName.charAt(0) + ' ' + this.middleName.charAt(0) + ' ' + this.lastName.charAt(0);
+        return this.firstname.charAt(0) + ' ' + this.middlename.charAt(0) + ' ' + this.lastname.charAt(0);
     </method>
     
     <text text="${this.parent.initials()}" color="hotpink"></text>
