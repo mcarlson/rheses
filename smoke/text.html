@@ -1,13 +1,11 @@
 <html>
+<expectedoutput><!--
+refusing to create a class that would overwrite the builtin tag b
+refusing to create a class that would overwrite the builtin tag b
+--></expectedoutput>
 <head>
-  <style type="text/css">
-    body {
-      font-family: 'Arial';
-      font-size: 14px;
-    }
-  </style>
-
-  <title>rhes.es - Text Component Smoke Tests</title>
+  <title>dr33m | Text Smoke Tests</title>
+  <link rel="stylesheet" href="../examples/css/example.css"/>
   <script type="text/javascript" src="/lib/jquery-1.9.1.min.js"></script>
   <script type="text/javascript" src="/lib/acorn.js"></script>
   <script type="text/javascript" src="/lib/coffee-script.js"></script>
@@ -18,153 +16,295 @@
   </script>
 </head>
 <body>
-<view id="all" width="100%" height="100%">
-  <spacedlayout axis="y" spacing="15"></spacedlayout>
+  <view width="100%" height="100%" scrolling="true">
+    <spacedlayout axis="x" spacing="1"></spacedlayout>
 
-  <!-- Replication -->
-  <dataset name="book">
-    {
-      "title": "Text from data"
-    }
-  </dataset>
-  <class name="titletext" extends="text">
-    <handler event="oninit">
-      assert.equal(this.text, 'Text from data', 'replication test');
-    </handler>
-  </class>
-  <replicator classname="titletext" datapath="$book/title"></replicator>
+    <!-- SETTING TEXT VALUES -->
+    <view width="auto" height="auto" bgcolor="lightgrey">
+      <spacedlayout axis="y" spacing="1"></spacedlayout>
 
-  <!-- Setting text with string -->
-  <text id="notextset" width="100" height="30" resize="false" bgcolor="lightpink">
-    <handler event="oninit">
-      assert.equal(this.text, '', 'notextset this.text')
-      assert.equal(this.sprite.el.innerText, '', 'notextset sprite innerText')
-    </handler>
-  </text>
-  <text id="blanktextset" text="">
-    <handler event="oninit">
-      assert.equal(this.text, '', 'blanktextset this.text')
-      assert.equal(this.sprite.el.innerText, this.text, 'blanktextset sprite innerText')
-    </handler>
-  </text>
-  <text id="sometextset" text="some text">
-    <handler event="oninit">
-      assert.equal(this.text, 'some text', 'text set with string this.text')
-      assert.equal(this.sprite.el.innerText, this.text, 'text set with string sprite innerText')
-    </handler>
-  </text>
+      <!-- No text or empty text -->
+      <text bgcolor="lightpink">
+        <handler event="oninit">
+          var el = this.sprite.el;
+          assert.equal(this.text, '', 'Text should be empty');
+          assert.equal(el.innerText, '', 'No innerText should exist.');
+          assert.equal(el.innerHTML, '', 'No innerHTML should exist either.');
+        </handler>
+      </text>
 
-  <!-- Setting text with constraint -->
-  <view>
-    <text text="${this.parent.text}">
-      <handler event="oninit">
-        assert.equal(this.text, '', 'text set with a constraint where constraint evals to undefined')
-      </handler>
-    </text>
+      <text text="" bgcolor="lightpink">
+        <handler event="oninit">
+          var el = this.sprite.el;
+          assert.equal(this.text, '', 'Text should be empty');
+          assert.equal(el.innerText, '', 'No innerText should exist.');
+          assert.equal(el.innerHTML, '', 'No innerHTML should exist either.');
+        </handler>
+      </text>
+
+      <!-- Setting text with string -->
+      <text text="some text" bgcolor="lightgreen">
+        <handler event="oninit">
+          var el = this.sprite.el;
+          assert.equal(this.text, 'some text', 'Text should exist.');
+          assert.equal(el.innerText, 'some text', 'innerText should exist.');
+          assert.equal(el.innerHTML, 'some text', 'innerHTML should also exist.');
+        </handler>
+      </text>
+
+      <!-- Setting text inside tags -->
+      <text bgcolor="green">
+        Some text goes here
+        <handler event="oninit">
+          var el = this.sprite.el,
+            testVal = 'Some text goes here';
+          assert.equal(this.text, testVal, 'text set as innerText inside the tag');
+          assert.equal(el.innerText, testVal, 'innerText should exist.');
+          assert.equal(el.innerHTML, testVal, 'innerHTML should also exist.');
+        </handler>
+      </text>
+
+      <!-- Setting text with constraint -->
+      <view width="auto" height="auto">
+        <text text="${this.parent.text}" bgcolor="orange">
+          <handler event="oninit">
+            var el = this.sprite.el;
+            assert.equal(this.text, '', 'text set with a constraint where constraint evals to undefined');
+            assert.equal(el.innerText, '', 'No innerText should exist.');
+            assert.equal(el.innerHTML, '', 'No innerHTML should exist either.');
+          </handler>
+        </text>
+      </view>
+
+      <view width="auto" height="auto">
+        <attribute name="text" value="" type="string"></attribute>
+        <text text="${this.parent.text}" bgcolor="orange">
+          <handler event="oninit">
+            var el = this.sprite.el;
+            assert.equal(this.text, '', 'text set with a constraint where constraint evals to the empty string');
+            assert.equal(el.innerText, '', 'No innerText should exist.');
+            assert.equal(el.innerHTML, '', 'No innerHTML should exist either.');
+          </handler>
+        </text>
+      </view>
+
+      <view width="auto" height="auto">
+        <attribute name="text" value="some text" type="string"></attribute>
+        <text text="${this.parent.text}" bgcolor="orange">
+          <handler event="oninit">
+            var el = this.sprite.el,
+              testVal = 'some text';
+            assert.equal(this.text, testVal, 'text set with a constraint where constraint evals to a string');
+            assert.equal(el.innerText, testVal, 'innerText should exist.');
+            assert.equal(el.innerHTML, testVal, 'innerHTML should also exist.');
+          </handler>
+        </text>
+      </view>
+
+      <!-- Multiline -->
+      <text width="150" multiline="true" bgcolor="purple">This text should wrap at my width.
+        <handler event="oninit">
+          var el = this.sprite.el,
+            testVal = 'This text should wrap at my width.';
+          assert.equal(this.text, testVal, 'Multiline text should work.');
+          assert.equal(el.innerText, testVal, 'innerText should exist.');
+          assert.equal(el.innerHTML, testVal, 'innerHTML should also exist.');
+        </handler>
+      </text>
+
+      <text width="150" multiline="true" bgcolor="purple">This
+      text should wrap at my width.
+        <handler event="oninit">
+          var el = this.sprite.el,
+            testVal = 'This\n      text should wrap at my width.',
+            testValInnerText = 'This text should wrap at my width.';
+          assert.equal(this.text, testVal, 'Multiline text with a line ending should work.');
+          assert.equal(el.innerText, testValInnerText, 'innerText should exist.');
+          assert.equal(el.innerHTML, testVal, 'innerHTML should also exist.');
+        </handler>
+      </text>
+
+      <!-- Text with markup -->
+      <text bgcolor="violet">This is <b>bold</b>.
+        <handler event="oninit">
+          var el = this.sprite.el,
+            testVal = 'This is.';
+          assert.equal(this.text, testVal, 'Text with markup should work with tag warnings.');
+          assert.equal(el.innerText, testVal, 'innerText should exist.');
+          assert.equal(el.innerHTML, testVal, 'innerHTML should also exist.');
+        </handler>
+      </text>
+
+      <text bgcolor="violet">This is &lt;b&gt;bold&lt;/b&gt;.
+        <handler event="oninit">
+          var el = this.sprite.el,
+            testVal = 'This is &lt;b&gt;bold&lt;/b&gt;.',
+            testValInnerText = 'This is bold.';
+          assert.equal(this.text, testVal, 'Text with markup should work.');
+          assert.equal(el.innerText, testValInnerText, 'innerText should exist.');
+          assert.equal(el.innerHTML, testVal, 'innerHTML should also exist.');
+        </handler>
+      </text>
+
+      <text text="This is &lt;b&gt;bold&lt;/b&gt;." bgcolor="violet">
+        <handler event="oninit">
+          var el = this.sprite.el,
+            testVal = 'This is &lt;b&gt;bold&lt;/b&gt;.',
+            testValInnerText = 'This is bold.';
+          assert.equal(this.text, testVal, 'Text with markup should work.');
+          assert.equal(el.innerText, testValInnerText, 'innerText should exist.');
+          assert.equal(el.innerHTML, testVal, 'innerHTML should also exist.');
+        </handler>
+      </text>
+
+      <!-- Setting text via Replication -->
+      <dataset name="book">[
+        {
+          "title": "Text from data"
+        },
+        {
+          "title": "Text from data"
+        },
+        {
+          "title": "Text from data"
+        }
+      ]</dataset>
+
+      <class name="titletext" extends="text">
+        <handler event="oninit">
+          assert.equal(this.text, 'Text from data', 'replication test');
+        </handler>
+      </class>
+
+      <replicator classname="titletext" datapath="$book/title">
+        <handler event="oninit">
+          assert.equal(this.children[0].text, 'Text from data', 'replication test');
+          assert.equal(this.children[1].text, 'Text from data', 'replication test');
+          assert.equal(this.children[2].text, 'Text from data', 'replication test');
+        </handler>
+      </replicator>
+    </view>
+
+    <!-- TEXT STYLING -->
+    <view width="auto" height="auto" bgcolor="lightgrey">
+      <spacedlayout axis="y" spacing="1"></spacedlayout>
+
+      <!-- Font styles -->
+      <text text="FONTS, BOLD ITALIC ETC." bgcolor="blue"
+        underline="true" bold="true" italic="true" smallcaps="true" fontsize="32"
+        fontfamily="'Brush Script MT', cursive" color="#9999ff"
+      >
+        <handler event="oninit">
+          var style = this.sprite.el.style;
+          
+          assert.equal(this.fontfamily, "'Brush Script MT', cursive", 'fontfamily not set');
+          assert.equal(this.fontsize, 32, 'fontsize not set');
+          assert.equal(this.bold, true, 'bold not set');
+          assert.equal(this.italic, true, 'italic not set');
+          assert.equal(this.underline, true, 'underline not set');
+          assert.equal(this.strike, false, 'underline not set');
+          assert.equal(this.smallcaps, true, 'smallcaps not set');
+          assert.equal(this.color, '#9999ff', 'color not set');
+          
+          assert.equal(style['font-family'], "'Brush Script MT', cursive", 'missing size style');
+          assert.equal(style['font-size'], '32px', 'missing size style');
+          assert.equal(style['font-weight'], 'bold', 'missing bold style');
+          assert.equal(style['font-style'], 'italic', 'missing italic style');
+          assert.equal(style['text-decoration'], 'underline', 'missing underline style');
+          assert.equal(style['font-variant'], 'small-caps', 'missing smallcaps style');
+          assert.equal(style['color'], 'rgb(153, 153, 255)', 'missing color style');
+          
+          // Change to strike
+          this.setAttribute('strike', true);
+          assert.equal(this.underline, false);
+          assert.equal(this.strike, true);
+          assert.equal(style['text-decoration'], 'line-through');
+          
+          // Verify setting underline to false doesn't mess up strike
+          this.setAttribute('underline', false);
+          assert.equal(this.underline, false);
+          assert.equal(this.strike, true);
+          assert.equal(style['text-decoration'], 'line-through');
+          
+          // Change underline and strike to false
+          this.setAttribute('strike', false);
+          assert.equal(this.underline, false);
+          assert.equal(this.strike, false);
+          assert.equal(style['text-decoration'], '');
+        </handler>
+      </text>
+
+      <!-- Fontsize in pt should become px -->
+      <text id="fonts" fontsize="12pt" fontfamily="'Brush Script MT', cursive" text="FONTS, BOLD ITALIC ETC." bgcolor="blue">
+        <handler event="oninit">
+          assert.equal(this.fontsize, 12, 'fontsize should be 12');
+          assert.equal(this.sprite.el.style['font-size'], '12px', 'fonts in pt format should be converted to pixels');
+        </handler>
+      </text>
+
+      <!-- Default fontsize -->
+      <text id="fonts" text="FONTS, BOLD ITALIC ETC." bgcolor="blue">
+        <handler event="oninit">
+          assert.equal(this.fontsize, 20, 'fontsize should be 20');
+          assert.equal(this.sprite.el.style['font-size'], '20px', 'default font size');
+        </handler>
+      </text>
+
+      <!-- Test that setting fonsize alone isn't clobbered by an empty font-family -->
+      <text id="fonts" text="FONTS, BOLD ITALIC ETC." fontsize="20" bgcolor="blue">
+        <handler event="oninit">
+          assert.equal(this.fontsize, 20, 'fontsize should be 20');
+          assert.equal(this.sprite.el.style['font-size'], '20px', 'default font size');
+        </handler>
+      </text>
+    </view>
+
+    <!-- TEXT SIZING -->
+    <view width="auto" height="auto" bgcolor="lightgrey">
+      <spacedlayout axis="y" spacing="1"></spacedlayout>
+
+      <!-- Multiline -->
+      <text width="100" multiline="true" bgcolor="orange" onclick="this.setAttribute('multiline', ! this.multiline)">This text should wrap at my width. Click to toggle multiline.
+        <handler event="oninit">
+          assert.closeTo(this.width, 100, 10, 'multiline true, checking width')
+          assert.closeTo(this.height, 220, 40, 'multiline true, checking height')
+          this.setAttribute('multiline', false)
+          // Windows: width=363
+    //      assert.equal((this.width == 362) || (this.width == 368) || (this.width == 363), true, 'multiline set to false, checking width')
+          assert.closeTo(this.height, 44, 10, 'multiline set to false, checking height')
+          this.setAttribute('multiline', true)
+          assert.closeTo(this.width, 100, 10, 'multiline set to back to true, checking width')
+          assert.closeTo(this.height, 220, 40, 'multiline set to back to true, checking height')
+        </handler>
+      </text>
+
+      <text multiline="false" bgcolor="thistle">
+        Some single line of text
+        <handler event="oninit">
+          assert.closeTo(this.height, 44, 5, 'multiline false, checking height')
+        </handler>
+      </text>
+
+      <!-- Resize = true -->
+      <text width="100" height="100" text="Hello" bgcolor="green">
+        <handler event="oninit">
+          assert.closeTo(this.width, 80, 5, true, 'resize true, checking width')
+          assert.closeTo(this.height, 44, 5, 'resize true, checking hegiht')
+        </handler>
+      </text>
+
+      <!-- Resize = false -->
+      <text width="100" height="100" text="Hello" bgcolor="green" resize="false">
+        <handler event="oninit">
+          assert.equal(this.width, 100, 'resize false, checking width')
+          assert.equal(this.height, 100, 'resize false, checking height')
+        </handler>
+      </text>
+    </view>
   </view>
-
-  <view>
-    <attribute name="text" value="" type="string"></attribute>
-    <text text="${this.parent.text}">
-      <handler event="oninit">
-        assert.equal(this.text, '', 'text set with a constraint where constraint evals to the empty string')
-      </handler>
-    </text>
-  </view>
-
-  <view>
-    <attribute name="text" value="some text" type="string"></attribute>
-
-    <text text="${this.parent.text}">
-      <handler event="oninit">
-        assert.equal(this.text, 'some text', 'text set with a constraint where constraint evals to a string')
-      </handler>
-    </text>
-  </view>
-
-  <!-- Setting text inside the tags -->
-  <text bgcolor="lightgreen">
-    Some text goes here
-    <handler event="oninit">
-      assert.equal(this.text, 'Some text goes here', 'text set as innerText inside the tag')
-    </handler>
-  </text>
-
-  <!-- Multiline -->
-  <text width="100" multiline="true" bgcolor="orange" onclick="this.setAttribute('multiline', ! this.multiline)">This text should wrap at my width. Click to toggle multiline.
-    <handler event="oninit">
-      assert.closeTo(this.width, 100, 10, 'multiline true, checking width')
-      assert.closeTo(this.height, 220, 40, 'multiline true, checking height')
-      this.setAttribute('multiline', false)
-      // Windows: width=363
-//      assert.equal((this.width == 362) || (this.width == 368) || (this.width == 363), true, 'multiline set to false, checking width')
-      assert.closeTo(this.height, 44, 10, 'multiline set to false, checking height')
-      this.setAttribute('multiline', true)
-      assert.closeTo(this.width, 100, 10, 'multiline set to back to true, checking width')
-      assert.closeTo(this.height, 220, 40, 'multiline set to back to true, checking height')
-    </handler>
-  </text>
-  <text multiline="false" bgcolor="thistle">
-    Some single line of text
-    <handler event="oninit">
-      assert.closeTo(this.height, 44, 5, 'multiline false, checking height')
-    </handler>
-  </text>
-
-  <!-- Resize = true -->
-  <text width="100" height="100" text="Hello" bgcolor="green">
-    <handler event="oninit">
-      assert.closeTo(this.width, 80, 5, true, 'resize true, checking width')
-      assert.closeTo(this.height, 44, 5, 'resize true, checking hegiht')
-    </handler>
-  </text>
-
-  <!-- Resize = false -->
-  <text width="100" height="100" text="Hello" bgcolor="green" resize="false">
-    <handler event="oninit">
-      assert.equal(this.width, 100, 'resize false, checking width')
-      assert.equal(this.height, 100, 'resize false, checking height')
-    </handler>
-  </text>
-
-  <!-- Font styles -->
-  <text id="fonts" width="100" height="100" underline="true" bold="true" italic="true" smallcaps="true" fontsize="128" fontfamily="'Brush Script MT', cursive" text="FONTS, BOLD ITALIC ETC." color="lightblue" bgcolor="rgba(200,0,0,0.5)">
-    <handler event="oninit">
-      assert.equal(this.sprite.el.style['font-family'], "'Brush Script MT', cursive", 'missing size style')
-      assert.equal(this.sprite.el.style['font-size'], '128px', 'missing size style')
-      assert.equal(this.sprite.el.style['font-weight'], 'bold', 'missing bold style')
-      assert.equal(this.sprite.el.style['font-style'], 'italic', 'missing italic style')
-      assert.equal(this.sprite.el.style['text-decoration'], 'underline', 'missing underline style')
-      assert.equal(this.sprite.el.style['font-variant'], 'small-caps', 'missing smallcaps style')
-    </handler>
-  </text>
-
-  <!-- Fontsize in pt -->
-  <text id="fonts" width="100" height="100" fontsize="12pt" fontfamily="'Brush Script MT', cursive" text="FONTS, BOLD ITALIC ETC." color="lightblue" bgcolor="rgba(200,0,0,0.5)">
-    <handler event="oninit">
-      assert.equal(this.sprite.el.style['font-size'], '12px', 'fonts in pt format should be converted to pixels')
-    </handler>
-  </text>
-
-  <!-- Default fontsize -->
-  <text id="fonts" width="100" height="100" text="FONTS, BOLD ITALIC ETC." color="lightblue" bgcolor="rgba(200,0,0,0.5)">
-    <handler event="oninit">
-      assert.equal(this.sprite.el.style['font-size'], '20px', 'default font size')
-    </handler>
-  </text>
-
-    <!-- Test that setting fonsize alone isn't clobbered by an empty font-family -->
-  <text id="fonts" width="100" height="100" text="FONTS, BOLD ITALIC ETC." fontsize="20" color="lightblue" bgcolor="rgba(200,0,0,0.5)">
-    <handler event="oninit">
-      assert.equal(this.sprite.el.style['font-size'], '20px', 'default font size')
-    </handler>
-  </text>
-
-
-</view>
 <!-- The MIT License (MIT)
 
-Copyright ( c ) 2014 Teem2 LLC
+Copyright ( c ) 2015 Teem2 LLC
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

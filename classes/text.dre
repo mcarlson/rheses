@@ -1,6 +1,6 @@
 <!-- The MIT License (MIT)
 
-Copyright ( c ) 2014 Teem2 LLC
+Copyright ( c ) 2015 Teem2 LLC
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -82,117 +82,92 @@ SOFTWARE. -->
       *      <timetext text="240"></timetext>
       * 
       */-->
-
-
-<class name="text" extends="view" type="coffee" bgcolor="rgb(63,63,63)" color="white" font-weight="200">
-
+<class name="text" type="coffee" bgcolor="rgb(63,63,63)" color="white" font-weight="200">
   <!--/**
-  *
-  * @attribute {Number} [fontsize]
-  * The size of the font in pixels.
-  *
-  */-->
-
+        * @attribute {Number} [fontsize]
+        * The size of the font in pixels.
+        */-->
   <attribute name="fontsize" type="number" value="20"></attribute>
 
   <!--/**
-  *
-  * @attribute {Number} [fontfamily=""]
-  * The name of the font family to use, e.g. "Helvetica"  Include multiple fonts on a line, separated by commas.
-  *
-  */-->
+        * @attribute {Number} [fontfamily=""]
+        * The name of the font family to use, e.g. "Helvetica"  Include multiple fonts on a line, separated by commas.
+        */-->
   <attribute name="fontfamily" type="string" value="'mission-gothic', 'Helvetica Neue', Helvetica, Arial, sans-serif"></attribute>
 
   <!--/**
-  *
-  * @attribute {Boolean} [bold=false]
-  * Use bold text.
-  *
-  */-->
-
-  <attribute name="bold" type="boolean" value="false"></attribute>
+        * @attribute {Boolean} [bold=false]
+        * Use bold text.
+        */-->
+  <attribute name="bold" type="boolean" value="false" visual="false"></attribute>
   <setter name="bold" args="bold">
-    if bold
-      @sprite.setStyle 'font-weight', 'bold'
-    else
-      @sprite.setStyle 'font-weight', 300
-
+    @sprite.setStyle('font-weight', `bold ? 'bold' : '200'`)
     return bold
   </setter>
 
   <!--/**
-  *
-  * @attribute {Boolean} [italic=false]
-  * Use italic text.
-  *
-  */-->
-
-  <attribute name="italic" type="boolean" value="false"></attribute>
+        * @attribute {Boolean} [italic=false]
+        * Use italic text.
+        */-->
+  <attribute name="italic" type="boolean" value="false" visual="false"></attribute>
   <setter name="italic" args="italic">
-    if italic
-      @sprite.setStyle 'font-style', 'italic'
-    else
-      @sprite.setStyle 'font-style', undefined
-
+    @sprite.setStyle('font-style', `italic ? 'italic' : undefined`)
     return italic
   </setter>
 
   <!--/**
-  *
-  * @attribute {Boolean} [smallcaps=false]
-  * Use small caps style.
-  *
-  */-->
-  <attribute name="smallcaps" type="boolean" value="false"></attribute>
+        * @attribute {Boolean} [smallcaps=false]
+        * Use small caps style.
+        */-->
+  <attribute name="smallcaps" type="boolean" value="false" visual="false"></attribute>
   <setter name="smallcaps" args="caps">
-    if caps
-      @sprite.setStyle 'font-variant', 'small-caps'
-    else
-      @sprite.setStyle 'font-variant', undefined
-
+    @sprite.setStyle('font-variant', `caps ? 'small-caps' : undefined`)
     return caps
   </setter>
 
   <!--/**
-  *
-  * @attribute {Boolean} [underline=false]
-  * Draw and underline under text (note, is incompatible with dr.text#strike)
-  *
-  */-->
-
-  <attribute name="underline" type="boolean" value="false"></attribute>
+        * @attribute {Boolean} [underline=false]
+        * Draw and underline under text (note, is incompatible with dr.text#strike)
+        */-->
+  <attribute name="underline" type="boolean" value="false" visual="false"></attribute>
   <setter name="underline" args="underline">
+    @defaultSetAttributeBehavior('underline', underline)
     if underline
-      @sprite.setStyle 'text-decoration', 'underline'
-    else if @strike
-      @sprite.setStyle 'text-decoration', 'line-through'
-    else
-      @sprite.setStyle 'text-decoration', undefined
-
-    return underline
+      if @strike then @setAttribute('strike', false)
+      @sprite.setStyle('text-decoration', 'underline')
+    else if not @strike
+      @sprite.setStyle('text-decoration', undefined)
+    return dr._noop
   </setter>
 
   <!--/**
-  *
-  * @attribute {Boolean} [strike=false]
-  * Draw and strike-through the text (note, is incompatible with dr.text#underline)
-  *
-  */-->
-
-  <attribute name="strike" type="boolean" value="false"></attribute>
+        * @attribute {Boolean} [strike=false]
+        * Draw and strike-through the text (note, is incompatible with dr.text#underline)
+        */-->
+  <attribute name="strike" type="boolean" value="false" visual="false"></attribute>
   <setter name="strike" args="strike">
+    @defaultSetAttributeBehavior('strike', strike)
     if strike
-      @sprite.setStyle 'text-decoration', 'line-through'
-    else if @underline
-      @sprite.setStyle 'text-decoration', 'underline'
-    else
-      @sprite.setStyle 'text-decoration', undefined
-
-    return strike
+      if @underline then @setAttribute('underline', false)
+      @sprite.setStyle('text-decoration', 'line-through')
+    else if not @underline
+      @sprite.setStyle('text-decoration', undefined)
+    return dr._noop
   </setter>
 
-  <attribute name="multiline" type="boolean" value="false"></attribute>
-  <attribute name="resize" type="boolean" value="true"></attribute>
+  <!--/**
+        * @attribute {Boolean} [multiline=false]
+        * Set to true to show multi-line text.
+        */-->
+  <attribute name="multiline" type="boolean" value="false" visual="false"></attribute>
+
+  <!--/**
+        * @attribute {Boolean} [resize=true]
+        * By default, the text component is sized to the size of the text.
+        * By setting resize=false, the component size is not modified
+        * when the text changes.
+        */-->
+  <attribute name="resize" type="boolean" value="true" visual="false"></attribute>
   <setter name="resize" args="value">
     if value
       @setAttribute("leftpadding", @leftpadding || 20)
@@ -200,74 +175,54 @@ SOFTWARE. -->
       @setAttribute("toppadding", @toppadding || 10)
       @setAttribute("bottompadding", @bottompadding || 10)
     else
-      @setAttribute("leftpadding", undefined)
-      @setAttribute("rightpadding", undefined)
-      @setAttribute("toppadding", undefined)
-      @setAttribute("bottompadding", undefined)
-
+      @setAttribute("padding", 0)
     return value
+  </setter>
+
+  <!--/**
+        * @attribute {String} [text=""]
+        * The contents of this input text field
+        */-->
+  <setter name="text" args="text">
+    if text isnt @text
+      @sprite.setText(@format(text))
+      @updateSize()
+    return text
   </setter>
 
   <setter name="data" args="data">
     @setAttribute('text', data, true)
     return data
   </setter>
-  
-  <setter name="text" args="text">
-    if (text isnt @text)
-      @sprite.setText(@format(text))
-      @updateSize()
-    return text
-  </setter>
-  
-  <!--/**
-    * 
-    * @attribute {Boolean} [multiline=false]
-    * Set to true to show multi-line text.
-    * 
-    */-->
-  <!--/**
-    * 
-    * @attribute {Boolean} [resize=true]
-    * By default, the text component is sized to the size of the text.
-    * By setting resize=false, the component size is not modified
-    * when the text changes.
-    * 
-    */-->
-  <!--/**
-    * 
-    * @attribute {String} [text=""]
-    * The contents of this input text field
-    * 
-    */-->
+
   <method name="construct" args="el, attributes">
     @super()
-    
     if 'width' of attributes then @_initialwidth = attributes.width
+  </method>
+
+  <method name="_createSprite" args="el, attributes">
+    @super()
+    # so the text attribute has a value when the text is set between the tags
+    attributes.text ||= @sprite.getText(true)
+    @sprite.createTextElement()
   </method>
 
   <handler event="oninit" method="updateSize"></handler>
   <handler event="onmultiline" method="updateSize"></handler>
   <handler event="onresize" method="updateSize"></handler>
-  
-  <method name="_createSprite" args="el, attributes">
-    @super()
-    #so the text attribute has value when the text is set between the tags
-    attributes.text ||= @sprite.getText(true) 
-    @sprite.createTextElement()
-  </method>
-  
+
   <!--/**
-    * @method format
-    * Format the text to be displayed. The default behavior is to
-    * return the text intact. Override to change formatting.
-    * @param {String} str The current value of the text component.
-    * @return {String} The formated string to display in the component.
-    */-->
+        * @method format
+        * Format the text to be displayed. The default behavior is to
+        * return the text intact. Override to change formatting. This method
+        * is called whenever the text attribute is set.
+        * @param {String} str The current value of the text component.
+        * @return {String} The formated string to display in the component.
+        */-->
   <method name="format" args="str">
     return str
   </method>
-  
+
   <method name="updateSize">
     return unless @inited
     return unless @resize
