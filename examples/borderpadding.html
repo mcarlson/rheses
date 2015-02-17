@@ -30,37 +30,145 @@
       <view width="8" height="8" x="0" y="0" bgcolor="#ffffff"></view>
       <view width="8" height="8" x="0" y="9" bgcolor="#ffffff"></view>
       <view width="8" height="8" x="9" y="0" bgcolor="#ffffff"></view>
-      <view width="8" height="8" x="9" y="9" bgcolor="#ffffff" border="1" bordercolor="#666666"></view>
+      <view id="foo" width="8" height="8" x="9" y="9" bgcolor="#ffffff" border="1" bordercolor="#666666"></view>
     </view>
     
     <view width="auto" x="200" y="5" padding="4" bgcolor="#ffffff">
-      <labelbutton defaultcolor="plum" selectcolor="orchid" text="+ Border Width">
-        <handler event="onclick">
-          var container = this.parent.parent.container;
-          container.setAttribute('border', container.border + 1);
-        </handler>
-      </labelbutton>
+      <view height="auto">
+        <spacedlayout axis="x" updateparent="true"></spacedlayout>
+        <labelbutton defaultcolor="plum" selectcolor="orchid" text="+ Border">
+          <handler event="onclick">
+            var container = this.parent.parent.parent.container;
+            container.setAttribute('border', container.border + 1);
+          </handler>
+        </labelbutton>
+        <labelbutton defaultcolor="plum" selectcolor="orchid" text="+ Top">
+          <handler event="onclick">
+            var container = this.parent.parent.parent.container;
+            container.setAttribute('topborder', container.topborder + 1);
+          </handler>
+        </labelbutton>
+        <labelbutton defaultcolor="plum" selectcolor="orchid" text="+ Bottom">
+          <handler event="onclick">
+            var container = this.parent.parent.parent.container;
+            container.setAttribute('bottomborder', container.bottomborder + 1);
+          </handler>
+        </labelbutton>
+        <labelbutton defaultcolor="plum" selectcolor="orchid" text="+ Left">
+          <handler event="onclick">
+            var container = this.parent.parent.parent.container;
+            container.setAttribute('leftborder', container.leftborder + 1);
+          </handler>
+        </labelbutton>
+        <labelbutton defaultcolor="plum" selectcolor="orchid" text="+ Right">
+          <handler event="onclick">
+            var container = this.parent.parent.parent.container;
+            container.setAttribute('rightborder', container.rightborder + 1);
+          </handler>
+        </labelbutton>
+      </view>
       
-      <labelbutton defaultcolor="plum" selectcolor="orchid" text="- Border Width">
-        <handler event="onclick">
-          var container = this.parent.parent.container;
-          container.setAttribute('border', container.border - 1);
-        </handler>
-      </labelbutton>
+      <view height="auto">
+        <spacedlayout axis="x" updateparent="true"></spacedlayout>
+        <labelbutton defaultcolor="plum" selectcolor="orchid" text="- Border">
+          <handler event="onclick">
+            var container = this.parent.parent.parent.container;
+            container.setAttribute('border', container.border - 1);
+          </handler>
+        </labelbutton>
+        <labelbutton defaultcolor="plum" selectcolor="orchid" text="- Top">
+          <handler event="onclick">
+            var container = this.parent.parent.parent.container;
+            container.setAttribute('topborder', container.topborder - 1);
+          </handler>
+        </labelbutton>
+        <labelbutton defaultcolor="plum" selectcolor="orchid" text="- Bottom">
+          <handler event="onclick">
+            var container = this.parent.parent.parent.container;
+            container.setAttribute('bottomborder', container.bottomborder - 1);
+          </handler>
+        </labelbutton>
+        <labelbutton defaultcolor="plum" selectcolor="orchid" text="- Left">
+          <handler event="onclick">
+            var container = this.parent.parent.parent.container;
+            container.setAttribute('leftborder', container.leftborder - 1);
+          </handler>
+        </labelbutton>
+        <labelbutton defaultcolor="plum" selectcolor="orchid" text="- Right">
+          <handler event="onclick">
+            var container = this.parent.parent.parent.container;
+            container.setAttribute('rightborder', container.rightborder - 1);
+          </handler>
+        </labelbutton>
+      </view>
       
-      <labelbutton defaultcolor="plum" selectcolor="orchid" text="+ Padding">
-        <handler event="onclick">
-          var container = this.parent.parent.container;
-          container.setAttribute('padding', container.padding + 1);
-        </handler>
-      </labelbutton>
+      <view height="auto">
+        <spacedlayout axis="x" updateparent="true"></spacedlayout>
+        <labelbutton defaultcolor="plum" selectcolor="orchid" text="+ Padding">
+          <handler event="onclick">
+            var container = this.parent.parent.parent.container;
+            container.setAttribute('padding', container.padding + 1);
+          </handler>
+        </labelbutton>
+        <labelbutton defaultcolor="plum" selectcolor="orchid" text="+ Top">
+          <handler event="onclick">
+            var container = this.parent.parent.parent.container;
+            container.setAttribute('toppadding', container.toppadding + 1);
+          </handler>
+        </labelbutton>
+        <labelbutton defaultcolor="plum" selectcolor="orchid" text="+ Bottom">
+          <handler event="onclick">
+            var container = this.parent.parent.parent.container;
+            container.setAttribute('bottompadding', container.bottompadding + 1);
+          </handler>
+        </labelbutton>
+        <labelbutton defaultcolor="plum" selectcolor="orchid" text="+ Left">
+          <handler event="onclick">
+            var container = this.parent.parent.parent.container;
+            container.setAttribute('leftpadding', container.leftpadding + 1);
+          </handler>
+        </labelbutton>
+        <labelbutton defaultcolor="plum" selectcolor="orchid" text="+ Right">
+          <handler event="onclick">
+            var container = this.parent.parent.parent.container;
+            container.setAttribute('rightpadding', container.rightpadding + 1);
+          </handler>
+        </labelbutton>
+      </view>
       
-      <labelbutton defaultcolor="plum" selectcolor="orchid" text="- Padding">
-        <handler event="onclick">
-          var container = this.parent.parent.container;
-          container.setAttribute('padding', container.padding - 1);
-        </handler>
-      </labelbutton>
+      <view height="auto">
+        <spacedlayout axis="x" updateparent="true"></spacedlayout>
+        <labelbutton defaultcolor="plum" selectcolor="orchid" text="- Padding">
+          <handler event="onclick">
+            var container = this.parent.parent.parent.container;
+            container.setAttribute('padding', container.padding - 1);
+          </handler>
+        </labelbutton>
+        <labelbutton defaultcolor="plum" selectcolor="orchid" text="- Top">
+          <handler event="onclick">
+            var container = this.parent.parent.parent.container;
+            container.setAttribute('toppadding', container.toppadding - 1);
+          </handler>
+        </labelbutton>
+        <labelbutton defaultcolor="plum" selectcolor="orchid" text="- Bottom">
+          <handler event="onclick">
+            var container = this.parent.parent.parent.container;
+            container.setAttribute('bottompadding', container.bottompadding - 1);
+          </handler>
+        </labelbutton>
+        <labelbutton defaultcolor="plum" selectcolor="orchid" text="- Left">
+          <handler event="onclick">
+            var container = this.parent.parent.parent.container;
+            container.setAttribute('leftpadding', container.leftpadding - 1);
+          </handler>
+        </labelbutton>
+        <labelbutton defaultcolor="plum" selectcolor="orchid" text="- Right">
+          <handler event="onclick">
+            var container = this.parent.parent.parent.container;
+            container.setAttribute('rightpadding', container.rightpadding - 1);
+          </handler>
+        </labelbutton>
+      </view>
       
       <labelbutton defaultcolor="plum" selectcolor="orchid" text="+ Child Percent">
         <handler event="onclick">

@@ -42,7 +42,15 @@
     bordercolor: 'borderColor',
     boxshadow: 'boxShadow',
     fontsize: 'fontSize',
-    fontfamily: 'fontFamily'
+    fontfamily: 'fontFamily',
+    topborder: 'borderTopWidth',
+    bottomborder: 'borderBottomWidth',
+    leftborder: 'borderLeftWidth',
+    rightborder: 'borderRightWidth',
+    toppadding: 'paddingTop',
+    bottompadding: 'paddingBottom',
+    leftpadding: 'paddingLeft',
+    rightpadding: 'paddingRight'
   };
 
   propmap = {
@@ -1540,21 +1548,51 @@
         this._updateClass();
       }
 
-      Sprite.prototype.setStyle = function(name, value, internal, el) {
-        if (el == null) {
-          el = this.el;
+      Sprite.prototype.setStyle = (function(isWebkit) {
+        if (isWebkit) {
+          return function(name, value, internal, el) {
+            var perturb, v;
+            if (el == null) {
+              el = this.el;
+            }
+            if (value == null) {
+              value = '';
+            }
+            if (name in stylemap) {
+              name = stylemap[name];
+            }
+            if (name in styleval) {
+              value = styleval[name](value);
+            }
+            el.style[name] = value;
+            if (name === 'borderTopWidth' || name === 'paddingTop') {
+              if (this.__BP_TOGGLE = !this.__BP_TOGGLE) {
+                perturb = -0.001;
+              } else {
+                perturb = 0.001;
+              }
+              v = el.style.paddingLeft;
+              return el.style.paddingLeft = Number(v.substring(0, v.length - 2)) + perturb + 'px';
+            }
+          };
+        } else {
+          return function(name, value, internal, el) {
+            if (el == null) {
+              el = this.el;
+            }
+            if (value == null) {
+              value = '';
+            }
+            if (name in stylemap) {
+              name = stylemap[name];
+            }
+            if (name in styleval) {
+              value = styleval[name](value);
+            }
+            return el.style[name] = value;
+          };
         }
-        if (value == null) {
-          value = '';
-        }
-        if (name in stylemap) {
-          name = stylemap[name];
-        }
-        if (name in styleval) {
-          value = styleval[name](value);
-        }
-        return el.style[name] = value;
-      };
+      })(capabilities.prefix.dom === 'WebKit');
 
       Sprite.prototype.setProperty = function(name, value, el) {
         if (el == null) {
@@ -1840,7 +1878,9 @@
       yscale: true,
       xanchor: true,
       yanchor: true,
-      zanchor: true
+      zanchor: true,
+      border: true,
+      padding: true
     };
     domElementAttributes = {
       scrollx: true,
@@ -2339,11 +2379,11 @@
           visible: 'boolean',
           border: 'positivenumber',
           borderstyle: 'string',
-          padding: 'positivenumber',
           leftborder: 'positivenumber',
           rightborder: 'positivenumber',
           topborder: 'positivenumber',
           bottomborder: 'positivenumber',
+          padding: 'positivenumber',
           leftpadding: 'positivenumber',
           rightpadding: 'positivenumber',
           toppadding: 'positivenumber',
@@ -2364,7 +2404,7 @@
         this.__fullBorderPaddingWidth = 0;
         this.__fullBorderPaddingHeight = 0;
         this.xanchor = this.yanchor = 'center';
-        this.leftborder = this.rightborder = this.topborder = this.bottomborder = this.leftpadding = this.rightpadding = this.toppadding = this.bottompadding = this.width = this.height = this.zanchor = this.boundsxdiff = this.boundsydiff = this.boundsx = this.boundsy = this.boundswidth = this.boundsheight = 0;
+        this.leftborder = this.rightborder = this.topborder = this.bottomborder = this.border = this.leftpadding = this.rightpadding = this.toppadding = this.bottompadding = this.padding = this.width = this.height = this.zanchor = this.boundsxdiff = this.boundsydiff = this.boundsx = this.boundsy = this.boundswidth = this.boundsheight = 0;
         this.clip = this.scrollable = this.clickable = this.isaligned = this.isvaligned = false;
         this._createSprite(el, attributes);
         return View.__super__.construct.apply(this, arguments);
@@ -2669,155 +2709,138 @@
         return height;
       };
 
+      View.prototype.set_border = function(border) {
+        this.__lockBPRecalc = true;
+        this.setAttribute('topborder', border);
+        this.setAttribute('bottomborder', border);
+        this.setAttribute('leftborder', border);
+        this.setAttribute('rightborder', border);
+        this.__lockBPRecalc = false;
+        this.defaultSetAttributeBehavior('border', border);
+        this.__updateInnerWidth();
+        this.__updateInnerHeight();
+        return noop;
+      };
+
       View.prototype.set_topborder = function(border) {
-        if (border < 0) {
-          return;
+        this.defaultSetAttributeBehavior('topborder', border);
+        if (!this.__lockBPRecalc) {
+          this.__updateBorder();
+          this.__updateInnerHeight();
         }
-        this.sprite.setStyle('border-top-width', border);
-        this.__updateInnerMeasuresFor({
-          topborder: border
-        });
-        return border;
+        return noop;
       };
 
       View.prototype.set_bottomborder = function(border) {
-        if (border < 0) {
-          return;
+        this.defaultSetAttributeBehavior('bottomborder', border);
+        if (!this.__lockBPRecalc) {
+          this.__updateBorder();
+          this.__updateInnerHeight();
         }
-        this.sprite.setStyle('border-bottom-width', border);
-        this.__updateInnerMeasuresFor({
-          bottomborder: border
-        });
-        return border;
+        return noop;
       };
 
       View.prototype.set_leftborder = function(border) {
-        if (border < 0) {
-          return;
+        this.defaultSetAttributeBehavior('leftborder', border);
+        if (!this.__lockBPRecalc) {
+          this.__updateBorder();
+          this.__updateInnerWidth();
         }
-        this.sprite.setStyle('border-left-width', border);
-        this.__updateInnerMeasuresFor({
-          leftborder: border
-        });
-        return border;
+        return noop;
       };
 
       View.prototype.set_rightborder = function(border) {
-        if (border < 0) {
-          return;
+        this.defaultSetAttributeBehavior('rightborder', border);
+        if (!this.__lockBPRecalc) {
+          this.__updateBorder();
+          this.__updateInnerWidth();
         }
-        this.sprite.setStyle('border-right-width', border);
-        this.__updateInnerMeasuresFor({
-          rightborder: border
-        });
-        return border;
+        return noop;
       };
 
-      View.prototype.set_border = function(border) {
-        if (border < 0) {
-          return;
+      View.prototype.__updateBorder = function() {
+        test = this.topborder;
+        if (this.bottomborder === test && this.leftborder === test && this.rightborder === test) {
+          return this.defaultSetAttributeBehavior('border', test);
+        } else if (this.border != null) {
+          return this.defaultSetAttributeBehavior('border', void 0);
         }
-        this.topborder = this.set_topborder(border);
-        this.bottomborder = this.set_bottomborder(border);
-        this.leftborder = this.set_leftborder(border);
-        this.rightborder = this.set_rightborder(border);
-        this.__updateInnerMeasuresFor();
-        return this.border;
-      };
-
-      View.prototype.set_toppadding = function(padding) {
-        if (padding < 0) {
-          return;
-        }
-        this.sprite.setStyle('padding-top', padding);
-        this.__updateInnerMeasuresFor({
-          toppadding: padding
-        });
-        return padding;
-      };
-
-      View.prototype.set_bottompadding = function(padding) {
-        if (padding < 0) {
-          return;
-        }
-        this.sprite.setStyle('padding-bottom', padding);
-        this.__updateInnerMeasuresFor({
-          bottompadding: padding
-        });
-        return padding;
-      };
-
-      View.prototype.set_leftpadding = function(padding) {
-        if (padding < 0) {
-          return;
-        }
-        this.sprite.setStyle('padding-left', padding);
-        this.__updateInnerMeasuresFor({
-          leftpadding: padding
-        });
-        return padding;
-      };
-
-      View.prototype.set_rightpadding = function(padding) {
-        if (padding < 0) {
-          return;
-        }
-        this.sprite.setStyle('padding-right', padding);
-        this.__updateInnerMeasuresFor({
-          rightpadding: padding
-        });
-        return padding;
       };
 
       View.prototype.set_padding = function(padding) {
-        if (padding < 0) {
-          return;
-        }
-        this.toppadding = this.set_toppadding(padding);
-        this.bottompadding = this.set_bottompadding(padding);
-        this.leftpadding = this.set_leftpadding(padding);
-        this.rightpadding = this.set_rightpadding(padding);
-        this.__updateInnerMeasuresFor();
-        return this.padding;
+        this.__lockBPRecalc = true;
+        this.setAttribute('toppadding', padding);
+        this.setAttribute('bottompadding', padding);
+        this.setAttribute('leftpadding', padding);
+        this.setAttribute('rightpadding', padding);
+        this.__lockBPRecalc = false;
+        this.defaultSetAttributeBehavior('padding', padding);
+        this.__updateInnerWidth();
+        this.__updateInnerHeight();
+        return noop;
       };
 
-      View.prototype.__updateInnerMeasuresFor = function(o) {
-        var h, k, m, v, w;
-        if (o == null) {
-          o = {};
+      View.prototype.set_toppadding = function(padding) {
+        this.defaultSetAttributeBehavior('toppadding', padding);
+        if (!this.__lockBPRecalc) {
+          this.__updatePadding();
+          this.__updateInnerHeight();
         }
-        m = {
-          leftborder: this.leftborder,
-          rightborder: this.rightborder,
-          topborder: this.topborder,
-          bottomborder: this.bottomborder,
-          leftpadding: this.leftpadding,
-          rightpadding: this.rightpadding,
-          toppadding: this.toppadding,
-          bottompadding: this.bottompadding
-        };
-        for (k in o) {
-          v = o[k];
-          m[k] = v;
-        }
-        w = m.leftborder + m.rightborder + m.leftpadding + m.rightpadding;
-        h = m.topborder + m.bottomborder + m.toppadding + m.bottompadding;
-        this.padding = (m.toppadding + m.bottompadding + m.leftpadding + m.rightpadding) / 4.0;
-        this.border = (m.topborder + m.bottomborder + m.leftborder + m.rightborder) / 4.0;
-        return this.__updateInnerMeasures(w, h);
+        return noop;
       };
 
-      View.prototype.__updateInnerMeasures = function(widthinset, heightinset) {
-        this.__fullBorderPaddingWidth = widthinset;
-        this.__fullBorderPaddingHeight = heightinset;
-        if (widthinset > this.width) {
-          this.setAttribute('width', widthinset, false, true, true);
+      View.prototype.set_bottompadding = function(padding) {
+        this.defaultSetAttributeBehavior('bottompadding', padding);
+        if (!this.__lockBPRecalc) {
+          this.__updatePadding();
+          this.__updateInnerHeight();
         }
-        if (heightinset > this.height) {
-          this.setAttribute('height', heightinset, false, true, true);
+        return noop;
+      };
+
+      View.prototype.set_leftpadding = function(padding) {
+        this.defaultSetAttributeBehavior('leftpadding', padding);
+        if (!this.__lockBPRecalc) {
+          this.__updatePadding();
+          this.__updateInnerWidth();
         }
-        this.setAttribute('innerwidth', this.width - widthinset, true, true, true, true);
-        return this.setAttribute('innerheight', this.height - heightinset, true, true, true, true);
+        return noop;
+      };
+
+      View.prototype.set_rightpadding = function(padding) {
+        this.defaultSetAttributeBehavior('rightpadding', padding);
+        if (!this.__lockBPRecalc) {
+          this.__updatePadding();
+          this.__updateInnerWidth();
+        }
+        return noop;
+      };
+
+      View.prototype.__updatePadding = function() {
+        test = this.toppadding;
+        if (this.bottompadding === test && this.leftpadding === test && this.rightpadding === test) {
+          return this.defaultSetAttributeBehavior('padding', test);
+        } else if (this.padding != null) {
+          return this.defaultSetAttributeBehavior('padding', void 0);
+        }
+      };
+
+      View.prototype.__updateInnerWidth = function() {
+        var inset;
+        this.__fullBorderPaddingWidth = inset = this.leftborder + this.rightborder + this.leftpadding + this.rightpadding;
+        if (inset > this.width) {
+          this.setAttribute('width', inset, false, true, true, false);
+        }
+        return this.setAttribute('innerwidth', this.width - inset, true, true, true, true);
+      };
+
+      View.prototype.__updateInnerHeight = function() {
+        var inset;
+        this.__fullBorderPaddingHeight = inset = this.topborder + this.bottomborder + this.toppadding + this.bottompadding;
+        if (inset > this.height) {
+          this.setAttribute('height', inset, false, true, true, false);
+        }
+        return this.setAttribute('innerheight', this.height - inset, true, true, true, true);
       };
 
       View.prototype.set_clickable = function(clickable) {
