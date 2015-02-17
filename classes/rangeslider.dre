@@ -117,6 +117,10 @@ SOFTWARE. -->
       */-->
     <attribute name="lowvalue" type="number" value="50"></attribute>
     <handler event="onlowvalue" method="visualize"></handler>
+    <setter name="lowvalue" args="lv">
+        return Math.min(@maxlowvalue, Math.max(lv, @minvalue))
+    </setter>
+
 
     <!--/**
       * @attribute {Number} [highvalue=50]
@@ -125,36 +129,9 @@ SOFTWARE. -->
       */-->
     <attribute name="highvalue" type="number" value="50"></attribute>
     <handler event="onhighvalue" method="visualize"></handler>
-
-    <!--/**
-      * @method changeLowValue
-      * Given a new value for the slider position, constrain the value
-      * between minvalue and maxvalue or maxlowvalue (whichever is lower) and then calls setAttribute.
-      * @param {Number} v The new value of the component.
-      */-->
-    <method name="changeLowValue" args="v">
-        max = Math.min(@maxvalue, @maxlowvalue)
-        if (v > max)
-          v = max;
-        else if (v < @minvalue)
-          v = @minvalue;
-        @setAttribute('lowvalue', v);
-    </method>
-
-    <!--/**
-      * @method changeHighValue
-      * Given a new value for the slider position, constrain the value
-      * between minvalue or minhighvalue (whichever is higher) and maxvalue and then calls setAttribute.
-      * @param {Number} v The new value of the component.
-      */-->
-    <method name="changeHighValue" args="v">
-        min = Math.max(@minvalue, @minhighvalue)
-        if (v < min)
-          v = min;
-        else if (v > @maxvalue)
-          v = @maxvalue;
-        @setAttribute('highvalue', v);
-    </method>
+    <setter name="highvalue" args="hv">
+        return Math.max(@minhighvalue, Math.min(hv, @maxvalue))
+    </setter>
 
     <!--/**
       * @attribute {String} [lowselectcolor="#a0a0a0"]
@@ -272,9 +249,9 @@ SOFTWARE. -->
             hd = Math.abs(@highvalue - val)
 
             if (ld < hd)
-              @changeLowValue(val)
+              @setAttribute('lowvalue', val)
             else
-              @changeHighValue(val)
+              @setAttribute('highvalue', val)
 
         else
 
@@ -286,9 +263,9 @@ SOFTWARE. -->
             hd = Math.abs(@highvalue - val)
 
             if (ld < hd)
-              @changeLowValue(val)
+              @setAttribute('lowvalue', val)
             else
-              @changeHighValue(val)
+              @setAttribute('highvalue', val)
 
     </method>
 
