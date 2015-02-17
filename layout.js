@@ -3,7 +3,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright ( c ) 2014 Teem2 LLC
+ * Copyright ( c ) 2015 Teem2 LLC
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -91,7 +91,8 @@
   })();
 
   window.dr = (function() {
-    var AutoPropertyLayout, Class, Eventable, Events, Idle, Keyboard, Layout, Module, Mouse, Node, Path, Sprite, StartEventable, State, View, Window, callOnIdle, capabilities, clone, closeTo, compiler, constraintScopes, debug, dom, domElementAttributes, eventq, exports, fcamelCase, handlerq, hiddenAttributes, idle, ignoredAttributes, instantiating, knownstyles, matchEvent, mixOf, moduleKeywords, mouseEvents, noop, querystring, rdashAlpha, showWarnings, specialtags, ss, ss2, starttime, tagPackageSeparator, test, triggerlock, warnings, _initConstraints, _processAttrs;
+    var AutoPropertyLayout, COMMENT_NODE, Class, Eventable, Events, Idle, Keyboard, Layout, Module, Mouse, Node, Path, Sprite, StartEventable, State, View, Window, callOnIdle, capabilities, clone, closeTo, compiler, constraintScopes, debug, dom, domElementAttributes, eventq, exports, fcamelCase, handlerq, hiddenAttributes, idle, ignoredAttributes, instantiating, knownstyles, matchEvent, mixOf, moduleKeywords, mouseEvents, noop, querystring, rdashAlpha, showWarnings, specialtags, ss, ss2, starttime, tagPackageSeparator, test, triggerlock, warnings, _initConstraints, _processAttrs;
+    COMMENT_NODE = window.Node.COMMENT_NODE;
     noop = function() {};
     closeTo = function(a, b, epsilon) {
       epsilon || (epsilon = 0.01);
@@ -3443,13 +3444,11 @@
               for (_j = 0, _len1 = args.length; _j < _len1; _j++) {
                 xhr = args[_j];
                 jqel.prepend(xhr[0]);
-                if (debug) {
-                  jqel.contents().each(function() {
-                    if (this.nodeType === 8) {
-                      return $(this).remove();
-                    }
-                  });
-                }
+                jqel.contents().each(function() {
+                  if (this.nodeType === COMMENT_NODE) {
+                    return $(this).remove();
+                  }
+                });
               }
               includes = findMissingClasses(findIncludeURLs());
               if (Object.keys(includes).length > 0) {
@@ -4187,7 +4186,7 @@
        * If false, class instances won't initialize their children.
        */
       function Class(el, classattributes) {
-        var child, compilertype, context, extend, haschildren, idx, ignored, instancebody, klass, len, name, newContext, oldbody, part, parts, processedChildren, skipinitchildren, _i, _j, _len, _len1;
+        var child, compilertype, context, extend, haschildren, idx, ignored, instancebody, klass, len, name, newContext, oldbody, part, parts, processedChildren, skipinitchildren, _i, _j, _k, _len, _len1, _len2, _ref;
         if (classattributes == null) {
           classattributes = {};
         }
@@ -4198,10 +4197,17 @@
         for (ignored in ignoredAttributes) {
           delete classattributes[ignored];
         }
+        _ref = el.childNodes;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          child = _ref[_i];
+          if ((child != null) && child.nodeType === COMMENT_NODE) {
+            child.parentNode.removeChild(child);
+          }
+        }
         processedChildren = dom.processSpecialTags(el, classattributes, compilertype);
         oldbody = el.innerHTML.trim();
-        for (_i = 0, _len = processedChildren.length; _i < _len; _i++) {
-          child = processedChildren[_i];
+        for (_j = 0, _len1 = processedChildren.length; _j < _len1; _j++) {
+          child = processedChildren[_j];
           child.parentNode.removeChild(child);
         }
         haschildren = dom.getChildElements(el).length > 0;
@@ -4213,7 +4219,7 @@
           console.warn('overwriting class', name);
         }
         dr[name] = klass = function(instanceel, instanceattributes, internal, skipchildren) {
-          var attributes, children, parent, sendInit, viewel, viewhtml, _j, _len1, _ref;
+          var attributes, children, parent, sendInit, viewel, viewhtml, _k, _len2, _ref1;
           attributes = clone(classattributes);
           _processAttrs(instanceattributes, attributes);
           if (!(extend in dr)) {
@@ -4226,7 +4232,7 @@
           attributes.$skiponinit = true;
           attributes.$deferbindings = haschildren;
           parent = new dr[extend](instanceel, attributes, true, true);
-          viewel = (_ref = parent.sprite) != null ? _ref.el : void 0;
+          viewel = (_ref1 = parent.sprite) != null ? _ref1.el : void 0;
           if (instanceel) {
             if (!viewel) {
               instanceel.setAttribute('class', 'hidden');
@@ -4243,20 +4249,20 @@
             }
             if (!skipchildren) {
               children = (function() {
-                var _j, _len1, _ref1, _ref2, _results;
-                _ref1 = dom.getChildElements(viewel);
+                var _k, _len2, _ref2, _ref3, _results;
+                _ref2 = dom.getChildElements(viewel);
                 _results = [];
-                for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-                  child = _ref1[_j];
-                  if (_ref2 = child.localName, __indexOf.call(specialtags, _ref2) < 0) {
+                for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
+                  child = _ref2[_k];
+                  if (_ref3 = child.localName, __indexOf.call(specialtags, _ref3) < 0) {
                     _results.push(child);
                   }
                 }
                 return _results;
               })();
               if (!skipinitchildren) {
-                for (_j = 0, _len1 = children.length; _j < _len1; _j++) {
-                  child = children[_j];
+                for (_k = 0, _len2 = children.length; _k < _len2; _k++) {
+                  child = children[_k];
                   dom.initElement(child, parent);
                 }
               }
@@ -4283,7 +4289,7 @@
           len = parts.length;
           if (len > 1) {
             context = dr;
-            for (idx = _j = 0, _len1 = parts.length; _j < _len1; idx = ++_j) {
+            for (idx = _k = 0, _len2 = parts.length; _k < _len2; idx = ++_k) {
               part = parts[idx];
               if (idx === len - 1) {
                 context[part] = klass;

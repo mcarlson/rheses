@@ -1,7 +1,7 @@
 ###
 # The MIT License (MIT)
 #
-# Copyright ( c ) 2014 Teem2 LLC
+# Copyright ( c ) 2015 Teem2 LLC
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -79,6 +79,8 @@ hackstyle = do ->
 
 
 window.dr = do ->
+  COMMENT_NODE = window.Node.COMMENT_NODE
+
   # Common noop function. Also used as a return value for setters to prevent
   # the default setAttribute behavior.
   noop = () ->
@@ -2739,11 +2741,11 @@ window.dr = do ->
             for xhr in args
               # console.log 'inserting html', args, xhr[0]
               jqel.prepend(xhr[0])
-              if debug
-                jqel.contents().each(() ->
-                  if(@nodeType is 8)
-                    $(this).remove()
-                )
+              
+              # Remove top level comment nodes from included files
+              jqel.contents().each(() ->
+                if @nodeType is COMMENT_NODE then $(this).remove()
+              )
 
             includes = findMissingClasses(findIncludeURLs())
             if Object.keys(includes).length > 0
@@ -3278,6 +3280,11 @@ window.dr = do ->
       # only class instances should specify these
       for ignored of ignoredAttributes
         delete classattributes[ignored]
+
+      # Strip comments out of class definition to reduce bloat when 
+      # instances are created since all child nodes get copied to instances.
+      for child in el.childNodes
+        if child? and child.nodeType is COMMENT_NODE then child.parentNode.removeChild(child)
 
       # collapse children into attributes
       processedChildren = dom.processSpecialTags(el, classattributes, compilertype)
