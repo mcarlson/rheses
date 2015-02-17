@@ -1267,14 +1267,19 @@
           for (bindexpression in bindings) {
             bindinglist = bindings[bindexpression];
             boundref = this._valueLookup(bindexpression)();
-            if (!boundref || !(boundref instanceof Eventable)) {
+            if (!boundref) {
               showWarnings(["Could not bind to " + bindexpression + " of constraint " + expression + " for " + this.$tagname + (this.id ? '#' + this.id : this.name ? '.' + name : '')]);
               continue;
+            }
+            if (!(boundref instanceof Eventable)) {
+              console.log("Binding to non-Eventable " + bindexpression + " of constraint " + expression + " for " + this.$tagname + (this.id ? '#' + this.id : this.name ? '.' + name : ''));
             }
             for (_i = 0, _len = bindinglist.length; _i < _len; _i++) {
               binding = bindinglist[_i];
               property = binding.property;
-              boundref.register(property, constraint.callback);
+              if (boundref instanceof Eventable) {
+                boundref.register(property, constraint.callback);
+              }
               constraint.callbackbindings.push(property, boundref);
             }
           }

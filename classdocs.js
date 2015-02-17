@@ -496,17 +496,6 @@
       * bitmapbutton has been deprecated, use dr.statebutton instead
       */
 /**
-      * @class dr.boundedview {Deprecated}
-      * @extends dr.view
-      * boundedview has been deprecated, use dr.view with a width and 
-      * height of auto instead.
-      */
-/**
-      * @class dr.boundslayout {Deprecated}
-      * @extends dr.layout
-      * boundslayout has been deprecated, use dr.shrinktofit instead
-      */
-/**
      * @class dr.buttonbase {UI Components}
      * @extends dr.view
      * Base class for button components. Buttons share common elements,
@@ -727,46 +716,51 @@
         * If true, parse json in a worker thread
         */
 /**
-     * @class dr.dragstate {UI Components}
-     * @extends dr.state
-     * Allows views to be dragged by the mouse.
-     *
-     * Here is a view that contains a dragstate. The dragstate is applied when the mouse is down in the view, and then removed when the mouse is up. You can modify the attributes of the draggable view by setting them inside the dragstate, like we do here with bgcolor.
-     *
-     *     @example
-     *     <view width="100" height="100" bgcolor="plum">
-     *       <attribute name="mouseIsDown" type="boolean" value="false"></attribute>
-     *       <handler event="onmousedown">
-     *         this.setAttribute('mouseIsDown', true);
-     *       </handler>
-     *       <handler event="onmouseup">
-     *         this.setAttribute('mouseIsDown', false);
-     *       </handler>
-     *       <dragstate applied="${this.parent.mouseIsDown}">
-     *         <attribute name="bgcolor" type="string" value="purple"></attribute>
-     *       </dragstate>
-     *     </view>
-     *
-     * To constrain the motion of the element to either the x or y axis set the dragaxis property. Here the same purple square can only move horizontally.
-     *
-     *     @example
-     *     <view width="100" height="100" bgcolor="plum">
-     *       <attribute name="mouseIsDown" type="boolean" value="false"></attribute>
-     *       <handler event="onmousedown">
-     *         this.setAttribute('mouseIsDown', true);
-     *       </handler>
-     *       <handler event="onmouseup">
-     *         this.setAttribute('mouseIsDown', false);
-     *       </handler>
-     *       <dragstate applied="${this.parent.mouseIsDown}" dragaxis="x">
-     *         <attribute name="bgcolor" type="string" value="purple"></attribute>
-     *       </dragstate>
-     *     </view>
-     */
+      * @class dr.dragstate {UI Components}
+      * @extends dr.state
+      * Allows views to be dragged by the mouse.
+      *
+      * Here is a view that contains a dragstate. The dragstate is applied when
+      * the mouse is down in the view, and then removed when the mouse is up. 
+      * You can modify the attributes of the draggable view by setting them 
+      * inside the dragstate, like we do here with bgcolor.
+      *
+      *     @example
+      *     <view width="100" height="100" bgcolor="plum">
+      *       <attribute name="mouseIsDown" type="boolean" value="false"></attribute>
+      *       <handler event="onmousedown">
+      *         this.setAttribute('mouseIsDown', true);
+      *       </handler>
+      *       <handler event="onmouseup">
+      *         this.setAttribute('mouseIsDown', false);
+      *       </handler>
+      *       <dragstate applied="${this.parent.mouseIsDown}">
+      *         <attribute name="bgcolor" type="string" value="purple"></attribute>
+      *       </dragstate>
+      *     </view>
+      *
+      * To constrain the motion of the element to either the x or y axis set 
+      * the dragaxis property. Here the same purple square can only move 
+      * horizontally.
+      *
+      *     @example
+      *     <view width="100" height="100" bgcolor="plum">
+      *       <attribute name="mouseIsDown" type="boolean" value="false"></attribute>
+      *       <handler event="onmousedown">
+      *         this.setAttribute('mouseIsDown', true);
+      *       </handler>
+      *       <handler event="onmouseup">
+      *         this.setAttribute('mouseIsDown', false);
+      *       </handler>
+      *       <dragstate applied="${this.parent.mouseIsDown}" dragaxis="x">
+      *         <attribute name="bgcolor" type="string" value="purple"></attribute>
+      *       </dragstate>
+      *     </view>
+      */
 /**
-        * @attribute {"x"/"y"/"both"} [dragaxis="both"]
-        * The axes to drag on.
-        */
+    * @attribute {"x"/"y"/"both"} [dragaxis="both"]
+    * The axes to drag on.
+    */
 /**
      * @class dr.dreem_iframe {Deprecated}
      * @extends dr.view
@@ -1018,17 +1012,6 @@
     * @attribute {Number} recordingtime
     * @readonly
     * The length of the recording in seconds. 
-    */
-/**
-      * @class dr.mixin
-      * @extends dr.state
-      * Mixins allow methods, handlers, attributes and instances to be mixed 
-      * into their parent.
-      */
-/**
-    * @attribute {Boolean} [applied=true]
-    * The spacing between views.
-    * @private
     */
 /**
    * @class dr.rangeslider {UI Components}
@@ -1354,63 +1337,6 @@
       * @class dr.shim {Deprecated}
       * @extends dr.node
       * shim has been deprecated, use dr.teem instead
-      */
-/**
-      * @class dr.shrinktofit {Deprecated}
-      * @extends dr.layout
-      * A special "layout" that resizes the parent to fit the children
-      * rather than laying out the children.
-      *
-      *
-      * Here is a view that contains three sub views that are positioned with a spacedlayout. The parent view has a grey background color. Notice that the subviews are visible because they overflow the parent view, but the parent view itself takes up no space.
-      *
-      *     @example
-      *     <view bgcolor="darkgrey">
-      *       <spacedlayout axis="y"></spacedlayout>
-      *
-      *       <view width="100" height="25" bgcolor="lightpink" opacity=".3"></view>
-      *       <view width="100" height="25" bgcolor="plum" opacity=".3"></view>
-      *       <view width="100" height="25" bgcolor="lightblue" opacity=".3"></view>
-      *     </view>
-      *
-      * Now we'll add a shrinktofit to the parent view. Notice that now the parent view does take up space, and you can see it through the semi-transparent subviews.
-      *
-      *     @example
-      *     <view bgcolor="darkgrey">
-      *       <shrinktofit axis="both" xpad="5" ypad="10"></shrinktofit>
-      *
-      *       <spacedlayout axis="y"></spacedlayout>
-      *
-      *       <view width="100" height="25" bgcolor="lightpink" opacity=".3"></view>
-      *       <view width="100" height="25" bgcolor="plum" opacity=".3"></view>
-      *       <view width="100" height="25" bgcolor="lightblue" opacity=".3"></view>
-      *     </view>
-      */
-/**
-    * @attribute {String} [axis=x]
-    * The axis along which to resize this view to fit its children.
-    * Supported values are 'x', 'y' and 'both'.
-    */
-/**
-    * @attribute {Number} [xpad=0]
-    * Additional space added on the child extent along the x-axis.
-    */
-/**
-    * @attribute {Number} [ypad=0]
-    * Additional space added on the child extent along the y-axis.
-    */
-/**
-    * @method __updateMonitoringSubview
-    * Wrapped by startMonitoringSubview and stopMonitoringSubview.
-    * @param {dr.view} view
-    * @param {Function} func
-    * @return {void}
-    * @private
-    */
-/**
-      * @class dr.simplelayout {Deprecated}
-      * @extends dr.layout
-      * simplelayout has been deprecated, use dr.spacedlayout instead
       */
 /**
       * @class dr.sizetodom {UI Components}
@@ -1752,7 +1678,7 @@
   */
 /**
   *
-  * @attribute {Number} [font=""]
+  * @attribute {Number} [fontfamily=""]
   * The name of the font family to use, e.g. "Helvetica"  Include multiple fonts on a line, separated by commas.
   *
   */

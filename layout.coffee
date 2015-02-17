@@ -966,14 +966,17 @@ window.dr = do ->
         constraint.callback = @_constraintCallback(name, fn)
         for bindexpression, bindinglist of bindings
           boundref = @_valueLookup(bindexpression)()
-          if not boundref or not (boundref instanceof Eventable)
+          if not boundref
             showWarnings(["Could not bind to #{bindexpression} of constraint #{expression} for #{@$tagname}#{if @id then '#' + @id else if @name then '.' + name else ''}"])
             continue
+
+          unless boundref instanceof Eventable
+            console.log("Binding to non-Eventable #{bindexpression} of constraint #{expression} for #{@$tagname}#{if @id then '#' + @id else if @name then '.' + name else ''}")
 
           for binding in bindinglist
             property = binding.property
             # console.log 'binding to', property, 'on', boundref
-            boundref.register(property, constraint.callback)
+            boundref.register(property, constraint.callback) if boundref instanceof Eventable
             constraint.callbackbindings.push(property, boundref)
 
         @setAttribute(name, fn(), false, false, true)
