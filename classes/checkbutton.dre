@@ -54,7 +54,7 @@ SOFTWARE. -->
      *     </view>
      *
      */-->
-    <class name="checkbutton" type="coffee" extends="buttonbase" defaultcolor="transparent" defaulttextcolor="rgb(140,140,140)">
+    <class name="checkbutton" type="coffee" extends="buttonbase" defaultcolor="transparent" defaulttextcolor="rgb(140,140,140)" bgcolor="rgb(84,84,84)">
 
       <!-- check_x, check_y: Location of check box with button -->
       <!-- check_w, check_h: Size of check box with button -->
@@ -62,7 +62,6 @@ SOFTWARE. -->
       <attribute name="checky" type="number" value="0"></attribute>
       <attribute name="checkw" type="number" value="0"></attribute>
       <attribute name="checkh" type="number" value="0"></attribute>
-      <attribute name="bgcolor" type="string" value="transparent"></attribute>
       <attribute name="innerspacing" type="number" value="3"></attribute>
 
       <!-- check: Show button state -->
@@ -89,7 +88,6 @@ SOFTWARE. -->
           @check.setAttribute('fill', @defaulttextcolor)
           @label.setAttribute('color', @defaulttextcolor)
 
-
       </method>
 
       <handler event="oninit">
@@ -106,31 +104,31 @@ SOFTWARE. -->
         return if @_resize_lock
 
         checkx = checky = 0
-        checkw = checkh = @label.height
         textx = texty = 0
-        width = @width
+
         height = @height
+        width = @width
 
-        if @_fixedwidth
-          xoffset = (@innerwidth - @label.width - @checkw)/2
-          checkx = xoffset
-          textx = checkx + checkw + @innerspacing
-        else
-          width = @checkw + (@border+@padding)*2
-          if @label.visible
-            width += @label.width + @innerspacing
-        textx = checkx + @checkw + @innerspacing
+        if !@_fixedheight
+          height = Math.max(@label.height + @__fullBorderPaddingHeight, 30)
 
-        if @_fixedheight
-          yoffset = (@innerheight - @label.height)/2
-          checky = yoffset
-          texty = yoffset
-        else
-          height= @label.height + (@border+@padding)*2
+        if !@_fixedwidth
+          width = @label.height + @__fullBorderPaddingWidth
+          width += @innerspacing + @label.width if @label.visible
+          width = Math.max(width, 30)
+
+        checkw = width - @__fullBorderPaddingWidth
+        checkh = height - @__fullBorderPaddingHeight
+
+        if @label.visible
+          checkw = checkw - @label.width - @innerspacing
+          textx = checkw + @innerspacing
+          texty = ((height - @__fullBorderPaddingHeight) / 2.0) - (@label.height / 2.0)
 
         @_resize_lock = true
 
         settings = {checkx: checkx, checky: checky, checkw: checkw, checkh: checkh, width: width, height: height, textx: textx, texty: texty}
+
         @setAttributes(settings)
 
         @_resize_lock = false
