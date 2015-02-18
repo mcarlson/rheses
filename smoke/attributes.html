@@ -11,6 +11,9 @@ attribute.value must be defined on <attribute name="fullName" type="string"></at
 <!--
 Invalid type 'text' for attribute 'something', must be one of: number, boolean, string, json, expression, positivenumber
 -->
+<!--
+error parsing json value '{'test': 'invalid'}' for attribute 'foo'
+-->
 </expectedoutput>
 <head>
   <style type="text/css">
@@ -214,6 +217,11 @@ Invalid type 'text' for attribute 'something', must be one of: number, boolean, 
   <!-- attribute with invalid type -->
   <view>
     <attribute name="something" type="text" value=""></attribute>
+  </view>
+
+  <!-- attribute with invalid jason value -->
+  <view>
+    <attribute name="foo" type="json" value="{'test': 'invalid'}"></attribute>
   </view>
 
 </view>

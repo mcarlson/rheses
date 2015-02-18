@@ -279,10 +279,16 @@ window.dr = do ->
     _coerceType: (name, value, type) ->
       type ||= @types[name]
       if type
-        unless (typemappings[type])
-          showWarnings ["Invalid type '#{type}' for attribute '#{name}', must be one of: #{Object.keys(typemappings).join(', ')}"]
-          return
-        value = typemappings[type](value)
+        if debug || test
+          unless (typemappings[type])
+            showWarnings ["Invalid type '#{type}' for attribute '#{name}', must be one of: #{Object.keys(typemappings).join(', ')}"]
+            return
+          try
+            value = typemappings[type](value)
+          catch e
+            showWarnings ["error parsing #{type} value '#{value}' for attribute '#{name}'"]
+        else
+          value = typemappings[type](value)
 
         # Protect number values from being set to NaN
         if type is 'number' and isNaN value

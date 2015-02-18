@@ -392,13 +392,23 @@
       };
 
       Eventable.prototype._coerceType = function(name, value, type) {
+        var e;
         type || (type = this.types[name]);
         if (type) {
-          if (!typemappings[type]) {
-            showWarnings(["Invalid type '" + type + "' for attribute '" + name + "', must be one of: " + (Object.keys(typemappings).join(', '))]);
-            return;
+          if (debug || test) {
+            if (!typemappings[type]) {
+              showWarnings(["Invalid type '" + type + "' for attribute '" + name + "', must be one of: " + (Object.keys(typemappings).join(', '))]);
+              return;
+            }
+            try {
+              value = typemappings[type](value);
+            } catch (_error) {
+              e = _error;
+              showWarnings(["error parsing " + type + " value '" + value + "' for attribute '" + name + "'"]);
+            }
+          } else {
+            value = typemappings[type](value);
           }
-          value = typemappings[type](value);
           if (type === 'number' && isNaN(value)) {
             value = this[name];
             if (isNaN(value)) {
