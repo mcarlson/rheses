@@ -1,4 +1,9 @@
 <html>
+<expectedoutput>
+  <!--
+  Invalid tag undefined [object HTMLElement]
+  -->
+</expectedoutput>
 <head>
   <title>rhes.es</title>
   <script type="text/javascript" src="/lib/jquery-1.9.1.min.js"></script>
@@ -24,6 +29,17 @@
   <!-- Loading component that has multiple levels of inheritance, all dependencies should be loaded, and this should not throw an error -->
   <view>
     <labeltoggle></labeltoggle>
+  </view>
+  
+  <!-- embedded <'s in the code -->
+  <view>
+    <handler event="oninit">
+      var someArray = [1,2,3];
+      var tots = 0;
+      for(var i=0; i<someArray.length; i++) {
+        tots += someArray[i];
+      }
+    </handler>
   </view>
 </view>
 <!-- The MIT License (MIT)
