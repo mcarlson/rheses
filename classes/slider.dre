@@ -64,30 +64,17 @@ SOFTWARE. -->
       <!--/**
         * @attribute {Number} [value=0]
         * The current value of the slider.
-        * Use changeValue() to range check the number and set the value.
         */-->
       <attribute name="value" type="number" value="0"></attribute>
-      <handler event="onvalue">
-        @visualize()
-      </handler>
+      <handler event="onvalue" method="visualize"></handler>
+      <setter name="value" args="v">
+          return Math.min(@maxvalue, Math.max(v, @minvalue))
+      </setter>
+
 
       <handler event="oninit" method="visualize"></handler>
       <handler event="onwidth" method="visualize"></handler>
       <handler event="onheight" method="visualize"></handler>
-
-      <!--/**
-        * @method changeValue
-        * Given a new value for the slider position, constrain the value
-        * between minvalue and maxvalue and then calls setAttribute.
-        * @param {Number} v The new value of the component.
-        */-->
-      <method name="changeValue" args="v">
-        if (v > @maxvalue)
-          v = @maxvalue;
-        else if (v < @minvalue)
-          v = @minvalue;
-        @setAttribute('value', v);
-      </method>
 
       <!--/**
         * @attribute {String} [selectcolor="#a0a0a0"]
@@ -155,12 +142,12 @@ SOFTWARE. -->
           if (@width > 0)
             val = (p - @getAbsolute().x) / @width * spread;
             val = @maxvalue - val if @invert
-            @changeValue(val + @minvalue);
+            @setAttribute('value', val + @minvalue);
         else
           if (@height > 0)
             val = (p - @getAbsolute().y) / @height * spread;
             val = @maxvalue - val if @invert
-            @changeValue(val + @minvalue);
+            @setAttribute('value', val + @minvalue);
       </method>
 
       <!-- The @drag.applied can be removed when states are fixed to
