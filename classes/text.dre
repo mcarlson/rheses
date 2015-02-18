@@ -229,16 +229,6 @@ SOFTWARE. -->
     
     width = if @multiline then @_initialwidth else @width
     size = @sprite.measureTextSize(@multiline, width, @resize)
-    
-    # deal with text inside hidden parents. TODO: move to the sprite
-    if @text isnt '' and size.width is 0 and size.height is 0
-      # check for hidden parents
-      parents = @_findParents('visible', false)
-      for parent in parents
-        parent.sprite.el.style.display = ''
-      size = @sprite.measureTextSize(@multiline, width, @resize)
-      for parent in parents
-        parent.sprite.el.style.display = 'none'
 
     @setAttribute('width', size.width, true) if size.width != @width
     @setAttribute('height', size.height, true) if size.height != @height

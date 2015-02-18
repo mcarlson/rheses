@@ -80,11 +80,11 @@
       // Verify updateSubview works and default as well as overridden 
       // skipSubview works
       assert.equal('#666666', v1.bgcolor, 'View one should have a bgcolor of #666666.');
-      assert.equal('#666666', v2.bgcolor, 'View two should have a y of #666666.');
-      assert.equal('#666666', v3.bgcolor, 'View three should have a y of #666666.');
-      assert.equal('#666666', v4.bgcolor, 'View four should have a y of #666666.');
-      assert.equal('#666666', v5.bgcolor, 'View five should have a y of #666666.');
-      assert.equal(undefined, v6.bgcolor, 'View six should have a y of undefined.');
+      assert.equal('#666666', v2.bgcolor, 'View two should have a bgcolor of #666666.');
+      assert.equal('#666666', v3.bgcolor, 'View three should have a bgcolor of #666666.');
+      assert.equal('#666666', v4.bgcolor, 'View four should have a bgcolor of #666666.');
+      assert.equal('#666666', v5.bgcolor, 'View five should have a bgcolor of #666666.');
+      assert.equal('transparent', v6.bgcolor, 'View six should have a bgcolor of undefined.');
       
       assert.equal(10, v1.x, 'View one should have an x of 10.');
       assert.equal(21, v2.x, 'View two should have an x of 21.');
@@ -129,7 +129,7 @@
       assert.equal(3, layoutX.beforeCallCount, 'doBeforeUpdate should be called once again.');
       assert.equal(3, layoutX.afterCallCount, 'doAfterUpdate should be called once again.');
       
-      assert.equal('#666666', v6.bgcolor, 'View six should have a y of #666666.');
+      assert.equal('#666666', v6.bgcolor, 'View six should have a bgcolor of #666666.');
       
       assert.equal(10, v1.x, 'View one should have an x of 10.');
       assert.equal(21, v2.x, 'View two should have an x of 21.');

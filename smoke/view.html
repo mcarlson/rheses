@@ -1,4 +1,5 @@
 <html>
+<testingtimer><!--500--></testingtimer>
 <head>
   <title>dr33m | View Tests</title>
   <link rel="stylesheet" href="../examples/css/example.css"/>
@@ -43,21 +44,70 @@
     </view>
 
     <!-- Visibility -->
-    <view id="hiddenview" bgcolor="lightgreen" width="100" height="50" visible="false">
+    <view bgcolor="lightgreen" width="100" height="50" visible="false">
       <handler event="oninit">
-        assert.equal($('#hiddenview').css('display'), 'none')
+        assert.equal(this.sprite.el.style.visibility, 'hidden');
+        assert.equal($(this.sprite.el).css('visibility'), 'hidden');
       </handler>
     </view>
 
-    <view id="visibleview" bgcolor="lightpink" width="100" height="50" visible="true">
+    <view bgcolor="lightpink" width="100" height="50" visible="true">
       <handler event="oninit">
-        assert.equal($('#visibleview').css('display'), 'block')
+        assert.equal(this.sprite.el.style.visibility, '');
+        assert.equal($(this.sprite.el).css('visibility'), 'visible')
       </handler>
     </view>
 
-    <view id="visibleview" bgcolor="thistle" width="100" height="50">
+    <view bgcolor="thistle" width="100" height="50">
       <handler event="oninit">
-        assert.equal($('#visibleview').css('display'), 'block')
+        assert.equal(this.sprite.el.style.visibility, '');
+        assert.equal($(this.sprite.el).css('visibility'), 'visible')
+      </handler>
+    </view>
+
+    <view bgcolor="green" width="100" height="50" visible="false" scrollable="true">
+      <view name="mouser" bgcolor="red" x="15" y="15" width="50" height="25">
+        <handler event="onmouseover">
+          this.setAttribute('bgcolor', 'blue');
+        </handler>
+        <handler event="onmouseout">
+          this.setAttribute('bgcolor', 'red');
+        </handler>
+      </view>
+      <view name="inner" bgcolor="orange" x="25" y="25" width="100" height="50" clickable="true"></view>
+      
+      <handler event="oninit">
+        var elem = this.sprite.el,
+          innerElem = this.inner.sprite.el;
+        
+        assert.equal(elem.style.visibility, 'hidden');
+        assert.equal($(elem).css('visibility'), 'hidden');
+        assert.equal(innerElem.style.visibility, '');
+        assert.equal($(innerElem).css('visibility'), 'hidden');
+        
+        // Scrollable in principle though hidden.
+        assert.equal(125, elem.scrollWidth);
+        assert.equal(75, elem.scrollHeight);
+        
+        this.setAttribute('visible', true);
+        
+        assert.equal(elem.style.visibility, '');
+        assert.equal($(elem).css('visibility'), 'visible');
+        assert.equal(innerElem.style.visibility, '');
+        assert.equal($(innerElem).css('visibility'), 'visible');
+        
+        this.inner.setAttribute('visible', false);
+        
+        assert.equal(elem.style.visibility, '');
+        assert.equal($(elem).css('visibility'), 'visible');
+        assert.equal(innerElem.style.visibility, 'hidden');
+        assert.equal($(innerElem).css('visibility'), 'hidden');
+        
+        setTimeout(function() {
+          // No longer scrollable since the view that extended outside is no longer visible.
+          assert.equal(100, elem.scrollWidth);
+          assert.equal(50, elem.scrollHeight);
+        }, 300);
       </handler>
     </view>
 
@@ -65,9 +115,9 @@
     <!--clickable:false, clip:false, scrollable:false, visible:true,
           bordercolor:'transparent', borderstyle:'solid', border:0,
           padding:0-->
-    <view>
+    <view x="2" width="55" height="20" bgcolor="red" clickable="false">
       <handler event="onx" args="arg">
-        window.logdefaults = "x:" + arg;
+        window.logdefaults += ",x:" + arg;
       </handler>
       <handler event="ony" args="arg">
         window.logdefaults += ",y:" + arg;
@@ -102,9 +152,12 @@
       <handler event="onpadding" args="arg">
         window.logdefaults += ",padding:" + arg;
       </handler>
+      <handler event="onbgcolor" args="arg">
+        window.logdefaults += ",bgcolor:" + arg;
+      </handler>
 
       <handler event="oninit">
-        assert.equal(window.logdefaults, 'x:0,y:0,width:0,height:0,clickable:false,clip:false,scrollable:false,visible:true,bordercolor:transparent,borderstyle:solid')
+        assert.equal(window.logdefaults, 'undefined,x:2,width:55,height:20,bgcolor:red')
       </handler>
 
       <!-- Setting the class attribute shouldn't overwrite sprite css baseclass -->
@@ -115,20 +168,6 @@
         </handler>
       </view>
     </view>
-  
-    <!-- Not sure how to deal with these constraints, what is the appropriate behavior? Could special case this.parent.width
-     and turn it into this.parnet.innerSize('width'), but what if that's not whats desired? Also, this constraint could be written differently
-     how to catch all instances of this? -->
-    <!--<view bgcolor="lightgrey" width="100" height="50" border="4" padding="2">-->
-      <!--<view name="inner" width="${this.parent.width}" height="${this.parent.height}" bgcolor="thistle"></view>-->
-
-      <!--<handler event="oninit">-->
-        <!--assert.equal(this.inner.width, 68)-->
-        <!--assert.equal(this.inner.height, 23)-->
-        <!--assert.equal($(this.inner.sprite.el).css('left'), '2px')-->
-        <!--assert.equal($(this.inner.sprite.el).css('top'), '2px')-->
-      <!--</handler>-->
-    <!--</view>-->
 
     <!-- z, rotation & scale -->
     <view id="zrs" width="100" height="50" border="2px" bordercolor="lightblue" perspective="5">
@@ -213,6 +252,36 @@
         assert.equal(this.bgcolor, 'pink', 'Verify initial state.');
         $(this.sprite.el).trigger('click');
         assert.equal(this.bgcolor, 'AntiqueWhite', 'onclick was executed.');
+      </handler>
+    </view>
+    
+    <!-- Constraint to an initial value works -->
+    <view width="100" height="100" bgcolor="lightblue">
+      <view name="v1" width="50" height="50" bgcolor="red">
+        <view name="inner" width="25" height="25" bgcolor="yellow"></view>
+      </view>
+      
+      <view name="v2"
+        x="${(this.parent.v1.x === 0 ? 50 : 25) + this.parent.v1.inner.height}"
+        y="${(this.parent.v1.inner.x === 0 ? 50 : 25) + (this.parent.v1.width / 2)}"
+        width="25" height="25" bgcolor="green"
+      ></view>
+      
+      <handler event="oninit">
+        assert.equal(this.v2.x, 75);
+        assert.equal(this.v2.y, 75);
+        
+        // Change a default value and verify the constraint updated
+        this.v1.setAttribute('x', 1);
+        
+        assert.equal(this.v2.x, 50);
+        assert.equal(this.v2.y, 75);
+        
+        // Change a default value and verify the constraint updated
+        this.v1.inner.setAttribute('x', 1);
+        
+        assert.equal(this.v2.x, 50);
+        assert.equal(this.v2.y, 50);
       </handler>
     </view>
   </view>

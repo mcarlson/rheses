@@ -284,14 +284,14 @@
       assert.equal(v1.height, 40);
       
       v1.setAttribute('width', 130);
-      v1.setAttribute('x', 65);
-      assert.equal(block.width, 195);
+      v1.setAttribute('x', 70); // Triggers an event since the value is different thus causing the AutoLayout to update
+      assert.equal(block.width, 200);
       assert.equal(block.height, 80);
       
       v1.setAttribute('height', 50);
-      v1.setAttribute('y', 40);
-      assert.equal(block.width, 195);
-      assert.equal(block.height, 90);
+      v1.setAttribute('y', 45); // Triggers an event since the value is different thus causing the AutoLayout to update
+      assert.equal(block.width, 200);
+      assert.equal(block.height, 95);
       
       // Change position of child of an auto sized view with a child
       // that is constrained to the parent width/height. Because constraints
@@ -370,7 +370,7 @@
       
       // Finally, verify root view since we gave it a width of auto
       assert.equal(this.width, 210);
-      assert.equal(this.height, 747);
+      assert.equal(this.height, 752);
     </handler>
   </view>
 <!-- The MIT License (MIT)
