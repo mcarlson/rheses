@@ -278,8 +278,7 @@
       setTimeout(function() {
         assert.equal(1, container.scrollXEventCount, 'A scrollx event should have happened.');
         assert.equal(1, container.scrollYEventCount, 'A scrolly event should have happened.');
-        // phantomrunner fires an extra event for some reason so we check for 2 as well.
-        assert.equal((container.scrollEventCount == 1) || (container.scrollEventCount == 2), true, 'A scroll event should have happened.');
+        assert.equal(1, container.scrollEventCount, 'A scroll event should have happened.');
 
         assert.equal(73, container.scrollx, 'scrollx should now be 73.');
         assert.equal((container.sprite.el.scrollLeft == 73) || (container.sprite.el.scrollLeft == 88), true, 'The scrollLeft on the dom element should now be 69 or 88 on phantomrunner.');
@@ -307,8 +306,7 @@
       setTimeout(function() {
         assert.equal(1, container.scrollXEventCount, 'The scrollXEventCount should be the same.');
         assert.equal(1, container.scrollYEventCount, 'The scrollYEventCount should be the same.');
-        // phantomrunner fires an extra event for some reason so we check for 2 as well.
-        assert.equal((container.scrollEventCount == 1) || (container.scrollEventCount == 2), true, 'The scrollEventCount should be the same.');
+        assert.equal(1, container.scrollEventCount, 'The scrollEventCount should be the same.');
       }, 100);
     </method>
   </view>

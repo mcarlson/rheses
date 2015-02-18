@@ -43,11 +43,6 @@ stylemap =
   leftpadding: 'paddingLeft'
   rightpadding: 'paddingRight'
 
-# Maps attribute names to dom element property names.
-propmap =
-  scrollx: 'scrollLeft'
-  scrolly: 'scrollTop'
-
 hackstyle = do ->
   # hack jQuery to send a style event when CSS changes
   monitoredJQueryStyleProps = {}
@@ -61,13 +56,13 @@ hackstyle = do ->
       # Normalize style names to camel case names by removing '-' and upper
       # casing the subsequent character.
       attrName = monitoredJQueryStyleProps[name.replace(/-([a-z])/i, (m) -> m[1].toUpperCase())]
-      monitoredJQueryStyleProps[name] = if attrName then attrName else name
+      attrName = monitoredJQueryStyleProps[name] = if attrName then attrName else name
 
-    view = elem.$view
-    if view[attrName] isnt value
-    # if (view[name] isnt value and view?.events?[name])
-      # console.log('sending style', name, elem.$view._locked) if sendstyle
-      view.setAttribute(attrName, value, true)
+    if attrName
+      view = elem.$view
+      if view[attrName] isnt value
+        # console.log('sending style', name, elem.$view._locked) if sendstyle
+        view.setAttribute(attrName, value)
 
     origstyle.apply(@, arguments)
 
@@ -306,9 +301,9 @@ window.dr = do ->
     # @param {String} name the name of the attribute to set
     # @param value the value to set to
     ###
-    setAttribute: (name, value, skipcoercion, skipConstraintSetup, skipconstraintunregistration) ->
+    setAttribute: (name, value, skipConstraintSetup, skipconstraintunregistration) ->
       # TODO: add support for dynamic constraints
-      value = @_coerceType(name, value) unless skipcoercion
+      value = @_coerceType(name, value)
 
       @_unbindConstraint(name) unless skipconstraintunregistration
 
@@ -976,7 +971,7 @@ window.dr = do ->
             boundref.register(property, constraint.callback) if boundref instanceof Eventable
             constraint.callbackbindings.push(property, boundref)
 
-        @setAttribute(name, fn(), false, false, true)
+        @setAttribute(name, fn(), false, true)
       return
 
     # bind all handlers
@@ -1011,7 +1006,7 @@ window.dr = do ->
       # console.log('binding to constraint function', name, fn, @)
       return `(function constraintCallback(){`
       # console.log 'setting', name, fn(), @
-      @setAttribute(name, fn(), false, false, true)
+      @setAttribute(name, fn(), false, true)
       `}).bind(this)`
 
     set_parent: (parent) ->
@@ -1193,6 +1188,22 @@ window.dr = do ->
       @css_baseclass = 'sprite'
       @_updateClass()
 
+    setAttribute: (name, value) ->
+      switch name
+        # Attributes that map to DOM element style attributes
+        when 'width', 'height', 'z', 'opacity', 'bgcolor', 'color', 'fontsize', 'fontfamily', 'font-weight', 'text-transform', 'boxshadow', 'leftpadding', 'rightpadding', 'toppadding', 'bottompadding', 'leftborder', 'rightborder', 'topborder', 'bottomborder', 'bordercolor', 'borderstyle'
+          @setStyle(name, value)
+        # Attributes that map to DOM element style attributes but need a vendor prefix
+        when 'perspective', 'transform-style', 'transform-origin', 'transform'
+           @setStyle(capabilities.prefix.css + name, value)
+        # Attributes that map to DOM element attributes
+          # none for now
+        else
+          # Attributes with no entry in _declaredTypes are adhoc so we
+          # attempt to set style with them to enable a passthru.
+          types = @el.$view._declaredTypes
+          if !types[name]? then @setStyle(name, value)
+
     setStyle: do (isWebkit = capabilities.prefix.dom is 'WebKit') ->
       # WORKAROUND only needed for Webkit browsers.
       if isWebkit
@@ -1221,11 +1232,6 @@ window.dr = do ->
           name = stylemap[name] if name of stylemap
           el.style[name] = value
 
-    setProperty: (name, value, el=@el) ->
-      value ?= ''
-      name = propmap[name] if name of propmap
-      el[name] = value
-
     set_parent: (parent) ->
       if parent instanceof Sprite
         parent = parent.el
@@ -1245,6 +1251,12 @@ window.dr = do ->
 
     _cursorVal: () ->
       return if @__clickable then @__cursor or 'pointer' else ''
+
+    set_scrollx: (v) ->
+      if @el.scrollLeft isnt v then @el.scrollLeft = v
+
+    set_scrolly: (v) ->
+      if @el.scrollTop isnt v then @el.scrollTop = v
 
     set_cursor: (cursor) ->
       @__cursor = cursor
@@ -1309,8 +1321,8 @@ window.dr = do ->
       if target
         x = domElement.scrollLeft
         y = domElement.scrollTop
-        if target.scrollx isnt x then target.setAttribute('scrollx', x, true, true, true, true)
-        if target.scrolly isnt y then target.setAttribute('scrolly', y, true, true, true, true)
+        if target.scrollx isnt x then target.setAttribute('scrollx', x)
+        if target.scrolly isnt y then target.setAttribute('scrolly', y)
 
         # Prevent extra events when data has not changed
         oldEvt = @_lastScrollEvent
@@ -1451,49 +1463,21 @@ window.dr = do ->
         console.warn "Setting unknown CSS property #{name} = #{value} on ", @el.$view, stylemap, internal
       ss2(name, value, internal, el)
 
-  # Attributes that shouldn't be applied visually and will thus not be
-  # set on the sprite.
-  hiddenAttributes = {
-    x: true, # directly updated in view setter
-    y: true, # directly updated in view setter
-    visible:true, # directly updated in view setter
-    clip: true, # directly updated in view setter
-    clickable: true, # directly updated in view setter
-    scrollable: true, # directly updated in view setter
-    cursor: true, # directly updated in view setter
-    scrollx: true, # directly updated in view setter
-    scrolly: true, # directly updated in view setter
-    text: true,
-    $tagname: true,
-    data: true,
-    replicator: true,
-    class: true,
-    $textcontent: true,
-    resize: true,
-    multiline: true,
-    ignorelayout: true,
-    layouthint: true,
-    initchildren: true,
-    rotation: true,
-    xscale: true,
-    yscale: true,
-    xanchor: true,
-    yanchor: true,
-    zanchor: true,
-    border: true, # Set as t/l/b/r
-    padding: true # Set as t/l/b/r
-  }
-
   # Internal attributes ignored by class declarations and view styles
   ignoredAttributes = {
-    parent: true,
-    id: true,
-    name: true,
-    extends: true,
-    type: true,
+    parent: true
+    id: true
+    name: true
+    extends: true
+    type: true
     scriptincludes: true
   }
 
+  # Simple attributes that should get very basic handling
+  simpleAttributes = {
+    $tagname: true
+    $textcontent: true
+  }
 
   ###*
   # @aside guide constraints
@@ -1892,30 +1876,50 @@ window.dr = do ->
       ###
       @subviews = []
       types = {
-        x: 'number', y: 'number', z: 'number',
-        xscale: 'number', yscale: 'number',
-        rotation: 'number', opacity: 'number',
-        width: 'positivenumber', height: 'positivenumber',
-        clickable: 'boolean', clip: 'boolean', scrollable: 'boolean', visible: 'boolean',
-
-        border: 'positivenumber', borderstyle: 'string',
-        leftborder: 'positivenumber', rightborder: 'positivenumber', topborder: 'positivenumber', bottomborder: 'positivenumber',
-
-        padding: 'positivenumber',
-        leftpadding: 'positivenumber', rightpadding: 'positivenumber', toppadding: 'positivenumber', bottompadding: 'positivenumber',
-
-        ignorelayout:'json', layouthint:'json',
-        scrollx: 'number', scrolly: 'number', scrollbars: 'boolean'
+        border:'positivenumber'
+        borderstyle:'string'
+        bottomborder:'positivenumber'
+        bottompadding:'positivenumber'
+        class:'string'
+        clickable:'boolean'
+        clip:'boolean'
+        cursor:'string'
+        height:'positivenumber'
+        ignorelayout:'json'
+        layouthint:'json'
+        leftborder:'positivenumber'
+        leftpadding:'positivenumber'
+        opacity:'number'
+        padding:'positivenumber'
+        rightborder:'positivenumber'
+        rightpadding:'positivenumber'
+        rotation:'number'
+        scrollable:'boolean'
+        scrollbars:'boolean'
+        scrollx:'number'
+        scrolly:'number'
+        topborder:'positivenumber'
+        toppadding:'positivenumber'
+        visible:'boolean'
+        width:'positivenumber'
+        x:'number'
+        xanchor:'string'
+        xscale:'number'
+        y:'number'
+        yanchor:'string'
+        yscale:'number'
+        z:'number'
+        zanchor:'number'
       }
 
       for key, type of attributes.$types
         types[key] = type
-      attributes.$types = types
+      @_declaredTypes = attributes.$types = types
 
       # Used in many calculations so precalculating for performance.
       @__fullBorderPaddingWidth = @__fullBorderPaddingHeight = 0
 
-      # prevent sprite updates for these
+      # Default values
       @xanchor = @yanchor = 'center'
       @cursor = 'pointer'
       @bgcolor = @bordercolor = 'transparent'
@@ -1950,39 +1954,35 @@ window.dr = do ->
       @sprite.destroy()
       @sprite = null
 
-    # FIXME: explore using a hash for the attributes since there are so many now.
-    setAttribute: (name, value, skipDomChange, skipConstraintSetup, skipconstraintunregistration, skipBounds) ->
-      # Handle special values for x, y, width and height
-      unless skipConstraintSetup
-        switch name
-          when 'x'
-            return @ if @__setupPercentConstraint(name, value, 'innerwidth')
-            return @ if @__setupAlignConstraint(name, value)
-          when 'y'
-            return @ if @__setupPercentConstraint(name, value, 'innerheight')
-            return @ if @__setupAlignConstraint(name, value)
-          when 'width'
-            return @ if @__setupPercentConstraint(name, value, 'innerwidth')
-            return @ if @__setupAutoConstraint(name, value, 'x')
-          when 'height'
-            return @ if @__setupPercentConstraint(name, value, 'innerheight')
-            return @ if @__setupAutoConstraint(name, value, 'y')
-
-      # Do super first since setters may modify the actual value set.
-      existing = @[name]
-      super(name, value, false, skipConstraintSetup, skipconstraintunregistration)
-      value = @[name]
-
-      if existing isnt value and not (name of ignoredAttributes)
-        # Update dom element
-        if not (skipDomChange or name of hiddenAttributes) then @sprite.setStyle(name, value)
-
-        # Update bounds if any of the attributes that could modify the bounds
-        # are being updated
-        if not skipBounds and @inited
+    setAttribute: (name, value, skipConstraintSetup, skipconstraintunregistration) ->
+      if name of simpleAttributes
+        # Only set the value for simple attributes.
+        @[name] = value
+      else if name of ignoredAttributes
+        super
+      else
+        # Handle special values for x, y, width and height
+        unless skipConstraintSetup
           switch name
-            when 'x', 'y', 'width', 'height', 'xscale', 'yscale', 'rotation', 'xanchor', 'yanchor'
-              @__updateBounds()
+            when 'x'
+              return @ if @__setupPercentConstraint(name, value, 'innerwidth')
+              return @ if @__setupAlignConstraint(name, value)
+            when 'y'
+              return @ if @__setupPercentConstraint(name, value, 'innerheight')
+              return @ if @__setupAlignConstraint(name, value)
+            when 'width'
+              return @ if @__setupPercentConstraint(name, value, 'innerwidth')
+              return @ if @__setupAutoConstraint(name, value, 'x')
+            when 'height'
+              return @ if @__setupPercentConstraint(name, value, 'innerheight')
+              return @ if @__setupAutoConstraint(name, value, 'y')
+
+        # Do super first since setters may modify the actual value set.
+        existing = @[name]
+        super
+        value = @[name]
+        
+        if existing isnt value then @sprite.setAttribute(name, value)
       @
 
     getBoundsRelativeToParent: () ->
@@ -2033,12 +2033,12 @@ window.dr = do ->
         width = @width
         height = @height
 
-      if not closeTo(@boundsx, x) then @setAttribute('boundsx', x, true, true, true, true)
-      if not closeTo(@boundsy, y) then @setAttribute('boundsy', y, true, true, true, true)
-      if not closeTo(@boundswidth, width) then @setAttribute('boundswidth', width, true, true, true, true)
-      if not closeTo(@boundsheight, height) then @setAttribute('boundsheight', height, true, true, true, true)
-      if not closeTo(@boundsxdiff, xdiff) then @setAttribute('boundsxdiff', xdiff, true, true, true, true)
-      if not closeTo(@boundsydiff, ydiff) then @setAttribute('boundsydiff', ydiff, true, true, true, true)
+      if not closeTo(@boundsx, x) then @defaultSetAttributeBehavior('boundsx', x)
+      if not closeTo(@boundsy, y) then @defaultSetAttributeBehavior('boundsy', y)
+      if not closeTo(@boundswidth, width) then @defaultSetAttributeBehavior('boundswidth', width)
+      if not closeTo(@boundsheight, height) then @defaultSetAttributeBehavior('boundsheight', height)
+      if not closeTo(@boundsxdiff, xdiff) then @defaultSetAttributeBehavior('boundsxdiff', xdiff)
+      if not closeTo(@boundsydiff, ydiff) then @defaultSetAttributeBehavior('boundsydiff', ydiff)
 
     # Returns true if a special value is encountered for alignment so that
     # the setAttribute method can stop processing the value.
@@ -2070,7 +2070,7 @@ window.dr = do ->
         @stopListening(@, boundsdiff, oldFunc)
         @stopListening(@, boundssize, oldFunc)
         delete @[funcKey]
-        if @[alignattr] then @setAttribute(alignattr, false, true, true, true, true)
+        if @[alignattr] then @defaultSetAttributeBehavior(alignattr, false)
 
       # Only process new values that are strings
       return unless typeof value is 'string'
@@ -2083,23 +2083,23 @@ window.dr = do ->
       if normValue is 'begin' or (isX and normValue is 'left') or (not isX and normValue is 'top')
         func = @[funcKey] = () ->
           val = self[boundsdiff]
-          if self[name] isnt val then self.setAttribute(name, val, false, true, false, true)
+          if self[name] isnt val then self.setAttribute(name, val, true)
         func.autoOk = true # Allow auto width/height to work with top/left aligned subviews.
       else if normValue is 'middle' or normValue is 'center'
         func = @[funcKey] = () ->
-          self.setAttribute(name, ((parent[axis] - self[boundssize]) / 2) + self[boundsdiff], false, true, false, true)
+          self.setAttribute(name, ((parent[axis] - self[boundssize]) / 2) + self[boundsdiff], true)
         @listenTo(parent, axis, func)
         @listenTo(@, boundssize, func)
       else if normValue is 'end' or (isX and normValue is 'right') or (not isX and normValue is 'bottom')
         func = @[funcKey] = () ->
-          self.setAttribute(name, parent[axis] - self[boundssize] + self[boundsdiff], false, true, false, true)
+          self.setAttribute(name, parent[axis] - self[boundssize] + self[boundsdiff], true)
         @listenTo(parent, axis, func)
         @listenTo(@, boundssize, func)
 
       if func
         @listenTo(@, boundsdiff, func)
         func.call()
-        if not @[alignattr] then @setAttribute(alignattr, true, true, true, true, true)
+        if not @[alignattr] then @defaultSetAttributeBehavior(alignattr, true)
         return true
 
     # Returns true if a special value is encountered for auto sizing so that
@@ -2115,7 +2115,7 @@ window.dr = do ->
       if value is 'auto'
         @[layoutKey] = new AutoPropertyLayout(null, {parent:@, axis:axis, locked:if @inited then 'false' else 'true'})
         unless @inited
-          @setAttribute(name, 0, false, true) # An initial value is still necessary.
+          @setAttribute(name, 0, true) # An initial value is still necessary.
         return true
 
     matchPercent = /%$/
@@ -2139,7 +2139,7 @@ window.dr = do ->
         self = @
         scale = parseInt(value)/100
         func = @[funcKey] = () ->
-          self.setAttribute(name, parent[axis] * scale, false, true)
+          self.setAttribute(name, parent[axis] * scale, true)
         @listenTo(parent, axis, func)
         func.call()
         return true
@@ -2154,7 +2154,7 @@ window.dr = do ->
         parent.sendEvent('subviews', @)
         parent = parent.sprite
 
-      @sprite.set_parent parent
+      @sprite.set_parent(parent)
       retval
 
     set_id: (id) ->
@@ -2187,7 +2187,7 @@ window.dr = do ->
       else
         v = Math.max(0, Math.min(@sprite.el.scrollWidth - @width + @leftborder + @rightborder, v))
       if @scrollx is v then return noop
-      @sprite.setProperty('scrollx', v)
+      @sprite.set_scrollx(v)
       v
 
     set_scrolly: (v) ->
@@ -2196,7 +2196,7 @@ window.dr = do ->
       else
         v = Math.max(0, Math.min(@sprite.el.scrollHeight - @height + @topborder + @bottomborder, v))
       if @scrolly is v then return noop
-      @sprite.setProperty('scrolly', v)
+      @sprite.set_scrolly(v)
       v
 
     set_visible: (visible) ->
@@ -2208,35 +2208,43 @@ window.dr = do ->
       if @bgcolor is bgcolor then return noop
       bgcolor
 
-    set_x: (x) ->
-      if @x is x then return noop
-      @sprite.set_x(x)
-      # Update boundsx since it won't get updated if we're in an event loop
-      if @__boundsAreDifferent and x - @boundsxdiff isnt @boundsx
-        @sendEvent('boundsx', @boundsx = x - @boundsxdiff)
-      x
+    set_x: (v) ->
+      if @x isnt v
+        @sprite.set_x(v)
+        # Update boundsx since it won't get updated if we're in an event loop
+        if @__boundsAreDifferent and v - @boundsxdiff isnt @boundsx
+          @sendEvent('boundsx', @boundsx = v - @boundsxdiff)
+        @defaultSetAttributeBehavior('x', v)
+        if @inited then @__updateBounds()
+      noop
 
-    set_y: (y) ->
-      if @y is y then return noop
-      @sprite.set_y(y)
-      # Update boundsy since it won't get updated if we're in an event loop
-      if @__boundsAreDifferent and y - @boundsydiff isnt @boundsy
-        @sendEvent('boundsy', @boundsy = y - @boundsydiff)
-      y
+    set_y: (v) ->
+      if @y isnt v
+        @sprite.set_y(v)
+        # Update boundsy since it won't get updated if we're in an event loop
+        if @__boundsAreDifferent and v - @boundsydiff isnt @boundsy
+          @sendEvent('boundsy', @boundsy = v - @boundsydiff)
+        @defaultSetAttributeBehavior('y', v)
+        if @inited then @__updateBounds()
+      noop
 
-    set_width: (width) ->
+    set_width: (v) ->
       # Prevent width smaller than border and padding
-      width = Math.max(width, @__fullBorderPaddingWidth)
-      if @width is width then return noop
-      @setAttribute('innerwidth', width - @__fullBorderPaddingWidth, true, true, true, true)
-      width
+      v = Math.max(v, @__fullBorderPaddingWidth)
+      if @width isnt v
+        @defaultSetAttributeBehavior('innerwidth', v - @__fullBorderPaddingWidth)
+        @defaultSetAttributeBehavior('width', v)
+        if @inited then @__updateBounds()
+      noop
 
-    set_height: (height) ->
+    set_height: (v) ->
       # Prevent height smaller than border and padding
-      height = Math.max(height, @__fullBorderPaddingHeight)
-      if @height is height then return noop
-      @setAttribute('innerheight', height - @__fullBorderPaddingHeight, true, true, true, true)
-      height
+      v = Math.max(v, @__fullBorderPaddingHeight)
+      if @height isnt v
+        @defaultSetAttributeBehavior('innerheight', v - @__fullBorderPaddingHeight)
+        @defaultSetAttributeBehavior('height', v)
+        if @inited then @__updateBounds()
+      noop
 
     set_border: (border) ->
       @__lockBPRecalc = true
@@ -2337,14 +2345,14 @@ window.dr = do ->
     __updateInnerWidth: () ->
       @__fullBorderPaddingWidth = inset = @leftborder + @rightborder  + @leftpadding + @rightpadding
       # Prevent width less than horizontal border padding
-      if inset > @width  then @setAttribute('width', inset, false, true, true, false)
-      @setAttribute('innerwidth', @width - inset, true, true, true, true)
+      if inset > @width  then @setAttribute('width', inset, true, true)
+      @defaultSetAttributeBehavior('innerwidth', @width - inset)
 
     __updateInnerHeight: () ->
       @__fullBorderPaddingHeight = inset = @topborder  + @bottomborder + @toppadding + @bottompadding
       # Prevent height less than vertical border padding
-      if inset > @height then @setAttribute('height', inset, false, true, true, false)
-      @setAttribute('innerheight', @height - inset, true, true, true, true)
+      if inset > @height then @setAttribute('height', inset, true, true)
+      @defaultSetAttributeBehavior('innerheight', @height - inset)
 
     set_clickable: (clickable) ->
       if @clickable is clickable then return noop
@@ -2358,7 +2366,6 @@ window.dr = do ->
 
     __updateTransform: () ->
       transform = ''
-      prefix = capabilities.prefix.css
 
       # Generate scale CSS
       xscale = @xscale
@@ -2380,7 +2387,7 @@ window.dr = do ->
       @z ||= 0
       if @z isnt 0
         transform += ' translate3d(0,0,' + @z + 'px)'
-        @parent.sprite.setStyle(prefix + 'transform-style', 'preserve-3d')
+        @parent.sprite.setAttribute('transform-style', 'preserve-3d')
 
       # Generate and apply transform-origin CSS if a transform exists
       if transform isnt ''
@@ -2388,56 +2395,65 @@ window.dr = do ->
         if xanchor isnt 'left' and xanchor isnt 'right' and xanchor isnt 'center' then xanchor += 'px'
         yanchor = @yanchor
         if yanchor isnt 'top' and yanchor isnt 'bottom' and yanchor isnt 'center' then yanchor += 'px'
-        @sprite.setStyle(prefix + 'transform-origin', xanchor + ' ' + yanchor + ' ' + @zanchor + 'px')
+        @sprite.setAttribute('transform-origin', xanchor + ' ' + yanchor + ' ' + @zanchor + 'px')
 
       # Apply transform CSS
-      @sprite.setStyle(prefix + 'transform', transform)
+      @sprite.setAttribute('transform', transform)
 
-    set_perspective: (perspective) ->
-      prefix = capabilities.prefix.css
-      @perspective = perspective
-      per = perspective + 'px'
-      per = 'none' if per == 0
-      @sprite.setStyle(prefix + 'perspective', per)
-      perspective
+    set_perspective: (v) ->
+      if v is '0'
+        'none'
+      else
+        v + 'px'
 
-    set_xscale: (xscale) ->
-      @xscale = xscale
+    set_xscale: (v) ->
+      if v isnt @xscale
+        @defaultSetAttributeBehavior('xscale', v)
+        @__updateTransform()
+        if @inited then @__updateBounds()
+      noop
+
+    set_yscale: (v) ->
+      if v isnt @yscale
+        @defaultSetAttributeBehavior('yscale', v)
+        @__updateTransform()
+        if @inited then @__updateBounds()
+      noop
+
+    set_rotation: (v) ->
+      if v isnt @rotation
+        @defaultSetAttributeBehavior('rotation', v)
+        @__updateTransform()
+        if @inited then @__updateBounds()
+      noop
+
+    set_z: (v) ->
+      @z = v
       @__updateTransform()
-      xscale
+      v
 
-    set_yscale: (yscale) ->
-      @yscale = yscale
-      @__updateTransform()
-      yscale
+    set_xanchor: (v) ->
+      if !v? or v is '' or v is 'undefined' then v = 'center'
+      if v isnt @xanchor
+        @defaultSetAttributeBehavior('xanchor', v)
+        @__updateTransform()
+        if @inited then @__updateBounds()
+      noop
 
-    set_rotation: (rotation) ->
-      @rotation = rotation
-      @__updateTransform()
-      rotation
+    set_yanchor: (v) ->
+      if !v? or v is '' or v is 'undefined' then v = 'center'
+      if v isnt @yanchor
+        @defaultSetAttributeBehavior('yanchor', v)
+        @__updateTransform()
+        if @inited then @__updateBounds()
+      noop
 
-    set_z: (depth) ->
-      @z = depth
-      @__updateTransform()
-      depth
-
-    set_xanchor: (xanchor) ->
-      if !xanchor? or xanchor is '' then xanchor = 'center'
-      @xanchor = xanchor
-      @__updateTransform()
-      xanchor
-
-    set_yanchor: (yanchor) ->
-      if !yanchor? or yanchor is '' then yanchor = 'center'
-      @yanchor = yanchor
-      @__updateTransform()
-      yanchor
-
-    set_zanchor: (zanchor) ->
-      if !zanchor? or zanchor is '' then zanchor = 0
-      @zanchor = zanchor
-      @__updateTransform()
-      zanchor
+    set_zanchor: (v) ->
+      if !v? or v is '' then v = 0
+      if v isnt @zanchor
+        @defaultSetAttributeBehavior('zanchor', v)
+        @__updateTransform()
+      noop
 
     moveToFront: () ->
       for subview in @parent.subviews
@@ -3016,10 +3032,6 @@ window.dr = do ->
             name = name.toLowerCase()
             classattributes[name] = attributes.value
             classattributes.$types[name] = attributes.type
-            if 'visual' of attributes
-              # allow non-visual attributes to be added
-              hiddenAttributes[name] = attributes.visual is 'false'
-            # console.log 'added attribute', attributes, classattributes
 
       # console.log('processSpecialTags', classattributes)
       return children
@@ -3151,7 +3163,7 @@ window.dr = do ->
           delete @parent[name]
           # console.log('setAttribute', name, val, @parent)
           # call with same signature used in _constraintCallback
-          @parent.setAttribute(name, val, false, false, true)
+          @parent.setAttribute(name, val, false, true)
       applied
 
     _apply: () ->
@@ -3298,6 +3310,8 @@ window.dr = do ->
       extend = classattributes.extends ?= 'view'
       compilertype = classattributes.type
       skipinitchildren = classattributes.initchildren is 'false'
+      delete classattributes.initchildren
+
       # only class instances should specify these
       for ignored of ignoredAttributes
         delete classattributes[ignored]
@@ -3686,14 +3700,14 @@ window.dr = do ->
             sv = svs[--i]
             unless @_skipX(sv) then max = maxFunc(max, sv.boundsx + maxFunc(0, sv.boundswidth))
           val = max + parent.__fullBorderPaddingWidth
-          if parent.width isnt val then parent.setAttribute('width', val, false, true)
+          if parent.width isnt val then parent.setAttribute('width', val, true)
         else
           # Find the farthest vertical extent of any subview
           while i
             sv = svs[--i]
             unless @_skipY(sv) then max = maxFunc(max, sv.boundsy + maxFunc(0, sv.boundsheight))
           val = max + parent.__fullBorderPaddingHeight
-          if parent.height isnt val then parent.setAttribute('height', val, false, true)
+          if parent.height isnt val then parent.setAttribute('height', val, true)
 
         @locked = false
 
@@ -4506,10 +4520,6 @@ window.dr = do ->
   ###*
   # @attribute {String} value (required)
   # The initial value for the attribute
-  ###
-  ###*
-  # @attribute {Boolean} [visible=true]
-  # Set to false if an attribute shouldn't affect a view's visual appearence
   ###
 
 dr.writeCSS()

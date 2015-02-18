@@ -65,7 +65,7 @@ SOFTWARE. -->
     * here rather than letting them bubble up to view.
     * @private
     */-->
-  <method name="setAttribute" args="name, value, skipDomChange, skipConstraintSetup, skipconstraintunregistration, skipBounds">
+  <method name="setAttribute" args="name, value, skipConstraintSetup, skipconstraintunregistration">
     unless skipConstraintSetup or @__internalUpdate
       switch name
         when 'width'
@@ -117,8 +117,8 @@ SOFTWARE. -->
     bounds = @sprite.el.getBoundingClientRect()
     
     @__internalUpdate = true
-    unless @__hasSetWidth then @setAttribute('width', bounds.width, true)
-    unless @__hasSetHeight then @setAttribute('height', bounds.height, true)
+    unless @__hasSetWidth then @set_width(bounds.width)
+    unless @__hasSetHeight then @set_height(bounds.height)
     @__internalUpdate = false
   </method>
   

@@ -99,7 +99,7 @@ SOFTWARE. -->
         * @attribute {Boolean} [bold=false]
         * Use bold text.
         */-->
-  <attribute name="bold" type="boolean" value="false" visual="false"></attribute>
+  <attribute name="bold" type="boolean" value="false"></attribute>
   <setter name="bold" args="bold">
     @sprite.setStyle('font-weight', `bold ? 'bold' : '200'`)
     return bold
@@ -109,7 +109,7 @@ SOFTWARE. -->
         * @attribute {Boolean} [italic=false]
         * Use italic text.
         */-->
-  <attribute name="italic" type="boolean" value="false" visual="false"></attribute>
+  <attribute name="italic" type="boolean" value="false"></attribute>
   <setter name="italic" args="italic">
     @sprite.setStyle('font-style', `italic ? 'italic' : undefined`)
     return italic
@@ -119,7 +119,7 @@ SOFTWARE. -->
         * @attribute {Boolean} [smallcaps=false]
         * Use small caps style.
         */-->
-  <attribute name="smallcaps" type="boolean" value="false" visual="false"></attribute>
+  <attribute name="smallcaps" type="boolean" value="false"></attribute>
   <setter name="smallcaps" args="caps">
     @sprite.setStyle('font-variant', `caps ? 'small-caps' : undefined`)
     return caps
@@ -129,7 +129,7 @@ SOFTWARE. -->
         * @attribute {Boolean} [underline=false]
         * Draw and underline under text (note, is incompatible with dr.text#strike)
         */-->
-  <attribute name="underline" type="boolean" value="false" visual="false"></attribute>
+  <attribute name="underline" type="boolean" value="false"></attribute>
   <setter name="underline" args="underline">
     @defaultSetAttributeBehavior('underline', underline)
     if underline
@@ -144,7 +144,7 @@ SOFTWARE. -->
         * @attribute {Boolean} [strike=false]
         * Draw and strike-through the text (note, is incompatible with dr.text#underline)
         */-->
-  <attribute name="strike" type="boolean" value="false" visual="false"></attribute>
+  <attribute name="strike" type="boolean" value="false"></attribute>
   <setter name="strike" args="strike">
     @defaultSetAttributeBehavior('strike', strike)
     if strike
@@ -159,7 +159,7 @@ SOFTWARE. -->
         * @attribute {Boolean} [multiline=false]
         * Set to true to show multi-line text.
         */-->
-  <attribute name="multiline" type="boolean" value="false" visual="false"></attribute>
+  <attribute name="multiline" type="boolean" value="false"></attribute>
 
   <!--/**
         * @attribute {Boolean} [resize=true]
@@ -167,7 +167,7 @@ SOFTWARE. -->
         * By setting resize=false, the component size is not modified
         * when the text changes.
         */-->
-  <attribute name="resize" type="boolean" value="true" visual="false"></attribute>
+  <attribute name="resize" type="boolean" value="true"></attribute>
   <setter name="resize" args="value">
     if value
       @setAttribute("leftpadding", @leftpadding || 20)
@@ -179,6 +179,7 @@ SOFTWARE. -->
     return value
   </setter>
 
+  <attribute name="text" type="string" value=""></attribute>
   <!--/**
         * @attribute {String} [text=""]
         * The contents of this input text field

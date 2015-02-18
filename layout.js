@@ -25,7 +25,7 @@
  */
 
 (function() {
-  var hackstyle, propmap, stylemap,
+  var hackstyle, stylemap,
     __slice = [].slice,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -53,11 +53,6 @@
     rightpadding: 'paddingRight'
   };
 
-  propmap = {
-    scrollx: 'scrollLeft',
-    scrolly: 'scrollTop'
-  };
-
   hackstyle = (function() {
     var monitoredJQueryStyleProps, origstyle, prop, styletap, value;
     monitoredJQueryStyleProps = {};
@@ -73,11 +68,13 @@
         attrName = monitoredJQueryStyleProps[name.replace(/-([a-z])/i, function(m) {
           return m[1].toUpperCase();
         })];
-        monitoredJQueryStyleProps[name] = attrName ? attrName : name;
+        attrName = monitoredJQueryStyleProps[name] = attrName ? attrName : name;
       }
-      view = elem.$view;
-      if (view[attrName] !== value) {
-        view.setAttribute(attrName, value, true);
+      if (attrName) {
+        view = elem.$view;
+        if (view[attrName] !== value) {
+          view.setAttribute(attrName, value);
+        }
       }
       return origstyle.apply(this, arguments);
     };
@@ -91,7 +88,7 @@
   })();
 
   window.dr = (function() {
-    var AutoPropertyLayout, COMMENT_NODE, Class, Eventable, Events, Idle, Keyboard, Layout, Module, Mouse, Node, Path, Sprite, StartEventable, State, View, Window, callOnIdle, capabilities, clone, closeTo, compiler, constraintScopes, debug, dom, eventq, exports, fcamelCase, handlerq, hiddenAttributes, idle, ignoredAttributes, instantiating, knownstyles, matchEvent, mixOf, moduleKeywords, mouseEvents, noop, querystring, rdashAlpha, showWarnings, specialtags, ss, ss2, starttime, tagPackageSeparator, test, triggerlock, warnings, _initConstraints, _processAttrs;
+    var AutoPropertyLayout, COMMENT_NODE, Class, Eventable, Events, Idle, Keyboard, Layout, Module, Mouse, Node, Path, Sprite, StartEventable, State, View, Window, callOnIdle, capabilities, clone, closeTo, compiler, constraintScopes, debug, dom, eventq, exports, fcamelCase, handlerq, idle, ignoredAttributes, instantiating, knownstyles, matchEvent, mixOf, moduleKeywords, mouseEvents, noop, querystring, rdashAlpha, showWarnings, simpleAttributes, specialtags, ss, ss2, starttime, tagPackageSeparator, test, triggerlock, warnings, _initConstraints, _processAttrs;
     COMMENT_NODE = window.Node.COMMENT_NODE;
     noop = function() {};
     closeTo = function(a, b, epsilon) {
@@ -423,11 +420,9 @@
        * @param value the value to set to
        */
 
-      Eventable.prototype.setAttribute = function(name, value, skipcoercion, skipConstraintSetup, skipconstraintunregistration) {
+      Eventable.prototype.setAttribute = function(name, value, skipConstraintSetup, skipconstraintunregistration) {
         var setterName;
-        if (!skipcoercion) {
-          value = this._coerceType(name, value);
-        }
+        value = this._coerceType(name, value);
         if (!skipconstraintunregistration) {
           this._unbindConstraint(name);
         }
@@ -1267,7 +1262,7 @@
               constraint.callbackbindings.push(property, boundref);
             }
           }
-          this.setAttribute(name, fn(), false, false, true);
+          this.setAttribute(name, fn(), false, true);
         }
       };
 
@@ -1304,7 +1299,7 @@
 
       Node.prototype._constraintCallback = function(name, fn) {
         return (function constraintCallback(){;
-        this.setAttribute(name, fn(), false, false, true);
+        this.setAttribute(name, fn(), false, true);
         return }).bind(this);
       };
 
@@ -1520,6 +1515,44 @@
         this._updateClass();
       }
 
+      Sprite.prototype.setAttribute = function(name, value) {
+        var types;
+        switch (name) {
+          case 'width':
+          case 'height':
+          case 'z':
+          case 'opacity':
+          case 'bgcolor':
+          case 'color':
+          case 'fontsize':
+          case 'fontfamily':
+          case 'font-weight':
+          case 'text-transform':
+          case 'boxshadow':
+          case 'leftpadding':
+          case 'rightpadding':
+          case 'toppadding':
+          case 'bottompadding':
+          case 'leftborder':
+          case 'rightborder':
+          case 'topborder':
+          case 'bottomborder':
+          case 'bordercolor':
+          case 'borderstyle':
+            return this.setStyle(name, value);
+          case 'perspective':
+          case 'transform-style':
+          case 'transform-origin':
+          case 'transform':
+            return this.setStyle(capabilities.prefix.css + name, value);
+          default:
+            types = this.el.$view._declaredTypes;
+            if (types[name] == null) {
+              return this.setStyle(name, value);
+            }
+        }
+      };
+
       Sprite.prototype.setStyle = (function(isWebkit) {
         if (isWebkit) {
           return function(name, value, internal, el) {
@@ -1560,19 +1593,6 @@
         }
       })(capabilities.prefix.dom === 'WebKit');
 
-      Sprite.prototype.setProperty = function(name, value, el) {
-        if (el == null) {
-          el = this.el;
-        }
-        if (value == null) {
-          value = '';
-        }
-        if (name in propmap) {
-          name = propmap[name];
-        }
-        return el[name] = value;
-      };
-
       Sprite.prototype.set_parent = function(parent) {
         if (parent instanceof Sprite) {
           parent = parent.el;
@@ -1591,6 +1611,18 @@
           return this.__cursor || 'pointer';
         } else {
           return '';
+        }
+      };
+
+      Sprite.prototype.set_scrollx = function(v) {
+        if (this.el.scrollLeft !== v) {
+          return this.el.scrollLeft = v;
+        }
+      };
+
+      Sprite.prototype.set_scrolly = function(v) {
+        if (this.el.scrollTop !== v) {
+          return this.el.scrollTop = v;
         }
       };
 
@@ -1662,10 +1694,10 @@
           x = domElement.scrollLeft;
           y = domElement.scrollTop;
           if (target.scrollx !== x) {
-            target.setAttribute('scrollx', x, true, true, true, true);
+            target.setAttribute('scrollx', x);
           }
           if (target.scrolly !== y) {
-            target.setAttribute('scrolly', y, true, true, true, true);
+            target.setAttribute('scrolly', y);
           }
           oldEvt = this._lastScrollEvent;
           newEvt = {
@@ -1852,36 +1884,6 @@
         return ss2(name, value, internal, el);
       };
     }
-    hiddenAttributes = {
-      x: true,
-      y: true,
-      visible: true,
-      clip: true,
-      clickable: true,
-      scrollable: true,
-      cursor: true,
-      scrollx: true,
-      scrolly: true,
-      text: true,
-      $tagname: true,
-      data: true,
-      replicator: true,
-      "class": true,
-      $textcontent: true,
-      resize: true,
-      multiline: true,
-      ignorelayout: true,
-      layouthint: true,
-      initchildren: true,
-      rotation: true,
-      xscale: true,
-      yscale: true,
-      xanchor: true,
-      yanchor: true,
-      zanchor: true,
-      border: true,
-      padding: true
-    };
     ignoredAttributes = {
       parent: true,
       id: true,
@@ -1889,6 +1891,10 @@
       "extends": true,
       type: true,
       scriptincludes: true
+    };
+    simpleAttributes = {
+      $tagname: true,
+      $textcontent: true
     };
 
     /**
@@ -2388,42 +2394,47 @@
         var key, type, types, _ref;
         this.subviews = [];
         types = {
-          x: 'number',
-          y: 'number',
-          z: 'number',
-          xscale: 'number',
-          yscale: 'number',
-          rotation: 'number',
-          opacity: 'number',
-          width: 'positivenumber',
-          height: 'positivenumber',
-          clickable: 'boolean',
-          clip: 'boolean',
-          scrollable: 'boolean',
-          visible: 'boolean',
           border: 'positivenumber',
           borderstyle: 'string',
-          leftborder: 'positivenumber',
-          rightborder: 'positivenumber',
-          topborder: 'positivenumber',
           bottomborder: 'positivenumber',
-          padding: 'positivenumber',
-          leftpadding: 'positivenumber',
-          rightpadding: 'positivenumber',
-          toppadding: 'positivenumber',
           bottompadding: 'positivenumber',
+          "class": 'string',
+          clickable: 'boolean',
+          clip: 'boolean',
+          cursor: 'string',
+          height: 'positivenumber',
           ignorelayout: 'json',
           layouthint: 'json',
+          leftborder: 'positivenumber',
+          leftpadding: 'positivenumber',
+          opacity: 'number',
+          padding: 'positivenumber',
+          rightborder: 'positivenumber',
+          rightpadding: 'positivenumber',
+          rotation: 'number',
+          scrollable: 'boolean',
+          scrollbars: 'boolean',
           scrollx: 'number',
           scrolly: 'number',
-          scrollbars: 'boolean'
+          topborder: 'positivenumber',
+          toppadding: 'positivenumber',
+          visible: 'boolean',
+          width: 'positivenumber',
+          x: 'number',
+          xanchor: 'string',
+          xscale: 'number',
+          y: 'number',
+          yanchor: 'string',
+          yscale: 'number',
+          z: 'number',
+          zanchor: 'number'
         };
         _ref = attributes.$types;
         for (key in _ref) {
           type = _ref[key];
           types[key] = type;
         }
-        attributes.$types = types;
+        this._declaredTypes = attributes.$types = types;
         this.__fullBorderPaddingWidth = this.__fullBorderPaddingHeight = 0;
         this.xanchor = this.yanchor = 'center';
         this.cursor = 'pointer';
@@ -2461,63 +2472,53 @@
         return this.sprite = null;
       };
 
-      View.prototype.setAttribute = function(name, value, skipDomChange, skipConstraintSetup, skipconstraintunregistration, skipBounds) {
+      View.prototype.setAttribute = function(name, value, skipConstraintSetup, skipconstraintunregistration) {
         var existing;
-        if (!skipConstraintSetup) {
-          switch (name) {
-            case 'x':
-              if (this.__setupPercentConstraint(name, value, 'innerwidth')) {
-                return this;
-              }
-              if (this.__setupAlignConstraint(name, value)) {
-                return this;
-              }
-              break;
-            case 'y':
-              if (this.__setupPercentConstraint(name, value, 'innerheight')) {
-                return this;
-              }
-              if (this.__setupAlignConstraint(name, value)) {
-                return this;
-              }
-              break;
-            case 'width':
-              if (this.__setupPercentConstraint(name, value, 'innerwidth')) {
-                return this;
-              }
-              if (this.__setupAutoConstraint(name, value, 'x')) {
-                return this;
-              }
-              break;
-            case 'height':
-              if (this.__setupPercentConstraint(name, value, 'innerheight')) {
-                return this;
-              }
-              if (this.__setupAutoConstraint(name, value, 'y')) {
-                return this;
-              }
-          }
-        }
-        existing = this[name];
-        View.__super__.setAttribute.call(this, name, value, false, skipConstraintSetup, skipconstraintunregistration);
-        value = this[name];
-        if (existing !== value && !(name in ignoredAttributes)) {
-          if (!(skipDomChange || name in hiddenAttributes)) {
-            this.sprite.setStyle(name, value);
-          }
-          if (!skipBounds && this.inited) {
+        if (name in simpleAttributes) {
+          this[name] = value;
+        } else if (name in ignoredAttributes) {
+          View.__super__.setAttribute.apply(this, arguments);
+        } else {
+          if (!skipConstraintSetup) {
             switch (name) {
               case 'x':
+                if (this.__setupPercentConstraint(name, value, 'innerwidth')) {
+                  return this;
+                }
+                if (this.__setupAlignConstraint(name, value)) {
+                  return this;
+                }
+                break;
               case 'y':
+                if (this.__setupPercentConstraint(name, value, 'innerheight')) {
+                  return this;
+                }
+                if (this.__setupAlignConstraint(name, value)) {
+                  return this;
+                }
+                break;
               case 'width':
+                if (this.__setupPercentConstraint(name, value, 'innerwidth')) {
+                  return this;
+                }
+                if (this.__setupAutoConstraint(name, value, 'x')) {
+                  return this;
+                }
+                break;
               case 'height':
-              case 'xscale':
-              case 'yscale':
-              case 'rotation':
-              case 'xanchor':
-              case 'yanchor':
-                this.__updateBounds();
+                if (this.__setupPercentConstraint(name, value, 'innerheight')) {
+                  return this;
+                }
+                if (this.__setupAutoConstraint(name, value, 'y')) {
+                  return this;
+                }
             }
+          }
+          existing = this[name];
+          View.__super__.setAttribute.apply(this, arguments);
+          value = this[name];
+          if (existing !== value) {
+            this.sprite.setAttribute(name, value);
           }
         }
         return this;
@@ -2572,22 +2573,22 @@
           height = this.height;
         }
         if (!closeTo(this.boundsx, x)) {
-          this.setAttribute('boundsx', x, true, true, true, true);
+          this.defaultSetAttributeBehavior('boundsx', x);
         }
         if (!closeTo(this.boundsy, y)) {
-          this.setAttribute('boundsy', y, true, true, true, true);
+          this.defaultSetAttributeBehavior('boundsy', y);
         }
         if (!closeTo(this.boundswidth, width)) {
-          this.setAttribute('boundswidth', width, true, true, true, true);
+          this.defaultSetAttributeBehavior('boundswidth', width);
         }
         if (!closeTo(this.boundsheight, height)) {
-          this.setAttribute('boundsheight', height, true, true, true, true);
+          this.defaultSetAttributeBehavior('boundsheight', height);
         }
         if (!closeTo(this.boundsxdiff, xdiff)) {
-          this.setAttribute('boundsxdiff', xdiff, true, true, true, true);
+          this.defaultSetAttributeBehavior('boundsxdiff', xdiff);
         }
         if (!closeTo(this.boundsydiff, ydiff)) {
-          return this.setAttribute('boundsydiff', ydiff, true, true, true, true);
+          return this.defaultSetAttributeBehavior('boundsydiff', ydiff);
         }
       };
 
@@ -2621,7 +2622,7 @@
           this.stopListening(this, boundssize, oldFunc);
           delete this[funcKey];
           if (this[alignattr]) {
-            this.setAttribute(alignattr, false, true, true, true, true);
+            this.defaultSetAttributeBehavior(alignattr, false);
           }
         }
         if (typeof value !== 'string') {
@@ -2634,19 +2635,19 @@
             var val;
             val = self[boundsdiff];
             if (self[name] !== val) {
-              return self.setAttribute(name, val, false, true, false, true);
+              return self.setAttribute(name, val, true);
             }
           };
           func.autoOk = true;
         } else if (normValue === 'middle' || normValue === 'center') {
           func = this[funcKey] = function() {
-            return self.setAttribute(name, ((parent[axis] - self[boundssize]) / 2) + self[boundsdiff], false, true, false, true);
+            return self.setAttribute(name, ((parent[axis] - self[boundssize]) / 2) + self[boundsdiff], true);
           };
           this.listenTo(parent, axis, func);
           this.listenTo(this, boundssize, func);
         } else if (normValue === 'end' || (isX && normValue === 'right') || (!isX && normValue === 'bottom')) {
           func = this[funcKey] = function() {
-            return self.setAttribute(name, parent[axis] - self[boundssize] + self[boundsdiff], false, true, false, true);
+            return self.setAttribute(name, parent[axis] - self[boundssize] + self[boundsdiff], true);
           };
           this.listenTo(parent, axis, func);
           this.listenTo(this, boundssize, func);
@@ -2655,7 +2656,7 @@
           this.listenTo(this, boundsdiff, func);
           func.call();
           if (!this[alignattr]) {
-            this.setAttribute(alignattr, true, true, true, true, true);
+            this.defaultSetAttributeBehavior(alignattr, true);
           }
           return true;
         }
@@ -2679,7 +2680,7 @@
             locked: this.inited ? 'false' : 'true'
           });
           if (!this.inited) {
-            this.setAttribute(name, 0, false, true);
+            this.setAttribute(name, 0, true);
           }
           return true;
         }
@@ -2707,7 +2708,7 @@
           self = this;
           scale = parseInt(value) / 100;
           func = this[funcKey] = function() {
-            return self.setAttribute(name, parent[axis] * scale, false, true);
+            return self.setAttribute(name, parent[axis] * scale, true);
           };
           this.listenTo(parent, axis, func);
           func.call();
@@ -2772,7 +2773,7 @@
         if (this.scrollx === v) {
           return noop;
         }
-        this.sprite.setProperty('scrollx', v);
+        this.sprite.set_scrollx(v);
         return v;
       };
 
@@ -2785,7 +2786,7 @@
         if (this.scrolly === v) {
           return noop;
         }
-        this.sprite.setProperty('scrolly', v);
+        this.sprite.set_scrolly(v);
         return v;
       };
 
@@ -2804,44 +2805,56 @@
         return bgcolor;
       };
 
-      View.prototype.set_x = function(x) {
-        if (this.x === x) {
-          return noop;
+      View.prototype.set_x = function(v) {
+        if (this.x !== v) {
+          this.sprite.set_x(v);
+          if (this.__boundsAreDifferent && v - this.boundsxdiff !== this.boundsx) {
+            this.sendEvent('boundsx', this.boundsx = v - this.boundsxdiff);
+          }
+          this.defaultSetAttributeBehavior('x', v);
+          if (this.inited) {
+            this.__updateBounds();
+          }
         }
-        this.sprite.set_x(x);
-        if (this.__boundsAreDifferent && x - this.boundsxdiff !== this.boundsx) {
-          this.sendEvent('boundsx', this.boundsx = x - this.boundsxdiff);
-        }
-        return x;
+        return noop;
       };
 
-      View.prototype.set_y = function(y) {
-        if (this.y === y) {
-          return noop;
+      View.prototype.set_y = function(v) {
+        if (this.y !== v) {
+          this.sprite.set_y(v);
+          if (this.__boundsAreDifferent && v - this.boundsydiff !== this.boundsy) {
+            this.sendEvent('boundsy', this.boundsy = v - this.boundsydiff);
+          }
+          this.defaultSetAttributeBehavior('y', v);
+          if (this.inited) {
+            this.__updateBounds();
+          }
         }
-        this.sprite.set_y(y);
-        if (this.__boundsAreDifferent && y - this.boundsydiff !== this.boundsy) {
-          this.sendEvent('boundsy', this.boundsy = y - this.boundsydiff);
-        }
-        return y;
+        return noop;
       };
 
-      View.prototype.set_width = function(width) {
-        width = Math.max(width, this.__fullBorderPaddingWidth);
-        if (this.width === width) {
-          return noop;
+      View.prototype.set_width = function(v) {
+        v = Math.max(v, this.__fullBorderPaddingWidth);
+        if (this.width !== v) {
+          this.defaultSetAttributeBehavior('innerwidth', v - this.__fullBorderPaddingWidth);
+          this.defaultSetAttributeBehavior('width', v);
+          if (this.inited) {
+            this.__updateBounds();
+          }
         }
-        this.setAttribute('innerwidth', width - this.__fullBorderPaddingWidth, true, true, true, true);
-        return width;
+        return noop;
       };
 
-      View.prototype.set_height = function(height) {
-        height = Math.max(height, this.__fullBorderPaddingHeight);
-        if (this.height === height) {
-          return noop;
+      View.prototype.set_height = function(v) {
+        v = Math.max(v, this.__fullBorderPaddingHeight);
+        if (this.height !== v) {
+          this.defaultSetAttributeBehavior('innerheight', v - this.__fullBorderPaddingHeight);
+          this.defaultSetAttributeBehavior('height', v);
+          if (this.inited) {
+            this.__updateBounds();
+          }
         }
-        this.setAttribute('innerheight', height - this.__fullBorderPaddingHeight, true, true, true, true);
-        return height;
+        return noop;
       };
 
       View.prototype.set_border = function(border) {
@@ -2964,18 +2977,18 @@
         var inset;
         this.__fullBorderPaddingWidth = inset = this.leftborder + this.rightborder + this.leftpadding + this.rightpadding;
         if (inset > this.width) {
-          this.setAttribute('width', inset, false, true, true, false);
+          this.setAttribute('width', inset, true, true);
         }
-        return this.setAttribute('innerwidth', this.width - inset, true, true, true, true);
+        return this.defaultSetAttributeBehavior('innerwidth', this.width - inset);
       };
 
       View.prototype.__updateInnerHeight = function() {
         var inset;
         this.__fullBorderPaddingHeight = inset = this.topborder + this.bottomborder + this.toppadding + this.bottompadding;
         if (inset > this.height) {
-          this.setAttribute('height', inset, false, true, true, false);
+          this.setAttribute('height', inset, true, true);
         }
-        return this.setAttribute('innerheight', this.height - inset, true, true, true, true);
+        return this.defaultSetAttributeBehavior('innerheight', this.height - inset);
       };
 
       View.prototype.set_clickable = function(clickable) {
@@ -2999,9 +3012,8 @@
       };
 
       View.prototype.__updateTransform = function() {
-        var prefix, transform, xanchor, xscale, yanchor, yscale;
+        var transform, xanchor, xscale, yanchor, yscale;
         transform = '';
-        prefix = capabilities.prefix.css;
         xscale = this.xscale;
         if (this.xscale == null) {
           xscale = this.xscale = 1;
@@ -3021,7 +3033,7 @@
         this.z || (this.z = 0);
         if (this.z !== 0) {
           transform += ' translate3d(0,0,' + this.z + 'px)';
-          this.parent.sprite.setStyle(prefix + 'transform-style', 'preserve-3d');
+          this.parent.sprite.setAttribute('transform-style', 'preserve-3d');
         }
         if (transform !== '') {
           xanchor = this.xanchor;
@@ -3032,72 +3044,95 @@
           if (yanchor !== 'top' && yanchor !== 'bottom' && yanchor !== 'center') {
             yanchor += 'px';
           }
-          this.sprite.setStyle(prefix + 'transform-origin', xanchor + ' ' + yanchor + ' ' + this.zanchor + 'px');
+          this.sprite.setAttribute('transform-origin', xanchor + ' ' + yanchor + ' ' + this.zanchor + 'px');
         }
-        return this.sprite.setStyle(prefix + 'transform', transform);
+        return this.sprite.setAttribute('transform', transform);
       };
 
-      View.prototype.set_perspective = function(perspective) {
-        var per, prefix;
-        prefix = capabilities.prefix.css;
-        this.perspective = perspective;
-        per = perspective + 'px';
-        if (per === 0) {
-          per = 'none';
+      View.prototype.set_perspective = function(v) {
+        if (v === '0') {
+          return 'none';
+        } else {
+          return v + 'px';
         }
-        this.sprite.setStyle(prefix + 'perspective', per);
-        return perspective;
       };
 
-      View.prototype.set_xscale = function(xscale) {
-        this.xscale = xscale;
-        this.__updateTransform();
-        return xscale;
-      };
-
-      View.prototype.set_yscale = function(yscale) {
-        this.yscale = yscale;
-        this.__updateTransform();
-        return yscale;
-      };
-
-      View.prototype.set_rotation = function(rotation) {
-        this.rotation = rotation;
-        this.__updateTransform();
-        return rotation;
-      };
-
-      View.prototype.set_z = function(depth) {
-        this.z = depth;
-        this.__updateTransform();
-        return depth;
-      };
-
-      View.prototype.set_xanchor = function(xanchor) {
-        if ((xanchor == null) || xanchor === '') {
-          xanchor = 'center';
+      View.prototype.set_xscale = function(v) {
+        if (v !== this.xscale) {
+          this.defaultSetAttributeBehavior('xscale', v);
+          this.__updateTransform();
+          if (this.inited) {
+            this.__updateBounds();
+          }
         }
-        this.xanchor = xanchor;
-        this.__updateTransform();
-        return xanchor;
+        return noop;
       };
 
-      View.prototype.set_yanchor = function(yanchor) {
-        if ((yanchor == null) || yanchor === '') {
-          yanchor = 'center';
+      View.prototype.set_yscale = function(v) {
+        if (v !== this.yscale) {
+          this.defaultSetAttributeBehavior('yscale', v);
+          this.__updateTransform();
+          if (this.inited) {
+            this.__updateBounds();
+          }
         }
-        this.yanchor = yanchor;
-        this.__updateTransform();
-        return yanchor;
+        return noop;
       };
 
-      View.prototype.set_zanchor = function(zanchor) {
-        if ((zanchor == null) || zanchor === '') {
-          zanchor = 0;
+      View.prototype.set_rotation = function(v) {
+        if (v !== this.rotation) {
+          this.defaultSetAttributeBehavior('rotation', v);
+          this.__updateTransform();
+          if (this.inited) {
+            this.__updateBounds();
+          }
         }
-        this.zanchor = zanchor;
+        return noop;
+      };
+
+      View.prototype.set_z = function(v) {
+        this.z = v;
         this.__updateTransform();
-        return zanchor;
+        return v;
+      };
+
+      View.prototype.set_xanchor = function(v) {
+        if ((v == null) || v === '' || v === 'undefined') {
+          v = 'center';
+        }
+        if (v !== this.xanchor) {
+          this.defaultSetAttributeBehavior('xanchor', v);
+          this.__updateTransform();
+          if (this.inited) {
+            this.__updateBounds();
+          }
+        }
+        return noop;
+      };
+
+      View.prototype.set_yanchor = function(v) {
+        if ((v == null) || v === '' || v === 'undefined') {
+          v = 'center';
+        }
+        if (v !== this.yanchor) {
+          this.defaultSetAttributeBehavior('yanchor', v);
+          this.__updateTransform();
+          if (this.inited) {
+            this.__updateBounds();
+          }
+        }
+        return noop;
+      };
+
+      View.prototype.set_zanchor = function(v) {
+        if ((v == null) || v === '') {
+          v = 0;
+        }
+        if (v !== this.zanchor) {
+          this.defaultSetAttributeBehavior('zanchor', v);
+          this.__updateTransform();
+        }
+        return noop;
       };
 
       View.prototype.moveToFront = function() {
@@ -3965,9 +4000,6 @@
               name = name.toLowerCase();
               classattributes[name] = attributes.value;
               classattributes.$types[name] = attributes.type;
-              if ('visual' in attributes) {
-                hiddenAttributes[name] = attributes.visual === 'false';
-              }
           }
         }
         return children;
@@ -4100,7 +4132,7 @@
           for (name in this.applyattributes) {
             val = this.parent[name];
             delete this.parent[name];
-            this.parent.setAttribute(name, val, false, false, true);
+            this.parent.setAttribute(name, val, false, true);
           }
         }
         return applied;
@@ -4260,6 +4292,7 @@
         extend = classattributes["extends"] != null ? classattributes["extends"] : classattributes["extends"] = 'view';
         compilertype = classattributes.type;
         skipinitchildren = classattributes.initchildren === 'false';
+        delete classattributes.initchildren;
         for (ignored in ignoredAttributes) {
           delete classattributes[ignored];
         }
@@ -4726,7 +4759,7 @@
             }
             val = max + parent.__fullBorderPaddingWidth;
             if (parent.width !== val) {
-              parent.setAttribute('width', val, false, true);
+              parent.setAttribute('width', val, true);
             }
           } else {
             while (i) {
@@ -4737,7 +4770,7 @@
             }
             val = max + parent.__fullBorderPaddingHeight;
             if (parent.height !== val) {
-              parent.setAttribute('height', val, false, true);
+              parent.setAttribute('height', val, true);
             }
           }
           return this.locked = false;
@@ -5715,11 +5748,6 @@
     /**
      * @attribute {String} value (required)
      * The initial value for the attribute
-     */
-
-    /**
-     * @attribute {Boolean} [visible=true]
-     * Set to false if an attribute shouldn't affect a view's visual appearence
      */
   })();
 

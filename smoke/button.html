@@ -177,7 +177,7 @@
     </handler>
   </checkbuttontest>
 
-  <checkbuttontest type="coffee" text="Text" height="100">
+  <checkbuttontest type="coffee" text="Text" height="100" foo="bar">
     <handler event="oninit">
       assert.equal(@text, 'Text');
       @testsize(0,0,150,99,46,25);
@@ -189,8 +189,6 @@
   </checkbuttontest>
 
   <checkbutton name="notext" height="30" width="30"></checkbutton>
-
-
 </view>
 <!-- The MIT License (MIT)
 
