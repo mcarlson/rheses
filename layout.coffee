@@ -28,7 +28,7 @@ stylemap =
   y: 'marginTop'
   z: 'z-index'
   bgcolor: 'backgroundColor'
-  visible: 'display'
+  visible: 'visibility'
   borderstyle: 'borderStyle'
   bordercolor: 'borderColor'
   boxshadow: 'boxShadow'
@@ -298,11 +298,6 @@ window.dr = do ->
         # (as in the case where it is set by constraint, and the constraint resolves to undefined)
         value = ''
       return value
-
-    _setDefaults: (attributes, defaults={}) ->
-      for key, value of defaults
-        if not (key of attributes)
-          attributes[key] = defaults[key]
 
     ###*
     # Sets an attribute on this object, calls a setter function if it exists.
@@ -1178,10 +1173,6 @@ window.dr = do ->
   ###
   class Sprite
 #    guid = 0
-    styleval =
-      display: (isVisible) ->
-        if isVisible then '' else 'none'
-
     constructor: (jqel, view, tagname = 'div') ->
       # console.log 'new sprite', jqel, view, tagname
       if not jqel?
@@ -1208,7 +1199,6 @@ window.dr = do ->
         (name, value, internal, el=@el) ->
           value ?= ''
           name = stylemap[name] if name of stylemap
-          value = styleval[name](value) if name of styleval
           el.style[name] = value
           
           # WORKAROUND: Chrome and Safari (Webkit?) browsers only update position on 
@@ -1229,7 +1219,6 @@ window.dr = do ->
         (name, value, internal, el=@el) ->
           value ?= ''
           name = stylemap[name] if name of stylemap
-          value = styleval[name](value) if name of styleval
           el.style[name] = value
 
     setProperty: (name, value, el=@el) ->
@@ -1256,10 +1245,32 @@ window.dr = do ->
 
     _cursorVal: () ->
       return if @__clickable then @__cursor or 'pointer' else ''
- 
+
     set_cursor: (cursor) ->
       @__cursor = cursor
       @setStyle('cursor', @_cursorVal(), true)
+
+    set_visible: (visible) ->
+      # Move invisible elements to a very negative location so they won't
+      # effect scrollable area. Ideally we could use display:none but we
+      # can't because that makes measuring bounds not work.
+      if visible
+        value = null # default is 'inherit' which is what we want.
+        view = @el.$view
+        x = view.x
+        y = view.y
+      else
+        value = 'hidden'
+        x = y = -100000
+      @setStyle('visibility', value, true)
+      @setStyle('marginLeft', x, true)
+      @setStyle('marginTop', y, true)
+
+    set_x: (x) ->
+      if @el.$view.visible then @setStyle('marginLeft', x, true)
+
+    set_y: (y) ->
+      if @el.$view.visible then @setStyle('marginTop', y, true)
 
     set_clickable: (clickable) ->
       # console.log('set_clickable', clickable)
@@ -1289,7 +1300,7 @@ window.dr = do ->
         $(@el).off('scroll', @_handleScroll)
 
     set_scrollbars: (scrollbars) ->
-      @__scrollbars = if (scrollbars) then '' else 'noscrollbar'
+      @__scrollbars = scrollbars
       @_updateClass()
 
     _handleScroll: (event) =>
@@ -1416,7 +1427,7 @@ window.dr = do ->
     _updateClass: () ->
       classes = @css_baseclass
       classes += ' ' + @__classname if @__classname
-      classes += ' ' + @__scrollbars if @__scrollbars
+      classes += ' ' + 'noscrollbar' if not @__scrollbars
       @el.setAttribute('class', classes)
 
   if (capabilities.camelcss)
@@ -1443,14 +1454,20 @@ window.dr = do ->
   # Attributes that shouldn't be applied visually and will thus not be
   # set on the sprite.
   hiddenAttributes = {
+    x: true, # directly updated in view setter
+    y: true, # directly updated in view setter
+    visible:true, # directly updated in view setter
+    clip: true, # directly updated in view setter
+    clickable: true, # directly updated in view setter
+    scrollable: true, # directly updated in view setter
+    cursor: true, # directly updated in view setter
+    scrollx: true, # directly updated in view setter
+    scrolly: true, # directly updated in view setter
     text: true,
     $tagname: true,
     data: true,
     replicator: true,
     class: true,
-    clip: true,
-    clickable: true,
-    scrollable: true,
     $textcontent: true,
     resize: true,
     multiline: true,
@@ -1463,15 +1480,8 @@ window.dr = do ->
     xanchor: true,
     yanchor: true,
     zanchor: true,
-    border: true,
-    padding: true
-  }
-
-  # Attributes that should be set on the dom element directly, not the
-  # style property of the dom element
-  domElementAttributes = {
-    scrollx: true,
-    scrolly: true,
+    border: true, # Set as t/l/b/r
+    padding: true # Set as t/l/b/r
   }
 
   # Internal attributes ignored by class declarations and view styles
@@ -1869,16 +1879,6 @@ window.dr = do ->
     #       of the scrollable view. The maximum can be calculated using this
     #       formula: scrollheight - view.height + 2*view.border
     ###
-
-    # default attribute values
-    defaults = {
-      x:0, y:0,
-      width:0, height:0,
-      opacity: 1,
-      clickable:false, clip:false, scrollable:false, visible:true, cursor:'pointer',
-      bordercolor:'transparent', borderstyle:'solid',
-      ignorelayout:false, scrollbars:false
-    }
     construct: (el, attributes) ->
       ###*
       # @attribute {dr.view[]} subviews
@@ -1890,7 +1890,6 @@ window.dr = do ->
       # @readonly
       # An array of this views's layouts. Only defined when needed.
       ###
-
       @subviews = []
       types = {
         x: 'number', y: 'number', z: 'number',
@@ -1901,7 +1900,7 @@ window.dr = do ->
 
         border: 'positivenumber', borderstyle: 'string',
         leftborder: 'positivenumber', rightborder: 'positivenumber', topborder: 'positivenumber', bottomborder: 'positivenumber',
-        
+
         padding: 'positivenumber',
         leftpadding: 'positivenumber', rightpadding: 'positivenumber', toppadding: 'positivenumber', bottompadding: 'positivenumber',
 
@@ -1913,18 +1912,21 @@ window.dr = do ->
         types[key] = type
       attributes.$types = types
 
-      @_setDefaults(attributes, defaults)
-
       # Used in many calculations so precalculating for performance.
-      @__fullBorderPaddingWidth = 0
-      @__fullBorderPaddingHeight = 0
+      @__fullBorderPaddingWidth = @__fullBorderPaddingHeight = 0
 
       # prevent sprite updates for these
       @xanchor = @yanchor = 'center'
+      @cursor = 'pointer'
+      @bgcolor = @bordercolor = 'transparent'
+      @borderstyle = 'solid'
       @leftborder = @rightborder = @topborder = @bottomborder = @border =
         @leftpadding = @rightpadding = @toppadding = @bottompadding = @padding =
-        @width = @height = @zanchor = @boundsxdiff = @boundsydiff = @boundsx = @boundsy = @boundswidth = @boundsheight = 0
-      @clip = @scrollable = @clickable = @isaligned = @isvaligned = false
+        @x = @y = @width = @height = @zanchor = @boundsxdiff = @boundsydiff = @boundsx = @boundsy = @boundswidth = @boundsheight = 
+        @scrollx = @scrolly = 0
+      @opacity = 1
+      @clip = @scrollable = @clickable = @isaligned = @isvaligned = @ignorelayout = @scrollbars = false
+      @visible = true
 
       # console.log 'sprite tagname', attributes.$tagname
       @_createSprite(el, attributes)
@@ -1939,6 +1941,14 @@ window.dr = do ->
 
     _createSprite: (el, attributes) ->
       @sprite = new Sprite(el, @, attributes.$tagname)
+
+    destroy: (skipevents) ->
+      # console.log 'destroy view', @
+      super
+      @_removeFromParent('subviews') unless skipevents
+
+      @sprite.destroy()
+      @sprite = null
 
     # FIXME: explore using a hash for the attributes since there are so many now.
     setAttribute: (name, value, skipDomChange, skipConstraintSetup, skipconstraintunregistration, skipBounds) ->
@@ -1965,12 +1975,7 @@ window.dr = do ->
 
       if existing isnt value and not (name of ignoredAttributes)
         # Update dom element
-        if not (skipDomChange or name of hiddenAttributes)
-          # console.log 'setting style', name, value, @
-          if name of domElementAttributes
-            @sprite.setProperty(name, value)
-          else if @inited or defaults[name] isnt value
-            @sprite.setStyle(name, value)
+        if not (skipDomChange or name of hiddenAttributes) then @sprite.setStyle(name, value)
 
         # Update bounds if any of the attributes that could modify the bounds
         # are being updated
@@ -2139,13 +2144,81 @@ window.dr = do ->
         func.call()
         return true
 
+    set_parent: (parent) ->
+      # console.log 'view set_parent', parent, @
+      retval = super
+
+      # store references subviews
+      if parent instanceof View
+        parent.subviews.push(@)
+        parent.sendEvent('subviews', @)
+        parent = parent.sprite
+
+      @sprite.set_parent parent
+      retval
+
+    set_id: (id) ->
+      retval = super
+      @sprite.set_id(id)
+      retval
+
+    set_class: (classname) ->
+      @sprite.set_class(classname)
+      classname
+
+    set_clip: (clip) ->
+      if @clip is clip then return noop
+      @sprite.set_clip(clip)
+      clip
+
+    set_scrollable: (scrollable) ->
+      if @scrollable is scrollable then return noop
+      @sprite.set_scrollable(scrollable)
+      scrollable
+
+    set_scrollbars: (v) ->
+      if @scrollbars is v then return noop
+      @sprite.set_scrollbars(v)
+      v
+
+    set_scrollx: (v) ->
+      if isNaN v
+        v = 0
+      else
+        v = Math.max(0, Math.min(@sprite.el.scrollWidth - @width + @leftborder + @rightborder, v))
+      if @scrollx is v then return noop
+      @sprite.setProperty('scrollx', v)
+      v
+
+    set_scrolly: (v) ->
+      if isNaN v
+        v = 0
+      else
+        v = Math.max(0, Math.min(@sprite.el.scrollHeight - @height + @topborder + @bottomborder, v))
+      if @scrolly is v then return noop
+      @sprite.setProperty('scrolly', v)
+      v
+
+    set_visible: (visible) ->
+      if @visible is visible then return noop
+      @sprite.set_visible(visible)
+      visible
+
+    set_bgcolor: (bgcolor) ->
+      if @bgcolor is bgcolor then return noop
+      bgcolor
+
     set_x: (x) ->
+      if @x is x then return noop
+      @sprite.set_x(x)
       # Update boundsx since it won't get updated if we're in an event loop
       if @__boundsAreDifferent and x - @boundsxdiff isnt @boundsx
         @sendEvent('boundsx', @boundsx = x - @boundsxdiff)
       x
 
     set_y: (y) ->
+      if @y is y then return noop
+      @sprite.set_y(y)
       # Update boundsy since it won't get updated if we're in an event loop
       if @__boundsAreDifferent and y - @boundsydiff isnt @boundsy
         @sendEvent('boundsy', @boundsy = y - @boundsydiff)
@@ -2154,14 +2227,14 @@ window.dr = do ->
     set_width: (width) ->
       # Prevent width smaller than border and padding
       width = Math.max(width, @__fullBorderPaddingWidth)
-
+      if @width is width then return noop
       @setAttribute('innerwidth', width - @__fullBorderPaddingWidth, true, true, true, true)
       width
 
     set_height: (height) ->
       # Prevent height smaller than border and padding
       height = Math.max(height, @__fullBorderPaddingHeight)
-
+      if @height is height then return noop
       @setAttribute('innerheight', height - @__fullBorderPaddingHeight, true, true, true, true)
       height
 
@@ -2274,11 +2347,12 @@ window.dr = do ->
       @setAttribute('innerheight', @height - inset, true, true, true, true)
 
     set_clickable: (clickable) ->
+      if @clickable is clickable then return noop
       @sprite.set_clickable(clickable) if clickable isnt @clickable
-      # super?(clickable)
       clickable
       
     set_cursor: (cursor) ->
+      if @cursor is cursor then return noop
       @sprite.set_cursor(cursor) if cursor isnt @cursor
       cursor
 
@@ -2375,7 +2449,6 @@ window.dr = do ->
     # @method moveToBack
     # Moves view behind all other sibling views
     ###
-
     moveToBack: () ->
       for subview in @parent.subviews
         subview.setAttribute 'z', 0 unless subview.z
@@ -2387,7 +2460,6 @@ window.dr = do ->
     # Moves view to the front of sibling view
     # @param {dr.view} View to move in front of
     ###
-
     moveInFrontOf: (otherView) ->
       if otherView
         otherView.setAttribute 'z', 0 unless otherView.z
@@ -2399,50 +2471,11 @@ window.dr = do ->
     # Moves view to the behind sibling view
     # @param {dr.view} View to move behind
     ###
-
     moveBehind: (otherView) ->
       if otherView
         otherView.setAttribute 'z', 0 unless otherView.z
         @z = otherView.z - 1
         @__updateTransform()
-
-    set_parent: (parent) ->
-      # console.log 'view set_parent', parent, @
-      retval = super
-
-      # store references subviews
-      if parent instanceof View
-        parent.subviews.push(@)
-        parent.sendEvent('subviews', @)
-        parent = parent.sprite
-
-      @sprite.set_parent parent
-      retval
-
-    set_id: (id) ->
-      retval = super
-      @sprite.set_id(id)
-      retval
-
-    set_clip: (clip) ->
-      @sprite.set_clip(clip) if clip isnt @clip
-      clip
-
-    set_scrollable: (scrollable) ->
-      if scrollable
-        @setAttributes({scrollx: 0, scrolly: 0})
-      @sprite.set_scrollable(scrollable) if scrollable isnt @scrollable
-      scrollable
-
-    set_scrollbars: (scrollable) ->
-      @sprite.set_scrollbars(@scrollbars)
-      scrollbars
-
-    set_scrollx: (scrollx) ->
-      if isNaN scrollx then 0 else Math.max(0, Math.min(@sprite.el.scrollWidth - @width + @leftborder + @rightborder, scrollx))
-
-    set_scrolly: (scrolly) ->
-      if isNaN scrolly then 0 else Math.max(0, Math.min(@sprite.el.scrollHeight - @height + @topborder + @bottomborder, scrolly))
 
     ###*
     # Calls doSubviewAdded/doLayoutAdded if the added subnode is a view or
@@ -2523,17 +2556,6 @@ window.dr = do ->
     doLayoutRemoved: (layout) ->
       # Empty implementation by default
 
-    destroy: (skipevents) ->
-      # console.log 'destroy view', @
-      super
-      @_removeFromParent('subviews') unless skipevents
-
-      @sprite.destroy()
-      @sprite = null
-
-    getAbsolute: () ->
-      @sprite.getAbsolute()
-
     ###*
     # Gets the value of a named layout hint.
     # @param {String} layoutName The name of the layout to match.
@@ -2554,9 +2576,8 @@ window.dr = do ->
       else
         # No hints exist
 
-    set_class: (classname) ->
-      @sprite.set_class(classname)
-      classname
+    getAbsolute: () ->
+      @sprite.getAbsolute()
 
   warnings = []
   showWarnings = (data) ->
@@ -2593,9 +2614,9 @@ window.dr = do ->
     # initialize a top-level view element
     initFromElement = (el) ->
       instantiating = true
-      el.style.display = 'none'
+      el.style.visibility = 'hidden'
       findAutoIncludes(el, () ->
-        el.style.display = null
+        el.style.visibility = null
         initElement(el)
         # register constraints last
         _initConstraints()
@@ -3419,8 +3440,8 @@ window.dr = do ->
   ###
   class Layout extends Node
     construct: (el, attributes) ->
-      types = {locked:'boolean'}
-      defaults = {locked:false}
+      attributes.$types ?= {}
+      attributes.$types.locked = 'boolean'
 
       # Remember initial lock state so we can restore it after initialization
       # is complete. We will always lock a layout during initialization to

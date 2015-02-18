@@ -37,7 +37,7 @@
     y: 'marginTop',
     z: 'z-index',
     bgcolor: 'backgroundColor',
-    visible: 'display',
+    visible: 'visibility',
     borderstyle: 'borderStyle',
     bordercolor: 'borderColor',
     boxshadow: 'boxShadow',
@@ -91,7 +91,7 @@
   })();
 
   window.dr = (function() {
-    var AutoPropertyLayout, COMMENT_NODE, Class, Eventable, Events, Idle, Keyboard, Layout, Module, Mouse, Node, Path, Sprite, StartEventable, State, View, Window, callOnIdle, capabilities, clone, closeTo, compiler, constraintScopes, debug, dom, domElementAttributes, eventq, exports, fcamelCase, handlerq, hiddenAttributes, idle, ignoredAttributes, instantiating, knownstyles, matchEvent, mixOf, moduleKeywords, mouseEvents, noop, querystring, rdashAlpha, showWarnings, specialtags, ss, ss2, starttime, tagPackageSeparator, test, triggerlock, warnings, _initConstraints, _processAttrs;
+    var AutoPropertyLayout, COMMENT_NODE, Class, Eventable, Events, Idle, Keyboard, Layout, Module, Mouse, Node, Path, Sprite, StartEventable, State, View, Window, callOnIdle, capabilities, clone, closeTo, compiler, constraintScopes, debug, dom, eventq, exports, fcamelCase, handlerq, hiddenAttributes, idle, ignoredAttributes, instantiating, knownstyles, matchEvent, mixOf, moduleKeywords, mouseEvents, noop, querystring, rdashAlpha, showWarnings, specialtags, ss, ss2, starttime, tagPackageSeparator, test, triggerlock, warnings, _initConstraints, _processAttrs;
     COMMENT_NODE = window.Node.COMMENT_NODE;
     noop = function() {};
     closeTo = function(a, b, epsilon) {
@@ -412,23 +412,6 @@
           value = '';
         }
         return value;
-      };
-
-      Eventable.prototype._setDefaults = function(attributes, defaults) {
-        var key, value, _results;
-        if (defaults == null) {
-          defaults = {};
-        }
-        _results = [];
-        for (key in defaults) {
-          value = defaults[key];
-          if (!(key in attributes)) {
-            _results.push(attributes[key] = defaults[key]);
-          } else {
-            _results.push(void 0);
-          }
-        }
-        return _results;
       };
 
 
@@ -1521,18 +1504,6 @@
      * Abstracts the underlying visual primitives (currently HTML) from dreem's view system.
      */
     Sprite = (function() {
-      var styleval;
-
-      styleval = {
-        display: function(isVisible) {
-          if (isVisible) {
-            return '';
-          } else {
-            return 'none';
-          }
-        }
-      };
-
       function Sprite(jqel, view, tagname) {
         if (tagname == null) {
           tagname = 'div';
@@ -1562,9 +1533,6 @@
             if (name in stylemap) {
               name = stylemap[name];
             }
-            if (name in styleval) {
-              value = styleval[name](value);
-            }
             el.style[name] = value;
             if (name === 'borderTopWidth' || name === 'paddingTop') {
               if (this.__BP_TOGGLE = !this.__BP_TOGGLE) {
@@ -1586,9 +1554,6 @@
             }
             if (name in stylemap) {
               name = stylemap[name];
-            }
-            if (name in styleval) {
-              value = styleval[name](value);
             }
             return el.style[name] = value;
           };
@@ -1634,6 +1599,34 @@
         return this.setStyle('cursor', this._cursorVal(), true);
       };
 
+      Sprite.prototype.set_visible = function(visible) {
+        var value, view, x, y;
+        if (visible) {
+          value = null;
+          view = this.el.$view;
+          x = view.x;
+          y = view.y;
+        } else {
+          value = 'hidden';
+          x = y = -100000;
+        }
+        this.setStyle('visibility', value, true);
+        this.setStyle('marginLeft', x, true);
+        return this.setStyle('marginTop', y, true);
+      };
+
+      Sprite.prototype.set_x = function(x) {
+        if (this.el.$view.visible) {
+          return this.setStyle('marginLeft', x, true);
+        }
+      };
+
+      Sprite.prototype.set_y = function(y) {
+        if (this.el.$view.visible) {
+          return this.setStyle('marginTop', y, true);
+        }
+      };
+
       Sprite.prototype.set_clickable = function(clickable) {
         this.__clickable = clickable;
         this.__updatePointerEvents();
@@ -1657,7 +1650,7 @@
       };
 
       Sprite.prototype.set_scrollbars = function(scrollbars) {
-        this.__scrollbars = scrollbars ? '' : 'noscrollbar';
+        this.__scrollbars = scrollbars;
         return this._updateClass();
       };
 
@@ -1821,8 +1814,8 @@
         if (this.__classname) {
           classes += ' ' + this.__classname;
         }
-        if (this.__scrollbars) {
-          classes += ' ' + this.__scrollbars;
+        if (!this.__scrollbars) {
+          classes += ' ' + 'noscrollbar';
         }
         return this.el.setAttribute('class', classes);
       };
@@ -1860,14 +1853,20 @@
       };
     }
     hiddenAttributes = {
+      x: true,
+      y: true,
+      visible: true,
+      clip: true,
+      clickable: true,
+      scrollable: true,
+      cursor: true,
+      scrollx: true,
+      scrolly: true,
       text: true,
       $tagname: true,
       data: true,
       replicator: true,
       "class": true,
-      clip: true,
-      clickable: true,
-      scrollable: true,
       $textcontent: true,
       resize: true,
       multiline: true,
@@ -1882,10 +1881,6 @@
       zanchor: true,
       border: true,
       padding: true
-    };
-    domElementAttributes = {
-      scrollx: true,
-      scrolly: true
     };
     ignoredAttributes = {
       parent: true,
@@ -1962,6 +1957,14 @@
      *     </view>
      */
     View = (function(_super) {
+      var matchPercent;
+
+      __extends(View, _super);
+
+      function View() {
+        return View.__super__.constructor.apply(this, arguments);
+      }
+
 
       /**
        * @attribute {Number} [x=0]
@@ -1987,6 +1990,7 @@
        *      to the view are accounted for.
        */
 
+
       /**
        * @attribute {Number} [y=0]
        * This view's y-position. There are several categories of allowed values.
@@ -2011,6 +2015,7 @@
        *      to the view are accounted for.
        */
 
+
       /**
        * @attribute {Number} [width=0]
        * This view's width. There are several categories of allowed values.
@@ -2028,6 +2033,7 @@
        *      not ignored since it does not necessarily result in a circular
        *      constraint.
        */
+
 
       /**
        * @attribute {Number} [height=0]
@@ -2047,17 +2053,20 @@
        *      circular constraint.
        */
 
+
       /**
        * @attribute {Boolean} isaligned Indicates that the x attribute is
        * set to one of the "special" alignment values.
        * @readonly
        */
 
+
       /**
        * @attribute {Boolean} isvaligned Indicates that the y attribute is
        * set to one of the "special" alignment values.
        * @readonly
        */
+
 
       /**
        * @attribute {Number} innerwidth The width of the view less padding and
@@ -2066,6 +2075,7 @@
        * @readonly
        */
 
+
       /**
        * @attribute {Number} innerheight The height of the view less padding and
        * border. This is the height child views should use if border or padding
@@ -2073,17 +2083,20 @@
        * @readonly
        */
 
+
       /**
        * @attribute {Number} boundsx The x position of the bounding box for the
        * view. This value accounts for rotation and scaling of the view.
        * @readonly
        */
 
+
       /**
        * @attribute {Number} boundsy The y position of the bounding box for the
        * view. This value accounts for rotation and scaling of the view.
        * @readonly
        */
+
 
       /**
        * @attribute {Number} boundsxdiff The difference between the x position
@@ -2092,12 +2105,14 @@
        * @readonly
        */
 
+
       /**
        * @attribute {Number} boundsydiff The difference between the y position
        * of the view and the boundsy of the view. Useful when you need to offset
        * a view to make it line up when it is scaled or rotated.
        * @readonly
        */
+
 
       /**
        * @attribute {Number} boundswidth The width of the bounding box for the
@@ -2107,6 +2122,7 @@
        * @readonly
        */
 
+
       /**
        * @attribute {Number} boundsheight The height of the bounding box for the
        * view. This value accounts for rotation and scaling of the view. This is
@@ -2115,65 +2131,78 @@
        * @readonly
        */
 
+
       /**
        * @attribute {Boolean} [clickable=false]
        * If true, this view recieves mouse events. Automatically set to true when an onclick/mouse* event is registered for this view.
        */
+
 
       /**
        * @attribute {Boolean} [clip=false]
        * If true, this view clips to its bounds
        */
 
+
       /**
        * @attribute {Boolean} [scrollable=false]
        * If true, this view clips to its bounds and provides scrolling to see content that overflows the bounds
        */
+
 
       /**
        * @attribute {Boolean} [scrollbars=false]
        * Controls the visibility of scrollbars if scrollable is true
        */
 
+
       /**
        * @attribute {Boolean} [visible=true]
        * If false, this view is invisible
        */
+
 
       /**
        * @attribute {String} bgcolor
        * Sets this view's background color
        */
 
+
       /**
        * @attribute {String} bordercolor
        * Sets this view's border color
        */
+
 
       /**
        * @attribute {String} borderstyle
        * Sets this view's border style (can be any css border-style value)
        */
 
+
       /**
        * @attribute {Number} border
        * Sets this view's border width
        */
+
 
       /**
        * @attribute {Number} padding
        * Sets this view's padding
        */
 
+
       /**
        * @attribute {Number} [xscale=1.0]
        * Sets this view's width scale
        */
 
+
       /**
        * @attribute {Number} [yscale=1.0]
        * Sets this view's height scale
        */
+
 
       /**
        * @attribute {Number} [z=0]
@@ -2182,10 +2211,12 @@
        * *(note: setting a `z` value for a view implicitly sets its parent's `transform-style` to `preserve-3d`)*
        */
 
+
       /**
        * @attribute {Number} [rotation=0]
        * Sets this view's rotation in degrees.
        */
+
 
       /**
        * @attribute {String} [perspective=0]
@@ -2193,10 +2224,12 @@
        * When this value is set, items further from the camera will appear smaller, and closer items will be larger.
        */
 
+
       /**
        * @attribute {Number} [opacity=1.0]
        * Sets this view's opacity, values can be a float from 0.0 to 1.0
        */
+
 
       /**
        * @attribute {Number} [scrollx=0]
@@ -2205,12 +2238,14 @@
        * scrollx event and a scroll event.
        */
 
+
       /**
        * @attribute {Number} [scrolly=0]
        * Sets the vertical scroll position of the view. Only relevant if
        * this.scrollable is true. Setting this value will generate both a
        * scrolly event and a scroll event.
        */
+
 
       /**
        * @attribute {Number} [xanchor=0]
@@ -2226,6 +2261,7 @@
        *      width of the view will be used.
        */
 
+
       /**
        * @attribute {Number} [yanchor=0]
        * Sets the vertical center of the view's transformations (such as 
@@ -2240,20 +2276,24 @@
        *      height of the view will be used.
        */
 
+
       /**
        * @attribute {Number} [zanchor=0]
        * Sets the z-axis center of the view's transformations (such as rotation)
        */
+
 
       /**
        * @attribute {String} [cursor='pointer']
        * Cursor that should be used when the mouse is over this view, can be any CSS cursor value. Only applies when clickable is true.
        */
 
+
       /**
        * @attribute {String} [boxshadow]
        * Drop shadow using standard CSS format (offset-x offset-y blur-radius spread-radius color). For example: "10px 10px 5px 0px #888888".
        */
+
 
       /**
        * @attribute {String} [ignorelayout='false']
@@ -2265,6 +2305,7 @@
        * default value for all layouts not specifically mentioned in the map.
        */
 
+
       /**
        * @attribute {String} [layouthint='']
        * Provides per view hinting to layouts. The specific hints supported
@@ -2274,11 +2315,13 @@
        * a prefix of '*' is used the hint will be targeted to all layouts.
        */
 
+
       /**
        * @event onclick
        * Fired when this view is clicked
        * @param {dr.view} view The dr.view that fired the event
        */
+
 
       /**
        * @event onmouseover
@@ -2286,11 +2329,13 @@
        * @param {dr.view} view The dr.view that fired the event
        */
 
+
       /**
        * @event onmouseout
        * Fired when the mouse moves off this view
        * @param {dr.view} view The dr.view that fired the event
        */
+
 
       /**
        * @event onmousedown
@@ -2298,11 +2343,13 @@
        * @param {dr.view} view The dr.view that fired the event
        */
 
+
       /**
        * @event onmouseup
        * Fired when the mouse goes up on this view
        * @param {dr.view} view The dr.view that fired the event
        */
+
 
       /**
        * @event onscroll
@@ -2324,30 +2371,6 @@
        *       of the scrollable view. The maximum can be calculated using this
        *       formula: scrollheight - view.height + 2*view.border
        */
-      var defaults, matchPercent;
-
-      __extends(View, _super);
-
-      function View() {
-        return View.__super__.constructor.apply(this, arguments);
-      }
-
-      defaults = {
-        x: 0,
-        y: 0,
-        width: 0,
-        height: 0,
-        opacity: 1,
-        clickable: false,
-        clip: false,
-        scrollable: false,
-        visible: true,
-        cursor: 'pointer',
-        bordercolor: 'transparent',
-        borderstyle: 'solid',
-        ignorelayout: false,
-        scrollbars: false
-      };
 
       View.prototype.construct = function(el, attributes) {
 
@@ -2401,12 +2424,15 @@
           types[key] = type;
         }
         attributes.$types = types;
-        this._setDefaults(attributes, defaults);
-        this.__fullBorderPaddingWidth = 0;
-        this.__fullBorderPaddingHeight = 0;
+        this.__fullBorderPaddingWidth = this.__fullBorderPaddingHeight = 0;
         this.xanchor = this.yanchor = 'center';
-        this.leftborder = this.rightborder = this.topborder = this.bottomborder = this.border = this.leftpadding = this.rightpadding = this.toppadding = this.bottompadding = this.padding = this.width = this.height = this.zanchor = this.boundsxdiff = this.boundsydiff = this.boundsx = this.boundsy = this.boundswidth = this.boundsheight = 0;
-        this.clip = this.scrollable = this.clickable = this.isaligned = this.isvaligned = false;
+        this.cursor = 'pointer';
+        this.bgcolor = this.bordercolor = 'transparent';
+        this.borderstyle = 'solid';
+        this.leftborder = this.rightborder = this.topborder = this.bottomborder = this.border = this.leftpadding = this.rightpadding = this.toppadding = this.bottompadding = this.padding = this.x = this.y = this.width = this.height = this.zanchor = this.boundsxdiff = this.boundsydiff = this.boundsx = this.boundsy = this.boundswidth = this.boundsheight = this.scrollx = this.scrolly = 0;
+        this.opacity = 1;
+        this.clip = this.scrollable = this.clickable = this.isaligned = this.isvaligned = this.ignorelayout = this.scrollbars = false;
+        this.visible = true;
         this._createSprite(el, attributes);
         return View.__super__.construct.apply(this, arguments);
       };
@@ -2424,6 +2450,15 @@
 
       View.prototype._createSprite = function(el, attributes) {
         return this.sprite = new Sprite(el, this, attributes.$tagname);
+      };
+
+      View.prototype.destroy = function(skipevents) {
+        View.__super__.destroy.apply(this, arguments);
+        if (!skipevents) {
+          this._removeFromParent('subviews');
+        }
+        this.sprite.destroy();
+        return this.sprite = null;
       };
 
       View.prototype.setAttribute = function(name, value, skipDomChange, skipConstraintSetup, skipconstraintunregistration, skipBounds) {
@@ -2468,11 +2503,7 @@
         value = this[name];
         if (existing !== value && !(name in ignoredAttributes)) {
           if (!(skipDomChange || name in hiddenAttributes)) {
-            if (name in domElementAttributes) {
-              this.sprite.setProperty(name, value);
-            } else if (this.inited || defaults[name] !== value) {
-              this.sprite.setStyle(name, value);
-            }
+            this.sprite.setStyle(name, value);
           }
           if (!skipBounds && this.inited) {
             switch (name) {
@@ -2684,7 +2715,100 @@
         }
       };
 
+      View.prototype.set_parent = function(parent) {
+        var retval;
+        retval = View.__super__.set_parent.apply(this, arguments);
+        if (parent instanceof View) {
+          parent.subviews.push(this);
+          parent.sendEvent('subviews', this);
+          parent = parent.sprite;
+        }
+        this.sprite.set_parent(parent);
+        return retval;
+      };
+
+      View.prototype.set_id = function(id) {
+        var retval;
+        retval = View.__super__.set_id.apply(this, arguments);
+        this.sprite.set_id(id);
+        return retval;
+      };
+
+      View.prototype.set_class = function(classname) {
+        this.sprite.set_class(classname);
+        return classname;
+      };
+
+      View.prototype.set_clip = function(clip) {
+        if (this.clip === clip) {
+          return noop;
+        }
+        this.sprite.set_clip(clip);
+        return clip;
+      };
+
+      View.prototype.set_scrollable = function(scrollable) {
+        if (this.scrollable === scrollable) {
+          return noop;
+        }
+        this.sprite.set_scrollable(scrollable);
+        return scrollable;
+      };
+
+      View.prototype.set_scrollbars = function(v) {
+        if (this.scrollbars === v) {
+          return noop;
+        }
+        this.sprite.set_scrollbars(v);
+        return v;
+      };
+
+      View.prototype.set_scrollx = function(v) {
+        if (isNaN(v)) {
+          v = 0;
+        } else {
+          v = Math.max(0, Math.min(this.sprite.el.scrollWidth - this.width + this.leftborder + this.rightborder, v));
+        }
+        if (this.scrollx === v) {
+          return noop;
+        }
+        this.sprite.setProperty('scrollx', v);
+        return v;
+      };
+
+      View.prototype.set_scrolly = function(v) {
+        if (isNaN(v)) {
+          v = 0;
+        } else {
+          v = Math.max(0, Math.min(this.sprite.el.scrollHeight - this.height + this.topborder + this.bottomborder, v));
+        }
+        if (this.scrolly === v) {
+          return noop;
+        }
+        this.sprite.setProperty('scrolly', v);
+        return v;
+      };
+
+      View.prototype.set_visible = function(visible) {
+        if (this.visible === visible) {
+          return noop;
+        }
+        this.sprite.set_visible(visible);
+        return visible;
+      };
+
+      View.prototype.set_bgcolor = function(bgcolor) {
+        if (this.bgcolor === bgcolor) {
+          return noop;
+        }
+        return bgcolor;
+      };
+
       View.prototype.set_x = function(x) {
+        if (this.x === x) {
+          return noop;
+        }
+        this.sprite.set_x(x);
         if (this.__boundsAreDifferent && x - this.boundsxdiff !== this.boundsx) {
           this.sendEvent('boundsx', this.boundsx = x - this.boundsxdiff);
         }
@@ -2692,6 +2816,10 @@
       };
 
       View.prototype.set_y = function(y) {
+        if (this.y === y) {
+          return noop;
+        }
+        this.sprite.set_y(y);
         if (this.__boundsAreDifferent && y - this.boundsydiff !== this.boundsy) {
           this.sendEvent('boundsy', this.boundsy = y - this.boundsydiff);
         }
@@ -2700,12 +2828,18 @@
 
       View.prototype.set_width = function(width) {
         width = Math.max(width, this.__fullBorderPaddingWidth);
+        if (this.width === width) {
+          return noop;
+        }
         this.setAttribute('innerwidth', width - this.__fullBorderPaddingWidth, true, true, true, true);
         return width;
       };
 
       View.prototype.set_height = function(height) {
         height = Math.max(height, this.__fullBorderPaddingHeight);
+        if (this.height === height) {
+          return noop;
+        }
         this.setAttribute('innerheight', height - this.__fullBorderPaddingHeight, true, true, true, true);
         return height;
       };
@@ -2845,6 +2979,9 @@
       };
 
       View.prototype.set_clickable = function(clickable) {
+        if (this.clickable === clickable) {
+          return noop;
+        }
         if (clickable !== this.clickable) {
           this.sprite.set_clickable(clickable);
         }
@@ -2852,6 +2989,9 @@
       };
 
       View.prototype.set_cursor = function(cursor) {
+        if (this.cursor === cursor) {
+          return noop;
+        }
         if (cursor !== this.cursor) {
           this.sprite.set_cursor(cursor);
         }
@@ -3030,66 +3170,6 @@
         }
       };
 
-      View.prototype.set_parent = function(parent) {
-        var retval;
-        retval = View.__super__.set_parent.apply(this, arguments);
-        if (parent instanceof View) {
-          parent.subviews.push(this);
-          parent.sendEvent('subviews', this);
-          parent = parent.sprite;
-        }
-        this.sprite.set_parent(parent);
-        return retval;
-      };
-
-      View.prototype.set_id = function(id) {
-        var retval;
-        retval = View.__super__.set_id.apply(this, arguments);
-        this.sprite.set_id(id);
-        return retval;
-      };
-
-      View.prototype.set_clip = function(clip) {
-        if (clip !== this.clip) {
-          this.sprite.set_clip(clip);
-        }
-        return clip;
-      };
-
-      View.prototype.set_scrollable = function(scrollable) {
-        if (scrollable) {
-          this.setAttributes({
-            scrollx: 0,
-            scrolly: 0
-          });
-        }
-        if (scrollable !== this.scrollable) {
-          this.sprite.set_scrollable(scrollable);
-        }
-        return scrollable;
-      };
-
-      View.prototype.set_scrollbars = function(scrollable) {
-        this.sprite.set_scrollbars(this.scrollbars);
-        return scrollbars;
-      };
-
-      View.prototype.set_scrollx = function(scrollx) {
-        if (isNaN(scrollx)) {
-          return 0;
-        } else {
-          return Math.max(0, Math.min(this.sprite.el.scrollWidth - this.width + this.leftborder + this.rightborder, scrollx));
-        }
-      };
-
-      View.prototype.set_scrolly = function(scrolly) {
-        if (isNaN(scrolly)) {
-          return 0;
-        } else {
-          return Math.max(0, Math.min(this.sprite.el.scrollHeight - this.height + this.topborder + this.bottomborder, scrolly));
-        }
-      };
-
 
       /**
        * Calls doSubviewAdded/doLayoutAdded if the added subnode is a view or
@@ -3179,19 +3259,6 @@
 
       View.prototype.doLayoutRemoved = function(layout) {};
 
-      View.prototype.destroy = function(skipevents) {
-        View.__super__.destroy.apply(this, arguments);
-        if (!skipevents) {
-          this._removeFromParent('subviews');
-        }
-        this.sprite.destroy();
-        return this.sprite = null;
-      };
-
-      View.prototype.getAbsolute = function() {
-        return this.sprite.getAbsolute();
-      };
-
 
       /**
        * Gets the value of a named layout hint.
@@ -3221,9 +3288,8 @@
         }
       };
 
-      View.prototype.set_class = function(classname) {
-        this.sprite.set_class(classname);
-        return classname;
+      View.prototype.getAbsolute = function() {
+        return this.sprite.getAbsolute();
       };
 
       return View;
@@ -3263,9 +3329,9 @@
       };
       initFromElement = function(el) {
         instantiating = true;
-        el.style.display = 'none';
+        el.style.visibility = 'hidden';
         return findAutoIncludes(el, function() {
-          el.style.display = null;
+          el.style.visibility = null;
           initElement(el);
           _initConstraints();
           return sendInit(el);
@@ -4346,13 +4412,11 @@
       }
 
       Layout.prototype.construct = function(el, attributes) {
-        var attrLocked, defaults, subview, subviews, types, _base, _i, _len;
-        types = {
-          locked: 'boolean'
-        };
-        defaults = {
-          locked: false
-        };
+        var attrLocked, subview, subviews, _base, _i, _len;
+        if (attributes.$types == null) {
+          attributes.$types = {};
+        }
+        attributes.$types.locked = 'boolean';
         if (attributes.locked != null) {
           attrLocked = attributes.locked === 'true' ? true : false;
         }
