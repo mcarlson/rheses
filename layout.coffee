@@ -279,10 +279,16 @@ window.dr = do ->
     _coerceType: (name, value, type) ->
       type ||= @types[name]
       if type
-        unless (typemappings[type])
-          showWarnings ["Invalid type '#{type}' for attribute '#{name}', must be one of: #{Object.keys(typemappings).join(', ')}"]
-          return
-        value = typemappings[type](value)
+        if debug or test
+          unless (typemappings[type])
+            showWarnings ["Invalid type '#{type}' for attribute '#{name}', must be one of: #{Object.keys(typemappings).join(', ')}"]
+            return
+          try
+            value = typemappings[type](value)
+          catch e
+            showWarnings ["error parsing #{type} value '#{value}' for attribute '#{name}'"]
+        else
+          value = typemappings[type](value)
 
         # Protect number values from being set to NaN
         if type is 'number' and isNaN value
@@ -4253,7 +4259,7 @@ window.dr = do ->
       # console.log 'handleKeyboard', type, target, out, event
 
   window.onerror = (e) ->
-    showWarnings([e.toString()])
+    showWarnings(["#{e.toString()}. Try running in debug mode for more info. #{window.location.href}#{if querystring then '&' else '?'}debug"])
 
   ###*
   # @class dr {Core Dreem}
