@@ -5475,7 +5475,7 @@
 
     })(Eventable);
     window.onerror = function(e) {
-      return showWarnings([e.toString()]);
+      return showWarnings(["" + (e.toString()) + ". Try running in debug mode for more info. " + window.location.href + (querystring ? '&' : '?') + "debug"]);
     };
 
     /**

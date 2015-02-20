@@ -279,7 +279,7 @@ window.dr = do ->
     _coerceType: (name, value, type) ->
       type ||= @types[name]
       if type
-        if debug || test
+        if debug or test
           unless (typemappings[type])
             showWarnings ["Invalid type '#{type}' for attribute '#{name}', must be one of: #{Object.keys(typemappings).join(', ')}"]
             return
@@ -4259,7 +4259,7 @@ window.dr = do ->
       # console.log 'handleKeyboard', type, target, out, event
 
   window.onerror = (e) ->
-    showWarnings([e.toString()])
+    showWarnings(["#{e.toString()}. Try running in debug mode for more info. #{window.location.href}#{if querystring then '&' else '?'}debug"])
 
   ###*
   # @class dr {Core Dreem}
