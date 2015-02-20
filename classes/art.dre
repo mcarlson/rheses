@@ -198,7 +198,6 @@ SOFTWARE. -->
             console.warn('Passing attribute', name, 'to svg')
       </method>
 
-
       <method name="show_path" args="name">
         # Retrieve an svg path given its name, or index
         path = @get_path(name)
@@ -207,7 +206,6 @@ SOFTWARE. -->
           @createSnap()
           @snappath = @snap.path(d1)
       </method>
-
 
       <method name="get_path_frame" args="name, params">
         # Construct a start or stop animation state using the specified
@@ -225,7 +223,6 @@ SOFTWARE. -->
       </method>
 
       <method name="animate_path" args="name, params">
-
         # Animate the path, as well as specified params
         return @show_path(name) if !@snap
 
@@ -250,7 +247,6 @@ SOFTWARE. -->
       </method>
 
       <method name="show_frame" args="start_path, end_path, frame, start_params, end_params">
-
         # Called when animationframe changes. This can also be used to display
         # a frame between any two keyframes.
         frame = 0 if frame < 0
@@ -280,9 +276,7 @@ SOFTWARE. -->
         delete @_drawing
       </method>
 
-
       <method name="createDOM">
-
         # Create a div to handle resizing of the graphics
         return if @container
 
@@ -293,7 +287,6 @@ SOFTWARE. -->
       </method>
 
       <method name="createSnap">
-
         return if @snap
         @snap = Snap()
 
@@ -322,12 +315,9 @@ SOFTWARE. -->
 
         # Hide the static svg object
         @hide_art()
-
       </method>
 
-
       <method name="hide_art", args="fixed">
-
         # Hide either fixed art (fixed=true or missing) or snap (false)
         fixed = true if not fixed?
         $(@container).hide() if @container and fixed
@@ -353,7 +343,6 @@ SOFTWARE. -->
       </method>
 
       <method name="get_paths">
-
         # Get every path specified in the svg
         dom = @container
         return null if !dom
@@ -363,7 +352,6 @@ SOFTWARE. -->
       </method>
 
       <method name="get_bounding_box">
-
         # Get the bounding box of all the paths
         paths = @get_paths()
         for path, index in paths
@@ -392,7 +380,6 @@ SOFTWARE. -->
       <handler event="onready" method="normalizeArt"></handler>
 
       <method name="normalizeArt">
-
         return unless @container
 
         @resizeChange()
@@ -497,7 +484,6 @@ SOFTWARE. -->
       </method>
 
       <method name="loadInline">
-
         # Load inline svg
         @createDOM()
 
@@ -521,7 +507,6 @@ SOFTWARE. -->
       </method>
 
       <method name="loadFromFile">
-
         # Load an svg file
         @createDOM()
 
@@ -531,5 +516,4 @@ SOFTWARE. -->
           # Generate onready event
           _this.sendEvent('ready')
       </method>
-
     </class>

@@ -16,7 +16,7 @@ refusing to create a class that would overwrite the builtin tag b
   </script>
 </head>
 <body>
-  <view width="100%" height="100%" scrolling="true">
+  <view width="100%" height="100%" scrollable="true">
     <spacedlayout axis="x" spacing="1"></spacedlayout>
 
     <!-- SETTING TEXT VALUES -->
@@ -69,9 +69,9 @@ refusing to create a class that would overwrite the builtin tag b
         <text text="${this.parent.text}" bgcolor="orange">
           <handler event="oninit">
             var el = this.sprite.el;
-            assert.equal(this.text, '', 'text set with a constraint where constraint evals to undefined');
-            assert.equal(el.innerText, '', 'No innerText should exist.');
-            assert.equal(el.innerHTML, '', 'No innerHTML should exist either.');
+            assert.equal(this.text, 'undefined', 'text set with a constraint where constraint evals to undefined');
+            assert.equal(el.innerText, 'undefined', 'No innerText should exist.');
+            assert.equal(el.innerHTML, 'undefined', 'No innerHTML should exist either.');
           </handler>
         </text>
       </view>

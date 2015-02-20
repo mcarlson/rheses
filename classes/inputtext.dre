@@ -1,6 +1,6 @@
 <!-- The MIT License (MIT)
 
-Copyright ( c ) 2014 Teem2 LLC
+Copyright ( c ) 2014-2015 Teem2 LLC
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -45,14 +45,16 @@ SOFTWARE. -->
      *     <inputtext id="nameinput" bgcolor="white" border="1px solid lightgrey" width="200" onchange="console.log('onchange', this.text)"></inputtext>
      *
      */-->
-<class name="inputtext" extends="view" type="coffee" bgcolor="rgb(63,63,63)" color="white"
-       leftborder="2" bottomborder="2" bordercolor="white">
+<class name="inputtext" extends="view" type="coffee"
+  bgcolor="rgb(63,63,63)" color="white"
+  leftborder="2" bottomborder="2" bordercolor="white"
+  width="100"
+>
   <!--/**
        * @event onselect
        * Fired when an inputtext is selected
        * @param {dr.view} view The view that fired the event
        */
-
 
       /**
        * @event onchange
@@ -60,13 +62,11 @@ SOFTWARE. -->
        * @param {dr.view} view The view that fired the event
        */
 
-
       /**
        * @event onfocus
        * Fired when an inputtext is focused
        * @param {dr.view} view The view that fired the event
        */
-
 
       /**
        * @event onblur
@@ -74,13 +74,11 @@ SOFTWARE. -->
        * @param {dr.view} view The view that fired the event
        */
 
-
       /**
        * @event onkeydown
        * Fired when a key goes down
        * @param {Object} keys An object representing the keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
        */
-
 
       /**
        * @event onkeyup
@@ -88,15 +86,14 @@ SOFTWARE. -->
        * @param {Object} keys An object representing the keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
        */
 
-
       /**
        * @attribute {Boolean} [multiline=false]
        * Set to true for a multi-line input text field
        */
 -->
   <attribute name="multiline" type="boolean" value="false"></attribute>
-  
-<!--  /**
+
+  <!--/**
        * @attribute {String} [text=""]
        * The contents of this input text field
        */-->
@@ -104,13 +101,12 @@ SOFTWARE. -->
     @sprite.value(@format(text))
     return text
   </setter>
+
   <setter name="data" args="data">
     @setAttribute('text', data, true)
     return data
   </setter>
-  
-  <attribute name="width" type="number" value="100"></attribute>
-  
+
   <handler event="oninnerwidth" args="iw">
     @sprite.setStyle('width', iw, true, @sprite.input)
   </handler>
@@ -189,6 +185,4 @@ SOFTWARE. -->
           @text = value
           @sendEvent('text', value)
   </method>
-
-
 </class>
