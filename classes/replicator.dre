@@ -203,8 +203,7 @@ SOFTWARE. -->
           @setAttribute('_dataset', match[1])
           datapath = datapath.replace(re, '')
 
-        @datapath = datapath
-        @sendEvent('datapath', datapath)
+        @setAndFire('datapath', datapath)
 
         @parsedpath = JsonPath.parseSelector(datapath)
         # console.log('evaluated datapath', datapath, @parsedpath)

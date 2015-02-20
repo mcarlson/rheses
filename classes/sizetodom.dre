@@ -1,6 +1,6 @@
 <!-- The MIT License (MIT)
 
-Copyright ( c ) 2014 Teem2 LLC
+Copyright ( c ) 2014-2015 Teem2 LLC
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -57,42 +57,82 @@ SOFTWARE. -->
     if markup isnt @markup
       @sprite.setText(markup)
       if @inited then @sizeToDom()
-    markup
+    return markup
   </setter>
 
-  <!--/**
-    * Look for special value of 'auto' for width and height and handle them
-    * here rather than letting them bubble up to view.
-    * @private
-    */-->
-  <method name="setAttribute" args="name, value, skipConstraintSetup, skipconstraintunregistration">
-    unless skipConstraintSetup or @__internalUpdate
-      switch name
-        when 'width'
-          if value is 'auto'
-            @__hasSetWidth = false
-            @sprite.setStyle('width', 'auto')
-            if @inited then @sizeToDom()
-            return
-          else
-            @__hasSetWidth = true
-        when 'height'
-          if value is 'auto'
-            @__hasSetHeight = false
-            @sprite.setStyle('height', 'auto')
-            if @inited then @sizeToDom()
-            return
-          else
-            @__hasSetHeight = true
-    
+  <!-- Border changes the size of the DOM so do a sizeToDom. -->
+  <setter name="topborder" args="v">
     retval = @super()
-    
-    # Border and padding changes the size of the DOM so do a sizeToDom.
-    if /^.*(?:border|padding)$/.test(name)
-      if @inited then @sizeToDom()
-    
-    retval
-  </method>
+    if @inited then @sizeToDom()
+    return retval
+  </setter>
+
+  <setter name="bottomborder" args="v">
+    retval = @super()
+    if @inited then @sizeToDom()
+    return retval
+  </setter>
+
+  <setter name="leftborder" args="v">
+    retval = @super()
+    if @inited then @sizeToDom()
+    return retval
+  </setter>
+
+  <setter name="rightborder" args="v">
+    retval = @super()
+    if @inited then @sizeToDom()
+    return retval
+  </setter>
+
+  <!-- Padding changes the size of the DOM so do a sizeToDom. -->
+  <setter name="toppadding" args="v">
+    retval = @super()
+    if @inited then @sizeToDom()
+    return retval
+  </setter>
+
+  <setter name="bottompadding" args="v">
+    retval = @super()
+    if @inited then @sizeToDom()
+    return retval
+  </setter>
+
+  <setter name="leftpadding" args="v">
+    retval = @super()
+    if @inited then @sizeToDom()
+    return retval
+  </setter>
+
+  <setter name="rightpadding" args="v">
+    retval = @super()
+    if @inited then @sizeToDom()
+    return retval
+  </setter>
+
+  <setter name="width" args="v, noDomChange">
+    if not @__internalUpdate and not @__noSpecialValueHandling
+      if v is 'auto'
+        @__hasSetWidth = false
+        @sprite.setAttribute('width', 'auto')
+        if @inited then @sizeToDom()
+        return dr._noop
+      else
+        @__hasSetWidth = true
+    return @super()
+  </setter>
+
+  <setter name="height" args="v, noDomChange">
+    if not @__internalUpdate and not @__noSpecialValueHandling
+      if v is 'auto'
+        @__hasSetHeight = false
+        @sprite.setAttribute('height', 'auto')
+        if @inited then @sizeToDom()
+        return dr._noop
+      else
+        @__hasSetHeight = true
+    return @super()
+  </setter>
 
   <!--/**
     * Reduce number of sizeToDom calls during initialization.
@@ -102,8 +142,8 @@ SOFTWARE. -->
     @super()
     
     # Makes initial border and padding work
-    @sprite.setStyle('width', 'auto') if @width is @__fullBorderPaddingWidth
-    @sprite.setStyle('height', 'auto') if @height is @__fullBorderPaddingHeight
+    @sprite.setAttribute('width', 'auto') if @width is @__fullBorderPaddingWidth
+    @sprite.setAttribute('height', 'auto') if @height is @__fullBorderPaddingHeight
     
     @sizeToDom()
   </method>
@@ -114,11 +154,11 @@ SOFTWARE. -->
     * @returns {void}
     */-->
   <method name="sizeToDom">
-    bounds = @sprite.el.getBoundingClientRect()
+    bounds = @sprite.getBounds()
     
     @__internalUpdate = true
-    unless @__hasSetWidth then @set_width(bounds.width)
-    unless @__hasSetHeight then @set_height(bounds.height)
+    unless @__hasSetWidth then @set_width(bounds.width, true)
+    unless @__hasSetHeight then @set_height(bounds.height, true)
     @__internalUpdate = false
   </method>
   
