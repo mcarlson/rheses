@@ -125,6 +125,9 @@ SOFTWARE. -->
         this.editor.setTheme(this.theme);
         this.editor.getSession().setMode(this.mode);
 
+	// Disable syntax checking
+	this.editor.getSession().setUseWorker(false);
+
         // Text changes immediately update this.text
         this.editor.on("change", this.handleChange);
 
