@@ -71,7 +71,7 @@ SOFTWARE. -->
           @__setterAttrName = 'y'
           @__alignattr = 'isvaligned'
       
-      @defaultSetAttributeBehavior('align', align)
+      @setAndFire('align', align)
       
       if @inited
         # Start monitoring again and update since we have new alignment. This needs
@@ -97,7 +97,7 @@ SOFTWARE. -->
       # Stop monitoring since we will have different updateparent behavior
       @stopMonitoringAllSubviews()
       
-      @defaultSetAttributeBehavior('updateparent', updateparent)
+      @setAndFire('updateparent', updateparent)
       
       if @inited
         # Start monitoring again and update since we have new updateparent 

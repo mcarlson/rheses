@@ -131,7 +131,7 @@ SOFTWARE. -->
         */-->
   <attribute name="underline" type="boolean" value="false"></attribute>
   <setter name="underline" args="underline">
-    @defaultSetAttributeBehavior('underline', underline)
+    @setAndFire('underline', underline)
     if underline
       if @strike then @setAttribute('strike', false)
       @sprite.setStyle('text-decoration', 'underline')
@@ -146,7 +146,7 @@ SOFTWARE. -->
         */-->
   <attribute name="strike" type="boolean" value="false"></attribute>
   <setter name="strike" args="strike">
-    @defaultSetAttributeBehavior('strike', strike)
+    @setAndFire('strike', strike)
     if strike
       if @underline then @setAttribute('underline', false)
       @sprite.setStyle('text-decoration', 'line-through')

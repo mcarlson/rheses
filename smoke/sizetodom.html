@@ -53,61 +53,93 @@
       <div class="foo"></div> <div class="bar"></div> <div class="foo"></div>
     </markup>
     
+    <view name="v5" with="sizetodom" bgcolor="#cccccc" visible="false"
+      markup='[div class="foo"][/div] [div class="bar"][/div][br/][div class="foo"][/div]'
+    ></view>
+    
     <handler event="oninit">
       var v1 = this.v1,
         v2 = this.v2,
         v3 = this.v3,
-        v4 = this.v4;
+        v4 = this.v4,
+        v5 = this.v5;
       
-      // Initial sizing
-      assert.equal(60, v1.width);
-      assert.equal(20, v1.height);
-      assert.equal(60, v1.innerwidth);
-      assert.equal(20, v1.innerheight);
+      // Initial sizing and markup
+      assert.equal(v1.width, 60);
+      assert.equal(v1.height, 20);
+      assert.equal(v1.innerwidth, 60);
+      assert.equal(v1.innerheight, 20);
+      assert.equal(v1.markup, '');
       
-      assert.equal(50, v2.width);
-      assert.equal(40, v2.height);
-      assert.equal(50, v2.innerwidth);
-      assert.equal(40, v2.innerheight);
+      assert.equal(v2.width, 50);
+      assert.equal(v2.height, 40);
+      assert.equal(v2.innerwidth, 50);
+      assert.equal(v2.innerheight, 40);
+      assert.equal(v2.markup, '');
       
-      assert.equal(40, v3.width);
-      assert.equal(40, v3.height);
-      assert.equal(40, v3.innerwidth);
-      assert.equal(40, v3.innerheight);
+      assert.equal(v3.width, 40);
+      assert.equal(v3.height, 40);
+      assert.equal(v3.innerwidth, 40);
+      assert.equal(v3.innerheight, 40);
+      assert.equal(v3.markup, '&lt;div class="foo"&gt;&lt;/div&gt; &lt;div class="bar"&gt;&lt;/div&gt;&lt;br/&gt;&lt;div class="foo"&gt;&lt;/div&gt;');
+      
+      assert.equal(v4.width, 72);
+      assert.equal(v4.height, 32);
+      assert.equal(v4.innerwidth, 60);
+      assert.equal(v4.innerheight, 20);
+      assert.equal(v4.markup, '');
+      
+      assert.equal(v5.width, 40);
+      assert.equal(v5.height, 40);
+      assert.equal(v5.innerwidth, 40);
+      assert.equal(v5.innerheight, 40);
+      assert.equal(v5.markup, '&lt;div class="foo"&gt;&lt;/div&gt; &lt;div class="bar"&gt;&lt;/div&gt;&lt;br/&gt;&lt;div class="foo"&gt;&lt;/div&gt;');
       
       // Restore auto sizing
       v2.setAttribute('width', 'auto');
       
-      assert.equal(60, v2.width);
-      assert.equal(20, v2.height);
+      assert.equal(v2.width, 60);
+      assert.equal(v2.height, 20);
       
       // Set new markup
       v3.setAttribute('markup', '[div class="foo"][/div][br/][div class="bar"][/div]');
       
-      assert.equal(20, v3.width);
-      assert.equal(40, v3.height);
+      assert.equal(v3.width, 20);
+      assert.equal(v3.height, 40);
       
-      // Borders and padding
-      assert.equal(60 + 4 + 8, v4.width);
-      assert.equal(20 + 4 + 8, v4.height);
-
+      // Border and padding changes
       v4.setAttribute('padding', 10);
-      assert.equal(60 + 4 + 20, v4.width);
-      assert.equal(20 + 4 + 20, v4.height);
+      assert.equal(v4.width, 84);
+      assert.equal(v4.height, 44);
 
       v4.setAttribute('leftborder', 1);
+      assert.equal(v4.width, 83);
+      assert.equal(v4.height, 44);
+      
       v4.setAttribute('rightborder', 1);
+      assert.equal(v4.width, 82);
+      assert.equal(v4.height, 44);
+      
       v4.setAttribute('topborder', 1);
+      assert.equal(v4.width, 82);
+      assert.equal(v4.height, 43);
+      
       v4.setAttribute('bottomborder', 1);
+      assert.equal(v4.width, 82);
+      assert.equal(v4.height, 42);
 
-      assert.equal(60 + 2 + 20, v4.width);
-      assert.equal(20 + 2 + 20, v4.height);
-        
+      // Make an initially not visible view visible
+      v5.setAttribute('visible', true);
+      
+      assert.equal(v5.width, 40);
+      assert.equal(v5.height, 40);
+      assert.equal(v5.innerwidth, 40);
+      assert.equal(v5.innerheight, 40);
     </handler>
   </view>
 <!-- The MIT License (MIT)
 
-Copyright ( c ) 2014 Teem2 LLC
+Copyright ( c ) 2014-2015 Teem2 LLC
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

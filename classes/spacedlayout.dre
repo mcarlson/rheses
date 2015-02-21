@@ -135,7 +135,7 @@ SOFTWARE. -->
         @__measureAttrName = 'boundswidth'
         @__diffAttrName = 'boundsxdiff'
       
-      @defaultSetAttributeBehavior('attribute', attribute)
+      @setAndFire('attribute', attribute)
       
       if @inited
         # Start monitoring again and update since we have a new axis. This needs

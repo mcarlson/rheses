@@ -88,7 +88,7 @@
   })();
 
   window.dr = (function() {
-    var AutoPropertyLayout, COMMENT_NODE, Class, Eventable, Events, Idle, Keyboard, Layout, Module, Mouse, Node, Path, Sprite, StartEventable, State, View, Window, callOnIdle, capabilities, clone, closeTo, compiler, constraintScopes, debug, dom, eventq, exports, fcamelCase, handlerq, idle, ignoredAttributes, instantiating, knownstyles, matchEvent, mixOf, moduleKeywords, mouseEvents, noop, querystring, rdashAlpha, showWarnings, simpleAttributes, specialtags, ss, ss2, starttime, tagPackageSeparator, test, triggerlock, warnings, _initConstraints, _processAttrs;
+    var AutoPropertyLayout, COMMENT_NODE, Class, Eventable, Events, Idle, Keyboard, Layout, Module, Mouse, Node, Path, Sprite, StartEventable, State, View, Window, callOnIdle, capabilities, clone, closeTo, compiler, constraintScopes, debug, dom, eventq, exports, fcamelCase, handlerq, idle, ignoredAttributes, instantiating, knownstyles, matchEvent, matchPercent, mixOf, moduleKeywords, mouseEvents, noop, querystring, rdashAlpha, showWarnings, specialtags, ss, ss2, starttime, tagPackageSeparator, test, triggerlock, warnings, _initConstraints, _processAttrs;
     COMMENT_NODE = window.Node.COMMENT_NODE;
     noop = function() {};
     closeTo = function(a, b, epsilon) {
@@ -118,6 +118,7 @@
       }
       return Mixed;
     };
+    matchPercent = /%$/;
 
     /**
      * @class Events
@@ -338,6 +339,14 @@
       return Module;
 
     })();
+    ignoredAttributes = {
+      parent: true,
+      id: true,
+      name: true,
+      "extends": true,
+      type: true,
+      scriptincludes: true
+    };
 
     /**
      * @class Eventable {Core Dreem}
@@ -362,31 +371,108 @@
 
       typemappings = {
         number: parseFloat,
-        boolean: function(val) {
-          if (typeof val === 'string') {
-            return val === 'true';
+        boolean: function(v) {
+          if (typeof v === 'string') {
+            return v === 'true';
           } else {
-            return !!val;
+            return !!v;
           }
         },
-        string: function(val) {
-          return val + '';
+        string: function(v) {
+          return v + '';
         },
-        json: function(val) {
-          return JSON.parse(val);
+        json: function(v) {
+          return JSON.parse(v);
         },
-        expression: function(val) {
-          if (typeof val !== 'string') {
-            return val;
+        expression: function(v) {
+          if (typeof v !== 'string') {
+            return v;
+          } else {
+            return compiler.compile("return " + v)();
           }
-          return compiler.compile("return " + val)();
         },
-        positivenumber: function(val) {
-          val = parseFloat(val);
-          if (isNaN(val)) {
+        positivenumber: function(v) {
+          v = parseFloat(v);
+          if (isNaN(v)) {
             return 0;
           } else {
-            return Math.max(0, val);
+            return Math.max(0, v);
+          }
+        },
+        size: function(v) {
+          if (matchPercent.test(v) || v === 'auto') {
+            return v;
+          } else {
+            v = parseFloat(v);
+            if (isNaN(v)) {
+              return 0;
+            } else {
+              return Math.max(0, v);
+            }
+          }
+        },
+        x: function(v) {
+          var normValue;
+          if (matchPercent.test(v)) {
+            return v;
+          } else {
+            if (typeof v === 'string') {
+              normValue = v.toLowerCase();
+              switch (normValue) {
+                case 'begin':
+                case 'middle':
+                case 'end':
+                case 'left':
+                case 'right':
+                case 'center':
+                case 'none':
+                  return normValue;
+                default:
+                  v = parseFloat(v);
+              }
+            }
+            if (isNaN(v)) {
+              v = this.x;
+              if (isNaN(v)) {
+                return 0;
+              } else {
+                return v;
+              }
+            } else {
+              return v;
+            }
+          }
+        },
+        y: function(v) {
+          var normValue;
+          if (matchPercent.test(v)) {
+            return v;
+          } else {
+            if (typeof v === 'string') {
+              normValue = v.toLowerCase();
+              switch (normValue) {
+                case 'begin':
+                case 'middle':
+                case 'end':
+                case 'top':
+                case 'bottom':
+                case 'center':
+                case 'none':
+                  return normValue;
+                default:
+                  v = parseFloat(v);
+              }
+            }
+            if (isNaN(v)) {
+              v = this.y;
+              if (isNaN(v)) {
+                return 0;
+              } else {
+                return v;
+              }
+            } else {
+              return v;
+            }
           }
         }
       };
@@ -401,13 +487,13 @@
               return;
             }
             try {
-              value = typemappings[type](value);
+              value = typemappings[type].call(this, value);
             } catch (_error) {
               e = _error;
               showWarnings(["error parsing " + type + " value '" + value + "' for attribute '" + name + "'"]);
             }
           } else {
-            value = typemappings[type](value);
+            value = typemappings[type].call(this, value);
           }
           if (type === 'number' && isNaN(value)) {
             value = this[name];
@@ -430,7 +516,7 @@
        * @param value the value to set to
        */
 
-      Eventable.prototype.setAttribute = function(name, value, skipConstraintSetup, skipconstraintunregistration) {
+      Eventable.prototype.setAttribute = function(name, value, skipconstraintunregistration) {
         var setterName;
         value = this._coerceType(name, value);
         if (!skipconstraintunregistration) {
@@ -443,7 +529,11 @@
             return this;
           }
         }
-        this.defaultSetAttributeBehavior(name, value);
+        if (name in ignoredAttributes) {
+          this.setAndFire(name, value);
+        } else {
+          this.defaultSetAttributeBehavior(name, value);
+        }
         return this;
       };
 
@@ -456,6 +546,17 @@
        */
 
       Eventable.prototype.defaultSetAttributeBehavior = function(name, value) {
+        return this.setAndFire(name, value);
+      };
+
+
+      /**
+       * Stores the value on this object and fires an event.
+       * @param {String} name the name of the attribute to set
+       * @param value the value to set to
+       */
+
+      Eventable.prototype.setAndFire = function(name, value) {
         return this.sendEvent(name, this[name] = value);
       };
 
@@ -1272,7 +1373,7 @@
               constraint.callbackbindings.push(property, boundref);
             }
           }
-          this.setAttribute(name, fn(), false, true);
+          this.setAttribute(name, fn(), true);
         }
       };
 
@@ -1309,7 +1410,7 @@
 
       Node.prototype._constraintCallback = function(name, fn) {
         return (function constraintCallback(){;
-        this.setAttribute(name, fn(), false, true);
+        this.setAttribute(name, fn(), true);
         return }).bind(this);
       };
 
@@ -1830,6 +1931,10 @@
         return this.input = input;
       };
 
+      Sprite.prototype.getBounds = function() {
+        return this.el.getBoundingClientRect();
+      };
+
       Sprite.prototype.getAbsolute = function() {
         var pos;
         if (this.jqel == null) {
@@ -1894,18 +1999,6 @@
         return ss2(name, value, internal, el);
       };
     }
-    ignoredAttributes = {
-      parent: true,
-      id: true,
-      name: true,
-      "extends": true,
-      type: true,
-      scriptincludes: true
-    };
-    simpleAttributes = {
-      $tagname: true,
-      $textcontent: true
-    };
 
     /**
      * @aside guide constraints
@@ -1973,8 +2066,6 @@
      *     </view>
      */
     View = (function(_super) {
-      var matchPercent;
-
       __extends(View, _super);
 
       function View() {
@@ -2412,7 +2503,7 @@
           clickable: 'boolean',
           clip: 'boolean',
           cursor: 'string',
-          height: 'positivenumber',
+          height: 'size',
           ignorelayout: 'json',
           layouthint: 'json',
           leftborder: 'positivenumber',
@@ -2429,15 +2520,17 @@
           topborder: 'positivenumber',
           toppadding: 'positivenumber',
           visible: 'boolean',
-          width: 'positivenumber',
-          x: 'number',
+          width: 'size',
+          x: 'x',
           xanchor: 'string',
           xscale: 'number',
-          y: 'number',
+          y: 'y',
           yanchor: 'string',
           yscale: 'number',
           z: 'number',
-          zanchor: 'number'
+          zanchor: 'number',
+          $tagname: 'string',
+          $textcontent: 'string'
         };
         _ref = attributes.$types;
         for (key in _ref) {
@@ -2450,7 +2543,7 @@
         this.cursor = 'pointer';
         this.bgcolor = this.bordercolor = 'transparent';
         this.borderstyle = 'solid';
-        this.leftborder = this.rightborder = this.topborder = this.bottomborder = this.border = this.leftpadding = this.rightpadding = this.toppadding = this.bottompadding = this.padding = this.x = this.y = this.width = this.height = this.zanchor = this.boundsxdiff = this.boundsydiff = this.boundsx = this.boundsy = this.boundswidth = this.boundsheight = this.scrollx = this.scrolly = 0;
+        this.leftborder = this.rightborder = this.topborder = this.bottomborder = this.border = this.leftpadding = this.rightpadding = this.toppadding = this.bottompadding = this.padding = this.x = this.y = this.width = this.height = this.innerwidth = this.innerheight = this.boundsxdiff = this.boundsydiff = this.boundsx = this.boundsy = this.boundswidth = this.boundsheight = this.zanchor = this.scrollx = this.scrolly = 0;
         this.opacity = 1;
         this.clip = this.scrollable = this.clickable = this.isaligned = this.isvaligned = this.ignorelayout = this.scrollbars = false;
         this.visible = true;
@@ -2482,56 +2575,14 @@
         return this.sprite = null;
       };
 
-      View.prototype.setAttribute = function(name, value, skipConstraintSetup, skipconstraintunregistration) {
+      View.prototype.defaultSetAttributeBehavior = function(name, value) {
         var existing;
-        if (name in simpleAttributes) {
-          this[name] = value;
-        } else if (name in ignoredAttributes) {
-          View.__super__.setAttribute.apply(this, arguments);
-        } else {
-          if (!skipConstraintSetup) {
-            switch (name) {
-              case 'x':
-                if (this.__setupPercentConstraint(name, value, 'innerwidth')) {
-                  return this;
-                }
-                if (this.__setupAlignConstraint(name, value)) {
-                  return this;
-                }
-                break;
-              case 'y':
-                if (this.__setupPercentConstraint(name, value, 'innerheight')) {
-                  return this;
-                }
-                if (this.__setupAlignConstraint(name, value)) {
-                  return this;
-                }
-                break;
-              case 'width':
-                if (this.__setupPercentConstraint(name, value, 'innerwidth')) {
-                  return this;
-                }
-                if (this.__setupAutoConstraint(name, value, 'x')) {
-                  return this;
-                }
-                break;
-              case 'height':
-                if (this.__setupPercentConstraint(name, value, 'innerheight')) {
-                  return this;
-                }
-                if (this.__setupAutoConstraint(name, value, 'y')) {
-                  return this;
-                }
-            }
-          }
-          existing = this[name];
-          View.__super__.setAttribute.apply(this, arguments);
-          value = this[name];
-          if (existing !== value) {
-            this.sprite.setAttribute(name, value);
-          }
+        existing = this[name];
+        View.__super__.defaultSetAttributeBehavior.apply(this, arguments);
+        value = this[name];
+        if (existing !== value) {
+          return this.sprite.setAttribute(name, value);
         }
-        return this;
       };
 
       View.prototype.getBoundsRelativeToParent = function() {
@@ -2583,22 +2634,22 @@
           height = this.height;
         }
         if (!closeTo(this.boundsx, x)) {
-          this.defaultSetAttributeBehavior('boundsx', x);
+          this.setAndFire('boundsx', x);
         }
         if (!closeTo(this.boundsy, y)) {
-          this.defaultSetAttributeBehavior('boundsy', y);
+          this.setAndFire('boundsy', y);
         }
         if (!closeTo(this.boundswidth, width)) {
-          this.defaultSetAttributeBehavior('boundswidth', width);
+          this.setAndFire('boundswidth', width);
         }
         if (!closeTo(this.boundsheight, height)) {
-          this.defaultSetAttributeBehavior('boundsheight', height);
+          this.setAndFire('boundsheight', height);
         }
         if (!closeTo(this.boundsxdiff, xdiff)) {
-          this.defaultSetAttributeBehavior('boundsxdiff', xdiff);
+          this.setAndFire('boundsxdiff', xdiff);
         }
         if (!closeTo(this.boundsydiff, ydiff)) {
-          return this.defaultSetAttributeBehavior('boundsydiff', ydiff);
+          return this.setAndFire('boundsydiff', ydiff);
         }
       };
 
@@ -2632,7 +2683,7 @@
           this.stopListening(this, boundssize, oldFunc);
           delete this[funcKey];
           if (this[alignattr]) {
-            this.defaultSetAttributeBehavior(alignattr, false);
+            this.setAndFire(alignattr, false);
           }
         }
         if (typeof value !== 'string') {
@@ -2645,28 +2696,33 @@
             var val;
             val = self[boundsdiff];
             if (self[name] !== val) {
-              return self.setAttribute(name, val, true);
+              self.__noSpecialValueHandling = true;
+              return self.setAttribute(name, val);
             }
           };
           func.autoOk = true;
         } else if (normValue === 'middle' || normValue === 'center') {
           func = this[funcKey] = function() {
-            return self.setAttribute(name, ((parent[axis] - self[boundssize]) / 2) + self[boundsdiff], true);
+            self.__noSpecialValueHandling = true;
+            return self.setAttribute(name, ((parent[axis] - self[boundssize]) / 2) + self[boundsdiff]);
           };
           this.listenTo(parent, axis, func);
           this.listenTo(this, boundssize, func);
         } else if (normValue === 'end' || (isX && normValue === 'right') || (!isX && normValue === 'bottom')) {
           func = this[funcKey] = function() {
-            return self.setAttribute(name, parent[axis] - self[boundssize] + self[boundsdiff], true);
+            self.__noSpecialValueHandling = true;
+            return self.setAttribute(name, parent[axis] - self[boundssize] + self[boundsdiff]);
           };
           this.listenTo(parent, axis, func);
           this.listenTo(this, boundssize, func);
+        } else if (normValue === 'none') {
+          return true;
         }
         if (func) {
           this.listenTo(this, boundsdiff, func);
           func.call();
           if (!this[alignattr]) {
-            this.defaultSetAttributeBehavior(alignattr, true);
+            this.setAndFire(alignattr, true);
           }
           return true;
         }
@@ -2690,13 +2746,12 @@
             locked: this.inited ? 'false' : 'true'
           });
           if (!this.inited) {
-            this.setAttribute(name, 0, true);
+            this.__noSpecialValueHandling = true;
+            this.setAttribute(name, 0);
           }
           return true;
         }
       };
-
-      matchPercent = /%$/;
 
       View.prototype.__setupPercentConstraint = function(name, value, axis) {
         var func, funcKey, oldFunc, parent, scale, self;
@@ -2718,7 +2773,8 @@
           self = this;
           scale = parseInt(value) / 100;
           func = this[funcKey] = function() {
-            return self.setAttribute(name, parent[axis] * scale, true);
+            self.__noSpecialValueHandling = true;
+            return self.setAttribute(name, parent[axis] * scale);
           };
           this.listenTo(parent, axis, func);
           func.call();
@@ -2738,40 +2794,43 @@
         return retval;
       };
 
-      View.prototype.set_id = function(id) {
+      View.prototype.set_id = function(v) {
         var retval;
         retval = View.__super__.set_id.apply(this, arguments);
-        this.sprite.set_id(id);
+        this.sprite.set_id(v);
         return retval;
       };
 
-      View.prototype.set_class = function(classname) {
-        this.sprite.set_class(classname);
-        return classname;
+      View.prototype.set_class = function(v) {
+        if (this["class"] !== v) {
+          this.sprite.set_class(v);
+          this.setAndFire('class', v);
+        }
+        return noop;
       };
 
-      View.prototype.set_clip = function(clip) {
-        if (this.clip === clip) {
-          return noop;
+      View.prototype.set_clip = function(v) {
+        if (this.clip !== v) {
+          this.sprite.set_clip(v);
+          this.setAndFire('clip', v);
         }
-        this.sprite.set_clip(clip);
-        return clip;
+        return noop;
       };
 
-      View.prototype.set_scrollable = function(scrollable) {
-        if (this.scrollable === scrollable) {
-          return noop;
+      View.prototype.set_scrollable = function(v) {
+        if (this.scrollable !== v) {
+          this.sprite.set_scrollable(v);
+          this.setAndFire('scrollable', v);
         }
-        this.sprite.set_scrollable(scrollable);
-        return scrollable;
+        return noop;
       };
 
       View.prototype.set_scrollbars = function(v) {
-        if (this.scrollbars === v) {
-          return noop;
+        if (this.scrollbars !== v) {
+          this.sprite.set_scrollbars(v);
+          this.setAndFire('scrollbars', v);
         }
-        this.sprite.set_scrollbars(v);
-        return v;
+        return noop;
       };
 
       View.prototype.set_scrollx = function(v) {
@@ -2780,11 +2839,11 @@
         } else {
           v = Math.max(0, Math.min(this.sprite.el.scrollWidth - this.width + this.leftborder + this.rightborder, v));
         }
-        if (this.scrollx === v) {
-          return noop;
+        if (this.scrollx !== v) {
+          this.sprite.set_scrollx(v);
+          this.setAndFire('scrollx', v);
         }
-        this.sprite.set_scrollx(v);
-        return v;
+        return noop;
       };
 
       View.prototype.set_scrolly = function(v) {
@@ -2793,35 +2852,46 @@
         } else {
           v = Math.max(0, Math.min(this.sprite.el.scrollHeight - this.height + this.topborder + this.bottomborder, v));
         }
-        if (this.scrolly === v) {
-          return noop;
+        if (this.scrolly !== v) {
+          this.sprite.set_scrolly(v);
+          this.setAndFire('scrolly', v);
         }
-        this.sprite.set_scrolly(v);
-        return v;
+        return noop;
       };
 
-      View.prototype.set_visible = function(visible) {
-        if (this.visible === visible) {
-          return noop;
+      View.prototype.set_visible = function(v) {
+        if (this.visible !== v) {
+          this.sprite.set_visible(v);
+          this.setAndFire('visible', v);
         }
-        this.sprite.set_visible(visible);
-        return visible;
+        return noop;
       };
 
-      View.prototype.set_bgcolor = function(bgcolor) {
-        if (this.bgcolor === bgcolor) {
-          return noop;
+      View.prototype.set_bgcolor = function(v) {
+        if (this.bgcolor !== v) {
+          this.sprite.setAttribute('bgcolor', v);
+          this.setAndFire('bgcolor', v);
         }
-        return bgcolor;
+        return noop;
       };
 
       View.prototype.set_x = function(v) {
+        if (!this.__noSpecialValueHandling) {
+          if (this.__setupPercentConstraint('x', v, 'innerwidth')) {
+            return noop;
+          }
+          if (this.__setupAlignConstraint('x', v)) {
+            return noop;
+          }
+        } else {
+          this.__noSpecialValueHandling = false;
+        }
         if (this.x !== v) {
           this.sprite.set_x(v);
           if (this.__boundsAreDifferent && v - this.boundsxdiff !== this.boundsx) {
             this.sendEvent('boundsx', this.boundsx = v - this.boundsxdiff);
           }
-          this.defaultSetAttributeBehavior('x', v);
+          this.setAndFire('x', v);
           if (this.inited) {
             this.__updateBounds();
           }
@@ -2830,12 +2900,22 @@
       };
 
       View.prototype.set_y = function(v) {
+        if (!this.__noSpecialValueHandling) {
+          if (this.__setupPercentConstraint('y', v, 'innerheight')) {
+            return noop;
+          }
+          if (this.__setupAlignConstraint('y', v)) {
+            return noop;
+          }
+        } else {
+          this.__noSpecialValueHandling = false;
+        }
         if (this.y !== v) {
           this.sprite.set_y(v);
           if (this.__boundsAreDifferent && v - this.boundsydiff !== this.boundsy) {
             this.sendEvent('boundsy', this.boundsy = v - this.boundsydiff);
           }
-          this.defaultSetAttributeBehavior('y', v);
+          this.setAndFire('y', v);
           if (this.inited) {
             this.__updateBounds();
           }
@@ -2843,11 +2923,24 @@
         return noop;
       };
 
-      View.prototype.set_width = function(v) {
+      View.prototype.set_width = function(v, noDomChange) {
+        if (!this.__noSpecialValueHandling) {
+          if (this.__setupPercentConstraint('width', v, 'innerwidth')) {
+            return noop;
+          }
+          if (this.__setupAutoConstraint('width', v, 'x')) {
+            return noop;
+          }
+        } else {
+          this.__noSpecialValueHandling = false;
+        }
         v = Math.max(v, this.__fullBorderPaddingWidth);
         if (this.width !== v) {
-          this.defaultSetAttributeBehavior('innerwidth', v - this.__fullBorderPaddingWidth);
-          this.defaultSetAttributeBehavior('width', v);
+          if (!noDomChange) {
+            this.sprite.setAttribute('width', v);
+          }
+          this.setAndFire('innerwidth', v - this.__fullBorderPaddingWidth);
+          this.setAndFire('width', v);
           if (this.inited) {
             this.__updateBounds();
           }
@@ -2855,11 +2948,24 @@
         return noop;
       };
 
-      View.prototype.set_height = function(v) {
+      View.prototype.set_height = function(v, noDomChange) {
+        if (!this.__noSpecialValueHandling) {
+          if (this.__setupPercentConstraint('height', v, 'innerheight')) {
+            return noop;
+          }
+          if (this.__setupAutoConstraint('height', v, 'y')) {
+            return noop;
+          }
+        } else {
+          this.__noSpecialValueHandling = false;
+        }
         v = Math.max(v, this.__fullBorderPaddingHeight);
         if (this.height !== v) {
-          this.defaultSetAttributeBehavior('innerheight', v - this.__fullBorderPaddingHeight);
-          this.defaultSetAttributeBehavior('height', v);
+          if (!noDomChange) {
+            this.sprite.setAttribute('height', v);
+          }
+          this.setAndFire('innerheight', v - this.__fullBorderPaddingHeight);
+          this.setAndFire('height', v);
           if (this.inited) {
             this.__updateBounds();
           }
@@ -2867,21 +2973,22 @@
         return noop;
       };
 
-      View.prototype.set_border = function(border) {
+      View.prototype.set_border = function(v) {
         this.__lockBPRecalc = true;
-        this.setAttribute('topborder', border);
-        this.setAttribute('bottomborder', border);
-        this.setAttribute('leftborder', border);
-        this.setAttribute('rightborder', border);
+        this.setAttribute('topborder', v);
+        this.setAttribute('bottomborder', v);
+        this.setAttribute('leftborder', v);
+        this.setAttribute('rightborder', v);
         this.__lockBPRecalc = false;
-        this.defaultSetAttributeBehavior('border', border);
+        this.setAndFire('border', v);
         this.__updateInnerWidth();
         this.__updateInnerHeight();
         return noop;
       };
 
-      View.prototype.set_topborder = function(border) {
-        this.defaultSetAttributeBehavior('topborder', border);
+      View.prototype.set_topborder = function(v) {
+        this.sprite.setAttribute('topborder', v);
+        this.setAndFire('topborder', v);
         if (!this.__lockBPRecalc) {
           this.__updateBorder();
           this.__updateInnerHeight();
@@ -2889,8 +2996,9 @@
         return noop;
       };
 
-      View.prototype.set_bottomborder = function(border) {
-        this.defaultSetAttributeBehavior('bottomborder', border);
+      View.prototype.set_bottomborder = function(v) {
+        this.sprite.setAttribute('bottomborder', v);
+        this.setAndFire('bottomborder', v);
         if (!this.__lockBPRecalc) {
           this.__updateBorder();
           this.__updateInnerHeight();
@@ -2898,8 +3006,9 @@
         return noop;
       };
 
-      View.prototype.set_leftborder = function(border) {
-        this.defaultSetAttributeBehavior('leftborder', border);
+      View.prototype.set_leftborder = function(v) {
+        this.sprite.setAttribute('leftborder', v);
+        this.setAndFire('leftborder', v);
         if (!this.__lockBPRecalc) {
           this.__updateBorder();
           this.__updateInnerWidth();
@@ -2907,8 +3016,9 @@
         return noop;
       };
 
-      View.prototype.set_rightborder = function(border) {
-        this.defaultSetAttributeBehavior('rightborder', border);
+      View.prototype.set_rightborder = function(v) {
+        this.sprite.setAttribute('rightborder', v);
+        this.setAndFire('rightborder', v);
         if (!this.__lockBPRecalc) {
           this.__updateBorder();
           this.__updateInnerWidth();
@@ -2919,27 +3029,28 @@
       View.prototype.__updateBorder = function() {
         test = this.topborder;
         if (this.bottomborder === test && this.leftborder === test && this.rightborder === test) {
-          return this.defaultSetAttributeBehavior('border', test);
+          return this.setAndFire('border', test);
         } else if (this.border != null) {
-          return this.defaultSetAttributeBehavior('border', void 0);
+          return this.setAndFire('border', void 0);
         }
       };
 
-      View.prototype.set_padding = function(padding) {
+      View.prototype.set_padding = function(v) {
         this.__lockBPRecalc = true;
-        this.setAttribute('toppadding', padding);
-        this.setAttribute('bottompadding', padding);
-        this.setAttribute('leftpadding', padding);
-        this.setAttribute('rightpadding', padding);
+        this.setAttribute('toppadding', v);
+        this.setAttribute('bottompadding', v);
+        this.setAttribute('leftpadding', v);
+        this.setAttribute('rightpadding', v);
         this.__lockBPRecalc = false;
-        this.defaultSetAttributeBehavior('padding', padding);
+        this.setAndFire('padding', v);
         this.__updateInnerWidth();
         this.__updateInnerHeight();
         return noop;
       };
 
-      View.prototype.set_toppadding = function(padding) {
-        this.defaultSetAttributeBehavior('toppadding', padding);
+      View.prototype.set_toppadding = function(v) {
+        this.sprite.setAttribute('toppadding', v);
+        this.setAndFire('toppadding', v);
         if (!this.__lockBPRecalc) {
           this.__updatePadding();
           this.__updateInnerHeight();
@@ -2947,8 +3058,9 @@
         return noop;
       };
 
-      View.prototype.set_bottompadding = function(padding) {
-        this.defaultSetAttributeBehavior('bottompadding', padding);
+      View.prototype.set_bottompadding = function(v) {
+        this.sprite.setAttribute('bottompadding', v);
+        this.setAndFire('bottompadding', v);
         if (!this.__lockBPRecalc) {
           this.__updatePadding();
           this.__updateInnerHeight();
@@ -2956,8 +3068,9 @@
         return noop;
       };
 
-      View.prototype.set_leftpadding = function(padding) {
-        this.defaultSetAttributeBehavior('leftpadding', padding);
+      View.prototype.set_leftpadding = function(v) {
+        this.sprite.setAttribute('leftpadding', v);
+        this.setAndFire('leftpadding', v);
         if (!this.__lockBPRecalc) {
           this.__updatePadding();
           this.__updateInnerWidth();
@@ -2965,8 +3078,9 @@
         return noop;
       };
 
-      View.prototype.set_rightpadding = function(padding) {
-        this.defaultSetAttributeBehavior('rightpadding', padding);
+      View.prototype.set_rightpadding = function(v) {
+        this.sprite.setAttribute('rightpadding', v);
+        this.setAndFire('rightpadding', v);
         if (!this.__lockBPRecalc) {
           this.__updatePadding();
           this.__updateInnerWidth();
@@ -2977,9 +3091,9 @@
       View.prototype.__updatePadding = function() {
         test = this.toppadding;
         if (this.bottompadding === test && this.leftpadding === test && this.rightpadding === test) {
-          return this.defaultSetAttributeBehavior('padding', test);
+          return this.setAndFire('padding', test);
         } else if (this.padding != null) {
-          return this.defaultSetAttributeBehavior('padding', void 0);
+          return this.setAndFire('padding', void 0);
         }
       };
 
@@ -2987,38 +3101,36 @@
         var inset;
         this.__fullBorderPaddingWidth = inset = this.leftborder + this.rightborder + this.leftpadding + this.rightpadding;
         if (inset > this.width) {
-          this.setAttribute('width', inset, true, true);
+          this.__noSpecialValueHandling = true;
+          this.setAttribute('width', inset, true);
         }
-        return this.defaultSetAttributeBehavior('innerwidth', this.width - inset);
+        return this.setAndFire('innerwidth', this.width - inset);
       };
 
       View.prototype.__updateInnerHeight = function() {
         var inset;
         this.__fullBorderPaddingHeight = inset = this.topborder + this.bottomborder + this.toppadding + this.bottompadding;
         if (inset > this.height) {
-          this.setAttribute('height', inset, true, true);
+          this.__noSpecialValueHandling = true;
+          this.setAttribute('height', inset, true);
         }
-        return this.defaultSetAttributeBehavior('innerheight', this.height - inset);
+        return this.setAndFire('innerheight', this.height - inset);
       };
 
-      View.prototype.set_clickable = function(clickable) {
-        if (this.clickable === clickable) {
-          return noop;
+      View.prototype.set_clickable = function(v) {
+        if (this.clickable !== v) {
+          this.sprite.set_clickable(v);
+          this.setAndFire('clickable', v);
         }
-        if (clickable !== this.clickable) {
-          this.sprite.set_clickable(clickable);
-        }
-        return clickable;
+        return noop;
       };
 
-      View.prototype.set_cursor = function(cursor) {
-        if (this.cursor === cursor) {
-          return noop;
+      View.prototype.set_cursor = function(v) {
+        if (this.cursor !== v) {
+          this.sprite.set_cursor(v);
+          this.setAndFire('cursor', v);
         }
-        if (cursor !== this.cursor) {
-          this.sprite.set_cursor(cursor);
-        }
-        return cursor;
+        return noop;
       };
 
       View.prototype.__updateTransform = function() {
@@ -3069,7 +3181,7 @@
 
       View.prototype.set_xscale = function(v) {
         if (v !== this.xscale) {
-          this.defaultSetAttributeBehavior('xscale', v);
+          this.setAndFire('xscale', v);
           this.__updateTransform();
           if (this.inited) {
             this.__updateBounds();
@@ -3080,7 +3192,7 @@
 
       View.prototype.set_yscale = function(v) {
         if (v !== this.yscale) {
-          this.defaultSetAttributeBehavior('yscale', v);
+          this.setAndFire('yscale', v);
           this.__updateTransform();
           if (this.inited) {
             this.__updateBounds();
@@ -3091,7 +3203,7 @@
 
       View.prototype.set_rotation = function(v) {
         if (v !== this.rotation) {
-          this.defaultSetAttributeBehavior('rotation', v);
+          this.setAndFire('rotation', v);
           this.__updateTransform();
           if (this.inited) {
             this.__updateBounds();
@@ -3101,9 +3213,12 @@
       };
 
       View.prototype.set_z = function(v) {
-        this.z = v;
-        this.__updateTransform();
-        return v;
+        if (v !== this.z) {
+          this.sprite.setAttribute('z', v);
+          this.setAndFire('z', v);
+          this.__updateTransform();
+        }
+        return noop;
       };
 
       View.prototype.set_xanchor = function(v) {
@@ -3111,7 +3226,7 @@
           v = 'center';
         }
         if (v !== this.xanchor) {
-          this.defaultSetAttributeBehavior('xanchor', v);
+          this.setAndFire('xanchor', v);
           this.__updateTransform();
           if (this.inited) {
             this.__updateBounds();
@@ -3125,7 +3240,7 @@
           v = 'center';
         }
         if (v !== this.yanchor) {
-          this.defaultSetAttributeBehavior('yanchor', v);
+          this.setAndFire('yanchor', v);
           this.__updateTransform();
           if (this.inited) {
             this.__updateBounds();
@@ -3139,7 +3254,7 @@
           v = 0;
         }
         if (v !== this.zanchor) {
-          this.defaultSetAttributeBehavior('zanchor', v);
+          this.setAndFire('zanchor', v);
           this.__updateTransform();
         }
         return noop;
@@ -4142,7 +4257,7 @@
           for (name in this.applyattributes) {
             val = this.parent[name];
             delete this.parent[name];
-            this.parent.setAttribute(name, val, false, true);
+            this.parent.setAttribute(name, val, true);
           }
         }
         return applied;
@@ -4769,7 +4884,8 @@
             }
             val = max + parent.__fullBorderPaddingWidth;
             if (parent.width !== val) {
-              parent.setAttribute('width', val, true);
+              parent.__noSpecialValueHandling = true;
+              parent.setAttribute('width', val);
             }
           } else {
             while (i) {
@@ -4780,7 +4896,8 @@
             }
             val = max + parent.__fullBorderPaddingHeight;
             if (parent.height !== val) {
-              parent.setAttribute('height', val, true);
+              parent.__noSpecialValueHandling = true;
+              parent.setAttribute('height', val);
             }
           }
           return this.locked = false;
