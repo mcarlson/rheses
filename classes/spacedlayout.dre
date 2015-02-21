@@ -56,7 +56,7 @@ SOFTWARE. -->
       */-->
 <class name="spacedlayout" extends="variablelayout" type="coffee">
   <method name="construct" args="el, attributes">
-    # Use whichever attribute or aliases attribute is not the default and
+    # Use whichever attribute or aliased attribute is not the default and
     # delete the unnecessary initial value.
     if attributes.value isnt '0' and attributes.inset is '0'
       attributes.inset = attributes.value

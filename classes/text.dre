@@ -82,27 +82,44 @@ SOFTWARE. -->
       *      <timetext text="240"></timetext>
       * 
       */-->
-<class name="text" type="coffee" bgcolor="rgb(63,63,63)" color="white" font-weight="200">
+<class name="text" with="sizetodom" type="coffee">
   <!--/**
         * @attribute {Number} [fontsize]
         * The size of the font in pixels.
         */-->
-  <attribute name="fontsize" type="number" value="20"></attribute>
+  <attribute name="fontsize" type="emptynumber" value=""></attribute>
+  <setter name="fontsize" args="v">
+    if @fontsize isnt v
+      @sprite.setAttribute('fontsize', v)
+      @setAndFire('fontsize', v)
+      if @inited then @sizeToDom()
+    return dr._noop
+  </setter>
 
   <!--/**
         * @attribute {Number} [fontfamily=""]
         * The name of the font family to use, e.g. "Helvetica"  Include multiple fonts on a line, separated by commas.
         */-->
-  <attribute name="fontfamily" type="string" value="'mission-gothic', 'Helvetica Neue', Helvetica, Arial, sans-serif"></attribute>
+  <attribute name="fontfamily" type="string" value=""></attribute>
+  <setter name="fontfamily" args="v">
+    if @fontfamily isnt v
+      @sprite.setAttribute('fontfamily', v)
+      @setAndFire('fontfamily', v)
+      if @inited then @sizeToDom()
+    return dr._noop
+  </setter>
 
   <!--/**
         * @attribute {Boolean} [bold=false]
         * Use bold text.
         */-->
   <attribute name="bold" type="boolean" value="false"></attribute>
-  <setter name="bold" args="bold">
-    @sprite.setStyle('font-weight', `bold ? 'bold' : '200'`)
-    return bold
+  <setter name="bold" args="v">
+    if @bold isnt v
+      @sprite.setAttribute('bold', v)
+      @setAndFire('bold', v)
+      if @inited then @sizeToDom()
+    return dr._noop
   </setter>
 
   <!--/**
@@ -110,9 +127,12 @@ SOFTWARE. -->
         * Use italic text.
         */-->
   <attribute name="italic" type="boolean" value="false"></attribute>
-  <setter name="italic" args="italic">
-    @sprite.setStyle('font-style', `italic ? 'italic' : undefined`)
-    return italic
+  <setter name="italic" args="v">
+    if @italic isnt v
+      @sprite.setAttribute('italic', v)
+      @setAndFire('italic', v)
+      if @inited then @sizeToDom()
+    return dr._noop
   </setter>
 
   <!--/**
@@ -120,9 +140,12 @@ SOFTWARE. -->
         * Use small caps style.
         */-->
   <attribute name="smallcaps" type="boolean" value="false"></attribute>
-  <setter name="smallcaps" args="caps">
-    @sprite.setStyle('font-variant', `caps ? 'small-caps' : undefined`)
-    return caps
+  <setter name="smallcaps" args="v">
+    if @smallcaps isnt v
+      @sprite.setAttribute('smallcaps', v)
+      @setAndFire('smallcaps', v)
+      if @inited then @sizeToDom()
+    return dr._noop
   </setter>
 
   <!--/**
@@ -134,9 +157,10 @@ SOFTWARE. -->
     @setAndFire('underline', underline)
     if underline
       if @strike then @setAttribute('strike', false)
-      @sprite.setStyle('text-decoration', 'underline')
+      @sprite.setAttribute('text-decoration', 'underline')
     else if not @strike
-      @sprite.setStyle('text-decoration', undefined)
+      @sprite.setAttribute('text-decoration', 'none')
+    if @inited then @sizeToDom()
     return dr._noop
   </setter>
 
@@ -149,46 +173,58 @@ SOFTWARE. -->
     @setAndFire('strike', strike)
     if strike
       if @underline then @setAttribute('underline', false)
-      @sprite.setStyle('text-decoration', 'line-through')
+      @sprite.setAttribute('text-decoration', 'line-through')
     else if not @underline
-      @sprite.setStyle('text-decoration', undefined)
+      @sprite.setAttribute('text-decoration', 'none')
+    if @inited then @sizeToDom()
     return dr._noop
   </setter>
 
   <!--/**
         * @attribute {Boolean} [multiline=false]
-        * Set to true to show multi-line text.
+        * Determines how line breaks within the text are handled.
         */-->
   <attribute name="multiline" type="boolean" value="false"></attribute>
-
-  <!--/**
-        * @attribute {Boolean} [resize=true]
-        * By default, the text component is sized to the size of the text.
-        * By setting resize=false, the component size is not modified
-        * when the text changes.
-        */-->
-  <attribute name="resize" type="boolean" value="true"></attribute>
-  <setter name="resize" args="value">
-    if value
-      @setAttribute("leftpadding", @leftpadding || 20)
-      @setAttribute("rightpadding", @rightpadding || 20)
-      @setAttribute("toppadding", @toppadding || 10)
-      @setAttribute("bottompadding", @bottompadding || 10)
-    else
-      @setAttribute("padding", 0)
-    return value
+  <setter name="multiline" args="multiline">
+    if @multiline isnt multiline
+      if multiline
+        if @inited and not @__hasSetWidth
+          whitespace = 'pre'
+        else
+          whitespace = 'pre-wrap'
+      else
+        whitespace = 'nowrap'
+      @sprite.setAttribute('whitespace', whitespace)
+      @setAndFire('multiline', multiline)
+      if @inited then @sizeToDom()
+    return dr._noop
   </setter>
 
-  <attribute name="text" type="string" value=""></attribute>
+  <!--/**
+        * @attribute {Boolean} [ellipsis=false]
+        * Determines if ellipsis shouls be shown or not. Only works when
+        * multiline is false.
+        */-->
+  <attribute name="ellipsis" type="boolean" value="false"></attribute>
+  <setter name="ellipsis" args="ellipsis">
+    if ellipsis isnt @ellipsis
+      @sprite.setAttribute('ellipsis', ellipsis)
+      @setAndFire('ellipsis', ellipsis)
+      if @inited then @sizeToDom()
+    return dr._noop
+  </setter>
+
   <!--/**
         * @attribute {String} [text=""]
         * The contents of this input text field
         */-->
+  <attribute name="text" type="string" value=""></attribute>
   <setter name="text" args="text">
     if text isnt @text
       @sprite.setText(@format(text))
-      @updateSize()
-    return text
+      @setAndFire('text', text)
+      if @inited then @sizeToDom()
+    return dr._noop
   </setter>
 
   <setter name="data" args="data">
@@ -196,21 +232,37 @@ SOFTWARE. -->
     return data
   </setter>
 
-  <method name="construct" args="el, attributes">
-    @super()
-    if 'width' of attributes then @_initialwidth = attributes.width
-  </method>
+  <setter name="width" args="v, noDomChange">
+    retval = @super()
+    if @inited and not @__internalUpdate and not @__noSpecialValueHandling
+      @_preventBadWhitespace()
+      @sizeToDom()
+    return retval
+  </setter>
 
   <method name="_createSprite" args="el, attributes">
     @super()
-    # so the text attribute has a value when the text is set between the tags
+    # Sync the text attribute to the text between the tags.
     attributes.text ||= @sprite.getText(true)
     @sprite.createTextElement()
   </method>
 
-  <handler event="oninit" method="updateSize"></handler>
-  <handler event="onmultiline" method="updateSize"></handler>
-  <handler event="onresize" method="updateSize"></handler>
+  <method name="construct" args="el, attributes">
+    # setup default to reduce events during initialization.
+    @fontsize = @fontfamily = ''
+    @bold = @italic = @smallcaps = @multiline = @ellipsis = false
+    
+    @super()
+  </method>
+
+  <method name="initialize" args="skipevents">
+    @_preventBadWhitespace()
+    @super()
+  </method>
+
+  <method name="_preventBadWhitespace">
+    if @multiline then @sprite.setAttribute('whitespace', if @__hasSetWidth then 'pre-wrap' else 'pre')
+  </method>
 
   <!--/**
         * @method format
@@ -222,16 +274,5 @@ SOFTWARE. -->
         */-->
   <method name="format" args="str">
     return str
-  </method>
-
-  <method name="updateSize">
-    return unless @inited
-    return unless @resize
-    
-    width = if @multiline then @_initialwidth else @width
-    size = @sprite.measureTextSize(@multiline, width, @resize)
-
-    @setAttribute('width', size.width, true) if size.width != @width
-    @setAttribute('height', size.height, true) if size.height != @height
   </method>
 </class>

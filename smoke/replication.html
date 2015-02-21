@@ -18,20 +18,20 @@
   <class name="weather" width="auto" height="auto" bgcolor="lightblue">
     <view width="auto" height="auto">
       <spacedlayout spacing="15"></spacedlayout>
-      <replicator datapath="/weather[0]/main" classname="text"></replicator>
-      <replicator datapath="/main/temp" classname="text"></replicator>
-      <replicator datapath="/wind/speed" classname="text"></replicator>
-      <replicator datapath="/wind/deg" classname="text"></replicator>
+      <replicator datapath="/weather[0]/main" classname="dreem-text"></replicator>
+      <replicator datapath="/main/temp" classname="dreem-text"></replicator>
+      <replicator datapath="/wind/speed" classname="dreem-text"></replicator>
+      <replicator datapath="/wind/deg" classname="dreem-text"></replicator>
     </view>
   </class>
 
   <class name="weather2" width="auto" height="auto" bgcolor="lightgreen">
     <view width="auto" height="auto">
       <spacedlayout spacing="15"></spacedlayout>
-      <replicator datapath="/weather[0]/main" classname="text"></replicator>
-      <replicator datapath="/main/temp" classname="text"></replicator>
-      <replicator datapath="/wind/speed" classname="text"></replicator>
-      <replicator datapath="/wind/deg" classname="text"></replicator>
+      <replicator datapath="/weather[0]/main" classname="dreem-text"></replicator>
+      <replicator datapath="/main/temp" classname="dreem-text"></replicator>
+      <replicator datapath="/wind/speed" classname="dreem-text"></replicator>
+      <replicator datapath="/wind/deg" classname="dreem-text"></replicator>
     </view>
   </class>
 
@@ -178,7 +178,7 @@
   <!-- Filtering -->
   <view>
     <spacedlayout spacing="15"></spacedlayout>
-    <replicator id="repl" classname="text" data="['a',1,'b',2,'c',3,4,5]" filterexpression="\d"></replicator>
+    <replicator id="repl" classname="dreem-text" data="['a',1,'b',2,'c',3,4,5]" filterexpression="\d"></replicator>
     <handler event="oninit">
       assert.deepEqual(repl.data, [1,2,3,4,5]);
       repl.setAttribute('filterexpression', '[^\\d]');
@@ -189,7 +189,7 @@
   <!-- Filter function -->
   <view>
     <spacedlayout spacing="15"></spacedlayout>
-    <replicator name="repl" classname="text" data="['x',1,'y',2,'z',3,4,5]">
+    <replicator name="repl" classname="dreem-text" data="['x',1,'y',2,'z',3,4,5]">
       <method name="filterfunction" args="obj, accum">
         accum.unshift(obj);
         return accum;
@@ -205,7 +205,7 @@
     {"text" : [ {"a":"a"}, {"a":"b"}, {"a":"c"}, {"a":"d"} ]}
   </dataset>
   <class name="testview" extends="view" bgcolor="#ffcccc" width="20" height="20">
-    <replicator classname="text" datapath="/a"></replicator>
+    <replicator classname="dreem-text" datapath="/a"></replicator>
   </class>
   <view height="20">
     <spacedlayout spacing="1"></spacedlayout>

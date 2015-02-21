@@ -20,99 +20,99 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. -->
 
+<!--/**
+   * @class dr.buttonbase {UI Components}
+   * @extends dr.view
+   * Base class for button components. Buttons share common elements,
+   * including their ability to be selected, a visual element to display
+   * their state, and a default and selected color.
+   * The visual element is a dr.view that shows the current state of the
+   * button. For example, in a labelbutton the entire button is the visual
+   * element. For a checkbutton, the visual element is a square dr.view
+   * that is inside the button.
+   */-->
+<class name="buttonbase" type="coffee" clickable="true" clip="true" border="2" bordercolor="${this.selectcolor}">
   <!--/**
-     * @class dr.buttonbase {UI Components}
-     * @extends dr.view
-     * Base class for button components. Buttons share common elements,
-     * including their ability to be selected, a visual element to display
-     * their state, and a default and selected color.
-     * The visual element is a dr.view that shows the current state of the
-     * button. For example, in a labelbutton the entire button is the visual
-     * element. For a checkbutton, the visual element is a square dr.view
-     * that is inside the button.
-     */-->
-    <class name="buttonbase" type="coffee" clickable="true" clip="true" border="2" bordercolor="${this.selectcolor}">
+    * @attribute {Number} [padding=3]
+    * Amount of padding pixels around the button.
+    */-->
+  <attribute name="padding" type="number" value="3"></attribute>
 
-      <!--/**
-        * @attribute {Number} [padding=3]
-        * Amount of padding pixels around the button.
-        */-->
-      <attribute name="padding" type="number" value="3"></attribute>
+  <!--/**
+    * @attribute {String} [defaultcolor="#808080"]
+    * The default color of the visual button element when not selected.
+    */-->
+  <!--/**
+    * @attribute {String} [selectcolor="#a0a0a0"]
+    * The selected color of the visual button element when selected.
+    */-->
+  <attribute name="defaultcolor" type="string" value="rgb(63,63,63)"></attribute>
+  <handler event="ondefaultcolor" method="visualize"></handler>
 
-      <!--/**
-        * @attribute {String} [defaultcolor="#808080"]
-        * The default color of the visual button element when not selected.
-        */-->
-      <!--/**
-        * @attribute {String} [selectcolor="#a0a0a0"]
-        * The selected color of the visual button element when selected.
-        */-->
-      <attribute name="defaultcolor" type="string" value="rgb(63,63,63)"></attribute>
-      <handler event="ondefaultcolor" method="visualize"></handler>
+  <attribute name="defaulttextcolor" type="string" value="rgb(207,207,207)"></attribute>
+  <handler event="ondefaulttextcolor" method="visualize"></handler>
 
-      <attribute name="defaulttextcolor" type="string" value="rgb(207,207,207)"></attribute>
-      <handler event="ondefaulttextcolor" method="visualize"></handler>
+  <attribute name="selectcolor" type="string" value="white"></attribute>
+  <handler event="onselectcolor" method="visualize"></handler>
 
-      <attribute name="selectcolor" type="string" value="white"></attribute>
-      <handler event="onselectcolor" method="visualize"></handler>
+  <!--/**
+    * @attribute {Boolean} [selected=false]
+    * The current state of the button.
+    */-->
+  <!--/**
+    * @event onselected
+    * Fired when the state of the button changes.
+    * @param {dr.buttonbase} view The dr.buttonbase that fired the event
+    */-->
+  <!-- selected: button state -->
+  <attribute name="selected" type="boolean" value="false"></attribute>
+  <handler event="onselected" method="visualize"></handler>
 
-      <!--/**
-        * @attribute {Boolean} [selected=false]
-        * The current state of the button.
-        */-->
-      <!--/**
-        * @event onselected
-        * Fired when the state of the button changes.
-        * @param {dr.buttonbase} view The dr.buttonbase that fired the event
-        */-->
-      <!-- selected: button state -->
-      <attribute name="selected" type="boolean" value="false"></attribute>
-      <handler event="onselected" method="visualize"></handler>
+  <!-- visualize: Show the current button state -->
+  <method name="visualize">
+    if @visual
+      if @selected
+        @visual.setAttribute('bgcolor', @selectcolor);
+      else
+        @visual.setAttribute('bgcolor', @defaultcolor);
 
-      <!-- visualize: Show the current button state -->
-      <method name="visualize">
-        if @visual
-          if @selected
-            @visual.setAttribute('bgcolor', @selectcolor);
-          else
-            @visual.setAttribute('bgcolor', @defaultcolor);
+    if @label
+      if @selected
+        @label.setAttribute('color', @defaultcolor);
+      else
+        @label.setAttribute('color', @defaulttextcolor);
+  </method>
 
-        if @label
-          if @selected
-            @label.setAttribute('color', @defaultcolor);
-          else
-            @label.setAttribute('color', @defaulttextcolor);
+  <handler event="oninit" method="visualize"></handler>
 
-      </method>
-      <handler event="oninit" method="visualize"></handler>
+  <!-- text_x, text_y: Location of button text within button -->
+  <attribute name="textx" type="number" value="0"></attribute>
+  <attribute name="texty" type="number" value="0"></attribute>
+  <attribute name="text" type="string" value=""></attribute>
 
-      <!-- text_x, text_y: Location of button text within button -->
-      <attribute name="textx" type="number" value="0"></attribute>
-      <attribute name="texty" type="number" value="0"></attribute>
-      <attribute name="text" type="string" value=""></attribute>
+  <!-- label: Text label -->
+  <!--/**
+    * @attribute {String} [text=""]
+    * Button text.
+    */-->
+  <dreem-text name="label" type="coffee" resize="true" fontsize="22"
+    x="${this.parent.textx}" y="${this.parent.texty}" text="${this.parent.text}"
+    text-transform="uppercase" bgcolor="transparent"
+  >
+  </dreem-text>
 
-      <!-- label: Text label -->
-      <!--/**
-        * @attribute {String} [text=""]
-        * Button text.
-        */-->
-      <text name="label" type="coffee" resize="true" fontsize="22" x="${this.parent.textx}" y="${this.parent.texty}" text="${this.parent.text}"
-            text-transform="uppercase" bgcolor="transparent">
-      </text>
+  <handler event="onwidth" method="handleResize" reference="this.label"></handler>
+  <handler event="onheight" method="handleResize" reference="this.label"></handler>
+  <handler event="ontext" method="handleResize" reference="this.label"></handler>
 
-      <handler event="onwidth" method="handleResize" reference="this.label"></handler>
-      <handler event="onheight" method="handleResize" reference="this.label"></handler>
-      <handler event="ontext" method="handleResize" reference="this.label"></handler>
+  <handler event="onwidth" method="handleResize"></handler>
+  <handler event="onheight" method="handleResize"></handler>
 
-      <handler event="onwidth" method="handleResize"></handler>
-      <handler event="onheight" method="handleResize"></handler>
+  <method name="handleResize">
+    # Custom behavior in subclasses
 
-      <method name="handleResize">
-        # Custom behavior in subclasses
-
-        # Detect if the button was supplied with a size. Computed once
-        if !@_fixedwidth? then @_fixedwidth = @innerwidth > 0
-        if !@_fixedheight? then @_fixedheight = @innerheight > 0
-      </method>
-
-    </class>
+    # Detect if the button was supplied with a size. Computed once
+    if !@_fixedwidth? then @_fixedwidth = @innerwidth > 0
+    if !@_fixedheight? then @_fixedheight = @innerheight > 0
+  </method>
+</class>

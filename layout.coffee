@@ -24,24 +24,29 @@
 
 # Maps attribute names to CSS style names.
 stylemap =
+  bold: 'fontWeight'
+  bordercolor: 'borderColor'
+  borderstyle: 'borderStyle'
+  bottomborder: 'borderBottomWidth'
+  bottompadding: 'paddingBottom'
+  boxshadow: 'boxShadow'
+  bgcolor: 'backgroundColor'
+  ellipsis: 'textOverflow'
+  fontfamily: 'fontFamily'
+  fontsize: 'fontSize'
+  italic: 'fontStyle'
+  leftborder: 'borderLeftWidth'
+  leftpadding: 'paddingLeft'
+  rightborder: 'borderRightWidth'
+  rightpadding: 'paddingRight'
+  smallcaps: 'fontVariant'
+  topborder: 'borderTopWidth'
+  toppadding: 'paddingTop'
+  visible: 'visibility'
+  whitespace: 'whiteSpace'
   x: 'marginLeft'
   y: 'marginTop'
   z: 'z-index'
-  bgcolor: 'backgroundColor'
-  visible: 'visibility'
-  borderstyle: 'borderStyle'
-  bordercolor: 'borderColor'
-  boxshadow: 'boxShadow'
-  fontsize: 'fontSize'
-  fontfamily: 'fontFamily'
-  topborder: 'borderTopWidth'
-  bottomborder: 'borderBottomWidth'
-  leftborder: 'borderLeftWidth'
-  rightborder: 'borderRightWidth'
-  toppadding: 'paddingTop'
-  bottompadding: 'paddingBottom'
-  leftpadding: 'paddingLeft'
-  rightpadding: 'paddingRight'
 
 hackstyle = do ->
   # hack jQuery to send a style event when CSS changes
@@ -296,6 +301,11 @@ window.dr = do ->
           0
         else
           Math.max(0, v)
+      emptynumber: (v) ->
+        if !v? or v is ''
+          ''
+        else
+          parseFloat(v)
       size: (v) ->
         if matchPercent.test(v) or v is 'auto'
           v
@@ -976,7 +986,7 @@ window.dr = do ->
             # exists. Should this warn?
             scope['super'] = noop
 
-          # Execute the methd that called super
+          # Execute the method that called super
           retval = method.apply(scope, args)
 
           # Restore scope with remembered super or by deleting.
@@ -1274,13 +1284,26 @@ window.dr = do ->
     setAttribute: (name, value) ->
       switch name
         # Attributes that map to DOM element style attributes
-        when 'width', 'height', 'z', 'opacity', 'bgcolor', 'color', 'fontsize', 'fontfamily', 'font-weight', 'text-transform', 'boxshadow', 'leftpadding', 'rightpadding', 'toppadding', 'bottompadding', 'leftborder', 'rightborder', 'topborder', 'bottomborder', 'bordercolor', 'borderstyle'
+        when 'width', 'height', 'z', 'opacity', 'bgcolor', 'color', 'whitespace', 'fontsize', 'fontfamily', 'font-weight', 'text-transform', 'boxshadow', 'leftpadding', 'rightpadding', 'toppadding', 'bottompadding', 'leftborder', 'rightborder', 'topborder', 'bottomborder', 'bordercolor', 'borderstyle'
           @setStyle(name, value)
+        when 'bold'
+          @setStyle(name, if value then 'bold' else 'normal')
+        when 'italic'
+          @setStyle(name, if value then 'italic' else 'normal')
+        when 'smallcaps'
+          @setStyle(name, if value then 'small-caps' else 'normal')
+        when 'ellipsis'
+          @__ellipsis = value
+          @setStyle(name, if value then 'ellipsis' else 'clip')
+          @__updateOverflow()
+        
         # Attributes that map to DOM element style attributes but need a vendor prefix
         when 'perspective', 'transform-style', 'transform-origin', 'transform'
            @setStyle(capabilities.prefix.css + name, value)
+        
         # Attributes that map to DOM element attributes
           # none for now
+        
         else
           # Attributes with no entry in _declaredTypes are adhoc so we
           # attempt to set style with them to enable a passthru.
@@ -1418,7 +1441,7 @@ window.dr = do ->
       @setStyle('overflow',
         if @__scrollable
           'auto'
-        else if @__clip
+        else if @__clip or @__ellipsis
           'hidden'
         else
           ''
@@ -1443,7 +1466,7 @@ window.dr = do ->
 
     getText: (textOnly) ->
       if textOnly
-        # Firefox doesn't support innerText and textContent gives us more that
+        # Firefox doesn't support innerText and textContent gives us more than
         # we want. Instead, walk the dom children and concat all the text nodes.
         # The nodes get trimmed since line feeds and other junk whitespace will
         # show up as text nodes.
@@ -1462,18 +1485,6 @@ window.dr = do ->
         @input.value = value
       else
         @input.value
-
-    measureTextSize: (multiline, width, resize) ->
-      if multiline
-        @setStyle('width', width, true)
-        @setStyle('height', 'auto', true)
-        @setStyle('whiteSpace', 'normal', true)
-      else
-        if resize
-          @setStyle('width', 'auto', true)
-          @setStyle('height', 'auto', true)
-        @setStyle('whiteSpace', '', true)
-      {width: @el.clientWidth, height: @el.clientHeight}
 
     handle: (event) ->
       view = event.target.$view
@@ -3078,7 +3089,52 @@ window.dr = do ->
     writeCSS = ->
       style = document.createElement('style')
       style.type = 'text/css'
-      style.innerHTML = '.sprite{position: absolute; pointer-events: none; padding: 0; margin: 0; box-sizing: border-box; border-color: transparent; border-style: solid; border-width: 0} .sprite-text{width: auto; height; auto; white-space: nowrap; padding: 0; margin: 0} .sprite-inputtext{border: none; outline: none; background-color:transparent; resize:none} .hidden{display: none} .noselect{-webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none} .noscrollbar::-webkit-scrollbar{display: none;} .warnings{font-size: 14px; background-color: pink; margin: 0} method{display: none} handler{display: none} setter{display: none} class{display: none} node{display: none} dataset{display:none}'
+      spriteStyle = [
+        "position:absolute"
+        "pointer-events:none"
+        "padding:0"
+        "margin:0"
+        "box-sizing:border-box"
+        "border-color:transparent"
+        "border-style:solid"
+        "border-width:0"
+      ]
+      spriteTextStyle = [
+        "white-space:nowrap"
+        "padding:0"
+        "margin:0"
+        "text-decoration:none"
+        "font-family:mission-gothic, 'Helvetica Neue', Helvetica, Arial, sans-serif"
+        "font-size:20px"
+      ]
+      spriteInputTextStyle = [
+        "border:none"
+        "outline:none"
+        "background-color:transparent"
+        "resize:none"
+      ]
+      noSelectStyle = [
+        "-webkit-touch-callout:none"
+        "-webkit-user-select:none"
+        "-khtml-user-select:none"
+        "-moz-user-select:none"
+        "-ms-user-select:none"
+        "user-select:none"
+      ]
+      warningsStyle = [
+        "font-size:14px"
+        "background-color:pink"
+        "margin:0"
+      ]
+      style.innerHTML = 
+        '.sprite{' + spriteStyle.join(';') + '}' +
+        '.sprite-text{' + spriteTextStyle.join(';') + '}' +
+        '.sprite-inputtext{' + spriteInputTextStyle.join(';') + '}' +
+        '.noselect{' + noSelectStyle.join(';') + '}' +
+        '.warnings{' + warningsStyle.join(';') + '}' +
+        '.noscrollbar::-webkit-scrollbar{display:none;}' +
+        '.hidden{display:none}' +
+        'method,handler,setter,class,node,dataset{display:none}'
       document.getElementsByTagName('head')[0].appendChild(style)
 
     # init top-level views in the DOM recursively
