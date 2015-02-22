@@ -20,95 +20,92 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. -->
 
+<!--/**
+   * @class dr.labelbutton {UI Components}
+   * @extends dr.buttonbase
+   * Button class consisting of text centered in a view. The onclick event
+   * is generated when the button is clicked. The visual state of the
+   * button changes during onmousedown/onmouseup.
+   *
+   *     @example
+   *     <spacedlayout axis="y"></spacedlayout>
+   *
+   *     <labelbutton text="click me" defaultcolor="plum" selectcolor="orchid">
+   *       <handler event="onclick">
+   *         hello.setAttribute('text', 'Hello Universe!');
+   *       </handler>
+   *     </labelbutton>
+   *
+   *     <text id="hello"></text>
+   */-->
+<class name="labelbutton" type="coffee" extends="buttonbase">
   <!--/**
-     * @class dr.labelbutton {UI Components}
-     * @extends dr.buttonbase
-     * Button class consisting of text centered in a view. The onclick event
-     * is generated when the button is clicked. The visual state of the
-     * button changes during onmousedown/onmouseup.
-     *
-     *     @example
-     *     <spacedlayout axis="y"></spacedlayout>
-     *
-     *     <labelbutton text="click me" defaultcolor="plum" selectcolor="orchid">
-     *       <handler event="onclick">
-     *         hello.setAttribute('text', 'Hello Universe!');
-     *       </handler>
-     *     </labelbutton>
-     *
-     *     <text id="hello"></text>
-     */-->
-    <class name="labelbutton" type="coffee" extends="buttonbase">
-
-      <!--/**
-        * @attribute {String} [bgcolor]
-        * Sets this view's background color, same as setting defaultcolor.
-        */-->
-      
-      <method name="construct" args="el, attributes">
-        if attributes.bgcolor
-          attributes.defaultcolor = attributes.bgcolor
-          delete attributes.bgcolor
-        
-        this.super()
-      </method>
-
-      <handler event="oninit">
-        if !@text or @text.length == 0
-          @inline = @sprite.getText(true)
-          if @inline
-            @setAttribute('text', @inline) if !@text
+    * @attribute {String} [bgcolor]
+    * Sets this view's background color, same as setting defaultcolor.
+    */-->
   
-        # visual is the object that makes a visual change when selected
-        @visual = @
+  <method name="construct" args="el, attributes">
+    if attributes.bgcolor
+      attributes.defaultcolor = attributes.bgcolor
+      delete attributes.bgcolor
+    
+    this.super()
+  </method>
 
-        @handleResize()
+  <handler event="oninit">
+    if !@text or @text.length == 0
+      @inline = @sprite.getText(true)
+      if @inline
+        @setAttribute('text', @inline) if !@text
 
-        @visualize()
-      </handler>
+    # visual is the object that makes a visual change when selected
+    @visual = @
 
-      <method name="handleResize">
-        @super()
-        return if @_resize_lock
+    @handleResize()
 
-        xoffset = yoffset = 0
-        width = @width
-        height = @height
+    @visualize()
+  </handler>
 
-        if @_fixedwidth
-          xoffset = (@innerwidth - @label.width)/2
-        else
-          width = @label.width + (@border+@padding)*2
+  <method name="handleResize">
+    @super()
+    return if @_resize_lock
 
-        if @_fixedheight
-          yoffset = (@innerheight - @label.height)/2
-        else
-          height = @label.height + (@border+@padding)*2
+    xoffset = yoffset = 0
+    width = @width
+    height = @height
 
-        @_resize_lock = true
-        @setAttributes({width:width, height:height, textx:xoffset, texty:yoffset})
-        @_resize_lock = false
-      </method>
+    if @_fixedwidth
+      xoffset = (@innerwidth - @label.width)/2
+    else
+      width = @label.width + (@border+@padding)*2
 
-      <handler event="onmousedown">
-        @visual.setAttribute('bgcolor', @selectcolor)
-        @label.setAttribute('color', @defaultcolor)
-        @indicator.setAttribute('fill', @defaultcolor)
-      </handler>
+    if @_fixedheight
+      yoffset = (@innerheight - @label.height)/2
+    else
+      height = @label.height + (@border+@padding)*2
 
-      <handler event="onmouseup">
-        @visual.setAttribute('bgcolor', @defaulttecolor)
-        @label.setAttribute('color', @defaulttextcolor)
-        @indicator.setAttribute('fill', @defaulttextcolor)
-      </handler>
+    @_resize_lock = true
+    @setAttributes({width:width, height:height, textx:xoffset, texty:yoffset})
+    @_resize_lock = false
+  </method>
 
-      <art name="indicator" clickable="false" inline="true" x="0" y="${this.parent.height - this.height - 10}" height="10" width="10" fill="${this.parent.defaulttextcolor}" z="1">
-          <!--
-          <svg name="triangle" height="100" width="100">
-              <polygon name="polygon" points="0,100 0,0 100,100"/>
-          </svg>
-          -->
-      </art>
+  <handler event="onmousedown">
+    @visual.setAttribute('bgcolor', @selectcolor)
+    @label.setAttribute('color', @defaultcolor)
+    @indicator.setAttribute('fill', @defaultcolor)
+  </handler>
 
+  <handler event="onmouseup">
+    @visual.setAttribute('bgcolor', @defaulttecolor)
+    @label.setAttribute('color', @defaulttextcolor)
+    @indicator.setAttribute('fill', @defaulttextcolor)
+  </handler>
 
-    </class>
+  <art name="indicator" clickable="false" inline="true" x="0" y="${this.parent.height - this.height - 10}" height="10" width="10" fill="${this.parent.defaulttextcolor}" z="1">
+      <!--
+      <svg name="triangle" height="100" width="100">
+          <polygon name="polygon" points="0,100 0,0 100,100"/>
+      </svg>
+      -->
+  </art>
+</class>

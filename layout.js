@@ -33,24 +33,29 @@
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   stylemap = {
+    bold: 'fontWeight',
+    bordercolor: 'borderColor',
+    borderstyle: 'borderStyle',
+    bottomborder: 'borderBottomWidth',
+    bottompadding: 'paddingBottom',
+    boxshadow: 'boxShadow',
+    bgcolor: 'backgroundColor',
+    ellipsis: 'textOverflow',
+    fontfamily: 'fontFamily',
+    fontsize: 'fontSize',
+    italic: 'fontStyle',
+    leftborder: 'borderLeftWidth',
+    leftpadding: 'paddingLeft',
+    rightborder: 'borderRightWidth',
+    rightpadding: 'paddingRight',
+    smallcaps: 'fontVariant',
+    topborder: 'borderTopWidth',
+    toppadding: 'paddingTop',
+    visible: 'visibility',
+    whitespace: 'whiteSpace',
     x: 'marginLeft',
     y: 'marginTop',
-    z: 'z-index',
-    bgcolor: 'backgroundColor',
-    visible: 'visibility',
-    borderstyle: 'borderStyle',
-    bordercolor: 'borderColor',
-    boxshadow: 'boxShadow',
-    fontsize: 'fontSize',
-    fontfamily: 'fontFamily',
-    topborder: 'borderTopWidth',
-    bottomborder: 'borderBottomWidth',
-    leftborder: 'borderLeftWidth',
-    rightborder: 'borderRightWidth',
-    toppadding: 'paddingTop',
-    bottompadding: 'paddingBottom',
-    leftpadding: 'paddingLeft',
-    rightpadding: 'paddingRight'
+    z: 'z-index'
   };
 
   hackstyle = (function() {
@@ -397,6 +402,13 @@
             return 0;
           } else {
             return Math.max(0, v);
+          }
+        },
+        emptynumber: function(v) {
+          if ((v == null) || v === '') {
+            return '';
+          } else {
+            return parseFloat(v);
           }
         },
         size: function(v) {
@@ -1635,6 +1647,7 @@
           case 'opacity':
           case 'bgcolor':
           case 'color':
+          case 'whitespace':
           case 'fontsize':
           case 'fontfamily':
           case 'font-weight':
@@ -1651,6 +1664,16 @@
           case 'bordercolor':
           case 'borderstyle':
             return this.setStyle(name, value);
+          case 'bold':
+            return this.setStyle(name, value ? 'bold' : 'normal');
+          case 'italic':
+            return this.setStyle(name, value ? 'italic' : 'normal');
+          case 'smallcaps':
+            return this.setStyle(name, value ? 'small-caps' : 'normal');
+          case 'ellipsis':
+            this.__ellipsis = value;
+            this.setStyle(name, value ? 'ellipsis' : 'clip');
+            return this.__updateOverflow();
           case 'perspective':
           case 'transform-style':
           case 'transform-origin':
@@ -1825,7 +1848,7 @@
       };
 
       Sprite.prototype.__updateOverflow = function() {
-        return this.setStyle('overflow', this.__scrollable ? 'auto' : this.__clip ? 'hidden' : '', true);
+        return this.setStyle('overflow', this.__scrollable ? 'auto' : this.__clip || this.__ellipsis ? 'hidden' : '', true);
       };
 
       Sprite.prototype.__updatePointerEvents = function() {
@@ -1872,24 +1895,6 @@
         } else {
           return this.input.value;
         }
-      };
-
-      Sprite.prototype.measureTextSize = function(multiline, width, resize) {
-        if (multiline) {
-          this.setStyle('width', width, true);
-          this.setStyle('height', 'auto', true);
-          this.setStyle('whiteSpace', 'normal', true);
-        } else {
-          if (resize) {
-            this.setStyle('width', 'auto', true);
-            this.setStyle('height', 'auto', true);
-          }
-          this.setStyle('whiteSpace', '', true);
-        }
-        return {
-          width: this.el.clientWidth,
-          height: this.el.clientHeight
-        };
       };
 
       Sprite.prototype.handle = function(event) {
@@ -4028,10 +4033,15 @@
         }
       };
       writeCSS = function() {
-        var style;
+        var noSelectStyle, spriteInputTextStyle, spriteStyle, spriteTextStyle, style, warningsStyle;
         style = document.createElement('style');
         style.type = 'text/css';
-        style.innerHTML = '.sprite{position: absolute; pointer-events: none; padding: 0; margin: 0; box-sizing: border-box; border-color: transparent; border-style: solid; border-width: 0} .sprite-text{width: auto; height; auto; white-space: nowrap; padding: 0; margin: 0} .sprite-inputtext{border: none; outline: none; background-color:transparent; resize:none} .hidden{display: none} .noselect{-webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none} .noscrollbar::-webkit-scrollbar{display: none;} .warnings{font-size: 14px; background-color: pink; margin: 0} method{display: none} handler{display: none} setter{display: none} class{display: none} node{display: none} dataset{display:none}';
+        spriteStyle = ["position:absolute", "pointer-events:none", "padding:0", "margin:0", "box-sizing:border-box", "border-color:transparent", "border-style:solid", "border-width:0"];
+        spriteTextStyle = ["white-space:nowrap", "padding:0", "margin:0", "text-decoration:none", "font-family:mission-gothic, 'Helvetica Neue', Helvetica, Arial, sans-serif", "font-size:20px"];
+        spriteInputTextStyle = ["border:none", "outline:none", "background-color:transparent", "resize:none"];
+        noSelectStyle = ["-webkit-touch-callout:none", "-webkit-user-select:none", "-khtml-user-select:none", "-moz-user-select:none", "-ms-user-select:none", "user-select:none"];
+        warningsStyle = ["font-size:14px", "background-color:pink", "margin:0"];
+        style.innerHTML = '.sprite{' + spriteStyle.join(';') + '}' + '.sprite-text{' + spriteTextStyle.join(';') + '}' + '.sprite-inputtext{' + spriteInputTextStyle.join(';') + '}' + '.noselect{' + noSelectStyle.join(';') + '}' + '.warnings{' + warningsStyle.join(';') + '}' + '.noscrollbar::-webkit-scrollbar{display:none;}' + '.hidden{display:none}' + 'method,handler,setter,class,node,dataset{display:none}';
         return document.getElementsByTagName('head')[0].appendChild(style);
       };
       initAllElements = function(selector) {

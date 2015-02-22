@@ -42,24 +42,6 @@ SOFTWARE. -->
       * 
       */-->
 <class name="sizetodom" type="coffee" width="auto" height="auto">
-  <!--/**
-    * @attribute {String} [markup='']
-    * Sets the inner HTML of this view. Since the < and > characters are
-    * not typically supported in the places you'll be configuring this
-    * attributes, you can use [ and ] and they will be transformed into < and >.
-    * If you need to insert a literal [ character use &amp;#91;. If you need
-    * to insert a literal ] character use &amp;#93;.
-    */-->
-  <attribute name="markup" type="string" value=""></attribute>
-  <setter name="markup" args="markup">
-    markup = @unescape(markup)
-    @markup ?= ''
-    if markup isnt @markup
-      @sprite.setText(markup)
-      if @inited then @sizeToDom()
-    return markup
-  </setter>
-
   <!-- Border changes the size of the DOM so do a sizeToDom. -->
   <setter name="topborder" args="v">
     retval = @super()
@@ -139,13 +121,16 @@ SOFTWARE. -->
     * @private
     */-->
   <method name="initialize" args="skipevents">
-    @super()
+    # For some reason replication creates views without sprites.
+    # See pivotal #88868214
+    return unless @sprite
     
     # Makes initial border and padding work
     @sprite.setAttribute('width', 'auto') if @width is @__fullBorderPaddingWidth
     @sprite.setAttribute('height', 'auto') if @height is @__fullBorderPaddingHeight
     
     @sizeToDom()
+    @super()
   </method>
 
   <!--/**
@@ -160,20 +145,5 @@ SOFTWARE. -->
     unless @__hasSetWidth then @set_width(bounds.width, true)
     unless @__hasSetHeight then @set_height(bounds.height, true)
     @__internalUpdate = false
-  </method>
-  
-  <!--/**
-    * @method unescape
-    * Used to support an alternate syntax for markup since the < and >
-    * characters are restricted in most places you will want assign the
-    * markup to this view. The alternte syntax uses the [ and ] characters to
-    * represent < and > respectively. If you need to insert a literal [ or ]
-    * character use &amp;#91; or &amp;#93; respectively.
-    * @param str The string to unescape.
-    * @returns {String} The unescaped string.
-    * @private
-    */-->
-  <method name="unescape" args="str">
-    return str.split('[').join('&lt;').split(']').join('&gt;')
   </method>
 </class>
