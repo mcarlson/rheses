@@ -8,39 +8,40 @@
   <script type="text/javascript" src="../layout.js"></script>
 </head>
 <body>
-<view width="100%" height="100%" scrollable="true">
+<view width="100%" height="100%" scrollable="true" bgcolor="rgb(63,63,63)">
   <spacedlayout axis="y" spacing="20"></spacedlayout>
 
-  <view name="labeltoggle" height="auto" bgcolor="white">
+  <view name="labeltoggle" height="auto">
     <spacedlayout axis="x" spacing="12" updateparent="true"></spacedlayout>
     <text text="Label Toggle:"></text>
-    <labeltoggle name="lt1" width="100" height="50" text="Fixed Size"></labeltoggle>
+    <labeltoggle name="lt1" width="200" height="50" text="Fixed Size"></labeltoggle>
     <labeltoggle name="lt2" text="Variable"></labeltoggle>
     <labeltoggle name="lt3" text="Long Button Name"></labeltoggle>
-    <labeltoggle name="lt4" width="100" text="Only Width"></labeltoggle>
+    <labeltoggle name="lt4" width="200" text="Only Width"></labeltoggle>
     <labeltoggle name="lt5" height="50" text="Only Height"></labeltoggle>
   </view>
 
   <view name="labelbutton" height="auto">
     <spacedlayout axis="x" spacing="12" updateparent="true"></spacedlayout>
     <text name="lblabel" text="Label Button:"></text>
-    <labelbutton name="lb1" width="100" height="50" border="4" text="Fixed Size"></labelbutton>
+    <labelbutton name="lb1" width="200" height="50" border="4" text="Fixed Size"></labelbutton>
     <labelbutton name="lb2" border="4" text="Variable"></labelbutton>
     <labelbutton name="lb3" border="4" text="Long Button Name"></labelbutton>
-    <labelbutton name="lb4" width="100" border="4" text="Only Width"></labelbutton>
+    <labelbutton name="lb4" width="200" border="4" text="Only Width"></labelbutton>
     <labelbutton name="lb5" height="50" border="4" text="Only Height"></labelbutton>
   </view>
 
-  <class name="mycheckbutton" extends="checkbutton" defaultcolor="red" selectcolor="green" bgcolor="#f0f0f0"></class>
+  <class name="mycheckbutton" extends="checkbutton" defaultcolor="blue" defaulttextcolor="red" selectcolor="green" bgcolor="black"></class>
 
   <view name="checkbutton" height="auto">
     <spacedlayout axis="x" spacing="12" updateparent="true"></spacedlayout>
     <text name="cblabel" text="Check Button:"></text>
-    <mycheckbutton name="cb1" width="100" height="50" border="4" text="Fixed Size"></mycheckbutton>
+    <mycheckbutton name="cb1" width="200" height="50" border="4" text="Fixed Size"></mycheckbutton>
     <mycheckbutton name="cb2" border="4" text="Variable"></mycheckbutton>
     <mycheckbutton name="cb3" border="4" text="Long Button Name"></mycheckbutton>
-    <mycheckbutton name="cb4" width="100" border="4" text="Only Width"></mycheckbutton>
+    <mycheckbutton name="cb4" width="200" border="4" text="Only Width"></mycheckbutton>
     <mycheckbutton name="cb5" height="50" border="4" text="Only Height"></mycheckbutton>
+    <mycheckbutton name="cb6" border="4"></mycheckbutton>
   </view>
 
   <!-- Create 3 sliders and store color in attribute -->

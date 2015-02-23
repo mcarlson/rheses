@@ -160,7 +160,11 @@ SOFTWARE. -->
     @sprite.setStyle('width', @innerwidth, true, @sprite.input)
     @sprite.setStyle('height', @innerheight, true, @sprite.input)
 
-    $(@sprite.input).css({"color" : "white", "padding": "10px 20px", "font-size": "20px", "font-weight": "300", "font-family": "'mission-gothic', 'Helvetica Neue', Helvetica, Arial, sans-serif"})
+    @sprite.setStyle('color', 'white', true, @sprite.input)
+    @sprite.setStyle('padding-left', '10px', true, @sprite.input)
+    @sprite.setStyle('font-size', '20px', true, @sprite.input)
+    @sprite.setStyle('font-weight', '300', true, @sprite.input)
+    @sprite.setStyle('font-family', "'mission-gothic', 'Helvetica Neue', Helvetica, Arial, sans-serif", true, @sprite.input)
   </handler>
   
   <!--/**
