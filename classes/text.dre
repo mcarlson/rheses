@@ -243,7 +243,7 @@ SOFTWARE. -->
   <method name="_createSprite" args="el, attributes">
     @super()
     # Sync the text attribute to the text between the tags.
-    attributes.text ||= @sprite.getText(true)
+    attributes.text ||= @sprite.getText()
     @sprite.createTextElement()
   </method>
 

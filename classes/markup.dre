@@ -58,7 +58,7 @@ SOFTWARE. -->
     markup = @unescape(markup)
     @markup ?= ''
     if markup isnt @markup
-      @sprite.setText(markup)
+      @sprite.setInnerHTML(markup)
       if @inited then @sizeToDom()
     return markup
   </setter>

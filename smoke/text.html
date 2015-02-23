@@ -28,8 +28,7 @@ refusing to create a class that would overwrite the builtin tag b
         <handler event="oninit">
           var el = this.sprite.el;
           assert.equal(this.text, '', 'Text should be empty');
-          assert.equal(this.sprite.getText(), '', 'No innerText should exist.');
-          assert.equal(el.innerHTML, '', 'No innerHTML should exist either.');
+          assert.equal(this.sprite.getText(), '', 'No innerText should exist #1');
         </handler>
       </text>
 
@@ -37,8 +36,7 @@ refusing to create a class that would overwrite the builtin tag b
         <handler event="oninit">
           var el = this.sprite.el;
           assert.equal(this.text, '', 'Text should be empty');
-          assert.equal(this.sprite.getText(), '', 'No innerText should exist.');
-          assert.equal(el.innerHTML, '', 'No innerHTML should exist either.');
+          assert.equal(this.sprite.getText(), '', 'No innerText should exist #2');
         </handler>
       </text>
 
@@ -47,8 +45,7 @@ refusing to create a class that would overwrite the builtin tag b
         <handler event="oninit">
           var el = this.sprite.el;
           assert.equal(this.text, 'some text', 'Text should exist.');
-          assert.equal(this.sprite.getText(), 'some text', 'innerText should exist.');
-          assert.equal(el.innerHTML, 'some text', 'innerHTML should also exist.');
+          assert.equal(this.sprite.getText(), 'some text', 'innerText should exist #3');
         </handler>
       </text>
 
@@ -59,8 +56,7 @@ refusing to create a class that would overwrite the builtin tag b
           var el = this.sprite.el,
             testVal = 'Some text goes here';
           assert.equal(this.text, testVal, 'text set as innerText inside the tag');
-          assert.equal(this.sprite.getText(), testVal, 'innerText should exist.');
-          assert.equal(el.innerHTML, testVal, 'innerHTML should also exist.');
+          assert.equal(this.sprite.getText(), testVal, 'innerText should exist #4');
         </handler>
       </text>
 
@@ -70,8 +66,7 @@ refusing to create a class that would overwrite the builtin tag b
           <handler event="oninit">
             var el = this.sprite.el;
             assert.equal(this.text, 'undefined', 'text set with a constraint where constraint evals to undefined');
-            assert.equal(this.sprite.getText(), 'undefined', 'No innerText should exist.');
-            assert.equal(el.innerHTML, 'undefined', 'No innerHTML should exist either.');
+            assert.equal(this.sprite.getText(), 'undefined', 'No innerText should exist #5');
           </handler>
         </text>
       </view>
@@ -82,8 +77,7 @@ refusing to create a class that would overwrite the builtin tag b
           <handler event="oninit">
             var el = this.sprite.el;
             assert.equal(this.text, '', 'text set with a constraint where constraint evals to the empty string');
-            assert.equal(this.sprite.getText(), '', 'No innerText should exist.');
-            assert.equal(el.innerHTML, '', 'No innerHTML should exist either.');
+            assert.equal(this.sprite.getText(), '', 'No innerText should exist #6');
           </handler>
         </text>
       </view>
@@ -95,8 +89,7 @@ refusing to create a class that would overwrite the builtin tag b
             var el = this.sprite.el,
               testVal = 'some text';
             assert.equal(this.text, testVal, 'text set with a constraint where constraint evals to a string');
-            assert.equal(this.sprite.getText(), testVal, 'innerText should exist.');
-            assert.equal(el.innerHTML, testVal, 'innerHTML should also exist.');
+            assert.equal(this.sprite.getText(), testVal, 'innerText should exist #7');
           </handler>
         </text>
       </view>
@@ -107,8 +100,7 @@ refusing to create a class that would overwrite the builtin tag b
           var el = this.sprite.el,
             testVal = 'This text should wrap at my width.';
           assert.equal(this.text, testVal, 'Multiline text should work.');
-          assert.equal(this.sprite.getText(), testVal, 'innerText should exist.');
-          assert.equal(el.innerHTML, testVal, 'innerHTML should also exist.');
+          assert.equal(this.sprite.getText(), testVal, 'innerText should exist #8');
         </handler>
       </text>
 
@@ -118,8 +110,7 @@ refusing to create a class that would overwrite the builtin tag b
           var el = this.sprite.el,
             testVal = 'This\n      text should wrap at my width.';
           assert.equal(this.text, testVal, 'Multiline text with a line ending should work.');
-          assert.equal(this.sprite.getText(), testVal, 'innerText should exist.');
-          assert.equal(el.innerHTML, testVal, 'innerHTML should also exist.');
+          assert.equal(this.sprite.getText(), testVal, 'innerText should exist #9');
         </handler>
       </text>
 
@@ -129,8 +120,7 @@ refusing to create a class that would overwrite the builtin tag b
           var el = this.sprite.el,
             testVal = 'This is.';
           assert.equal(this.text, testVal, 'Text with markup should work with tag warnings.');
-          assert.equal(this.sprite.getText(), testVal, 'innerText should exist.');
-          assert.equal(el.innerHTML, testVal, 'innerHTML should also exist.');
+          assert.equal(this.sprite.getText(), testVal, 'innerText should exist #10');
         </handler>
       </text>
 
@@ -139,8 +129,7 @@ refusing to create a class that would overwrite the builtin tag b
           var el = this.sprite.el,
             testVal = 'This is &lt;b&gt;bold&lt;/b&gt;.';
           assert.equal(this.text, testVal, 'Text with markup should work.');
-          assert.equal(this.sprite.getText(), testVal, 'innerText should exist.');
-          assert.equal(el.innerHTML, testVal, 'innerHTML should also exist.');
+          assert.equal(this.sprite.getText(), testVal, 'innerText should exist #11');
         </handler>
       </text>
 
@@ -149,8 +138,7 @@ refusing to create a class that would overwrite the builtin tag b
           var el = this.sprite.el,
             testVal = 'This is &lt;b&gt;bold&lt;/b&gt;.';
           assert.equal(this.text, testVal, 'Text with markup should work.');
-          assert.equal(this.sprite.getText(), testVal, 'innerText should exist.');
-          assert.equal(el.innerHTML, testVal, 'innerHTML should also exist.');
+          assert.equal(this.sprite.getText(), testVal, 'innerText should exist #12');
         </handler>
       </text>
 
