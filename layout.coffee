@@ -1460,24 +1460,33 @@ window.dr = do ->
       @input = @input.$view = null if @input
       @el = @jqel = @el.$view = null
 
+    setInnerHTML: (html) ->
+      @el.innerHTML = html
+
     setText: (txt) ->
       if txt?
-        @el.innerHTML = txt
+        for cld in @el.childNodes
+          if cld && cld.nodeType == 3
+            @el.removeChild(cld)
 
-    getText: (textOnly) ->
-      if textOnly
-        # Firefox doesn't support innerText and textContent gives us more than
-        # we want. Instead, walk the dom children and concat all the text nodes.
-        # The nodes get trimmed since line feeds and other junk whitespace will
-        # show up as text nodes.
-        child = @el.firstChild
-        texts = []
-        while child
-          if child.nodeType is 3 then texts.push(child.data.trim())
-          child = child.nextSibling;
-        texts.join("")
-      else
-        @el.innerHTML
+        tnode = document.createTextNode(txt);
+        @el.appendChild(tnode)
+
+    getText: ->
+      # Firefox doesn't support innerText and textContent gives us more than
+      # we want. Instead, walk the dom children and concat all the text nodes.
+      # The nodes get trimmed since line feeds and other junk whitespace will
+      # show up as text nodes.
+      child = @el.firstChild
+      texts = []
+      while child
+        if child.nodeType is 3 then texts.push(child.data.trim())
+        child = child.nextSibling;
+      texts.join("")
+
+    getInnerHTML: ->
+      @el.innerHTML
+
 
     value: (value) ->
       return unless @input

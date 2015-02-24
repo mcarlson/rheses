@@ -106,7 +106,7 @@ SOFTWARE. -->
 
       <handler event="oninit">
         // Get initial text (match behavior of inputtext)
-        text = this.text || this.sprite.getText(false);
+        text = this.text || this.sprite.getInnerHTML();
         this.sprite.setText('');
 
         // I couldn't get jquery syntax to work so directly modify the DOM.

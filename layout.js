@@ -1863,27 +1863,40 @@
         return this.el = this.jqel = this.el.$view = null;
       };
 
+      Sprite.prototype.setInnerHTML = function(html) {
+        return this.el.innerHTML = html;
+      };
+
       Sprite.prototype.setText = function(txt) {
+        var cld, tnode, _i, _len, _ref;
         if (txt != null) {
-          return this.el.innerHTML = txt;
+          _ref = this.el.childNodes;
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            cld = _ref[_i];
+            if (cld && cld.nodeType === 3) {
+              this.el.removeChild(cld);
+            }
+          }
+          tnode = document.createTextNode(txt);
+          return this.el.appendChild(tnode);
         }
       };
 
-      Sprite.prototype.getText = function(textOnly) {
+      Sprite.prototype.getText = function() {
         var child, texts;
-        if (textOnly) {
-          child = this.el.firstChild;
-          texts = [];
-          while (child) {
-            if (child.nodeType === 3) {
-              texts.push(child.data.trim());
-            }
-            child = child.nextSibling;
+        child = this.el.firstChild;
+        texts = [];
+        while (child) {
+          if (child.nodeType === 3) {
+            texts.push(child.data.trim());
           }
-          return texts.join("");
-        } else {
-          return this.el.innerHTML;
+          child = child.nextSibling;
         }
+        return texts.join("");
+      };
+
+      Sprite.prototype.getInnerHTML = function() {
+        return this.el.innerHTML;
       };
 
       Sprite.prototype.value = function(value) {

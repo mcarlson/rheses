@@ -181,7 +181,7 @@ SOFTWARE. -->
       <handler event="oninit">
         # Retrieve the entire inline contents
         if @inline
-          @inline_data = @sprite.getText()
+          @inline_data = @sprite.getInnerHTML()
           @sprite.setText('')
           @loadInline() if @inline
 

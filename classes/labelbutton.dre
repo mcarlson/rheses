@@ -54,7 +54,7 @@ SOFTWARE. -->
 
   <handler event="oninit">
     if !@text or @text.length == 0
-      @inline = @sprite.getText(true)
+      @inline = @sprite.getText()
       if @inline
         @setAttribute('text', @inline) if !@text
 
@@ -101,7 +101,7 @@ SOFTWARE. -->
     @indicator.setAttribute('fill', @defaulttextcolor)
   </handler>
 
-  <art name="indicator" clickable="false" inline="true" x="0" y="${this.parent.height - this.height - 10}" height="10" width="10" fill="${this.parent.defaulttextcolor}" z="1">
+  <art name="indicator" clickable="false" inline="true" x="0" y="${this.parent.height - (this.parent.border || this.parent.bottomborder || 0) - this.height - 10}" height="10" width="10" fill="${this.parent.defaulttextcolor}" z="1">
       <!--
       <svg name="triangle" height="100" width="100">
           <polygon name="polygon" points="0,100 0,0 100,100"/>

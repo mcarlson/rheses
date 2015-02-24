@@ -25,7 +25,7 @@
 <body>
 
 <!-- InputText smoke tests. See spec/features/inputtext_spec.rb for interactive tests -->
-<view width="100%">
+<view width="100%" height="100%">
   <spacedlayout axis="y" spacing="15"></spacedlayout>
 
   <!-- Setting text with static attribute -->
@@ -73,50 +73,50 @@
     <handler event="oninit">
       assert.equal(this.width, 100);
       assert.equal(this.height, 30);
-      assert.equal($(this.sprite.input).width(), 38)
-      assert.equal($(this.sprite.input).height(), 0)
+      assert.equal($(this.sprite.input).width(), 88)
+      assert.equal($(this.sprite.input).height(), 28)
 
       this.setAttribute('width', 140)
       this.setAttribute('height', 100)
       assert.equal(this.width, 140)
       assert.equal(this.height, 100)
-      assert.equal($(this.sprite.input).width(), 78)
-      assert.equal($(this.sprite.input).height(), 58)
+      assert.equal($(this.sprite.input).width(), 128)
+      assert.equal($(this.sprite.input).height(), 98)
     </handler>
   </inputtext>
-  
-  <!-- Width and height with border/padding -->
-  <inputtext width="100" height="30" bgcolor="aquamarine" padding="4" border="1">
-    <handler event="oninit">
-      assert.equal(this.width, 100);
-      assert.equal(this.height, 30);
-      assert.equal($(this.sprite.input).width(), 38)
-      assert.equal($(this.sprite.input).height(), 0)
-
-      this.setAttribute('width', 200)
-      this.setAttribute('height', 100)
-      assert.equal(this.width, 200)
-      assert.equal(this.height, 100)
-      assert.equal($(this.sprite.input).width(), 138)
-      assert.equal($(this.sprite.input).height(), 58)
-    </handler>
-  </inputtext>
-  
 
   <!-- Width and height with border/padding -->
   <inputtext width="100" height="30" bgcolor="aquamarine" padding="4" border="1">
     <handler event="oninit">
       assert.equal(this.width, 100);
       assert.equal(this.height, 30);
-      assert.equal($(this.sprite.input).width(), 38)
-      assert.equal($(this.sprite.input).height(), 0)
+      assert.equal($(this.sprite.input).width(), 80)
+      assert.equal($(this.sprite.input).height(), 20)
 
       this.setAttribute('width', 200)
       this.setAttribute('height', 100)
       assert.equal(this.width, 200)
       assert.equal(this.height, 100)
-      assert.equal($(this.sprite.input).width(), 138)
-      assert.equal($(this.sprite.input).height(), 58)
+      assert.equal($(this.sprite.input).width(), 180)
+      assert.equal($(this.sprite.input).height(), 90)
+    </handler>
+  </inputtext>
+
+
+  <!-- Width and height with border/padding -->
+  <inputtext width="100" height="30" bgcolor="aquamarine" padding="4" border="1">
+    <handler event="oninit">
+      assert.equal(this.width, 100);
+      assert.equal(this.height, 30);
+      assert.equal($(this.sprite.input).width(), 80)
+      assert.equal($(this.sprite.input).height(), 20)
+
+      this.setAttribute('width', 200)
+      this.setAttribute('height', 100)
+      assert.equal(this.width, 200)
+      assert.equal(this.height, 100)
+      assert.equal($(this.sprite.input).width(), 180)
+      assert.equal($(this.sprite.input).height(), 90)
     </handler>
   </inputtext>
 
@@ -134,7 +134,7 @@
     Text
     <handler event="oninit">
       assert.equal(this.width, 100)
-      assert.equal(this.height, 22)
+      assert.equal(this.height, 2)
     </handler>
   </inputtext>
 
@@ -151,7 +151,7 @@
       assert.equal($(this.sprite.el).children('textarea').length, 0)
     </handler>
   </inputtext>
-  
+
 </view>
 <!-- The MIT License (MIT)
 

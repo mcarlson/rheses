@@ -145,8 +145,8 @@ SOFTWARE. -->
   </art>
 
   <handler event="oninit">
-    @text ?= @sprite.getText(true)
-#    @sprite.setText('')
+    @text ?= @sprite.getText()
+    @sprite.setText('')
     @sprite.createInputtextElement(@text, @multiline, @width, @height)
     #console.log('_createSprite', @sprite.input.$view == @, @sprite.el.$view == @)
 

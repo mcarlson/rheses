@@ -40,19 +40,19 @@
     <markup name="v1" bgcolor="#cccccc">
       <div class="foo"></div><div class="bar"></div><div class="foo"></div>
     </markup>
-    
+
     <markup name="v2" bgcolor="#cccccc" width="50">
       <div class="foo"></div> <div class="bar"></div> <div class="foo"></div>
     </markup>
-    
+
     <markup name="v3" bgcolor="#cccccc"
       markup='[div class="foo"][/div] [div class="bar"][/div][br/][div class="foo"][/div]'
     ></markup>
-    
+
     <markup name="v4" bgcolor="#cccccc" border="2" bordercolor="black" padding="4" border-style="solid">
       <div class="foo"></div> <div class="bar"></div> <div class="foo"></div>
     </markup>
-    
+
     <markup name="v5" bgcolor="#cccccc" visible="false"
       markup='[div class="foo"][/div] [div class="bar"][/div][br/][div class="foo"][/div]'
     ></markup>
@@ -76,37 +76,37 @@
       assert.equal(v2.innerwidth, 50);
       assert.equal(v2.innerheight, 40);
       assert.equal(v2.markup, '');
-      
+
       assert.equal(v3.width, 40);
       assert.equal(v3.height, 40);
       assert.equal(v3.innerwidth, 40);
       assert.equal(v3.innerheight, 40);
       assert.equal(v3.markup, '&lt;div class="foo"&gt;&lt;/div&gt; &lt;div class="bar"&gt;&lt;/div&gt;&lt;br/&gt;&lt;div class="foo"&gt;&lt;/div&gt;');
-      
+
       assert.equal(v4.width, 72);
       assert.equal(v4.height, 32);
       assert.equal(v4.innerwidth, 60);
       assert.equal(v4.innerheight, 20);
       assert.equal(v4.markup, '');
-      
+
       assert.equal(v5.width, 40);
       assert.equal(v5.height, 40);
       assert.equal(v5.innerwidth, 40);
       assert.equal(v5.innerheight, 40);
       assert.equal(v5.markup, '&lt;div class="foo"&gt;&lt;/div&gt; &lt;div class="bar"&gt;&lt;/div&gt;&lt;br/&gt;&lt;div class="foo"&gt;&lt;/div&gt;');
-      
+
       // Restore auto sizing
       v2.setAttribute('width', 'auto');
-      
+
       assert.equal(v2.width, 60);
       assert.equal(v2.height, 20);
-      
+
       // Set new markup
       v3.setAttribute('markup', '[div class="foo"][/div][br/][div class="bar"][/div]');
-      
+
       assert.equal(v3.width, 20);
       assert.equal(v3.height, 40);
-      
+
       // Border and padding changes
       v4.setAttribute('padding', 10);
       assert.equal(v4.width, 84);
@@ -115,22 +115,22 @@
       v4.setAttribute('leftborder', 1);
       assert.equal(v4.width, 83);
       assert.equal(v4.height, 44);
-      
+
       v4.setAttribute('rightborder', 1);
       assert.equal(v4.width, 82);
       assert.equal(v4.height, 44);
-      
+
       v4.setAttribute('topborder', 1);
       assert.equal(v4.width, 82);
       assert.equal(v4.height, 43);
-      
+
       v4.setAttribute('bottomborder', 1);
       assert.equal(v4.width, 82);
       assert.equal(v4.height, 42);
 
       // Make an initially not visible view visible
       v5.setAttribute('visible', true);
-      
+
       assert.equal(v5.width, 40);
       assert.equal(v5.height, 40);
       assert.equal(v5.innerwidth, 40);
