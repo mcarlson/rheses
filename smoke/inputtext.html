@@ -18,9 +18,7 @@
   <script type="text/javascript" src="/lib/coffee-script.js"></script>
   <script type="text/javascript" src="/layout.js"></script>
   <script type="text/javascript" src="/lib/chai.js"></script>
-  <script>
-    var assert = chai.assert
-  </script>
+  <script type="text/javascript" src="/lib/smoke_helper.js"></script>
 </head>
 <body>
 
@@ -31,19 +29,20 @@
   <!-- Setting text with static attribute -->
   <inputtext>
     <handler event="oninit">
-      assert.equal(this.text, "");
+      assert.testCaseLabel = 'Setting text with static attribute';
+      assert.equal(this.text, "", "no attr set");
     </handler>
   </inputtext>
 
   <inputtext text="">
     <handler event="oninit">
-      assert.equal(this.text, "");
+      assert.equal(this.text, "", "attr set to empty string");
     </handler>
   </inputtext>
 
   <inputtext text="some text" bgcolor="thistle">
     <handler event="oninit">
-      assert.equal(this.text, "some text");
+      assert.equal(this.text, "some text", "attr set to some text");
     </handler>
   </inputtext>
 
@@ -53,6 +52,7 @@
 
     <inputtext bgcolor="lightgreen" text="${this.parent.text}">
       <handler event="oninit">
+        assert.testCaseLabel = 'Setting text with a constraint';
         assert.equal($(this.sprite.input)[0].value, 'some text')
         assert.equal(this.text, "some text");
       </handler>
@@ -71,6 +71,8 @@
   <!-- Setting width and height -->
   <inputtext width="100" height="30" bgcolor="lightpink">
     <handler event="oninit">
+      assert.testCaseLabel = 'Setting width and height';
+      
       assert.equal(this.width, 100);
       assert.equal(this.height, 30);
       assert.equal($(this.sprite.input).width(), 88)
@@ -88,24 +90,8 @@
   <!-- Width and height with border/padding -->
   <inputtext width="100" height="30" bgcolor="aquamarine" padding="4" border="1">
     <handler event="oninit">
-      assert.equal(this.width, 100);
-      assert.equal(this.height, 30);
-      assert.equal($(this.sprite.input).width(), 80)
-      assert.equal($(this.sprite.input).height(), 20)
-
-      this.setAttribute('width', 200)
-      this.setAttribute('height', 100)
-      assert.equal(this.width, 200)
-      assert.equal(this.height, 100)
-      assert.equal($(this.sprite.input).width(), 180)
-      assert.equal($(this.sprite.input).height(), 90)
-    </handler>
-  </inputtext>
-
-
-  <!-- Width and height with border/padding -->
-  <inputtext width="100" height="30" bgcolor="aquamarine" padding="4" border="1">
-    <handler event="oninit">
+      assert.testCaseLabel = 'Width and height with border/padding';
+      
       assert.equal(this.width, 100);
       assert.equal(this.height, 30);
       assert.equal($(this.sprite.input).width(), 80)
@@ -125,6 +111,7 @@
   <inputtext>
     some other text
     <handler event="oninit">
+      assert.testCaseLabel = 'Setting text between tags';
       assert.equal(this.text, 'some other text')
     </handler>
   </inputtext>
@@ -133,6 +120,7 @@
   <inputtext bgcolor="green">
     Text
     <handler event="oninit">
+      assert.testCaseLabel = 'Default sizing';
       assert.equal(this.width, 100)
       assert.equal(this.height, 2)
     </handler>
@@ -142,6 +130,7 @@
   <inputtext bgcolor="thistle" multiline="true">
     Test content heres some more test content to make this a lot bigger
     <handler event="oninit">
+      assert.testCaseLabel = 'Multiline';
       assert.equal($(this.sprite.el).children('textarea').length, 1)
     </handler>
   </inputtext>

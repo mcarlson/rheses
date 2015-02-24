@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'hackstyle', :type => :feature, :js => true do
+describe 'hackstyle', :type => :feature, :js => true, :sauce => true do
 
   before :each do
     visit '/spec/features/hackstyle.html'

@@ -22,6 +22,7 @@
   <script type="text/javascript" src="/lib/coffee-script.js"></script>
   <script type="text/javascript" src="/lib/chai.js"></script>
   <script type="text/javascript" src="/layout.js"></script>
+  <script type="text/javascript" src="/lib/smoke_helper.js"></script>
 </head>
 <body>
   <view>
@@ -29,8 +30,8 @@
       <text text='Nesting'></text>
       <animgroup delay='100' id="myanim1" repeat="1" bounce="true" parallel='false'>
         <handler event='onend'>
-          chai.assert.equal(this.parent.x, 14)
-          chai.assert.equal(this.parent.y, 12)
+          assert.equal(this.parent.x, 14)
+          assert.equal(this.parent.y, 12)
         </handler>
         <animator attribute="x" to="100" duration="100" motion="linear"></animator>
         <animator attribute="y" to="100" duration="500" control="0.01,0.01" motion="bret" ></animator>
@@ -50,8 +51,8 @@
           }.bind(this), 100)
         </handler>
         <handler event='onend'> 
-          chai.assert.equal(this.parent.x, 14)
-          chai.assert.equal(this.parent.y, 76)
+          assert.equal(this.parent.x, 14)
+          assert.equal(this.parent.y, 76)
         </handler>
         <animator attribute="x" to="200" duration="100" motion="linear"></animator>
         <animator attribute="y" to="150" duration="500" control="0.01,0.01" motion="bret" ></animator>
@@ -66,8 +67,8 @@
       <text text='Color'></text>
       <animgroup delay='100' repeat="3" bounce="true" parallel='true'>
         <handler event='onend'>
-          chai.assert.equal(this.parent.x, 10)
-          chai.assert.equal(this.parent.bgcolor, '#0000ff')
+          assert.equal(this.parent.x, 10)
+          assert.equal(this.parent.bgcolor, '#0000ff')
         </handler>      
         <animator attribute="x" to="100" duration="100" repeat='4' bounce='true' motion="linear"></animator>
         <animator attribute="bgcolor" to="blue" duration="500" control="0.01,0.01" motion="bret" ></animator>
@@ -96,7 +97,7 @@
       <animgroup duration="1000">
         <animgroup to='200' bounce="true" parallel='true'>
           <handler event='onend'>
-            chai.assert.equal(this.parent.x, 200)
+            assert.equal(this.parent.x, 200)
           </handler>         
           <animator attribute="x" repeat='1' bounce='true' motion="inOutExpo"></animator>
         </animgroup>
@@ -111,7 +112,7 @@
             this.setAttribute('paused', false)
           }.bind(this),500)
           setTimeout(function(){
-            chai.assert.equal(this.parent.x, 101)
+            assert.equal(this.parent.x, 101)
           }.bind(this),700)
         </handler>      
         <animator attribute="x" to="101" duration="100" repeat='1' bounce='true' motion="inOutExpo"></animator>
