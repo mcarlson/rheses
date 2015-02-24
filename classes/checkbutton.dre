@@ -127,7 +127,10 @@ SOFTWARE. -->
 
         @_resize_lock = true
 
-        settings = {checkx: checkx, checky: checky, checkw: checkw, checkh: checkh, width: width, height: height, textx: textx, texty: texty}
+        checks = Math.min(checkw, checkh)
+        checky = (@innerheight / 2) - (checks / 2) if checky == 0
+
+        settings = {checkx: checkx, checky: checky, checkw: checks, checkh: checks, width: width, height: height, textx: textx, texty: texty}
 
         @setAttributes(settings)
 

@@ -82,12 +82,12 @@ SOFTWARE. -->
       *      <timetext text="240"></timetext>
       * 
       */-->
-<class name="text" with="sizetodom" type="coffee">
+<class name="text" with="sizetodom" type="coffee" font-weight="200" color="white">
   <!--/**
         * @attribute {Number} [fontsize]
         * The size of the font in pixels.
         */-->
-  <attribute name="fontsize" type="emptynumber" value=""></attribute>
+  <attribute name="fontsize" type="emptynumber" value="20"></attribute>
   <setter name="fontsize" args="v">
     if @fontsize isnt v
       @sprite.setAttribute('fontsize', v)
@@ -100,7 +100,7 @@ SOFTWARE. -->
         * @attribute {Number} [fontfamily=""]
         * The name of the font family to use, e.g. "Helvetica"  Include multiple fonts on a line, separated by commas.
         */-->
-  <attribute name="fontfamily" type="string" value=""></attribute>
+  <attribute name="fontfamily" type="string" value="'mission-gothic', 'Helvetica Neue', Helvetica, Arial, sans-serif"></attribute>
   <setter name="fontfamily" args="v">
     if @fontfamily isnt v
       @sprite.setAttribute('fontfamily', v)
@@ -251,7 +251,7 @@ SOFTWARE. -->
     # setup default to reduce events during initialization.
     @fontsize = @fontfamily = ''
     @bold = @italic = @smallcaps = @multiline = @ellipsis = false
-    
+
     @super()
   </method>
 
