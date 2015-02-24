@@ -10,7 +10,7 @@ module.exports = function(grunt) {
         options: {
           "max-duration": 600,
           "throttled": 3,
-          "tunneled": false,
+          "tunneled": true,
           urls: [
             //'http://localhost:8080/saucerunner.html'
             'http://localhost:8080/saucerun'
