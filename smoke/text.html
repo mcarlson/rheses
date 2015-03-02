@@ -1,7 +1,6 @@
 <html>
 <expectedoutput><!--
 refusing to create a class that would overwrite the builtin tag b
-refusing to create a class that would overwrite the builtin tag b
 --></expectedoutput>
 <head>
   <title>dr33m | Text Smoke Tests</title>
@@ -179,20 +178,20 @@ refusing to create a class that would overwrite the builtin tag b
             jqel = $(el),
             style = el.style;
           
-          assert.equal(this.fontsize, '', 'Model should be 20');
-          assert.equal(style['font-size'], '', 'Style property should be empty');
+          assert.equal(this.fontsize, '20', 'Model should be 20');
+          assert.equal(style['font-size'], '20px', 'Style property should be empty');
           assert.equal(jqel.css('font-size'), '20px', 'Effective style should be defined');
           
-          assert.equal(this.fontfamily, "");
-          assert.equal(style['font-family'], '');
+          assert.equal(this.fontfamily, "\'mission-gothic\', \'Helvetica Neue\', Helvetica, Arial, sans-serif");
+          assert.equal(style['font-family'], "mission-gothic, \'Helvetica Neue\', Helvetica, Arial, sans-serif");
           var ff = jqel.css('font-family');
           ff = ff.split('"').join("\'");
           ff = ff.split(', ').join(",");
           assert.equal(ff, "mission-gothic,\'Helvetica Neue\',Helvetica,Arial,sans-serif");
           
-          assert.equal(this.color, undefined);
-          assert.equal(style['color'], '');
-          assert.equal(jqel.css('color'), 'rgb(0, 0, 0)');
+          assert.equal(this.color, 'white');
+          assert.equal(style['color'], 'white');
+          assert.equal(jqel.css('color'), 'rgb(255, 255, 255)');
           
           assert.equal(this.bold, false);
           assert.equal(this.italic, false);
@@ -200,7 +199,7 @@ refusing to create a class that would overwrite the builtin tag b
           assert.equal(this.strike, false);
           assert.equal(this.smallcaps, false);
           
-          assert.equal(style['font-weight'], '');
+          assert.equal(style['font-weight'], '200');
           assert.equal(style['font-style'], '');
           assert.equal(style['text-decoration'], 'none');
           assert.equal(style['font-variant'], '');
