@@ -573,7 +573,9 @@ window.dr = do ->
       try
         script = "\"use strict\"\n" + script if strict
         if name
-          func = new Function("return function #{name}(#{argstring}){#{script}}")()
+          # Use a named function so backtraces have names. Replace '-' (from 
+          # package names) with '_' to prevent compilation errors.
+          func = new Function("return function #{name.replace('-','_')}(#{argstring}){#{script}}")()
         else
           func = new Function(args, script)
         # console.log 'compiled', func

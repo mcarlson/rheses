@@ -760,7 +760,7 @@
             script = "\"use strict\"\n" + script;
           }
           if (name) {
-            func = new Function("return function " + name + "(" + argstring + "){" + script + "}")();
+            func = new Function("return function " + (name.replace('-', '_')) + "(" + argstring + "){" + script + "}")();
           } else {
             func = new Function(args, script);
           }
