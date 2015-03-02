@@ -115,16 +115,16 @@
       assert.equal(v4.height, 44);
 
       v4.setAttribute('rightborder', 1);
-      assert.equal(v4.width, 82);
-      assert.equal(v4.height, 44);
+      assert.closeTo(v4.width, 82, 1);
+      assert.closeTo(v4.height, 44, 1);
 
       v4.setAttribute('topborder', 1);
-      assert.equal(v4.width, 82);
-      assert.equal(v4.height, 43);
+      assert.closeTo(v4.width, 82, 1);
+      assert.closeTo(v4.height, 43, 1);
 
       v4.setAttribute('bottomborder', 1);
-      assert.equal(v4.width, 82);
-      assert.equal(v4.height, 42);
+      assert.closeTo(v4.width, 82, 1);
+      assert.closeTo(v4.height, 42, 1);
 
       // Make an initially not visible view visible
       v5.setAttribute('visible', true);
