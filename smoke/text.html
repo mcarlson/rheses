@@ -1,7 +1,6 @@
 <html>
 <expectedoutput><!--
 refusing to create a class that would overwrite the builtin tag b
-refusing to create a class that would overwrite the builtin tag b
 --></expectedoutput>
 <head>
   <title>dr33m | Text Smoke Tests</title>
@@ -175,24 +174,24 @@ refusing to create a class that would overwrite the builtin tag b
       <!-- Default Font styles -->
       <text text="Default font styles">
         <handler event="oninit">
+          assert.testCaseLabel = 'Default Font styles';
+
           var el = this.sprite.el,
             jqel = $(el),
             style = el.style;
           
-          assert.equal(this.fontsize, '', 'Model should be 20');
-          assert.equal(style['font-size'], '', 'Style property should be empty');
+          assert.equal(this.fontsize, '20', 'Model should be 20');
+          assert.equal(style['font-size'], '20px', 'Style property should be empty');
           assert.equal(jqel.css('font-size'), '20px', 'Effective style should be defined');
           
-          assert.equal(this.fontfamily, "");
-          assert.equal(style['font-family'], '');
+          assert.equal(this.fontfamily.replace(/'/g, "").replace(/\"/g, '').replace(/ /g, ''), "mission-gothic,HelveticaNeue,Helvetica,Arial,sans-serif");
+          assert.equal(style['font-family'].replace(/'/g, "").replace(/\"/g, '').replace(/ /g, ''), "mission-gothic,HelveticaNeue,Helvetica,Arial,sans-serif");
           var ff = jqel.css('font-family');
-          ff = ff.split('"').join("\'");
-          ff = ff.split(', ').join(",");
-          assert.equal(ff, "mission-gothic,\'Helvetica Neue\',Helvetica,Arial,sans-serif");
+          assert.equal(ff.replace(/'/g, "").replace(/\"/g, '').replace(/ /g, ''), "mission-gothic,HelveticaNeue,Helvetica,Arial,sans-serif");
           
-          assert.equal(this.color, undefined);
-          assert.equal(style['color'], '');
-          assert.equal(jqel.css('color'), 'rgb(0, 0, 0)');
+          assert.equal(this.color, 'white');
+          assert.equal(style['color'], 'white');
+          assert.equal(jqel.css('color'), 'rgb(255, 255, 255)');
           
           assert.equal(this.bold, false);
           assert.equal(this.italic, false);
@@ -200,7 +199,7 @@ refusing to create a class that would overwrite the builtin tag b
           assert.equal(this.strike, false);
           assert.equal(this.smallcaps, false);
           
-          assert.equal(style['font-weight'], '');
+          assert.equal(style['font-weight'], '200');
           assert.equal(style['font-style'], '');
           assert.equal(style['text-decoration'], 'none');
           assert.equal(style['font-variant'], '');
@@ -328,6 +327,8 @@ refusing to create a class that would overwrite the builtin tag b
       <!-- nowrap auto -->
       <text name="nowrap_auto" bgcolor="pink">foo bar baz
         <handler event="oninit">
+          assert.testCaseLabel = 'nowrap auto';
+
           assert.equal(this.multiline, false);
           assert.equal($(this.sprite.el).css('white-space'), 'nowrap');
           assert.closeTo(this.width, 101, 10)
@@ -347,6 +348,8 @@ refusing to create a class that would overwrite the builtin tag b
       <!-- nowrap fixed -->
       <text name="nowrap_fixed" bgcolor="red" width="50" scrollable="true">foo bar baz
         <handler event="oninit">
+          assert.testCaseLabel = 'nowrap fixed';
+
           assert.equal(this.multiline, false);
           assert.equal($(this.sprite.el).css('white-space'), 'nowrap');
           assert.equal(this.width, 50)
@@ -397,6 +400,8 @@ refusing to create a class that would overwrite the builtin tag b
       <!-- multiline auto -->
       <text multiline="true" bgcolor="lightgreen">foo bar baz
         <handler event="oninit">
+          assert.testCaseLabel = 'multiline auto';
+
           assert.equal(this.multiline, true);
           assert.equal(this.sprite.el.style['white-space'], 'pre');
           assert.equal(this.width, this.parent.nowrap_auto.width)
@@ -416,6 +421,8 @@ refusing to create a class that would overwrite the builtin tag b
       <!-- multiline fixed -->
       <text multiline="true" width="60" bgcolor="green">f o o b a r b a z
         <handler event="oninit">
+          assert.testCaseLabel = 'multiline fixed';
+
           assert.equal(this.multiline, true);
           assert.equal(this.sprite.el.style['white-space'], 'pre-wrap');
           assert.equal(this.width, 60);
@@ -435,6 +442,8 @@ refusing to create a class that would overwrite the builtin tag b
       <!-- multiline with a fixed height -->
       <text multiline="true" width="50" height="40" bgcolor="yellow" scrollable="true">f o o b a r b a z
         <handler event="oninit">
+          assert.testCaseLabel = 'multiline with a fixed height';
+          
           assert.equal(this.multiline, true);
           assert.equal(this.sprite.el.style['white-space'], 'pre-wrap');
           assert.equal(this.width, 50);
@@ -446,6 +455,8 @@ refusing to create a class that would overwrite the builtin tag b
       <text bgcolor="orange" multiline="false">f o o b 
       a r b a z
         <handler event="oninit">
+          assert.testCaseLabel = 'Change fixed and multiline';
+          
           assert.equal(this.multiline, false);
           assert.equal($(this.sprite.el).css('white-space'), 'nowrap');
           assert.closeTo(this.width, 135, 10);
@@ -512,6 +523,7 @@ refusing to create a class that would overwrite the builtin tag b
       
       <dreem-text text="This is dreem text">
         <handler event="oninit">
+          assert.testCaseLabel = 'Dreem Text';
           assert.equal(this.bgcolor, 'rgb(63,63,63)');
           assert.equal(this.color, 'white');
           assert.equal(this.toppadding, 10);
@@ -526,6 +538,7 @@ refusing to create a class that would overwrite the builtin tag b
       
       <dreem-text text="This is more dreem text" multiline="true" width="100">
         <handler event="oninit">
+          assert.testCaseLabel = 'Dreem Text multiline';
           assert.equal(this.bgcolor, 'rgb(63,63,63)');
           assert.equal(this.color, 'white');
           assert.equal(this.toppadding, 10);
