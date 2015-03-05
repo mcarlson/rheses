@@ -1,7 +1,7 @@
 <html>
-<testingtimer><!--3000--></testingtimer>
+<testingtimer><!--1500--></testingtimer>
 <head>
-  <title>art</title>
+  <title>dr33m | Art Smoke Tests</title>
   <script type="text/javascript" src="/lib/jquery-1.9.1.min.js"></script>
   <script type="text/javascript" src="/lib/acorn.js"></script>
   <script type="text/javascript" src="/lib/coffee-script.js"></script>
@@ -10,8 +10,7 @@
   <script type="text/javascript" src="/lib/smoke_helper.js"></script>
 </head>
 <body>
-<view id="all" width="100%" height="100%" clip="true">
-
+<view width="100%" height="100%" clip="true">
   <spacedlayout axis="y" spacing="10"></spacedlayout>
 
   <!-- Verify the initial state of an art object and morph from one path
@@ -32,6 +31,8 @@
       this.test_inited = true;
     </handler>
     <handler event="onready">
+      this.drift = 50;
+      
       // oninit must already have run
       assert.equal(this.test_inited, true, 'onready running before oninit');
 
@@ -42,9 +43,7 @@
       // Use setTimeout to verify that ontween event is generated
       var self = this;
       setTimeout(function() {
-        if (self.test_timeout) {
-          assert.ok(false, 'timeout waiting for ontween event');
-        }
+        assert.equal(self.test_timeout, undefined, 'timeout waiting for ontween event');
       }, this.test_timeout);
 
       this.setAttribute('path', 2);
@@ -56,10 +55,7 @@
       assert.equal(this.height, 100, 'ontween height');
 
       var elapsed = Date.now() - this.test_tween_start;
-      var drift = Math.abs(elapsed - this.animationspeed);
-      if (drift > 50) {
-        assert.ok(false, 'ontween finished too soon/too late');
-      }
+      assert.closeTo(elapsed, this.animationspeed, this.drift, 'ontween finished too soon/too late. Was:' + elapsed + ' Should be:' + this.animationspeed + ' +/- ' + this.drift)
     </handler>
   </art>
 
@@ -80,7 +76,7 @@
 
   <!-- Verify that animator object works -->
   <art width="100" height="100" src="/examples/img/cursorshapes.svg" path="0" stroke="coral" fill="coral">
-    <animator start="0" from="0" to="3" attribute="animationframe" duration="2000" motion = "outBounce" repeat="1">
+    <animator start="0" from="0" to="3" attribute="animationframe" duration="1000" motion = "outBounce" repeat="1">
       <handler event="oninit">
         this.drift = 50;
         this.test_start = Date.now();
@@ -89,36 +85,28 @@
         // Use setTimeout to verify that onend event is generated
         var self = this;
         setTimeout(function() {
-          if (self.test_timeout) {
-            assert.ok(false, 'timeout waiting for onend event');
-          }
+          assert.equal(self.test_timeout, undefined, 'timeout waiting for onend event');
         }, this.test_timeout);
       </handler>
       <handler event="onend">
-        delete this.test_timeout;        
-
+        delete this.test_timeout;
         var elapsed = Date.now() - this.test_start;
-        var drift = Math.abs(elapsed - this.duration);
-        if (drift > this.drift) {
-          assert.ok(false, 'onend finished too soon/too late');
-        }
+        assert.closeTo(elapsed, this.duration, this.drift, 'onend finished too soon/too late. Was:' + elapsed + ' Should be:' + this.duration + ' +/- ' + this.drift)
       </handler>
     </animator>
   </art>
 
-    <art id="inline" inline="true" width="100" height="100">
-        <!--
-        <svg name="triangle" height="100" width="100">
-            <polygon name="polygon" points="0,100 0,0 100,100"/>
-        </svg>
-        -->
-    </art>
-
-
+  <art id="inline" inline="true" width="100" height="100">
+      <!--
+      <svg name="triangle" height="100" width="100">
+          <polygon name="polygon" points="0,100 0,0 100,100"/>
+      </svg>
+      -->
+  </art>
 </view>
 <!-- The MIT License (MIT)
 
-Copyright ( c ) 2014 Teem2 LLC
+Copyright ( c ) 2014-2015 Teem2 LLC
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
