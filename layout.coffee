@@ -1577,6 +1577,7 @@ window.dr = do ->
     knownstyles = ['width', 'height', 'background-color', 'opacity', 'padding', 'transform', 'transform-style', 'transform-origin', 'z-index', 'perspective', 'cursor', capabilities.prefix.css + 'transform', capabilities.prefix.css + 'transform-style', capabilities.prefix.css + 'transform-origin']
     ss2 = Sprite::setStyle
     Sprite::setStyle = (name, value, internal, el=@el) ->
+      return if name == '$instanceattributes'
       if not internal and not (name of stylemap) and not (name in knownstyles)
         console.warn "Setting unknown CSS property #{name} = #{value} on ", @el.$view, stylemap, internal
       ss2(name, value, internal, el)
@@ -2613,15 +2614,25 @@ window.dr = do ->
     attachSkinListener: () ->
       if !@$skinlistner
         @$skinlistner = true
-        v = @
         @listenTo @, 'subviewAdded', (sv)->
           sv.attachSkinListener()
           sv.reskin()
 
     reskin: () ->
-      if @skin && window.dr.skins && skin = window.dr.skins[@skin]
-        @attachSkinListener()
-        skin.apply(@)
+      @attachSkinListener()
+
+      unless window.dr.skins
+        console.log("<skin> hasn't been initialized yet")
+        return
+
+      if @skin
+        skins = @skin.split(/[^A-Za-z0-9_-]+/)
+        for skinname in skins
+          if skin = window.dr.skins[skinname]
+            skin.applyTo(@)
+          else
+            console.log('Cannot apply skin:', skinname)
+
       else if @parent && @parent.reskin
         return @parent.reskin()
 

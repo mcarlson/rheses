@@ -38,7 +38,7 @@
             props = { "class" : tag, "x" : 10, "y" : y, "width" : 300, "height" : 30 }
             el = @createChild(props, false)
             el.$tagname = tag
-            @apply(el)
+            @applyTo(el)
             y = y + 10 + el.height
 
           @autoresize()
@@ -61,7 +61,7 @@
         return jQuery.extend(true, {}, tmpl);
     </method>
 
-    <method name="apply" args="view, override">
+    <method name="applyTo" args="view, override">
         tag = view['$tagname'] || 'view'
 
         attrs = @_attributesFor(tag)
@@ -76,13 +76,46 @@
               view.setAttribute(key, value)
             else if child = view[key]
               child.$skinleaf = true
-              @apply(child, value)
+              @applyTo(child, value)
 
         for subview in view.subviews
-          unless (subview.$instanceattributes && subview.$instanceattributes['skin']) || subview.$appliedskin == @name || subview.$skinleaf
-            @apply(subview)
+          unless subview && ((subview.$instanceattributes && subview.$instanceattributes['skin']) || subview.$appliedskin == @name || subview.$skinleaf)
+            @applyTo(subview)
 
         view.$appliedskin = @name
 
     </method>
 </class>
+
+<skin name="default">
+  <text fontweight="200" clip="true" color="white" fontsize="20" fontfamily="'mission-gothic', 'Helvetica Neue', Helvetica, Arial, sans-serif"></text>
+
+  <inputtext color="white" fontweight="300" fontsize="20" leftpadding="10" leftborder="2" bottomborder="2" bordercolor="white" fontfamily="'mission-gothic', 'Helvetica Neue', Helvetica, Arial, sans-serif">
+    <art name="indicator" fill="white" x="-5"></art>
+  </inputtext>
+
+  <labelbutton border="2" padding="3" textcolor="rgb(207,207,207)" defaultcolor="rgb(63,63,63)">
+    <art name="indicator" fill="white"></art>
+    <text color="rgb(207,207,207)" name="label" fontweight="200" text-transform="uppercase" bgcolor="transparent" fontsize="20" fontfamily="'mission-gothic', 'Helvetica Neue', Helvetica, Arial, sans-serif"></text>
+  </labelbutton>
+
+  <rangeslider bottomborder="2" bordercolor="white" lowselectcolor="#a0a0a0" highselectcolor="#a0a0a0">
+    <view name="highvalueview" bottomborder="2" bordercolor="white"></view>
+    <art name="highindicator" fill="white"></art>
+    <view name="lowvalueview" bottomborder="2" bordercolor="white"></view>
+    <art name="lowindicator" fill="white"></art>
+  </rangeslider>
+
+  <slider bottomborder="2" selectcolor="white">
+    <art name="indicator" fill="white"></art>
+  </slider>
+
+  <checkbutton border="2" padding="3" textcolor="rgb(140,140,140)" innerspacing="3">
+    <text color="rgb(140,140,140)" name="label" text-transform="uppercase" bgcolor="transparent" fontweight="200" fontsize="20" fontfamily="'mission-gothic', 'Helvetica Neue', Helvetica, Arial, sans-serif"></text>
+  </checkbutton>
+
+  <labeltoggle border="2" padding="3" textcolor="rgb(207,207,207)" defaultcolor="rgb(63,63,63)">
+    <art name="indicator" fill="white"></art>
+    <text color="rgb(207,207,207)" name="label" text-transform="uppercase" bgcolor="transparent" fontweight="200" fontsize="20" fontfamily="'mission-gothic', 'Helvetica Neue', Helvetica, Arial, sans-serif"></text>
+  </labeltoggle>
+</skin>

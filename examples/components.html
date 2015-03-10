@@ -8,10 +8,11 @@
   <script type="text/javascript" src="../layout.js"></script>
 </head>
 <body>
-<view width="100%" height="100%" scrollable="true" bgcolor="rgb(63,63,63)">
+<view id="all" width="100%" height="100%" scrollable="true" bgcolor="rgb(63,63,63)">
+  <skin name="hack"></skin>
   <spacedlayout axis="y" spacing="20"></spacedlayout>
 
-  <view name="labeltoggle" height="auto">
+  <view name="labeltoggle" height="auto" skin="default">
     <spacedlayout axis="x" spacing="12" updateparent="true"></spacedlayout>
     <text text="Label Toggle:"></text>
     <labeltoggle name="lt1" width="200" height="50" text="Fixed Size"></labeltoggle>
@@ -21,7 +22,7 @@
     <labeltoggle name="lt5" height="50" text="Only Height"></labeltoggle>
   </view>
 
-  <view name="labelbutton" height="auto">
+  <view name="labelbutton" height="auto" skin="default">
     <spacedlayout axis="x" spacing="12" updateparent="true"></spacedlayout>
     <text name="lblabel" text="Label Button:"></text>
     <labelbutton name="lb1" width="200" height="50" border="4" text="Fixed Size"></labelbutton>
@@ -33,7 +34,7 @@
 
   <class name="mycheckbutton" extends="checkbutton" defaultcolor="blue" textcolor="red" selectcolor="green" bgcolor="black"></class>
 
-  <view name="checkbutton" height="auto">
+  <view name="checkbutton" height="auto" skin="default">
     <spacedlayout axis="x" spacing="12" updateparent="true"></spacedlayout>
     <text name="cblabel" text="Check Button:"></text>
     <mycheckbutton name="cb1" width="200" height="50" border="4" text="Fixed Size"></mycheckbutton>
@@ -64,7 +65,7 @@
   <!-- Currently necessary to get mouse events to constantly run -->
   <handler event="onx" reference="dr.mouse" args="x"></handler>
 
-  <view name="slider">
+  <view name="slider" skin="default">
     <spacedlayout axis="y" spacing="8"></spacedlayout>
     <text name="sllabel" text="Sliders:"></text>
 

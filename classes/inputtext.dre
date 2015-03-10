@@ -153,6 +153,9 @@ SOFTWARE. -->
       paddingH = parseInt(domElem.css('padding-top')) + parseInt(domElem.css('padding-bottom'))
       @setAttribute('height', h + borderH + paddingH)
 
+    unless @width
+      @setAttribute('width', 100)
+
   </handler>
   
   <!--/**

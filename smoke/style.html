@@ -1,0 +1,174 @@
+<html>
+<head>
+    <style type="text/css">
+        body {
+            font-family: 'Arial';
+            font-size: 14px;
+        }
+    </style>
+
+    <title>rhes.es - Style Smoke Tests</title>
+    <script type="text/javascript" src="/lib/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="/lib/acorn.js"></script>
+    <script type="text/javascript" src="/lib/coffee-script.js"></script>
+    <script type="text/javascript" src="/layout.js"></script>
+    <script type="text/javascript" src="/lib/chai.js"></script>
+    <script>
+        var assert = chai.assert
+    </script>
+</head>
+<body>
+<view id="all">
+    <skin></skin>
+    <spacedlayout axis="y" spacing="10"></spacedlayout>
+
+    <view id="inputtext_style_tests" skin="default" width="auto" height="auto">
+        <spacedlayout axis="y" spacing="15"></spacedlayout>
+
+        <!-- Width and height with border/padding -->
+        <inputtext width="100" height="30" padding="4" border="1">
+            <handler event="oninit">
+                assert.testCaseLabel = 'Width and height with border/padding';
+
+                assert.equal(this.width, 100);
+                assert.equal(this.height, 30);
+                assert.equal($(this.sprite.input).width(), 98)
+                assert.equal($(this.sprite.input).height(), 28)
+
+                this.setAttribute('width', 200)
+                this.setAttribute('height', 100)
+                assert.equal(this.width, 200)
+                assert.equal(this.height, 100)
+                assert.equal($(this.sprite.input).width(), 181)
+                assert.equal($(this.sprite.input).height(), 87)
+            </handler>
+        </inputtext>
+
+        <!-- Default sizing -->
+        <inputtext bgcolor="green">
+            Text
+            <handler event="oninit">
+                assert.testCaseLabel = 'Default sizing';
+                assert.equal(this.width, 12)
+                assert.equal(this.height, 2)
+            </handler>
+        </inputtext>
+
+    </view>
+
+    <view id="text_style_tests" skin="default" width="auto" height="auto" scrollable="true">
+        <spacedlayout axis="x" spacing="1"></spacedlayout>
+
+        <!-- TEXT STYLING -->
+        <view width="auto" height="auto" bgcolor="lightgrey">
+            <spacedlayout axis="y" spacing="1"></spacedlayout>
+
+            <!-- Default Font styles -->
+            <text text="Default font styles">
+                <handler event="oninit">
+                    assert.testCaseLabel = 'Default Font styles';
+
+                    var el = this.sprite.el,
+                    jqel = $(el),
+                    style = el.style;
+
+                    assert.equal(this.fontsize, '20', 'Model should be 20');
+                    assert.equal(style['font-size'], '20px', 'Style property should be empty');
+                    assert.equal(jqel.css('font-size'), '20px', 'Effective style should be defined');
+
+                    assert.equal(this.fontfamily.replace(/'/g, "").replace(/\"/g, '').replace(/ /g, ''), "mission-gothic,HelveticaNeue,Helvetica,Arial,sans-serif");
+                    assert.equal(style['font-family'].replace(/'/g, "").replace(/\"/g, '').replace(/ /g, ''), "mission-gothic,HelveticaNeue,Helvetica,Arial,sans-serif");
+                    var ff = jqel.css('font-family');
+                    assert.equal(ff.replace(/'/g, "").replace(/\"/g, '').replace(/ /g, ''), "mission-gothic,HelveticaNeue,Helvetica,Arial,sans-serif");
+
+                    assert.equal(this.color, 'white');
+                    assert.equal(style['color'], 'white');
+                    assert.equal(jqel.css('color'), 'rgb(255, 255, 255)');
+
+                    assert.equal(this.bold, false);
+                    assert.equal(this.italic, false);
+                    assert.equal(this.underline, false);
+                    assert.equal(this.strike, false);
+                    assert.equal(this.smallcaps, false);
+
+                    assert.equal(style['font-weight'], '200');
+                    assert.equal(style['font-style'], '');
+                    assert.equal(style['text-decoration'], 'none');
+                    assert.equal(style['font-variant'], '');
+                </handler>
+            </text>
+
+            <text text="Multiple font properties" bgcolor="blue"
+              underline="true" bold="true" italic="true" smallcaps="true" fontsize="32"
+              fontfamily="'Brush Script MT', cursive" color="#9999ff">
+                <handler event="oninit">
+                    var style = this.sprite.el.style;
+
+                    assert.equal(this.fontfamily, "'Brush Script MT', cursive", 'fontfamily not set');
+                    assert.equal(this.fontsize, 32, 'fontsize not set');
+                    assert.equal(this.bold, true, 'bold not set');
+                    assert.equal(this.italic, true, 'italic not set');
+                    assert.equal(this.underline, true, 'underline not set');
+                    assert.equal(this.strike, false, 'underline not set');
+                    assert.equal(this.smallcaps, true, 'smallcaps not set');
+                    assert.equal(this.color, '#9999ff', 'color not set');
+
+                    var ff = style['font-family'];
+                    ff = ff.split('"').join("\'");
+                    ff = ff.split(', ').join(",");
+                    assert.equal(ff, "\'Brush Script MT\',cursive", 'missing size style');
+                    assert.equal(style['font-size'], '32px', 'missing size style');
+                    assert.equal(style['font-weight'], 200, 'missing bold style');
+                    assert.equal(style['font-style'], 'italic', 'missing italic style');
+                    assert.equal(style['text-decoration'], 'underline', 'missing underline style');
+                    assert.equal(style['font-variant'], 'small-caps', 'missing smallcaps style');
+                    assert.equal(style['color'], 'rgb(153, 153, 255)', 'missing color style');
+
+                    // Change to strike
+                    this.setAttribute('strike', true);
+                    assert.equal(this.underline, false);
+                    assert.equal(this.strike, true);
+                    assert.equal(style['text-decoration'], 'line-through');
+
+                    // Verify setting underline to false doesn't mess up strike
+                    this.setAttribute('underline', false);
+                    assert.equal(this.underline, false);
+                    assert.equal(this.strike, true);
+                    assert.equal(style['text-decoration'], 'line-through');
+
+                    // Change underline and strike to false
+                    this.setAttribute('strike', false);
+                    assert.equal(this.underline, false);
+                    assert.equal(this.strike, false);
+                    assert.equal(style['text-decoration'], 'none');
+                </handler>
+            </text>
+        </view>
+
+    </view>
+
+
+</view>
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+</body>
+</html>

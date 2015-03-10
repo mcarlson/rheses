@@ -2019,6 +2019,9 @@
         if (el == null) {
           el = this.el;
         }
+        if (name === '$instanceattributes') {
+          return;
+        }
         if (!internal && !(name in stylemap) && !(__indexOf.call(knownstyles, name) >= 0)) {
           console.warn("Setting unknown CSS property " + name + " = " + value + " on ", this.el.$view, stylemap, internal);
         }
@@ -3298,10 +3301,8 @@
       };
 
       View.prototype.attachSkinListener = function() {
-        var v;
         if (!this.$skinlistner) {
           this.$skinlistner = true;
-          v = this;
           return this.listenTo(this, 'subviewAdded', function(sv) {
             sv.attachSkinListener();
             return sv.reskin();
@@ -3310,10 +3311,24 @@
       };
 
       View.prototype.reskin = function() {
-        var skin;
-        if (this.skin && window.dr.skins && (skin = window.dr.skins[this.skin])) {
-          this.attachSkinListener();
-          return skin.apply(this);
+        var skin, skinname, skins, _i, _len, _results;
+        this.attachSkinListener();
+        if (!window.dr.skins) {
+          console.log("<skin> hasn't been initialized yet");
+          return;
+        }
+        if (this.skin) {
+          skins = this.skin.split(/[^A-Za-z0-9_-]+/);
+          _results = [];
+          for (_i = 0, _len = skins.length; _i < _len; _i++) {
+            skinname = skins[_i];
+            if (skin = window.dr.skins[skinname]) {
+              _results.push(skin.applyTo(this));
+            } else {
+              _results.push(console.log('Cannot apply skin:', skinname));
+            }
+          }
+          return _results;
         } else if (this.parent && this.parent.reskin) {
           return this.parent.reskin();
         }

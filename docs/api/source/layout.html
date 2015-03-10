@@ -20,7 +20,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright ( c ) 2014 Teem2 LLC
+ * Copyright ( c ) 2015 Teem2 LLC
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -42,7 +42,7 @@
  */
 
 (function() {
-  var hackstyle, propmap, stylemap,
+  var hackstyle, stylemap,
     __slice = [].slice,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -50,21 +50,30 @@
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   stylemap = {
+    bold: &#39;fontWeight&#39;,
+    bordercolor: &#39;borderColor&#39;,
+    borderstyle: &#39;borderStyle&#39;,
+    bottomborder: &#39;borderBottomWidth&#39;,
+    bottompadding: &#39;paddingBottom&#39;,
+    boxshadow: &#39;boxShadow&#39;,
+    bgcolor: &#39;backgroundColor&#39;,
+    ellipsis: &#39;textOverflow&#39;,
+    fontfamily: &#39;fontFamily&#39;,
+    fontweight: &#39;fontWeight&#39;,
+    fontsize: &#39;fontSize&#39;,
+    italic: &#39;fontStyle&#39;,
+    leftborder: &#39;borderLeftWidth&#39;,
+    leftpadding: &#39;paddingLeft&#39;,
+    rightborder: &#39;borderRightWidth&#39;,
+    rightpadding: &#39;paddingRight&#39;,
+    smallcaps: &#39;fontVariant&#39;,
+    topborder: &#39;borderTopWidth&#39;,
+    toppadding: &#39;paddingTop&#39;,
+    visible: &#39;visibility&#39;,
+    whitespace: &#39;whiteSpace&#39;,
     x: &#39;marginLeft&#39;,
     y: &#39;marginTop&#39;,
-    z: &#39;z-index&#39;,
-    bgcolor: &#39;backgroundColor&#39;,
-    visible: &#39;display&#39;,
-    borderstyle: &#39;borderStyle&#39;,
-    bordercolor: &#39;borderColor&#39;,
-    boxshadow: &#39;boxShadow&#39;,
-    fontsize: &#39;fontSize&#39;,
-    fontfamily: &#39;fontFamily&#39;
-  };
-
-  propmap = {
-    scrollx: &#39;scrollLeft&#39;,
-    scrolly: &#39;scrollTop&#39;
+    z: &#39;z-index&#39;
   };
 
   hackstyle = (function() {
@@ -82,11 +91,13 @@
         attrName = monitoredJQueryStyleProps[name.replace(/-([a-z])/i, function(m) {
           return m[1].toUpperCase();
         })];
-        monitoredJQueryStyleProps[name] = attrName ? attrName : name;
+        attrName = monitoredJQueryStyleProps[name] = attrName ? attrName : name;
       }
-      view = elem.$view;
-      if (view[attrName] !== value) {
-        view.setAttribute(attrName, value, true);
+      if (attrName) {
+        view = elem.$view;
+        if (view[attrName] !== value) {
+          view.setAttribute(attrName, value);
+        }
       }
       return origstyle.apply(this, arguments);
     };
@@ -100,7 +111,8 @@
   })();
 
   window.dr = (function() {
-    var AutoPropertyLayout, Class, Eventable, Events, Idle, Keyboard, Layout, Module, Mouse, Node, Path, Sprite, StartEventable, State, View, Window, callOnIdle, capabilities, clone, closeTo, compiler, constraintScopes, debug, dom, domElementAttributes, eventq, exports, fcamelCase, handlerq, hiddenAttributes, idle, ignoredAttributes, instantiating, knownstyles, matchEvent, mixOf, moduleKeywords, mouseEvents, noop, querystring, rdashAlpha, showWarnings, specialtags, ss, ss2, starttime, tagPackageSeparator, test, triggerlock, warnings, _initConstraints, _processAttrs;
+    var AutoPropertyLayout, COMMENT_NODE, Class, Eventable, Events, Idle, Keyboard, Layout, Module, Mouse, Node, Path, Sprite, StartEventable, State, View, Window, callOnIdle, capabilities, clone, closeTo, compiler, constraintScopes, debug, dom, eventq, exports, fcamelCase, handlerq, idle, ignoredAttributes, instantiating, knownstyles, matchEvent, matchPercent, mixOf, moduleKeywords, mouseEvents, noop, querystring, rdashAlpha, showWarnings, specialtags, ss, ss2, starttime, tagPackageSeparator, test, triggerlock, warnings, _initConstraints, _processAttrs;
+    COMMENT_NODE = window.Node.COMMENT_NODE;
     noop = function() {};
     closeTo = function(a, b, epsilon) {
       epsilon || (epsilon = 0.01);
@@ -129,6 +141,7 @@
       }
       return Mixed;
     };
+    matchPercent = /%$/;
 
 <span id='Events'>    /**
 </span>     * @class Events
@@ -349,6 +362,14 @@
       return Module;
 
     })();
+    ignoredAttributes = {
+      parent: true,
+      id: true,
+      name: true,
+      &quot;extends&quot;: true,
+      type: true,
+      scriptincludes: true
+    };
 
 <span id='Eventable'>    /**
 </span>     * @class Eventable {Core Dreem}
@@ -373,43 +394,137 @@
 
       typemappings = {
         number: parseFloat,
-        boolean: function(val) {
-          if (typeof val === &#39;string&#39;) {
-            return val === &#39;true&#39;;
+        boolean: function(v) {
+          if (typeof v === &#39;string&#39;) {
+            return v === &#39;true&#39;;
           } else {
-            return !!val;
+            return !!v;
           }
         },
-        string: function(val) {
-          return val + &#39;&#39;;
+        string: function(v) {
+          return v + &#39;&#39;;
         },
-        json: function(val) {
-          return JSON.parse(val);
+        json: function(v) {
+          return JSON.parse(v);
         },
-        expression: function(val) {
-          if (typeof val !== &#39;string&#39;) {
-            return val;
+        expression: function(v) {
+          if (typeof v !== &#39;string&#39;) {
+            return v;
+          } else {
+            return compiler.compile(&quot;return &quot; + v)();
           }
-          return compiler.compile(&quot;return &quot; + val)();
         },
-        positivenumber: function(val) {
-          val = parseFloat(val);
-          if (isNaN(val)) {
+        positivenumber: function(v) {
+          v = parseFloat(v);
+          if (isNaN(v)) {
             return 0;
           } else {
-            return Math.max(0, val);
+            return Math.max(0, v);
+          }
+        },
+        emptynumber: function(v) {
+          if ((v == null) || v === &#39;&#39;) {
+            return &#39;&#39;;
+          } else {
+            return parseFloat(v);
+          }
+        },
+        size: function(v) {
+          if (matchPercent.test(v) || v === &#39;auto&#39;) {
+            return v;
+          } else {
+            v = parseFloat(v);
+            if (isNaN(v)) {
+              return 0;
+            } else {
+              return Math.max(0, v);
+            }
+          }
+        },
+        x: function(v) {
+          var normValue;
+          if (matchPercent.test(v)) {
+            return v;
+          } else {
+            if (typeof v === &#39;string&#39;) {
+              normValue = v.toLowerCase();
+              switch (normValue) {
+                case &#39;begin&#39;:
+                case &#39;middle&#39;:
+                case &#39;end&#39;:
+                case &#39;left&#39;:
+                case &#39;right&#39;:
+                case &#39;center&#39;:
+                case &#39;none&#39;:
+                  return normValue;
+                default:
+                  v = parseFloat(v);
+              }
+            }
+            if (isNaN(v)) {
+              v = this.x;
+              if (isNaN(v)) {
+                return 0;
+              } else {
+                return v;
+              }
+            } else {
+              return v;
+            }
+          }
+        },
+        y: function(v) {
+          var normValue;
+          if (matchPercent.test(v)) {
+            return v;
+          } else {
+            if (typeof v === &#39;string&#39;) {
+              normValue = v.toLowerCase();
+              switch (normValue) {
+                case &#39;begin&#39;:
+                case &#39;middle&#39;:
+                case &#39;end&#39;:
+                case &#39;top&#39;:
+                case &#39;bottom&#39;:
+                case &#39;center&#39;:
+                case &#39;none&#39;:
+                  return normValue;
+                default:
+                  v = parseFloat(v);
+              }
+            }
+            if (isNaN(v)) {
+              v = this.y;
+              if (isNaN(v)) {
+                return 0;
+              } else {
+                return v;
+              }
+            } else {
+              return v;
+            }
           }
         }
       };
 
       Eventable.prototype._coerceType = function(name, value, type) {
+        var e;
         type || (type = this.types[name]);
         if (type) {
-          if (!typemappings[type]) {
-            showWarnings([&quot;Invalid type &#39;&quot; + type + &quot;&#39; for attribute &#39;&quot; + name + &quot;&#39;, must be one of: &quot; + (Object.keys(typemappings).join(&#39;, &#39;))]);
-            return;
+          if (debug || test) {
+            if (!typemappings[type]) {
+              showWarnings([&quot;Invalid type &#39;&quot; + type + &quot;&#39; for attribute &#39;&quot; + name + &quot;&#39;, must be one of: &quot; + (Object.keys(typemappings).join(&#39;, &#39;))]);
+              return;
+            }
+            try {
+              value = typemappings[type].call(this, value);
+            } catch (_error) {
+              e = _error;
+              showWarnings([&quot;error parsing &quot; + type + &quot; value &#39;&quot; + value + &quot;&#39; for attribute &#39;&quot; + name + &quot;&#39;&quot;]);
+            }
+          } else {
+            value = typemappings[type].call(this, value);
           }
-          value = typemappings[type](value);
           if (type === &#39;number&#39; &amp;&amp; isNaN(value)) {
             value = this[name];
             if (isNaN(value)) {
@@ -422,23 +537,6 @@
         return value;
       };
 
-      Eventable.prototype._setDefaults = function(attributes, defaults) {
-        var key, value, _results;
-        if (defaults == null) {
-          defaults = {};
-        }
-        _results = [];
-        for (key in defaults) {
-          value = defaults[key];
-          if (!(key in attributes)) {
-            _results.push(attributes[key] = defaults[key]);
-          } else {
-            _results.push(void 0);
-          }
-        }
-        return _results;
-      };
-
 
 <span id='Eventable-method-setAttribute'>      /**
 </span>       * Sets an attribute on this object, calls a setter function if it exists.
@@ -448,11 +546,9 @@
        * @param value the value to set to
        */
 
-      Eventable.prototype.setAttribute = function(name, value, skipcoercion, skipConstraintSetup, skipconstraintunregistration) {
+      Eventable.prototype.setAttribute = function(name, value, skipconstraintunregistration) {
         var setterName;
-        if (!skipcoercion) {
-          value = this._coerceType(name, value);
-        }
+        value = this._coerceType(name, value);
         if (!skipconstraintunregistration) {
           this._unbindConstraint(name);
         }
@@ -463,7 +559,11 @@
             return this;
           }
         }
-        this.defaultSetAttributeBehavior(name, value);
+        if (name in ignoredAttributes) {
+          this.setAndFire(name, value);
+        } else {
+          this.defaultSetAttributeBehavior(name, value);
+        }
         return this;
       };
 
@@ -476,6 +576,17 @@
        */
 
       Eventable.prototype.defaultSetAttributeBehavior = function(name, value) {
+        return this.setAndFire(name, value);
+      };
+
+
+<span id='Eventable-method-setAndFire'>      /**
+</span>       * Stores the value on this object and fires an event.
+       * @param {String} name the name of the attribute to set
+       * @param value the value to set to
+       */
+
+      Eventable.prototype.setAndFire = function(name, value) {
         return this.sendEvent(name, this[name] = value);
       };
 
@@ -667,7 +778,7 @@
             script = &quot;\&quot;use strict\&quot;\n&quot; + script;
           }
           if (name) {
-            func = new Function(&quot;return function &quot; + name + &quot;(&quot; + argstring + &quot;){&quot; + script + &quot;}&quot;)();
+            func = new Function(&quot;return function &quot; + (name.replace(&#39;-&#39;, &#39;_&#39;)) + &quot;(&quot; + argstring + &quot;){&quot; + script + &quot;}&quot;)();
           } else {
             func = new Function(args, script);
           }
@@ -866,7 +977,7 @@
 
       earlyattributes = [&#39;name&#39;, &#39;parent&#39;];
 
-      lateattributes = [&#39;data&#39;];
+      lateattributes = [&#39;data&#39;, &#39;skin&#39;];
 
       function Node(el, attributes) {
         var args, hassuper, method, methodName, methodObj, methods, mixedAttributes, supressTagname, _i, _j, _len, _len1, _ref, _ref1;
@@ -1281,7 +1392,7 @@
               continue;
             }
             if (!(boundref instanceof Eventable)) {
-              console.log([&quot;Binding to non-Eventable &quot; + bindexpression + &quot; of constraint &quot; + expression + &quot; for &quot; + this.$tagname + (this.id ? &#39;#&#39; + this.id : this.name ? &#39;.&#39; + name : &#39;&#39;)]);
+              console.log(&quot;Binding to non-Eventable &quot; + bindexpression + &quot; of constraint &quot; + expression + &quot; for &quot; + this.$tagname + (this.id ? &#39;#&#39; + this.id : this.name ? &#39;.&#39; + name : &#39;&#39;));
             }
             for (_i = 0, _len = bindinglist.length; _i &lt; _len; _i++) {
               binding = bindinglist[_i];
@@ -1292,7 +1403,7 @@
               constraint.callbackbindings.push(property, boundref);
             }
           }
-          this.setAttribute(name, fn(), false, false, true);
+          this.setAttribute(name, fn(), true);
         }
       };
 
@@ -1329,7 +1440,7 @@
 
       Node.prototype._constraintCallback = function(name, fn) {
         return (function constraintCallback(){;
-        this.setAttribute(name, fn(), false, false, true);
+        this.setAttribute(name, fn(), true);
         return }).bind(this);
       };
 
@@ -1529,18 +1640,6 @@
      * Abstracts the underlying visual primitives (currently HTML) from dreem&#39;s view system.
      */
     Sprite = (function() {
-      var styleval;
-
-      styleval = {
-        display: function(isVisible) {
-          if (isVisible) {
-            return &#39;&#39;;
-          } else {
-            return &#39;none&#39;;
-          }
-        }
-      };
-
       function Sprite(jqel, view, tagname) {
         if (tagname == null) {
           tagname = &#39;div&#39;;
@@ -1557,34 +1656,94 @@
         this._updateClass();
       }
 
-      Sprite.prototype.setStyle = function(name, value, internal, el) {
-        if (el == null) {
-          el = this.el;
+      Sprite.prototype.setAttribute = function(name, value) {
+        var types;
+        switch (name) {
+          case &#39;width&#39;:
+          case &#39;height&#39;:
+          case &#39;z&#39;:
+          case &#39;opacity&#39;:
+          case &#39;bgcolor&#39;:
+          case &#39;color&#39;:
+          case &#39;whitespace&#39;:
+          case &#39;fontsize&#39;:
+          case &#39;fontfamily&#39;:
+          case &#39;fontweight&#39;:
+          case &#39;text-transform&#39;:
+          case &#39;boxshadow&#39;:
+          case &#39;leftpadding&#39;:
+          case &#39;rightpadding&#39;:
+          case &#39;toppadding&#39;:
+          case &#39;bottompadding&#39;:
+          case &#39;leftborder&#39;:
+          case &#39;rightborder&#39;:
+          case &#39;topborder&#39;:
+          case &#39;bottomborder&#39;:
+          case &#39;bordercolor&#39;:
+          case &#39;borderstyle&#39;:
+            return this.setStyle(name, value);
+          case &#39;bold&#39;:
+            return this.setStyle(name, value ? &#39;bold&#39; : &#39;normal&#39;);
+          case &#39;italic&#39;:
+            return this.setStyle(name, value ? &#39;italic&#39; : &#39;normal&#39;);
+          case &#39;smallcaps&#39;:
+            return this.setStyle(name, value ? &#39;small-caps&#39; : &#39;normal&#39;);
+          case &#39;ellipsis&#39;:
+            this.__ellipsis = value;
+            this.setStyle(name, value ? &#39;ellipsis&#39; : &#39;clip&#39;);
+            return this.__updateOverflow();
+          case &#39;perspective&#39;:
+          case &#39;transform-style&#39;:
+          case &#39;transform-origin&#39;:
+          case &#39;transform&#39;:
+            return this.setStyle(capabilities.prefix.css + name, value);
+          default:
+            types = this.el.$view._declaredTypes;
+            if (types[name] == null) {
+              return this.setStyle(name, value);
+            }
         }
-        if (value == null) {
-          value = &#39;&#39;;
-        }
-        if (name in stylemap) {
-          name = stylemap[name];
-        }
-        if (name in styleval) {
-          value = styleval[name](value);
-        }
-        return el.style[name] = value;
       };
 
-      Sprite.prototype.setProperty = function(name, value, el) {
-        if (el == null) {
-          el = this.el;
+      Sprite.prototype.setStyle = (function(isWebkit) {
+        if (isWebkit) {
+          return function(name, value, internal, el) {
+            var perturb, v;
+            if (el == null) {
+              el = this.el;
+            }
+            if (value == null) {
+              value = &#39;&#39;;
+            }
+            if (name in stylemap) {
+              name = stylemap[name];
+            }
+            el.style[name] = value;
+            if (name === &#39;borderTopWidth&#39; || name === &#39;paddingTop&#39;) {
+              if (this.__BP_TOGGLE = !this.__BP_TOGGLE) {
+                perturb = -0.001;
+              } else {
+                perturb = 0.001;
+              }
+              v = el.style.paddingLeft;
+              return el.style.paddingLeft = Number(v.substring(0, v.length - 2)) + perturb + &#39;px&#39;;
+            }
+          };
+        } else {
+          return function(name, value, internal, el) {
+            if (el == null) {
+              el = this.el;
+            }
+            if (value == null) {
+              value = &#39;&#39;;
+            }
+            if (name in stylemap) {
+              name = stylemap[name];
+            }
+            return el.style[name] = value;
+          };
         }
-        if (value == null) {
-          value = &#39;&#39;;
-        }
-        if (name in propmap) {
-          name = propmap[name];
-        }
-        return el[name] = value;
-      };
+      })(capabilities.prefix.dom === &#39;WebKit&#39;);
 
       Sprite.prototype.set_parent = function(parent) {
         if (parent instanceof Sprite) {
@@ -1607,9 +1766,49 @@
         }
       };
 
+      Sprite.prototype.set_scrollx = function(v) {
+        if (this.el.scrollLeft !== v) {
+          return this.el.scrollLeft = v;
+        }
+      };
+
+      Sprite.prototype.set_scrolly = function(v) {
+        if (this.el.scrollTop !== v) {
+          return this.el.scrollTop = v;
+        }
+      };
+
       Sprite.prototype.set_cursor = function(cursor) {
         this.__cursor = cursor;
         return this.setStyle(&#39;cursor&#39;, this._cursorVal(), true);
+      };
+
+      Sprite.prototype.set_visible = function(visible) {
+        var value, view, x, y;
+        if (visible) {
+          value = null;
+          view = this.el.$view;
+          x = view.x;
+          y = view.y;
+        } else {
+          value = &#39;hidden&#39;;
+          x = y = -100000;
+        }
+        this.setStyle(&#39;visibility&#39;, value, true);
+        this.setStyle(&#39;marginLeft&#39;, x, true);
+        return this.setStyle(&#39;marginTop&#39;, y, true);
+      };
+
+      Sprite.prototype.set_x = function(x) {
+        if (this.el.$view.visible) {
+          return this.setStyle(&#39;marginLeft&#39;, x, true);
+        }
+      };
+
+      Sprite.prototype.set_y = function(y) {
+        if (this.el.$view.visible) {
+          return this.setStyle(&#39;marginTop&#39;, y, true);
+        }
       };
 
       Sprite.prototype.set_clickable = function(clickable) {
@@ -1635,7 +1834,7 @@
       };
 
       Sprite.prototype.set_scrollbars = function(scrollbars) {
-        this.__scrollbars = scrollbars ? &#39;&#39; : &#39;noscrollbar&#39;;
+        this.__scrollbars = scrollbars;
         return this._updateClass();
       };
 
@@ -1647,10 +1846,10 @@
           x = domElement.scrollLeft;
           y = domElement.scrollTop;
           if (target.scrollx !== x) {
-            target.setAttribute(&#39;scrollx&#39;, x, true, true, true, true);
+            target.setAttribute(&#39;scrollx&#39;, x);
           }
           if (target.scrolly !== y) {
-            target.setAttribute(&#39;scrolly&#39;, y, true, true, true, true);
+            target.setAttribute(&#39;scrolly&#39;, y);
           }
           oldEvt = this._lastScrollEvent;
           newEvt = {
@@ -1667,7 +1866,7 @@
       };
 
       Sprite.prototype.__updateOverflow = function() {
-        return this.setStyle(&#39;overflow&#39;, this.__scrollable ? &#39;auto&#39; : this.__clip ? &#39;hidden&#39; : &#39;&#39;, true);
+        return this.setStyle(&#39;overflow&#39;, this.__scrollable ? &#39;auto&#39; : this.__clip || this.__ellipsis ? &#39;hidden&#39; : &#39;&#39;, true);
       };
 
       Sprite.prototype.__updatePointerEvents = function() {
@@ -1682,27 +1881,40 @@
         return this.el = this.jqel = this.el.$view = null;
       };
 
+      Sprite.prototype.setInnerHTML = function(html) {
+        return this.el.innerHTML = html;
+      };
+
       Sprite.prototype.setText = function(txt) {
+        var cld, tnode, _i, _len, _ref;
         if (txt != null) {
-          return this.el.innerHTML = txt;
+          _ref = this.el.childNodes;
+          for (_i = 0, _len = _ref.length; _i &lt; _len; _i++) {
+            cld = _ref[_i];
+            if (cld &amp;&amp; cld.nodeType === 3) {
+              this.el.removeChild(cld);
+            }
+          }
+          tnode = document.createTextNode(txt);
+          return this.el.appendChild(tnode);
         }
       };
 
-      Sprite.prototype.getText = function(textOnly) {
+      Sprite.prototype.getText = function() {
         var child, texts;
-        if (textOnly) {
-          child = this.el.firstChild;
-          texts = [];
-          while (child) {
-            if (child.nodeType === 3) {
-              texts.push(child.data.trim());
-            }
-            child = child.nextSibling;
+        child = this.el.firstChild;
+        texts = [];
+        while (child) {
+          if (child.nodeType === 3) {
+            texts.push(child.data.trim());
           }
-          return texts.join(&quot;&quot;);
-        } else {
-          return this.el.innerHTML;
+          child = child.nextSibling;
         }
+        return texts.join(&quot;&quot;);
+      };
+
+      Sprite.prototype.getInnerHTML = function() {
+        return this.el.innerHTML;
       };
 
       Sprite.prototype.value = function(value) {
@@ -1714,24 +1926,6 @@
         } else {
           return this.input.value;
         }
-      };
-
-      Sprite.prototype.measureTextSize = function(multiline, width, resize) {
-        if (multiline) {
-          this.setStyle(&#39;width&#39;, width, true);
-          this.setStyle(&#39;height&#39;, &#39;auto&#39;, true);
-          this.setStyle(&#39;whiteSpace&#39;, &#39;normal&#39;, true);
-        } else {
-          if (resize) {
-            this.setStyle(&#39;width&#39;, &#39;auto&#39;, true);
-            this.setStyle(&#39;height&#39;, &#39;auto&#39;, true);
-          }
-          this.setStyle(&#39;whiteSpace&#39;, &#39;&#39;, true);
-        }
-        return {
-          width: this.el.clientWidth,
-          height: this.el.clientHeight
-        };
       };
 
       Sprite.prototype.handle = function(event) {
@@ -1767,10 +1961,21 @@
         if (height) {
           this.setStyle(&#39;height&#39;, height, true, input);
         }
+        this.setStyle(&#39;color&#39;, &#39;inherit&#39;, false, input);
+        this.setStyle(&#39;background&#39;, &#39;inherit&#39;, false, input);
+        this.setStyle(&#39;font-variant&#39;, &#39;inherit&#39;, false, input);
+        this.setStyle(&#39;font-style&#39;, &#39;inherit&#39;, false, input);
+        this.setStyle(&#39;font-weight&#39;, &#39;inherit&#39;, false, input);
+        this.setStyle(&#39;font-size&#39;, &#39;inherit&#39;, false, input);
+        this.setStyle(&#39;font-family&#39;, &#39;inherit&#39;, false, input);
         this.el.appendChild(input);
         input.$view = this.el.$view;
         $(input).on(&#39;focus blur&#39;, this.handle);
         return this.input = input;
+      };
+
+      Sprite.prototype.getBounds = function() {
+        return this.el.getBoundingClientRect();
       };
 
       Sprite.prototype.getAbsolute = function() {
@@ -1799,8 +2004,8 @@
         if (this.__classname) {
           classes += &#39; &#39; + this.__classname;
         }
-        if (this.__scrollbars) {
-          classes += &#39; &#39; + this.__scrollbars;
+        if (!this.__scrollbars) {
+          classes += &#39; &#39; + &#39;noscrollbar&#39;;
         }
         return this.el.setAttribute(&#39;class&#39;, classes);
       };
@@ -1831,46 +2036,15 @@
         if (el == null) {
           el = this.el;
         }
+        if (name === &#39;$instanceattributes&#39;) {
+          return;
+        }
         if (!internal &amp;&amp; !(name in stylemap) &amp;&amp; !(__indexOf.call(knownstyles, name) &gt;= 0)) {
           console.warn(&quot;Setting unknown CSS property &quot; + name + &quot; = &quot; + value + &quot; on &quot;, this.el.$view, stylemap, internal);
         }
         return ss2(name, value, internal, el);
       };
     }
-    hiddenAttributes = {
-      text: true,
-      $tagname: true,
-      data: true,
-      replicator: true,
-      &quot;class&quot;: true,
-      clip: true,
-      clickable: true,
-      scrollable: true,
-      $textcontent: true,
-      resize: true,
-      multiline: true,
-      ignorelayout: true,
-      layouthint: true,
-      initchildren: true,
-      rotation: true,
-      xscale: true,
-      yscale: true,
-      xanchor: true,
-      yanchor: true,
-      zanchor: true
-    };
-    domElementAttributes = {
-      scrollx: true,
-      scrolly: true
-    };
-    ignoredAttributes = {
-      parent: true,
-      id: true,
-      name: true,
-      &quot;extends&quot;: true,
-      type: true,
-      scriptincludes: true
-    };
 
 <span id='dr-view'>    /**
 </span>     * @aside guide constraints
@@ -1938,6 +2112,12 @@
      *     &lt;/view&gt;
      */
     View = (function(_super) {
+      __extends(View, _super);
+
+      function View() {
+        return View.__super__.constructor.apply(this, arguments);
+      }
+
 
 <span id='dr-view-attribute-x'>      /**
 </span>       * @attribute {Number} [x=0]
@@ -1963,6 +2143,7 @@
        *      to the view are accounted for.
        */
 
+
 <span id='dr-view-attribute-y'>      /**
 </span>       * @attribute {Number} [y=0]
        * This view&#39;s y-position. There are several categories of allowed values.
@@ -1987,6 +2168,7 @@
        *      to the view are accounted for.
        */
 
+
 <span id='dr-view-attribute-width'>      /**
 </span>       * @attribute {Number} [width=0]
        * This view&#39;s width. There are several categories of allowed values.
@@ -2004,6 +2186,7 @@
        *      not ignored since it does not necessarily result in a circular
        *      constraint.
        */
+
 
 <span id='dr-view-attribute-height'>      /**
 </span>       * @attribute {Number} [height=0]
@@ -2023,17 +2206,20 @@
        *      circular constraint.
        */
 
+
 <span id='dr-view-attribute-isaligned'>      /**
 </span>       * @attribute {Boolean} isaligned Indicates that the x attribute is
        * set to one of the &quot;special&quot; alignment values.
        * @readonly
        */
 
+
 <span id='dr-view-attribute-isvaligned'>      /**
 </span>       * @attribute {Boolean} isvaligned Indicates that the y attribute is
        * set to one of the &quot;special&quot; alignment values.
        * @readonly
        */
+
 
 <span id='dr-view-attribute-innerwidth'>      /**
 </span>       * @attribute {Number} innerwidth The width of the view less padding and
@@ -2042,6 +2228,7 @@
        * @readonly
        */
 
+
 <span id='dr-view-attribute-innerheight'>      /**
 </span>       * @attribute {Number} innerheight The height of the view less padding and
        * border. This is the height child views should use if border or padding
@@ -2049,17 +2236,20 @@
        * @readonly
        */
 
+
 <span id='dr-view-attribute-boundsx'>      /**
 </span>       * @attribute {Number} boundsx The x position of the bounding box for the
        * view. This value accounts for rotation and scaling of the view.
        * @readonly
        */
 
+
 <span id='dr-view-attribute-boundsy'>      /**
 </span>       * @attribute {Number} boundsy The y position of the bounding box for the
        * view. This value accounts for rotation and scaling of the view.
        * @readonly
        */
+
 
 <span id='dr-view-attribute-boundsxdiff'>      /**
 </span>       * @attribute {Number} boundsxdiff The difference between the x position
@@ -2068,12 +2258,14 @@
        * @readonly
        */
 
+
 <span id='dr-view-attribute-boundsydiff'>      /**
 </span>       * @attribute {Number} boundsydiff The difference between the y position
        * of the view and the boundsy of the view. Useful when you need to offset
        * a view to make it line up when it is scaled or rotated.
        * @readonly
        */
+
 
 <span id='dr-view-attribute-boundswidth'>      /**
 </span>       * @attribute {Number} boundswidth The width of the bounding box for the
@@ -2083,6 +2275,7 @@
        * @readonly
        */
 
+
 <span id='dr-view-attribute-boundsheight'>      /**
 </span>       * @attribute {Number} boundsheight The height of the bounding box for the
        * view. This value accounts for rotation and scaling of the view. This is
@@ -2091,65 +2284,78 @@
        * @readonly
        */
 
+
 <span id='dr-view-attribute-clickable'>      /**
 </span>       * @attribute {Boolean} [clickable=false]
        * If true, this view recieves mouse events. Automatically set to true when an onclick/mouse* event is registered for this view.
        */
+
 
 <span id='dr-view-attribute-clip'>      /**
 </span>       * @attribute {Boolean} [clip=false]
        * If true, this view clips to its bounds
        */
 
+
 <span id='dr-view-attribute-scrollable'>      /**
 </span>       * @attribute {Boolean} [scrollable=false]
        * If true, this view clips to its bounds and provides scrolling to see content that overflows the bounds
        */
+
 
 <span id='dr-view-attribute-scrollbars'>      /**
 </span>       * @attribute {Boolean} [scrollbars=false]
        * Controls the visibility of scrollbars if scrollable is true
        */
 
+
 <span id='dr-view-attribute-visible'>      /**
 </span>       * @attribute {Boolean} [visible=true]
        * If false, this view is invisible
        */
+
 
 <span id='dr-view-attribute-bgcolor'>      /**
 </span>       * @attribute {String} bgcolor
        * Sets this view&#39;s background color
        */
 
+
 <span id='dr-view-attribute-bordercolor'>      /**
 </span>       * @attribute {String} bordercolor
        * Sets this view&#39;s border color
        */
+
 
 <span id='dr-view-attribute-borderstyle'>      /**
 </span>       * @attribute {String} borderstyle
        * Sets this view&#39;s border style (can be any css border-style value)
        */
 
+
 <span id='dr-view-attribute-border'>      /**
 </span>       * @attribute {Number} border
        * Sets this view&#39;s border width
        */
+
 
 <span id='dr-view-attribute-padding'>      /**
 </span>       * @attribute {Number} padding
        * Sets this view&#39;s padding
        */
 
+
 <span id='dr-view-attribute-xscale'>      /**
 </span>       * @attribute {Number} [xscale=1.0]
        * Sets this view&#39;s width scale
        */
 
+
 <span id='dr-view-attribute-yscale'>      /**
 </span>       * @attribute {Number} [yscale=1.0]
        * Sets this view&#39;s height scale
        */
+
 
 <span id='dr-view-attribute-z'>      /**
 </span>       * @attribute {Number} [z=0]
@@ -2158,10 +2364,12 @@
        * *(note: setting a `z` value for a view implicitly sets its parent&#39;s `transform-style` to `preserve-3d`)*
        */
 
+
 <span id='dr-view-attribute-rotation'>      /**
 </span>       * @attribute {Number} [rotation=0]
        * Sets this view&#39;s rotation in degrees.
        */
+
 
 <span id='dr-view-attribute-perspective'>      /**
 </span>       * @attribute {String} [perspective=0]
@@ -2169,10 +2377,12 @@
        * When this value is set, items further from the camera will appear smaller, and closer items will be larger.
        */
 
+
 <span id='dr-view-attribute-opacity'>      /**
 </span>       * @attribute {Number} [opacity=1.0]
        * Sets this view&#39;s opacity, values can be a float from 0.0 to 1.0
        */
+
 
 <span id='dr-view-attribute-scrollx'>      /**
 </span>       * @attribute {Number} [scrollx=0]
@@ -2181,12 +2391,14 @@
        * scrollx event and a scroll event.
        */
 
+
 <span id='dr-view-attribute-scrolly'>      /**
 </span>       * @attribute {Number} [scrolly=0]
        * Sets the vertical scroll position of the view. Only relevant if
        * this.scrollable is true. Setting this value will generate both a
        * scrolly event and a scroll event.
        */
+
 
 <span id='dr-view-attribute-xanchor'>      /**
 </span>       * @attribute {Number} [xanchor=0]
@@ -2202,6 +2414,7 @@
        *      width of the view will be used.
        */
 
+
 <span id='dr-view-attribute-yanchor'>      /**
 </span>       * @attribute {Number} [yanchor=0]
        * Sets the vertical center of the view&#39;s transformations (such as 
@@ -2216,20 +2429,24 @@
        *      height of the view will be used.
        */
 
+
 <span id='dr-view-attribute-zanchor'>      /**
 </span>       * @attribute {Number} [zanchor=0]
        * Sets the z-axis center of the view&#39;s transformations (such as rotation)
        */
+
 
 <span id='dr-view-attribute-cursor'>      /**
 </span>       * @attribute {String} [cursor=&#39;pointer&#39;]
        * Cursor that should be used when the mouse is over this view, can be any CSS cursor value. Only applies when clickable is true.
        */
 
+
 <span id='dr-view-attribute-boxshadow'>      /**
 </span>       * @attribute {String} [boxshadow]
        * Drop shadow using standard CSS format (offset-x offset-y blur-radius spread-radius color). For example: &quot;10px 10px 5px 0px #888888&quot;.
        */
+
 
 <span id='dr-view-attribute-ignorelayout'>      /**
 </span>       * @attribute {String} [ignorelayout=&#39;false&#39;]
@@ -2241,6 +2458,7 @@
        * default value for all layouts not specifically mentioned in the map.
        */
 
+
 <span id='dr-view-attribute-layouthint'>      /**
 </span>       * @attribute {String} [layouthint=&#39;&#39;]
        * Provides per view hinting to layouts. The specific hints supported
@@ -2250,11 +2468,13 @@
        * a prefix of &#39;*&#39; is used the hint will be targeted to all layouts.
        */
 
+
 <span id='dr-view-event-onclick'>      /**
 </span>       * @event onclick
        * Fired when this view is clicked
        * @param {dr.view} view The dr.view that fired the event
        */
+
 
 <span id='dr-view-event-onmouseover'>      /**
 </span>       * @event onmouseover
@@ -2262,11 +2482,13 @@
        * @param {dr.view} view The dr.view that fired the event
        */
 
+
 <span id='dr-view-event-onmouseout'>      /**
 </span>       * @event onmouseout
        * Fired when the mouse moves off this view
        * @param {dr.view} view The dr.view that fired the event
        */
+
 
 <span id='dr-view-event-onmousedown'>      /**
 </span>       * @event onmousedown
@@ -2274,11 +2496,13 @@
        * @param {dr.view} view The dr.view that fired the event
        */
 
+
 <span id='dr-view-event-onmouseup'>      /**
 </span>       * @event onmouseup
        * Fired when the mouse goes up on this view
        * @param {dr.view} view The dr.view that fired the event
        */
+
 
 <span id='dr-view-event-onscroll'>      /**
 </span>       * @event onscroll
@@ -2300,30 +2524,6 @@
        *       of the scrollable view. The maximum can be calculated using this
        *       formula: scrollheight - view.height + 2*view.border
        */
-      var defaults, matchPercent;
-
-      __extends(View, _super);
-
-      function View() {
-        return View.__super__.constructor.apply(this, arguments);
-      }
-
-      defaults = {
-        x: 0,
-        y: 0,
-        width: 0,
-        height: 0,
-        opacity: 1,
-        clickable: false,
-        clip: false,
-        scrollable: false,
-        visible: true,
-        cursor: &#39;pointer&#39;,
-        bordercolor: &#39;transparent&#39;,
-        borderstyle: &#39;solid&#39;,
-        ignorelayout: false,
-        scrollbars: false
-      };
 
       View.prototype.construct = function(el, attributes) {
 
@@ -2341,48 +2541,60 @@
         var key, type, types, _ref;
         this.subviews = [];
         types = {
-          x: &#39;number&#39;,
-          y: &#39;number&#39;,
-          z: &#39;number&#39;,
-          xscale: &#39;number&#39;,
-          yscale: &#39;number&#39;,
-          rotation: &#39;number&#39;,
-          opacity: &#39;number&#39;,
-          width: &#39;positivenumber&#39;,
-          height: &#39;positivenumber&#39;,
-          clickable: &#39;boolean&#39;,
-          clip: &#39;boolean&#39;,
-          scrollable: &#39;boolean&#39;,
-          visible: &#39;boolean&#39;,
           border: &#39;positivenumber&#39;,
           borderstyle: &#39;string&#39;,
-          padding: &#39;positivenumber&#39;,
-          leftborder: &#39;positivenumber&#39;,
-          rightborder: &#39;positivenumber&#39;,
-          topborder: &#39;positivenumber&#39;,
           bottomborder: &#39;positivenumber&#39;,
-          leftpadding: &#39;positivenumber&#39;,
-          rightpadding: &#39;positivenumber&#39;,
-          toppadding: &#39;positivenumber&#39;,
           bottompadding: &#39;positivenumber&#39;,
+          &quot;class&quot;: &#39;string&#39;,
+          clickable: &#39;boolean&#39;,
+          clip: &#39;boolean&#39;,
+          cursor: &#39;string&#39;,
+          height: &#39;size&#39;,
           ignorelayout: &#39;json&#39;,
           layouthint: &#39;json&#39;,
+          leftborder: &#39;positivenumber&#39;,
+          leftpadding: &#39;positivenumber&#39;,
+          opacity: &#39;number&#39;,
+          padding: &#39;positivenumber&#39;,
+          rightborder: &#39;positivenumber&#39;,
+          rightpadding: &#39;positivenumber&#39;,
+          rotation: &#39;number&#39;,
+          scrollable: &#39;boolean&#39;,
+          scrollbars: &#39;boolean&#39;,
           scrollx: &#39;number&#39;,
           scrolly: &#39;number&#39;,
-          scrollbars: &#39;boolean&#39;
+          skin: &#39;string&#39;,
+          topborder: &#39;positivenumber&#39;,
+          toppadding: &#39;positivenumber&#39;,
+          visible: &#39;boolean&#39;,
+          width: &#39;size&#39;,
+          x: &#39;x&#39;,
+          xanchor: &#39;string&#39;,
+          xscale: &#39;number&#39;,
+          y: &#39;y&#39;,
+          yanchor: &#39;string&#39;,
+          yscale: &#39;number&#39;,
+          z: &#39;number&#39;,
+          zanchor: &#39;number&#39;,
+          $tagname: &#39;string&#39;,
+          $textcontent: &#39;string&#39;
         };
         _ref = attributes.$types;
         for (key in _ref) {
           type = _ref[key];
           types[key] = type;
         }
-        attributes.$types = types;
-        this._setDefaults(attributes, defaults);
-        this.__fullBorderPaddingWidth = 0;
-        this.__fullBorderPaddingHeight = 0;
+        this._declaredTypes = attributes.$types = types;
+        this.__fullBorderPaddingWidth = this.__fullBorderPaddingHeight = 0;
         this.xanchor = this.yanchor = &#39;center&#39;;
-        this.leftborder = this.rightborder = this.topborder = this.bottomborder = this.leftpadding = this.rightpadding = this.toppadding = this.bottompadding = this.width = this.height = this.zanchor = this.boundsxdiff = this.boundsydiff = this.boundsx = this.boundsy = this.boundswidth = this.boundsheight = 0;
-        this.clip = this.scrollable = this.clickable = this.isaligned = this.isvaligned = false;
+        this.cursor = &#39;pointer&#39;;
+        this.bgcolor = this.bordercolor = &#39;transparent&#39;;
+        this.borderstyle = &#39;solid&#39;;
+        this.skin = &#39;&#39;;
+        this.leftborder = this.rightborder = this.topborder = this.bottomborder = this.border = this.leftpadding = this.rightpadding = this.toppadding = this.bottompadding = this.padding = this.x = this.y = this.width = this.height = this.innerwidth = this.innerheight = this.boundsxdiff = this.boundsydiff = this.boundsx = this.boundsy = this.boundswidth = this.boundsheight = this.zanchor = this.scrollx = this.scrolly = 0;
+        this.opacity = 1;
+        this.clip = this.scrollable = this.clickable = this.isaligned = this.isvaligned = this.ignorelayout = this.scrollbars = false;
+        this.visible = true;
         this._createSprite(el, attributes);
         return View.__super__.construct.apply(this, arguments);
       };
@@ -2402,70 +2614,23 @@
         return this.sprite = new Sprite(el, this, attributes.$tagname);
       };
 
-      View.prototype.setAttribute = function(name, value, skipDomChange, skipConstraintSetup, skipconstraintunregistration, skipBounds) {
+      View.prototype.destroy = function(skipevents) {
+        View.__super__.destroy.apply(this, arguments);
+        if (!skipevents) {
+          this._removeFromParent(&#39;subviews&#39;);
+        }
+        this.sprite.destroy();
+        return this.sprite = null;
+      };
+
+      View.prototype.defaultSetAttributeBehavior = function(name, value) {
         var existing;
-        if (!skipConstraintSetup) {
-          switch (name) {
-            case &#39;x&#39;:
-              if (this.__setupPercentConstraint(name, value, &#39;innerwidth&#39;)) {
-                return this;
-              }
-              if (this.__setupAlignConstraint(name, value)) {
-                return this;
-              }
-              break;
-            case &#39;y&#39;:
-              if (this.__setupPercentConstraint(name, value, &#39;innerheight&#39;)) {
-                return this;
-              }
-              if (this.__setupAlignConstraint(name, value)) {
-                return this;
-              }
-              break;
-            case &#39;width&#39;:
-              if (this.__setupPercentConstraint(name, value, &#39;innerwidth&#39;)) {
-                return this;
-              }
-              if (this.__setupAutoConstraint(name, value, &#39;x&#39;)) {
-                return this;
-              }
-              break;
-            case &#39;height&#39;:
-              if (this.__setupPercentConstraint(name, value, &#39;innerheight&#39;)) {
-                return this;
-              }
-              if (this.__setupAutoConstraint(name, value, &#39;y&#39;)) {
-                return this;
-              }
-          }
-        }
         existing = this[name];
-        View.__super__.setAttribute.call(this, name, value, false, skipConstraintSetup, skipconstraintunregistration);
+        View.__super__.defaultSetAttributeBehavior.apply(this, arguments);
         value = this[name];
-        if (existing !== value &amp;&amp; !(name in ignoredAttributes)) {
-          if (!(skipDomChange || name in hiddenAttributes)) {
-            if (name in domElementAttributes) {
-              this.sprite.setProperty(name, value);
-            } else if (this.inited || defaults[name] !== value) {
-              this.sprite.setStyle(name, value);
-            }
-          }
-          if (!skipBounds &amp;&amp; this.inited) {
-            switch (name) {
-              case &#39;x&#39;:
-              case &#39;y&#39;:
-              case &#39;width&#39;:
-              case &#39;height&#39;:
-              case &#39;xscale&#39;:
-              case &#39;yscale&#39;:
-              case &#39;rotation&#39;:
-              case &#39;xanchor&#39;:
-              case &#39;yanchor&#39;:
-                this.__updateBounds();
-            }
-          }
+        if (existing !== value) {
+          return this.sprite.setAttribute(name, value);
         }
-        return this;
       };
 
       View.prototype.getBoundsRelativeToParent = function() {
@@ -2517,22 +2682,22 @@
           height = this.height;
         }
         if (!closeTo(this.boundsx, x)) {
-          this.setAttribute(&#39;boundsx&#39;, x, true, true, true, true);
+          this.setAndFire(&#39;boundsx&#39;, x);
         }
         if (!closeTo(this.boundsy, y)) {
-          this.setAttribute(&#39;boundsy&#39;, y, true, true, true, true);
+          this.setAndFire(&#39;boundsy&#39;, y);
         }
         if (!closeTo(this.boundswidth, width)) {
-          this.setAttribute(&#39;boundswidth&#39;, width, true, true, true, true);
+          this.setAndFire(&#39;boundswidth&#39;, width);
         }
         if (!closeTo(this.boundsheight, height)) {
-          this.setAttribute(&#39;boundsheight&#39;, height, true, true, true, true);
+          this.setAndFire(&#39;boundsheight&#39;, height);
         }
         if (!closeTo(this.boundsxdiff, xdiff)) {
-          this.setAttribute(&#39;boundsxdiff&#39;, xdiff, true, true, true, true);
+          this.setAndFire(&#39;boundsxdiff&#39;, xdiff);
         }
         if (!closeTo(this.boundsydiff, ydiff)) {
-          return this.setAttribute(&#39;boundsydiff&#39;, ydiff, true, true, true, true);
+          return this.setAndFire(&#39;boundsydiff&#39;, ydiff);
         }
       };
 
@@ -2566,7 +2731,7 @@
           this.stopListening(this, boundssize, oldFunc);
           delete this[funcKey];
           if (this[alignattr]) {
-            this.setAttribute(alignattr, false, true, true, true, true);
+            this.setAndFire(alignattr, false);
           }
         }
         if (typeof value !== &#39;string&#39;) {
@@ -2579,28 +2744,33 @@
             var val;
             val = self[boundsdiff];
             if (self[name] !== val) {
-              return self.setAttribute(name, val, false, true, false, true);
+              self.__noSpecialValueHandling = true;
+              return self.setAttribute(name, val);
             }
           };
           func.autoOk = true;
         } else if (normValue === &#39;middle&#39; || normValue === &#39;center&#39;) {
           func = this[funcKey] = function() {
-            return self.setAttribute(name, ((parent[axis] - self[boundssize]) / 2) + self[boundsdiff], false, true, false, true);
+            self.__noSpecialValueHandling = true;
+            return self.setAttribute(name, ((parent[axis] - self[boundssize]) / 2) + self[boundsdiff]);
           };
           this.listenTo(parent, axis, func);
           this.listenTo(this, boundssize, func);
         } else if (normValue === &#39;end&#39; || (isX &amp;&amp; normValue === &#39;right&#39;) || (!isX &amp;&amp; normValue === &#39;bottom&#39;)) {
           func = this[funcKey] = function() {
-            return self.setAttribute(name, parent[axis] - self[boundssize] + self[boundsdiff], false, true, false, true);
+            self.__noSpecialValueHandling = true;
+            return self.setAttribute(name, parent[axis] - self[boundssize] + self[boundsdiff]);
           };
           this.listenTo(parent, axis, func);
           this.listenTo(this, boundssize, func);
+        } else if (normValue === &#39;none&#39;) {
+          return true;
         }
         if (func) {
           this.listenTo(this, boundsdiff, func);
           func.call();
           if (!this[alignattr]) {
-            this.setAttribute(alignattr, true, true, true, true, true);
+            this.setAndFire(alignattr, true);
           }
           return true;
         }
@@ -2624,13 +2794,12 @@
             locked: this.inited ? &#39;false&#39; : &#39;true&#39;
           });
           if (!this.inited) {
-            this.setAttribute(name, 0, false, true);
+            this.__noSpecialValueHandling = true;
+            this.setAttribute(name, 0);
           }
           return true;
         }
       };
-
-      matchPercent = /%$/;
 
       View.prototype.__setupPercentConstraint = function(name, value, axis) {
         var func, funcKey, oldFunc, parent, scale, self;
@@ -2652,7 +2821,8 @@
           self = this;
           scale = parseInt(value) / 100;
           func = this[funcKey] = function() {
-            return self.setAttribute(name, parent[axis] * scale, false, true);
+            self.__noSpecialValueHandling = true;
+            return self.setAttribute(name, parent[axis] * scale);
           };
           this.listenTo(parent, axis, func);
           func.call();
@@ -2660,201 +2830,360 @@
         }
       };
 
-      View.prototype.set_x = function(x) {
-        if (this.__boundsAreDifferent &amp;&amp; x - this.boundsxdiff !== this.boundsx) {
-          this.sendEvent(&#39;boundsx&#39;, this.boundsx = x - this.boundsxdiff);
+      View.prototype.set_parent = function(parent) {
+        var retval;
+        retval = View.__super__.set_parent.apply(this, arguments);
+        if (parent instanceof View) {
+          parent.subviews.push(this);
+          parent.sendEvent(&#39;subviews&#39;, this);
+          parent = parent.sprite;
         }
-        return x;
+        this.sprite.set_parent(parent);
+        return retval;
       };
 
-      View.prototype.set_y = function(y) {
-        if (this.__boundsAreDifferent &amp;&amp; y - this.boundsydiff !== this.boundsy) {
-          this.sendEvent(&#39;boundsy&#39;, this.boundsy = y - this.boundsydiff);
-        }
-        return y;
+      View.prototype.set_id = function(v) {
+        var retval;
+        retval = View.__super__.set_id.apply(this, arguments);
+        this.sprite.set_id(v);
+        return retval;
       };
 
-      View.prototype.set_width = function(width) {
-        width = Math.max(width, this.__fullBorderPaddingWidth);
-        this.setAttribute(&#39;innerwidth&#39;, width - this.__fullBorderPaddingWidth, true, true, true, true);
-        return width;
+      View.prototype.set_class = function(v) {
+        if (this[&quot;class&quot;] !== v) {
+          this.sprite.set_class(v);
+          this.setAndFire(&#39;class&#39;, v);
+        }
+        return noop;
       };
 
-      View.prototype.set_height = function(height) {
-        height = Math.max(height, this.__fullBorderPaddingHeight);
-        this.setAttribute(&#39;innerheight&#39;, height - this.__fullBorderPaddingHeight, true, true, true, true);
-        return height;
+      View.prototype.set_clip = function(v) {
+        if (this.clip !== v) {
+          this.sprite.set_clip(v);
+          this.setAndFire(&#39;clip&#39;, v);
+        }
+        return noop;
       };
 
-      View.prototype.set_topborder = function(border) {
-        if (border &lt; 0) {
-          return;
+      View.prototype.set_scrollable = function(v) {
+        if (this.scrollable !== v) {
+          this.sprite.set_scrollable(v);
+          this.setAndFire(&#39;scrollable&#39;, v);
         }
-        this.sprite.setStyle(&#39;border-top-width&#39;, border);
-        this.__updateInnerMeasuresFor({
-          topborder: border
-        });
-        return border;
+        return noop;
       };
 
-      View.prototype.set_bottomborder = function(border) {
-        if (border &lt; 0) {
-          return;
+      View.prototype.set_scrollbars = function(v) {
+        if (this.scrollbars !== v) {
+          this.sprite.set_scrollbars(v);
+          this.setAndFire(&#39;scrollbars&#39;, v);
         }
-        this.sprite.setStyle(&#39;border-bottom-width&#39;, border);
-        this.__updateInnerMeasuresFor({
-          bottomborder: border
-        });
-        return border;
+        return noop;
       };
 
-      View.prototype.set_leftborder = function(border) {
-        if (border &lt; 0) {
-          return;
+      View.prototype.set_scrollx = function(v) {
+        if (isNaN(v)) {
+          v = 0;
+        } else {
+          v = Math.max(0, Math.min(this.sprite.el.scrollWidth - this.width + this.leftborder + this.rightborder, v));
         }
-        this.sprite.setStyle(&#39;border-left-width&#39;, border);
-        this.__updateInnerMeasuresFor({
-          leftborder: border
-        });
-        return border;
+        if (this.scrollx !== v) {
+          this.sprite.set_scrollx(v);
+          this.setAndFire(&#39;scrollx&#39;, v);
+        }
+        return noop;
       };
 
-      View.prototype.set_rightborder = function(border) {
-        if (border &lt; 0) {
-          return;
+      View.prototype.set_scrolly = function(v) {
+        if (isNaN(v)) {
+          v = 0;
+        } else {
+          v = Math.max(0, Math.min(this.sprite.el.scrollHeight - this.height + this.topborder + this.bottomborder, v));
         }
-        this.sprite.setStyle(&#39;border-right-width&#39;, border);
-        this.__updateInnerMeasuresFor({
-          rightborder: border
-        });
-        return border;
+        if (this.scrolly !== v) {
+          this.sprite.set_scrolly(v);
+          this.setAndFire(&#39;scrolly&#39;, v);
+        }
+        return noop;
       };
 
-      View.prototype.set_border = function(border) {
-        if (border &lt; 0) {
-          return;
+      View.prototype.set_visible = function(v) {
+        if (this.visible !== v) {
+          this.sprite.set_visible(v);
+          this.setAndFire(&#39;visible&#39;, v);
         }
-        this.topborder = this.set_topborder(border);
-        this.bottomborder = this.set_bottomborder(border);
-        this.leftborder = this.set_leftborder(border);
-        this.rightborder = this.set_rightborder(border);
-        this.__updateInnerMeasuresFor();
-        return this.border;
+        return noop;
       };
 
-      View.prototype.set_toppadding = function(padding) {
-        if (padding &lt; 0) {
-          return;
+      View.prototype.set_bgcolor = function(v) {
+        if (this.bgcolor !== v) {
+          this.sprite.setAttribute(&#39;bgcolor&#39;, v);
+          this.setAndFire(&#39;bgcolor&#39;, v);
         }
-        this.sprite.setStyle(&#39;padding-top&#39;, padding);
-        this.__updateInnerMeasuresFor({
-          toppadding: padding
-        });
-        return padding;
+        return noop;
       };
 
-      View.prototype.set_bottompadding = function(padding) {
-        if (padding &lt; 0) {
-          return;
+      View.prototype.set_x = function(v) {
+        if (!this.__noSpecialValueHandling) {
+          if (this.__setupPercentConstraint(&#39;x&#39;, v, &#39;innerwidth&#39;)) {
+            return noop;
+          }
+          if (this.__setupAlignConstraint(&#39;x&#39;, v)) {
+            return noop;
+          }
+        } else {
+          this.__noSpecialValueHandling = false;
         }
-        this.sprite.setStyle(&#39;padding-bottom&#39;, padding);
-        this.__updateInnerMeasuresFor({
-          bottompadding: padding
-        });
-        return padding;
+        if (this.x !== v) {
+          this.sprite.set_x(v);
+          if (this.__boundsAreDifferent &amp;&amp; v - this.boundsxdiff !== this.boundsx) {
+            this.sendEvent(&#39;boundsx&#39;, this.boundsx = v - this.boundsxdiff);
+          }
+          this.setAndFire(&#39;x&#39;, v);
+          if (this.inited) {
+            this.__updateBounds();
+          }
+        }
+        return noop;
       };
 
-      View.prototype.set_leftpadding = function(padding) {
-        if (padding &lt; 0) {
-          return;
+      View.prototype.set_y = function(v) {
+        if (!this.__noSpecialValueHandling) {
+          if (this.__setupPercentConstraint(&#39;y&#39;, v, &#39;innerheight&#39;)) {
+            return noop;
+          }
+          if (this.__setupAlignConstraint(&#39;y&#39;, v)) {
+            return noop;
+          }
+        } else {
+          this.__noSpecialValueHandling = false;
         }
-        this.sprite.setStyle(&#39;padding-left&#39;, padding);
-        this.__updateInnerMeasuresFor({
-          leftpadding: padding
-        });
-        return padding;
+        if (this.y !== v) {
+          this.sprite.set_y(v);
+          if (this.__boundsAreDifferent &amp;&amp; v - this.boundsydiff !== this.boundsy) {
+            this.sendEvent(&#39;boundsy&#39;, this.boundsy = v - this.boundsydiff);
+          }
+          this.setAndFire(&#39;y&#39;, v);
+          if (this.inited) {
+            this.__updateBounds();
+          }
+        }
+        return noop;
       };
 
-      View.prototype.set_rightpadding = function(padding) {
-        if (padding &lt; 0) {
-          return;
+      View.prototype.set_width = function(v, noDomChange) {
+        if (!this.__noSpecialValueHandling) {
+          if (this.__setupPercentConstraint(&#39;width&#39;, v, &#39;innerwidth&#39;)) {
+            return noop;
+          }
+          if (this.__setupAutoConstraint(&#39;width&#39;, v, &#39;x&#39;)) {
+            return noop;
+          }
+        } else {
+          this.__noSpecialValueHandling = false;
         }
-        this.sprite.setStyle(&#39;padding-right&#39;, padding);
-        this.__updateInnerMeasuresFor({
-          rightpadding: padding
-        });
-        return padding;
+        v = Math.max(v, this.__fullBorderPaddingWidth);
+        if (this.width !== v) {
+          if (!noDomChange) {
+            this.sprite.setAttribute(&#39;width&#39;, v);
+          }
+          this.setAndFire(&#39;innerwidth&#39;, v - this.__fullBorderPaddingWidth);
+          this.setAndFire(&#39;width&#39;, v);
+          if (this.inited) {
+            this.__updateBounds();
+          }
+        }
+        return noop;
       };
 
-      View.prototype.set_padding = function(padding) {
-        if (padding &lt; 0) {
-          return;
+      View.prototype.set_height = function(v, noDomChange) {
+        if (!this.__noSpecialValueHandling) {
+          if (this.__setupPercentConstraint(&#39;height&#39;, v, &#39;innerheight&#39;)) {
+            return noop;
+          }
+          if (this.__setupAutoConstraint(&#39;height&#39;, v, &#39;y&#39;)) {
+            return noop;
+          }
+        } else {
+          this.__noSpecialValueHandling = false;
         }
-        this.toppadding = this.set_toppadding(padding);
-        this.bottompadding = this.set_bottompadding(padding);
-        this.leftpadding = this.set_leftpadding(padding);
-        this.rightpadding = this.set_rightpadding(padding);
-        this.__updateInnerMeasuresFor();
-        return this.padding;
+        v = Math.max(v, this.__fullBorderPaddingHeight);
+        if (this.height !== v) {
+          if (!noDomChange) {
+            this.sprite.setAttribute(&#39;height&#39;, v);
+          }
+          this.setAndFire(&#39;innerheight&#39;, v - this.__fullBorderPaddingHeight);
+          this.setAndFire(&#39;height&#39;, v);
+          if (this.inited) {
+            this.__updateBounds();
+          }
+        }
+        return noop;
       };
 
-      View.prototype.__updateInnerMeasuresFor = function(o) {
-        var h, k, m, v, w;
-        if (o == null) {
-          o = {};
-        }
-        m = {
-          leftborder: this.leftborder,
-          rightborder: this.rightborder,
-          topborder: this.topborder,
-          bottomborder: this.bottomborder,
-          leftpadding: this.leftpadding,
-          rightpadding: this.rightpadding,
-          toppadding: this.toppadding,
-          bottompadding: this.bottompadding
-        };
-        for (k in o) {
-          v = o[k];
-          m[k] = v;
-        }
-        w = m.leftborder + m.rightborder + m.leftpadding + m.rightpadding;
-        h = m.topborder + m.bottomborder + m.toppadding + m.bottompadding;
-        this.padding = (m.toppadding + m.bottompadding + m.leftpadding + m.rightpadding) / 4.0;
-        this.border = (m.topborder + m.bottomborder + m.leftborder + m.rightborder) / 4.0;
-        return this.__updateInnerMeasures(w, h);
+      View.prototype.set_border = function(v) {
+        this.__lockBPRecalc = true;
+        this.setAttribute(&#39;topborder&#39;, v);
+        this.setAttribute(&#39;bottomborder&#39;, v);
+        this.setAttribute(&#39;leftborder&#39;, v);
+        this.setAttribute(&#39;rightborder&#39;, v);
+        this.__lockBPRecalc = false;
+        this.setAndFire(&#39;border&#39;, v);
+        this.__updateInnerWidth();
+        this.__updateInnerHeight();
+        return noop;
       };
 
-      View.prototype.__updateInnerMeasures = function(widthinset, heightinset) {
-        this.__fullBorderPaddingWidth = widthinset;
-        this.__fullBorderPaddingHeight = heightinset;
-        if (widthinset &gt; this.width) {
-          this.setAttribute(&#39;width&#39;, widthinset, false, true, true);
+      View.prototype.set_topborder = function(v) {
+        this.sprite.setAttribute(&#39;topborder&#39;, v);
+        this.setAndFire(&#39;topborder&#39;, v);
+        if (!this.__lockBPRecalc) {
+          this.__updateBorder();
+          this.__updateInnerHeight();
         }
-        if (heightinset &gt; this.height) {
-          this.setAttribute(&#39;height&#39;, heightinset, false, true, true);
-        }
-        this.setAttribute(&#39;innerwidth&#39;, this.width - widthinset, true, true, true, true);
-        return this.setAttribute(&#39;innerheight&#39;, this.height - heightinset, true, true, true, true);
+        return noop;
       };
 
-      View.prototype.set_clickable = function(clickable) {
-        if (clickable !== this.clickable) {
-          this.sprite.set_clickable(clickable);
+      View.prototype.set_bottomborder = function(v) {
+        this.sprite.setAttribute(&#39;bottomborder&#39;, v);
+        this.setAndFire(&#39;bottomborder&#39;, v);
+        if (!this.__lockBPRecalc) {
+          this.__updateBorder();
+          this.__updateInnerHeight();
         }
-        return clickable;
+        return noop;
       };
 
-      View.prototype.set_cursor = function(cursor) {
-        if (cursor !== this.cursor) {
-          this.sprite.set_cursor(cursor);
+      View.prototype.set_leftborder = function(v) {
+        this.sprite.setAttribute(&#39;leftborder&#39;, v);
+        this.setAndFire(&#39;leftborder&#39;, v);
+        if (!this.__lockBPRecalc) {
+          this.__updateBorder();
+          this.__updateInnerWidth();
         }
-        return cursor;
+        return noop;
+      };
+
+      View.prototype.set_rightborder = function(v) {
+        this.sprite.setAttribute(&#39;rightborder&#39;, v);
+        this.setAndFire(&#39;rightborder&#39;, v);
+        if (!this.__lockBPRecalc) {
+          this.__updateBorder();
+          this.__updateInnerWidth();
+        }
+        return noop;
+      };
+
+      View.prototype.__updateBorder = function() {
+        test = this.topborder;
+        if (this.bottomborder === test &amp;&amp; this.leftborder === test &amp;&amp; this.rightborder === test) {
+          return this.setAndFire(&#39;border&#39;, test);
+        } else if (this.border != null) {
+          return this.setAndFire(&#39;border&#39;, void 0);
+        }
+      };
+
+      View.prototype.set_padding = function(v) {
+        this.__lockBPRecalc = true;
+        this.setAttribute(&#39;toppadding&#39;, v);
+        this.setAttribute(&#39;bottompadding&#39;, v);
+        this.setAttribute(&#39;leftpadding&#39;, v);
+        this.setAttribute(&#39;rightpadding&#39;, v);
+        this.__lockBPRecalc = false;
+        this.setAndFire(&#39;padding&#39;, v);
+        this.__updateInnerWidth();
+        this.__updateInnerHeight();
+        return noop;
+      };
+
+      View.prototype.set_toppadding = function(v) {
+        this.sprite.setAttribute(&#39;toppadding&#39;, v);
+        this.setAndFire(&#39;toppadding&#39;, v);
+        if (!this.__lockBPRecalc) {
+          this.__updatePadding();
+          this.__updateInnerHeight();
+        }
+        return noop;
+      };
+
+      View.prototype.set_bottompadding = function(v) {
+        this.sprite.setAttribute(&#39;bottompadding&#39;, v);
+        this.setAndFire(&#39;bottompadding&#39;, v);
+        if (!this.__lockBPRecalc) {
+          this.__updatePadding();
+          this.__updateInnerHeight();
+        }
+        return noop;
+      };
+
+      View.prototype.set_leftpadding = function(v) {
+        this.sprite.setAttribute(&#39;leftpadding&#39;, v);
+        this.setAndFire(&#39;leftpadding&#39;, v);
+        if (!this.__lockBPRecalc) {
+          this.__updatePadding();
+          this.__updateInnerWidth();
+        }
+        return noop;
+      };
+
+      View.prototype.set_rightpadding = function(v) {
+        this.sprite.setAttribute(&#39;rightpadding&#39;, v);
+        this.setAndFire(&#39;rightpadding&#39;, v);
+        if (!this.__lockBPRecalc) {
+          this.__updatePadding();
+          this.__updateInnerWidth();
+        }
+        return noop;
+      };
+
+      View.prototype.__updatePadding = function() {
+        test = this.toppadding;
+        if (this.bottompadding === test &amp;&amp; this.leftpadding === test &amp;&amp; this.rightpadding === test) {
+          return this.setAndFire(&#39;padding&#39;, test);
+        } else if (this.padding != null) {
+          return this.setAndFire(&#39;padding&#39;, void 0);
+        }
+      };
+
+      View.prototype.__updateInnerWidth = function() {
+        var inset;
+        this.__fullBorderPaddingWidth = inset = this.leftborder + this.rightborder + this.leftpadding + this.rightpadding;
+        if (inset &gt; this.width) {
+          this.__noSpecialValueHandling = true;
+          this.setAttribute(&#39;width&#39;, inset, true);
+        }
+        return this.setAndFire(&#39;innerwidth&#39;, this.width - inset);
+      };
+
+      View.prototype.__updateInnerHeight = function() {
+        var inset;
+        this.__fullBorderPaddingHeight = inset = this.topborder + this.bottomborder + this.toppadding + this.bottompadding;
+        if (inset &gt; this.height) {
+          this.__noSpecialValueHandling = true;
+          this.setAttribute(&#39;height&#39;, inset, true);
+        }
+        return this.setAndFire(&#39;innerheight&#39;, this.height - inset);
+      };
+
+      View.prototype.set_clickable = function(v) {
+        if (this.clickable !== v) {
+          this.sprite.set_clickable(v);
+          this.setAndFire(&#39;clickable&#39;, v);
+        }
+        return noop;
+      };
+
+      View.prototype.set_cursor = function(v) {
+        if (this.cursor !== v) {
+          this.sprite.set_cursor(v);
+          this.setAndFire(&#39;cursor&#39;, v);
+        }
+        return noop;
       };
 
       View.prototype.__updateTransform = function() {
-        var prefix, transform, xanchor, xscale, yanchor, yscale;
+        var transform, xanchor, xscale, yanchor, yscale;
         transform = &#39;&#39;;
-        prefix = capabilities.prefix.css;
         xscale = this.xscale;
         if (this.xscale == null) {
           xscale = this.xscale = 1;
@@ -2874,7 +3203,7 @@
         this.z || (this.z = 0);
         if (this.z !== 0) {
           transform += &#39; translate3d(0,0,&#39; + this.z + &#39;px)&#39;;
-          this.parent.sprite.setStyle(prefix + &#39;transform-style&#39;, &#39;preserve-3d&#39;);
+          this.parent.sprite.setAttribute(&#39;transform-style&#39;, &#39;preserve-3d&#39;);
         }
         if (transform !== &#39;&#39;) {
           xanchor = this.xanchor;
@@ -2885,72 +3214,141 @@
           if (yanchor !== &#39;top&#39; &amp;&amp; yanchor !== &#39;bottom&#39; &amp;&amp; yanchor !== &#39;center&#39;) {
             yanchor += &#39;px&#39;;
           }
-          this.sprite.setStyle(prefix + &#39;transform-origin&#39;, xanchor + &#39; &#39; + yanchor + &#39; &#39; + this.zanchor + &#39;px&#39;);
+          this.sprite.setAttribute(&#39;transform-origin&#39;, xanchor + &#39; &#39; + yanchor + &#39; &#39; + this.zanchor + &#39;px&#39;);
         }
-        return this.sprite.setStyle(prefix + &#39;transform&#39;, transform);
+        return this.sprite.setAttribute(&#39;transform&#39;, transform);
       };
 
-      View.prototype.set_perspective = function(perspective) {
-        var per, prefix;
-        prefix = capabilities.prefix.css;
-        this.perspective = perspective;
-        per = perspective + &#39;px&#39;;
-        if (per === 0) {
-          per = &#39;none&#39;;
+      View.prototype.set_perspective = function(v) {
+        if (v === &#39;0&#39;) {
+          return &#39;none&#39;;
+        } else {
+          return v + &#39;px&#39;;
         }
-        this.sprite.setStyle(prefix + &#39;perspective&#39;, per);
-        return perspective;
       };
 
-      View.prototype.set_xscale = function(xscale) {
-        this.xscale = xscale;
-        this.__updateTransform();
-        return xscale;
-      };
-
-      View.prototype.set_yscale = function(yscale) {
-        this.yscale = yscale;
-        this.__updateTransform();
-        return yscale;
-      };
-
-      View.prototype.set_rotation = function(rotation) {
-        this.rotation = rotation;
-        this.__updateTransform();
-        return rotation;
-      };
-
-      View.prototype.set_z = function(depth) {
-        this.z = depth;
-        this.__updateTransform();
-        return depth;
-      };
-
-      View.prototype.set_xanchor = function(xanchor) {
-        if ((xanchor == null) || xanchor === &#39;&#39;) {
-          xanchor = &#39;center&#39;;
+      View.prototype.set_xscale = function(v) {
+        if (v !== this.xscale) {
+          this.setAndFire(&#39;xscale&#39;, v);
+          this.__updateTransform();
+          if (this.inited) {
+            this.__updateBounds();
+          }
         }
-        this.xanchor = xanchor;
-        this.__updateTransform();
-        return xanchor;
+        return noop;
       };
 
-      View.prototype.set_yanchor = function(yanchor) {
-        if ((yanchor == null) || yanchor === &#39;&#39;) {
-          yanchor = &#39;center&#39;;
+      View.prototype.set_yscale = function(v) {
+        if (v !== this.yscale) {
+          this.setAndFire(&#39;yscale&#39;, v);
+          this.__updateTransform();
+          if (this.inited) {
+            this.__updateBounds();
+          }
         }
-        this.yanchor = yanchor;
-        this.__updateTransform();
-        return yanchor;
+        return noop;
       };
 
-      View.prototype.set_zanchor = function(zanchor) {
-        if ((zanchor == null) || zanchor === &#39;&#39;) {
-          zanchor = 0;
+      View.prototype.set_rotation = function(v) {
+        if (v !== this.rotation) {
+          this.setAndFire(&#39;rotation&#39;, v);
+          this.__updateTransform();
+          if (this.inited) {
+            this.__updateBounds();
+          }
         }
-        this.zanchor = zanchor;
-        this.__updateTransform();
-        return zanchor;
+        return noop;
+      };
+
+      View.prototype.set_z = function(v) {
+        if (v !== this.z) {
+          this.sprite.setAttribute(&#39;z&#39;, v);
+          this.setAndFire(&#39;z&#39;, v);
+          this.__updateTransform();
+        }
+        return noop;
+      };
+
+      View.prototype.set_xanchor = function(v) {
+        if ((v == null) || v === &#39;&#39; || v === &#39;undefined&#39;) {
+          v = &#39;center&#39;;
+        }
+        if (v !== this.xanchor) {
+          this.setAndFire(&#39;xanchor&#39;, v);
+          this.__updateTransform();
+          if (this.inited) {
+            this.__updateBounds();
+          }
+        }
+        return noop;
+      };
+
+      View.prototype.set_yanchor = function(v) {
+        if ((v == null) || v === &#39;&#39; || v === &#39;undefined&#39;) {
+          v = &#39;center&#39;;
+        }
+        if (v !== this.yanchor) {
+          this.setAndFire(&#39;yanchor&#39;, v);
+          this.__updateTransform();
+          if (this.inited) {
+            this.__updateBounds();
+          }
+        }
+        return noop;
+      };
+
+      View.prototype.set_zanchor = function(v) {
+        if ((v == null) || v === &#39;&#39;) {
+          v = 0;
+        }
+        if (v !== this.zanchor) {
+          this.setAndFire(&#39;zanchor&#39;, v);
+          this.__updateTransform();
+        }
+        return noop;
+      };
+
+      View.prototype.set_skin = function(name) {
+        if (name !== this.skin) {
+          this.skin = name;
+          this.reskin();
+          this.setAndFire(&#39;skin&#39;, name);
+        }
+        return noop;
+      };
+
+      View.prototype.attachSkinListener = function() {
+        if (!this.$skinlistner) {
+          this.$skinlistner = true;
+          return this.listenTo(this, &#39;subviewAdded&#39;, function(sv) {
+            sv.attachSkinListener();
+            return sv.reskin();
+          });
+        }
+      };
+
+      View.prototype.reskin = function() {
+        var skin, skinname, skins, _i, _len, _results;
+        this.attachSkinListener();
+        if (!window.dr.skins) {
+          console.log(&quot;&lt;skin&gt; hasn&#39;t been initialized yet&quot;);
+          return;
+        }
+        if (this.skin) {
+          skins = this.skin.split(/[^A-Za-z0-9_-]+/);
+          _results = [];
+          for (_i = 0, _len = skins.length; _i &lt; _len; _i++) {
+            skinname = skins[_i];
+            if (skin = window.dr.skins[skinname]) {
+              _results.push(skin.applyTo(this));
+            } else {
+              _results.push(console.log(&#39;Cannot apply skin:&#39;, skinname));
+            }
+          }
+          return _results;
+        } else if (this.parent &amp;&amp; this.parent.reskin) {
+          return this.parent.reskin();
+        }
       };
 
       View.prototype.moveToFront = function() {
@@ -3020,66 +3418,6 @@
           }
           this.z = otherView.z - 1;
           return this.__updateTransform();
-        }
-      };
-
-      View.prototype.set_parent = function(parent) {
-        var retval;
-        retval = View.__super__.set_parent.apply(this, arguments);
-        if (parent instanceof View) {
-          parent.subviews.push(this);
-          parent.sendEvent(&#39;subviews&#39;, this);
-          parent = parent.sprite;
-        }
-        this.sprite.set_parent(parent);
-        return retval;
-      };
-
-      View.prototype.set_id = function(id) {
-        var retval;
-        retval = View.__super__.set_id.apply(this, arguments);
-        this.sprite.set_id(id);
-        return retval;
-      };
-
-      View.prototype.set_clip = function(clip) {
-        if (clip !== this.clip) {
-          this.sprite.set_clip(clip);
-        }
-        return clip;
-      };
-
-      View.prototype.set_scrollable = function(scrollable) {
-        if (scrollable) {
-          this.setAttributes({
-            scrollx: 0,
-            scrolly: 0
-          });
-        }
-        if (scrollable !== this.scrollable) {
-          this.sprite.set_scrollable(scrollable);
-        }
-        return scrollable;
-      };
-
-      View.prototype.set_scrollbars = function(scrollable) {
-        this.sprite.set_scrollbars(this.scrollbars);
-        return scrollbars;
-      };
-
-      View.prototype.set_scrollx = function(scrollx) {
-        if (isNaN(scrollx)) {
-          return 0;
-        } else {
-          return Math.max(0, Math.min(this.sprite.el.scrollWidth - this.width + this.leftborder + this.rightborder, scrollx));
-        }
-      };
-
-      View.prototype.set_scrolly = function(scrolly) {
-        if (isNaN(scrolly)) {
-          return 0;
-        } else {
-          return Math.max(0, Math.min(this.sprite.el.scrollHeight - this.height + this.topborder + this.bottomborder, scrolly));
         }
       };
 
@@ -3172,19 +3510,6 @@
 
       View.prototype.doLayoutRemoved = function(layout) {};
 
-      View.prototype.destroy = function(skipevents) {
-        View.__super__.destroy.apply(this, arguments);
-        if (!skipevents) {
-          this._removeFromParent(&#39;subviews&#39;);
-        }
-        this.sprite.destroy();
-        return this.sprite = null;
-      };
-
-      View.prototype.getAbsolute = function() {
-        return this.sprite.getAbsolute();
-      };
-
 
 <span id='dr-view-method-getLayoutHint'>      /**
 </span>       * Gets the value of a named layout hint.
@@ -3214,9 +3539,8 @@
         }
       };
 
-      View.prototype.set_class = function(classname) {
-        this.sprite.set_class(classname);
-        return classname;
+      View.prototype.getAbsolute = function() {
+        return this.sprite.getAbsolute();
       };
 
       return View;
@@ -3256,9 +3580,9 @@
       };
       initFromElement = function(el) {
         instantiating = true;
-        el.style.display = &#39;none&#39;;
+        el.style.visibility = &#39;hidden&#39;;
         return findAutoIncludes(el, function() {
-          el.style.display = null;
+          el.style.visibility = null;
           initElement(el);
           _initConstraints();
           return sendInit(el);
@@ -3437,13 +3761,11 @@
               for (_j = 0, _len1 = args.length; _j &lt; _len1; _j++) {
                 xhr = args[_j];
                 jqel.prepend(xhr[0]);
-                if (debug) {
-                  jqel.contents().each(function() {
-                    if (this.nodeType === 8) {
-                      return $(this).remove();
-                    }
-                  });
-                }
+                jqel.contents().each(function() {
+                  if (this.nodeType === COMMENT_NODE) {
+                    return $(this).remove();
+                  }
+                });
               }
               includes = findMissingClasses(findIncludeURLs());
               if (Object.keys(includes).length &gt; 0) {
@@ -3797,10 +4119,15 @@
         }
       };
       writeCSS = function() {
-        var style;
+        var noSelectStyle, spriteInputTextStyle, spriteStyle, spriteTextStyle, style, warningsStyle;
         style = document.createElement(&#39;style&#39;);
         style.type = &#39;text/css&#39;;
-        style.innerHTML = &#39;.sprite{position: absolute; pointer-events: none; padding: 0; margin: 0; box-sizing: border-box; border-color: transparent; border-style: solid; border-width: 0} .sprite-text{width: auto; height; auto; white-space: nowrap; padding: 0; margin: 0} .sprite-inputtext{border: none; outline: none; background-color:transparent; resize:none} .hidden{display: none} .noselect{-webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none} .noscrollbar::-webkit-scrollbar{display: none;} .warnings{font-size: 14px; background-color: pink; margin: 0} method{display: none} handler{display: none} setter{display: none} class{display: none} node{display: none} dataset{display:none}&#39;;
+        spriteStyle = [&quot;position:absolute&quot;, &quot;pointer-events:none&quot;, &quot;padding:0&quot;, &quot;margin:0&quot;, &quot;box-sizing:border-box&quot;, &quot;border-color:transparent&quot;, &quot;border-style:solid&quot;, &quot;border-width:0&quot;];
+        spriteTextStyle = [&quot;white-space:nowrap&quot;, &quot;padding:0&quot;, &quot;margin:0&quot;, &quot;text-decoration:none&quot;, &quot;font-family:mission-gothic, &#39;Helvetica Neue&#39;, Helvetica, Arial, sans-serif&quot;, &quot;font-size:20px&quot;];
+        spriteInputTextStyle = [&quot;border:none&quot;, &quot;outline:none&quot;, &quot;background-color:transparent&quot;, &quot;resize:none&quot;];
+        noSelectStyle = [&quot;-webkit-touch-callout:none&quot;, &quot;-webkit-user-select:none&quot;, &quot;-khtml-user-select:none&quot;, &quot;-moz-user-select:none&quot;, &quot;-ms-user-select:none&quot;, &quot;user-select:none&quot;];
+        warningsStyle = [&quot;font-size:14px&quot;, &quot;background-color:pink&quot;, &quot;margin:0&quot;];
+        style.innerHTML = &#39;.sprite{&#39; + spriteStyle.join(&#39;;&#39;) + &#39;}&#39; + &#39;.sprite-text{&#39; + spriteTextStyle.join(&#39;;&#39;) + &#39;}&#39; + &#39;.sprite-inputtext{&#39; + spriteInputTextStyle.join(&#39;;&#39;) + &#39;}&#39; + &#39;.noselect{&#39; + noSelectStyle.join(&#39;;&#39;) + &#39;}&#39; + &#39;.warnings{&#39; + warningsStyle.join(&#39;;&#39;) + &#39;}&#39; + &#39;.noscrollbar::-webkit-scrollbar{display:none;}&#39; + &#39;.hidden{display:none}&#39; + &#39;method,handler,setter,class,node,dataset{display:none}&#39;;
         return document.getElementsByTagName(&#39;head&#39;)[0].appendChild(style);
       };
       initAllElements = function(selector) {
@@ -3894,9 +4221,6 @@
               name = name.toLowerCase();
               classattributes[name] = attributes.value;
               classattributes.$types[name] = attributes.type;
-              if (&#39;visual&#39; in attributes) {
-                hiddenAttributes[name] = attributes.visual === &#39;false&#39;;
-              }
           }
         }
         return children;
@@ -4029,7 +4353,7 @@
           for (name in this.applyattributes) {
             val = this.parent[name];
             delete this.parent[name];
-            this.parent.setAttribute(name, val, false, false, true);
+            this.parent.setAttribute(name, val, true);
           }
         }
         return applied;
@@ -4181,7 +4505,7 @@
        * If false, class instances won&#39;t initialize their children.
        */
       function Class(el, classattributes) {
-        var child, compilertype, context, extend, haschildren, idx, ignored, instancebody, klass, len, name, newContext, oldbody, part, parts, processedChildren, skipinitchildren, _i, _j, _len, _len1;
+        var child, compilertype, context, extend, haschildren, idx, ignored, instancebody, klass, len, name, newContext, oldbody, part, parts, processedChildren, skipinitchildren, _i, _j, _k, _len, _len1, _len2, _ref;
         if (classattributes == null) {
           classattributes = {};
         }
@@ -4189,13 +4513,21 @@
         extend = classattributes[&quot;extends&quot;] != null ? classattributes[&quot;extends&quot;] : classattributes[&quot;extends&quot;] = &#39;view&#39;;
         compilertype = classattributes.type;
         skipinitchildren = classattributes.initchildren === &#39;false&#39;;
+        delete classattributes.initchildren;
         for (ignored in ignoredAttributes) {
           delete classattributes[ignored];
         }
+        _ref = el.childNodes;
+        for (_i = 0, _len = _ref.length; _i &lt; _len; _i++) {
+          child = _ref[_i];
+          if ((child != null) &amp;&amp; child.nodeType === COMMENT_NODE) {
+            child.parentNode.removeChild(child);
+          }
+        }
         processedChildren = dom.processSpecialTags(el, classattributes, compilertype);
         oldbody = el.innerHTML.trim();
-        for (_i = 0, _len = processedChildren.length; _i &lt; _len; _i++) {
-          child = processedChildren[_i];
+        for (_j = 0, _len1 = processedChildren.length; _j &lt; _len1; _j++) {
+          child = processedChildren[_j];
           child.parentNode.removeChild(child);
         }
         haschildren = dom.getChildElements(el).length &gt; 0;
@@ -4207,9 +4539,12 @@
           console.warn(&#39;overwriting class&#39;, name);
         }
         dr[name] = klass = function(instanceel, instanceattributes, internal, skipchildren) {
-          var attributes, children, parent, sendInit, viewel, viewhtml, _j, _len1, _ref;
+          var attributes, children, parent, sendInit, viewel, viewhtml, _k, _len2, _ref1;
           attributes = clone(classattributes);
           _processAttrs(instanceattributes, attributes);
+          if (attributes.$instanceattributes == null) {
+            attributes.$instanceattributes = instanceattributes;
+          }
           if (!(extend in dr)) {
             console.warn(&#39;could not find class for tag&#39;, extend);
             return;
@@ -4220,7 +4555,7 @@
           attributes.$skiponinit = true;
           attributes.$deferbindings = haschildren;
           parent = new dr[extend](instanceel, attributes, true, true);
-          viewel = (_ref = parent.sprite) != null ? _ref.el : void 0;
+          viewel = (_ref1 = parent.sprite) != null ? _ref1.el : void 0;
           if (instanceel) {
             if (!viewel) {
               instanceel.setAttribute(&#39;class&#39;, &#39;hidden&#39;);
@@ -4237,20 +4572,20 @@
             }
             if (!skipchildren) {
               children = (function() {
-                var _j, _len1, _ref1, _ref2, _results;
-                _ref1 = dom.getChildElements(viewel);
+                var _k, _len2, _ref2, _ref3, _results;
+                _ref2 = dom.getChildElements(viewel);
                 _results = [];
-                for (_j = 0, _len1 = _ref1.length; _j &lt; _len1; _j++) {
-                  child = _ref1[_j];
-                  if (_ref2 = child.localName, __indexOf.call(specialtags, _ref2) &lt; 0) {
+                for (_k = 0, _len2 = _ref2.length; _k &lt; _len2; _k++) {
+                  child = _ref2[_k];
+                  if (_ref3 = child.localName, __indexOf.call(specialtags, _ref3) &lt; 0) {
                     _results.push(child);
                   }
                 }
                 return _results;
               })();
               if (!skipinitchildren) {
-                for (_j = 0, _len1 = children.length; _j &lt; _len1; _j++) {
-                  child = children[_j];
+                for (_k = 0, _len2 = children.length; _k &lt; _len2; _k++) {
+                  child = children[_k];
                   dom.initElement(child, parent);
                 }
               }
@@ -4277,7 +4612,7 @@
           len = parts.length;
           if (len &gt; 1) {
             context = dr;
-            for (idx = _j = 0, _len1 = parts.length; _j &lt; _len1; idx = ++_j) {
+            for (idx = _k = 0, _len2 = parts.length; _k &lt; _len2; idx = ++_k) {
               part = parts[idx];
               if (idx === len - 1) {
                 context[part] = klass;
@@ -4334,13 +4669,11 @@
       }
 
       Layout.prototype.construct = function(el, attributes) {
-        var attrLocked, defaults, subview, subviews, types, _base, _i, _len;
-        types = {
-          locked: &#39;boolean&#39;
-        };
-        defaults = {
-          locked: false
-        };
+        var attrLocked, subview, subviews, _base, _i, _len;
+        if (attributes.$types == null) {
+          attributes.$types = {};
+        }
+        attributes.$types.locked = &#39;boolean&#39;;
         if (attributes.locked != null) {
           attrLocked = attributes.locked === &#39;true&#39; ? true : false;
         }
@@ -4650,7 +4983,8 @@
             }
             val = max + parent.__fullBorderPaddingWidth;
             if (parent.width !== val) {
-              parent.setAttribute(&#39;width&#39;, val, false, true);
+              parent.__noSpecialValueHandling = true;
+              parent.setAttribute(&#39;width&#39;, val);
             }
           } else {
             while (i) {
@@ -4661,7 +4995,8 @@
             }
             val = max + parent.__fullBorderPaddingHeight;
             if (parent.height !== val) {
-              parent.setAttribute(&#39;height&#39;, val, false, true);
+              parent.__noSpecialValueHandling = true;
+              parent.setAttribute(&#39;height&#39;, val);
             }
           }
           return this.locked = false;
@@ -5356,7 +5691,7 @@
 
     })(Eventable);
     window.onerror = function(e) {
-      return showWarnings([e.toString()]);
+      return showWarnings([&quot;&quot; + (e.toString()) + &quot;. Try running in debug mode for more info. &quot; + window.location.href + (querystring ? &#39;&amp;&#39; : &#39;?&#39;) + &quot;debug&quot;]);
     };
 
 <span id='dr'>    /**
@@ -5639,11 +5974,6 @@
 <span id='dr-attribute-attribute-value'>    /**
 </span>     * @attribute {String} value (required)
      * The initial value for the attribute
-     */
-
-<span id='dr-attribute-attribute-visible'>    /**
-</span>     * @attribute {Boolean} [visible=true]
-     * Set to false if an attribute shouldn&#39;t affect a view&#39;s visual appearence
      */
   })();
 

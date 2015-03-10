@@ -7,7 +7,7 @@
         }
     </style>
 
-    <title>rhes.es - Text Component Smoke Tests</title>
+    <title>rhes.es - Skin Smoke Tests</title>
     <script type="text/javascript" src="/lib/jquery-1.9.1.min.js"></script>
     <script type="text/javascript" src="/lib/acorn.js"></script>
     <script type="text/javascript" src="/lib/coffee-script.js"></script>
@@ -19,22 +19,168 @@
 </head>
 <body>
 <view id="all">
-    <spacedlayout axis="y" spacing="10"></spacedlayout>
-    <skin id="blackonwhite" border="1" bgcolor="#545454" bordercolor="red" visible="true">
-        <view bgcolor="white"></view>
-        <text bgcolor="#DDDDDD" color="black" text="skinned text" fontsize="14" font="Verdana,Geneva,sans-serif"></text>
-    </skin>
-    <skin id="whiteonblack" border="1" bgcolor="#545454" bordercolor="green" visible="true">
-        <view bgcolor="black"></view>
-        <text bgcolor="#333333" color="white" text="skinned text" fontsize="14" font="Verdana,Geneva,sans-serif"></text>
+    <spacedlayout axis="x" spacing="10"></spacedlayout>
+
+    <skin name="angry">
+        <text fontweight="500" color="red" fontsize="40" fontfamily="Brush Script MT, cursive"></text>
+
+        <inputtext color="red" fontweight="800" fontsize="30" leftpadding="10" leftborder="2" bottomborder="2" bordercolor="#5C0000" fontfamily="serif">
+            <art name="indicator" fill="pink" x="-5"></art>
+        </inputtext>
+
+        <labelbutton border="5" padding="3" textcolor="pink" defaultcolor="#CC8080" selectcolor="#AA3300">
+            <art name="indicator" fill="coral"></art>
+            <text color="rgb(207,40,30)" name="label" fontweight="500" text-transform="uppercase" bgcolor="transparent" fontsize="10" fontfamily="serif"></text>
+        </labelbutton>
+
+        <rangeslider bottomborder="2" bordercolor="red" lowselectcolor="#a00a0a" highselectcolor="#a00a0a">
+            <view name="highvalueview" bottomborder="2" bordercolor="#CC0066"></view>
+            <art name="highindicator" fill="#CCAA00"></art>
+            <view name="lowvalueview" bottomborder="2" bordercolor="#CCAA66"></view>
+            <art name="lowindicator" fill="#CC6666"></art>
+        </rangeslider>
+
+        <slider bottomborder="5" selectcolor="#DB4D94">
+            <art name="indicator" fill="#DB4D94"></art>
+        </slider>
+
+        <checkbutton border="2" padding="10" textcolor="rgb(140,40,40)" innerspacing="3" selectcolor="#FF66A3">
+            <text color="rgb(140,140,140)" name="label" padding="0" text-transform="uppercase" bgcolor="transparent" fontsize="10"></text>
+        </checkbutton>
+
+        <labeltoggle border="2" padding="3" textcolor="rgb(207,20,20)" defaultcolor="rgb(63,3,3)" selectcolor="#FFEEA3">
+            <art name="indicator" fill="white"></art>
+            <text color="rgb(207,107,107)" name="label" padding="0" text-transform="uppercase" bgcolor="transparent" fontsize="10"></text>
+        </labeltoggle>
     </skin>
 
-    <view height="100" width="400" skin="blackonwhite">
-        <text height="200" width="300" text="testing A" skin="whiteonblack"></text>
+    <skin name="calm">
+        <text color="blue" fontsize="20" fontfamily="Helvetica"></text>
+
+        <inputtext color="blue" fontsize="18" leftpadding="5" leftborder="1" bottomborder="1" bordercolor="#5C0000" fontfamily="serif">
+            <art name="indicator" visible="false"></art>
+        </inputtext>
+
+        <labelbutton border="1" padding="1" textcolor="lightblue" defaultcolor="#8080CC" selectcolor="#3300AA">
+            <art name="indicator" visible="false"></art>
+            <text color="rgb(40,30, 207)" name="label" bgcolor="transparent" fontsize="10" fontfamily="sans-serif"></text>
+        </labelbutton>
+
+        <rangeslider name="rs" bottomborder="2" bordercolor="blue" lowselectcolor="#0a0aaa" highselectcolor="#0a0aaa">
+            <view name="highvalueview" bottomborder="2" bordercolor="#0066CC"></view>
+            <art name="highindicator" fill="#AA00CC"></art>
+            <view name="lowvalueview" bottomborder="2" bordercolor="#AA66CC"></view>
+            <art name="lowindicator" fill="#6666CC"></art>
+        </rangeslider>
+
+        <slider bottomborder="5" selectcolor="#4D94DB">
+            <art name="indicator" fill="#4D94DB"></art>
+        </slider>
+
+        <checkbutton border="2" padding="10" textcolor="rgb(40,40,140)" innerspacing="3" selectcolor="#66A3FF">
+            <text color="rgb(40,40,140)" name="label" padding="0" text-transform="uppercase" bgcolor="transparent" fontsize="10"></text>
+        </checkbutton>
+
+        <labeltoggle border="2" padding="3" textcolor="rgb(120,120,200)" defaultcolor="rgb(3,3,63)" selectcolor="#EEA3FF">
+            <art name="indicator" fill="#00AAEE"></art>
+            <text name="label" bgcolor="transparent" fontsize="10"></text>
+        </labeltoggle>
+    </skin>
+
+    <skin name="overlay">
+        <text bgcolor="green" color="white" clip="true"></text>
+
+        <inputtext bgcolor="green">
+            <art name="indicator" visible="false"></art>
+        </inputtext>
+
+        <labelbutton bgcolor="green">
+            <art name="indicator" visible="false"></art>
+        </labelbutton>
+
+        <rangeslider bgcolor="green">
+        </rangeslider>
+
+        <slider bgcolor="green">
+        </slider>
+
+        <checkbutton  bgcolor="green">
+            <art name="check" visible="false"></art>
+        </checkbutton>
+
+        <labeltoggle bgcolor="green" textcolor="pink">
+            <art name="indicator" visible="false"></art>
+            <text name="label" fontsize="22" bgcolor="transparent"></text>
+        </labeltoggle>
+    </skin>
+
+    <view name="a" height="auto" width="auto" skin="angry" bgcolor="#FFAA66">
+        <spacedlayout axis="y" spacing="15"></spacedlayout>
+        <text        name="t1" resize="true" text="420.20 some text here auto resize"></text>
+        <checkbutton name="c3" text="pink auto size" selectcolor="pink"></checkbutton>
+        <checkbutton name="c4" width="130" height="35" text="red fixed size" selectcolor="red"></checkbutton>
+        <text        name="t2" resize="false" height="30" width="100" text="fixed size text here"></text>
+        <rangeslider name="r1" height="20" width="200"></rangeslider>
+        <labelbutton name="b1" height="40" width="200" text="fixed w/h btn"></labelbutton>
+        <labelbutton name="b2" text="autoresizing"></labelbutton>
+        <slider      name="s1" height="20" width="200"></slider>
+        <checkbutton name="c1"></checkbutton>
+        <inputtext   name="i1" height="40" width="200" text="420.20 some text here"></inputtext>
+        <checkbutton name="c2" height="60" width="60"></checkbutton>
+        <labeltoggle name="l2" text="autosized toggle"></labeltoggle>
+        <labeltoggle name="l1" height="50" width="200" text="fixed h/w toggle"></labeltoggle>
+
+        <handler type="coffee" event="oninit">
+            assert.equal(@t1.color, 'red')
+            assert.equal(@t1.bgcolor, 'transparent')
+        </handler>
     </view>
 
-    <view height="100" width="400" skin="whiteonblack">
-        <text height="200" width="300" text="testing B" skin="blackonwhite"></text>
+    <view name="b" height="auto" width="auto" skin="calm" bgcolor="#66AAFF">
+        <spacedlayout axis="y" spacing="15"></spacedlayout>
+        <text        name="t1" resize="true" text="420.20 some text here auto resize"></text>
+        <checkbutton name="c3" text="pink auto size" selectcolor="pink"></checkbutton>
+        <checkbutton name="c4" width="130" height="35" text="red fixed size" selectcolor="red"></checkbutton>
+        <text        name="t2" resize="false" height="30" width="100" text="fixed size text here"></text>
+        <rangeslider name="r1" height="20" width="200"></rangeslider>
+        <labelbutton name="b1" height="40" width="200" text="fixed w/h btn"></labelbutton>
+        <labelbutton name="b2" text="autoresizing"></labelbutton>
+        <slider      name="s1" height="20" width="200"></slider>
+        <checkbutton name="c1"></checkbutton>
+        <inputtext   name="i1" height="40" width="200" text="420.20 some text here"></inputtext>
+        <checkbutton name="c2" height="60" width="60"></checkbutton>
+        <labeltoggle name="l2" text="autosized toggle"></labeltoggle>
+        <labeltoggle name="l1" height="50" width="200" text="fixed h/w toggle"></labeltoggle>
+
+        <handler type="coffee" event="oninit">
+            assert.equal(@t1.color, 'blue')
+            assert.equal(@t1.bgcolor, 'transparent')
+        </handler>
+    </view>
+
+    <view name="c" height="auto" width="auto" skin="calm+overlay" bgcolor="#AAFF66">
+        <spacedlayout axis="y" spacing="15"></spacedlayout>
+        <text        name="t1" resize="true" text="420.20 some text here auto resize"></text>
+        <checkbutton name="c3" text="pink auto size" selectcolor="pink"></checkbutton>
+        <checkbutton name="c4" width="130" height="35" text="red fixed size" selectcolor="red"></checkbutton>
+        <text        name="t2" resize="false" height="30" width="100" text="fixed size text here"></text>
+        <rangeslider name="r1" height="20" width="200"></rangeslider>
+        <labelbutton name="b1" height="40" width="200" text="fixed w/h btn"></labelbutton>
+        <labelbutton name="b2" text="autoresizing"></labelbutton>
+        <slider      name="s1" height="20" width="200"></slider>
+        <checkbutton name="c1"></checkbutton>
+        <inputtext   name="i1" height="40" width="200" text="420.20 some text here"></inputtext>
+        <checkbutton name="c2" height="60" width="60"></checkbutton>
+        <labeltoggle name="l2" text="autosized toggle"></labeltoggle>
+        <labeltoggle name="l1" height="50" width="200" text="fixed h/w toggle"></labeltoggle>
+
+        <handler type="coffee" event="oninit">
+            assert.equal(@t1.color, 'white')
+            assert.equal(@t1.bgcolor, 'green')
+
+            assert.equal(@l1.label.fontsize, 22)
+
+        </handler>
     </view>
 
 </view>
