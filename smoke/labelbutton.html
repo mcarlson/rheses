@@ -25,7 +25,7 @@
       assert.testCaseLabel = 'Setting text values';
       assert.equal(this.text, '')
       assert.equal(this.label.text, '')
-      assert.equal(this.label.sprite.el.innerText, '')
+      assert.equal(this.label.sprite.el.innerText || '', '')
     </handler>
   </labelbutton>
   

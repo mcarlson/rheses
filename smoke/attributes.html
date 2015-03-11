@@ -18,6 +18,7 @@ error parsing json value '{'test': 'invalid'}' for attribute 'foo'
 <head>
   <style type="text/css">
     html,body{
+      width:100%;
       height:100%;
       margin:0px;
       padding:0px;
@@ -71,21 +72,33 @@ error parsing json value '{'test': 'invalid'}' for attribute 'foo'
   
   <Foo><!-- attribute value is inherited. -->
     <handler event="oninit">
+      assert.testCaseLabel = 'attribute value is inherited.';
+      
       assert.equal(this.bar, 10);
       assert.equal(this.barHa, undefined);
       assert.equal(this.barha, 100);
     </handler>
   </Foo>
   <foo bar="25"><!-- instance attr overrides class. -->
-    <handler event="oninit">assert.equal(this.bar, 25)</handler>
+    <handler event="oninit">
+      assert.testCaseLabel = 'instance attr overrides class.';
+      
+      assert.equal(this.bar, 25)
+    </handler>
   </foo>
   <foo><!-- instance attribute overrides class. -->
     <attribute name="bar" type="number" value="25"></attribute>
-    <handler event="oninit">assert.equal(this.bar, 25)</handler>
+    <handler event="oninit">
+      assert.testCaseLabel = 'instance attribute overrides class.';
+      
+      assert.equal(this.bar, 25)
+    </handler>
   </foo>
   
   <foosub1>
-    <handler event="oninit">assert.equal(this.bar, 20)</handler>
+    <handler event="oninit">
+      assert.equal(this.bar, 20)
+    </handler>
   </foosub1>
   <foosub1 bar="25">
     <handler event="oninit">assert.equal(this.bar, 25)</handler>
@@ -124,6 +137,8 @@ error parsing json value '{'test': 'invalid'}' for attribute 'foo'
   <view>
     <attribute name="numberlabel" type="string" value="10"></attribute>
     <handler event="oninit">
+      assert.testCaseLabel = 'String types';
+      
       this.numberlabel += 200
       assert.equal(this.numberlabel, '10200')
     </handler>
@@ -137,6 +152,8 @@ error parsing json value '{'test': 'invalid'}' for attribute 'foo'
   
     <view name="check" x="${this.parent.checkx}" y="${this.parent.checky}" width="50" height="50" bgcolor="red">
       <handler event="oninit">
+        assert.testCaseLabel = 'Constraints';
+
         assert.equal(this.x, 50);
         assert.equal(this.y, 50);
       </handler>
@@ -152,6 +169,8 @@ error parsing json value '{'test': 'invalid'}' for attribute 'foo'
   <view id="outer" width="400" height="200" bgcolor="lightgrey">
     <view id="inner" width="100%" height="100%" bgcolor="thistle">
       <handler event="oninit">
+        assert.testCaseLabel = 'Percentage values';
+
         assert.equal(400, inner.width)
         assert.equal(200, inner.height)
       </handler>
@@ -166,6 +185,8 @@ error parsing json value '{'test': 'invalid'}' for attribute 'foo'
   </view>
   
   <handler event="oninit">
+    assert.testCaseLabel = 'checking main width';
+    
     assert.notEqual(main.width, 100)
     assert.equal(main.width, $('body').width())
   </handler>
@@ -175,6 +196,8 @@ error parsing json value '{'test': 'invalid'}' for attribute 'foo'
     <attribute name="fifty" type="number" value="50"></attribute>
     <attribute name="thirty" type="number" value="30"></attribute>
     <handler event="oninit">
+      assert.testCaseLabel = 'Binding to the same attribute with a different constraint value unregisters the previous constraint';
+
       // Should already be registered for fifty with the constraint above
       assert.equal(this.events.fifty.length, 1)
       assert.equal(this.x, 50)
@@ -201,6 +224,8 @@ error parsing json value '{'test': 'invalid'}' for attribute 'foo'
   <view x="${Math.round(this.floating)}" bgcolor="pink" width="10" height="10">
     <attribute name="floating" type="number" value=".5"></attribute>
     <handler event="oninit">
+      assert.testCaseLabel = 'Constraints shouldnt attempt to bind to functions, see https://www.pivotaltracker.com/story/show/83879598';
+
       // There shouldn't be a warning and this.floating should be bound even though it's inside Math.round()
       assert.equal(this.events.floating.length, 1)
       assert.equal(this.x, 1)
