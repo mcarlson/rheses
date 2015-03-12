@@ -2622,7 +2622,7 @@ window.dr = do ->
       @attachSkinListener()
 
       unless window.dr.skins
-        console.log("<skin> hasn't been initialized yet")
+        console.log("<skin> hasn't been initialized yet", @)
         return
 
       if @skin
@@ -2873,7 +2873,6 @@ window.dr = do ->
         return if url of fileloaded
         fileloaded[url] = el
         dependencies.push(url)
-        # console.log "Loading #{url}", el
         prom = $.get(url)
         prom.url = url
         prom.el = el
@@ -2925,7 +2924,13 @@ window.dr = do ->
         urls
 
       loadIncludes = (callback) ->
-        # load includes
+
+        #preload skin
+        unless fileloaded['skin']
+          fileloaded['skin'] = true
+          loadInclude("/classes/skin.dre")
+
+      # load includes
         for url, el of findIncludeURLs()
           # console.log 'include url', url
           loadInclude(url, el)
