@@ -496,41 +496,41 @@
       * bitmapbutton has been deprecated, use dr.statebutton instead
       */
 /**
-     * @class dr.buttonbase {UI Components}
-     * @extends dr.view
-     * Base class for button components. Buttons share common elements,
-     * including their ability to be selected, a visual element to display
-     * their state, and a default and selected color.
-     * The visual element is a dr.view that shows the current state of the
-     * button. For example, in a labelbutton the entire button is the visual
-     * element. For a checkbutton, the visual element is a square dr.view
-     * that is inside the button.
-     */
+   * @class dr.buttonbase {UI Components}
+   * @extends dr.view
+   * Base class for button components. Buttons share common elements,
+   * including their ability to be selected, a visual element to display
+   * their state, and a default and selected color.
+   * The visual element is a dr.view that shows the current state of the
+   * button. For example, in a labelbutton the entire button is the visual
+   * element. For a checkbutton, the visual element is a square dr.view
+   * that is inside the button.
+   */
 /**
-        * @attribute {Number} [padding=3]
-        * Amount of padding pixels around the button.
-        */
+    * @attribute {Number} [padding=3]
+    * Amount of padding pixels around the button.
+    */
 /**
-        * @attribute {String} [defaultcolor="#808080"]
-        * The default color of the visual button element when not selected.
-        */
+    * @attribute {String} [defaultcolor="#808080"]
+    * The default color of the visual button element when not selected.
+    */
 /**
-        * @attribute {String} [selectcolor="#a0a0a0"]
-        * The selected color of the visual button element when selected.
-        */
+    * @attribute {String} [selectcolor="#a0a0a0"]
+    * The selected color of the visual button element when selected.
+    */
 /**
-        * @attribute {Boolean} [selected=false]
-        * The current state of the button.
-        */
+    * @attribute {Boolean} [selected=false]
+    * The current state of the button.
+    */
 /**
-        * @event onselected
-        * Fired when the state of the button changes.
-        * @param {dr.buttonbase} view The dr.buttonbase that fired the event
-        */
+    * @event onselected
+    * Fired when the state of the button changes.
+    * @param {dr.buttonbase} view The dr.buttonbase that fired the event
+    */
 /**
-        * @attribute {String} [text=""]
-        * Button text.
-        */
+    * @attribute {String} [text=""]
+    * Button text.
+    */
 /**
  * @class dr.camera {UI Components}
  * @extends dr.node
@@ -879,27 +879,27 @@
     * @return {String} The formated string to display in the component.
     */
 /**
-     * @class dr.labelbutton {UI Components}
-     * @extends dr.buttonbase
-     * Button class consisting of text centered in a view. The onclick event
-     * is generated when the button is clicked. The visual state of the
-     * button changes during onmousedown/onmouseup.
-     *
-     *     @example
-     *     <spacedlayout axis="y"></spacedlayout>
-     *
-     *     <labelbutton text="click me" defaultcolor="plum" selectcolor="orchid">
-     *       <handler event="onclick">
-     *         hello.setAttribute('text', 'Hello Universe!');
-     *       </handler>
-     *     </labelbutton>
-     *
-     *     <text id="hello"></text>
-     */
+   * @class dr.labelbutton {UI Components}
+   * @extends dr.buttonbase
+   * Button class consisting of text centered in a view. The onclick event
+   * is generated when the button is clicked. The visual state of the
+   * button changes during onmousedown/onmouseup.
+   *
+   *     @example
+   *     <spacedlayout axis="y"></spacedlayout>
+   *
+   *     <labelbutton text="click me" defaultcolor="plum" selectcolor="orchid">
+   *       <handler event="onclick">
+   *         hello.setAttribute('text', 'Hello Universe!');
+   *       </handler>
+   *     </labelbutton>
+   *
+   *     <text id="hello"></text>
+   */
 /**
-        * @attribute {String} [bgcolor]
-        * Sets this view's background color, same as setting defaultcolor.
-        */
+    * @attribute {String} [bgcolor]
+    * Sets this view's background color, same as setting defaultcolor.
+    */
 /**
      * @class dr.labeltoggle {UI Components}
      * @extends dr.labelbutton
@@ -951,6 +951,25 @@
       *         <b>Here is some text</b> that is really just HTML.
       *     </markup>
       */
+/**
+    * @attribute {String} [markup='']
+    * Sets the inner HTML of this view. Since the < and > characters are
+    * not typically supported in the places you'll be configuring this
+    * attributes, you can use [ and ] and they will be transformed into < and >.
+    * If you need to insert a literal [ character use &amp;#91;. If you need
+    * to insert a literal ] character use &amp;#93;.
+    */
+/**
+    * @method unescape
+    * Used to support an alternate syntax for markup since the < and >
+    * characters are restricted in most places you will want assign the
+    * markup to this view. The alternte syntax uses the [ and ] characters to
+    * represent < and > respectively. If you need to insert a literal [ or ]
+    * character use &amp;#91; or &amp;#93; respectively.
+    * @param str The string to unescape.
+    * @returns {String} The unescaped string.
+    * @private
+    */
 /**
  * @class dr.microphone {UI Components}
  * @extends dr.node
@@ -1092,18 +1111,6 @@
       * @attribute {Number} [highvalue=50]
       * The current value of the right slider.
       * Use changeHighValue() to range check the number and set the value.
-      */
-/**
-      * @method changeLowValue
-      * Given a new value for the slider position, constrain the value
-      * between minvalue and maxvalue or maxlowvalue (whichever is lower) and then calls setAttribute.
-      * @param {Number} v The new value of the component.
-      */
-/**
-      * @method changeHighValue
-      * Given a new value for the slider position, constrain the value
-      * between minvalue or minhighvalue (whichever is higher) and maxvalue and then calls setAttribute.
-      * @param {Number} v The new value of the component.
       */
 /**
       * @attribute {String} [lowselectcolor="#a0a0a0"]
@@ -1361,19 +1368,6 @@
       * 
       */
 /**
-    * @attribute {String} [markup='']
-    * Sets the inner HTML of this view. Since the < and > characters are
-    * not typically supported in the places you'll be configuring this
-    * attributes, you can use [ and ] and they will be transformed into < and >.
-    * If you need to insert a literal [ character use &amp;#91;. If you need
-    * to insert a literal ] character use &amp;#93;.
-    */
-/**
-    * Look for special value of 'auto' for width and height and handle them
-    * here rather than letting them bubble up to view.
-    * @private
-    */
-/**
     * Reduce number of sizeToDom calls during initialization.
     * @private
     */
@@ -1381,17 +1375,6 @@
     * @method sizeToDom
     * Sizes this view to the current size of the DOM elements within it.
     * @returns {void}
-    */
-/**
-    * @method unescape
-    * Used to support an alternate syntax for markup since the < and >
-    * characters are restricted in most places you will want assign the
-    * markup to this view. The alternte syntax uses the [ and ] characters to
-    * represent < and > respectively. If you need to insert a literal [ or ]
-    * character use &amp;#91; or &amp;#93; respectively.
-    * @param str The string to unescape.
-    * @returns {String} The unescaped string.
-    * @private
     */
 /**
      * @class dr.slider {UI Components}
@@ -1428,13 +1411,6 @@
 /**
         * @attribute {Number} [value=0]
         * The current value of the slider.
-        * Use changeValue() to range check the number and set the value.
-        */
-/**
-        * @method changeValue
-        * Given a new value for the slider position, constrain the value
-        * between minvalue and maxvalue and then calls setAttribute.
-        * @param {Number} v The new value of the component.
         */
 /**
         * @attribute {String} [selectcolor="#a0a0a0"]
@@ -1671,74 +1647,54 @@
       * 
       */
 /**
-  *
-  * @attribute {Number} [fontsize]
-  * The size of the font in pixels.
-  *
-  */
+        * @attribute {Number} [fontsize]
+        * The size of the font in pixels.
+        */
 /**
-  *
-  * @attribute {Number} [fontfamily=""]
-  * The name of the font family to use, e.g. "Helvetica"  Include multiple fonts on a line, separated by commas.
-  *
-  */
+        * @attribute {Number} [fontfamily=""]
+        * The name of the font family to use, e.g. "Helvetica"  Include multiple fonts on a line, separated by commas.
+        */
 /**
-  *
-  * @attribute {Boolean} [bold=false]
-  * Use bold text.
-  *
-  */
+        * @attribute {Boolean} [bold=false]
+        * Use bold text.
+        */
 /**
-  *
-  * @attribute {Boolean} [italic=false]
-  * Use italic text.
-  *
-  */
+        * @attribute {Boolean} [italic=false]
+        * Use italic text.
+        */
 /**
-  *
-  * @attribute {Boolean} [smallcaps=false]
-  * Use small caps style.
-  *
-  */
+        * @attribute {Boolean} [smallcaps=false]
+        * Use small caps style.
+        */
 /**
-  *
-  * @attribute {Boolean} [underline=false]
-  * Draw and underline under text (note, is incompatible with dr.text#strike)
-  *
-  */
+        * @attribute {Boolean} [underline=false]
+        * Draw and underline under text (note, is incompatible with dr.text#strike)
+        */
 /**
-  *
-  * @attribute {Boolean} [strike=false]
-  * Draw and strike-through the text (note, is incompatible with dr.text#underline)
-  *
-  */
+        * @attribute {Boolean} [strike=false]
+        * Draw and strike-through the text (note, is incompatible with dr.text#underline)
+        */
 /**
-    * 
-    * @attribute {Boolean} [multiline=false]
-    * Set to true to show multi-line text.
-    * 
-    */
+        * @attribute {Boolean} [multiline=false]
+        * Determines how line breaks within the text are handled.
+        */
 /**
-    * 
-    * @attribute {Boolean} [resize=true]
-    * By default, the text component is sized to the size of the text.
-    * By setting resize=false, the component size is not modified
-    * when the text changes.
-    * 
-    */
+        * @attribute {Boolean} [ellipsis=false]
+        * Determines if ellipsis shouls be shown or not. Only works when
+        * multiline is false.
+        */
 /**
-    * 
-    * @attribute {String} [text=""]
-    * The contents of this input text field
-    * 
-    */
+        * @attribute {String} [text=""]
+        * The contents of this input text field
+        */
 /**
-    * @method format
-    * Format the text to be displayed. The default behavior is to
-    * return the text intact. Override to change formatting.
-    * @param {String} str The current value of the text component.
-    * @return {String} The formated string to display in the component.
-    */
+        * @method format
+        * Format the text to be displayed. The default behavior is to
+        * return the text intact. Override to change formatting. This method
+        * is called whenever the text attribute is set.
+        * @param {String} str The current value of the text component.
+        * @return {String} The formated string to display in the component.
+        */
 /**
      * @class dr.touch {Input}
      * @extends dr.node

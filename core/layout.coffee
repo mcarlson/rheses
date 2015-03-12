@@ -3246,6 +3246,18 @@ window.dr = do ->
   #       </handler>
   #     </labelbutton>
   #
+  # You can set the 'applied' attribute to true to activate a state.
+  #
+  #     @example
+  #     <view id="square" width="200" height="100" bgcolor="lightgrey">
+  #       <state name="pinkstate">
+  #         <view name="sub" bgcolor="pink" width="100" height="100"></view>
+  #       </state>
+  #       <handler event="oninit">
+  #         this.pinkstate.setAttribute('applied', true);
+  #       </handler>
+  #     </view>
+  #
   ###
   class State extends Node
     constructor: (el, attributes = {}) ->

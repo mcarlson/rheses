@@ -6,6 +6,7 @@ Capybara.default_driver = :sauce
 
 # Set up configuration
 Sauce.config do |c|
+  c[:start_tunnel] = false,
   c[:browsers] = [
       ["Windows 8.1", "Firefox", nil]#,
       #["Windows 8.1", "Chrome", nil],

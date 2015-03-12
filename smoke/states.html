@@ -53,6 +53,9 @@
   <script type="text/javascript" src="/lib/smoke_helper.js"></script>
 </head>
 <body>
+<view width="100%" height="100%">
+  <spacedlayout axis="y"></spacedlayout>
+  
   <view id="container" y="300" width="auto" height="100" bgcolor="purple" border-radius="4px" clip="true">
     <view width="100">
       <state name="foo" width="200">
@@ -120,6 +123,18 @@
       </handler>
     </view>
   </view>
+
+  <view width="300" height="250" bgcolor="BlanchedAlmond">
+    <state name="aaa">
+      <view width="100" height="100" bgcolor="BurlyWood"></view>
+    </state>
+
+    <handler event="oninit">
+      console.log('this.aaa', this.aaa);
+      this.aaa.setAttribute('applied', true);
+    </handler>
+  </view>
+</view>
 <!-- The MIT License (MIT)
 
 Copyright ( c ) 2014 Teem2 LLC
