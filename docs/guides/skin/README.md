@@ -68,7 +68,7 @@ As new views are added, they will be automatically skinned with the skin belongi
         </view>
     </view>
 
-This is the default Dreem skin:
+This is the default Dreem skin ([see example](http://localhost:8080/examples/style.html)):
 
     <skin name="default">
       <text fontweight="200" clip="true" color="white" fontsize="20" fontfamily="'mission-gothic', 'Helvetica Neue', Helvetica, Arial, sans-serif"></text>

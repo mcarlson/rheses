@@ -41,6 +41,7 @@
     bgcolor: 'backgroundColor',
     ellipsis: 'textOverflow',
     fontfamily: 'fontFamily',
+    fontweight: 'fontWeight',
     fontsize: 'fontSize',
     italic: 'fontStyle',
     leftborder: 'borderLeftWidth',
@@ -958,7 +959,7 @@
 
       earlyattributes = ['name', 'parent'];
 
-      lateattributes = ['data'];
+      lateattributes = ['data', 'skin'];
 
       function Node(el, attributes) {
         var args, hassuper, method, methodName, methodObj, methods, mixedAttributes, supressTagname, _i, _j, _len, _len1, _ref, _ref1;
@@ -1649,7 +1650,7 @@
           case 'whitespace':
           case 'fontsize':
           case 'fontfamily':
-          case 'font-weight':
+          case 'fontweight':
           case 'text-transform':
           case 'boxshadow':
           case 'leftpadding':
@@ -1942,6 +1943,13 @@
         if (height) {
           this.setStyle('height', height, true, input);
         }
+        this.setStyle('color', 'inherit', false, input);
+        this.setStyle('background', 'inherit', false, input);
+        this.setStyle('font-variant', 'inherit', false, input);
+        this.setStyle('font-style', 'inherit', false, input);
+        this.setStyle('font-weight', 'inherit', false, input);
+        this.setStyle('font-size', 'inherit', false, input);
+        this.setStyle('font-family', 'inherit', false, input);
         this.el.appendChild(input);
         input.$view = this.el.$view;
         $(input).on('focus blur', this.handle);
@@ -2009,6 +2017,9 @@
       Sprite.prototype.setStyle = function(name, value, internal, el) {
         if (el == null) {
           el = this.el;
+        }
+        if (name === '$instanceattributes') {
+          return;
         }
         if (!internal && !(name in stylemap) && !(__indexOf.call(knownstyles, name) >= 0)) {
           console.warn("Setting unknown CSS property " + name + " = " + value + " on ", this.el.$view, stylemap, internal);
@@ -2534,6 +2545,7 @@
           scrollbars: 'boolean',
           scrollx: 'number',
           scrolly: 'number',
+          skin: 'string',
           topborder: 'positivenumber',
           toppadding: 'positivenumber',
           visible: 'boolean',
@@ -2560,6 +2572,7 @@
         this.cursor = 'pointer';
         this.bgcolor = this.bordercolor = 'transparent';
         this.borderstyle = 'solid';
+        this.skin = '';
         this.leftborder = this.rightborder = this.topborder = this.bottomborder = this.border = this.leftpadding = this.rightpadding = this.toppadding = this.bottompadding = this.padding = this.x = this.y = this.width = this.height = this.innerwidth = this.innerheight = this.boundsxdiff = this.boundsydiff = this.boundsx = this.boundsy = this.boundswidth = this.boundsheight = this.zanchor = this.scrollx = this.scrolly = 0;
         this.opacity = 1;
         this.clip = this.scrollable = this.clickable = this.isaligned = this.isvaligned = this.ignorelayout = this.scrollbars = false;
@@ -3277,6 +3290,49 @@
         return noop;
       };
 
+      View.prototype.set_skin = function(name) {
+        if (name !== this.skin) {
+          this.skin = name;
+          this.reskin();
+          this.setAndFire('skin', name);
+        }
+        return noop;
+      };
+
+      View.prototype.attachSkinListener = function() {
+        if (!this.$skinlistner) {
+          this.$skinlistner = true;
+          return this.listenTo(this, 'subviewAdded', function(sv) {
+            sv.attachSkinListener();
+            return sv.reskin();
+          });
+        }
+      };
+
+      View.prototype.reskin = function() {
+        var skin, skinname, skins, _i, _len, _results;
+        this.attachSkinListener();
+        if (!window.dr.skins) {
+          console.log("<skin> hasn't been initialized yet", this);
+          return;
+        }
+        if (this.skin) {
+          skins = this.skin.split(/[^A-Za-z0-9_-]+/);
+          _results = [];
+          for (_i = 0, _len = skins.length; _i < _len; _i++) {
+            skinname = skins[_i];
+            if (skin = window.dr.skins[skinname]) {
+              _results.push(skin.applyTo(this));
+            } else {
+              _results.push(console.log('Cannot apply skin:', skinname));
+            }
+          }
+          return _results;
+        } else if (this.parent && this.parent.reskin) {
+          return this.parent.reskin();
+        }
+      };
+
       View.prototype.moveToFront = function() {
         var subview, _i, _len, _ref;
         _ref = this.parent.subviews;
@@ -3651,6 +3707,10 @@
         };
         loadIncludes = function(callback) {
           var el, url, _ref;
+          if (!fileloaded['skin']) {
+            fileloaded['skin'] = true;
+            loadInclude("/classes/skin.dre");
+          }
           _ref = findIncludeURLs();
           for (url in _ref) {
             el = _ref[url];
@@ -4480,6 +4540,9 @@
           var attributes, children, parent, sendInit, viewel, viewhtml, _k, _len2, _ref1;
           attributes = clone(classattributes);
           _processAttrs(instanceattributes, attributes);
+          if (attributes.$instanceattributes == null) {
+            attributes.$instanceattributes = instanceattributes;
+          }
           if (!(extend in dr)) {
             console.warn('could not find class for tag', extend);
             return;
