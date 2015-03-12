@@ -1,28 +1,11 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <title>The source code</title>
-  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
-  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
-  <style type="text/css">
-    .highlight { display: block; background-color: #ddd; }
-  </style>
-  <script type="text/javascript">
-    function highlight() {
-      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
-    }
-  </script>
-</head>
-<body onload="prettyPrint(); highlight();">
-  <pre class="prettyprint lang-js">
+
 /*
  * The MIT License (MIT)
  *
  * Copyright ( c ) 2015 Teem2 LLC
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
@@ -31,7 +14,7 @@
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
@@ -45,33 +28,33 @@
     __slice = [].slice,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i &lt; l; i++) { if (i in this &amp;&amp; this[i] === item) return i; } return -1; },
+    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   stylemap = {
-    bold: &#39;fontWeight&#39;,
-    bordercolor: &#39;borderColor&#39;,
-    borderstyle: &#39;borderStyle&#39;,
-    bottomborder: &#39;borderBottomWidth&#39;,
-    bottompadding: &#39;paddingBottom&#39;,
-    boxshadow: &#39;boxShadow&#39;,
-    bgcolor: &#39;backgroundColor&#39;,
-    ellipsis: &#39;textOverflow&#39;,
-    fontfamily: &#39;fontFamily&#39;,
-    fontsize: &#39;fontSize&#39;,
-    italic: &#39;fontStyle&#39;,
-    leftborder: &#39;borderLeftWidth&#39;,
-    leftpadding: &#39;paddingLeft&#39;,
-    rightborder: &#39;borderRightWidth&#39;,
-    rightpadding: &#39;paddingRight&#39;,
-    smallcaps: &#39;fontVariant&#39;,
-    topborder: &#39;borderTopWidth&#39;,
-    toppadding: &#39;paddingTop&#39;,
-    visible: &#39;visibility&#39;,
-    whitespace: &#39;whiteSpace&#39;,
-    x: &#39;marginLeft&#39;,
-    y: &#39;marginTop&#39;,
-    z: &#39;z-index&#39;
+    bold: 'fontWeight',
+    bordercolor: 'borderColor',
+    borderstyle: 'borderStyle',
+    bottomborder: 'borderBottomWidth',
+    bottompadding: 'paddingBottom',
+    boxshadow: 'boxShadow',
+    bgcolor: 'backgroundColor',
+    ellipsis: 'textOverflow',
+    fontfamily: 'fontFamily',
+    fontsize: 'fontSize',
+    italic: 'fontStyle',
+    leftborder: 'borderLeftWidth',
+    leftpadding: 'paddingLeft',
+    rightborder: 'borderRightWidth',
+    rightpadding: 'paddingRight',
+    smallcaps: 'fontVariant',
+    topborder: 'borderTopWidth',
+    toppadding: 'paddingTop',
+    visible: 'visibility',
+    whitespace: 'whiteSpace',
+    x: 'marginLeft',
+    y: 'marginTop',
+    z: 'z-index'
   };
 
   hackstyle = (function() {
@@ -114,11 +97,11 @@
     noop = function() {};
     closeTo = function(a, b, epsilon) {
       epsilon || (epsilon = 0.01);
-      return Math.abs(a - b) &lt; epsilon;
+      return Math.abs(a - b) < epsilon;
     };
     mixOf = function() {
       var Mixed, base, i, method, mixin, mixins, name, _i, _ref;
-      base = arguments[0], mixins = 2 &lt;= arguments.length ? __slice.call(arguments, 1) : [];
+      base = arguments[0], mixins = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
       Mixed = (function(_super) {
         __extends(Mixed, _super);
 
@@ -129,7 +112,7 @@
         return Mixed;
 
       })(base);
-      for (i = _i = mixins.length - 1; _i &gt;= 0; i = _i += -1) {
+      for (i = _i = mixins.length - 1; _i >= 0; i = _i += -1) {
         mixin = mixins[i];
         _ref = mixin.prototype;
         for (name in _ref) {
@@ -141,26 +124,26 @@
     };
     matchPercent = /%$/;
 
-<span id='Events'>    /**
-</span>     * @class Events
+    /**
+     * @class Events
      * @private
      * A lightweight event system, used internally.
      */
     triggerlock = null;
     Events = {
 
-<span id='Events-method-register'>      /**
-</span>       * Registers one or more events with the current scope
+      /**
+       * Registers one or more events with the current scope
        * @param {String} ev the name of the event, or event names if separated by spaces.
        * @param {Function} callback called when the event is fired
        */
       register: function(ev, callback) {
         var evs, name, _base, _i, _len;
-        evs = ev.split(&#39; &#39;);
-        if (!(this.hasOwnProperty(&#39;events&#39;) &amp;&amp; this.events)) {
+        evs = ev.split(' ');
+        if (!(this.hasOwnProperty('events') && this.events)) {
           this.events = {};
         }
-        for (_i = 0, _len = evs.length; _i &lt; _len; _i++) {
+        for (_i = 0, _len = evs.length; _i < _len; _i++) {
           name = evs[_i];
           (_base = this.events)[name] || (_base[name] = []);
           this.events[name].push(callback);
@@ -168,8 +151,8 @@
         return this;
       },
 
-<span id='Events-method-one'>      /**
-</span>       * Registers an event with the current scope, automatically unregisters when the event fires
+      /**
+       * Registers an event with the current scope, automatically unregisters when the event fires
        * @param {String} ev the name of the event
        * @param {Function} callback called when the event is fired
        */
@@ -181,19 +164,19 @@
         return this;
       },
 
-<span id='Events-method-trigger'>      /**
-</span>       * Fires an event
+      /**
+       * Fires an event
        * @param {String} ev the name of the event to fire
        */
       trigger: function(ev, value, scope) {
         var callback, list, _i, _len, _ref;
-        list = this.hasOwnProperty(&#39;events&#39;) &amp;&amp; ((_ref = this.events) != null ? _ref[ev] : void 0);
+        list = this.hasOwnProperty('events') && ((_ref = this.events) != null ? _ref[ev] : void 0);
         if (!list) {
           return;
         }
         if (triggerlock) {
           if (triggerlock.scope === this) {
-            if (__indexOf.call(triggerlock, ev) &gt;= 0) {
+            if (__indexOf.call(triggerlock, ev) >= 0) {
               return this;
             }
             triggerlock.push(ev);
@@ -202,7 +185,7 @@
           triggerlock = [ev];
           triggerlock.scope = this;
         }
-        for (_i = 0, _len = list.length; _i &lt; _len; _i++) {
+        for (_i = 0, _len = list.length; _i < _len; _i++) {
           callback = list[_i];
           callback.call(this, value, scope);
         }
@@ -210,8 +193,8 @@
         return this;
       },
 
-<span id='Events-method-listenTo'>      /**
-</span>       * Listens for an event on a specific scope
+      /**
+       * Listens for an event on a specific scope
        * @param {Object} obj scope to listen for events on
        * @param {String} ev the name of the event
        * @param {Function} callback called when the event is fired
@@ -227,8 +210,8 @@
         return this;
       },
 
-<span id='Events-method-listenToOnce'>      /**
-</span>       * Only listens for an event one time
+      /**
+       * Only listens for an event one time
        * @param {Object} obj scope to listen for events on
        * @param {String} ev the name of the event
        * @param {Function} callback called when the event is fired
@@ -248,8 +231,8 @@
         return this;
       },
 
-<span id='Events-method-stopListening'>      /**
-</span>       * Stops listening for an event on a given scope
+      /**
+       * Stops listening for an event on a given scope
        * @param {Object} obj scope to listen for events on
        * @param {String} ev the name of the event
        * @param {Function} callback called when the event would have been fired
@@ -259,18 +242,18 @@
         if (obj) {
           obj.unregister(ev, callback);
           _ref = [this.listeningTo, this.listeningToOnce];
-          for (_i = 0, _len = _ref.length; _i &lt; _len; _i++) {
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
             listeningTo = _ref[_i];
             if (!listeningTo) {
               continue;
             }
             idx = listeningTo.indexOf(obj);
-            if (idx &gt; -1) {
+            if (idx > -1) {
               listeningTo.splice(idx, 1);
             } else {
-              for (index = _j = 0, _len1 = listeningTo.length; _j &lt; _len1; index = ++_j) {
+              for (index = _j = 0, _len1 = listeningTo.length; _j < _len1; index = ++_j) {
                 val = listeningTo[index];
-                if (obj === val.obj &amp;&amp; ev === val.ev &amp;&amp; callback === val.callback) {
+                if (obj === val.obj && ev === val.ev && callback === val.callback) {
                   listeningTo.splice(index, 1);
                   break;
                 }
@@ -279,7 +262,7 @@
           }
         } else {
           _ref1 = this.listeningTo;
-          for (_k = 0, _len2 = _ref1.length; _k &lt; _len2; _k++) {
+          for (_k = 0, _len2 = _ref1.length; _k < _len2; _k++) {
             _ref2 = _ref1[_k], obj = _ref2.obj, ev = _ref2.ev, callback = _ref2.callback;
             obj.unregister(ev, callback);
           }
@@ -288,8 +271,8 @@
         return this;
       },
 
-<span id='Events-method-unregister'>      /**
-</span>       * Stops listening for an event on the current scope
+      /**
+       * Stops listening for an event on the current scope
        * @param {String} ev the name of the event
        * @param {Function} callback called when the event would have been fired
        */
@@ -299,8 +282,8 @@
           this.events = {};
           return this;
         }
-        evs = ev.split(&#39; &#39;);
-        for (_i = 0, _len = evs.length; _i &lt; _len; _i++) {
+        evs = ev.split(' ');
+        for (_i = 0, _len = evs.length; _i < _len; _i++) {
           name = evs[_i];
           list = (_ref = this.events) != null ? _ref[name] : void 0;
           if (!list) {
@@ -310,7 +293,7 @@
             delete this.events[name];
             continue;
           }
-          for (i = _j = 0, _len1 = list.length; _j &lt; _len1; i = ++_j) {
+          for (i = _j = 0, _len1 = list.length; _j < _len1; i = ++_j) {
             cb = list[i];
             if (!(cb === callback)) {
               continue;
@@ -325,29 +308,29 @@
       }
     };
 
-<span id='Module'>    /**
-</span>     * @class Module
+    /**
+     * @class Module
      * @private
      * Adds basic mixin support.
      */
-    moduleKeywords = [&#39;included&#39;, &#39;extended&#39;];
+    moduleKeywords = ['included', 'extended'];
     Module = (function() {
       function Module() {}
 
 
-<span id='Module-method-include'>      /**
-</span>       * Includes a mixin in the current scope
+      /**
+       * Includes a mixin in the current scope
        * @param {Object} obj the object to be mixed in
        */
 
       Module.include = function(obj) {
         var key, value, _ref;
         if (!obj) {
-          throw new Error(&#39;include(obj) requires obj&#39;);
+          throw new Error('include(obj) requires obj');
         }
         for (key in obj) {
           value = obj[key];
-          if (__indexOf.call(moduleKeywords, key) &lt; 0) {
+          if (__indexOf.call(moduleKeywords, key) < 0) {
             this.prototype[key] = value;
           }
         }
@@ -364,20 +347,20 @@
       parent: true,
       id: true,
       name: true,
-      &quot;extends&quot;: true,
+      "extends": true,
       type: true,
       scriptincludes: true
     };
 
-<span id='Eventable'>    /**
-</span>     * @class Eventable {Core Dreem}
+    /**
+     * @class Eventable {Core Dreem}
      * @extends Module
      * The baseclass used by everything in dreem. Adds higher level event APIs.
      */
     Eventable = (function(_super) {
 
-<span id='Eventable-method-include'>      /**
-</span>       * @method include
+      /**
+       * @method include
        * @hide
        */
       var typemappings;
@@ -393,23 +376,23 @@
       typemappings = {
         number: parseFloat,
         boolean: function(v) {
-          if (typeof v === &#39;string&#39;) {
-            return v === &#39;true&#39;;
+          if (typeof v === 'string') {
+            return v === 'true';
           } else {
             return !!v;
           }
         },
         string: function(v) {
-          return v + &#39;&#39;;
+          return v + '';
         },
         json: function(v) {
           return JSON.parse(v);
         },
         expression: function(v) {
-          if (typeof v !== &#39;string&#39;) {
+          if (typeof v !== 'string') {
             return v;
           } else {
-            return compiler.compile(&quot;return &quot; + v)();
+            return compiler.compile("return " + v)();
           }
         },
         positivenumber: function(v) {
@@ -421,14 +404,14 @@
           }
         },
         emptynumber: function(v) {
-          if ((v == null) || v === &#39;&#39;) {
-            return &#39;&#39;;
+          if ((v == null) || v === '') {
+            return '';
           } else {
             return parseFloat(v);
           }
         },
         size: function(v) {
-          if (matchPercent.test(v) || v === &#39;auto&#39;) {
+          if (matchPercent.test(v) || v === 'auto') {
             return v;
           } else {
             v = parseFloat(v);
@@ -444,16 +427,16 @@
           if (matchPercent.test(v)) {
             return v;
           } else {
-            if (typeof v === &#39;string&#39;) {
+            if (typeof v === 'string') {
               normValue = v.toLowerCase();
               switch (normValue) {
-                case &#39;begin&#39;:
-                case &#39;middle&#39;:
-                case &#39;end&#39;:
-                case &#39;left&#39;:
-                case &#39;right&#39;:
-                case &#39;center&#39;:
-                case &#39;none&#39;:
+                case 'begin':
+                case 'middle':
+                case 'end':
+                case 'left':
+                case 'right':
+                case 'center':
+                case 'none':
                   return normValue;
                 default:
                   v = parseFloat(v);
@@ -476,16 +459,16 @@
           if (matchPercent.test(v)) {
             return v;
           } else {
-            if (typeof v === &#39;string&#39;) {
+            if (typeof v === 'string') {
               normValue = v.toLowerCase();
               switch (normValue) {
-                case &#39;begin&#39;:
-                case &#39;middle&#39;:
-                case &#39;end&#39;:
-                case &#39;top&#39;:
-                case &#39;bottom&#39;:
-                case &#39;center&#39;:
-                case &#39;none&#39;:
+                case 'begin':
+                case 'middle':
+                case 'end':
+                case 'top':
+                case 'bottom':
+                case 'center':
+                case 'none':
                   return normValue;
                 default:
                   v = parseFloat(v);
@@ -511,33 +494,33 @@
         if (type) {
           if (debug || test) {
             if (!typemappings[type]) {
-              showWarnings([&quot;Invalid type &#39;&quot; + type + &quot;&#39; for attribute &#39;&quot; + name + &quot;&#39;, must be one of: &quot; + (Object.keys(typemappings).join(&#39;, &#39;))]);
+              showWarnings(["Invalid type '" + type + "' for attribute '" + name + "', must be one of: " + (Object.keys(typemappings).join(', '))]);
               return;
             }
             try {
               value = typemappings[type].call(this, value);
             } catch (_error) {
               e = _error;
-              showWarnings([&quot;error parsing &quot; + type + &quot; value &#39;&quot; + value + &quot;&#39; for attribute &#39;&quot; + name + &quot;&#39;&quot;]);
+              showWarnings(["error parsing " + type + " value '" + value + "' for attribute '" + name + "'"]);
             }
           } else {
             value = typemappings[type].call(this, value);
           }
-          if (type === &#39;number&#39; &amp;&amp; isNaN(value)) {
+          if (type === 'number' && isNaN(value)) {
             value = this[name];
             if (isNaN(value)) {
               value = 0;
             }
           }
         } else if (value == null) {
-          value = &#39;&#39;;
+          value = '';
         }
         return value;
       };
 
 
-<span id='Eventable-method-setAttribute'>      /**
-</span>       * Sets an attribute on this object, calls a setter function if it exists.
+      /**
+       * Sets an attribute on this object, calls a setter function if it exists.
        * Also stores the attribute in a property on the object and sends an event
        * with the new value.
        * @param {String} name the name of the attribute to set
@@ -550,8 +533,8 @@
         if (!skipconstraintunregistration) {
           this._unbindConstraint(name);
         }
-        setterName = &quot;set_&quot; + name;
-        if (typeof this[setterName] === &#39;function&#39;) {
+        setterName = "set_" + name;
+        if (typeof this[setterName] === 'function') {
           value = this[setterName](value);
           if (value === noop) {
             return this;
@@ -566,8 +549,8 @@
       };
 
 
-<span id='Eventable-method-defaultSetAttributeBehavior'>      /**
-</span>       * The default behavior to execute in setAttribute once setters have been
+      /**
+       * The default behavior to execute in setAttribute once setters have been
        * run. Stores the value on this object and fires an event.
        * @param {String} name the name of the attribute to set
        * @param value the value to set to
@@ -578,8 +561,8 @@
       };
 
 
-<span id='Eventable-method-setAndFire'>      /**
-</span>       * Stores the value on this object and fires an event.
+      /**
+       * Stores the value on this object and fires an event.
        * @param {String} name the name of the attribute to set
        * @param value the value to set to
        */
@@ -589,8 +572,8 @@
       };
 
 
-<span id='Eventable-method-sendEvent'>      /**
-</span>       * Sends an event
+      /**
+       * Sends an event
        * @param {String} name the name of the event to send
        * @param value the value to send with the event
        */
@@ -612,8 +595,8 @@
       };
 
 
-<span id='Eventable-method-setAttributes'>      /**
-</span>       * Calls setAttribute for each name/value pair in the attributes object
+      /**
+       * Calls setAttribute for each name/value pair in the attributes object
        * @param {Object} attributes An object of name/value pairs to be set
        */
 
@@ -632,7 +615,7 @@
     capabilities = {
       localStorage: (function() {
         var e, mod;
-        mod = &#39;dr&#39;;
+        mod = 'dr';
         try {
           localStorage.setItem(mod, mod);
           localStorage.removeItem(mod);
@@ -642,35 +625,35 @@
           return false;
         }
       })(),
-      touch: &#39;ontouchstart&#39; in window || &#39;onmsgesturechange&#39; in window,
-      camelcss: navigator.userAgent.toLowerCase().indexOf(&#39;firefox&#39;) &gt; -1,
+      touch: 'ontouchstart' in window || 'onmsgesturechange' in window,
+      camelcss: navigator.userAgent.toLowerCase().indexOf('firefox') > -1,
       raf: window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame,
       prefix: (function() {
         var dom, pre, styles;
-        styles = window.getComputedStyle(document.documentElement, &#39;&#39;);
-        pre = (Array.prototype.slice.call(styles).join(&#39;&#39;).match(/-(moz|webkit|ms)-/) || (styles.OLink === &#39;&#39; &amp;&amp; [&#39;&#39;, &#39;o&#39;]))[1];
-        dom = &#39;WebKit|Moz|MS|O&#39;.match(new RegExp(&#39;(&#39; + pre + &#39;)&#39;, &#39;i&#39;))[1];
+        styles = window.getComputedStyle(document.documentElement, '');
+        pre = (Array.prototype.slice.call(styles).join('').match(/-(moz|webkit|ms)-/) || (styles.OLink === '' && ['', 'o']))[1];
+        dom = 'WebKit|Moz|MS|O'.match(new RegExp('(' + pre + ')', 'i'))[1];
         return {
           dom: dom,
           lowercase: pre,
-          css: &#39;-&#39; + pre + &#39;-&#39;,
+          css: '-' + pre + '-',
           js: pre[0].toUpperCase() + pre.substr(1)
         };
       })()
     };
     querystring = window.location.search;
-    debug = querystring.indexOf(&#39;debug&#39;) &gt; 0;
-    test = querystring.indexOf(&#39;test&#39;) &gt; 0;
+    debug = querystring.indexOf('debug') > 0;
+    test = querystring.indexOf('test') > 0;
     compiler = (function() {
       var cacheData, cacheKey, compile, compileCache, compiledebug, exports, findBindings, nocache, scriptCache, strict, transform, usecache;
-      nocache = querystring.indexOf(&#39;nocache&#39;) &gt; 0;
-      strict = querystring.indexOf(&#39;strict&#39;) &gt; 0;
+      nocache = querystring.indexOf('nocache') > 0;
+      strict = querystring.indexOf('strict') > 0;
       if (!nocache) {
         usecache = capabilities.localStorage;
       }
-      cacheKey = &quot;dreemcache&quot;;
+      cacheKey = "dreemcache";
       cacheData = localStorage.getItem(cacheKey);
-      if (usecache &amp;&amp; cacheData &amp;&amp; cacheData.length &lt; 5000000) {
+      if (usecache && cacheData && cacheData.length < 5000000) {
         compileCache = JSON.parse(cacheData);
       } else {
         localStorage.clear();
@@ -684,7 +667,7 @@
           localStorage[cacheKey] = JSON.stringify(compileCache);
         }
       }
-      window.addEventListener(&#39;unload&#39;, function() {
+      window.addEventListener('unload', function() {
         if (usecache) {
           return localStorage[cacheKey] = JSON.stringify(compileCache);
         }
@@ -696,7 +679,7 @@
         propertyBindings = {
           MemberExpression: function(n, parent) {
             var name;
-            if (parent.node.type === &#39;CallExpression&#39; &amp;&amp; parent.sub === &#39;callee&#39;) {
+            if (parent.node.type === 'CallExpression' && parent.sub === 'callee') {
               return true;
             }
             name = n.property.name;
@@ -710,7 +693,7 @@
         };
         return function(expression) {
           var ast;
-          if (usecache &amp;&amp; expression in bindingCache) {
+          if (usecache && expression in bindingCache) {
             return bindingCache[expression];
           }
           ast = acorn.parse(expression);
@@ -725,11 +708,11 @@
         compilers = {
           coffee: function(script) {
             var error;
-            if (usecache &amp;&amp; script in coffeeCache) {
+            if (usecache && script in coffeeCache) {
               return coffeeCache[script];
             }
             if (!window.CoffeeScript) {
-              console.warn(&#39;missing coffee-script.js include&#39;);
+              console.warn('missing coffee-script.js include');
               return;
             }
             try {
@@ -740,13 +723,13 @@
               }
             } catch (_error) {
               error = _error;
-              return showWarnings([&quot;error &quot; + error + &quot; compiling script\r\n&quot; + script]);
+              return showWarnings(["error " + error + " compiling script\r\n" + script]);
             }
           }
         };
         return function(script, name) {
           if (script == null) {
-            script = &#39;&#39;;
+            script = '';
           }
           if (!(name in compilers)) {
             return script;
@@ -758,13 +741,13 @@
       compiledebug = function(script, args, name) {
         var argstring, e, func, key;
         if (script == null) {
-          script = &#39;&#39;;
+          script = '';
         }
         if (args == null) {
           args = [];
         }
         if (name == null) {
-          name = &#39;&#39;;
+          name = '';
         }
         argstring = args.join();
         key = script + argstring + name;
@@ -773,29 +756,29 @@
         }
         try {
           if (strict) {
-            script = &quot;\&quot;use strict\&quot;\n&quot; + script;
+            script = "\"use strict\"\n" + script;
           }
           if (name) {
-            func = new Function(&quot;return function &quot; + (name.replace(&#39;-&#39;, &#39;_&#39;)) + &quot;(&quot; + argstring + &quot;){&quot; + script + &quot;}&quot;)();
+            func = new Function("return function " + (name.replace('-', '_')) + "(" + argstring + "){" + script + "}")();
           } else {
             func = new Function(args, script);
           }
           return scriptCache[key] = func;
         } catch (_error) {
           e = _error;
-          return showWarnings([&quot;Failed to compile &quot; + (e.toString()) + &quot; &quot; + args + &quot; &quot; + script]);
+          return showWarnings(["Failed to compile " + (e.toString()) + " " + args + " " + script]);
         }
       };
       compile = function(script, args, name) {
         var argstring, key;
         if (script == null) {
-          script = &#39;&#39;;
+          script = '';
         }
         if (args == null) {
           args = [];
         }
         if (name == null) {
-          name = &#39;&#39;;
+          name = '';
         }
         argstring = args.join();
         key = script + argstring + name;
@@ -817,21 +800,21 @@
     _initConstraints = function() {
       var ev, name, scope, value, _i, _j, _k, _len, _len1, _len2;
       instantiating = false;
-      for (_i = 0, _len = handlerq.length; _i &lt; _len; _i++) {
+      for (_i = 0, _len = handlerq.length; _i < _len; _i++) {
         scope = handlerq[_i];
         scope._bindHandlers();
       }
       handlerq = [];
-      for (_j = 0, _len1 = eventq.length; _j &lt; _len1; _j++) {
+      for (_j = 0, _len1 = eventq.length; _j < _len1; _j++) {
         ev = eventq[_j];
         scope = ev.scope, name = ev.name, value = ev.value;
-        if (name === &#39;init&#39;) {
+        if (name === 'init') {
           scope.inited = true;
         }
         scope.sendEvent(name, value);
       }
       eventq = [];
-      for (_k = 0, _len2 = constraintScopes.length; _k &lt; _len2; _k++) {
+      for (_k = 0, _len2 = constraintScopes.length; _k < _len2; _k++) {
         scope = constraintScopes[_k];
         scope._bindConstraints();
       }
@@ -848,9 +831,9 @@
     };
     _processAttrs = function(sourceAttrs, targetAttrs) {
       var key, mixin, mixinName, mixins, propname, val, value, _i, _len, _results;
-      if (sourceAttrs[&quot;with&quot;] != null) {
-        mixins = sourceAttrs[&quot;with&quot;].split(&#39;,&#39;).reverse();
-        for (_i = 0, _len = mixins.length; _i &lt; _len; _i++) {
+      if (sourceAttrs["with"] != null) {
+        mixins = sourceAttrs["with"].split(',').reverse();
+        for (_i = 0, _len = mixins.length; _i < _len; _i++) {
           mixinName = mixins[_i];
           mixin = dr[mixinName.trim()];
           if (mixin) {
@@ -861,16 +844,16 @@
       _results = [];
       for (key in sourceAttrs) {
         value = sourceAttrs[key];
-        if (key === &#39;with&#39;) {
+        if (key === 'with') {
           continue;
-        } else if ((key === &#39;$methods&#39; || key === &#39;$types&#39;) &amp;&amp; key in targetAttrs) {
+        } else if ((key === '$methods' || key === '$types') && key in targetAttrs) {
           targetAttrs[key] = clone(targetAttrs[key]);
           _results.push((function() {
             var _results1;
             _results1 = [];
             for (propname in value) {
               val = value[propname];
-              if (key === &#39;$methods&#39; &amp;&amp; targetAttrs[key][propname]) {
+              if (key === '$methods' && targetAttrs[key][propname]) {
                 _results1.push(targetAttrs[key][propname] = targetAttrs[key][propname].concat(val));
               } else {
                 _results1.push(targetAttrs[key][propname] = val);
@@ -878,7 +861,7 @@
             }
             return _results1;
           })());
-        } else if (key === &#39;$handlers&#39; &amp;&amp; key in targetAttrs) {
+        } else if (key === '$handlers' && key in targetAttrs) {
           _results.push(targetAttrs[key] = targetAttrs[key].concat(value));
         } else {
           _results.push(targetAttrs[key] = value);
@@ -887,8 +870,8 @@
       return _results;
     };
 
-<span id='dr-node'>    /**
-</span>     * @class dr.node {Core Dreem}
+    /**
+     * @class dr.node {Core Dreem}
      * @extends Eventable
      * The nonvisual base class for everything in dreem. Handles parent/child relationships between tags.
      *
@@ -896,93 +879,93 @@
      *
      * Here we define a data node that contains movie data.
      *
-     *     &lt;node id=&quot;data&quot;&gt;
-     *       &lt;node&gt;
-     *         &lt;attribute name=&quot;title&quot; type=&quot;string&quot; value=&quot;Bill and Teds Excellent Adventure&quot;&gt;&lt;/attribute&gt;
-     *         &lt;attribute name=&quot;type&quot; type=&quot;string&quot; value=&quot;movie&quot;&gt;&lt;/attribute&gt;
-     *         &lt;attribute name=&quot;year&quot; type=&quot;string&quot; value=&quot;1989&quot;&gt;&lt;/attribute&gt;
-     *         &lt;attribute name=&quot;length&quot; type=&quot;number&quot; value=&quot;89&quot;&gt;&lt;/attribute&gt;
-     *       &lt;/node&gt;
-     *       &lt;node&gt;
-     *         &lt;attribute name=&quot;title&quot; type=&quot;string&quot; value=&quot;Waynes World&quot;&gt;&lt;/attribute&gt;
-     *         &lt;attribute name=&quot;type&quot; type=&quot;string&quot; value=&quot;movie&quot;&gt;&lt;/attribute&gt;
-     *         &lt;attribute name=&quot;year&quot; type=&quot;string&quot; value=&quot;1992&quot;&gt;&lt;/attribute&gt;
-     *         &lt;attribute name=&quot;length&quot; type=&quot;number&quot; value=&quot;94&quot;&gt;&lt;/attribute&gt;
-     *       &lt;/node&gt;
-     *     &lt;/node&gt;
+     *     <node id="data">
+     *       <node>
+     *         <attribute name="title" type="string" value="Bill and Teds Excellent Adventure"></attribute>
+     *         <attribute name="type" type="string" value="movie"></attribute>
+     *         <attribute name="year" type="string" value="1989"></attribute>
+     *         <attribute name="length" type="number" value="89"></attribute>
+     *       </node>
+     *       <node>
+     *         <attribute name="title" type="string" value="Waynes World"></attribute>
+     *         <attribute name="type" type="string" value="movie"></attribute>
+     *         <attribute name="year" type="string" value="1992"></attribute>
+     *         <attribute name="length" type="number" value="94"></attribute>
+     *       </node>
+     *     </node>
      *
      * This node defines a set of math helper methods. The node provides a tidy container for these related utility functions.
      *
-     *     &lt;node id=&quot;utils&quot;&gt;
-     *       &lt;method name=&quot;add&quot; args=&quot;a,b&quot;&gt;
+     *     <node id="utils">
+     *       <method name="add" args="a,b">
      *         return a+b;
-     *       &lt;/method&gt;
-     *       &lt;method name=&quot;subtract&quot; args=&quot;a,b&quot;&gt;
+     *       </method>
+     *       <method name="subtract" args="a,b">
      *         return a-b;
-     *       &lt;/method&gt;
-     *     &lt;/node&gt;
+     *       </method>
+     *     </node>
      *
      * You can also create a sub-class of node to contain non visual functionality. Here is an example of an inches to metric conversion class that is instantiated with the inches value and can convert it to either cm or m.
      *
      *     @example
      *
-     *     &lt;class name=&quot;inchesconverter&quot; extends=&quot;node&quot;&gt;
-     *       &lt;attribute name=&quot;inchesval&quot; type=&quot;number&quot; value=&quot;0&quot;&gt;&lt;/attribute&gt;
+     *     <class name="inchesconverter" extends="node">
+     *       <attribute name="inchesval" type="number" value="0"></attribute>
      *
-     *       &lt;method name=&quot;centimetersval&quot;&gt;
+     *       <method name="centimetersval">
      *         return this.inchesval*2.54;
-     *       &lt;/method&gt;
+     *       </method>
      *
-     *       &lt;method name=&quot;metersval&quot;&gt;
+     *       <method name="metersval">
      *         return (this.inchesval*2.54)/100;
-     *       &lt;/method&gt;
-     *     &lt;/class&gt;
+     *       </method>
+     *     </class>
      *
-     *     &lt;inchesconverter id=&quot;conv&quot; inchesval=&quot;2&quot;&gt;&lt;/inchesconverter&gt;
+     *     <inchesconverter id="conv" inchesval="2"></inchesconverter>
      *
-     *     &lt;spacedlayout axis=&quot;y&quot;&gt;&lt;/spacedlayout&gt;
-     *     &lt;text text=&quot;${conv.inchesval + &#39; inches&#39;}&quot;&gt;&lt;/text&gt;
-     *     &lt;text text=&quot;${conv.centimetersval() + &#39; cm&#39;}&quot;&gt;&lt;/text&gt;
-     *     &lt;text text=&quot;${conv.metersval() + &#39; m&#39;}&quot;&gt;&lt;/text&gt;
+     *     <spacedlayout axis="y"></spacedlayout>
+     *     <text text="${conv.inchesval + ' inches'}"></text>
+     *     <text text="${conv.centimetersval() + ' cm'}"></text>
+     *     <text text="${conv.metersval() + ' m'}"></text>
      *
      *
      */
     Node = (function(_super) {
 
-<span id='dr-node-attribute-name'>      /**
-</span>       * @attribute {String} name
+      /**
+       * @attribute {String} name
        * Names this node in its parent scope so it can be referred to later.
        */
 
-<span id='dr-node-attribute-id'>      /**
-</span>       * @attribute {String} id
+      /**
+       * @attribute {String} id
        * Gives this node a global ID, which can be looked up in the global window object.
        * Take care to not override builtin globals, or override your own instances!
        */
 
-<span id='dr-node-attribute-scriptincludes'>      /**
-</span>       * @attribute {String} scriptincludes
+      /**
+       * @attribute {String} scriptincludes
        * A comma separated list of URLs to javascript includes required as dependencies. Useful if you need to ensure a third party library is available.
        */
 
-<span id='dr-node-attribute-scriptincludeserror'>      /**
-</span>       * @attribute {String} scriptincludeserror
+      /**
+       * @attribute {String} scriptincludeserror
        * An error to show if scriptincludes fail to load
        */
       var earlyattributes, lateattributes, matchConstraint, matchSuper, _eventCallback, _installMethod;
 
       __extends(Node, _super);
 
-      earlyattributes = [&#39;name&#39;, &#39;parent&#39;];
+      earlyattributes = ['name', 'parent'];
 
-      lateattributes = [&#39;data&#39;];
+      lateattributes = ['data'];
 
       function Node(el, attributes) {
         var args, hassuper, method, methodName, methodObj, methods, mixedAttributes, supressTagname, _i, _j, _len, _len1, _ref, _ref1;
         if (attributes == null) {
           attributes = {};
         }
-        if (attributes[&quot;with&quot;] != null) {
+        if (attributes["with"] != null) {
           if (attributes.$tagname == null) {
             supressTagname = true;
           }
@@ -995,15 +978,15 @@
         }
         methods = attributes.$methods;
         if (methods) {
-          _ref = [&#39;construct&#39;, &#39;_createSprite&#39;];
-          for (_i = 0, _len = _ref.length; _i &lt; _len; _i++) {
+          _ref = ['construct', '_createSprite'];
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
             methodName = _ref[_i];
             methodObj = methods[methodName];
             if (methodObj) {
-              for (_j = 0, _len1 = methodObj.length; _j &lt; _len1; _j++) {
+              for (_j = 0, _len1 = methodObj.length; _j < _len1; _j++) {
                 _ref1 = methodObj[_j], method = _ref1.method, args = _ref1.args;
                 hassuper = matchSuper.test(method);
-                _installMethod(this, methodName, compiler.compile(method, args, &quot;&quot; + attributes.$tagname + &quot;$&quot; + methodName).bind(this), hassuper);
+                _installMethod(this, methodName, compiler.compile(method, args, "" + attributes.$tagname + "$" + methodName).bind(this), hassuper);
               }
             }
           }
@@ -1012,9 +995,9 @@
       }
 
 
-<span id='dr-node-method-createChild'>      /**
-</span>       * Used to create child instances on a node.
-       * @param Object options Should include a class attribute: &#39;class&#39;, e.g. {class: &#39;view&#39;} unless a dr.node is desired.
+      /**
+       * Used to create child instances on a node.
+       * @param Object options Should include a class attribute: 'class', e.g. {class: 'view'} unless a dr.node is desired.
        * @return {dr.node}
        */
 
@@ -1026,10 +1009,10 @@
         if (async == null) {
           async = false;
         }
-        classname = (_ref = attributes[&quot;class&quot;]) != null ? _ref : &#39;node&#39;;
-        delete attributes[&quot;class&quot;];
-        if (typeof dr[classname] !== &#39;function&#39;) {
-          showWarnings([&quot;Unrecognized class &quot; + classname + &quot; in createChild()&quot;]);
+        classname = (_ref = attributes["class"]) != null ? _ref : 'node';
+        delete attributes["class"];
+        if (typeof dr[classname] !== 'function') {
+          showWarnings(["Unrecognized class " + classname + " in createChild()"]);
           return;
         }
         el = attributes.element;
@@ -1042,10 +1025,10 @@
 
       Node.prototype.construct = function(el, attributes) {
 
-<span id='dr-node-attribute-subnodes'>        /**
-</span>         * @attribute {dr.node[]} subnodes
+        /**
+         * @attribute {dr.node[]} subnodes
          * @readonly
-         * An array of this node&#39;s child nodes
+         * An array of this node's child nodes
          */
         var deferbindings, name, parent, skiponinit, tagname, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref, _ref1, _ref2, _ref3, _ref4;
         this.subnodes = [];
@@ -1072,20 +1055,20 @@
         }
         if (attributes.$handlers) {
           this.installHandlers(attributes.$handlers, tagname);
-          if (attributes.clickable !== &quot;false&quot;) {
+          if (attributes.clickable !== "false") {
             _ref1 = (function() {
               var _j, _len, _ref1, _ref2, _results;
               _ref1 = attributes.$handlers;
               _results = [];
-              for (_j = 0, _len = _ref1.length; _j &lt; _len; _j++) {
+              for (_j = 0, _len = _ref1.length; _j < _len; _j++) {
                 name = _ref1[_j];
-                if (_ref2 = name.ev.substr(2), __indexOf.call(mouseEvents, _ref2) &gt;= 0) {
+                if (_ref2 = name.ev.substr(2), __indexOf.call(mouseEvents, _ref2) >= 0) {
                   _results.push(name);
                 }
               }
               return _results;
             })();
-            for (_i = 0, _len = _ref1.length; _i &lt; _len; _i++) {
+            for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
               name = _ref1[_i];
               attributes.clickable = true;
               break;
@@ -1099,7 +1082,7 @@
         _ref2 = (function() {
           var _k, _len1, _results;
           _results = [];
-          for (_k = 0, _len1 = earlyattributes.length; _k &lt; _len1; _k++) {
+          for (_k = 0, _len1 = earlyattributes.length; _k < _len1; _k++) {
             name = earlyattributes[_k];
             if (name in attributes) {
               _results.push(name);
@@ -1107,7 +1090,7 @@
           }
           return _results;
         })();
-        for (_j = 0, _len1 = _ref2.length; _j &lt; _len1; _j++) {
+        for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
           name = _ref2[_j];
           this.setAttribute(name, attributes[name]);
         }
@@ -1115,25 +1098,25 @@
           var _results;
           _results = [];
           for (name in attributes) {
-            if (!(__indexOf.call(lateattributes, name) &gt;= 0 || __indexOf.call(earlyattributes, name) &gt;= 0)) {
+            if (!(__indexOf.call(lateattributes, name) >= 0 || __indexOf.call(earlyattributes, name) >= 0)) {
               _results.push(name);
             }
           }
           return _results;
         })();
-        for (_k = 0, _len2 = _ref3.length; _k &lt; _len2; _k++) {
+        for (_k = 0, _len2 = _ref3.length; _k < _len2; _k++) {
           name = _ref3[_k];
           this.bindAttribute(name, attributes[name], tagname);
         }
         parent = this.parent;
-        if (parent &amp;&amp; parent instanceof Node) {
-          parent.sendEvent(&#39;subnodes&#39;, this);
+        if (parent && parent instanceof Node) {
+          parent.sendEvent('subnodes', this);
           parent.doSubnodeAdded(this);
         }
         _ref4 = (function() {
           var _len3, _m, _results;
           _results = [];
-          for (_m = 0, _len3 = lateattributes.length; _m &lt; _len3; _m++) {
+          for (_m = 0, _len3 = lateattributes.length; _m < _len3; _m++) {
             name = lateattributes[_m];
             if (name in attributes) {
               _results.push(name);
@@ -1141,7 +1124,7 @@
           }
           return _results;
         })();
-        for (_l = 0, _len3 = _ref4.length; _l &lt; _len3; _l++) {
+        for (_l = 0, _len3 = _ref4.length; _l < _len3; _l++) {
           name = _ref4[_l];
           this.bindAttribute(name, attributes[name], tagname);
         }
@@ -1149,14 +1132,14 @@
           constraintScopes.push(this);
         }
 
-<span id='dr-node-event-oninit'>        /**
-</span>         * @event oninit
+        /**
+         * @event oninit
          * Fired when this node and all its children are completely initialized
          * @param {dr.node} node The dr.node that fired the event
          */
 
-<span id='dr-node-attribute-inited'>        /**
-</span>         * @attribute {Boolean} inited
+        /**
+         * @attribute {Boolean} inited
          * @readonly
          * True when this node and all its children are completely initialized
          */
@@ -1172,11 +1155,11 @@
           this.inited = true;
         }
         if (!skipevents) {
-          return this.sendEvent(&#39;init&#39;, this);
+          return this.sendEvent('init', this);
         }
       };
 
-      matchSuper = /this.super\(|this\[&quot;super&quot;\]\(/;
+      matchSuper = /this.super\(|this\["super"\]\(/;
 
       Node.prototype.installMethods = function(methods, tagname, scope, callbackscope) {
         var allocation, args, hassuper, method, methodlist, name, _i, _len, _ref;
@@ -1188,13 +1171,13 @@
         }
         for (name in methods) {
           methodlist = methods[name];
-          for (_i = 0, _len = methodlist.length; _i &lt; _len; _i++) {
+          for (_i = 0, _len = methodlist.length; _i < _len; _i++) {
             _ref = methodlist[_i], method = _ref.method, args = _ref.args, allocation = _ref.allocation;
-            if (name === &#39;construct&#39; || name === &#39;_createSprite&#39;) {
+            if (name === 'construct' || name === '_createSprite') {
               continue;
             }
             hassuper = matchSuper.test(method);
-            _installMethod(scope, name, compiler.compile(method, args, &quot;&quot; + tagname + &quot;$&quot; + name).bind(callbackscope), hassuper, allocation);
+            _installMethod(scope, name, compiler.compile(method, args, "" + tagname + "$" + name).bind(callbackscope), hassuper, allocation);
           }
         }
       };
@@ -1207,7 +1190,7 @@
         if (this.handlers == null) {
           this.handlers = [];
         }
-        for (_i = 0, _len = handlers.length; _i &lt; _len; _i++) {
+        for (_i = 0, _len = handlers.length; _i < _len; _i++) {
           handler = handlers[_i];
           ev = handler.ev, name = handler.name, script = handler.script, args = handler.args, reference = handler.reference, method = handler.method;
           ev = ev.substr(2);
@@ -1232,7 +1215,7 @@
         if (scope == null) {
           scope = this;
         }
-        for (_i = 0, _len = handlers.length; _i &lt; _len; _i++) {
+        for (_i = 0, _len = handlers.length; _i < _len; _i++) {
           handler = handlers[_i];
           ev = handler.ev, name = handler.name, script = handler.script, args = handler.args, reference = handler.reference, method = handler.method;
           ev = ev.substr(2);
@@ -1249,7 +1232,7 @@
 
       Node.prototype.bindAttribute = function(name, value, tagname) {
         var constraint, eventname, handler;
-        if (typeof value === &#39;string&#39; &amp;&amp; (constraint = value.match(matchConstraint))) {
+        if (typeof value === 'string' && (constraint = value.match(matchConstraint))) {
           return this.setConstraint(name, constraint[1], true);
         } else if (eventname = name.match(matchEvent)) {
           name = eventname[1];
@@ -1267,12 +1250,12 @@
       _eventCallback = function(name, script, scope, tagname, fnargs) {
         var js;
         if (tagname == null) {
-          tagname = &#39;&#39;;
+          tagname = '';
         }
         if (fnargs == null) {
-          fnargs = [&#39;value&#39;];
+          fnargs = ['value'];
         }
-        js = compiler.compile(script, fnargs, &quot;&quot; + tagname + &quot;$on&quot; + name);
+        js = compiler.compile(script, fnargs, "" + tagname + "$on" + name);
         return function() {
           var args;
           if (arguments.length) {
@@ -1291,21 +1274,21 @@
         if (!hassuper) {
           return scope[methodname] = method;
         } else {
-          if (methodname in scope &amp;&amp; typeof scope[methodname] === &#39;function&#39;) {
+          if (methodname in scope && typeof scope[methodname] === 'function') {
             supr = scope[methodname];
             exists = true;
           }
           return scope[methodname] = function() {
             var args, prevOwn, prevValue, retval;
-            args = 1 &lt;= arguments.length ? __slice.call(arguments, 0) : [];
-            prevOwn = scope.hasOwnProperty(&#39;super&#39;);
+            args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+            prevOwn = scope.hasOwnProperty('super');
             if (prevOwn) {
-              prevValue = scope[&#39;super&#39;];
+              prevValue = scope['super'];
             }
             if (exists) {
-              scope[&#39;super&#39;] = function() {
+              scope['super'] = function() {
                 var i, params, superargs;
-                superargs = 1 &lt;= arguments.length ? __slice.call(arguments, 0) : [];
+                superargs = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
                 i = superargs.length;
                 params = args.splice(0);
                 while (i) {
@@ -1314,13 +1297,13 @@
                 return supr.apply(scope, params);
               };
             } else {
-              scope[&#39;super&#39;] = noop;
+              scope['super'] = noop;
             }
             retval = method.apply(scope, args);
             if (prevOwn) {
-              scope[&#39;super&#39;] = prevValue;
+              scope['super'] = prevValue;
             } else {
-              delete scope[&#39;super&#39;];
+              delete scope['super'];
             }
             return retval;
           };
@@ -1340,7 +1323,7 @@
         };
         bindings = this.constraints[property].bindings;
         scopes = compiler.findBindings(expression);
-        for (_i = 0, _len = scopes.length; _i &lt; _len; _i++) {
+        for (_i = 0, _len = scopes.length; _i < _len; _i++) {
           scope = scopes[_i];
           bindexpression = scope.binding;
           if (bindings[bindexpression] == null) {
@@ -1354,16 +1337,16 @@
       };
 
       Node.prototype._valueLookup = function(bindexpression) {
-        return compiler.compile(&#39;return &#39; + bindexpression).bind(this);
+        return compiler.compile('return ' + bindexpression).bind(this);
       };
 
       Node.prototype._unbindConstraint = function(property) {
         var callback, callbackbindings, i, prop, scope, _i, _len, _ref, _ref1;
-        if (!(this.constraints &amp;&amp; ((_ref = this.constraints[property]) != null ? _ref.callback : void 0))) {
+        if (!(this.constraints && ((_ref = this.constraints[property]) != null ? _ref.callback : void 0))) {
           return;
         }
         _ref1 = this.constraints[property], callback = _ref1.callback, callbackbindings = _ref1.callbackbindings;
-        for (i = _i = 0, _len = callbackbindings.length; _i &lt; _len; i = _i += 2) {
+        for (i = _i = 0, _len = callbackbindings.length; _i < _len; i = _i += 2) {
           prop = callbackbindings[i];
           scope = callbackbindings[i + 1];
           scope.unregister(prop, callback);
@@ -1386,13 +1369,13 @@
             bindinglist = bindings[bindexpression];
             boundref = this._valueLookup(bindexpression)();
             if (!boundref) {
-              showWarnings([&quot;Could not bind to &quot; + bindexpression + &quot; of constraint &quot; + expression + &quot; for &quot; + this.$tagname + (this.id ? &#39;#&#39; + this.id : this.name ? &#39;.&#39; + name : &#39;&#39;)]);
+              showWarnings(["Could not bind to " + bindexpression + " of constraint " + expression + " for " + this.$tagname + (this.id ? '#' + this.id : this.name ? '.' + name : '')]);
               continue;
             }
             if (!(boundref instanceof Eventable)) {
-              console.log(&quot;Binding to non-Eventable &quot; + bindexpression + &quot; of constraint &quot; + expression + &quot; for &quot; + this.$tagname + (this.id ? &#39;#&#39; + this.id : this.name ? &#39;.&#39; + name : &#39;&#39;));
+              console.log("Binding to non-Eventable " + bindexpression + " of constraint " + expression + " for " + this.$tagname + (this.id ? '#' + this.id : this.name ? '.' + name : ''));
             }
-            for (_i = 0, _len = bindinglist.length; _i &lt; _len; _i++) {
+            for (_i = 0, _len = bindinglist.length; _i < _len; _i++) {
               binding = bindinglist[_i];
               property = binding.property;
               if (boundref instanceof Eventable) {
@@ -1415,20 +1398,20 @@
           return;
         }
         _ref = this.handlers;
-        for (_i = 0, _len = _ref.length; _i &lt; _len; _i++) {
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           binding = _ref[_i];
           scope = binding.scope, name = binding.name, ev = binding.ev, callback = binding.callback, reference = binding.reference;
           if (reference) {
             refeval = this._valueLookup(reference)();
             if (refeval instanceof Eventable) {
               scope.listenTo(refeval, ev, callback);
-              if (send &amp;&amp; ev in refeval) {
+              if (send && ev in refeval) {
                 callback(refeval[ev]);
               }
             }
           } else {
             scope.register(ev, callback);
-            if (send &amp;&amp; ev in scope) {
+            if (send && ev in scope) {
               callback(scope[ev]);
             }
           }
@@ -1453,7 +1436,7 @@
       };
 
       Node.prototype.set_name = function(name) {
-        if (this.parent &amp;&amp; name) {
+        if (this.parent && name) {
           this.parent[name] = this;
         }
         return name;
@@ -1465,8 +1448,8 @@
       };
 
 
-<span id='dr-node-method-animate'>      /**
-</span>       * Animates this node&#39;s attribute(s)
+      /**
+       * Animates this node's attribute(s)
        * @param {Object} obj A hash of attribute names and values to animate to
        * @param Number duration The duration of the animation in milliseconds
        */
@@ -1480,7 +1463,7 @@
         for (name in attributes) {
           value = attributes[name];
           track = {
-            motion: &#39;bret&#39;,
+            motion: 'bret',
             control: [0.01]
           };
           track[0] = this[name] || 0;
@@ -1529,7 +1512,7 @@
           removedNode = arr[index];
           arr.splice(index, 1);
           this.parent.sendEvent(name, removedNode);
-          if (name === &#39;subnodes&#39;) {
+          if (name === 'subnodes') {
             this.parent.doSubnodeRemoved(removedNode);
           }
         }
@@ -1540,7 +1523,7 @@
         out = [];
         p = this;
         while (p) {
-          if (name in p &amp;&amp; p[name] === value) {
+          if (name in p && p[name] === value) {
             out.push(p);
           }
           p = p.parent;
@@ -1560,8 +1543,8 @@
       };
 
 
-<span id='dr-node-method-doSubnodeAdded'>      /**
-</span>       * Called when a subnode is added to this node. Provides a hook for
+      /**
+       * Called when a subnode is added to this node. Provides a hook for
        * subclasses. No need for subclasses to call super. Do not call this
        * method to add a subnode. Instead call setParent.
        * @param {dr.node} node The subnode that was added.
@@ -1572,8 +1555,8 @@
       Node.prototype.doSubnodeAdded = function(node) {};
 
 
-<span id='dr-node-method-doSubnodeRemoved'>      /**
-</span>       * Called when a subnode is removed from this node. Provides a hook for
+      /**
+       * Called when a subnode is removed from this node. Provides a hook for
        * subclasses. No need for subclasses to call super. Do not call this
        * method to remove a subnode. Instead call _removeFromParent.
        * @param {dr.node} node The subnode that was removed.
@@ -1584,26 +1567,26 @@
       Node.prototype.doSubnodeRemoved = function(node) {};
 
 
-<span id='dr-node-method-destroy'>      /**
-</span>       * @method destroy
+      /**
+       * @method destroy
        * Destroys this node
        */
 
 
-<span id='global-method-destroy'>      /**
-</span>       * @ignore
+      /**
+       * @ignore
        */
 
       Node.prototype.destroy = function(skipevents) {
         var property, subnode, _i, _len, _ref, _ref1;
         this.destroyed = true;
 
-<span id='dr-node-event-ondestroy'>        /**
-</span>         * @event ondestroy
+        /**
+         * @event ondestroy
          * Fired when this node and all its children are about to be destroyed
          * @param {dr.node} node The dr.node that fired the event
          */
-        this.sendEvent(&#39;destroy&#39;, this);
+        this.sendEvent('destroy', this);
         if (this.constraints) {
           for (property in this.constraints) {
             this._unbindConstraint(property);
@@ -1617,14 +1600,14 @@
           delete this.parent[this.name];
         }
         _ref1 = this.subnodes;
-        for (_i = 0, _len = _ref1.length; _i &lt; _len; _i++) {
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
           subnode = _ref1[_i];
           if (subnode != null) {
             subnode.destroy(true);
           }
         }
         if (!skipevents) {
-          return this._removeFromParent(&#39;subnodes&#39;);
+          return this._removeFromParent('subnodes');
         }
       };
 
@@ -1632,15 +1615,15 @@
 
     })(Eventable);
 
-<span id='Sprite'>    /**
-</span>     * @class Sprite
+    /**
+     * @class Sprite
      * @private
-     * Abstracts the underlying visual primitives (currently HTML) from dreem&#39;s view system.
+     * Abstracts the underlying visual primitives (currently HTML) from dreem's view system.
      */
     Sprite = (function() {
       function Sprite(jqel, view, tagname) {
         if (tagname == null) {
-          tagname = &#39;div&#39;;
+          tagname = 'div';
         }
         this._handleScroll = __bind(this._handleScroll, this);
         if (jqel == null) {
@@ -1650,50 +1633,50 @@
           this.el = jqel;
         }
         this.el.$view = view;
-        this.css_baseclass = &#39;sprite&#39;;
+        this.css_baseclass = 'sprite';
         this._updateClass();
       }
 
       Sprite.prototype.setAttribute = function(name, value) {
         var types;
         switch (name) {
-          case &#39;width&#39;:
-          case &#39;height&#39;:
-          case &#39;z&#39;:
-          case &#39;opacity&#39;:
-          case &#39;bgcolor&#39;:
-          case &#39;color&#39;:
-          case &#39;whitespace&#39;:
-          case &#39;fontsize&#39;:
-          case &#39;fontfamily&#39;:
-          case &#39;font-weight&#39;:
-          case &#39;text-transform&#39;:
-          case &#39;boxshadow&#39;:
-          case &#39;leftpadding&#39;:
-          case &#39;rightpadding&#39;:
-          case &#39;toppadding&#39;:
-          case &#39;bottompadding&#39;:
-          case &#39;leftborder&#39;:
-          case &#39;rightborder&#39;:
-          case &#39;topborder&#39;:
-          case &#39;bottomborder&#39;:
-          case &#39;bordercolor&#39;:
-          case &#39;borderstyle&#39;:
+          case 'width':
+          case 'height':
+          case 'z':
+          case 'opacity':
+          case 'bgcolor':
+          case 'color':
+          case 'whitespace':
+          case 'fontsize':
+          case 'fontfamily':
+          case 'font-weight':
+          case 'text-transform':
+          case 'boxshadow':
+          case 'leftpadding':
+          case 'rightpadding':
+          case 'toppadding':
+          case 'bottompadding':
+          case 'leftborder':
+          case 'rightborder':
+          case 'topborder':
+          case 'bottomborder':
+          case 'bordercolor':
+          case 'borderstyle':
             return this.setStyle(name, value);
-          case &#39;bold&#39;:
-            return this.setStyle(name, value ? &#39;bold&#39; : &#39;normal&#39;);
-          case &#39;italic&#39;:
-            return this.setStyle(name, value ? &#39;italic&#39; : &#39;normal&#39;);
-          case &#39;smallcaps&#39;:
-            return this.setStyle(name, value ? &#39;small-caps&#39; : &#39;normal&#39;);
-          case &#39;ellipsis&#39;:
+          case 'bold':
+            return this.setStyle(name, value ? 'bold' : 'normal');
+          case 'italic':
+            return this.setStyle(name, value ? 'italic' : 'normal');
+          case 'smallcaps':
+            return this.setStyle(name, value ? 'small-caps' : 'normal');
+          case 'ellipsis':
             this.__ellipsis = value;
-            this.setStyle(name, value ? &#39;ellipsis&#39; : &#39;clip&#39;);
+            this.setStyle(name, value ? 'ellipsis' : 'clip');
             return this.__updateOverflow();
-          case &#39;perspective&#39;:
-          case &#39;transform-style&#39;:
-          case &#39;transform-origin&#39;:
-          case &#39;transform&#39;:
+          case 'perspective':
+          case 'transform-style':
+          case 'transform-origin':
+          case 'transform':
             return this.setStyle(capabilities.prefix.css + name, value);
           default:
             types = this.el.$view._declaredTypes;
@@ -1711,20 +1694,20 @@
               el = this.el;
             }
             if (value == null) {
-              value = &#39;&#39;;
+              value = '';
             }
             if (name in stylemap) {
               name = stylemap[name];
             }
             el.style[name] = value;
-            if (name === &#39;borderTopWidth&#39; || name === &#39;paddingTop&#39;) {
+            if (name === 'borderTopWidth' || name === 'paddingTop') {
               if (this.__BP_TOGGLE = !this.__BP_TOGGLE) {
                 perturb = -0.001;
               } else {
                 perturb = 0.001;
               }
               v = el.style.paddingLeft;
-              return el.style.paddingLeft = Number(v.substring(0, v.length - 2)) + perturb + &#39;px&#39;;
+              return el.style.paddingLeft = Number(v.substring(0, v.length - 2)) + perturb + 'px';
             }
           };
         } else {
@@ -1733,7 +1716,7 @@
               el = this.el;
             }
             if (value == null) {
-              value = &#39;&#39;;
+              value = '';
             }
             if (name in stylemap) {
               name = stylemap[name];
@@ -1741,7 +1724,7 @@
             return el.style[name] = value;
           };
         }
-      })(capabilities.prefix.dom === &#39;WebKit&#39;);
+      })(capabilities.prefix.dom === 'WebKit');
 
       Sprite.prototype.set_parent = function(parent) {
         if (parent instanceof Sprite) {
@@ -1753,14 +1736,14 @@
       };
 
       Sprite.prototype.set_id = function(id) {
-        return this.el.setAttribute(&#39;id&#39;, id);
+        return this.el.setAttribute('id', id);
       };
 
       Sprite.prototype._cursorVal = function() {
         if (this.__clickable) {
-          return this.__cursor || &#39;pointer&#39;;
+          return this.__cursor || 'pointer';
         } else {
-          return &#39;&#39;;
+          return '';
         }
       };
 
@@ -1778,7 +1761,7 @@
 
       Sprite.prototype.set_cursor = function(cursor) {
         this.__cursor = cursor;
-        return this.setStyle(&#39;cursor&#39;, this._cursorVal(), true);
+        return this.setStyle('cursor', this._cursorVal(), true);
       };
 
       Sprite.prototype.set_visible = function(visible) {
@@ -1789,30 +1772,30 @@
           x = view.x;
           y = view.y;
         } else {
-          value = &#39;hidden&#39;;
+          value = 'hidden';
           x = y = -100000;
         }
-        this.setStyle(&#39;visibility&#39;, value, true);
-        this.setStyle(&#39;marginLeft&#39;, x, true);
-        return this.setStyle(&#39;marginTop&#39;, y, true);
+        this.setStyle('visibility', value, true);
+        this.setStyle('marginLeft', x, true);
+        return this.setStyle('marginTop', y, true);
       };
 
       Sprite.prototype.set_x = function(x) {
         if (this.el.$view.visible) {
-          return this.setStyle(&#39;marginLeft&#39;, x, true);
+          return this.setStyle('marginLeft', x, true);
         }
       };
 
       Sprite.prototype.set_y = function(y) {
         if (this.el.$view.visible) {
-          return this.setStyle(&#39;marginTop&#39;, y, true);
+          return this.setStyle('marginTop', y, true);
         }
       };
 
       Sprite.prototype.set_clickable = function(clickable) {
         this.__clickable = clickable;
         this.__updatePointerEvents();
-        return this.setStyle(&#39;cursor&#39;, this._cursorVal(), true);
+        return this.setStyle('cursor', this._cursorVal(), true);
       };
 
       Sprite.prototype.set_clip = function(clip) {
@@ -1825,9 +1808,9 @@
         this.__updateOverflow();
         this.__updatePointerEvents();
         if (scrollable) {
-          return $(this.el).on(&#39;scroll&#39;, this._handleScroll);
+          return $(this.el).on('scroll', this._handleScroll);
         } else {
-          return $(this.el).off(&#39;scroll&#39;, this._handleScroll);
+          return $(this.el).off('scroll', this._handleScroll);
         }
       };
 
@@ -1844,10 +1827,10 @@
           x = domElement.scrollLeft;
           y = domElement.scrollTop;
           if (target.scrollx !== x) {
-            target.setAttribute(&#39;scrollx&#39;, x);
+            target.setAttribute('scrollx', x);
           }
           if (target.scrolly !== y) {
-            target.setAttribute(&#39;scrolly&#39;, y);
+            target.setAttribute('scrolly', y);
           }
           oldEvt = this._lastScrollEvent;
           newEvt = {
@@ -1857,18 +1840,18 @@
             scrollheight: domElement.scrollHeight
           };
           if (!oldEvt || oldEvt.scrollx !== newEvt.scrollx || oldEvt.scrolly !== newEvt.scrolly || oldEvt.scrollwidth !== newEvt.scrollwidth || oldEvt.scrollheight !== newEvt.scrollheight) {
-            target.sendEvent(&#39;scroll&#39;, newEvt);
+            target.sendEvent('scroll', newEvt);
             return this._lastScrollEvent = newEvt;
           }
         }
       };
 
       Sprite.prototype.__updateOverflow = function() {
-        return this.setStyle(&#39;overflow&#39;, this.__scrollable ? &#39;auto&#39; : this.__clip || this.__ellipsis ? &#39;hidden&#39; : &#39;&#39;, true);
+        return this.setStyle('overflow', this.__scrollable ? 'auto' : this.__clip || this.__ellipsis ? 'hidden' : '', true);
       };
 
       Sprite.prototype.__updatePointerEvents = function() {
-        return this.setStyle(&#39;pointer-events&#39;, this.__clickable || this.__scrollable ? &#39;auto&#39; : &#39;&#39;, true);
+        return this.setStyle('pointer-events', this.__clickable || this.__scrollable ? 'auto' : '', true);
       };
 
       Sprite.prototype.destroy = function() {
@@ -1887,9 +1870,9 @@
         var cld, tnode, _i, _len, _ref;
         if (txt != null) {
           _ref = this.el.childNodes;
-          for (_i = 0, _len = _ref.length; _i &lt; _len; _i++) {
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
             cld = _ref[_i];
-            if (cld &amp;&amp; cld.nodeType === 3) {
+            if (cld && cld.nodeType === 3) {
               this.el.removeChild(cld);
             }
           }
@@ -1908,7 +1891,7 @@
           }
           child = child.nextSibling;
         }
-        return texts.join(&quot;&quot;);
+        return texts.join("");
       };
 
       Sprite.prototype.getInnerHTML = function() {
@@ -1936,32 +1919,32 @@
       };
 
       Sprite.prototype.createTextElement = function() {
-        this.css_baseclass = &#39;sprite sprite-text noselect&#39;;
+        this.css_baseclass = 'sprite sprite-text noselect';
         return this._updateClass();
       };
 
       Sprite.prototype.createInputtextElement = function(text, multiline, width, height) {
         var input;
-        this.css_baseclass = &#39;sprite noselect&#39;;
+        this.css_baseclass = 'sprite noselect';
         this._updateClass();
         if (multiline) {
-          input = document.createElement(&#39;textarea&#39;);
+          input = document.createElement('textarea');
         } else {
-          input = document.createElement(&#39;input&#39;);
-          input.setAttribute(&#39;type&#39;, &#39;text&#39;);
+          input = document.createElement('input');
+          input.setAttribute('type', 'text');
         }
         input.$init = true;
-        input.setAttribute(&#39;value&#39;, text);
-        input.setAttribute(&#39;class&#39;, &#39;sprite-inputtext&#39;);
+        input.setAttribute('value', text);
+        input.setAttribute('class', 'sprite-inputtext');
         if (width) {
-          this.setStyle(&#39;width&#39;, width, true, input);
+          this.setStyle('width', width, true, input);
         }
         if (height) {
-          this.setStyle(&#39;height&#39;, height, true, input);
+          this.setStyle('height', height, true, input);
         }
         this.el.appendChild(input);
         input.$view = this.el.$view;
-        $(input).on(&#39;focus blur&#39;, this.handle);
+        $(input).on('focus blur', this.handle);
         return this.input = input;
       };
 
@@ -1983,7 +1966,7 @@
 
       Sprite.prototype.set_class = function(classname) {
         if (classname == null) {
-          classname = &#39;&#39;;
+          classname = '';
         }
         this.__classname = classname;
         return this._updateClass();
@@ -1993,12 +1976,12 @@
         var classes;
         classes = this.css_baseclass;
         if (this.__classname) {
-          classes += &#39; &#39; + this.__classname;
+          classes += ' ' + this.__classname;
         }
         if (!this.__scrollbars) {
-          classes += &#39; &#39; + &#39;noscrollbar&#39;;
+          classes += ' ' + 'noscrollbar';
         }
-        return this.el.setAttribute(&#39;class&#39;, classes);
+        return this.el.setAttribute('class', classes);
       };
 
       return Sprite;
@@ -2021,21 +2004,21 @@
       };
     }
     if (debug) {
-      knownstyles = [&#39;width&#39;, &#39;height&#39;, &#39;background-color&#39;, &#39;opacity&#39;, &#39;padding&#39;, &#39;transform&#39;, &#39;transform-style&#39;, &#39;transform-origin&#39;, &#39;z-index&#39;, &#39;perspective&#39;, &#39;cursor&#39;, capabilities.prefix.css + &#39;transform&#39;, capabilities.prefix.css + &#39;transform-style&#39;, capabilities.prefix.css + &#39;transform-origin&#39;];
+      knownstyles = ['width', 'height', 'background-color', 'opacity', 'padding', 'transform', 'transform-style', 'transform-origin', 'z-index', 'perspective', 'cursor', capabilities.prefix.css + 'transform', capabilities.prefix.css + 'transform-style', capabilities.prefix.css + 'transform-origin'];
       ss2 = Sprite.prototype.setStyle;
       Sprite.prototype.setStyle = function(name, value, internal, el) {
         if (el == null) {
           el = this.el;
         }
-        if (!internal &amp;&amp; !(name in stylemap) &amp;&amp; !(__indexOf.call(knownstyles, name) &gt;= 0)) {
-          console.warn(&quot;Setting unknown CSS property &quot; + name + &quot; = &quot; + value + &quot; on &quot;, this.el.$view, stylemap, internal);
+        if (!internal && !(name in stylemap) && !(__indexOf.call(knownstyles, name) >= 0)) {
+          console.warn("Setting unknown CSS property " + name + " = " + value + " on ", this.el.$view, stylemap, internal);
         }
         return ss2(name, value, internal, el);
       };
     }
 
-<span id='dr-view'>    /**
-</span>     * @aside guide constraints
+    /**
+     * @aside guide constraints
      * @class dr.view {UI Components}
      * @extends dr.node
      * The visual base class for everything in dreem. Views extend dr.node to add the ability to set and animate visual attributes, and interact with the mouse.
@@ -2044,60 +2027,60 @@
      *
      * Views can contain methods, handlers, setters, constraints, attributes and other view, node or class instances.
      *
-     * Views can be easily converted to reusable classes/tags by changing their outermost &amp;lt;view&gt; tags to &amp;lt;class&gt; and adding a name attribute.
+     * Views can be easily converted to reusable classes/tags by changing their outermost &lt;view> tags to &lt;class> and adding a name attribute.
      *
-     * Views support a number of builtin attributes. Setting attributes that aren&#39;t listed explicitly will pass through to the underlying Sprite implementation.
+     * Views support a number of builtin attributes. Setting attributes that aren't listed explicitly will pass through to the underlying Sprite implementation.
      *
      * Views currently integrate with jQuery, so any changes made to their CSS via jQuery will automatically cause them to update.
      *
-     * Note that dreem apps must be contained inside a top-level &amp;lt;view&gt;&amp;lt;/view&gt; tag.
+     * Note that dreem apps must be contained inside a top-level &lt;view>&lt;/view> tag.
      *
      * The following example shows a pink view that contains a smaller blue view offset 10 pixels from the top and 10 from the left.
      *
      *     @example
-     *     &lt;view width=&quot;200&quot; height=&quot;100&quot; bgcolor=&quot;lightpink&quot;&gt;
+     *     <view width="200" height="100" bgcolor="lightpink">
      *
-     *       &lt;view width=&quot;50&quot; height=&quot;50&quot; x=&quot;10&quot; y=&quot;10&quot; bgcolor=&quot;lightblue&quot;&gt;&lt;/view&gt;
+     *       <view width="50" height="50" x="10" y="10" bgcolor="lightblue"></view>
      *
-     *     &lt;/view&gt;
+     *     </view>
      *
      * Here the blue view is wider than its parent pink view, and because the clip attribute of the parent is set to false it extends beyond the parents bounds.
      *
      *     @example
-     *     &lt;view width=&quot;200&quot; height=&quot;100&quot; bgcolor=&quot;lightpink&quot; clip=&quot;false&quot;&gt;
+     *     <view width="200" height="100" bgcolor="lightpink" clip="false">
      *
-     *       &lt;view width=&quot;250&quot; height=&quot;50&quot; x=&quot;10&quot; y=&quot;10&quot; bgcolor=&quot;lightblue&quot;&gt;&lt;/view&gt;
+     *       <view width="250" height="50" x="10" y="10" bgcolor="lightblue"></view>
      *
-     *     &lt;/view&gt;
+     *     </view>
      *
-     * Now we set the clip attribute on the parent view to true, causing the overflowing child view to be clipped at its parent&#39;s boundary.
+     * Now we set the clip attribute on the parent view to true, causing the overflowing child view to be clipped at its parent's boundary.
      *
      *     @example
-     *     &lt;view width=&quot;200&quot; height=&quot;100&quot; bgcolor=&quot;lightpink&quot; clip=&quot;true&quot;&gt;
+     *     <view width="200" height="100" bgcolor="lightpink" clip="true">
      *
-     *       &lt;view width=&quot;250&quot; height=&quot;50&quot; x=&quot;10&quot; y=&quot;10&quot; bgcolor=&quot;lightblue&quot;&gt;&lt;/view&gt;
+     *       <view width="250" height="50" x="10" y="10" bgcolor="lightblue"></view>
      *
-     *     &lt;/view&gt;
+     *     </view>
      *
      * Here we demonstrate how unsupported attributes are passed to the underlying sprite system. We make the child view semi-transparent by setting opacity. Although this is not in the list of supported attributes it is still applied.
      *
      *     @example
-     *     &lt;view width=&quot;200&quot; height=&quot;100&quot; bgcolor=&quot;lightpink&quot;&gt;
+     *     <view width="200" height="100" bgcolor="lightpink">
      *
-     *       &lt;view width=&quot;250&quot; height=&quot;50&quot; x=&quot;10&quot; y=&quot;10&quot; bgcolor=&quot;lightblue&quot; opacity=&quot;.5&quot;&gt;&lt;/view&gt;
+     *       <view width="250" height="50" x="10" y="10" bgcolor="lightblue" opacity=".5"></view>
      *
-     *     &lt;/view&gt;
+     *     </view>
      *
-     * It is convenient to [constrain](#!/guide/constraints) a view&#39;s size and position to attributes of its parent view. Here we&#39;ll position the inner view so that its inset by 10 pixels in its parent.
+     * It is convenient to [constrain](#!/guide/constraints) a view's size and position to attributes of its parent view. Here we'll position the inner view so that its inset by 10 pixels in its parent.
      *
      *     @example
-     *     &lt;view width=&quot;200&quot; height=&quot;100&quot; bgcolor=&quot;lightpink&quot;&gt;
+     *     <view width="200" height="100" bgcolor="lightpink">
      *
-     *       &lt;view width=&quot;${this.parent.width-this.inset*2}&quot; height=&quot;${this.parent.height-this.inset*2}&quot; x=&quot;${this.inset}&quot; y=&quot;${this.inset}&quot; bgcolor=&quot;lightblue&quot;&gt;
-     *         &lt;attribute name=&quot;inset&quot; type=&quot;number&quot; value=&quot;10&quot;&gt;&lt;/attribute&gt;
-     *       &lt;/view&gt;
+     *       <view width="${this.parent.width-this.inset*2}" height="${this.parent.height-this.inset*2}" x="${this.inset}" y="${this.inset}" bgcolor="lightblue">
+     *         <attribute name="inset" type="number" value="10"></attribute>
+     *       </view>
      *
-     *     &lt;/view&gt;
+     *     </view>
      */
     View = (function(_super) {
       __extends(View, _super);
@@ -2107,24 +2090,24 @@
       }
 
 
-<span id='dr-view-attribute-x'>      /**
-</span>       * @attribute {Number} [x=0]
-       * This view&#39;s x-position. There are several categories of allowed values.
+      /**
+       * @attribute {Number} [x=0]
+       * This view's x-position. There are several categories of allowed values.
        *   1) Fixed: If a number is provided the x-position will be a fixed
        *      pixel position relative to the parent view.
-       *   2) Percentage: If a number followed by a &#39;%&#39; sign is provided the
+       *   2) Percentage: If a number followed by a '%' sign is provided the
        *      x-position will constrained to a percent of the parent views
        *      inner width.
-       *   3) Aligned Left: If the string &#39;left&#39; is provided the x-position will
-       *      be constrained so that the view&#39;s left bound is aligned with the
+       *   3) Aligned Left: If the string 'left' is provided the x-position will
+       *      be constrained so that the view's left bound is aligned with the
        *      inner left edge of the parent view. To clarify, aligning left is
        *      different from a fixed x-position of 0 since it accounts for
        *      transformations applied to the view.
-       *   4) Aligned Right: If the string &#39;right&#39; is provided the x-position will
-       *      be constrained so that the view&#39;s right bound is aligned with the
+       *   4) Aligned Right: If the string 'right' is provided the x-position will
+       *      be constrained so that the view's right bound is aligned with the
        *      inner right edge of the parent view. Like align left, this means
        *      transformations applied to the view are accounted for.
-       *   5) Aligned Center: If the string &#39;center&#39; or &#39;middle&#39; is provided the 
+       *   5) Aligned Center: If the string 'center' or 'middle' is provided the 
        *      x-position will be constrained so that the midpoint of the width
        *      bound of the view is the same as the midpoint of the inner width of
        *      the parent view. Like align left, this means transformations applied
@@ -2132,24 +2115,24 @@
        */
 
 
-<span id='dr-view-attribute-y'>      /**
-</span>       * @attribute {Number} [y=0]
-       * This view&#39;s y-position. There are several categories of allowed values.
+      /**
+       * @attribute {Number} [y=0]
+       * This view's y-position. There are several categories of allowed values.
        *   1) Fixed: If a number is provided the y-position will be a fixed
        *      pixel position relative to the parent view.
-       *   2) Percentage: If a number followed by a &#39;%&#39; sign is provided the
+       *   2) Percentage: If a number followed by a '%' sign is provided the
        *      y-position will constrained to a percent of the parent views
        *      inner height.
-       *   3) Aligned Top: If the string &#39;top&#39; is provided the y-position will
-       *      be constrained so that the view&#39;s top bound is aligned with the
+       *   3) Aligned Top: If the string 'top' is provided the y-position will
+       *      be constrained so that the view's top bound is aligned with the
        *      inner top edge of the parent view. To clarify, aligning top is
        *      different from a fixed y-position of 0 since it accounts for
        *      transformations applied to the view.
-       *   4) Aligned Bottom: If the string &#39;bottom&#39; is provided the y-position
-       *      will be constrained so that the view&#39;s bottom bound is aligned with 
+       *   4) Aligned Bottom: If the string 'bottom' is provided the y-position
+       *      will be constrained so that the view's bottom bound is aligned with 
        *      the inner bottom edge of the parent view. Like align top, this means
        *      transformations applied to the view are accounted for.
-       *   5) Aligned Middle: If the string &#39;middle&#39; or &#39;center&#39; is provided the 
+       *   5) Aligned Middle: If the string 'middle' or 'center' is provided the 
        *      y-position will be constrained so that the midpoint of the height
        *      bound of the view is the same as the midpoint of the inner height of
        *      the parent view. Like align top, this means transformations applied
@@ -2157,106 +2140,106 @@
        */
 
 
-<span id='dr-view-attribute-width'>      /**
-</span>       * @attribute {Number} [width=0]
-       * This view&#39;s width. There are several categories of allowed values.
+      /**
+       * @attribute {Number} [width=0]
+       * This view's width. There are several categories of allowed values.
        *   1) Fixed: If a number is provided the width will be a fixed
        *      pixel size.
-       *   2) Percentage: If a number followed by a &#39;%&#39; sign is provided the
+       *   2) Percentage: If a number followed by a '%' sign is provided the
        *      width will constrained to a percent of the parent views
        *      inner width.
-       *   3) Auto: If the string &#39;auto&#39; is provided the width will be constrained
+       *   3) Auto: If the string 'auto' is provided the width will be constrained
        *      to the maximum x bounds of the view children of this view. This
        *      feature is implemented like a Layout, so you can use ignorelayout
        *      on a child view to disregard them for auto sizing. Furthermore,
        *      views with a percentage width, percentage x, or an x-position of 
-       *      &#39;center&#39; or &#39;right&#39; will also be disregarded. Note that &#39;left&#39; is 
+       *      'center' or 'right' will also be disregarded. Note that 'left' is 
        *      not ignored since it does not necessarily result in a circular
        *      constraint.
        */
 
 
-<span id='dr-view-attribute-height'>      /**
-</span>       * @attribute {Number} [height=0]
-       * This view&#39;s height. There are several categories of allowed values.
+      /**
+       * @attribute {Number} [height=0]
+       * This view's height. There are several categories of allowed values.
        *   1) Fixed: If a number is provided the height will be a fixed
        *      pixel size.
-       *   2) Percentage: If a number followed by a &#39;%&#39; sign is provided the
+       *   2) Percentage: If a number followed by a '%' sign is provided the
        *      height will constrained to a percent of the parent views
        *      inner height.
-       *   3) Auto: If the string &#39;auto&#39; is provided the height will be constrained
+       *   3) Auto: If the string 'auto' is provided the height will be constrained
        *      to the maximum y bounds of the view children of this view. This
        *      feature is implemented like a Layout, so you can use ignorelayout
        *      on a child view to disregard them for auto sizing. Furthermore,
        *      views with a percentage height, percentage y, or a y-position of 
-       *      &#39;center&#39;, &#39;middle&#39; or &#39;bottom&#39; will also be disregarded. Note that 
-       *      &#39;top&#39; is not ignored since it does not necessarily result in a 
+       *      'center', 'middle' or 'bottom' will also be disregarded. Note that 
+       *      'top' is not ignored since it does not necessarily result in a 
        *      circular constraint.
        */
 
 
-<span id='dr-view-attribute-isaligned'>      /**
-</span>       * @attribute {Boolean} isaligned Indicates that the x attribute is
-       * set to one of the &quot;special&quot; alignment values.
+      /**
+       * @attribute {Boolean} isaligned Indicates that the x attribute is
+       * set to one of the "special" alignment values.
        * @readonly
        */
 
 
-<span id='dr-view-attribute-isvaligned'>      /**
-</span>       * @attribute {Boolean} isvaligned Indicates that the y attribute is
-       * set to one of the &quot;special&quot; alignment values.
+      /**
+       * @attribute {Boolean} isvaligned Indicates that the y attribute is
+       * set to one of the "special" alignment values.
        * @readonly
        */
 
 
-<span id='dr-view-attribute-innerwidth'>      /**
-</span>       * @attribute {Number} innerwidth The width of the view less padding and
+      /**
+       * @attribute {Number} innerwidth The width of the view less padding and
        * border. This is the width child views should use if border or padding
        * is being used by the view.
        * @readonly
        */
 
 
-<span id='dr-view-attribute-innerheight'>      /**
-</span>       * @attribute {Number} innerheight The height of the view less padding and
+      /**
+       * @attribute {Number} innerheight The height of the view less padding and
        * border. This is the height child views should use if border or padding
        * is being used by the view.
        * @readonly
        */
 
 
-<span id='dr-view-attribute-boundsx'>      /**
-</span>       * @attribute {Number} boundsx The x position of the bounding box for the
+      /**
+       * @attribute {Number} boundsx The x position of the bounding box for the
        * view. This value accounts for rotation and scaling of the view.
        * @readonly
        */
 
 
-<span id='dr-view-attribute-boundsy'>      /**
-</span>       * @attribute {Number} boundsy The y position of the bounding box for the
+      /**
+       * @attribute {Number} boundsy The y position of the bounding box for the
        * view. This value accounts for rotation and scaling of the view.
        * @readonly
        */
 
 
-<span id='dr-view-attribute-boundsxdiff'>      /**
-</span>       * @attribute {Number} boundsxdiff The difference between the x position
+      /**
+       * @attribute {Number} boundsxdiff The difference between the x position
        * of the view and the boundsx of the view. Useful when you need to offset
        * a view to make it line up when it is scaled or rotated.
        * @readonly
        */
 
 
-<span id='dr-view-attribute-boundsydiff'>      /**
-</span>       * @attribute {Number} boundsydiff The difference between the y position
+      /**
+       * @attribute {Number} boundsydiff The difference between the y position
        * of the view and the boundsy of the view. Useful when you need to offset
        * a view to make it line up when it is scaled or rotated.
        * @readonly
        */
 
 
-<span id='dr-view-attribute-boundswidth'>      /**
-</span>       * @attribute {Number} boundswidth The width of the bounding box for the
+      /**
+       * @attribute {Number} boundswidth The width of the bounding box for the
        * view. This value accounts for rotation and scaling of the view. This is
        * the width non-descendant views should use if the view is rotated or
        * scaled.
@@ -2264,8 +2247,8 @@
        */
 
 
-<span id='dr-view-attribute-boundsheight'>      /**
-</span>       * @attribute {Number} boundsheight The height of the bounding box for the
+      /**
+       * @attribute {Number} boundsheight The height of the bounding box for the
        * view. This value accounts for rotation and scaling of the view. This is
        * the height non-descendant views should use if the view is rotated or
        * scaled.
@@ -2273,227 +2256,227 @@
        */
 
 
-<span id='dr-view-attribute-clickable'>      /**
-</span>       * @attribute {Boolean} [clickable=false]
+      /**
+       * @attribute {Boolean} [clickable=false]
        * If true, this view recieves mouse events. Automatically set to true when an onclick/mouse* event is registered for this view.
        */
 
 
-<span id='dr-view-attribute-clip'>      /**
-</span>       * @attribute {Boolean} [clip=false]
+      /**
+       * @attribute {Boolean} [clip=false]
        * If true, this view clips to its bounds
        */
 
 
-<span id='dr-view-attribute-scrollable'>      /**
-</span>       * @attribute {Boolean} [scrollable=false]
+      /**
+       * @attribute {Boolean} [scrollable=false]
        * If true, this view clips to its bounds and provides scrolling to see content that overflows the bounds
        */
 
 
-<span id='dr-view-attribute-scrollbars'>      /**
-</span>       * @attribute {Boolean} [scrollbars=false]
+      /**
+       * @attribute {Boolean} [scrollbars=false]
        * Controls the visibility of scrollbars if scrollable is true
        */
 
 
-<span id='dr-view-attribute-visible'>      /**
-</span>       * @attribute {Boolean} [visible=true]
+      /**
+       * @attribute {Boolean} [visible=true]
        * If false, this view is invisible
        */
 
 
-<span id='dr-view-attribute-bgcolor'>      /**
-</span>       * @attribute {String} bgcolor
-       * Sets this view&#39;s background color
+      /**
+       * @attribute {String} bgcolor
+       * Sets this view's background color
        */
 
 
-<span id='dr-view-attribute-bordercolor'>      /**
-</span>       * @attribute {String} bordercolor
-       * Sets this view&#39;s border color
+      /**
+       * @attribute {String} bordercolor
+       * Sets this view's border color
        */
 
 
-<span id='dr-view-attribute-borderstyle'>      /**
-</span>       * @attribute {String} borderstyle
-       * Sets this view&#39;s border style (can be any css border-style value)
+      /**
+       * @attribute {String} borderstyle
+       * Sets this view's border style (can be any css border-style value)
        */
 
 
-<span id='dr-view-attribute-border'>      /**
-</span>       * @attribute {Number} border
-       * Sets this view&#39;s border width
+      /**
+       * @attribute {Number} border
+       * Sets this view's border width
        */
 
 
-<span id='dr-view-attribute-padding'>      /**
-</span>       * @attribute {Number} padding
-       * Sets this view&#39;s padding
+      /**
+       * @attribute {Number} padding
+       * Sets this view's padding
        */
 
 
-<span id='dr-view-attribute-xscale'>      /**
-</span>       * @attribute {Number} [xscale=1.0]
-       * Sets this view&#39;s width scale
+      /**
+       * @attribute {Number} [xscale=1.0]
+       * Sets this view's width scale
        */
 
 
-<span id='dr-view-attribute-yscale'>      /**
-</span>       * @attribute {Number} [yscale=1.0]
-       * Sets this view&#39;s height scale
+      /**
+       * @attribute {Number} [yscale=1.0]
+       * Sets this view's height scale
        */
 
 
-<span id='dr-view-attribute-z'>      /**
-</span>       * @attribute {Number} [z=0]
-       * Sets this view&#39;s z position (higher values are on top of other views)
+      /**
+       * @attribute {Number} [z=0]
+       * Sets this view's z position (higher values are on top of other views)
        *
-       * *(note: setting a `z` value for a view implicitly sets its parent&#39;s `transform-style` to `preserve-3d`)*
+       * *(note: setting a `z` value for a view implicitly sets its parent's `transform-style` to `preserve-3d`)*
        */
 
 
-<span id='dr-view-attribute-rotation'>      /**
-</span>       * @attribute {Number} [rotation=0]
-       * Sets this view&#39;s rotation in degrees.
+      /**
+       * @attribute {Number} [rotation=0]
+       * Sets this view's rotation in degrees.
        */
 
 
-<span id='dr-view-attribute-perspective'>      /**
-</span>       * @attribute {String} [perspective=0]
-       * Sets this view&#39;s perspective depth along the z access, values in pixels.
+      /**
+       * @attribute {String} [perspective=0]
+       * Sets this view's perspective depth along the z access, values in pixels.
        * When this value is set, items further from the camera will appear smaller, and closer items will be larger.
        */
 
 
-<span id='dr-view-attribute-opacity'>      /**
-</span>       * @attribute {Number} [opacity=1.0]
-       * Sets this view&#39;s opacity, values can be a float from 0.0 to 1.0
+      /**
+       * @attribute {Number} [opacity=1.0]
+       * Sets this view's opacity, values can be a float from 0.0 to 1.0
        */
 
 
-<span id='dr-view-attribute-scrollx'>      /**
-</span>       * @attribute {Number} [scrollx=0]
+      /**
+       * @attribute {Number} [scrollx=0]
        * Sets the horizontal scroll position of the view. Only relevant if
        * this.scrollable is true. Setting this value will generate both a
        * scrollx event and a scroll event.
        */
 
 
-<span id='dr-view-attribute-scrolly'>      /**
-</span>       * @attribute {Number} [scrolly=0]
+      /**
+       * @attribute {Number} [scrolly=0]
        * Sets the vertical scroll position of the view. Only relevant if
        * this.scrollable is true. Setting this value will generate both a
        * scrolly event and a scroll event.
        */
 
 
-<span id='dr-view-attribute-xanchor'>      /**
-</span>       * @attribute {Number} [xanchor=0]
-       * Sets the horizontal center of the view&#39;s transformations (such as 
+      /**
+       * @attribute {Number} [xanchor=0]
+       * Sets the horizontal center of the view's transformations (such as 
        * rotation) There are several categories of allowed values:
        *   1) Fixed: If a number is provided the x anchor will be a fixed
        *      pixel position.
-       *   2) Left: If the string &#39;left&#39; is provided the left edge of the view
+       *   2) Left: If the string 'left' is provided the left edge of the view
        *      will be used. This is equivalent to a fixed value of 0.
-       *   3) Right: If the string &#39;right&#39; is provided the right edge of the
+       *   3) Right: If the string 'right' is provided the right edge of the
        *      view will be used.
-       *   4) Center: If the string &#39;center&#39; is provided the midpoint of the
+       *   4) Center: If the string 'center' is provided the midpoint of the
        *      width of the view will be used.
        */
 
 
-<span id='dr-view-attribute-yanchor'>      /**
-</span>       * @attribute {Number} [yanchor=0]
-       * Sets the vertical center of the view&#39;s transformations (such as 
+      /**
+       * @attribute {Number} [yanchor=0]
+       * Sets the vertical center of the view's transformations (such as 
        * rotation) There are several categories of allowed values:
        *   1) Fixed: If a number is provided the y anchor will be a fixed
        *      pixel position.
-       *   2) Top: If the string &#39;top&#39; is provided the top edge of the view
+       *   2) Top: If the string 'top' is provided the top edge of the view
        *      will be used. This is equivalent to a fixed value of 0.
-       *   3) Bottom: If the string &#39;bottom&#39; is provided the bottom edge of the
+       *   3) Bottom: If the string 'bottom' is provided the bottom edge of the
        *      view will be used.
-       *   4) Center: If the string &#39;center&#39; is provided the midpoint of the
+       *   4) Center: If the string 'center' is provided the midpoint of the
        *      height of the view will be used.
        */
 
 
-<span id='dr-view-attribute-zanchor'>      /**
-</span>       * @attribute {Number} [zanchor=0]
-       * Sets the z-axis center of the view&#39;s transformations (such as rotation)
+      /**
+       * @attribute {Number} [zanchor=0]
+       * Sets the z-axis center of the view's transformations (such as rotation)
        */
 
 
-<span id='dr-view-attribute-cursor'>      /**
-</span>       * @attribute {String} [cursor=&#39;pointer&#39;]
+      /**
+       * @attribute {String} [cursor='pointer']
        * Cursor that should be used when the mouse is over this view, can be any CSS cursor value. Only applies when clickable is true.
        */
 
 
-<span id='dr-view-attribute-boxshadow'>      /**
-</span>       * @attribute {String} [boxshadow]
-       * Drop shadow using standard CSS format (offset-x offset-y blur-radius spread-radius color). For example: &quot;10px 10px 5px 0px #888888&quot;.
+      /**
+       * @attribute {String} [boxshadow]
+       * Drop shadow using standard CSS format (offset-x offset-y blur-radius spread-radius color). For example: "10px 10px 5px 0px #888888".
        */
 
 
-<span id='dr-view-attribute-ignorelayout'>      /**
-</span>       * @attribute {String} [ignorelayout=&#39;false&#39;]
+      /**
+       * @attribute {String} [ignorelayout='false']
        * Indicates if layouts should ignore this view or not. A variety of
        * configuration mechanisms are supported. Provided true or false will
        * cause the view to be ignored or not by all layouts. If instead a
        * serialized map is provided the keys of the map will target values
-       * the layouts with matching names. A special key of &#39;*&#39; indicates a
+       * the layouts with matching names. A special key of '*' indicates a
        * default value for all layouts not specifically mentioned in the map.
        */
 
 
-<span id='dr-view-attribute-layouthint'>      /**
-</span>       * @attribute {String} [layouthint=&#39;&#39;]
+      /**
+       * @attribute {String} [layouthint='']
        * Provides per view hinting to layouts. The specific hints supported
        * are layout specific. Hints are provided as a map. A map key may
-       * be prefixied with the name of a layout followed by a &#39;/&#39;. This will
+       * be prefixied with the name of a layout followed by a '/'. This will
        * target that hint at a specific layout. If the prefix is ommitted or
-       * a prefix of &#39;*&#39; is used the hint will be targeted to all layouts.
+       * a prefix of '*' is used the hint will be targeted to all layouts.
        */
 
 
-<span id='dr-view-event-onclick'>      /**
-</span>       * @event onclick
+      /**
+       * @event onclick
        * Fired when this view is clicked
        * @param {dr.view} view The dr.view that fired the event
        */
 
 
-<span id='dr-view-event-onmouseover'>      /**
-</span>       * @event onmouseover
+      /**
+       * @event onmouseover
        * Fired when the mouse moves over this view
        * @param {dr.view} view The dr.view that fired the event
        */
 
 
-<span id='dr-view-event-onmouseout'>      /**
-</span>       * @event onmouseout
+      /**
+       * @event onmouseout
        * Fired when the mouse moves off this view
        * @param {dr.view} view The dr.view that fired the event
        */
 
 
-<span id='dr-view-event-onmousedown'>      /**
-</span>       * @event onmousedown
+      /**
+       * @event onmousedown
        * Fired when the mouse goes down on this view
        * @param {dr.view} view The dr.view that fired the event
        */
 
 
-<span id='dr-view-event-onmouseup'>      /**
-</span>       * @event onmouseup
+      /**
+       * @event onmouseup
        * Fired when the mouse goes up on this view
        * @param {dr.view} view The dr.view that fired the event
        */
 
 
-<span id='dr-view-event-onscroll'>      /**
-</span>       * @event onscroll
+      /**
+       * @event onscroll
        * Fired when the scroll position changes. Also provides information about
        * the scroll width and scroll height though it does not refire when those
        * values change since the DOM does not generate an event when they do. This
@@ -2515,56 +2498,56 @@
 
       View.prototype.construct = function(el, attributes) {
 
-<span id='dr-view-attribute-subviews'>        /**
-</span>         * @attribute {dr.view[]} subviews
+        /**
+         * @attribute {dr.view[]} subviews
          * @readonly
-         * An array of this views&#39;s child views
+         * An array of this views's child views
          */
 
-<span id='dr-view-attribute-layouts'>        /**
-</span>         * @attribute {dr.layout[]} layouts
+        /**
+         * @attribute {dr.layout[]} layouts
          * @readonly
-         * An array of this views&#39;s layouts. Only defined when needed.
+         * An array of this views's layouts. Only defined when needed.
          */
         var key, type, types, _ref;
         this.subviews = [];
         types = {
-          border: &#39;positivenumber&#39;,
-          borderstyle: &#39;string&#39;,
-          bottomborder: &#39;positivenumber&#39;,
-          bottompadding: &#39;positivenumber&#39;,
-          &quot;class&quot;: &#39;string&#39;,
-          clickable: &#39;boolean&#39;,
-          clip: &#39;boolean&#39;,
-          cursor: &#39;string&#39;,
-          height: &#39;size&#39;,
-          ignorelayout: &#39;json&#39;,
-          layouthint: &#39;json&#39;,
-          leftborder: &#39;positivenumber&#39;,
-          leftpadding: &#39;positivenumber&#39;,
-          opacity: &#39;number&#39;,
-          padding: &#39;positivenumber&#39;,
-          rightborder: &#39;positivenumber&#39;,
-          rightpadding: &#39;positivenumber&#39;,
-          rotation: &#39;number&#39;,
-          scrollable: &#39;boolean&#39;,
-          scrollbars: &#39;boolean&#39;,
-          scrollx: &#39;number&#39;,
-          scrolly: &#39;number&#39;,
-          topborder: &#39;positivenumber&#39;,
-          toppadding: &#39;positivenumber&#39;,
-          visible: &#39;boolean&#39;,
-          width: &#39;size&#39;,
-          x: &#39;x&#39;,
-          xanchor: &#39;string&#39;,
-          xscale: &#39;number&#39;,
-          y: &#39;y&#39;,
-          yanchor: &#39;string&#39;,
-          yscale: &#39;number&#39;,
-          z: &#39;number&#39;,
-          zanchor: &#39;number&#39;,
-          $tagname: &#39;string&#39;,
-          $textcontent: &#39;string&#39;
+          border: 'positivenumber',
+          borderstyle: 'string',
+          bottomborder: 'positivenumber',
+          bottompadding: 'positivenumber',
+          "class": 'string',
+          clickable: 'boolean',
+          clip: 'boolean',
+          cursor: 'string',
+          height: 'size',
+          ignorelayout: 'json',
+          layouthint: 'json',
+          leftborder: 'positivenumber',
+          leftpadding: 'positivenumber',
+          opacity: 'number',
+          padding: 'positivenumber',
+          rightborder: 'positivenumber',
+          rightpadding: 'positivenumber',
+          rotation: 'number',
+          scrollable: 'boolean',
+          scrollbars: 'boolean',
+          scrollx: 'number',
+          scrolly: 'number',
+          topborder: 'positivenumber',
+          toppadding: 'positivenumber',
+          visible: 'boolean',
+          width: 'size',
+          x: 'x',
+          xanchor: 'string',
+          xscale: 'number',
+          y: 'y',
+          yanchor: 'string',
+          yscale: 'number',
+          z: 'number',
+          zanchor: 'number',
+          $tagname: 'string',
+          $textcontent: 'string'
         };
         _ref = attributes.$types;
         for (key in _ref) {
@@ -2573,10 +2556,10 @@
         }
         this._declaredTypes = attributes.$types = types;
         this.__fullBorderPaddingWidth = this.__fullBorderPaddingHeight = 0;
-        this.xanchor = this.yanchor = &#39;center&#39;;
-        this.cursor = &#39;pointer&#39;;
-        this.bgcolor = this.bordercolor = &#39;transparent&#39;;
-        this.borderstyle = &#39;solid&#39;;
+        this.xanchor = this.yanchor = 'center';
+        this.cursor = 'pointer';
+        this.bgcolor = this.bordercolor = 'transparent';
+        this.borderstyle = 'solid';
         this.leftborder = this.rightborder = this.topborder = this.bottomborder = this.border = this.leftpadding = this.rightpadding = this.toppadding = this.bottompadding = this.padding = this.x = this.y = this.width = this.height = this.innerwidth = this.innerheight = this.boundsxdiff = this.boundsydiff = this.boundsx = this.boundsy = this.boundswidth = this.boundsheight = this.zanchor = this.scrollx = this.scrolly = 0;
         this.opacity = 1;
         this.clip = this.scrollable = this.clickable = this.isaligned = this.isvaligned = this.ignorelayout = this.scrollbars = false;
@@ -2587,10 +2570,10 @@
 
       View.prototype.initialize = function(skipevents) {
         if (this.__autoLayoutwidth) {
-          this.__autoLayoutwidth.setAttribute(&#39;locked&#39;, false);
+          this.__autoLayoutwidth.setAttribute('locked', false);
         }
         if (this.__autoLayoutheight) {
-          this.__autoLayoutheight.setAttribute(&#39;locked&#39;, false);
+          this.__autoLayoutheight.setAttribute('locked', false);
         }
         this.__updateBounds();
         return View.__super__.initialize.apply(this, arguments);
@@ -2603,7 +2586,7 @@
       View.prototype.destroy = function(skipevents) {
         View.__super__.destroy.apply(this, arguments);
         if (!skipevents) {
-          this._removeFromParent(&#39;subviews&#39;);
+          this._removeFromParent('subviews');
         }
         this.sprite.destroy();
         return this.sprite = null;
@@ -2625,20 +2608,20 @@
         yanchor = this.yanchor;
         w = this.width;
         h = this.height;
-        if (xanchor === &#39;left&#39;) {
+        if (xanchor === 'left') {
           xanchor = 0;
-        } else if (xanchor === &#39;center&#39;) {
+        } else if (xanchor === 'center') {
           xanchor = w / 2;
-        } else if (xanchor === &#39;right&#39;) {
+        } else if (xanchor === 'right') {
           xanchor = w;
         } else {
           xanchor = Number(xanchor);
         }
-        if (yanchor === &#39;top&#39;) {
+        if (yanchor === 'top') {
           yanchor = 0;
-        } else if (yanchor === &#39;center&#39;) {
+        } else if (yanchor === 'center') {
           yanchor = h / 2;
-        } else if (yanchor === &#39;bottom&#39;) {
+        } else if (yanchor === 'bottom') {
           yanchor = h;
         } else {
           yanchor = Number(yanchor);
@@ -2668,47 +2651,47 @@
           height = this.height;
         }
         if (!closeTo(this.boundsx, x)) {
-          this.setAndFire(&#39;boundsx&#39;, x);
+          this.setAndFire('boundsx', x);
         }
         if (!closeTo(this.boundsy, y)) {
-          this.setAndFire(&#39;boundsy&#39;, y);
+          this.setAndFire('boundsy', y);
         }
         if (!closeTo(this.boundswidth, width)) {
-          this.setAndFire(&#39;boundswidth&#39;, width);
+          this.setAndFire('boundswidth', width);
         }
         if (!closeTo(this.boundsheight, height)) {
-          this.setAndFire(&#39;boundsheight&#39;, height);
+          this.setAndFire('boundsheight', height);
         }
         if (!closeTo(this.boundsxdiff, xdiff)) {
-          this.setAndFire(&#39;boundsxdiff&#39;, xdiff);
+          this.setAndFire('boundsxdiff', xdiff);
         }
         if (!closeTo(this.boundsydiff, ydiff)) {
-          return this.setAndFire(&#39;boundsydiff&#39;, ydiff);
+          return this.setAndFire('boundsydiff', ydiff);
         }
       };
 
       View.prototype.__setupAlignConstraint = function(name, value) {
         var alignattr, axis, boundsdiff, boundssize, func, funcKey, isX, normValue, oldFunc, parent, self;
-        funcKey = &#39;__alignFunc&#39; + name;
-        if (!(typeof value === &#39;string&#39; || this[funcKey])) {
+        funcKey = '__alignFunc' + name;
+        if (!(typeof value === 'string' || this[funcKey])) {
           return;
         }
         parent = this.parent;
         if (!(parent instanceof Node)) {
           return;
         }
-        if (name === &#39;x&#39;) {
+        if (name === 'x') {
           isX = true;
-          axis = &#39;innerwidth&#39;;
-          boundsdiff = &#39;boundsxdiff&#39;;
-          boundssize = &#39;boundswidth&#39;;
-          alignattr = &#39;isaligned&#39;;
+          axis = 'innerwidth';
+          boundsdiff = 'boundsxdiff';
+          boundssize = 'boundswidth';
+          alignattr = 'isaligned';
         } else {
           isX = false;
-          axis = &#39;innerheight&#39;;
-          boundsdiff = &#39;boundsydiff&#39;;
-          boundssize = &#39;boundsheight&#39;;
-          alignattr = &#39;isvaligned&#39;;
+          axis = 'innerheight';
+          boundsdiff = 'boundsydiff';
+          boundssize = 'boundsheight';
+          alignattr = 'isvaligned';
         }
         oldFunc = this[funcKey];
         if (oldFunc) {
@@ -2720,12 +2703,12 @@
             this.setAndFire(alignattr, false);
           }
         }
-        if (typeof value !== &#39;string&#39;) {
+        if (typeof value !== 'string') {
           return;
         }
         normValue = value.toLowerCase();
         self = this;
-        if (normValue === &#39;begin&#39; || (isX &amp;&amp; normValue === &#39;left&#39;) || (!isX &amp;&amp; normValue === &#39;top&#39;)) {
+        if (normValue === 'begin' || (isX && normValue === 'left') || (!isX && normValue === 'top')) {
           func = this[funcKey] = function() {
             var val;
             val = self[boundsdiff];
@@ -2735,21 +2718,21 @@
             }
           };
           func.autoOk = true;
-        } else if (normValue === &#39;middle&#39; || normValue === &#39;center&#39;) {
+        } else if (normValue === 'middle' || normValue === 'center') {
           func = this[funcKey] = function() {
             self.__noSpecialValueHandling = true;
             return self.setAttribute(name, ((parent[axis] - self[boundssize]) / 2) + self[boundsdiff]);
           };
           this.listenTo(parent, axis, func);
           this.listenTo(this, boundssize, func);
-        } else if (normValue === &#39;end&#39; || (isX &amp;&amp; normValue === &#39;right&#39;) || (!isX &amp;&amp; normValue === &#39;bottom&#39;)) {
+        } else if (normValue === 'end' || (isX && normValue === 'right') || (!isX && normValue === 'bottom')) {
           func = this[funcKey] = function() {
             self.__noSpecialValueHandling = true;
             return self.setAttribute(name, parent[axis] - self[boundssize] + self[boundsdiff]);
           };
           this.listenTo(parent, axis, func);
           this.listenTo(this, boundssize, func);
-        } else if (normValue === &#39;none&#39;) {
+        } else if (normValue === 'none') {
           return true;
         }
         if (func) {
@@ -2764,8 +2747,8 @@
 
       View.prototype.__setupAutoConstraint = function(name, value, axis) {
         var layoutKey, oldLayout;
-        layoutKey = &#39;__autoLayout&#39; + name;
-        if (!(value === &#39;auto&#39; || this[layoutKey])) {
+        layoutKey = '__autoLayout' + name;
+        if (!(value === 'auto' || this[layoutKey])) {
           return;
         }
         oldLayout = this[layoutKey];
@@ -2773,11 +2756,11 @@
           oldLayout.destroy();
           delete this[layoutKey];
         }
-        if (value === &#39;auto&#39;) {
+        if (value === 'auto') {
           this[layoutKey] = new AutoPropertyLayout(null, {
             parent: this,
             axis: axis,
-            locked: this.inited ? &#39;false&#39; : &#39;true&#39;
+            locked: this.inited ? 'false' : 'true'
           });
           if (!this.inited) {
             this.__noSpecialValueHandling = true;
@@ -2789,8 +2772,8 @@
 
       View.prototype.__setupPercentConstraint = function(name, value, axis) {
         var func, funcKey, oldFunc, parent, scale, self;
-        funcKey = &#39;__percentFunc&#39; + name;
-        if (!(typeof value === &#39;string&#39; || this[funcKey])) {
+        funcKey = '__percentFunc' + name;
+        if (!(typeof value === 'string' || this[funcKey])) {
           return;
         }
         oldFunc = this[funcKey];
@@ -2821,7 +2804,7 @@
         retval = View.__super__.set_parent.apply(this, arguments);
         if (parent instanceof View) {
           parent.subviews.push(this);
-          parent.sendEvent(&#39;subviews&#39;, this);
+          parent.sendEvent('subviews', this);
           parent = parent.sprite;
         }
         this.sprite.set_parent(parent);
@@ -2836,9 +2819,9 @@
       };
 
       View.prototype.set_class = function(v) {
-        if (this[&quot;class&quot;] !== v) {
+        if (this["class"] !== v) {
           this.sprite.set_class(v);
-          this.setAndFire(&#39;class&#39;, v);
+          this.setAndFire('class', v);
         }
         return noop;
       };
@@ -2846,7 +2829,7 @@
       View.prototype.set_clip = function(v) {
         if (this.clip !== v) {
           this.sprite.set_clip(v);
-          this.setAndFire(&#39;clip&#39;, v);
+          this.setAndFire('clip', v);
         }
         return noop;
       };
@@ -2854,7 +2837,7 @@
       View.prototype.set_scrollable = function(v) {
         if (this.scrollable !== v) {
           this.sprite.set_scrollable(v);
-          this.setAndFire(&#39;scrollable&#39;, v);
+          this.setAndFire('scrollable', v);
         }
         return noop;
       };
@@ -2862,7 +2845,7 @@
       View.prototype.set_scrollbars = function(v) {
         if (this.scrollbars !== v) {
           this.sprite.set_scrollbars(v);
-          this.setAndFire(&#39;scrollbars&#39;, v);
+          this.setAndFire('scrollbars', v);
         }
         return noop;
       };
@@ -2875,7 +2858,7 @@
         }
         if (this.scrollx !== v) {
           this.sprite.set_scrollx(v);
-          this.setAndFire(&#39;scrollx&#39;, v);
+          this.setAndFire('scrollx', v);
         }
         return noop;
       };
@@ -2888,7 +2871,7 @@
         }
         if (this.scrolly !== v) {
           this.sprite.set_scrolly(v);
-          this.setAndFire(&#39;scrolly&#39;, v);
+          this.setAndFire('scrolly', v);
         }
         return noop;
       };
@@ -2896,25 +2879,25 @@
       View.prototype.set_visible = function(v) {
         if (this.visible !== v) {
           this.sprite.set_visible(v);
-          this.setAndFire(&#39;visible&#39;, v);
+          this.setAndFire('visible', v);
         }
         return noop;
       };
 
       View.prototype.set_bgcolor = function(v) {
         if (this.bgcolor !== v) {
-          this.sprite.setAttribute(&#39;bgcolor&#39;, v);
-          this.setAndFire(&#39;bgcolor&#39;, v);
+          this.sprite.setAttribute('bgcolor', v);
+          this.setAndFire('bgcolor', v);
         }
         return noop;
       };
 
       View.prototype.set_x = function(v) {
         if (!this.__noSpecialValueHandling) {
-          if (this.__setupPercentConstraint(&#39;x&#39;, v, &#39;innerwidth&#39;)) {
+          if (this.__setupPercentConstraint('x', v, 'innerwidth')) {
             return noop;
           }
-          if (this.__setupAlignConstraint(&#39;x&#39;, v)) {
+          if (this.__setupAlignConstraint('x', v)) {
             return noop;
           }
         } else {
@@ -2922,10 +2905,10 @@
         }
         if (this.x !== v) {
           this.sprite.set_x(v);
-          if (this.__boundsAreDifferent &amp;&amp; v - this.boundsxdiff !== this.boundsx) {
-            this.sendEvent(&#39;boundsx&#39;, this.boundsx = v - this.boundsxdiff);
+          if (this.__boundsAreDifferent && v - this.boundsxdiff !== this.boundsx) {
+            this.sendEvent('boundsx', this.boundsx = v - this.boundsxdiff);
           }
-          this.setAndFire(&#39;x&#39;, v);
+          this.setAndFire('x', v);
           if (this.inited) {
             this.__updateBounds();
           }
@@ -2935,10 +2918,10 @@
 
       View.prototype.set_y = function(v) {
         if (!this.__noSpecialValueHandling) {
-          if (this.__setupPercentConstraint(&#39;y&#39;, v, &#39;innerheight&#39;)) {
+          if (this.__setupPercentConstraint('y', v, 'innerheight')) {
             return noop;
           }
-          if (this.__setupAlignConstraint(&#39;y&#39;, v)) {
+          if (this.__setupAlignConstraint('y', v)) {
             return noop;
           }
         } else {
@@ -2946,10 +2929,10 @@
         }
         if (this.y !== v) {
           this.sprite.set_y(v);
-          if (this.__boundsAreDifferent &amp;&amp; v - this.boundsydiff !== this.boundsy) {
-            this.sendEvent(&#39;boundsy&#39;, this.boundsy = v - this.boundsydiff);
+          if (this.__boundsAreDifferent && v - this.boundsydiff !== this.boundsy) {
+            this.sendEvent('boundsy', this.boundsy = v - this.boundsydiff);
           }
-          this.setAndFire(&#39;y&#39;, v);
+          this.setAndFire('y', v);
           if (this.inited) {
             this.__updateBounds();
           }
@@ -2959,10 +2942,10 @@
 
       View.prototype.set_width = function(v, noDomChange) {
         if (!this.__noSpecialValueHandling) {
-          if (this.__setupPercentConstraint(&#39;width&#39;, v, &#39;innerwidth&#39;)) {
+          if (this.__setupPercentConstraint('width', v, 'innerwidth')) {
             return noop;
           }
-          if (this.__setupAutoConstraint(&#39;width&#39;, v, &#39;x&#39;)) {
+          if (this.__setupAutoConstraint('width', v, 'x')) {
             return noop;
           }
         } else {
@@ -2971,10 +2954,10 @@
         v = Math.max(v, this.__fullBorderPaddingWidth);
         if (this.width !== v) {
           if (!noDomChange) {
-            this.sprite.setAttribute(&#39;width&#39;, v);
+            this.sprite.setAttribute('width', v);
           }
-          this.setAndFire(&#39;innerwidth&#39;, v - this.__fullBorderPaddingWidth);
-          this.setAndFire(&#39;width&#39;, v);
+          this.setAndFire('innerwidth', v - this.__fullBorderPaddingWidth);
+          this.setAndFire('width', v);
           if (this.inited) {
             this.__updateBounds();
           }
@@ -2984,10 +2967,10 @@
 
       View.prototype.set_height = function(v, noDomChange) {
         if (!this.__noSpecialValueHandling) {
-          if (this.__setupPercentConstraint(&#39;height&#39;, v, &#39;innerheight&#39;)) {
+          if (this.__setupPercentConstraint('height', v, 'innerheight')) {
             return noop;
           }
-          if (this.__setupAutoConstraint(&#39;height&#39;, v, &#39;y&#39;)) {
+          if (this.__setupAutoConstraint('height', v, 'y')) {
             return noop;
           }
         } else {
@@ -2996,10 +2979,10 @@
         v = Math.max(v, this.__fullBorderPaddingHeight);
         if (this.height !== v) {
           if (!noDomChange) {
-            this.sprite.setAttribute(&#39;height&#39;, v);
+            this.sprite.setAttribute('height', v);
           }
-          this.setAndFire(&#39;innerheight&#39;, v - this.__fullBorderPaddingHeight);
-          this.setAndFire(&#39;height&#39;, v);
+          this.setAndFire('innerheight', v - this.__fullBorderPaddingHeight);
+          this.setAndFire('height', v);
           if (this.inited) {
             this.__updateBounds();
           }
@@ -3009,20 +2992,20 @@
 
       View.prototype.set_border = function(v) {
         this.__lockBPRecalc = true;
-        this.setAttribute(&#39;topborder&#39;, v);
-        this.setAttribute(&#39;bottomborder&#39;, v);
-        this.setAttribute(&#39;leftborder&#39;, v);
-        this.setAttribute(&#39;rightborder&#39;, v);
+        this.setAttribute('topborder', v);
+        this.setAttribute('bottomborder', v);
+        this.setAttribute('leftborder', v);
+        this.setAttribute('rightborder', v);
         this.__lockBPRecalc = false;
-        this.setAndFire(&#39;border&#39;, v);
+        this.setAndFire('border', v);
         this.__updateInnerWidth();
         this.__updateInnerHeight();
         return noop;
       };
 
       View.prototype.set_topborder = function(v) {
-        this.sprite.setAttribute(&#39;topborder&#39;, v);
-        this.setAndFire(&#39;topborder&#39;, v);
+        this.sprite.setAttribute('topborder', v);
+        this.setAndFire('topborder', v);
         if (!this.__lockBPRecalc) {
           this.__updateBorder();
           this.__updateInnerHeight();
@@ -3031,8 +3014,8 @@
       };
 
       View.prototype.set_bottomborder = function(v) {
-        this.sprite.setAttribute(&#39;bottomborder&#39;, v);
-        this.setAndFire(&#39;bottomborder&#39;, v);
+        this.sprite.setAttribute('bottomborder', v);
+        this.setAndFire('bottomborder', v);
         if (!this.__lockBPRecalc) {
           this.__updateBorder();
           this.__updateInnerHeight();
@@ -3041,8 +3024,8 @@
       };
 
       View.prototype.set_leftborder = function(v) {
-        this.sprite.setAttribute(&#39;leftborder&#39;, v);
-        this.setAndFire(&#39;leftborder&#39;, v);
+        this.sprite.setAttribute('leftborder', v);
+        this.setAndFire('leftborder', v);
         if (!this.__lockBPRecalc) {
           this.__updateBorder();
           this.__updateInnerWidth();
@@ -3051,8 +3034,8 @@
       };
 
       View.prototype.set_rightborder = function(v) {
-        this.sprite.setAttribute(&#39;rightborder&#39;, v);
-        this.setAndFire(&#39;rightborder&#39;, v);
+        this.sprite.setAttribute('rightborder', v);
+        this.setAndFire('rightborder', v);
         if (!this.__lockBPRecalc) {
           this.__updateBorder();
           this.__updateInnerWidth();
@@ -3062,29 +3045,29 @@
 
       View.prototype.__updateBorder = function() {
         test = this.topborder;
-        if (this.bottomborder === test &amp;&amp; this.leftborder === test &amp;&amp; this.rightborder === test) {
-          return this.setAndFire(&#39;border&#39;, test);
+        if (this.bottomborder === test && this.leftborder === test && this.rightborder === test) {
+          return this.setAndFire('border', test);
         } else if (this.border != null) {
-          return this.setAndFire(&#39;border&#39;, void 0);
+          return this.setAndFire('border', void 0);
         }
       };
 
       View.prototype.set_padding = function(v) {
         this.__lockBPRecalc = true;
-        this.setAttribute(&#39;toppadding&#39;, v);
-        this.setAttribute(&#39;bottompadding&#39;, v);
-        this.setAttribute(&#39;leftpadding&#39;, v);
-        this.setAttribute(&#39;rightpadding&#39;, v);
+        this.setAttribute('toppadding', v);
+        this.setAttribute('bottompadding', v);
+        this.setAttribute('leftpadding', v);
+        this.setAttribute('rightpadding', v);
         this.__lockBPRecalc = false;
-        this.setAndFire(&#39;padding&#39;, v);
+        this.setAndFire('padding', v);
         this.__updateInnerWidth();
         this.__updateInnerHeight();
         return noop;
       };
 
       View.prototype.set_toppadding = function(v) {
-        this.sprite.setAttribute(&#39;toppadding&#39;, v);
-        this.setAndFire(&#39;toppadding&#39;, v);
+        this.sprite.setAttribute('toppadding', v);
+        this.setAndFire('toppadding', v);
         if (!this.__lockBPRecalc) {
           this.__updatePadding();
           this.__updateInnerHeight();
@@ -3093,8 +3076,8 @@
       };
 
       View.prototype.set_bottompadding = function(v) {
-        this.sprite.setAttribute(&#39;bottompadding&#39;, v);
-        this.setAndFire(&#39;bottompadding&#39;, v);
+        this.sprite.setAttribute('bottompadding', v);
+        this.setAndFire('bottompadding', v);
         if (!this.__lockBPRecalc) {
           this.__updatePadding();
           this.__updateInnerHeight();
@@ -3103,8 +3086,8 @@
       };
 
       View.prototype.set_leftpadding = function(v) {
-        this.sprite.setAttribute(&#39;leftpadding&#39;, v);
-        this.setAndFire(&#39;leftpadding&#39;, v);
+        this.sprite.setAttribute('leftpadding', v);
+        this.setAndFire('leftpadding', v);
         if (!this.__lockBPRecalc) {
           this.__updatePadding();
           this.__updateInnerWidth();
@@ -3113,8 +3096,8 @@
       };
 
       View.prototype.set_rightpadding = function(v) {
-        this.sprite.setAttribute(&#39;rightpadding&#39;, v);
-        this.setAndFire(&#39;rightpadding&#39;, v);
+        this.sprite.setAttribute('rightpadding', v);
+        this.setAndFire('rightpadding', v);
         if (!this.__lockBPRecalc) {
           this.__updatePadding();
           this.__updateInnerWidth();
@@ -3124,37 +3107,37 @@
 
       View.prototype.__updatePadding = function() {
         test = this.toppadding;
-        if (this.bottompadding === test &amp;&amp; this.leftpadding === test &amp;&amp; this.rightpadding === test) {
-          return this.setAndFire(&#39;padding&#39;, test);
+        if (this.bottompadding === test && this.leftpadding === test && this.rightpadding === test) {
+          return this.setAndFire('padding', test);
         } else if (this.padding != null) {
-          return this.setAndFire(&#39;padding&#39;, void 0);
+          return this.setAndFire('padding', void 0);
         }
       };
 
       View.prototype.__updateInnerWidth = function() {
         var inset;
         this.__fullBorderPaddingWidth = inset = this.leftborder + this.rightborder + this.leftpadding + this.rightpadding;
-        if (inset &gt; this.width) {
+        if (inset > this.width) {
           this.__noSpecialValueHandling = true;
-          this.setAttribute(&#39;width&#39;, inset, true);
+          this.setAttribute('width', inset, true);
         }
-        return this.setAndFire(&#39;innerwidth&#39;, this.width - inset);
+        return this.setAndFire('innerwidth', this.width - inset);
       };
 
       View.prototype.__updateInnerHeight = function() {
         var inset;
         this.__fullBorderPaddingHeight = inset = this.topborder + this.bottomborder + this.toppadding + this.bottompadding;
-        if (inset &gt; this.height) {
+        if (inset > this.height) {
           this.__noSpecialValueHandling = true;
-          this.setAttribute(&#39;height&#39;, inset, true);
+          this.setAttribute('height', inset, true);
         }
-        return this.setAndFire(&#39;innerheight&#39;, this.height - inset);
+        return this.setAndFire('innerheight', this.height - inset);
       };
 
       View.prototype.set_clickable = function(v) {
         if (this.clickable !== v) {
           this.sprite.set_clickable(v);
-          this.setAndFire(&#39;clickable&#39;, v);
+          this.setAndFire('clickable', v);
         }
         return noop;
       };
@@ -3162,14 +3145,14 @@
       View.prototype.set_cursor = function(v) {
         if (this.cursor !== v) {
           this.sprite.set_cursor(v);
-          this.setAndFire(&#39;cursor&#39;, v);
+          this.setAndFire('cursor', v);
         }
         return noop;
       };
 
       View.prototype.__updateTransform = function() {
         var transform, xanchor, xscale, yanchor, yscale;
-        transform = &#39;&#39;;
+        transform = '';
         xscale = this.xscale;
         if (this.xscale == null) {
           xscale = this.xscale = 1;
@@ -3179,43 +3162,43 @@
           yscale = this.yscale = 1;
         }
         if (xscale !== 1 || yscale !== 1) {
-          transform += &#39;scale3d(&#39; + xscale + &#39;,&#39; + yscale + &#39;,1.0)&#39;;
+          transform += 'scale3d(' + xscale + ',' + yscale + ',1.0)';
         }
         this.rotation || (this.rotation = 0);
         if (this.rotation % 360 !== 0) {
-          transform += &#39; rotate3d(0,0,1.0,&#39; + this.rotation + &#39;deg)&#39;;
+          transform += ' rotate3d(0,0,1.0,' + this.rotation + 'deg)';
         }
-        this.__boundsAreDifferent = transform !== &#39;&#39;;
+        this.__boundsAreDifferent = transform !== '';
         this.z || (this.z = 0);
         if (this.z !== 0) {
-          transform += &#39; translate3d(0,0,&#39; + this.z + &#39;px)&#39;;
-          this.parent.sprite.setAttribute(&#39;transform-style&#39;, &#39;preserve-3d&#39;);
+          transform += ' translate3d(0,0,' + this.z + 'px)';
+          this.parent.sprite.setAttribute('transform-style', 'preserve-3d');
         }
-        if (transform !== &#39;&#39;) {
+        if (transform !== '') {
           xanchor = this.xanchor;
-          if (xanchor !== &#39;left&#39; &amp;&amp; xanchor !== &#39;right&#39; &amp;&amp; xanchor !== &#39;center&#39;) {
-            xanchor += &#39;px&#39;;
+          if (xanchor !== 'left' && xanchor !== 'right' && xanchor !== 'center') {
+            xanchor += 'px';
           }
           yanchor = this.yanchor;
-          if (yanchor !== &#39;top&#39; &amp;&amp; yanchor !== &#39;bottom&#39; &amp;&amp; yanchor !== &#39;center&#39;) {
-            yanchor += &#39;px&#39;;
+          if (yanchor !== 'top' && yanchor !== 'bottom' && yanchor !== 'center') {
+            yanchor += 'px';
           }
-          this.sprite.setAttribute(&#39;transform-origin&#39;, xanchor + &#39; &#39; + yanchor + &#39; &#39; + this.zanchor + &#39;px&#39;);
+          this.sprite.setAttribute('transform-origin', xanchor + ' ' + yanchor + ' ' + this.zanchor + 'px');
         }
-        return this.sprite.setAttribute(&#39;transform&#39;, transform);
+        return this.sprite.setAttribute('transform', transform);
       };
 
       View.prototype.set_perspective = function(v) {
-        if (v === &#39;0&#39;) {
-          return &#39;none&#39;;
+        if (v === '0') {
+          return 'none';
         } else {
-          return v + &#39;px&#39;;
+          return v + 'px';
         }
       };
 
       View.prototype.set_xscale = function(v) {
         if (v !== this.xscale) {
-          this.setAndFire(&#39;xscale&#39;, v);
+          this.setAndFire('xscale', v);
           this.__updateTransform();
           if (this.inited) {
             this.__updateBounds();
@@ -3226,7 +3209,7 @@
 
       View.prototype.set_yscale = function(v) {
         if (v !== this.yscale) {
-          this.setAndFire(&#39;yscale&#39;, v);
+          this.setAndFire('yscale', v);
           this.__updateTransform();
           if (this.inited) {
             this.__updateBounds();
@@ -3237,7 +3220,7 @@
 
       View.prototype.set_rotation = function(v) {
         if (v !== this.rotation) {
-          this.setAndFire(&#39;rotation&#39;, v);
+          this.setAndFire('rotation', v);
           this.__updateTransform();
           if (this.inited) {
             this.__updateBounds();
@@ -3248,19 +3231,19 @@
 
       View.prototype.set_z = function(v) {
         if (v !== this.z) {
-          this.sprite.setAttribute(&#39;z&#39;, v);
-          this.setAndFire(&#39;z&#39;, v);
+          this.sprite.setAttribute('z', v);
+          this.setAndFire('z', v);
           this.__updateTransform();
         }
         return noop;
       };
 
       View.prototype.set_xanchor = function(v) {
-        if ((v == null) || v === &#39;&#39; || v === &#39;undefined&#39;) {
-          v = &#39;center&#39;;
+        if ((v == null) || v === '' || v === 'undefined') {
+          v = 'center';
         }
         if (v !== this.xanchor) {
-          this.setAndFire(&#39;xanchor&#39;, v);
+          this.setAndFire('xanchor', v);
           this.__updateTransform();
           if (this.inited) {
             this.__updateBounds();
@@ -3270,11 +3253,11 @@
       };
 
       View.prototype.set_yanchor = function(v) {
-        if ((v == null) || v === &#39;&#39; || v === &#39;undefined&#39;) {
-          v = &#39;center&#39;;
+        if ((v == null) || v === '' || v === 'undefined') {
+          v = 'center';
         }
         if (v !== this.yanchor) {
-          this.setAndFire(&#39;yanchor&#39;, v);
+          this.setAndFire('yanchor', v);
           this.__updateTransform();
           if (this.inited) {
             this.__updateBounds();
@@ -3284,11 +3267,11 @@
       };
 
       View.prototype.set_zanchor = function(v) {
-        if ((v == null) || v === &#39;&#39;) {
+        if ((v == null) || v === '') {
           v = 0;
         }
         if (v !== this.zanchor) {
-          this.setAndFire(&#39;zanchor&#39;, v);
+          this.setAndFire('zanchor', v);
           this.__updateTransform();
         }
         return noop;
@@ -3297,12 +3280,12 @@
       View.prototype.moveToFront = function() {
         var subview, _i, _len, _ref;
         _ref = this.parent.subviews;
-        for (_i = 0, _len = _ref.length; _i &lt; _len; _i++) {
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           subview = _ref[_i];
           if (!subview.z) {
-            subview.setAttribute(&#39;z&#39;, 0);
+            subview.setAttribute('z', 0);
           }
-          if (this.z &lt;= subview.z) {
+          if (this.z <= subview.z) {
             this.z = subview.z + 1;
           }
         }
@@ -3310,20 +3293,20 @@
       };
 
 
-<span id='dr-view-method-moveToBack'>      /**
-</span>       * @method moveToBack
+      /**
+       * @method moveToBack
        * Moves view behind all other sibling views
        */
 
       View.prototype.moveToBack = function() {
         var subview, _i, _len, _ref;
         _ref = this.parent.subviews;
-        for (_i = 0, _len = _ref.length; _i &lt; _len; _i++) {
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           subview = _ref[_i];
           if (!subview.z) {
-            subview.setAttribute(&#39;z&#39;, 0);
+            subview.setAttribute('z', 0);
           }
-          if (this.z &gt;= subview.z) {
+          if (this.z >= subview.z) {
             this.z = subview.z - 1;
           }
         }
@@ -3331,8 +3314,8 @@
       };
 
 
-<span id='dr-view-method-moveInFrontOf'>      /**
-</span>       * @method moveInFrontOf
+      /**
+       * @method moveInFrontOf
        * Moves view to the front of sibling view
        * @param {dr.view} View to move in front of
        */
@@ -3340,7 +3323,7 @@
       View.prototype.moveInFrontOf = function(otherView) {
         if (otherView) {
           if (!otherView.z) {
-            otherView.setAttribute(&#39;z&#39;, 0);
+            otherView.setAttribute('z', 0);
           }
           this.z = otherView.z + 1;
           return this.__updateTransform();
@@ -3348,8 +3331,8 @@
       };
 
 
-<span id='dr-view-method-moveBehind'>      /**
-</span>       * @method moveBehind
+      /**
+       * @method moveBehind
        * Moves view to the behind sibling view
        * @param {dr.view} View to move behind
        */
@@ -3357,7 +3340,7 @@
       View.prototype.moveBehind = function(otherView) {
         if (otherView) {
           if (!otherView.z) {
-            otherView.setAttribute(&#39;z&#39;, 0);
+            otherView.setAttribute('z', 0);
           }
           this.z = otherView.z - 1;
           return this.__updateTransform();
@@ -3365,8 +3348,8 @@
       };
 
 
-<span id='dr-view-method-doSubnodeAdded'>      /**
-</span>       * Calls doSubviewAdded/doLayoutAdded if the added subnode is a view or
+      /**
+       * Calls doSubviewAdded/doLayoutAdded if the added subnode is a view or
        * layout respectively. Subclasses should call super.
        * @private
        */
@@ -3375,12 +3358,12 @@
         if (node instanceof View) {
           node.__updateBounds();
 
-<span id='dr-view-event-subviewAdded'>          /**
-</span>           * @event subviewAdded
+          /**
+           * @event subviewAdded
            * Fired when a subview is added to this view.
            * @param {dr.view} view The dr.view that was added
            */
-          this.sendEvent(&#39;subviewAdded&#39;, node);
+          this.sendEvent('subviewAdded', node);
           return this.doSubviewAdded(node);
         } else if (node instanceof Layout) {
           return this.doLayoutAdded(node);
@@ -3388,8 +3371,8 @@
       };
 
 
-<span id='dr-view-method-doSubnodeRemoved'>      /**
-</span>       * Calls doSubviewRemoved/doLayoutRemoved if the removed subnode is a view or
+      /**
+       * Calls doSubviewRemoved/doLayoutRemoved if the removed subnode is a view or
        * layout respectively. Subclasses should call super.
        * @private
        */
@@ -3397,12 +3380,12 @@
       View.prototype.doSubnodeRemoved = function(node) {
         if (node instanceof View) {
 
-<span id='dr-view-event-subviewRemoved'>          /**
-</span>           * @event subviewRemoved
+          /**
+           * @event subviewRemoved
            * Fired when a subview is removed from this view.
            * @param {dr.view} view The dr.view that was removed
            */
-          this.sendEvent(&#39;subviewRemoved&#39;, node);
+          this.sendEvent('subviewRemoved', node);
           return this.doSubviewRemoved(node);
         } else if (node instanceof Layout) {
           return this.doLayoutRemoved(node);
@@ -3410,8 +3393,8 @@
       };
 
 
-<span id='dr-view-method-doSubviewAdded'>      /**
-</span>       * Called when a subview is added to this view. Provides a hook for
+      /**
+       * Called when a subview is added to this view. Provides a hook for
        * subclasses. No need for subclasses to call super. Do not call this
        * method to add a subview. Instead call setParent.
        * @param {dr.view} sv The subview that was added.
@@ -3421,8 +3404,8 @@
       View.prototype.doSubviewAdded = function(sv) {};
 
 
-<span id='dr-view-method-doSubviewRemoved'>      /**
-</span>       * Called when a subview is removed from this view. Provides a hook for
+      /**
+       * Called when a subview is removed from this view. Provides a hook for
        * subclasses. No need for subclasses to call super. Do not call this
        * method to remove a subview. Instead call _removeFromParent.
        * @param {dr.view} sv The subview that was removed.
@@ -3432,8 +3415,8 @@
       View.prototype.doSubviewRemoved = function(sv) {};
 
 
-<span id='dr-view-method-doLayoutAdded'>      /**
-</span>       * Called when a layout is added to this view. Provides a hook for
+      /**
+       * Called when a layout is added to this view. Provides a hook for
        * subclasses. No need for subclasses to call super. Do not call this
        * method to add a layout. Instead call setParent.
        * @param {dr.layout} layout The layout that was added.
@@ -3443,8 +3426,8 @@
       View.prototype.doLayoutAdded = function(layout) {};
 
 
-<span id='dr-view-method-doLayoutRemoved'>      /**
-</span>       * Called when a layout is removed from this view. Provides a hook for
+      /**
+       * Called when a layout is removed from this view. Provides a hook for
        * subclasses. No need for subclasses to call super. Do not call this
        * method to remove a layout. Instead call _removeFromParent.
        * @param {dr.layout} layout The layout that was removed.
@@ -3454,8 +3437,8 @@
       View.prototype.doLayoutRemoved = function(layout) {};
 
 
-<span id='dr-view-method-getLayoutHint'>      /**
-</span>       * Gets the value of a named layout hint.
+      /**
+       * Gets the value of a named layout hint.
        * @param {String} layoutName The name of the layout to match.
        * @param {String} key The name of the hint to match.
        * @return {*} The value of the hint or undefined if not found.
@@ -3465,7 +3448,7 @@
         var hint, hints;
         hints = this.layouthint;
         if (hints) {
-          hint = hints[layoutName + &#39;/&#39; + hintName];
+          hint = hints[layoutName + '/' + hintName];
           if (hint != null) {
             return hint;
           }
@@ -3473,7 +3456,7 @@
           if (hint != null) {
             return hint;
           }
-          hint = hints[&#39;*/&#39; + hintName];
+          hint = hints['*/' + hintName];
           if (hint != null) {
             return hint;
           }
@@ -3493,22 +3476,22 @@
     showWarnings = function(data) {
       var out, pre;
       warnings = warnings.concat(data);
-      out = data.join(&#39;\n&#39;);
-      pre = document.createElement(&#39;pre&#39;);
-      pre.setAttribute(&#39;class&#39;, &#39;warnings&#39;);
+      out = data.join('\n');
+      pre = document.createElement('pre');
+      pre.setAttribute('class', 'warnings');
       pre.textContent = out;
       document.body.insertBefore(pre, document.body.firstChild);
       return console.error(out);
     };
-    specialtags = [&#39;handler&#39;, &#39;method&#39;, &#39;attribute&#39;, &#39;setter&#39;, &#39;include&#39;];
+    specialtags = ['handler', 'method', 'attribute', 'setter', 'include'];
     matchEvent = /^on(.+)/;
-    tagPackageSeparator = &#39;-&#39;;
+    tagPackageSeparator = '-';
     dom = (function() {
       var builtinTags, checkRequiredAttributes, exports, findAutoIncludes, flattenattributes, getChildElements, htmlDecode, initAllElements, initElement, initFromElement, processSpecialTags, requiredAttributes, sendInit, writeCSS;
       flattenattributes = function(namednodemap) {
         var attributes, i, _i, _len;
         attributes = {};
-        for (_i = 0, _len = namednodemap.length; _i &lt; _len; _i++) {
+        for (_i = 0, _len = namednodemap.length; _i < _len; _i++) {
           i = namednodemap[_i];
           attributes[i.name] = i.value;
         }
@@ -3516,14 +3499,14 @@
       };
       sendInit = function(el) {
         var event;
-        event = document.createEvent(&#39;Event&#39;);
-        event.initEvent(&#39;dreeminit&#39;, true, true);
+        event = document.createEvent('Event');
+        event.initEvent('dreeminit', true, true);
         window.dispatchEvent(event);
-        return $(el).addClass(&#39;dreeminited&#39;);
+        return $(el).addClass('dreeminited');
       };
       initFromElement = function(el) {
         instantiating = true;
-        el.style.visibility = &#39;hidden&#39;;
+        el.style.visibility = 'hidden';
         return findAutoIncludes(el, function() {
           el.style.visibility = null;
           initElement(el);
@@ -3535,7 +3518,7 @@
         var child, _i, _len, _ref, _results;
         _ref = el.childNodes;
         _results = [];
-        for (_i = 0, _len = _ref.length; _i &lt; _len; _i++) {
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           child = _ref[_i];
           if (child.nodeType === 1) {
             _results.push(child);
@@ -3564,12 +3547,12 @@
           appendScript = function(url, cb, error) {
             var script;
             if (error == null) {
-              error = &#39;failed to load scriptinclude &#39; + url;
+              error = 'failed to load scriptinclude ' + url;
             }
             scriptloading = url;
-            script = document.createElement(&#39;script&#39;);
-            script.type = &#39;text/javascript&#39;;
-            $(&#39;head&#39;).append(script);
+            script = document.createElement('script');
+            script.type = 'text/javascript';
+            $('head').append(script);
             script.onload = cb;
             script.onerror = function(err) {
               console.error(error, err);
@@ -3607,10 +3590,10 @@
           if (names == null) {
             names = {};
           }
-          if (el.attributes[&quot;with&quot;] &amp;&amp; (el.attributes[&quot;with&quot;].value != null)) {
-            _ref = el.attributes[&quot;with&quot;].value.split(&#39;,&#39;);
+          if (el.attributes["with"] && (el.attributes["with"].value != null)) {
+            _ref = el.attributes["with"].value.split(',');
             _results = [];
-            for (_i = 0, _len = _ref.length; _i &lt; _len; _i++) {
+            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
               mixin = _ref[_i];
               _results.push(names[mixin.trim()] = el);
             }
@@ -3622,22 +3605,22 @@
           if (names == null) {
             names = {};
           }
-          _ref = jqel.find(&#39;*&#39;);
-          for (_i = 0, _len = _ref.length; _i &lt; _len; _i++) {
+          _ref = jqel.find('*');
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
             el = _ref[_i];
             name = el.localName;
-            if (name === &#39;class&#39;) {
-              if (el.attributes[&quot;extends&quot;]) {
-                names[el.attributes[&quot;extends&quot;].value] = el;
+            if (name === 'class') {
+              if (el.attributes["extends"]) {
+                names[el.attributes["extends"].value] = el;
               }
               loadMixins(el, names);
               inlineclasses[(_ref1 = el.attributes.name) != null ? _ref1.value : void 0] = true;
-            } else if (name === &#39;replicator&#39;) {
+            } else if (name === 'replicator') {
               names[name] = el;
               names[el.attributes.classname.value] = el;
               loadMixins(el, names);
             } else {
-              if (_ref2 = el.parentNode.localName, __indexOf.call(specialtags, _ref2) &lt; 0) {
+              if (_ref2 = el.parentNode.localName, __indexOf.call(specialtags, _ref2) < 0) {
                 names[name] = el;
                 loadMixins(el, names);
               }
@@ -3646,7 +3629,7 @@
           out = {};
           for (name in names) {
             el = names[name];
-            if (!(name in dr || name in fileloaded || __indexOf.call(specialtags, name) &gt;= 0 || name in inlineclasses || builtinTags[name])) {
+            if (!(name in dr || name in fileloaded || __indexOf.call(specialtags, name) >= 0 || name in inlineclasses || builtinTags[name])) {
               out[name] = el;
             }
           }
@@ -3657,8 +3640,8 @@
           if (urls == null) {
             urls = {};
           }
-          _ref = jqel.find(&#39;include&#39;);
-          for (_i = 0, _len = _ref.length; _i &lt; _len; _i++) {
+          _ref = jqel.find('include');
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
             el = _ref[_i];
             url = el.attributes.href.value;
             el.parentNode.removeChild(el);
@@ -3675,15 +3658,15 @@
           }
           return $.when.apply($, filerequests).done(function() {
             var args, file, html, includeRE, name, xhr, _i, _len, _ref1, _results;
-            args = 1 &lt;= arguments.length ? __slice.call(arguments, 0) : [];
+            args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
             if (filerequests.length === 1) {
               args = [args];
             }
             filerequests = [];
-            includeRE = /&lt;[\/]*library&gt;/gi;
-            for (_i = 0, _len = args.length; _i &lt; _len; _i++) {
+            includeRE = /<[\/]*library>/gi;
+            for (_i = 0, _len = args.length; _i < _len; _i++) {
               xhr = args[_i];
-              html = xhr[0].replace(includeRE, &#39;&#39;);
+              html = xhr[0].replace(includeRE, '');
               jqel.prepend(html);
             }
             _ref1 = findMissingClasses();
@@ -3691,17 +3674,17 @@
               el = _ref1[name];
               fileloaded[name] = true;
               if (name) {
-                loadInclude(&quot;/classes/&quot; + name.split(tagPackageSeparator).join(&#39;/&#39;) + &quot;.dre&quot;, el);
+                loadInclude("/classes/" + name.split(tagPackageSeparator).join('/') + ".dre", el);
               }
             }
             $.when.apply($, filerequests).done(function() {
               var args, includes, oneurl, _j, _len1;
-              args = 1 &lt;= arguments.length ? __slice.call(arguments, 0) : [];
+              args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
               if (filerequests.length === 1) {
                 args = [args];
               }
               filerequests = [];
-              for (_j = 0, _len1 = args.length; _j &lt; _len1; _j++) {
+              for (_j = 0, _len1 = args.length; _j < _len1; _j++) {
                 xhr = args[_j];
                 jqel.prepend(xhr[0]);
                 jqel.contents().each(function() {
@@ -3711,13 +3694,13 @@
                 });
               }
               includes = findMissingClasses(findIncludeURLs());
-              if (Object.keys(includes).length &gt; 0) {
+              if (Object.keys(includes).length > 0) {
                 loadIncludes(callback);
                 return;
               }
-              oneurl = &#39;/lib/one_base.js&#39;;
+              oneurl = '/lib/one_base.js';
               return $.ajax({
-                dataType: &quot;script&quot;,
+                dataType: "script",
                 cache: true,
                 url: oneurl
               }).done(function() {
@@ -3728,16 +3711,16 @@
                 View.prototype.enumfalse(View.prototype.keys());
                 Layout.prototype.enumfalse(Layout.prototype.keys());
                 State.prototype.enumfalse(State.prototype.keys());
-                loadScript(&#39;/lib/animator.js&#39;, callback, &#39;Missing /lib/animator.js&#39;);
-                _ref2 = jqel.find(&#39;[scriptincludes]&#39;);
+                loadScript('/lib/animator.js', callback, 'Missing /lib/animator.js');
+                _ref2 = jqel.find('[scriptincludes]');
                 _results = [];
-                for (_k = 0, _len2 = _ref2.length; _k &lt; _len2; _k++) {
+                for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
                   el = _ref2[_k];
                   _results.push((function() {
                     var _l, _len3, _ref3, _ref4, _results1;
-                    _ref3 = el.attributes.scriptincludes.value.split(&#39;,&#39;);
+                    _ref3 = el.attributes.scriptincludes.value.split(',');
                     _results1 = [];
-                    for (_l = 0, _len3 = _ref3.length; _l &lt; _len3; _l++) {
+                    for (_l = 0, _len3 = _ref3.length; _l < _len3; _l++) {
                       url = _ref3[_l];
                       _results1.push(loadScript(url.trim(), callback, (_ref4 = el.attributes.scriptincludeserror) != null ? _ref4.value.toString() : void 0));
                     }
@@ -3746,17 +3729,17 @@
                 }
                 return _results;
               }).fail(function() {
-                return console.warn(&quot;failed to load &quot; + oneurl);
+                return console.warn("failed to load " + oneurl);
               });
             }).fail(function() {
               var args, _j, _len1;
-              args = 1 &lt;= arguments.length ? __slice.call(arguments, 0) : [];
+              args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
               if (args.length === 1) {
                 args = [args];
               }
-              for (_j = 0, _len1 = args.length; _j &lt; _len1; _j++) {
+              for (_j = 0, _len1 = args.length; _j < _len1; _j++) {
                 xhr = args[_j];
-                showWarnings([&quot;failed to load &quot; + xhr.url + &quot; for element &quot; + xhr.el.outerHTML]);
+                showWarnings(["failed to load " + xhr.url + " for element " + xhr.el.outerHTML]);
               }
             });
             _results = [];
@@ -3766,34 +3749,34 @@
             return _results;
           }).fail(function() {
             var args, xhr, _i, _len;
-            args = 1 &lt;= arguments.length ? __slice.call(arguments, 0) : [];
+            args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
             if (args.length === 1) {
               args = [args];
             }
-            for (_i = 0, _len = args.length; _i &lt; _len; _i++) {
+            for (_i = 0, _len = args.length; _i < _len; _i++) {
               xhr = args[_i];
-              showWarnings([&quot;failed to load &quot; + xhr.url + &quot; for element &quot; + xhr.el.outerHTML]);
+              showWarnings(["failed to load " + xhr.url + " for element " + xhr.el.outerHTML]);
             }
           });
         };
-        blacklist = [&#39;/primus/primus.io.js&#39;];
+        blacklist = ['/primus/primus.io.js'];
         filereloader = function() {
           var paths;
           dependencies.push(window.location.pathname);
-          dependencies.push(&#39;/core/layout.coffee&#39;);
+          dependencies.push('/core/layout.coffee');
           paths = dependencies.filter(function(path) {
-            if (__indexOf.call(blacklist, path) &lt; 0) {
+            if (__indexOf.call(blacklist, path) < 0) {
               return true;
             }
           });
           return $.ajax({
-            url: &#39;/watchfile/&#39;,
-            datatype: &#39;text&#39;,
+            url: '/watchfile/',
+            datatype: 'text',
             data: {
               url: paths
             },
             success: function(url) {
-              if (__indexOf.call(paths, url) &gt;= 0) {
+              if (__indexOf.call(paths, url) >= 0) {
                 return window.location.reload();
               }
             }
@@ -3803,7 +3786,7 @@
         };
         validator = function() {
           return $.ajax({
-            url: &#39;/validate/&#39;,
+            url: '/validate/',
             data: {
               url: window.location.pathname
             },
@@ -3814,146 +3797,146 @@
               return filereloader();
             },
             error: function(err) {
-              return console.warn(&#39;Validation requires the Teem server&#39;);
+              return console.warn('Validation requires the Teem server');
             }
           }).always(finalcallback);
         };
         return loadIncludes(test ? finalcallback : validator);
       };
       builtinTags = {
-        &#39;a&#39;: true,
-        &#39;abbr&#39;: true,
-        &#39;address&#39;: true,
-        &#39;area&#39;: true,
-        &#39;article&#39;: true,
-        &#39;aside&#39;: true,
-        &#39;audio&#39;: true,
-        &#39;b&#39;: true,
-        &#39;base&#39;: true,
-        &#39;bdi&#39;: true,
-        &#39;bdo&#39;: true,
-        &#39;blockquote&#39;: true,
-        &#39;body&#39;: true,
-        &#39;br&#39;: true,
-        &#39;button&#39;: true,
-        &#39;canvas&#39;: true,
-        &#39;caption&#39;: true,
-        &#39;cite&#39;: true,
-        &#39;code&#39;: true,
-        &#39;col&#39;: true,
-        &#39;colgroup&#39;: true,
-        &#39;command&#39;: true,
-        &#39;datalist&#39;: true,
-        &#39;dd&#39;: true,
-        &#39;del&#39;: true,
-        &#39;details&#39;: true,
-        &#39;dfn&#39;: true,
-        &#39;div&#39;: true,
-        &#39;dl&#39;: true,
-        &#39;dt&#39;: true,
-        &#39;em&#39;: true,
-        &#39;embed&#39;: true,
-        &#39;fieldset&#39;: true,
-        &#39;figcaption&#39;: true,
-        &#39;figure&#39;: true,
-        &#39;footer&#39;: true,
-        &#39;form&#39;: true,
-        &#39;h1&#39;: true,
-        &#39;h2&#39;: true,
-        &#39;h3&#39;: true,
-        &#39;h4&#39;: true,
-        &#39;h5&#39;: true,
-        &#39;h6&#39;: true,
-        &#39;head&#39;: true,
-        &#39;header&#39;: true,
-        &#39;hgroup&#39;: true,
-        &#39;hr&#39;: true,
-        &#39;html&#39;: true,
-        &#39;i&#39;: true,
-        &#39;iframe&#39;: true,
-        &#39;img&#39;: true,
-        &#39;image&#39;: true,
-        &#39;input&#39;: true,
-        &#39;ins&#39;: true,
-        &#39;kbd&#39;: true,
-        &#39;keygen&#39;: true,
-        &#39;label&#39;: true,
-        &#39;legend&#39;: true,
-        &#39;li&#39;: true,
-        &#39;link&#39;: true,
-        &#39;map&#39;: true,
-        &#39;mark&#39;: true,
-        &#39;menu&#39;: true,
-        &#39;meta&#39;: true,
-        &#39;meter&#39;: true,
-        &#39;nav&#39;: true,
-        &#39;noscript&#39;: true,
-        &#39;object&#39;: true,
-        &#39;ol&#39;: true,
-        &#39;optgroup&#39;: true,
-        &#39;option&#39;: true,
-        &#39;output&#39;: true,
-        &#39;p&#39;: true,
-        &#39;param&#39;: true,
-        &#39;pre&#39;: true,
-        &#39;progress&#39;: true,
-        &#39;q&#39;: true,
-        &#39;rp&#39;: true,
-        &#39;rt&#39;: true,
-        &#39;ruby&#39;: true,
-        &#39;s&#39;: true,
-        &#39;samp&#39;: true,
-        &#39;script&#39;: true,
-        &#39;section&#39;: true,
-        &#39;select&#39;: true,
-        &#39;small&#39;: true,
-        &#39;source&#39;: true,
-        &#39;span&#39;: true,
-        &#39;strong&#39;: true,
-        &#39;style&#39;: true,
-        &#39;sub&#39;: true,
-        &#39;summary&#39;: true,
-        &#39;sup&#39;: true,
-        &#39;table&#39;: true,
-        &#39;tbody&#39;: true,
-        &#39;td&#39;: true,
-        &#39;textarea&#39;: true,
-        &#39;tfoot&#39;: true,
-        &#39;th&#39;: true,
-        &#39;thead&#39;: true,
-        &#39;time&#39;: true,
-        &#39;title&#39;: true,
-        &#39;tr&#39;: true,
-        &#39;track&#39;: true,
-        &#39;u&#39;: true,
-        &#39;ul&#39;: true,
-        &#39;var&#39;: true,
-        &#39;video&#39;: true,
-        &#39;wbr&#39;: true
+        'a': true,
+        'abbr': true,
+        'address': true,
+        'area': true,
+        'article': true,
+        'aside': true,
+        'audio': true,
+        'b': true,
+        'base': true,
+        'bdi': true,
+        'bdo': true,
+        'blockquote': true,
+        'body': true,
+        'br': true,
+        'button': true,
+        'canvas': true,
+        'caption': true,
+        'cite': true,
+        'code': true,
+        'col': true,
+        'colgroup': true,
+        'command': true,
+        'datalist': true,
+        'dd': true,
+        'del': true,
+        'details': true,
+        'dfn': true,
+        'div': true,
+        'dl': true,
+        'dt': true,
+        'em': true,
+        'embed': true,
+        'fieldset': true,
+        'figcaption': true,
+        'figure': true,
+        'footer': true,
+        'form': true,
+        'h1': true,
+        'h2': true,
+        'h3': true,
+        'h4': true,
+        'h5': true,
+        'h6': true,
+        'head': true,
+        'header': true,
+        'hgroup': true,
+        'hr': true,
+        'html': true,
+        'i': true,
+        'iframe': true,
+        'img': true,
+        'image': true,
+        'input': true,
+        'ins': true,
+        'kbd': true,
+        'keygen': true,
+        'label': true,
+        'legend': true,
+        'li': true,
+        'link': true,
+        'map': true,
+        'mark': true,
+        'menu': true,
+        'meta': true,
+        'meter': true,
+        'nav': true,
+        'noscript': true,
+        'object': true,
+        'ol': true,
+        'optgroup': true,
+        'option': true,
+        'output': true,
+        'p': true,
+        'param': true,
+        'pre': true,
+        'progress': true,
+        'q': true,
+        'rp': true,
+        'rt': true,
+        'ruby': true,
+        's': true,
+        'samp': true,
+        'script': true,
+        'section': true,
+        'select': true,
+        'small': true,
+        'source': true,
+        'span': true,
+        'strong': true,
+        'style': true,
+        'sub': true,
+        'summary': true,
+        'sup': true,
+        'table': true,
+        'tbody': true,
+        'td': true,
+        'textarea': true,
+        'tfoot': true,
+        'th': true,
+        'thead': true,
+        'time': true,
+        'title': true,
+        'tr': true,
+        'track': true,
+        'u': true,
+        'ul': true,
+        'var': true,
+        'video': true,
+        'wbr': true
       };
       requiredAttributes = {
-        &quot;class&quot;: {
-          &quot;name&quot;: 1
+        "class": {
+          "name": 1
         },
-        &quot;method&quot;: {
-          &quot;name&quot;: 1
+        "method": {
+          "name": 1
         },
-        &quot;setter&quot;: {
-          &quot;name&quot;: 1
+        "setter": {
+          "name": 1
         },
-        &quot;handler&quot;: {
-          &quot;event&quot;: 1
+        "handler": {
+          "event": 1
         },
-        &quot;attribute&quot;: {
-          &quot;name&quot;: 1,
-          &quot;type&quot;: 1,
-          &quot;value&quot;: 1
+        "attribute": {
+          "name": 1,
+          "type": 1,
+          "value": 1
         },
-        &quot;dataset&quot;: {
-          &quot;name&quot;: 1
+        "dataset": {
+          "name": 1
         },
-        &quot;replicator&quot;: {
-          &quot;classname&quot;: 1
+        "replicator": {
+          "classname": 1
         }
       };
       checkRequiredAttributes = function(tagname, attributes, tag, parenttag) {
@@ -3961,9 +3944,9 @@
         if (tagname in requiredAttributes) {
           for (attrname in requiredAttributes[tagname]) {
             if (!(attrname in attributes)) {
-              error = &quot;&quot; + tagname + &quot;.&quot; + attrname + &quot; must be defined on &quot; + tag.outerHTML;
+              error = "" + tagname + "." + attrname + " must be defined on " + tag.outerHTML;
               if (parenttag) {
-                error = error + (&quot; inside &quot; + parenttag.outerHTML);
+                error = error + (" inside " + parenttag.outerHTML);
               }
               showWarnings([error]);
             }
@@ -3980,21 +3963,21 @@
         tagname = el.localName;
         if (!tagname in dr) {
           if (!builtinTags[tagname]) {
-            console.warn(&#39;could not find class for tag&#39;, tagname, el);
+            console.warn('could not find class for tag', tagname, el);
           }
           return;
         } else if (builtinTags[tagname]) {
-          if (tagname !== &#39;input&#39;) {
-            console.warn(&#39;refusing to create a class that would overwrite the builtin tag&#39;, tagname);
+          if (tagname !== 'input') {
+            console.warn('refusing to create a class that would overwrite the builtin tag', tagname);
           }
           return;
         }
         attributes = flattenattributes(el.attributes);
         checkRequiredAttributes(tagname, attributes, el);
         attributes.$tagname = tagname;
-        for (_i = 0, _len = mouseEvents.length; _i &lt; _len; _i++) {
+        for (_i = 0, _len = mouseEvents.length; _i < _len; _i++) {
           event = mouseEvents[_i];
-          eventname = &#39;on&#39; + event;
+          eventname = 'on' + event;
           if (eventname in attributes) {
             if (attributes.clickable !== false) {
               attributes.clickable = true;
@@ -4013,21 +3996,21 @@
         if (parent != null) {
           attributes.parent = parent;
         }
-        li = tagname.lastIndexOf(&#39;state&#39;);
-        isState = li &gt; -1 &amp;&amp; li === tagname.length - 5;
-        isClass = tagname === &#39;class&#39;;
+        li = tagname.lastIndexOf('state');
+        isState = li > -1 && li === tagname.length - 5;
+        isClass = tagname === 'class';
         if (!(isClass || isState)) {
           dom.processSpecialTags(el, attributes, attributes.type);
         }
         children = dom.getChildElements(el);
-        attributes.$skiponinit = skiponinit = children.length &gt; 0;
-        if (typeof dr[tagname] === &#39;function&#39;) {
+        attributes.$skiponinit = skiponinit = children.length > 0;
+        if (typeof dr[tagname] === 'function') {
           parent = new dr[tagname](el, attributes, true);
         } else {
-          showWarnings([&quot;Unrecognized class &quot; + tagname + &quot; &quot; + el.outerHTML]);
+          showWarnings(["Unrecognized class " + tagname + " " + el.outerHTML]);
           return;
         }
-        if (!(children.length &gt; 0)) {
+        if (!(children.length > 0)) {
           return;
         }
         if (!(isClass || isState)) {
@@ -4036,15 +4019,15 @@
               var _j, _len1, _ref, _ref1, _results;
               _ref = dom.getChildElements(el);
               _results = [];
-              for (_j = 0, _len1 = _ref.length; _j &lt; _len1; _j++) {
+              for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
                 child = _ref[_j];
-                if (_ref1 = child.localName, __indexOf.call(specialtags, _ref1) &lt; 0) {
+                if (_ref1 = child.localName, __indexOf.call(specialtags, _ref1) < 0) {
                   _results.push(child);
                 }
               }
               return _results;
             })();
-            for (_j = 0, _len1 = children.length; _j &lt; _len1; _j++) {
+            for (_j = 0, _len1 = children.length; _j < _len1; _j++) {
               child = children[_j];
               initElement(child, parent);
             }
@@ -4063,35 +4046,35 @@
       };
       writeCSS = function() {
         var noSelectStyle, spriteInputTextStyle, spriteStyle, spriteTextStyle, style, warningsStyle;
-        style = document.createElement(&#39;style&#39;);
-        style.type = &#39;text/css&#39;;
-        spriteStyle = [&quot;position:absolute&quot;, &quot;pointer-events:none&quot;, &quot;padding:0&quot;, &quot;margin:0&quot;, &quot;box-sizing:border-box&quot;, &quot;border-color:transparent&quot;, &quot;border-style:solid&quot;, &quot;border-width:0&quot;];
-        spriteTextStyle = [&quot;white-space:nowrap&quot;, &quot;padding:0&quot;, &quot;margin:0&quot;, &quot;text-decoration:none&quot;, &quot;font-family:mission-gothic, &#39;Helvetica Neue&#39;, Helvetica, Arial, sans-serif&quot;, &quot;font-size:20px&quot;];
-        spriteInputTextStyle = [&quot;border:none&quot;, &quot;outline:none&quot;, &quot;background-color:transparent&quot;, &quot;resize:none&quot;];
-        noSelectStyle = [&quot;-webkit-touch-callout:none&quot;, &quot;-webkit-user-select:none&quot;, &quot;-khtml-user-select:none&quot;, &quot;-moz-user-select:none&quot;, &quot;-ms-user-select:none&quot;, &quot;user-select:none&quot;];
-        warningsStyle = [&quot;font-size:14px&quot;, &quot;background-color:pink&quot;, &quot;margin:0&quot;];
-        style.innerHTML = &#39;.sprite{&#39; + spriteStyle.join(&#39;;&#39;) + &#39;}&#39; + &#39;.sprite-text{&#39; + spriteTextStyle.join(&#39;;&#39;) + &#39;}&#39; + &#39;.sprite-inputtext{&#39; + spriteInputTextStyle.join(&#39;;&#39;) + &#39;}&#39; + &#39;.noselect{&#39; + noSelectStyle.join(&#39;;&#39;) + &#39;}&#39; + &#39;.warnings{&#39; + warningsStyle.join(&#39;;&#39;) + &#39;}&#39; + &#39;.noscrollbar::-webkit-scrollbar{display:none;}&#39; + &#39;.hidden{display:none}&#39; + &#39;method,handler,setter,class,node,dataset{display:none}&#39;;
-        return document.getElementsByTagName(&#39;head&#39;)[0].appendChild(style);
+        style = document.createElement('style');
+        style.type = 'text/css';
+        spriteStyle = ["position:absolute", "pointer-events:none", "padding:0", "margin:0", "box-sizing:border-box", "border-color:transparent", "border-style:solid", "border-width:0"];
+        spriteTextStyle = ["white-space:nowrap", "padding:0", "margin:0", "text-decoration:none", "font-family:mission-gothic, 'Helvetica Neue', Helvetica, Arial, sans-serif", "font-size:20px"];
+        spriteInputTextStyle = ["border:none", "outline:none", "background-color:transparent", "resize:none"];
+        noSelectStyle = ["-webkit-touch-callout:none", "-webkit-user-select:none", "-khtml-user-select:none", "-moz-user-select:none", "-ms-user-select:none", "user-select:none"];
+        warningsStyle = ["font-size:14px", "background-color:pink", "margin:0"];
+        style.innerHTML = '.sprite{' + spriteStyle.join(';') + '}' + '.sprite-text{' + spriteTextStyle.join(';') + '}' + '.sprite-inputtext{' + spriteInputTextStyle.join(';') + '}' + '.noselect{' + noSelectStyle.join(';') + '}' + '.warnings{' + warningsStyle.join(';') + '}' + '.noscrollbar::-webkit-scrollbar{display:none;}' + '.hidden{display:none}' + 'method,handler,setter,class,node,dataset{display:none}';
+        return document.getElementsByTagName('head')[0].appendChild(style);
       };
       initAllElements = function(selector) {
         var el, _i, _len;
         if (selector == null) {
-          selector = $(&#39;view&#39;).not(&#39;view view&#39;);
+          selector = $('view').not('view view');
         }
-        for (_i = 0, _len = selector.length; _i &lt; _len; _i++) {
+        for (_i = 0, _len = selector.length; _i < _len; _i++) {
           el = selector[_i];
           initFromElement(el);
         }
       };
       htmlDecode = function(input) {
         var child, e, out, _i, _len, _ref;
-        e = document.createElement(&#39;div&#39;);
+        e = document.createElement('div');
         e.innerHTML = input;
-        out = &#39;&#39;;
+        out = '';
         _ref = e.childNodes;
-        for (_i = 0, _len = _ref.length; _i &lt; _len; _i++) {
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           child = _ref[_i];
-          if ((child.nodeValue != null) &amp;&amp; (child.nodeType === 3 || child.nodeType === 8)) {
+          if ((child.nodeValue != null) && (child.nodeType === 3 || child.nodeType === 8)) {
             out += child.nodeValue;
           } else {
             return;
@@ -4114,28 +4097,28 @@
           var _i, _len, _ref, _ref1, _results;
           _ref = dom.getChildElements(el);
           _results = [];
-          for (_i = 0, _len = _ref.length; _i &lt; _len; _i++) {
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
             child = _ref[_i];
-            if (_ref1 = child.localName, __indexOf.call(specialtags, _ref1) &gt;= 0) {
+            if (_ref1 = child.localName, __indexOf.call(specialtags, _ref1) >= 0) {
               _results.push(child);
             }
           }
           return _results;
         })();
-        for (_i = 0, _len = children.length; _i &lt; _len; _i++) {
+        for (_i = 0, _len = children.length; _i < _len; _i++) {
           child = children[_i];
           attributes = flattenattributes(child.attributes);
           tagname = child.localName;
-          args = ((_ref = attributes.args) != null ? _ref : &#39;&#39;).split();
+          args = ((_ref = attributes.args) != null ? _ref : '').split();
           script = htmlDecode(child.innerHTML);
           if (script == null) {
-            console.warn(&#39;Invalid tag&#39;, name, child);
+            console.warn('Invalid tag', name, child);
           }
           type = (_ref1 = attributes.type) != null ? _ref1 : defaulttype;
           name = attributes.name;
           checkRequiredAttributes(tagname, attributes, child, el);
           switch (tagname) {
-            case &#39;handler&#39;:
+            case 'handler':
               handler = {
                 name: name,
                 ev: attributes.event,
@@ -4146,10 +4129,10 @@
               };
               classattributes.$handlers.push(handler);
               break;
-            case &#39;method&#39;:
-            case &#39;setter&#39;:
-              if (tagname === &#39;setter&#39;) {
-                name = &quot;set_&quot; + (name.toLowerCase());
+            case 'method':
+            case 'setter':
+              if (tagname === 'setter') {
+                name = "set_" + (name.toLowerCase());
               }
               if ((_base = classattributes.$methods)[name] == null) {
                 _base[name] = [];
@@ -4160,7 +4143,7 @@
                 allocation: attributes.allocation
               });
               break;
-            case &#39;attribute&#39;:
+            case 'attribute':
               name = name.toLowerCase();
               classattributes[name] = attributes.value;
               classattributes.$types[name] = attributes.type;
@@ -4177,40 +4160,40 @@
       };
     })();
 
-<span id='dr-state'>    /**
-</span>     * @class dr.state {Core Dreem}
+    /**
+     * @class dr.state {Core Dreem}
      * @extends dr.node
      * Allows a group of attributes, methods, handlers and instances to be removed and applied as a group.
      *
      * Like views and nodes, states can contain methods, handlers, setters, constraints, attributes and other view, node or class instances.
      *
-     * Currently, states must end with the string &#39;state&#39; in their name to work properly.
+     * Currently, states must end with the string 'state' in their name to work properly.
      *
      *     @example
-     *     &lt;spacedlayout axis=&quot;y&quot;&gt;&lt;/spacedlayout&gt;
-     *     &lt;view id=&quot;square&quot; width=&quot;100&quot; height=&quot;100&quot; bgcolor=&quot;lightgrey&quot;&gt;
-     *       &lt;attribute name=&quot;ispink&quot; type=&quot;boolean&quot; value=&quot;false&quot;&gt;&lt;/attribute&gt;
-     *       &lt;state name=&quot;pinkstate&quot; applied=&quot;${this.parent.ispink}&quot;&gt;
-     *         &lt;attribute name=&quot;bgcolor&quot; value=&quot;pink&quot; type=&quot;string&quot;&gt;&lt;/attribute&gt;
-     *       &lt;/state&gt;
-     *     &lt;/view&gt;
-     *     &lt;labelbutton text=&quot;pinkify!&quot;&gt;
-     *       &lt;handler event=&quot;onclick&quot;&gt;
-     *         square.setAttribute(&#39;ispink&#39;, true);
-     *       &lt;/handler&gt;
-     *     &lt;/labelbutton&gt;
+     *     <spacedlayout axis="y"></spacedlayout>
+     *     <view id="square" width="100" height="100" bgcolor="lightgrey">
+     *       <attribute name="ispink" type="boolean" value="false"></attribute>
+     *       <state name="pinkstate" applied="${this.parent.ispink}">
+     *         <attribute name="bgcolor" value="pink" type="string"></attribute>
+     *       </state>
+     *     </view>
+     *     <labelbutton text="pinkify!">
+     *       <handler event="onclick">
+     *         square.setAttribute('ispink', true);
+     *       </handler>
+     *     </labelbutton>
      *
-     * You can set the &#39;applied&#39; attribute to true to activate a state.
+     * You can set the 'applied' attribute to true to activate a state.
      *
      *     @example
-     *     &lt;view id=&quot;square&quot; width=&quot;200&quot; height=&quot;100&quot; bgcolor=&quot;lightgrey&quot;&gt;
-     *       &lt;state name=&quot;pinkstate&quot;&gt;
-     *         &lt;view name=&quot;sub&quot; bgcolor=&quot;pink&quot; width=&quot;100&quot; height=&quot;100&quot;&gt;&lt;/view&gt;
-     *       &lt;/state&gt;
-     *       &lt;handler event=&quot;oninit&quot;&gt;
-     *         this.pinkstate.setAttribute(&#39;applied&#39;, true);
-     *       &lt;/handler&gt;
-     *     &lt;/view&gt;
+     *     <view id="square" width="200" height="100" bgcolor="lightgrey">
+     *       <state name="pinkstate">
+     *         <view name="sub" bgcolor="pink" width="100" height="100"></view>
+     *       </state>
+     *       <handler event="oninit">
+     *         this.pinkstate.setAttribute('applied', true);
+     *       </handler>
+     *     </view>
      *
      */
     State = (function(_super) {
@@ -4221,7 +4204,7 @@
         if (attributes == null) {
           attributes = {};
         }
-        this.skipattributes = [&#39;parent&#39;, &#39;types&#39;, &#39;applyattributes&#39;, &#39;applied&#39;, &#39;skipattributes&#39;, &#39;stateattributes&#39;, &#39;subnodes&#39;];
+        this.skipattributes = ['parent', 'types', 'applyattributes', 'applied', 'skipattributes', 'stateattributes', 'subnodes'];
         this.subnodes = [];
         this.stateattributes = attributes;
         this.applyattributes = {};
@@ -4229,7 +4212,7 @@
         compilertype = attributes.type;
         processedChildren = dom.processSpecialTags(el, attributes, compilertype);
         oldbody = el.innerHTML.trim();
-        for (_i = 0, _len = processedChildren.length; _i &lt; _len; _i++) {
+        for (_i = 0, _len = processedChildren.length; _i < _len; _i++) {
           child = processedChildren[_i];
           child.parentNode.removeChild(child);
         }
@@ -4238,7 +4221,7 @@
           el.innerHTML = oldbody;
         }
         this.types = (_ref = attributes.$types) != null ? _ref : {};
-        this.setAttribute(&#39;parent&#39;, attributes.parent);
+        this.setAttribute('parent', attributes.parent);
         if ((_base = this.parent).states == null) {
           _base.states = [];
         }
@@ -4246,25 +4229,25 @@
           _base1.origmethods = {};
         }
         this.parent.states.push(this);
-        this.parent.sendEvent(&#39;states&#39;, this.parent.states);
+        this.parent.sendEvent('states', this.parent.states);
         this.statemethods = attributes.$methods;
         for (name in attributes) {
           value = attributes[name];
-          if (!(__indexOf.call(this.skipattributes, name) &gt;= 0 || name.charAt(0) === &#39;$&#39;)) {
-            if (name !== &#39;name&#39;) {
+          if (!(__indexOf.call(this.skipattributes, name) >= 0 || name.charAt(0) === '$')) {
+            if (name !== 'name') {
               this.applyattributes[name] = value;
             }
             this.setAttribute(name, value);
           }
         }
         if (attributes.applied) {
-          this.bindAttribute(&#39;applied&#39;, attributes.applied, &#39;state&#39;);
+          this.bindAttribute('applied', attributes.applied, 'state');
         }
         _ref1 = attributes.$handlers;
-        for (_j = 0, _len1 = _ref1.length; _j &lt; _len1; _j++) {
+        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
           handler = _ref1[_j];
-          if (handler.ev === &#39;onapplied&#39;) {
-            this.installHandlers([handler], &#39;state&#39;, this);
+          if (handler.ev === 'onapplied') {
+            this.installHandlers([handler], 'state', this);
             this._bindHandlers();
           }
         }
@@ -4274,7 +4257,7 @@
               _this._bindConstraints();
             }
             if (_this.events) {
-              _this.skipattributes.push(&#39;events&#39;);
+              _this.skipattributes.push('events');
             }
             return _this.enumfalse(_this.skipattributes);
           };
@@ -4288,14 +4271,14 @@
       }
 
 
-<span id='dr-state-attribute-applied'>      /**
-</span>       * @attribute {Boolean} [applied=false]
+      /**
+       * @attribute {Boolean} [applied=false]
        * If true, the state is applied.  Note that onapplied handlers run in the scope of the state itself, see dr.dragstate for an example.
        */
 
       State.prototype.set_applied = function(applied) {
         var name, origmethods, val;
-        if (this.parent &amp;&amp; this.applied !== applied) {
+        if (this.parent && this.applied !== applied) {
           origmethods = this.parent.states.origmethods;
           for (name in origmethods) {
             this.parent[name] = origmethods[name];
@@ -4323,13 +4306,13 @@
         origmethods = this.parent.states.origmethods;
         for (name in this.statemethods) {
           if (name in this.parent) {
-            if (__indexOf.call(origmethods, name) &lt; 0) {
+            if (__indexOf.call(origmethods, name) < 0) {
               origmethods[name] = this.parent[name];
             }
           }
         }
         _ref = this.parent.states;
-        for (_i = 0, _len = _ref.length; _i &lt; _len; _i++) {
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           state = _ref[_i];
           if (state.applied || state === this) {
             this.parent.installMethods(state.statemethods, this.parent.$tagname, this.parent, this.parent);
@@ -4338,7 +4321,7 @@
         if (this.instancebody) {
           parentel = this.parent.sprite.el;
           childrenbefore = dom.getChildElements(parentel);
-          for (_j = 0, _len1 = childrenbefore.length; _j &lt; _len1; _j++) {
+          for (_j = 0, _len1 = childrenbefore.length; _j < _len1; _j++) {
             el = childrenbefore[_j];
             if (el.$view) {
               el.$view = null;
@@ -4346,9 +4329,9 @@
           }
           parentel.innerHTML += this.instancebody;
           children = dom.getChildElements(parentel);
-          for (i = _k = 0, _len2 = children.length; _k &lt; _len2; i = ++_k) {
+          for (i = _k = 0, _len2 = children.length; _k < _len2; i = ++_k) {
             el = children[i];
-            if (i &lt; childrenbefore.length) {
+            if (i < childrenbefore.length) {
               subnode = this.parent.subnodes[i];
               if (subnode != null ? subnode.sprite : void 0) {
                 subnode.sprite.el = el;
@@ -4376,9 +4359,9 @@
           child.destroy();
         }
         _ref = this.parent.states;
-        for (_i = 0, _len = _ref.length; _i &lt; _len; _i++) {
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           state = _ref[_i];
-          if (state.applied &amp;&amp; state !== this) {
+          if (state.applied && state !== this) {
             this.parent.installMethods(state.statemethods, this.parent.$tagname, this.parent, this.parent);
           }
         }
@@ -4391,73 +4374,73 @@
 
     })(Node);
 
-<span id='dr-class'>    /**
-</span>     * @class dr.class {Core Dreem}
-     * Allows new tags to be created. Classes only be created with the &amp;lt;class&gt;&amp;lt;/class&gt; tag syntax.
+    /**
+     * @class dr.class {Core Dreem}
+     * Allows new tags to be created. Classes only be created with the &lt;class>&lt;/class> tag syntax.
      *
      * Classes can extend any other class, and they extend dr.view by default.
      *
-     * Once declared, classes invoked with the declarative syntax, e.g. &amp;lt;classname&gt;&amp;lt;/classname&gt;.
+     * Once declared, classes invoked with the declarative syntax, e.g. &lt;classname>&lt;/classname>.
      *
-     * If a class can&#39;t be found in the document, dreem will automatically attempt to load it from the classes/* directory.
+     * If a class can't be found in the document, dreem will automatically attempt to load it from the classes/* directory.
      *
      * Like views and nodes, classes can contain methods, handlers, setters, constraints, attributes and other view, node or class instances.
      *
-     * Here is a class called &#39;tile&#39; that extends dr.view. It sets the bgcolor, width, and height attributes. An instance of tile is created using declarative syntax.
+     * Here is a class called 'tile' that extends dr.view. It sets the bgcolor, width, and height attributes. An instance of tile is created using declarative syntax.
      *
      *     @example
-     *     &lt;class name=&quot;tile&quot; extends=&quot;view&quot; bgcolor=&quot;thistle&quot; width=&quot;100&quot; height=&quot;100&quot;&gt;&lt;/class&gt;
+     *     <class name="tile" extends="view" bgcolor="thistle" width="100" height="100"></class>
      *
-     *     &lt;tile&gt;&lt;/tile&gt;
+     *     <tile></tile>
      *
-     * Now we&#39;ll extend the tile class with a class called &#39;labeltile&#39;, which contains a label inside of the box. We&#39;ll declare one each of tile and labeltile, and position them with a spacedlayout.
+     * Now we'll extend the tile class with a class called 'labeltile', which contains a label inside of the box. We'll declare one each of tile and labeltile, and position them with a spacedlayout.
      *
      *     @example
-     *     &lt;class name=&quot;tile&quot; extends=&quot;view&quot; bgcolor=&quot;thistle&quot; width=&quot;100&quot; height=&quot;100&quot;&gt;&lt;/class&gt;
+     *     <class name="tile" extends="view" bgcolor="thistle" width="100" height="100"></class>
      *
-     *     &lt;class name=&quot;labeltile&quot; extends=&quot;tile&quot;&gt;
-     *       &lt;text text=&quot;Tile&quot;&gt;&lt;/text&gt;
-     *     &lt;/class&gt;
+     *     <class name="labeltile" extends="tile">
+     *       <text text="Tile"></text>
+     *     </class>
      *
-     *     &lt;spacedlayout&gt;&lt;/spacedlayout&gt;
-     *     &lt;tile&gt;&lt;/tile&gt;
-     *     &lt;labeltile&gt;&lt;/labeltile&gt;
+     *     <spacedlayout></spacedlayout>
+     *     <tile></tile>
+     *     <labeltile></labeltile>
      *
      * Attributes that are declared inside of a class definition can be set when the instance is declared. Here we bind the label text to the value of an attribute called label.
      *
      *     @example
-     *     &lt;class name=&quot;tile&quot; extends=&quot;view&quot; bgcolor=&quot;thistle&quot; width=&quot;100&quot; height=&quot;100&quot;&gt;&lt;/class&gt;
+     *     <class name="tile" extends="view" bgcolor="thistle" width="100" height="100"></class>
      *
-     *     &lt;class name=&quot;labeltile&quot; extends=&quot;tile&quot;&gt;
-     *       &lt;attribute name=&quot;label&quot; type=&quot;string&quot; value=&quot;&quot;&gt;&lt;/attribute&gt;
-     *       &lt;text text=&quot;${this.parent.label}&quot;&gt;&lt;/text&gt;
-     *     &lt;/class&gt;
+     *     <class name="labeltile" extends="tile">
+     *       <attribute name="label" type="string" value=""></attribute>
+     *       <text text="${this.parent.label}"></text>
+     *     </class>
      *
-     *     &lt;spacedlayout&gt;&lt;/spacedlayout&gt;
-     *     &lt;tile&gt;&lt;/tile&gt;
-     *     &lt;labeltile label=&quot;The Tile&quot;&gt;&lt;/labeltile&gt;
+     *     <spacedlayout></spacedlayout>
+     *     <tile></tile>
+     *     <labeltile label="The Tile"></labeltile>
      *
      */
     Class = (function() {
 
-<span id='dr-class-attribute-name'>      /**
-</span>       * @attribute {String} name (required)
+      /**
+       * @attribute {String} name (required)
        * The name of the new tag.
        */
 
-<span id='dr-class-attribute-extends'>      /**
-</span>       * @attribute {String} [extends=view]
+      /**
+       * @attribute {String} [extends=view]
        * The name of a class that should be extended.
        */
 
-<span id='dr-class-attribute-type'>      /**
-</span>       * @attribute {&quot;js&quot;/&quot;coffee&quot;} [type=js]
-       * The default compiler to use for methods, setters and handlers. Either &#39;js&#39; or &#39;coffee&#39;
+      /**
+       * @attribute {"js"/"coffee"} [type=js]
+       * The default compiler to use for methods, setters and handlers. Either 'js' or 'coffee'
        */
 
-<span id='dr-class-attribute-initchildren'>      /**
-</span>       * @attribute {Boolean} [initchildren=true]
-       * If false, class instances won&#39;t initialize their children.
+      /**
+       * @attribute {Boolean} [initchildren=true]
+       * If false, class instances won't initialize their children.
        */
       function Class(el, classattributes) {
         var child, compilertype, context, extend, haschildren, idx, ignored, instancebody, klass, len, name, newContext, oldbody, part, parts, processedChildren, skipinitchildren, _i, _j, _k, _len, _len1, _len2, _ref;
@@ -4465,43 +4448,43 @@
           classattributes = {};
         }
         name = (classattributes.name ? classattributes.name.toLowerCase() : classattributes.name);
-        extend = classattributes[&quot;extends&quot;] != null ? classattributes[&quot;extends&quot;] : classattributes[&quot;extends&quot;] = &#39;view&#39;;
+        extend = classattributes["extends"] != null ? classattributes["extends"] : classattributes["extends"] = 'view';
         compilertype = classattributes.type;
-        skipinitchildren = classattributes.initchildren === &#39;false&#39;;
+        skipinitchildren = classattributes.initchildren === 'false';
         delete classattributes.initchildren;
         for (ignored in ignoredAttributes) {
           delete classattributes[ignored];
         }
         _ref = el.childNodes;
-        for (_i = 0, _len = _ref.length; _i &lt; _len; _i++) {
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           child = _ref[_i];
-          if ((child != null) &amp;&amp; child.nodeType === COMMENT_NODE) {
+          if ((child != null) && child.nodeType === COMMENT_NODE) {
             child.parentNode.removeChild(child);
           }
         }
         processedChildren = dom.processSpecialTags(el, classattributes, compilertype);
         oldbody = el.innerHTML.trim();
-        for (_j = 0, _len1 = processedChildren.length; _j &lt; _len1; _j++) {
+        for (_j = 0, _len1 = processedChildren.length; _j < _len1; _j++) {
           child = processedChildren[_j];
           child.parentNode.removeChild(child);
         }
-        haschildren = dom.getChildElements(el).length &gt; 0;
+        haschildren = dom.getChildElements(el).length > 0;
         instancebody = el.innerHTML.trim();
         if (oldbody) {
           el.innerHTML = oldbody;
         }
         if (name in dr) {
-          console.warn(&#39;overwriting class&#39;, name);
+          console.warn('overwriting class', name);
         }
         dr[name] = klass = function(instanceel, instanceattributes, internal, skipchildren) {
           var attributes, children, parent, sendInit, viewel, viewhtml, _k, _len2, _ref1;
           attributes = clone(classattributes);
           _processAttrs(instanceattributes, attributes);
           if (!(extend in dr)) {
-            console.warn(&#39;could not find class for tag&#39;, extend);
+            console.warn('could not find class for tag', extend);
             return;
           }
-          if (attributes.$tagname === &#39;class&#39; || !attributes.$tagname) {
+          if (attributes.$tagname === 'class' || !attributes.$tagname) {
             attributes.$tagname = name;
           }
           attributes.$skiponinit = true;
@@ -4510,7 +4493,7 @@
           viewel = (_ref1 = parent.sprite) != null ? _ref1.el : void 0;
           if (instanceel) {
             if (!viewel) {
-              instanceel.setAttribute(&#39;class&#39;, &#39;hidden&#39;);
+              instanceel.setAttribute('class', 'hidden');
             }
           }
           if (viewel) {
@@ -4527,16 +4510,16 @@
                 var _k, _len2, _ref2, _ref3, _results;
                 _ref2 = dom.getChildElements(viewel);
                 _results = [];
-                for (_k = 0, _len2 = _ref2.length; _k &lt; _len2; _k++) {
+                for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
                   child = _ref2[_k];
-                  if (_ref3 = child.localName, __indexOf.call(specialtags, _ref3) &lt; 0) {
+                  if (_ref3 = child.localName, __indexOf.call(specialtags, _ref3) < 0) {
                     _results.push(child);
                   }
                 }
                 return _results;
               })();
               if (!skipinitchildren) {
-                for (_k = 0, _len2 = children.length; _k &lt; _len2; _k++) {
+                for (_k = 0, _len2 = children.length; _k < _len2; _k++) {
                   child = children[_k];
                   dom.initElement(child, parent);
                 }
@@ -4562,9 +4545,9 @@
         if (name) {
           parts = name.split(tagPackageSeparator);
           len = parts.length;
-          if (len &gt; 1) {
+          if (len > 1) {
             context = dr;
-            for (idx = _k = 0, _len2 = parts.length; _k &lt; _len2; idx = ++_k) {
+            for (idx = _k = 0, _len2 = parts.length; _k < _len2; idx = ++_k) {
               part = parts[idx];
               if (idx === len - 1) {
                 context[part] = klass;
@@ -4586,8 +4569,8 @@
 
     })();
 
-<span id='dr-layout'>    /**
-</span>     * @class dr.layout {Layout}
+    /**
+     * @class dr.layout {Layout}
      * @extends dr.node
      * The base class for all layouts.
      *
@@ -4596,21 +4579,21 @@
      * Here is a view that contains a spacedlayout.
      *
      *     @example
-     *     &lt;spacedlayout axis=&quot;y&quot;&gt;&lt;/spacedlayout&gt;
+     *     <spacedlayout axis="y"></spacedlayout>
      *
-     *     &lt;view bgcolor=&quot;oldlace&quot; width=&quot;auto&quot; height=&quot;auto&quot;&gt;
-     *       &lt;spacedlayout&gt;
-     *         &lt;method name=&quot;startMonitoringSubview&quot; args=&quot;view&quot;&gt;
-     *           output.setAttribute(&#39;text&#39;, output.text + &quot;View Added: &quot; + view.$tagname + &quot;:&quot; + view.bgcolor + &quot;\n&quot;);
+     *     <view bgcolor="oldlace" width="auto" height="auto">
+     *       <spacedlayout>
+     *         <method name="startMonitoringSubview" args="view">
+     *           output.setAttribute('text', output.text + "View Added: " + view.$tagname + ":" + view.bgcolor + "\n");
      *           this.super();
-     *         &lt;/method&gt;
-     *       &lt;/spacedlayout&gt;
-     *       &lt;view width=&quot;50&quot; height=&quot;50&quot; bgcolor=&quot;lightpink&quot; opacity=&quot;.3&quot;&gt;&lt;/view&gt;
-     *       &lt;view width=&quot;50&quot; height=&quot;50&quot; bgcolor=&quot;plum&quot; opacity=&quot;.3&quot;&gt;&lt;/view&gt;
-     *       &lt;view width=&quot;50&quot; height=&quot;50&quot; bgcolor=&quot;lightblue&quot; opacity=&quot;.3&quot;&gt;&lt;/view&gt;
-     *     &lt;/view&gt;
+     *         </method>
+     *       </spacedlayout>
+     *       <view width="50" height="50" bgcolor="lightpink" opacity=".3"></view>
+     *       <view width="50" height="50" bgcolor="plum" opacity=".3"></view>
+     *       <view width="50" height="50" bgcolor="lightblue" opacity=".3"></view>
+     *     </view>
      *
-     *     &lt;text id=&quot;output&quot; multiline=&quot;true&quot; width=&quot;300&quot;&gt;&lt;/text&gt;
+     *     <text id="output" multiline="true" width="300"></text>
      *
      */
     Layout = (function(_super) {
@@ -4625,24 +4608,24 @@
         if (attributes.$types == null) {
           attributes.$types = {};
         }
-        attributes.$types.locked = &#39;boolean&#39;;
+        attributes.$types.locked = 'boolean';
         if (attributes.locked != null) {
-          attrLocked = attributes.locked === &#39;true&#39; ? true : false;
+          attrLocked = attributes.locked === 'true' ? true : false;
         }
         this.locked = true;
         this.subviews = [];
         Layout.__super__.construct.apply(this, arguments);
-        this.listenTo(this.parent, &#39;subviewAdded&#39;, this.addSubview.bind(this));
-        this.listenTo(this.parent, &#39;subviewRemoved&#39;, this.removeSubview.bind(this));
-        this.listenTo(this.parent, &#39;init&#39;, this.update.bind(this));
+        this.listenTo(this.parent, 'subviewAdded', this.addSubview.bind(this));
+        this.listenTo(this.parent, 'subviewRemoved', this.removeSubview.bind(this));
+        this.listenTo(this.parent, 'init', this.update.bind(this));
         if ((_base = this.parent).layouts == null) {
           _base.layouts = [];
         }
         this.parent.layouts.push(this);
-        this.parent.sendEvent(&#39;layouts&#39;, this.parent.layouts);
+        this.parent.sendEvent('layouts', this.parent.layouts);
         subviews = this.parent.subviews;
-        if (subviews &amp;&amp; this.parent.inited) {
-          for (_i = 0, _len = subviews.length; _i &lt; _len; _i++) {
+        if (subviews && this.parent.inited) {
+          for (_i = 0, _len = subviews.length; _i < _len; _i++) {
             subview = subviews[_i];
             this.addSubview(subview);
           }
@@ -4659,13 +4642,13 @@
         this.locked = true;
         Layout.__super__.destroy.apply(this, arguments);
         if (!skipevents) {
-          return this._removeFromParent(&#39;layouts&#39;);
+          return this._removeFromParent('layouts');
         }
       };
 
 
-<span id='dr-layout-method-addSubview'>      /**
-</span>       * Adds the provided view to the subviews array of this layout, starts
+      /**
+       * Adds the provided view to the subviews array of this layout, starts
        * monitoring the view for changes and updates the layout.
        * @param {dr.view} view The view to add to this layout.
        * @return {void}
@@ -4695,8 +4678,8 @@
       };
 
 
-<span id='dr-layout-method-removeSubview'>      /**
-</span>       * Removes the provided View from the subviews array of this Layout,
+      /**
+       * Removes the provided View from the subviews array of this Layout,
        * stops monitoring the view for changes and updates the layout.
        * @param {dr.view} view The view to remove from this layout.
        * @return {number} the index of the removed subview or -1 if not removed.
@@ -4725,8 +4708,8 @@
       };
 
 
-<span id='dr-layout-method-startMonitoringSubviewForIgnore'>      /**
-</span>       * Use this method to add listeners for any properties that need to be
+      /**
+       * Use this method to add listeners for any properties that need to be
        * monitored on a subview that determine if it will be ignored by the layout.
        * Each listenTo should look like: this.listenTo(view, propname, func)
        * The default implementation monitors ignorelayout.
@@ -4736,12 +4719,12 @@
        */
 
       Layout.prototype.startMonitoringSubviewForIgnore = function(view, func) {
-        return this.listenTo(view, &#39;ignorelayout&#39;, func);
+        return this.listenTo(view, 'ignorelayout', func);
       };
 
 
-<span id='dr-layout-method-stopMonitoringSubviewForIgnore'>      /**
-</span>       * Use this method to remove listeners for any properties that need to be
+      /**
+       * Use this method to remove listeners for any properties that need to be
        * monitored on a subview that determine if it will be ignored by the layout.
        * Each stopListening should look like: this.stopListening(view, propname, func)
        * The default implementation monitors ignorelayout.
@@ -4751,13 +4734,13 @@
        */
 
       Layout.prototype.stopMonitoringSubviewForIgnore = function(view, func) {
-        return this.stopListening(view, &#39;ignorelayout&#39;, func);
+        return this.stopListening(view, 'ignorelayout', func);
       };
 
 
-<span id='dr-layout-method-ignore'>      /**
-</span>       * Checks if a subview can be added to this Layout or not. The default
-       * implementation checks the &#39;ignorelayout&#39; attributes of the subview.
+      /**
+       * Checks if a subview can be added to this Layout or not. The default
+       * implementation checks the 'ignorelayout' attributes of the subview.
        * @param {dr.view} view The view to check.
        * @return {boolean} True means the subview will be skipped, false otherwise.
        */
@@ -4765,17 +4748,17 @@
       Layout.prototype.ignore = function(view) {
         var ignore, name, v;
         ignore = view.ignorelayout;
-        if (typeof ignore === &#39;object&#39;) {
+        if (typeof ignore === 'object') {
           name = this.name;
           if (name) {
             v = ignore[name];
             if (v != null) {
               return v;
             } else {
-              return ignore[&#39;*&#39;];
+              return ignore['*'];
             }
           } else {
-            return ignore[&#39;*&#39;];
+            return ignore['*'];
           }
         } else {
           return ignore;
@@ -4783,8 +4766,8 @@
       };
 
 
-<span id='dr-layout-method-startMonitoringSubview'>      /**
-</span>       * Subclasses should implement this method to start listening to
+      /**
+       * Subclasses should implement this method to start listening to
        * events from the subview that should update the layout. The default
        * implementation does nothing.
        * @param {dr.view} view The view to start monitoring for changes.
@@ -4794,8 +4777,8 @@
       Layout.prototype.startMonitoringSubview = function(view) {};
 
 
-<span id='dr-layout-method-startMonitoringAllSubviews'>      /**
-</span>       * Calls startMonitoringSubview for all views. Used by layout
+      /**
+       * Calls startMonitoringSubview for all views. Used by layout
        * implementations when a change occurs to the layout that requires
        * refreshing all the subview monitoring.
        * @return {void}
@@ -4813,8 +4796,8 @@
       };
 
 
-<span id='dr-layout-method-stopMonitoringSubview'>      /**
-</span>       * Subclasses should implement this method to stop listening to
+      /**
+       * Subclasses should implement this method to stop listening to
        * events from the subview that should update the layout. This
        * should remove all listeners that were setup in startMonitoringSubview.
        * The default implementation does nothing.
@@ -4825,8 +4808,8 @@
       Layout.prototype.stopMonitoringSubview = function(view) {};
 
 
-<span id='dr-layout-method-stopMonitoringAllSubviews'>      /**
-</span>       * Calls stopMonitoringSubview for all views. Used by Layout
+      /**
+       * Calls stopMonitoringSubview for all views. Used by Layout
        * implementations when a change occurs to the layout that requires
        * refreshing all the subview monitoring.
        * @return {void}
@@ -4844,21 +4827,21 @@
       };
 
 
-<span id='dr-layout-method-canUpdate'>      /**
-</span>       * Checks if the layout can be updated right now or not. Should be called
-       * by the &quot;update&quot; method of the layout to check if it is OK to do the
+      /**
+       * Checks if the layout can be updated right now or not. Should be called
+       * by the "update" method of the layout to check if it is OK to do the
        * update. The default implementation checks if the layout is locked and
        * the parent is inited.
        * @return {boolean} true if not locked, false otherwise.
        */
 
       Layout.prototype.canUpdate = function() {
-        return !this.locked &amp;&amp; this.parent.inited;
+        return !this.locked && this.parent.inited;
       };
 
 
-<span id='dr-layout-method-update'>      /**
-</span>       * Updates the layout. Subclasses should call canUpdate to check if it is
+      /**
+       * Updates the layout. Subclasses should call canUpdate to check if it is
        * OK to update or not. The defualt implementation does nothing.
        * @return {void}
        */
@@ -4866,7 +4849,7 @@
       Layout.prototype.update = function() {};
 
       Layout.prototype.set_locked = function(v) {
-        if (this.locked !== v &amp;&amp; v === false) {
+        if (this.locked !== v && v === false) {
           this.locked = false;
           this.update();
         }
@@ -4886,47 +4869,47 @@
       AutoPropertyLayout.prototype.startMonitoringSubview = function(view) {
         var func;
         func = this.update.bind(this);
-        if (this.axis === &#39;x&#39;) {
-          this.listenTo(view, &#39;x&#39;, func);
-          this.listenTo(view, &#39;width&#39;, func);
-          this.listenTo(view, &#39;boundsx&#39;, func);
-          this.listenTo(view, &#39;boundswidth&#39;, func);
+        if (this.axis === 'x') {
+          this.listenTo(view, 'x', func);
+          this.listenTo(view, 'width', func);
+          this.listenTo(view, 'boundsx', func);
+          this.listenTo(view, 'boundswidth', func);
         } else {
-          this.listenTo(view, &#39;y&#39;, func);
-          this.listenTo(view, &#39;height&#39;, func);
-          this.listenTo(view, &#39;boundsy&#39;, func);
-          this.listenTo(view, &#39;boundsheight&#39;, func);
+          this.listenTo(view, 'y', func);
+          this.listenTo(view, 'height', func);
+          this.listenTo(view, 'boundsy', func);
+          this.listenTo(view, 'boundsheight', func);
         }
-        return this.listenTo(view, &#39;visible&#39;, func);
+        return this.listenTo(view, 'visible', func);
       };
 
       AutoPropertyLayout.prototype.stopMonitoringSubview = function(view) {
         var func;
         func = this.update.bind(this);
-        if (this.axis === &#39;x&#39;) {
-          this.stopListening(view, &#39;x&#39;, func);
-          this.stopListening(view, &#39;width&#39;, func);
-          this.stopListening(view, &#39;boundsx&#39;, func);
-          this.stopListening(view, &#39;boundswidth&#39;, func);
+        if (this.axis === 'x') {
+          this.stopListening(view, 'x', func);
+          this.stopListening(view, 'width', func);
+          this.stopListening(view, 'boundsx', func);
+          this.stopListening(view, 'boundswidth', func);
         } else {
-          this.stopListening(view, &#39;y&#39;, func);
-          this.stopListening(view, &#39;height&#39;, func);
-          this.stopListening(view, &#39;boundsy&#39;, func);
-          this.stopListening(view, &#39;boundsheight&#39;, func);
+          this.stopListening(view, 'y', func);
+          this.stopListening(view, 'height', func);
+          this.stopListening(view, 'boundsy', func);
+          this.stopListening(view, 'boundsheight', func);
         }
-        return this.stopListening(view, &#39;visible&#39;, func);
+        return this.stopListening(view, 'visible', func);
       };
 
       AutoPropertyLayout.prototype.update = function() {
         var i, max, maxFunc, parent, sv, svs, val;
-        if (!this.locked &amp;&amp; this.axis) {
+        if (!this.locked && this.axis) {
           this.locked = true;
           svs = this.subviews;
           i = svs.length;
           maxFunc = Math.max;
           parent = this.parent;
           max = 0;
-          if (this.axis === &#39;x&#39;) {
+          if (this.axis === 'x') {
             while (i) {
               sv = svs[--i];
               if (!this._skipX(sv)) {
@@ -4936,7 +4919,7 @@
             val = max + parent.__fullBorderPaddingWidth;
             if (parent.width !== val) {
               parent.__noSpecialValueHandling = true;
-              parent.setAttribute(&#39;width&#39;, val);
+              parent.setAttribute('width', val);
             }
           } else {
             while (i) {
@@ -4948,7 +4931,7 @@
             val = max + parent.__fullBorderPaddingHeight;
             if (parent.height !== val) {
               parent.__noSpecialValueHandling = true;
-              parent.setAttribute(&#39;height&#39;, val);
+              parent.setAttribute('height', val);
             }
           }
           return this.locked = false;
@@ -4956,11 +4939,11 @@
       };
 
       AutoPropertyLayout.prototype._skipX = function(view) {
-        return !view.visible || (view.__percentFuncwidth != null) || (view.__percentFuncx != null) || ((view.__alignFuncx != null) &amp;&amp; !view.__alignFuncx.autoOk);
+        return !view.visible || (view.__percentFuncwidth != null) || (view.__percentFuncx != null) || ((view.__alignFuncx != null) && !view.__alignFuncx.autoOk);
       };
 
       AutoPropertyLayout.prototype._skipY = function(view) {
-        return !view.visible || (view.__percentFuncheight != null) || (view.__percentFuncy != null) || ((view.__alignFuncy != null) &amp;&amp; !view.__alignFuncy.autoOk);
+        return !view.visible || (view.__percentFuncheight != null) || (view.__percentFuncy != null) || ((view.__alignFuncy != null) && !view.__alignFuncy.autoOk);
       };
 
       return AutoPropertyLayout;
@@ -4976,8 +4959,8 @@
       }
 
 
-<span id='dr-layout-method-degreesToRadians'>      /**
-</span>       * Convert radians to degrees.
+      /**
+       * Convert radians to degrees.
        * @param {Number} deg The degrees to convert.
        * @return {Number} The radians
        */
@@ -4987,8 +4970,8 @@
       };
 
 
-<span id='dr-layout-method-radiansToDegrees'>      /**
-</span>       * Convert degrees to radians.
+      /**
+       * Convert degrees to radians.
        * @param {Number} rad The radians to convert.
        * @return {Number} The radians
        */
@@ -4998,8 +4981,8 @@
       };
 
 
-<span id='dr-layout-method-translate'>      /**
-</span>       * Shift this path by the provided x and y amount.
+      /**
+       * Shift this path by the provided x and y amount.
        * @param {Number} dx The x amount to shift.
        * @param {Number} dy The y amount to shift.
        */
@@ -5017,8 +5000,8 @@
       };
 
 
-<span id='dr-layout-method-rotate'>      /**
-</span>       * Rotates this path around 0,0 by the provided angle in radians.
+      /**
+       * Rotates this path around 0,0 by the provided angle in radians.
        * @param {Number} a The angle in degrees to rotate
        */
 
@@ -5030,7 +5013,7 @@
         vecs = this.vectors;
         len = vecs.length;
         i = 0;
-        while (len &gt; i) {
+        while (len > i) {
           xNew = vecs[i] * cosA - vecs[i + 1] * sinA;
           yNew = vecs[i] * sinA + vecs[i + 1] * cosA;
           vecs[i++] = xNew;
@@ -5041,8 +5024,8 @@
       };
 
 
-<span id='dr-layout-method-scale'>      /**
-</span>       * Scales this path around the origin by the provided scale amount
+      /**
+       * Scales this path around the origin by the provided scale amount
        * @param {Number} sx The amount to scale along the x-axis.
        * @param {Number} sy The amount to scale along the y-axis.
        */
@@ -5060,8 +5043,8 @@
       };
 
 
-<span id='dr-layout-method-transformAroundOrigin'>      /**
-</span>       * Rotates and scales this path around the provided origin by the angle in
+      /**
+       * Rotates and scales this path around the provided origin by the angle in
        * degrees, scalex and scaley.
        * @param {Number} scalex The amount to scale along the x axis.
        * @param {Number} scaley The amount to scale along the y axis.
@@ -5075,8 +5058,8 @@
       };
 
 
-<span id='dr-layout-method-getBoundingBox'>      /**
-</span>       * Gets the bounding box for this path.
+      /**
+       * Gets the bounding box for this path.
        * @return {Object} with properties x, y, width and height or null
        * if no bounding box could be calculated.
        */
@@ -5088,7 +5071,7 @@
         }
         vecs = this.vectors;
         i = vecs.length;
-        if (i &gt;= 2) {
+        if (i >= 2) {
           minY = maxY = vecs[--i];
           minX = maxX = vecs[--i];
           while (i) {
@@ -5155,7 +5138,7 @@
         var cb, localqueue, _i, _len;
         localqueue = queue;
         queue = [];
-        for (_i = 0, _len = localqueue.length; _i &lt; _len; _i++) {
+        for (_i = 0, _len = localqueue.length; _i < _len; _i++) {
           cb = localqueue[_i];
           cb(time);
         }
@@ -5217,19 +5200,19 @@
 
     })(Eventable);
 
-<span id='dr-idle'>    /**
-</span>     * @class dr.idle {Util}
+    /**
+     * @class dr.idle {Util}
      * @extends Eventable
      * Sends onidle events when the application is active and idle.
      *
      *     @example
-     *     &lt;handler event=&quot;onidle&quot; reference=&quot;dr.idle&quot; args=&quot;idleStatus&quot;&gt;
-     *       milis.setAttribute(&#39;text&#39;, idleStatus);
-     *     &lt;/handler&gt;
+     *     <handler event="onidle" reference="dr.idle" args="idleStatus">
+     *       milis.setAttribute('text', idleStatus);
+     *     </handler>
      *
-     *     &lt;spacedlayout&gt;&lt;/spacedlayout&gt;
-     *     &lt;text text=&quot;Milliseconds since app started: &quot;&gt;&lt;/text&gt;
-     *     &lt;text id=&quot;milis&quot;&gt;&lt;/text&gt;
+     *     <spacedlayout></spacedlayout>
+     *     <text text="Milliseconds since app started: "></text>
+     *     <text id="milis"></text>
      */
     Idle = (function(_super) {
       __extends(Idle, _super);
@@ -5242,7 +5225,7 @@
 
       Idle.prototype.startEventTest = function() {
         var start, _ref;
-        start = (_ref = this.events[&#39;idle&#39;]) != null ? _ref.length : void 0;
+        start = (_ref = this.events['idle']) != null ? _ref.length : void 0;
         if (start) {
           return start;
         }
@@ -5255,20 +5238,20 @@
 
       Idle.prototype.sender = function(time) {
 
-<span id='dr-idle-event-onidle'>        /**
-</span>         * @event onidle
+        /**
+         * @event onidle
          * Fired when the application is active and idle.
          * @param {Number} time The number of milliseconds since the application started
          */
-        this.sendEvent(&#39;idle&#39;, time);
+        this.sendEvent('idle', time);
         return setTimeout((function(_this) {
           return function() {
             return idle(1, _this.sender);
           };
         })(this), 0);
 
-<span id='dr-idle-method-callOnIdle'>        /**
-</span>         * @method callOnIdle
+        /**
+         * @method callOnIdle
          * Calls a function on the next idle event.
          * @param {Function} callback A function to be called on the next idle event
          */
@@ -5281,25 +5264,25 @@
       return Idle;
 
     })(StartEventable);
-    mouseEvents = [&#39;click&#39;, &#39;mouseover&#39;, &#39;mouseout&#39;, &#39;mousedown&#39;, &#39;mouseup&#39;];
+    mouseEvents = ['click', 'mouseover', 'mouseout', 'mousedown', 'mouseup'];
 
-<span id='dr-mouse'>    /**
-</span>     * @class dr.mouse {Input}
+    /**
+     * @class dr.mouse {Input}
      * @extends Eventable
      * Sends mouse events. Often used to listen to onmouseover/x/y events to follow the mouse position.
      *
      * Here we attach events handlers to the onx and ony events of dr.mouse, and set the x,y coordinates of a square view so it follows the mouse.
      *
      *     @example
-     *     &lt;view id=&quot;mousetracker&quot; width=&quot;20&quot; height=&quot;20&quot; bgcolor=&quot;MediumTurquoise&quot;&gt;&lt;/view&gt;
+     *     <view id="mousetracker" width="20" height="20" bgcolor="MediumTurquoise"></view>
      *
-     *     &lt;handler event=&quot;onx&quot; args=&quot;x&quot; reference=&quot;dr.mouse&quot;&gt;
-     *       mousetracker.setAttribute(&#39;x&#39;, x);
-     *     &lt;/handler&gt;
+     *     <handler event="onx" args="x" reference="dr.mouse">
+     *       mousetracker.setAttribute('x', x);
+     *     </handler>
      *
-     *     &lt;handler event=&quot;ony&quot; args=&quot;y&quot; reference=&quot;dr.mouse&quot;&gt;
-     *       mousetracker.setAttribute(&#39;y&#39;, y);
-     *     &lt;/handler&gt;
+     *     <handler event="ony" args="y" reference="dr.mouse">
+     *       mousetracker.setAttribute('y', y);
+     *     </handler>
      *
      *
      */
@@ -5309,36 +5292,36 @@
       __extends(Mouse, _super);
 
 
-<span id='dr-mouse-event-onclick'>      /**
-</span>       * @event onclick
+      /**
+       * @event onclick
        * Fired when the mouse is clicked
        * @param {dr.view} view The dr.view that fired the event
        */
 
 
-<span id='dr-mouse-event-onmouseover'>      /**
-</span>       * @event onmouseover
+      /**
+       * @event onmouseover
        * Fired when the mouse moves over a view
        * @param {dr.view} view The dr.view that fired the event
        */
 
 
-<span id='dr-mouse-event-onmouseout'>      /**
-</span>       * @event onmouseout
+      /**
+       * @event onmouseout
        * Fired when the mouse moves off a view
        * @param {dr.view} view The dr.view that fired the event
        */
 
 
-<span id='dr-mouse-event-onmousedown'>      /**
-</span>       * @event onmousedown
+      /**
+       * @event onmousedown
        * Fired when the mouse goes down on a view
        * @param {dr.view} view The dr.view that fired the event
        */
 
 
-<span id='dr-mouse-event-onmouseup'>      /**
-</span>       * @event onmouseup
+      /**
+       * @event onmouseup
        * Fired when the mouse goes up on a view
        * @param {dr.view} view The dr.view that fired the event
        */
@@ -5350,13 +5333,13 @@
         this.x = 0;
         this.y = 0;
         this.docSelector = $(document);
-        this.docSelector.on(mouseEvents.join(&#39; &#39;), this.handle);
-        this.docSelector.on(&quot;mousemove&quot;, this.handle).one(&quot;mouseout&quot;, this.stopEvent);
+        this.docSelector.on(mouseEvents.join(' '), this.handle);
+        this.docSelector.on("mousemove", this.handle).one("mouseout", this.stopEvent);
         if (capabilities.touch) {
-          document.addEventListener(&#39;touchstart&#39;, this.touchHandler, true);
-          document.addEventListener(&#39;touchmove&#39;, this.touchHandler, true);
-          document.addEventListener(&#39;touchend&#39;, this.touchHandler, true);
-          document.addEventListener(&#39;touchcancel&#39;, this.touchHandler, true);
+          document.addEventListener('touchstart', this.touchHandler, true);
+          document.addEventListener('touchmove', this.touchHandler, true);
+          document.addEventListener('touchend', this.touchHandler, true);
+          document.addEventListener('touchcancel', this.touchHandler, true);
         }
       }
 
@@ -5374,16 +5357,16 @@
 
       Mouse.prototype.startEventTest = function() {
         var _ref, _ref1, _ref2;
-        return ((_ref = this.events[&#39;mousemove&#39;]) != null ? _ref.length : void 0) || ((_ref1 = this.events[&#39;x&#39;]) != null ? _ref1.length : void 0) || ((_ref2 = this.events[&#39;y&#39;]) != null ? _ref2.length : void 0);
+        return ((_ref = this.events['mousemove']) != null ? _ref.length : void 0) || ((_ref1 = this.events['x']) != null ? _ref1.length : void 0) || ((_ref2 = this.events['y']) != null ? _ref2.length : void 0);
       };
 
       Mouse.prototype.sendMouseEvent = function(type, first) {
         var simulatedEvent;
-        simulatedEvent = document.createEvent(&#39;MouseEvent&#39;);
+        simulatedEvent = document.createEvent('MouseEvent');
         simulatedEvent.initMouseEvent(type, true, true, window, 1, first.pageX, first.pageY, first.clientX, first.clientY, false, false, false, false, 0, null);
         first.target.dispatchEvent(simulatedEvent);
         if (first.target.$view) {
-          if (first.target.$view.$tagname !== &#39;inputtext&#39;) {
+          if (first.target.$view.$tagname !== 'inputtext') {
             return skipEvent(event);
           }
         }
@@ -5398,30 +5381,30 @@
         touches = event.changedTouches;
         first = touches[0];
         switch (event.type) {
-          case &#39;touchstart&#39;:
-            this.sendMouseEvent(&#39;mouseover&#39;, first);
-            this.sendMouseEvent(&#39;mousedown&#39;, first);
+          case 'touchstart':
+            this.sendMouseEvent('mouseover', first);
+            this.sendMouseEvent('mousedown', first);
             return lastTouchDown = first.target;
-          case &#39;touchmove&#39;:
+          case 'touchmove':
             over = document.elementFromPoint(first.pageX - window.pageXOffset, first.pageY - window.pageYOffset);
-            if (over &amp;&amp; over.$view) {
-              if (lastTouchOver &amp;&amp; lastTouchOver !== over) {
+            if (over && over.$view) {
+              if (lastTouchOver && lastTouchOver !== over) {
                 this.handle({
                   target: lastTouchOver,
-                  type: &#39;mouseout&#39;
+                  type: 'mouseout'
                 });
               }
               lastTouchOver = over;
               this.handle({
                 target: over,
-                type: &#39;mouseover&#39;
+                type: 'mouseover'
               });
             }
-            return this.sendMouseEvent(&#39;mousemove&#39;, first);
-          case &#39;touchend&#39;:
-            this.sendMouseEvent(&#39;mouseup&#39;, first);
+            return this.sendMouseEvent('mousemove', first);
+          case 'touchend':
+            this.sendMouseEvent('mouseup', first);
             if (lastTouchDown === first.target) {
-              this.sendMouseEvent(&#39;click&#39;, first);
+              this.sendMouseEvent('click', first);
               return lastTouchDown = null;
             }
         }
@@ -5432,18 +5415,18 @@
         view = event.target.$view;
         type = event.type;
         if (view) {
-          if (type === &#39;mousedown&#39;) {
+          if (type === 'mousedown') {
             this._lastMouseDown = view;
-            if (view.$tagname !== &#39;inputtext&#39;) {
+            if (view.$tagname !== 'inputtext') {
               skipEvent(event);
             }
           }
         }
-        if (type === &#39;mouseup&#39; &amp;&amp; this._lastMouseDown &amp;&amp; this._lastMouseDown !== view) {
-          this.sendEvent(&#39;mouseup&#39;, this._lastMouseDown);
-          this._lastMouseDown.sendEvent(&#39;mouseup&#39;, this._lastMouseDown);
-          this.sendEvent(&#39;mouseupoutside&#39;, this._lastMouseDown);
-          this._lastMouseDown.sendEvent(&#39;mouseupoutside&#39;, this._lastMouseDown);
+        if (type === 'mouseup' && this._lastMouseDown && this._lastMouseDown !== view) {
+          this.sendEvent('mouseup', this._lastMouseDown);
+          this._lastMouseDown.sendEvent('mouseup', this._lastMouseDown);
+          this.sendEvent('mouseupoutside', this._lastMouseDown);
+          this._lastMouseDown.sendEvent('mouseupoutside', this._lastMouseDown);
           this._lastMouseDown = null;
           return;
         } else if (view) {
@@ -5451,7 +5434,7 @@
         }
         this.x = event.pageX;
         this.y = event.pageY;
-        if (this.eventStarted &amp;&amp; type === &#39;mousemove&#39;) {
+        if (this.eventStarted && type === 'mousemove') {
           idle(0, this.sender);
         } else {
           this.sendEvent(type, view);
@@ -5460,37 +5443,37 @@
 
       Mouse.prototype.sender = function() {
 
-<span id='dr-mouse-event-onmousemove'>        /**
-</span>         * @event onmousemove
+        /**
+         * @event onmousemove
          * Fired when the mouse moves
          * @param {Object} coordinates The x and y coordinates of the mouse
          */
-        this.sendEvent(&quot;mousemove&quot;, {
+        this.sendEvent("mousemove", {
           x: this.x,
           y: this.y
         });
 
-<span id='dr-mouse-attribute-x'>        /**
-</span>         * @attribute {Number} x The x position of the mouse
+        /**
+         * @attribute {Number} x The x position of the mouse
          * @readonly
          */
-        this.sendEvent(&#39;x&#39;, this.x);
+        this.sendEvent('x', this.x);
 
-<span id='dr-mouse-attribute-y'>        /**
-</span>         * @attribute {Number} y The y position of the mouse
+        /**
+         * @attribute {Number} y The y position of the mouse
          * @readonly
          */
-        return this.sendEvent(&#39;y&#39;, this.y);
+        return this.sendEvent('y', this.y);
       };
 
       Mouse.prototype.handleDocEvent = function(event) {
-        if (event &amp;&amp; event.target !== document) {
+        if (event && event.target !== document) {
           return;
         }
         if (this.eventStarted) {
-          return this.docSelector.on(&quot;mousemove&quot;, this.handle).one(&quot;mouseout&quot;, this.stopEvent);
+          return this.docSelector.on("mousemove", this.handle).one("mouseout", this.stopEvent);
         } else {
-          return this.docSelector.on(&quot;mousemove&quot;, this.handle).one(&quot;mouseout&quot;, this.startEvent);
+          return this.docSelector.on("mousemove", this.handle).one("mouseout", this.startEvent);
         }
       };
 
@@ -5498,18 +5481,18 @@
 
     })(StartEventable);
 
-<span id='dr-window'>    /**
-</span>     * @class dr.window {Util}
+    /**
+     * @class dr.window {Util}
      * @extends Eventable
      * Sends window resize events. Often used to dynamically reposition views as the window size changes.
      *
-     *     &lt;handler event=&quot;onwidth&quot; reference=&quot;dr.window&quot; args=&quot;newWidth&quot;&gt;
+     *     <handler event="onwidth" reference="dr.window" args="newWidth">
      *       //adjust views
-     *     &lt;/handler&gt;
+     *     </handler>
      *
-     *     &lt;handler event=&quot;onheight&quot; reference=&quot;dr.window&quot; args=&quot;newHeight&quot;&gt;
+     *     <handler event="onheight" reference="dr.window" args="newHeight">
      *       //adjust views
-     *     &lt;/handler&gt;
+     *     </handler>
      *
      *
      */
@@ -5519,30 +5502,30 @@
       function Window() {
         this.handle = __bind(this.handle, this);
         var handleVisibilityChange, hidden, visibilityChange;
-        window.addEventListener(&#39;resize&#39;, this.handle, false);
+        window.addEventListener('resize', this.handle, false);
         this.visible = true;
         if (document.hidden != null) {
-          hidden = &quot;hidden&quot;;
-          visibilityChange = &quot;visibilitychange&quot;;
+          hidden = "hidden";
+          visibilityChange = "visibilitychange";
         } else if (document.mozHidden != null) {
-          hidden = &quot;mozHidden&quot;;
-          visibilityChange = &quot;mozvisibilitychange&quot;;
+          hidden = "mozHidden";
+          visibilityChange = "mozvisibilitychange";
         } else if (document.msHidden != null) {
-          hidden = &quot;msHidden&quot;;
-          visibilityChange = &quot;msvisibilitychange&quot;;
+          hidden = "msHidden";
+          visibilityChange = "msvisibilitychange";
         } else if (document.webkitHidden != null) {
-          hidden = &quot;webkitHidden&quot;;
-          visibilityChange = &quot;webkitvisibilitychange&quot;;
+          hidden = "webkitHidden";
+          visibilityChange = "webkitvisibilitychange";
         }
         handleVisibilityChange = (function(_this) {
           return function() {
             _this.visible = document[hidden];
 
-<span id='dr-window-attribute-visible'>            /**
-</span>             * @attribute {Boolean} visible=true Set when the window visibility changes, true if the window is currently visible
+            /**
+             * @attribute {Boolean} visible=true Set when the window visibility changes, true if the window is currently visible
              * @readonly
              */
-            return _this.sendEvent(&#39;visible&#39;, _this.visible);
+            return _this.sendEvent('visible', _this.visible);
           };
         })(this);
         document.addEventListener(visibilityChange, handleVisibilityChange, false);
@@ -5551,43 +5534,43 @@
 
       Window.prototype.startEventTest = function() {
         var _ref, _ref1;
-        return ((_ref = this.events[&#39;width&#39;]) != null ? _ref.length : void 0) || ((_ref1 = this.events[&#39;height&#39;]) != null ? _ref1.length : void 0);
+        return ((_ref = this.events['width']) != null ? _ref.length : void 0) || ((_ref1 = this.events['height']) != null ? _ref1.length : void 0);
       };
 
       Window.prototype.handle = function(event) {
 
-<span id='dr-window-attribute-width'>        /**
-</span>         * @attribute {Number} width Set when the window width changes
+        /**
+         * @attribute {Number} width Set when the window width changes
          * @readonly
          */
         this.width = window.innerWidth;
-        this.sendEvent(&#39;width&#39;, this.width);
+        this.sendEvent('width', this.width);
 
-<span id='dr-window-attribute-height'>        /**
-</span>         * @attribute {Number} height Set when the window height changes
+        /**
+         * @attribute {Number} height Set when the window height changes
          * @readonly
          */
         this.height = window.innerHeight;
-        this.sendEvent(&#39;height&#39;, this.height);
+        this.sendEvent('height', this.height);
       };
 
       return Window;
 
     })(StartEventable);
 
-<span id='dr-keyboard'>    /**
-</span>     * @class dr.keyboard {Input}
+    /**
+     * @class dr.keyboard {Input}
      * @extends Eventable
      * Sends keyboard events.
      *
-     * You might want to listen for keyboard events globally. In this example, we display the code of the key being pressed. Note that you&#39;ll need to click on the example to activate it before you will see keyboard events.
+     * You might want to listen for keyboard events globally. In this example, we display the code of the key being pressed. Note that you'll need to click on the example to activate it before you will see keyboard events.
      *
      *     @example
-     *     &lt;text id=&quot;keycode&quot; text=&quot;Key Code:&quot;&gt;&lt;/text&gt;
+     *     <text id="keycode" text="Key Code:"></text>
      *
-     *     &lt;handler event=&quot;onkeyup&quot; args=&quot;keys&quot; reference=&quot;dr.keyboard&quot;&gt;
-     *       keycode.setAttribute(&#39;text&#39;, &#39;Key Code: &#39; + keys.keyCode);
-     *     &lt;/handler&gt;
+     *     <handler event="onkeyup" args="keys" reference="dr.keyboard">
+     *       keycode.setAttribute('text', 'Key Code: ' + keys.keyCode);
+     *     </handler>
      */
     Keyboard = (function(_super) {
       __extends(Keyboard, _super);
@@ -5601,7 +5584,7 @@
           metaKey: false,
           keyCode: 0
         };
-        $(document).on(&#39;select change keyup keydown&#39;, this.handle);
+        $(document).on('select change keyup keydown', this.handle);
       }
 
       Keyboard.prototype.handle = function(event) {
@@ -5615,46 +5598,46 @@
         if (target) {
           target.sendEvent(type, this.keys);
         }
-        if (type === &#39;select&#39; || type === &#39;change&#39;) {
+        if (type === 'select' || type === 'change') {
           return;
         }
 
-<span id='dr-keyboard-event-onkeydown'>        /**
-</span>         * @event onkeydown
+        /**
+         * @event onkeydown
          * Fired when a key goes down
          * @param {Object} keys An object representing the keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
          */
 
-<span id='dr-keyboard-event-onkeyup'>        /**
-</span>         * @event onkeyup
+        /**
+         * @event onkeyup
          * Fired when a key goes up
          * @param {Object} keys An object representing the keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
          */
         this.sendEvent(type, this.keys);
 
-<span id='dr-keyboard-attribute-keys'>        /**
-</span>         * @attribute {Object} keys
+        /**
+         * @attribute {Object} keys
          * An object representing the most recent keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
          */
-        return this.sendEvent(&#39;keys&#39;, this.keys);
+        return this.sendEvent('keys', this.keys);
       };
 
       return Keyboard;
 
     })(Eventable);
     window.onerror = function(e) {
-      return showWarnings([&quot;&quot; + (e.toString()) + &quot;. Try running in debug mode for more info. &quot; + window.location.href + (querystring ? &#39;&amp;&#39; : &#39;?&#39;) + &quot;debug&quot;]);
+      return showWarnings(["" + (e.toString()) + ". Try running in debug mode for more info. " + window.location.href + (querystring ? '&' : '?') + "debug"]);
     };
 
-<span id='dr'>    /**
-</span>     * @class dr {Core Dreem}
+    /**
+     * @class dr {Core Dreem}
      * Holds builtin and user-created classes and public APIs.
      *
-     * All classes listed here can be invoked with the declarative syntax, e.g. &amp;lt;node&gt;&amp;lt;/node&gt; or &amp;lt;view&gt;&amp;lt;/view&gt;
+     * All classes listed here can be invoked with the declarative syntax, e.g. &lt;node>&lt;/node> or &lt;view>&lt;/view>
      */
     return exports = {
       view: View,
-      &quot;class&quot;: Class,
+      "class": Class,
       node: Node,
       mouse: new Mouse(),
       keyboard: new Keyboard(),
@@ -5664,102 +5647,102 @@
       state: State,
       _noop: noop,
 
-<span id='dr-method-initElements'>      /**
-</span>       * @method initElements
+      /**
+       * @method initElements
        * Initializes all top-level views found in the document. Called automatically when the page loads, but can be called manually as needed.
        */
       initElements: dom.initAllElements,
 
-<span id='dr-method-writeCSS'>      /**
-</span>       * @method writeCSS
+      /**
+       * @method writeCSS
        * Writes generic dreem-specific CSS to the document. Should only be called once.
        */
       writeCSS: dom.writeCSS,
       initConstraints: _initConstraints
     };
 
-<span id='dr-method'>    /**
-</span>     * @class dr.method {Core Dreem}
-     * Declares a member function in a node, view, class or other class instance. Methods can only be created with the &amp;lt;method&gt;&amp;lt;/method&gt; tag syntax.
+    /**
+     * @class dr.method {Core Dreem}
+     * Declares a member function in a node, view, class or other class instance. Methods can only be created with the &lt;method>&lt;/method> tag syntax.
      *
      * If a method overrides an existing method, any existing (super) method(s) will be called first automatically.
      *
-     * Let&#39;s define a method called changeColor in a view that sets the background color to pink.
+     * Let's define a method called changeColor in a view that sets the background color to pink.
      *
      *     @example
      *
-     *     &lt;view id=&quot;square&quot; width=&quot;100&quot; height=&quot;100&quot;&gt;
-     *       &lt;method name=&quot;changeColor&quot;&gt;
-     *         this.setAttribute(&#39;bgcolor&#39;, &#39;pink&#39;);
-     *       &lt;/method&gt;
-     *     &lt;/view&gt;
+     *     <view id="square" width="100" height="100">
+     *       <method name="changeColor">
+     *         this.setAttribute('bgcolor', 'pink');
+     *       </method>
+     *     </view>
      *
-     *     &lt;handler event=&quot;oninit&quot;&gt;
+     *     <handler event="oninit">
      *       square.changeColor();
-     *     &lt;/handler&gt;
+     *     </handler>
      *
      * Here we define the changeColor method in a class called square. We create an instance of the class and call the method on the intance.
      *
      *     @example
-     *     &lt;class name=&quot;square&quot; width=&quot;100&quot; height=&quot;100&quot;&gt;
-     *       &lt;method name=&quot;changeColor&quot;&gt;
-     *         this.setAttribute(&#39;bgcolor&#39;, &#39;pink&#39;);
-     *       &lt;/method&gt;
-     *     &lt;/class&gt;
+     *     <class name="square" width="100" height="100">
+     *       <method name="changeColor">
+     *         this.setAttribute('bgcolor', 'pink');
+     *       </method>
+     *     </class>
      *
-     *     &lt;square id=&quot;square1&quot;&gt;&lt;/square&gt;
+     *     <square id="square1"></square>
      *
-     *     &lt;handler event=&quot;oninit&quot;&gt;
+     *     <handler event="oninit">
      *       square1.changeColor();
-     *     &lt;/handler&gt;
+     *     </handler>
      *
-     * Now we&#39;ll subclass the square class with a bluesquare class, and override the changeColor method to color the square blue. We also add an inner square who&#39;s color is set in the changeColor method of the square superclass. Notice that the color of this square is set when the method is called on the subclass.
+     * Now we'll subclass the square class with a bluesquare class, and override the changeColor method to color the square blue. We also add an inner square who's color is set in the changeColor method of the square superclass. Notice that the color of this square is set when the method is called on the subclass.
      *
      *     @example
-     *     &lt;class name=&quot;square&quot; width=&quot;100&quot; height=&quot;100&quot;&gt;
-     *       &lt;view name=&quot;inner&quot; width=&quot;25&quot; height=&quot;25&quot;&gt;&lt;/view&gt;
-     *       &lt;method name=&quot;changeColor&quot;&gt;
-     *         this.inner.setAttribute(&#39;bgcolor&#39;, &#39;green&#39;);
-     *         this.setAttribute(&#39;bgcolor&#39;, &#39;pink&#39;);
-     *       &lt;/method&gt;
-     *     &lt;/class&gt;
+     *     <class name="square" width="100" height="100">
+     *       <view name="inner" width="25" height="25"></view>
+     *       <method name="changeColor">
+     *         this.inner.setAttribute('bgcolor', 'green');
+     *         this.setAttribute('bgcolor', 'pink');
+     *       </method>
+     *     </class>
      *
-     *     &lt;class name=&quot;bluesquare&quot; extends=&quot;square&quot;&gt;
-     *       &lt;method name=&quot;changeColor&quot;&gt;
-     *         this.setAttribute(&#39;bgcolor&#39;, &#39;blue&#39;);
-     *       &lt;/method&gt;
-     *     &lt;/class&gt;
+     *     <class name="bluesquare" extends="square">
+     *       <method name="changeColor">
+     *         this.setAttribute('bgcolor', 'blue');
+     *       </method>
+     *     </class>
      *
-     *     &lt;spacedlayout&gt;&lt;/spacedlayout&gt;
+     *     <spacedlayout></spacedlayout>
      *
-     *     &lt;square id=&quot;square1&quot;&gt;&lt;/square&gt;
-     *     &lt;bluesquare id=&quot;square2&quot;&gt;&lt;/bluesquare&gt;
+     *     <square id="square1"></square>
+     *     <bluesquare id="square2"></bluesquare>
      *
-     *     &lt;handler event=&quot;oninit&quot;&gt;
+     *     <handler event="oninit">
      *       square1.changeColor();
      *       square2.changeColor();
-     *     &lt;/handler&gt;
+     *     </handler>
      *
      */
 
-<span id='dr-method-attribute-name'>    /**
-</span>     * @attribute {String} name (required)
+    /**
+     * @attribute {String} name (required)
      * The name of the method.
      */
 
-<span id='dr-method-attribute-args'>    /**
-</span>     * @attribute {String[]} args
+    /**
+     * @attribute {String[]} args
      * A comma separated list of method arguments.
      */
 
-<span id='dr-method-attribute-type'>    /**
-</span>     * @attribute {&quot;js&quot;/&quot;coffee&quot;} type
+    /**
+     * @attribute {"js"/"coffee"} type
      * The compiler to use for this method. Inherits from the immediate class if unspecified.
      */
 
-<span id='dr-setter'>    /**
-</span>     * @class dr.setter
-     * Declares a setter in a node, view, class or other class instance. Setters can only be created with the &amp;lt;setter&gt;&amp;lt;/setter&gt; tag syntax.
+    /**
+     * @class dr.setter
+     * Declares a setter in a node, view, class or other class instance. Setters can only be created with the &lt;setter>&lt;/setter> tag syntax.
      *
      * Setters allow the default behavior of attribute changes to be changed.
      *
@@ -5767,176 +5750,173 @@
      * @ignore
      */
 
-<span id='dr-setter-attribute-name'>    /**
-</span>     * @attribute {String} name (required)
+    /**
+     * @attribute {String} name (required)
      * The name of the method.
      */
 
-<span id='dr-setter-attribute-args'>    /**
-</span>     * @attribute {String[]} args
+    /**
+     * @attribute {String[]} args
      * A comma separated list of method arguments.
      */
 
-<span id='dr-setter-attribute-type'>    /**
-</span>     * @attribute {&quot;js&quot;/&quot;coffee&quot;} type
+    /**
+     * @attribute {"js"/"coffee"} type
      * The compiler to use for this method. Inherits from the immediate class if unspecified.
      */
 
-<span id='dr-handler'>    /**
-</span>     * @class dr.handler {Core Dreem, Events}
-     * Declares a handler in a node, view, class or other class instance. Handlers can only be created with the `&lt;handler&gt;&lt;/handler&gt;` tag syntax.
+    /**
+     * @class dr.handler {Core Dreem, Events}
+     * Declares a handler in a node, view, class or other class instance. Handlers can only be created with the `<handler></handler>` tag syntax.
      *
      * Handlers are called when an event fires with new value, if available.
      *
      * Here is a simple handler that listens for an onx event in the local scope. The handler runs when x changes:
      *
-     *     &lt;handler event=&quot;onx&quot;&gt;
+     *     <handler event="onx">
      *       // do something now that x has changed
-     *     &lt;/handler&gt;
+     *     </handler>
      *
      * When a handler uses the args attribute, it can recieve the value that changed:
      *
-     * Sometimes it&#39;s nice to use a single method to respond to multiple events:
+     * Sometimes it's nice to use a single method to respond to multiple events:
      *
-     *     &lt;handler event=&quot;onx&quot; method=&quot;handlePosition&quot;&gt;&lt;/handler&gt;
-     *     &lt;handler event=&quot;ony&quot; method=&quot;handlePosition&quot;&gt;&lt;/handler&gt;
-     *     &lt;method name=&quot;handlePosition&quot;&gt;
+     *     <handler event="onx" method="handlePosition"></handler>
+     *     <handler event="ony" method="handlePosition"></handler>
+     *     <method name="handlePosition">
      *       // do something now that x or y have changed
-     *     &lt;/method&gt;
+     *     </method>
      *
      *
      * When a handler uses the args attribute, it can receive the value that changed:
      *
      *     @example
      *
-     *     &lt;handler event=&quot;onwidth&quot; args=&quot;widthValue&quot;&gt;
-     *        exampleLabel.setAttribute(&quot;text&quot;, &quot;Parent view received width value of &quot; + widthValue)
-     *     &lt;/handler&gt;
+     *     <handler event="onwidth" args="widthValue">
+     *        exampleLabel.setAttribute("text", "Parent view received width value of " + widthValue)
+     *     </handler>
      *
-     *     &lt;text id=&quot;exampleLabel&quot; x=&quot;50&quot; y=&quot;5&quot; text=&quot;no value yet&quot; color=&quot;coral&quot; outline=&quot;1px dotted coral&quot; padding=&quot;10px&quot;&gt;&lt;/text&gt;
-     *     &lt;text x=&quot;50&quot; y=&quot;${exampleLabel.y + exampleLabel.height + 20}&quot; text=&quot;no value yet&quot; color=&quot;white&quot; bgcolor=&quot;#DDAA00&quot; padding=&quot;10px&quot;&gt;
-     *       &lt;handler event=&quot;onwidth&quot; args=&quot;wValue&quot;&gt;
-     *          this.setAttribute(&quot;text&quot;, &quot;This label received width value of &quot; + wValue)
-     *       &lt;/handler&gt;
-     *     &lt;/text&gt;
+     *     <text id="exampleLabel" x="50" y="5" text="no value yet" color="coral" outline="1px dotted coral" padding="10px"></text>
+     *     <text x="50" y="${exampleLabel.y + exampleLabel.height + 20}" text="no value yet" color="white" bgcolor="#DDAA00" padding="10px">
+     *       <handler event="onwidth" args="wValue">
+     *          this.setAttribute("text", "This label received width value of " + wValue)
+     *       </handler>
+     *     </text>
      *
      *
-     * It&#39;s also possible to listen for events on another scope. This handler listens for onidle events on dr.idle instead of the local scope:
+     * It's also possible to listen for events on another scope. This handler listens for onidle events on dr.idle instead of the local scope:
      *
      *     @example
      *
-     *     &lt;handler event=&quot;onidle&quot; args=&quot;time&quot; reference=&quot;dr.idle&quot;&gt;
-     *       exampleLabel.setAttribute(&#39;text&#39;, &#39;received time from dr.idle.onidle: &#39; + Math.round(time));
-     *     &lt;/handler&gt;
-     *     &lt;text id=&quot;exampleLabel&quot; x=&quot;50&quot; y=&quot;5&quot; text=&quot;no value yet&quot; color=&quot;coral&quot; outline=&quot;1px dotted coral&quot; padding=&quot;10px&quot;&gt;&lt;/text&gt;
+     *     <handler event="onidle" args="time" reference="dr.idle">
+     *       exampleLabel.setAttribute('text', 'received time from dr.idle.onidle: ' + Math.round(time));
+     *     </handler>
+     *     <text id="exampleLabel" x="50" y="5" text="no value yet" color="coral" outline="1px dotted coral" padding="10px"></text>
      *
      *
      */
 
-<span id='dr-handler-attribute-event'>    /**
-</span>     * @attribute {String} event (required)
-     * The name of the event to listen for, e.g. &#39;onwidth&#39;.
+    /**
+     * @attribute {String} event (required)
+     * The name of the event to listen for, e.g. 'onwidth'.
      */
 
-<span id='dr-handler-attribute-reference'>    /**
-</span>     * @attribute {String} reference
+    /**
+     * @attribute {String} reference
      * If set, the handler will listen for an event in another scope.
      */
 
-<span id='dr-handler-attribute-method'>    /**
-</span>     * @attribute {String} method
+    /**
+     * @attribute {String} method
      * If set, the handler call a local method. Useful when multiple handlers need to do the same thing.
      */
 
-<span id='dr-handler-attribute-args'>    /**
-</span>     * @attribute {String[]} args
+    /**
+     * @attribute {String[]} args
      * A comma separated list of method arguments.
      */
 
-<span id='dr-handler-attribute-type'>    /**
-</span>     * @attribute {&quot;js&quot;/&quot;coffee&quot;} type
+    /**
+     * @attribute {"js"/"coffee"} type
      * The compiler to use for this method. Inherits from the immediate class if unspecified.
      */
 
-<span id='dr-attribute'>    /**
-</span>     * @class dr.attribute {Core Dreem, Events}
-     * Adds a variable to a node, view, class or other class instance. Attributes can only be created with the &amp;lt;attribute&gt;&amp;lt;/attribute&gt; tag syntax.
+    /**
+     * @class dr.attribute {Core Dreem, Events}
+     * Adds a variable to a node, view, class or other class instance. Attributes can only be created with the &lt;attribute>&lt;/attribute> tag syntax.
      *
      * Attributes allow classes to declare new variables with a specific type and default value.
      *
      * Attributes automatically send events when their value changes.
      *
-     * Here we create a new class with a custom attribute representing a person&#39;s mood, along with two instances. One instance has the default mood of &#39;happy&#39;, the other sets the mood attribute to &#39;sad&#39;. Note there&#39;s nothing visible in this example yet:
+     * Here we create a new class with a custom attribute representing a person's mood, along with two instances. One instance has the default mood of 'happy', the other sets the mood attribute to 'sad'. Note there's nothing visible in this example yet:
      *
-     *     &lt;class name=&quot;person&quot;&gt;
-     *       &lt;attribute name=&quot;mood&quot; type=&quot;string&quot; value=&quot;happy&quot;&gt;&lt;/attribute&gt;
-     *     &lt;/class&gt;
+     *     <class name="person">
+     *       <attribute name="mood" type="string" value="happy"></attribute>
+     *     </class>
      *
-     *     &lt;person&gt;&lt;/person&gt;
-     *     &lt;person mood=&quot;sad&quot;&gt;&lt;/person&gt;
+     *     <person></person>
+     *     <person mood="sad"></person>
      *
-     * Let&#39;s had a handler to make our color change with the mood. Whenever the mood attribute changes, the color changes with it:
+     * Let's had a handler to make our color change with the mood. Whenever the mood attribute changes, the color changes with it:
      *
      *     @example
-     *     &lt;class name=&quot;person&quot; width=&quot;100&quot; height=&quot;100&quot;&gt;
-     *       &lt;attribute name=&quot;mood&quot; type=&quot;string&quot; value=&quot;happy&quot;&gt;&lt;/attribute&gt;
-     *       &lt;handler event=&quot;onmood&quot; args=&quot;mood&quot;&gt;
-     *         var color = &#39;orange&#39;;
-     *         if (mood !== &#39;happy&#39;) {
-     *           color = &#39;blue&#39;
+     *     <class name="person" width="100" height="100">
+     *       <attribute name="mood" type="string" value="happy"></attribute>
+     *       <handler event="onmood" args="mood">
+     *         var color = 'orange';
+     *         if (mood !== 'happy') {
+     *           color = 'blue'
      *         }
-     *         this.setAttribute(&#39;bgcolor&#39;, color);
-     *       &lt;/handler&gt;
-     *     &lt;/class&gt;
+     *         this.setAttribute('bgcolor', color);
+     *       </handler>
+     *     </class>
      *
-     *     &lt;spacedlayout&gt;&lt;/spacedlayout&gt;
-     *     &lt;person&gt;&lt;/person&gt;
-     *     &lt;person mood=&quot;sad&quot;&gt;&lt;/person&gt;
+     *     <spacedlayout></spacedlayout>
+     *     <person></person>
+     *     <person mood="sad"></person>
      *
      * You can add as many attributes as you like to a class. Here, we add a numeric attribute for size, which changes the height and width attributes via a constraint:
      *
      *     @example
-     *     &lt;class name=&quot;person&quot; width=&quot;${this.size}&quot; height=&quot;${this.size}&quot;&gt;
-     *       &lt;attribute name=&quot;mood&quot; type=&quot;string&quot; value=&quot;happy&quot;&gt;&lt;/attribute&gt;
-     *       &lt;handler event=&quot;onmood&quot; args=&quot;mood&quot;&gt;
-     *         var color = &#39;orange&#39;;
-     *         if (mood !== &#39;happy&#39;) {
-     *           color = &#39;blue&#39;
+     *     <class name="person" width="${this.size}" height="${this.size}">
+     *       <attribute name="mood" type="string" value="happy"></attribute>
+     *       <handler event="onmood" args="mood">
+     *         var color = 'orange';
+     *         if (mood !== 'happy') {
+     *           color = 'blue'
      *         }
-     *         this.setAttribute(&#39;bgcolor&#39;, color);
-     *       &lt;/handler&gt;
-     *       &lt;attribute name=&quot;size&quot; type=&quot;number&quot; value=&quot;20&quot;&gt;&lt;/attribute&gt;
-     *     &lt;/class&gt;
+     *         this.setAttribute('bgcolor', color);
+     *       </handler>
+     *       <attribute name="size" type="number" value="20"></attribute>
+     *     </class>
      *
-     *     &lt;spacedlayout&gt;&lt;/spacedlayout&gt;
-     *     &lt;person&gt;&lt;/person&gt;
-     *     &lt;person mood=&quot;sad&quot; size=&quot;50&quot;&gt;&lt;/person&gt;
+     *     <spacedlayout></spacedlayout>
+     *     <person></person>
+     *     <person mood="sad" size="50"></person>
      */
 
-<span id='dr-attribute-attribute-name'>    /**
-</span>     * @attribute {String} name (required)
+    /**
+     * @attribute {String} name (required)
      * The name of the attribute
      */
 
-<span id='dr-attribute-attribute-type'>    /**
-</span>     * @attribute {&quot;string&quot;/&quot;number&quot;/&quot;boolean&quot;/&quot;json&quot;} [type=string] (required)
+    /**
+     * @attribute {"string"/"number"/"boolean"/"json"} [type=string] (required)
      * The type of the attribute. Used to convert from a string to an appropriate representation of the type.
      */
 
-<span id='dr-attribute-attribute-value'>    /**
-</span>     * @attribute {String} value (required)
+    /**
+     * @attribute {String} value (required)
      * The initial value for the attribute
      */
   })();
 
   dr.writeCSS();
 
-  $(window).on(&#39;load&#39;, function() {
+  $(window).on('load', function() {
     dr.initElements();
     return hackstyle(true);
   });
 
 }).call(this);
-</pre>
-</body>
-</html>

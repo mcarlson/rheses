@@ -32,7 +32,7 @@ module Dreem
 
   class CategoriesBuilder
     def self.build(root_dir)
-      search_files = ['layout.coffee', *Dir[File.join(root_dir, 'classes', '*.dre')]]
+      search_files = [*Dir[File.join(root_dir, 'core', 'layout.coffee')], *Dir[File.join(root_dir, 'classes', '*.dre')]]
 
       groups = {}
 
