@@ -3016,7 +3016,7 @@ window.dr = do ->
       blacklist = ['/primus/primus.io.js']
       filereloader = ->
         dependencies.push(window.location.pathname)
-        dependencies.push('/layout.js')
+        dependencies.push('/core/layout.coffee')
         paths = dependencies.filter((path) ->
           return true unless path in blacklist
         )

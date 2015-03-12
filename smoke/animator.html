@@ -1,82 +1,136 @@
 <html>
 <head>
-  <testingtimer><!--1500--></testingtimer>
-  <title>template-workshop 2nd</title>
-  <style type="text/css">
-    body {
-      background-color: white;
-      font-family: 'Helvetica';
-      font-size: 40px;
-      margin: 0px;
-      padding: 0px;
-    } 
-    input {
-      font-family: 'Helvetica';
-      font-size: 14px;
-      margin: 0px;
-      padding: 0px;
-      width: 100px;
-    }
-  </style>
+  <testingtimer><!--1000--></testingtimer>
+  <title>dr33m | Animator Smoke Tests</title>
+  <link rel="stylesheet" href="../examples/css/example.css"/>
   <script type="text/javascript" src="/lib/jquery-1.9.1.js"></script>
   <script type="text/javascript" src="/lib/acorn.js"></script>
   <script type="text/javascript" src="/lib/coffee-script.js"></script>
   <script type="text/javascript" src="/lib/chai.js"></script>
   <script type="text/javascript" src="/lib/smoke_helper.js"></script>
-  <script type="text/javascript" src="/layout.js"></script>
+  <script type="text/javascript" src="/core/layout.js"></script>
 </head>
 <body>
-  <view> 
-    <bitmap id="koala1" x="100" y="0" width="200" height="200" src="./shoarma.jpg">
-      <animator start='500' attribute="x" to="300" duration="1000" motion="outBounce" repeat="1">
-        <handler event="onend">
-          assert.equal(this.parent.x, 300)
-        </handler>
-      </animator>
-    </bitmap>
+  <view>
+    <spacedlayout axis="x" spacing="1"></spacedlayout>
 
-    <animator target="koala2" attribute="x" to="300" duration="1000" control='0.01,1.0'  motion="bret" repeat="2" bounce="true">
-      <handler event='ontick'>
-      </handler>
-      <handler event="onend">
-        assert.equal(koala2.x, 100)
-      </handler> 
-    </animator>
-    <bitmap id="koala2" x="100" y="200" width="200" height="200" src="./shoarma.jpg"></bitmap>
-    
-    <bitmap x="100" y="400" width="200" height="200" src="./shoarma.jpg">
-      <animator attribute="x" to="300" duration="1000" motion="linear" repeat="2" bounce="true">
-        <handler event="onend">
-          assert.equal(this.parent.x, 100)
+    <!-- Test using animate method -->
+    <view bgcolor="darkgrey" width="auto" height="auto">
+      <view name="foo" bgcolor='red' x="0" y="0" width="100" height="80">
+        <handler event='oninit'>
+          this.animate({x:100, y:10}, 200)
         </handler>
-      </animator>
-    </bitmap>
-    
-    <view bgcolor='red' id="koala4" x="10" y="610" width="auto" height="auto">
-      <text text='Relative'></text>
-      <animator relative='true' attribute="x" duration="500" to="10" motion="inOutExpo">
-        <handler event='onend'>
-          assert.equal(this.parent.x, 20)
-        </handler>     
-      </animator>
+      </view>
+
+      <view name="bar" bgcolor='red' x="0" y="100" width="100" height="80">
+        <handler event='oninit'>
+          this.animate({x:100, y:100, width:50, height:50, bgcolor:'blue'}, 150)
+        </handler>
+      </view>
+
+      <!-- Test destroying while an animation is running -->
+      <view name="baz" bgcolor='red' x="0" y="200" width="100" height="80">
+        <handler event='oninit' type="coffee">
+          this.animate({x:100, width:50, height:100, bgcolor:'green'}, 200)
+          setTimeout(() =>
+            this.destroy()
+          ,100)
+        </handler>
+      </view>
+
+      <!-- Test animating attributes on a node -->
+      <node name="buz">
+        <attribute name="x" value="0" type="number"></attribute>
+        <handler event='oninit'>
+          this.animate({x:100}, 80)
+        </handler>
+      </node>
+
+      <!-- Verify animations ran -->
+      <handler event="oninit" type="coffee">
+        setTimeout(() =>
+          assert.equal(@foo.x, 100)
+          assert.equal(@foo.y, 10)
+          
+          assert.equal(@bar.x, 100)
+          assert.equal(@bar.y, 100)
+          assert.equal(@bar.width, 50)
+          assert.equal(@bar.height, 50)
+          assert.equal(@bar.bgcolor, '#0000ff')
+          
+          assert.equal(@baz, undefined)
+          
+          assert.equal(@buz.x, 100)
+        500)
+      </handler>
     </view>
 
-    <bitmap x="100" y="600" width="200" height="200" src="./shoarma.jpg">
-      <animator attribute="x" to="300" duration="1000" motion="linear" repeat="2" bounce="true">
+    <view id="container" bgcolor="lightgrey" width="auto" height="auto">
+      <animator target="koala" attribute="x" to="300" duration="300" control='0.01,1.0' motion="bret" repeat="2" bounce="true">
         <handler event="onend">
-          assert.equal(this.parent.x, 100)
-        </handler>
-        <handler event="ontick">
-          this.parent.destroy()
-        </handler>
+          assert.equal(koala.x, 100);
+          container.koalaRan = true;
+        </handler> 
       </animator>
-    </bitmap>
+      <bitmap id="koala" x="100" y="200" width="200" height="200" src="./shoarma.jpg"></bitmap>
 
-    <handler event="oninit">
-    </handler>
+      <bitmap name="foo" x="100" y="0" width="200" height="200" src="./shoarma.jpg">
+        <animator start='500' attribute="x" to="300" duration="300" motion="outBounce" repeat="1">
+          <handler event="onend">
+            assert.equal(this.parent.x, 300);
+            container.fooRan = true;
+          </handler>
+        </animator>
+      </bitmap>
+
+      <bitmap name="bar" x="100" y="400" width="200" height="200" src="./shoarma.jpg">
+        <animator attribute="x" to="300" duration="300" motion="linear" repeat="2" bounce="true">
+          <handler event="onend">
+            assert.equal(this.parent.x, 100);
+            container.barRan = true;
+          </handler>
+        </animator>
+      </bitmap>
+
+      <view name="baz" bgcolor='red' x="10" y="610" width="auto" height="auto">
+        <text text='Relative'></text>
+        <animator relative='true' attribute="x" duration="500" to="10" motion="inOutExpo">
+          <handler event='onend'>
+            assert.equal(this.parent.x, 20);
+            container.bazRan = true;
+          </handler>
+        </animator>
+      </view>
+
+      <bitmap name="buz" x="100" y="600" width="200" height="200" src="./shoarma.jpg">
+        <animator attribute="x" to="300" duration="300" motion="linear" repeat="2" bounce="true">
+          <handler event="onend">
+            assert.equal(this.parent.x, 100);
+            container.buzRan = true;
+          </handler>
+          <handler event="ontick">
+            this.parent.destroy()
+            container.buzTickRan = true;
+          </handler>
+        </animator>
+      </bitmap>
+
+      <!-- Verify animations ran -->
+      <handler event="oninit" type="coffee">
+        setTimeout(() =>
+          assert.equal(@koalaRan, true)
+          assert.equal(@fooRan, true)
+          assert.equal(@barRan, true)
+          assert.equal(@bazRan, true)
+          
+          assert.equal(@buzRan, undefined)
+          assert.equal(@buzTickRan, true)
+        800)
+      </handler>
+    </view>
   </view>
 <!-- The MIT License (MIT)
-Copyright ( c ) 2014 Teem2 LLC
+Copyright ( c ) 2014-2015 Teem2 LLC
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

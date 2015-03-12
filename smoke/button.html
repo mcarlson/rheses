@@ -4,7 +4,7 @@
   <script type="text/javascript" src="/lib/jquery-1.9.1.min.js"></script>
   <script type="text/javascript" src="/lib/acorn.js"></script>
   <script type="text/javascript" src="/lib/coffee-script.js"></script>
-  <script type="text/javascript" src="/layout.js"></script>
+  <script type="text/javascript" src="/core/layout.js"></script>
   <script type="text/javascript" src="/lib/chai.js"></script>
   <script type="text/javascript" src="/lib/smoke_helper.js"></script>
 </head>
@@ -29,6 +29,8 @@
 
   <labelbuttontest type="coffee" text="Text">
     <handler event="oninit">
+      assert.testCaseLabel = 'labelbutton tests';
+      
       assert.equal(@text, 'Text');
       @testsize(0,0,55,24,10,0);
 
@@ -40,6 +42,8 @@
 
   <labelbuttontest type="coffee" text="Text" width="200" height="100">
     <handler event="oninit">
+      assert.testCaseLabel = 'labelbutton tests, fixed width and height';
+
       assert.equal(@text, 'Text');
       @testsize(0,0,200,100,80,38);
 
@@ -51,6 +55,8 @@
 
   <labelbuttontest type="coffee" text="Text" width="200">
     <handler event="oninit">
+      assert.testCaseLabel = 'labelbutton tests, fixed width';
+      
       assert.equal(@text, 'Text');
       @testsize(0,0,200,24,80,0);
 
@@ -62,6 +68,8 @@
 
   <labelbuttontest type="coffee" text="Text" height="100">
     <handler event="oninit">
+      assert.testCaseLabel = 'labelbutton tests, fixed height';
+
       assert.equal(@text, 'Text');
       @testsize(0,0,55,100,10,38);
 
@@ -88,6 +96,8 @@
 
   <labeltoggletest type="coffee" text="Text">
     <handler event="oninit">
+      assert.testCaseLabel = 'labeltoggle tests';
+
       assert.equal(@text, 'Text');
       @testsize(0,0,55,24,10,0);
 
@@ -99,6 +109,8 @@
 
   <labeltoggletest type="coffee" text="Text" width="200" height="100">
     <handler event="oninit">
+      assert.testCaseLabel = 'labeltoggle tests, fixed width and height';
+
       assert.equal(@text, 'Text');
       @testsize(0,0,200,100,80,38);
     </handler>
@@ -106,6 +118,8 @@
 
   <labeltoggletest type="coffee" text="Text" width="200">
     <handler event="oninit">
+      assert.testCaseLabel = 'labeltoggle tests, fixed width';
+
       assert.equal(@text, 'Text');
       @testsize(0,0,200,24,80,0);
 
@@ -117,6 +131,8 @@
 
   <labeltoggletest type="coffee" text="Text" height="100">
     <handler event="oninit">
+      assert.testCaseLabel = 'labeltoggle tests, fixed height';
+
       assert.equal(@text, 'Text');
       @testsize(0,0,55,100,10,38);
 
@@ -144,6 +160,8 @@
 
   <checkbuttontest type="coffee" text="Text">
     <handler event="oninit">
+      assert.testCaseLabel = 'checkbutton tests';
+
       assert.equal(@text, 'Text');
       @testsize(0,0,60,24,24,0);
 
@@ -155,6 +173,8 @@
 
   <checkbuttontest type="coffee" text="Text" width="200" height="100">
     <handler event="oninit">
+      assert.testCaseLabel = 'checkbutton tests, fixed width and height';
+
       assert.equal(@text, 'Text');
       @testsize(0,0,200,100,160,38);
 
@@ -166,6 +186,8 @@
 
   <checkbuttontest type="coffee" text="Text" width="200">
     <handler event="oninit">
+      assert.testCaseLabel = 'checkbutton tests, fixed width';
+
       assert.equal(@text, 'Text');
       @testsize(0,0,200,24,160,0);
 
@@ -177,6 +199,8 @@
 
   <checkbuttontest type="coffee" text="Text" height="100" foo="bar">
     <handler event="oninit">
+      assert.testCaseLabel = 'checkbutton tests, fixed height';
+
       assert.equal(@text, 'Text');
       @testsize(0,0,60,100,24,38);
 
