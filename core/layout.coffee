@@ -4762,7 +4762,7 @@ window.dr = do ->
   # The name of the attribute
   ###
   ###*
-  # @attribute {"string"/"number"/"boolean"/"json"} [type=string] (required)
+  # @attribute {"string"/"number"/"boolean"/"json"/"expression"} [type=string] (required)
   # The type of the attribute. Used to convert from a string to an appropriate representation of the type.
   ###
   ###*

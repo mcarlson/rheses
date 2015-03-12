@@ -247,6 +247,17 @@ error parsing json value '{'test': 'invalid'}' for attribute 'foo'
     <attribute name="foo" type="json" value="{'test': 'invalid'}"></attribute>
   </view>
 
+  <!-- attribute of type 'expression' -->
+  <view>
+    <attribute name="location" type="expression" value="window.location.href"></attribute>
+    
+    <handler event="oninit">
+      assert.testCaseLabel = "attribute of type 'expression'";
+      
+      assert.isTrue(this.location.indexOf('attributes.html') >= 0, 'location is set to window.location')
+    </handler>
+  </view>
+
 </view>
 <!-- The MIT License (MIT)
 
