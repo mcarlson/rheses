@@ -13,7 +13,7 @@ test:
     - python -m SimpleHTTPServer 8080:
         background: true
   override:
-    - bundle exec rspec
+    - FIREFOX=yes bundle exec rspec
 #  post:
 #    - ./bin/sc -u $SAUCE_USERNAME -k $SAUCE_ACCESS_KEY -f ~/sc_ready:
 #        background: true
