@@ -79,7 +79,7 @@ This is the default Dreem skin ([see example](http://localhost:8080/examples/sty
 
       <labelbutton border="2" padding="3" textcolor="rgb(207,207,207)" defaultcolor="rgb(63,63,63)">
         <art name="indicator" fill="white"></art>
-        <text color="rgb(207,207,207)" name="label" fontweight="200" text-transform="uppercase" bgcolor="transparent" fontsize="20" fontfamily="'mission-gothic', 'Helvetica Neue', Helvetica, Arial, sans-serif"></text>
+        <text color="rgb(207,207,207)" name="label" fontweight="200" text-transform="uppercase" fontsize="20" fontfamily="'mission-gothic', 'Helvetica Neue', Helvetica, Arial, sans-serif"></text>
       </labelbutton>
 
       <rangeslider bottomborder="2" bordercolor="white" lowselectcolor="#a0a0a0" highselectcolor="#a0a0a0">
@@ -94,12 +94,12 @@ This is the default Dreem skin ([see example](http://localhost:8080/examples/sty
       </slider>
 
       <checkbutton border="2" padding="3" textcolor="rgb(140,140,140)" innerspacing="3">
-        <text color="rgb(140,140,140)" name="label" text-transform="uppercase" bgcolor="transparent" fontweight="200" fontsize="20" fontfamily="'mission-gothic', 'Helvetica Neue', Helvetica, Arial, sans-serif"></text>
+        <text color="rgb(140,140,140)" name="label" text-transform="uppercase" fontweight="200" fontsize="20" fontfamily="'mission-gothic', 'Helvetica Neue', Helvetica, Arial, sans-serif"></text>
       </checkbutton>
 
       <labeltoggle border="2" padding="3" textcolor="rgb(207,207,207)" defaultcolor="rgb(63,63,63)">
         <art name="indicator" fill="white"></art>
-        <text color="rgb(207,207,207)" name="label" text-transform="uppercase" bgcolor="transparent" fontweight="200" fontsize="20" fontfamily="'mission-gothic', 'Helvetica Neue', Helvetica, Arial, sans-serif"></text>
+        <text color="rgb(207,207,207)" name="label" text-transform="uppercase" fontweight="200" fontsize="20" fontfamily="'mission-gothic', 'Helvetica Neue', Helvetica, Arial, sans-serif"></text>
       </labeltoggle>
     </skin>
 
