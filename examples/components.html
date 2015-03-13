@@ -8,7 +8,7 @@
   <script type="text/javascript" src="../core/layout.js"></script>
 </head>
 <body>
-<view width="100%" height="100%" scrollable="true" bgcolor="rgb(63,63,63)">
+<view id="all" skin="default" width="100%" height="100%" scrollable="true" bgcolor="rgb(63,63,63)">
   <spacedlayout axis="y" spacing="20"></spacedlayout>
 
   <view name="labeltoggle" height="auto">
@@ -31,7 +31,7 @@
     <labelbutton name="lb5" height="50" border="4" text="Only Height"></labelbutton>
   </view>
 
-  <class name="mycheckbutton" extends="checkbutton" defaultcolor="blue" defaulttextcolor="red" selectcolor="green" bgcolor="black"></class>
+  <class name="mycheckbutton" extends="checkbutton" defaultcolor="blue" textcolor="red" selectcolor="green" bgcolor="black"></class>
 
   <view name="checkbutton" height="auto">
     <spacedlayout axis="x" spacing="12" updateparent="true"></spacedlayout>

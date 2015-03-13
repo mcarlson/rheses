@@ -33,6 +33,7 @@ stylemap =
   bgcolor: 'backgroundColor'
   ellipsis: 'textOverflow'
   fontfamily: 'fontFamily'
+  fontweight: 'fontWeight'
   fontsize: 'fontSize'
   italic: 'fontStyle'
   leftborder: 'borderLeftWidth'
@@ -741,7 +742,7 @@ window.dr = do ->
     # nodes can be identified
     earlyattributes = ['name', 'parent']
     # data must be set after text
-    lateattributes = ['data']
+    lateattributes = ['data', 'skin']
 
     constructor: (el, attributes = {}) ->
       # Process attributes if mixins are defined so that attributes from
@@ -1286,7 +1287,7 @@ window.dr = do ->
     setAttribute: (name, value) ->
       switch name
         # Attributes that map to DOM element style attributes
-        when 'width', 'height', 'z', 'opacity', 'bgcolor', 'color', 'whitespace', 'fontsize', 'fontfamily', 'font-weight', 'text-transform', 'boxshadow', 'leftpadding', 'rightpadding', 'toppadding', 'bottompadding', 'leftborder', 'rightborder', 'topborder', 'bottomborder', 'bordercolor', 'borderstyle'
+        when 'width', 'height', 'z', 'opacity', 'bgcolor', 'color', 'whitespace', 'fontsize', 'fontfamily', 'fontweight', 'text-transform', 'boxshadow', 'leftpadding', 'rightpadding', 'toppadding', 'bottompadding', 'leftborder', 'rightborder', 'topborder', 'bottomborder', 'bordercolor', 'borderstyle'
           @setStyle(name, value)
         when 'bold'
           @setStyle(name, if value then 'bold' else 'normal')
@@ -1319,8 +1320,8 @@ window.dr = do ->
           value ?= ''
           name = stylemap[name] if name of stylemap
           el.style[name] = value
-          
-          # WORKAROUND: Chrome and Safari (Webkit?) browsers only update position on 
+
+          # WORKAROUND: Chrome and Safari (Webkit?) browsers only update position on
           # borderLeftWidth and paddingLeft change. Fix is to tweak the padding 
           # by +/- a small value to trigger a change but prevent value drift.
           if name is 'borderTopWidth' or name is 'paddingTop'
@@ -1524,6 +1525,15 @@ window.dr = do ->
         @setStyle('width', width, true, input)
       if height
         @setStyle('height', height, true, input)
+
+      @setStyle('color', 'inherit', false, input)
+      @setStyle('background', 'inherit', false, input)
+      @setStyle('font-variant', 'inherit', false, input)
+      @setStyle('font-style', 'inherit', false, input)
+      @setStyle('font-weight', 'inherit', false, input)
+      @setStyle('font-size', 'inherit', false, input)
+      @setStyle('font-family', 'inherit', false, input)
+
       @el.appendChild(input)
       # console.log('createInputtextElement', text, multiline, width, height, input)
 
@@ -1567,6 +1577,7 @@ window.dr = do ->
     knownstyles = ['width', 'height', 'background-color', 'opacity', 'padding', 'transform', 'transform-style', 'transform-origin', 'z-index', 'perspective', 'cursor', capabilities.prefix.css + 'transform', capabilities.prefix.css + 'transform-style', capabilities.prefix.css + 'transform-origin']
     ss2 = Sprite::setStyle
     Sprite::setStyle = (name, value, internal, el=@el) ->
+      return if name == '$instanceattributes'
       if not internal and not (name of stylemap) and not (name in knownstyles)
         console.warn "Setting unknown CSS property #{name} = #{value} on ", @el.$view, stylemap, internal
       ss2(name, value, internal, el)
@@ -1990,6 +2001,7 @@ window.dr = do ->
         scrollbars:'boolean'
         scrollx:'number'
         scrolly:'number'
+        skin:'string',
         topborder:'positivenumber'
         toppadding:'positivenumber'
         visible:'boolean'
@@ -2018,6 +2030,7 @@ window.dr = do ->
       @cursor = 'pointer'
       @bgcolor = @bordercolor = 'transparent'
       @borderstyle = 'solid'
+      @skin = ''
       @leftborder = @rightborder = @topborder = @bottomborder = @border =
         @leftpadding = @rightpadding = @toppadding = @bottompadding = @padding =
         @x = @y = @width = @height = @innerwidth = @innerheight =
@@ -2050,6 +2063,7 @@ window.dr = do ->
       @sprite = null
 
     defaultSetAttributeBehavior: (name, value) ->
+      #xxxx
       existing = @[name]
       super
       value = @[name]
@@ -2372,7 +2386,7 @@ window.dr = do ->
       @setAttribute('leftborder', v)
       @setAttribute('rightborder', v)
       @__lockBPRecalc = false
-      
+
       @setAndFire('border', v)
       @__updateInnerWidth()
       @__updateInnerHeight()
@@ -2589,6 +2603,38 @@ window.dr = do ->
         @setAndFire('zanchor', v)
         @__updateTransform()
       noop
+
+    set_skin: (name) ->
+      if name isnt @skin
+        @skin = name
+        @reskin()
+        @setAndFire('skin', name)
+      noop
+
+    attachSkinListener: () ->
+      if !@$skinlistner
+        @$skinlistner = true
+        @listenTo @, 'subviewAdded', (sv)->
+          sv.attachSkinListener()
+          sv.reskin()
+
+    reskin: () ->
+      @attachSkinListener()
+
+      unless window.dr.skins
+        console.log("<skin> hasn't been initialized yet", @)
+        return
+
+      if @skin
+        skins = @skin.split(/[^A-Za-z0-9_-]+/)
+        for skinname in skins
+          if skin = window.dr.skins[skinname]
+            skin.applyTo(@)
+          else
+            console.log('Cannot apply skin:', skinname)
+
+      else if @parent && @parent.reskin
+        return @parent.reskin()
 
     moveToFront: () ->
       for subview in @parent.subviews
@@ -2827,7 +2873,6 @@ window.dr = do ->
         return if url of fileloaded
         fileloaded[url] = el
         dependencies.push(url)
-        # console.log "Loading #{url}", el
         prom = $.get(url)
         prom.url = url
         prom.el = el
@@ -2879,7 +2924,13 @@ window.dr = do ->
         urls
 
       loadIncludes = (callback) ->
-        # load includes
+
+        #preload skin
+        unless fileloaded['skin']
+          fileloaded['skin'] = true
+          loadInclude("/classes/skin.dre")
+
+      # load includes
         for url, el of findIncludeURLs()
           # console.log 'include url', url
           loadInclude(url, el)
@@ -3539,6 +3590,7 @@ window.dr = do ->
         # override class attributes with instance attributes
         attributes = clone(classattributes)
         _processAttrs(instanceattributes, attributes)
+        attributes.$instanceattributes ?= instanceattributes
 
         if not (extend of dr)
           console.warn 'could not find class for tag', extend

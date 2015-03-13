@@ -62,7 +62,7 @@ SOFTWARE. -->
    *           text="${Math.round(this.parent.range.lowvalue) + ' ~ ' + this.parent.range.minvalue}"></text>
    *
    */-->
-<class name="rangeslider" type="coffee" clickable="true" clip="true" bottomborder="2" bordercolor="white">
+<class name="rangeslider" type="coffee" clickable="true" clip="true">
 
     <handler event="oninit" method="visualize"></handler>
     <handler event="onwidth" method="visualize"></handler>
@@ -137,20 +137,20 @@ SOFTWARE. -->
       * @attribute {String} [lowselectcolor="#a0a0a0"]
       * The selected color of the lower bound slider.
       */-->
-    <attribute name="lowselectcolor" type="string" value="#a0a0a0"></attribute>
+    <attribute name="lowselectcolor" type="string" value="transparent"></attribute>
     <handler event="onlowselectcolor" method="visualize"></handler>
 
     <!--/**
       * @attribute {String} [highselectcolor="#a0a0a0"]
       * The selected color of the upper bound slider.
       */-->
-    <attribute name="highselectcolor" type="string" value="#a0a0a0"></attribute>
+    <attribute name="highselectcolor" type="string" value="transparent"></attribute>
     <handler event="onhighselectcolor" method="visualize"></handler>
 
     <!-- Internal view to show the current right slider value -->
-    <view name="highvalueview" bgcolor="${this.parent.highselectcolor}" bottomborder="2" bordercolor="white"></view>
+    <view name="highvalueview" bgcolor="${this.parent.highselectcolor}"></view>
     <art name="highindicator" clickable="false" rotation="270" x="${this.parent.highvalueview.x - this.width}" y="${this.parent.height - this.height}"
-         height="${this.parent.highvalueview.height}" width="${this.parent.highvalueview.height}" fill="white" inline="true">
+         height="${this.parent.highvalueview.height}" width="${this.parent.highvalueview.height}" inline="true">
         <!--
         <svg name="triangle" height="100" width="100">
             <polygon name="polygon" points="0,100 0,0 100,100"/>
@@ -159,9 +159,9 @@ SOFTWARE. -->
     </art>
 
     <!-- Internal view to show the current left slider value -->
-    <view name="lowvalueview" bgcolor="${this.parent.lowselectcolor}" bottomborder="2" bordercolor="white"></view>
+    <view name="lowvalueview" bgcolor="${this.parent.lowselectcolor}"></view>
     <art name="lowindicator" clickable="false" x="${this.parent.lowvalueview.x + this.parent.lowvalueview.width}" y="${this.parent.height - this.height}"
-         height="${this.parent.lowvalueview.height}" width="${this.parent.lowvalueview.height}" inline="true" fill="white">
+         height="${this.parent.lowvalueview.height}" width="${this.parent.lowvalueview.height}" inline="true">
         <!--
         <svg name="triangle" height="100" width="100">
             <polygon name="polygon" points="0,100 0,0 100,100"/>

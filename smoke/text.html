@@ -171,41 +171,6 @@ refusing to create a class that would overwrite the builtin tag b
     <view width="auto" height="auto" bgcolor="lightgrey">
       <spacedlayout axis="y" spacing="1"></spacedlayout>
 
-      <!-- Default Font styles -->
-      <text text="Default font styles">
-        <handler event="oninit">
-          assert.testCaseLabel = 'Default Font styles';
-
-          var el = this.sprite.el,
-            jqel = $(el),
-            style = el.style;
-          
-          assert.equal(this.fontsize, '20', 'Model should be 20');
-          assert.equal(style['font-size'], '20px', 'Style property should be empty');
-          assert.equal(jqel.css('font-size'), '20px', 'Effective style should be defined');
-          
-          assert.equal(this.fontfamily.replace(/'/g, "").replace(/\"/g, '').replace(/ /g, ''), "mission-gothic,HelveticaNeue,Helvetica,Arial,sans-serif");
-          assert.equal(style['font-family'].replace(/'/g, "").replace(/\"/g, '').replace(/ /g, ''), "mission-gothic,HelveticaNeue,Helvetica,Arial,sans-serif");
-          var ff = jqel.css('font-family');
-          assert.equal(ff.replace(/'/g, "").replace(/\"/g, '').replace(/ /g, ''), "mission-gothic,HelveticaNeue,Helvetica,Arial,sans-serif");
-          
-          assert.equal(this.color, 'white');
-          assert.equal(style['color'], 'white');
-          assert.equal(jqel.css('color'), 'rgb(255, 255, 255)');
-          
-          assert.equal(this.bold, false);
-          assert.equal(this.italic, false);
-          assert.equal(this.underline, false);
-          assert.equal(this.strike, false);
-          assert.equal(this.smallcaps, false);
-          
-          assert.equal(style['font-weight'], '200');
-          assert.equal(style['font-style'], '');
-          assert.equal(style['text-decoration'], 'none');
-          assert.equal(style['font-variant'], '');
-        </handler>
-      </text>
-      
       <text bold="true" text="bold text">
         <handler event="oninit">
           assert.equal(this.bold, true);
@@ -435,7 +400,7 @@ refusing to create a class that would overwrite the builtin tag b
           assert.equal(this.multiline, true);
           assert.equal(this.sprite.el.style['white-space'], 'pre-wrap');
           assert.equal(this.width, 60);
-          assert.closeTo(this.height, 96, 10)
+          assert.closeTo(this.height, 90, 10)
         </handler>
       </text>
       
@@ -515,41 +480,6 @@ refusing to create a class that would overwrite the builtin tag b
           assert.closeTo(this.height, 72, 10);
         </handler>
       </text>
-    </view>
-
-    <!-- Dreem Text -->
-    <view width="auto" height="auto" bgcolor="lightgrey">
-      <spacedlayout axis="y" spacing="1"></spacedlayout>
-      
-      <dreem-text text="This is dreem text">
-        <handler event="oninit">
-          assert.testCaseLabel = 'Dreem Text';
-          assert.equal(this.bgcolor, 'rgb(63,63,63)');
-          assert.equal(this.color, 'white');
-          assert.equal(this.toppadding, 10);
-          assert.equal(this.bottompadding, 10);
-          assert.equal(this.leftpadding, 20);
-          assert.equal(this.rightpadding, 20);
-          
-          assert.closeTo(this.width, 190, 10);
-          assert.closeTo(this.height, 44, 10);
-        </handler>
-      </dreem-text>
-      
-      <dreem-text text="This is more dreem text" multiline="true" width="100">
-        <handler event="oninit">
-          assert.testCaseLabel = 'Dreem Text multiline';
-          assert.equal(this.bgcolor, 'rgb(63,63,63)');
-          assert.equal(this.color, 'white');
-          assert.equal(this.toppadding, 10);
-          assert.equal(this.bottompadding, 10);
-          assert.equal(this.leftpadding, 20);
-          assert.equal(this.rightpadding, 20);
-          
-          assert.equal(this.width, 100);
-          assert.closeTo(this.height, 112, 15);
-        </handler>
-      </dreem-text>
     </view>
   </view>
 <!-- The MIT License (MIT)

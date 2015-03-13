@@ -1,0 +1,121 @@
+<class type="coffee" name="skin" initchildren="false" visible="false">
+
+    <setter name="name" args="name">
+        window.dr.skins ||= {}
+        window.dr.skins[name] = @
+        return name
+    </setter>
+
+    <method name="templates">
+        unless @temps
+          @temps = {}
+
+          readnode = (template, node) ->
+            nodenamemap = node.attributes
+            for i in [0...nodenamemap.length] by 1
+              attr = nodenamemap[i]
+              template[attr.name] = attr.value
+
+            for child in node.children
+              childtmpl = {}
+              readnode(childtmpl, child)
+              name = childtmpl['name']
+              delete(childtmpl['name'])
+              template[name] = childtmpl
+
+          for child in @sprite.el.children
+            template = {}
+            @temps[child.tagName.toLowerCase()] = template
+            readnode(template, child)
+
+        return @temps
+    </method>
+
+    <handler event="oninit">
+        if @visible
+          y = 10
+          for tag, props of @templates()
+            props = { "class" : tag, "x" : 10, "y" : y, "width" : 300, "height" : 30 }
+            el = @createChild(props, false)
+            el.$tagname = tag
+            @applyTo(el)
+            y = y + 10 + el.height
+
+          @autoresize()
+    </handler>
+
+    <method name="autoresize">
+        h = 0
+        w = 0
+        for subview in @subviews
+          w = Math.max(w, subview.width + subview.x)
+          h = Math.max(h, subview.height + subview.y)
+
+        @setAttribute('height', h + 10)
+        @setAttribute('width', w + 10)
+
+    </method>
+
+    <method name="_attributesFor" args="tag">
+        tmpl = @templates()[tag.toLowerCase()] || {}
+        return jQuery.extend(true, {}, tmpl);
+    </method>
+
+    <method name="applyTo" args="view, override">
+        tag = view['$tagname'] || 'view'
+
+        attrs = @_attributesFor(tag)
+        if override
+          for key, value of override
+            attrs[key] = value
+
+        for key, value of attrs
+          continue if key == 'name'
+          if !view.$instanceattributes || !view.$instanceattributes[key]
+            if typeof(value) == 'string'
+              view.setAttribute(key, value)
+            else if child = view[key]
+              child.$skinleaf = true
+              @applyTo(child, value)
+
+        for subview in view.subviews
+          unless subview && ((subview.$instanceattributes && subview.$instanceattributes['skin']) || subview.$appliedskin == @name || subview.$skinleaf)
+            @applyTo(subview)
+
+        view.$appliedskin = @name
+
+    </method>
+</class>
+
+<skin name="default">
+  <text fontweight="200" clip="true" color="white" fontsize="20" fontfamily="'mission-gothic', 'Helvetica Neue', Helvetica, Arial, sans-serif"></text>
+
+  <inputtext color="white" fontweight="300" fontsize="20" leftpadding="10" leftborder="2" bottomborder="2" bordercolor="white" fontfamily="'mission-gothic', 'Helvetica Neue', Helvetica, Arial, sans-serif">
+    <art name="indicator" fill="white" x="-5"></art>
+  </inputtext>
+
+  <labelbutton border="2" padding="3" textcolor="rgb(207,207,207)" defaultcolor="rgb(63,63,63)">
+    <art name="indicator" fill="white"></art>
+    <text color="rgb(207,207,207)" name="label" fontweight="200" text-transform="uppercase" fontsize="20" fontfamily="'mission-gothic', 'Helvetica Neue', Helvetica, Arial, sans-serif"></text>
+  </labelbutton>
+
+  <rangeslider bottomborder="2" bordercolor="white" lowselectcolor="#a0a0a0" highselectcolor="#a0a0a0">
+    <view name="highvalueview" bottomborder="2" bordercolor="white"></view>
+    <art name="highindicator" fill="white"></art>
+    <view name="lowvalueview" bottomborder="2" bordercolor="white"></view>
+    <art name="lowindicator" fill="white"></art>
+  </rangeslider>
+
+  <slider bottomborder="2" selectcolor="white">
+    <art name="indicator" fill="white"></art>
+  </slider>
+
+  <checkbutton border="2" padding="3" textcolor="rgb(140,140,140)" innerspacing="3">
+    <text color="rgb(140,140,140)" name="label" text-transform="uppercase" fontweight="200" fontsize="20" fontfamily="'mission-gothic', 'Helvetica Neue', Helvetica, Arial, sans-serif"></text>
+  </checkbutton>
+
+  <labeltoggle border="2" padding="3" textcolor="rgb(207,207,207)" defaultcolor="rgb(63,63,63)">
+    <art name="indicator" fill="white"></art>
+    <text color="rgb(207,207,207)" name="label" text-transform="uppercase" fontweight="200" fontsize="20" fontfamily="'mission-gothic', 'Helvetica Neue', Helvetica, Arial, sans-serif"></text>
+  </labeltoggle>
+</skin>

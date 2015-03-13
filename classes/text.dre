@@ -82,17 +82,19 @@ SOFTWARE. -->
       *      <timetext text="240"></timetext>
       * 
       */-->
-<class name="text" with="sizetodom" type="coffee" font-weight="200" color="white">
-  <!--/**
-        * @attribute {Number} [fontsize]
-        * The size of the font in pixels.
-        */-->
-  <attribute name="fontsize" type="emptynumber" value="20"></attribute>
+<class name="text" with="sizetodom" type="coffee">
+
+    <!--/**
+          * @attribute {Number} [fontsize]
+          * The size of the font in pixels.
+          */-->
+  <attribute name="fontsize" type="emptynumber" value=""></attribute>
   <setter name="fontsize" args="v">
     if @fontsize isnt v
       @sprite.setAttribute('fontsize', v)
       @setAndFire('fontsize', v)
       if @inited then @sizeToDom()
+
     return dr._noop
   </setter>
 
@@ -100,11 +102,20 @@ SOFTWARE. -->
         * @attribute {Number} [fontfamily=""]
         * The name of the font family to use, e.g. "Helvetica"  Include multiple fonts on a line, separated by commas.
         */-->
-  <attribute name="fontfamily" type="string" value="'mission-gothic', 'Helvetica Neue', Helvetica, Arial, sans-serif"></attribute>
+  <attribute name="fontfamily" type="string" value=""></attribute>
   <setter name="fontfamily" args="v">
     if @fontfamily isnt v
       @sprite.setAttribute('fontfamily', v)
       @setAndFire('fontfamily', v)
+      if @inited then @sizeToDom()
+    return dr._noop
+  </setter>
+
+  <attribute name="fontweight" type="number" value=""></attribute>
+  <setter name="fontweight" args="v">
+    if @fontweight isnt v
+      @sprite.setAttribute('fontweight', v)
+      @setAndFire('fontweight', v)
       if @inited then @sizeToDom()
     return dr._noop
   </setter>

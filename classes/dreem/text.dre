@@ -26,7 +26,7 @@ SOFTWARE. -->
       * 
       */-->
 <class name="dreem-text" extends="text" type="coffee"
-  bgcolor="rgb(63,63,63)" color="white"
+  bgcolor="transparent" color="white"
   toppadding="10" bottompadding="10" leftpadding="20" rightpadding="20"
 >
 </class>

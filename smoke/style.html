@@ -1,99 +1,154 @@
 <html>
 <head>
     <style type="text/css">
-        @charset "UTF-8";
-        @font-face {
-            font-family: 'mission-gothic';
-            src: url("/fonts/mission_gothic_thin.eot");
-            src: url("/fonts/mission_gothic_thin.eot?#iefix") format("embedded-opentype"), url("/fonts/mission_gothic_thin.woff2") format("woff2"), url("/fonts/mission_gothic_thin.woff") format("woff"), url("/fonts/mission_gothic_thin.ttf") format("truetype"), url("/fonts/mission_gothic_thin.svg#mission_gothicthin") format("svg");
-            font-weight: 200;
-            font-style: normal; }
-        @font-face {
-            font-family: 'mission-gothic';
-            src: url("/fonts/mission_gothic_regular.eot");
-            src: url("/fonts/mission_gothic_regular.eot?#iefix") format("embedded-opentype"), url("/fonts/mission_gothic_regular.woff2") format("woff2"), url("/fonts/mission_gothic_regular.woff") format("woff"), url("/fonts/mission_gothic_regular.ttf") format("truetype"), url("/fonts/mission_gothic_regular.svg#mission_gothicregular") format("svg");
-            font-weight: 400;
-            font-style: normal; }
-        @font-face {
-            font-family: 'mission-gothic';
-            src: url("/fonts/mission_gothic_regular_italic.eot");
-            src: url("/fonts/mission_gothic_regular_italic.eot?#iefix") format("embedded-opentype"), url("/fonts/mission_gothic_regular_italic.woff2") format("woff2"), url("/fonts/mission_gothic_regular_italic.woff") format("woff"), url("/fonts/mission_gothic_regular_italic.ttf") format("truetype"), url("/fonts/mission_gothic_regular_italic.svg#mission_gothicregular_italic") format("svg");
-            font-weight: 400;
-            font-style: italic; }
-        @font-face {
-            font-family: 'mission-gothic';
-            src: url("/fonts/mission_gothic_thin_italic.eot");
-            src: url("/fonts/mission_gothic_thin_italic.eot?#iefix") format("embedded-opentype"), url("/fonts/mission_gothic_thin_italic.woff2") format("woff2"), url("/fonts/mission_gothic_thin_italic.woff") format("woff"), url("/fonts/mission_gothic_thin_italic.ttf") format("truetype"), url("/fonts/mission_gothic_thin_italic.svg#mission_gothicthin_italic") format("svg");
-            font-weight: 200;
-            font-style: italic; }
-        @font-face {
-            font-family: 'mission-gothic';
-            src: url("/fonts/mission_gothic_light_italic.eot");
-            src: url("/fonts/mission_gothic_light_italic.eot?#iefix") format("embedded-opentype"), url("/fonts/mission_gothic_light_italic.woff2") format("woff2"), url("/fonts/mission_gothic_light_italic.woff") format("woff"), url("/fonts/mission_gothic_light_italic.ttf") format("truetype"), url("/fonts/mission_gothic_light_italic.svg#mission_gothiclight_italic") format("svg");
-            font-weight: 300;
-            font-style: italic; }
-        @font-face {
-            font-family: 'mission-gothic';
-            src: url("/fonts/mission_gothic_light.eot");
-            src: url("/fonts/mission_gothic_light.eot?#iefix") format("embedded-opentype"), url("/fonts/mission_gothic_light.woff2") format("woff2"), url("/fonts/mission_gothic_light.woff") format("woff"), url("/fonts/mission_gothic_light.ttf") format("truetype"), url("/fonts/mission_gothic_light.svg#mission_gothiclight") format("svg");
-            font-weight: 300;
-            font-style: normal; }
-        @font-face {
-            font-family: 'mission-gothic';
-            src: url("/fonts/mission_gothic_bold_italic.eot");
-            src: url("/fonts/mission_gothic_bold_italic.eot?#iefix") format("embedded-opentype"), url("/fonts/mission_gothic_bold_italic.woff2") format("woff2"), url("/fonts/mission_gothic_bold_italic.woff") format("woff"), url("/fonts/mission_gothic_bold_italic.ttf") format("truetype"), url("/fonts/mission_gothic_bold_italic.svg#mission_gothicbold_italic") format("svg");
-            font-weight: 700;
-            font-style: italic; }
-        @font-face {
-            font-family: 'mission-gothic';
-            src: url("/fonts/mission_gothic_bold.eot");
-            src: url("/fonts/mission_gothic_bold.eot?#iefix") format("embedded-opentype"), url("/fonts/mission_gothic_bold.woff2") format("woff2"), url("/fonts/mission_gothic_bold.woff") format("woff"), url("/fonts/mission_gothic_bold.ttf") format("truetype"), url("/fonts/mission_gothic_bold.svg#mission_gothicbold") format("svg");
-            font-weight: 700;
-            font-style: normal; }
-        @font-face {
-            font-family: 'mission-gothic';
-            src: url("/fonts/mission_gothic_black_italic.eot");
-            src: url("/fonts/mission_gothic_black_italic.eot?#iefix") format("embedded-opentype"), url("/fonts/mission_gothic_black_italic.woff2") format("woff2"), url("/fonts/mission_gothic_black_italic.woff") format("woff"), url("/fonts/mission_gothic_black_italic.ttf") format("truetype"), url("/fonts/mission_gothic_black_italic.svg#mission_gothicblack_italic") format("svg");
-            font-weight: 800;
-            font-style: italic; }
-        @font-face {
-            font-family: 'mission-gothic';
-            src: url("/fonts/mission_gothic_black.eot");
-            src: url("/fonts/mission_gothic_black.eot?#iefix") format("embedded-opentype"), url("/fonts/mission_gothic_black.woff2") format("woff2"), url("/fonts/mission_gothic_black.woff") format("woff"), url("/fonts/mission_gothic_black.ttf") format("truetype"), url("/fonts/mission_gothic_black.svg#mission_gothicblack") format("svg");
-            font-weight: 800;
-            font-style: normal; }
+        body {
+            font-family: 'Arial';
+            font-size: 14px;
+        }
     </style>
 
-    <title>DREEM - Visual Style</title>
+    <title>rhes.es - Style Smoke Tests</title>
     <script type="text/javascript" src="/lib/jquery-1.9.1.min.js"></script>
     <script type="text/javascript" src="/lib/acorn.js"></script>
     <script type="text/javascript" src="/lib/coffee-script.js"></script>
     <script type="text/javascript" src="/core/layout.js"></script>
     <script type="text/javascript" src="/lib/chai.js"></script>
-    <script type="text/javascript" src="/lib/smoke_helper.js"></script>
-
+    <script>
+        var assert = chai.assert
+    </script>
 </head>
-<body style="background-color:black">
-<view id="all" width="100%" height="100%" padding="30" bgcolor="rgb(63,63,63)">
-    <spacedlayout axis="y" spacing="15"></spacedlayout>
+<body>
+<view id="all">
+    <skin></skin>
+    <spacedlayout axis="y" spacing="10"></spacedlayout>
 
-    <text        resize="true" height="41" width="181" text="420.20 some text here resize"></text>
-    <text        resize="false" height="28" width="181" text="420.20 some text here"></text>
+    <view id="inputtext_style_tests" skin="default" width="auto" height="auto">
+        <spacedlayout axis="y" spacing="15"></spacedlayout>
 
-    <inputtext   id="it" height="41" width="181" text="420.20 some text here"></inputtext>
-    <labelbutton height="41" width="181" text="click me"></labelbutton>
-    <rangeslider height="20" width="181"></rangeslider>
-    <slider      height="20" width="181"></slider>
-    <checkbutton></checkbutton>
-    <checkbutton height="50" width="50"></checkbutton>
-    <checkbutton text="pink" selectcolor="pink"></checkbutton>
-    <labeltoggle height="41" width="181" text="click me"></labeltoggle>
+        <!-- Width and height with border/padding -->
+        <inputtext width="100" height="30" padding="4" border="1">
+            <handler event="oninit">
+                assert.testCaseLabel = 'Width and height with border/padding';
+
+                assert.equal(this.width, 100);
+                assert.equal(this.height, 30);
+                assert.equal($(this.sprite.input).width(), 98)
+                assert.equal($(this.sprite.input).height(), 28)
+
+                this.setAttribute('width', 200)
+                this.setAttribute('height', 100)
+                assert.equal(this.width, 200)
+                assert.equal(this.height, 100)
+                assert.equal($(this.sprite.input).width(), 181)
+                assert.equal($(this.sprite.input).height(), 87)
+            </handler>
+        </inputtext>
+
+        <!-- Default sizing -->
+        <inputtext bgcolor="green">
+            Text
+            <handler event="oninit">
+                assert.testCaseLabel = 'Default sizing';
+                assert.equal(this.width, 12)
+                assert.equal(this.height, 2)
+            </handler>
+        </inputtext>
+
+    </view>
+
+    <view id="text_style_tests" skin="default" width="auto" height="auto" scrollable="true">
+        <spacedlayout axis="x" spacing="1"></spacedlayout>
+
+        <!-- TEXT STYLING -->
+        <view width="auto" height="auto" bgcolor="lightgrey">
+            <spacedlayout axis="y" spacing="1"></spacedlayout>
+
+            <!-- Default Font styles -->
+            <text text="Default font styles">
+                <handler event="oninit">
+                    assert.testCaseLabel = 'Default Font styles';
+
+                    var el = this.sprite.el,
+                    jqel = $(el),
+                    style = el.style;
+
+                    assert.equal(this.fontsize, '20', 'Model should be 20');
+                    assert.equal(style['font-size'], '20px', 'Style property should be empty');
+                    assert.equal(jqel.css('font-size'), '20px', 'Effective style should be defined');
+
+                    assert.equal(this.fontfamily.replace(/'/g, "").replace(/\"/g, '').replace(/ /g, ''), "mission-gothic,HelveticaNeue,Helvetica,Arial,sans-serif");
+                    assert.equal(style['font-family'].replace(/'/g, "").replace(/\"/g, '').replace(/ /g, ''), "mission-gothic,HelveticaNeue,Helvetica,Arial,sans-serif");
+                    var ff = jqel.css('font-family');
+                    assert.equal(ff.replace(/'/g, "").replace(/\"/g, '').replace(/ /g, ''), "mission-gothic,HelveticaNeue,Helvetica,Arial,sans-serif");
+
+                    assert.equal(this.color, 'white');
+                    assert.equal(style['color'], 'white');
+                    assert.equal(jqel.css('color'), 'rgb(255, 255, 255)');
+
+                    assert.equal(this.bold, false);
+                    assert.equal(this.italic, false);
+                    assert.equal(this.underline, false);
+                    assert.equal(this.strike, false);
+                    assert.equal(this.smallcaps, false);
+
+                    assert.equal(style['font-weight'], '200');
+                    assert.equal(style['font-style'], '');
+                    assert.equal(style['text-decoration'], 'none');
+                    assert.equal(style['font-variant'], '');
+                </handler>
+            </text>
+
+            <text text="Multiple font properties" bgcolor="blue"
+              underline="true" bold="true" italic="true" smallcaps="true" fontsize="32"
+              fontfamily="'Brush Script MT', cursive" color="#9999ff">
+                <handler event="oninit">
+                    var style = this.sprite.el.style;
+
+                    assert.equal(this.fontfamily, "'Brush Script MT', cursive", 'fontfamily not set');
+                    assert.equal(this.fontsize, 32, 'fontsize not set');
+                    assert.equal(this.bold, true, 'bold not set');
+                    assert.equal(this.italic, true, 'italic not set');
+                    assert.equal(this.underline, true, 'underline not set');
+                    assert.equal(this.strike, false, 'underline not set');
+                    assert.equal(this.smallcaps, true, 'smallcaps not set');
+                    assert.equal(this.color, '#9999ff', 'color not set');
+
+                    var ff = style['font-family'];
+                    ff = ff.split('"').join("\'");
+                    ff = ff.split(', ').join(",");
+                    assert.equal(ff, "\'Brush Script MT\',cursive", 'missing size style');
+                    assert.equal(style['font-size'], '32px', 'missing size style');
+                    assert.equal(style['font-weight'], 200, 'missing bold style');
+                    assert.equal(style['font-style'], 'italic', 'missing italic style');
+                    assert.equal(style['text-decoration'], 'underline', 'missing underline style');
+                    assert.equal(style['font-variant'], 'small-caps', 'missing smallcaps style');
+                    assert.equal(style['color'], 'rgb(153, 153, 255)', 'missing color style');
+
+                    // Change to strike
+                    this.setAttribute('strike', true);
+                    assert.equal(this.underline, false);
+                    assert.equal(this.strike, true);
+                    assert.equal(style['text-decoration'], 'line-through');
+
+                    // Verify setting underline to false doesn't mess up strike
+                    this.setAttribute('underline', false);
+                    assert.equal(this.underline, false);
+                    assert.equal(this.strike, true);
+                    assert.equal(style['text-decoration'], 'line-through');
+
+                    // Change underline and strike to false
+                    this.setAttribute('strike', false);
+                    assert.equal(this.underline, false);
+                    assert.equal(this.strike, false);
+                    assert.equal(style['text-decoration'], 'none');
+                </handler>
+            </text>
+        </view>
+
+    </view>
+
 
 </view>
-
-
-
-
 <!-- The MIT License (MIT)
 
 Copyright ( c ) 2014 Teem2 LLC
