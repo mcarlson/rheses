@@ -1741,6 +1741,31 @@
 </span>     * @class dr.touch {Input}
      * @extends dr.node
      * Receives touch and multitouch data where available.
+     * 
+     *      @example
+     *      &lt;touch&gt;
+     *        &lt;handler event=&quot;ontouches&quot; args=&quot;touch_data&quot;&gt;
+     *          if (!touch_data.length) return;
+     *          
+     *          follow.setAttribute(&#39;x&#39;, touch_data[0].x);
+     *          follow.setAttribute(&#39;y&#39;, touch_data[0].y);
+     
+     *          if (!touch_data.length) return;
+     * 
+     *          if (touch_data[0]) {
+     *            follow.setAttribute(&#39;x&#39;, touch_data[0].x);
+     *            follow.setAttribute(&#39;y&#39;, touch_data[0].y);
+     *          }
+     *
+     *          if (touch_data[1]) {
+     *            follow2.setAttribute(&#39;x&#39;, touch_data[1].x);
+     *            follow2.setAttribute(&#39;y&#39;, touch_data[1].y);
+     *          }
+     *        &lt;/handler&gt;
+     *      &lt;/touch&gt;
+     *
+     *      &lt;view id=&quot;follow&quot; width=&quot;50&quot; height=&quot;50&quot; x=&quot;0&quot; y=&quot;0&quot; bgcolor=&quot;pink&quot;&gt;&lt;/view&gt;
+     *      &lt;view id=&quot;follow2&quot; width=&quot;50&quot; height=&quot;50&quot; x=&quot;50&quot; y=&quot;50&quot; bgcolor=&quot;thistle&quot;&gt;&lt;/view&gt;
      */
 <span id='dr-touch-attribute-x'>/**
 </span>        * @attribute {Number} [x=0] (readonly)
