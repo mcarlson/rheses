@@ -1,35 +1,28 @@
 <html>
 <head>
-    <title>dr33m | Slider Tests</title>
-    <link rel="stylesheet" href="../examples/css/example.css"/>
-    <script type="text/javascript" src="../lib/jquery-1.9.1.js"></script>
-    <script type="text/javascript" src="../lib/acorn.js"></script>
-    <script type="text/javascript" src="../lib/coffee-script.js"></script>
-    <script type="text/javascript" src="../core/layout.js"></script>
-    <script type="text/javascript" src="../lib/chai.js"></script>
-    <script type="text/javascript" src="../lib/smoke_helper.js"></script>
+  <title>dr33m | Slider Tests</title>
+  <script>var BOILERPLATE_OPTS = {type:'smoke'};</script>
+  <script type="text/javascript" src="../boilerplate.js"></script>
 </head>
 <body>
 <view type="coffee" width="auto" height="auto" padding="25" bgcolor="black">
-    <spacedlayout axis="y" spacing="15"></spacedlayout>
+  <spacedlayout axis="y" spacing="15"></spacedlayout>
 
-    <slider name="toohigh" height="20" width="200" minvalue="20" maxvalue="80" value="100"></slider>
-    <slider name="toolow" height="20" width="200" minvalue="20" maxvalue="80" value="0"></slider>
-    <rangeslider name="toobothinner" height="20" width="200" minvalue="20" maxlowvalue="40" minhighvalue="60" maxvalue="80" lowvalue="45" highvalue="55"></rangeslider>
-    <rangeslider name="toobothouter" height="20" width="200" minvalue="20" maxlowvalue="40" minhighvalue="60" maxvalue="80" lowvalue="0" highvalue="100"></rangeslider>
+  <slider name="toohigh" height="20" width="200" minvalue="20" maxvalue="80" value="100"></slider>
+  <slider name="toolow" height="20" width="200" minvalue="20" maxvalue="80" value="0"></slider>
+  <rangeslider name="toobothinner" height="20" width="200" minvalue="20" maxlowvalue="40" minhighvalue="60" maxvalue="80" lowvalue="45" highvalue="55"></rangeslider>
+  <rangeslider name="toobothouter" height="20" width="200" minvalue="20" maxlowvalue="40" minhighvalue="60" maxvalue="80" lowvalue="0" highvalue="100"></rangeslider>
 
-    <handler event="oninit">
-        assert.equal(@toohigh.value, 80)
-        assert.equal(@toolow.value, 20)
+  <handler event="oninit">
+    assert.equal(@toohigh.value, 80)
+    assert.equal(@toolow.value, 20)
 
-        assert.equal(@toobothinner.lowvalue, 40)
-        assert.equal(@toobothinner.highvalue, 60)
+    assert.equal(@toobothinner.lowvalue, 40)
+    assert.equal(@toobothinner.highvalue, 60)
 
-        assert.equal(@toobothouter.lowvalue, 20)
-        assert.equal(@toobothouter.highvalue, 80)
-
-    </handler>
-
+    assert.equal(@toobothouter.lowvalue, 20)
+    assert.equal(@toobothouter.highvalue, 80)
+  </handler>
 </view>
 <!-- The MIT License (MIT)
 

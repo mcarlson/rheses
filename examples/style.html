@@ -1,77 +1,70 @@
 <html>
 <head>
-    <style type="text/css">
-        @charset "UTF-8";
-        @font-face {
-            font-family: 'mission-gothic';
-            src: url("/fonts/mission_gothic_thin.eot");
-            src: url("/fonts/mission_gothic_thin.eot?#iefix") format("embedded-opentype"), url("/fonts/mission_gothic_thin.woff2") format("woff2"), url("/fonts/mission_gothic_thin.woff") format("woff"), url("/fonts/mission_gothic_thin.ttf") format("truetype"), url("/fonts/mission_gothic_thin.svg#mission_gothicthin") format("svg");
-            font-weight: 200;
-            font-style: normal; }
-        @font-face {
-            font-family: 'mission-gothic';
-            src: url("/fonts/mission_gothic_regular.eot");
-            src: url("/fonts/mission_gothic_regular.eot?#iefix") format("embedded-opentype"), url("/fonts/mission_gothic_regular.woff2") format("woff2"), url("/fonts/mission_gothic_regular.woff") format("woff"), url("/fonts/mission_gothic_regular.ttf") format("truetype"), url("/fonts/mission_gothic_regular.svg#mission_gothicregular") format("svg");
-            font-weight: 400;
-            font-style: normal; }
-        @font-face {
-            font-family: 'mission-gothic';
-            src: url("/fonts/mission_gothic_regular_italic.eot");
-            src: url("/fonts/mission_gothic_regular_italic.eot?#iefix") format("embedded-opentype"), url("/fonts/mission_gothic_regular_italic.woff2") format("woff2"), url("/fonts/mission_gothic_regular_italic.woff") format("woff"), url("/fonts/mission_gothic_regular_italic.ttf") format("truetype"), url("/fonts/mission_gothic_regular_italic.svg#mission_gothicregular_italic") format("svg");
-            font-weight: 400;
-            font-style: italic; }
-        @font-face {
-            font-family: 'mission-gothic';
-            src: url("/fonts/mission_gothic_thin_italic.eot");
-            src: url("/fonts/mission_gothic_thin_italic.eot?#iefix") format("embedded-opentype"), url("/fonts/mission_gothic_thin_italic.woff2") format("woff2"), url("/fonts/mission_gothic_thin_italic.woff") format("woff"), url("/fonts/mission_gothic_thin_italic.ttf") format("truetype"), url("/fonts/mission_gothic_thin_italic.svg#mission_gothicthin_italic") format("svg");
-            font-weight: 200;
-            font-style: italic; }
-        @font-face {
-            font-family: 'mission-gothic';
-            src: url("/fonts/mission_gothic_light_italic.eot");
-            src: url("/fonts/mission_gothic_light_italic.eot?#iefix") format("embedded-opentype"), url("/fonts/mission_gothic_light_italic.woff2") format("woff2"), url("/fonts/mission_gothic_light_italic.woff") format("woff"), url("/fonts/mission_gothic_light_italic.ttf") format("truetype"), url("/fonts/mission_gothic_light_italic.svg#mission_gothiclight_italic") format("svg");
-            font-weight: 300;
-            font-style: italic; }
-        @font-face {
-            font-family: 'mission-gothic';
-            src: url("/fonts/mission_gothic_light.eot");
-            src: url("/fonts/mission_gothic_light.eot?#iefix") format("embedded-opentype"), url("/fonts/mission_gothic_light.woff2") format("woff2"), url("/fonts/mission_gothic_light.woff") format("woff"), url("/fonts/mission_gothic_light.ttf") format("truetype"), url("/fonts/mission_gothic_light.svg#mission_gothiclight") format("svg");
-            font-weight: 300;
-            font-style: normal; }
-        @font-face {
-            font-family: 'mission-gothic';
-            src: url("/fonts/mission_gothic_bold_italic.eot");
-            src: url("/fonts/mission_gothic_bold_italic.eot?#iefix") format("embedded-opentype"), url("/fonts/mission_gothic_bold_italic.woff2") format("woff2"), url("/fonts/mission_gothic_bold_italic.woff") format("woff"), url("/fonts/mission_gothic_bold_italic.ttf") format("truetype"), url("/fonts/mission_gothic_bold_italic.svg#mission_gothicbold_italic") format("svg");
-            font-weight: 700;
-            font-style: italic; }
-        @font-face {
-            font-family: 'mission-gothic';
-            src: url("/fonts/mission_gothic_bold.eot");
-            src: url("/fonts/mission_gothic_bold.eot?#iefix") format("embedded-opentype"), url("/fonts/mission_gothic_bold.woff2") format("woff2"), url("/fonts/mission_gothic_bold.woff") format("woff"), url("/fonts/mission_gothic_bold.ttf") format("truetype"), url("/fonts/mission_gothic_bold.svg#mission_gothicbold") format("svg");
-            font-weight: 700;
-            font-style: normal; }
-        @font-face {
-            font-family: 'mission-gothic';
-            src: url("/fonts/mission_gothic_black_italic.eot");
-            src: url("/fonts/mission_gothic_black_italic.eot?#iefix") format("embedded-opentype"), url("/fonts/mission_gothic_black_italic.woff2") format("woff2"), url("/fonts/mission_gothic_black_italic.woff") format("woff"), url("/fonts/mission_gothic_black_italic.ttf") format("truetype"), url("/fonts/mission_gothic_black_italic.svg#mission_gothicblack_italic") format("svg");
-            font-weight: 800;
-            font-style: italic; }
-        @font-face {
-            font-family: 'mission-gothic';
-            src: url("/fonts/mission_gothic_black.eot");
-            src: url("/fonts/mission_gothic_black.eot?#iefix") format("embedded-opentype"), url("/fonts/mission_gothic_black.woff2") format("woff2"), url("/fonts/mission_gothic_black.woff") format("woff"), url("/fonts/mission_gothic_black.ttf") format("truetype"), url("/fonts/mission_gothic_black.svg#mission_gothicblack") format("svg");
-            font-weight: 800;
-            font-style: normal; }
-    </style>
-
-    <title>DREEM - Visual Style</title>
-    <script type="text/javascript" src="../lib/jquery-1.9.1.min.js"></script>
-    <script type="text/javascript" src="../lib/acorn.js"></script>
-    <script type="text/javascript" src="../lib/coffee-script.js"></script>
-    <script type="text/javascript" src="../core/layout.js"></script>
-    <script type="text/javascript" src="../lib/chai.js"></script>
-    <script type="text/javascript" src="../lib/smoke_helper.js"></script>
-
+  <title>DREEM - Visual Style</title>
+  <script type="text/javascript" src="../boilerplate.js"></script>
+  <style type="text/css">
+      @charset "UTF-8";
+      @font-face {
+          font-family: 'mission-gothic';
+          src: url("/fonts/mission_gothic_thin.eot");
+          src: url("/fonts/mission_gothic_thin.eot?#iefix") format("embedded-opentype"), url("/fonts/mission_gothic_thin.woff2") format("woff2"), url("/fonts/mission_gothic_thin.woff") format("woff"), url("/fonts/mission_gothic_thin.ttf") format("truetype"), url("/fonts/mission_gothic_thin.svg#mission_gothicthin") format("svg");
+          font-weight: 200;
+          font-style: normal; }
+      @font-face {
+          font-family: 'mission-gothic';
+          src: url("/fonts/mission_gothic_regular.eot");
+          src: url("/fonts/mission_gothic_regular.eot?#iefix") format("embedded-opentype"), url("/fonts/mission_gothic_regular.woff2") format("woff2"), url("/fonts/mission_gothic_regular.woff") format("woff"), url("/fonts/mission_gothic_regular.ttf") format("truetype"), url("/fonts/mission_gothic_regular.svg#mission_gothicregular") format("svg");
+          font-weight: 400;
+          font-style: normal; }
+      @font-face {
+          font-family: 'mission-gothic';
+          src: url("/fonts/mission_gothic_regular_italic.eot");
+          src: url("/fonts/mission_gothic_regular_italic.eot?#iefix") format("embedded-opentype"), url("/fonts/mission_gothic_regular_italic.woff2") format("woff2"), url("/fonts/mission_gothic_regular_italic.woff") format("woff"), url("/fonts/mission_gothic_regular_italic.ttf") format("truetype"), url("/fonts/mission_gothic_regular_italic.svg#mission_gothicregular_italic") format("svg");
+          font-weight: 400;
+          font-style: italic; }
+      @font-face {
+          font-family: 'mission-gothic';
+          src: url("/fonts/mission_gothic_thin_italic.eot");
+          src: url("/fonts/mission_gothic_thin_italic.eot?#iefix") format("embedded-opentype"), url("/fonts/mission_gothic_thin_italic.woff2") format("woff2"), url("/fonts/mission_gothic_thin_italic.woff") format("woff"), url("/fonts/mission_gothic_thin_italic.ttf") format("truetype"), url("/fonts/mission_gothic_thin_italic.svg#mission_gothicthin_italic") format("svg");
+          font-weight: 200;
+          font-style: italic; }
+      @font-face {
+          font-family: 'mission-gothic';
+          src: url("/fonts/mission_gothic_light_italic.eot");
+          src: url("/fonts/mission_gothic_light_italic.eot?#iefix") format("embedded-opentype"), url("/fonts/mission_gothic_light_italic.woff2") format("woff2"), url("/fonts/mission_gothic_light_italic.woff") format("woff"), url("/fonts/mission_gothic_light_italic.ttf") format("truetype"), url("/fonts/mission_gothic_light_italic.svg#mission_gothiclight_italic") format("svg");
+          font-weight: 300;
+          font-style: italic; }
+      @font-face {
+          font-family: 'mission-gothic';
+          src: url("/fonts/mission_gothic_light.eot");
+          src: url("/fonts/mission_gothic_light.eot?#iefix") format("embedded-opentype"), url("/fonts/mission_gothic_light.woff2") format("woff2"), url("/fonts/mission_gothic_light.woff") format("woff"), url("/fonts/mission_gothic_light.ttf") format("truetype"), url("/fonts/mission_gothic_light.svg#mission_gothiclight") format("svg");
+          font-weight: 300;
+          font-style: normal; }
+      @font-face {
+          font-family: 'mission-gothic';
+          src: url("/fonts/mission_gothic_bold_italic.eot");
+          src: url("/fonts/mission_gothic_bold_italic.eot?#iefix") format("embedded-opentype"), url("/fonts/mission_gothic_bold_italic.woff2") format("woff2"), url("/fonts/mission_gothic_bold_italic.woff") format("woff"), url("/fonts/mission_gothic_bold_italic.ttf") format("truetype"), url("/fonts/mission_gothic_bold_italic.svg#mission_gothicbold_italic") format("svg");
+          font-weight: 700;
+          font-style: italic; }
+      @font-face {
+          font-family: 'mission-gothic';
+          src: url("/fonts/mission_gothic_bold.eot");
+          src: url("/fonts/mission_gothic_bold.eot?#iefix") format("embedded-opentype"), url("/fonts/mission_gothic_bold.woff2") format("woff2"), url("/fonts/mission_gothic_bold.woff") format("woff"), url("/fonts/mission_gothic_bold.ttf") format("truetype"), url("/fonts/mission_gothic_bold.svg#mission_gothicbold") format("svg");
+          font-weight: 700;
+          font-style: normal; }
+      @font-face {
+          font-family: 'mission-gothic';
+          src: url("/fonts/mission_gothic_black_italic.eot");
+          src: url("/fonts/mission_gothic_black_italic.eot?#iefix") format("embedded-opentype"), url("/fonts/mission_gothic_black_italic.woff2") format("woff2"), url("/fonts/mission_gothic_black_italic.woff") format("woff"), url("/fonts/mission_gothic_black_italic.ttf") format("truetype"), url("/fonts/mission_gothic_black_italic.svg#mission_gothicblack_italic") format("svg");
+          font-weight: 800;
+          font-style: italic; }
+      @font-face {
+          font-family: 'mission-gothic';
+          src: url("/fonts/mission_gothic_black.eot");
+          src: url("/fonts/mission_gothic_black.eot?#iefix") format("embedded-opentype"), url("/fonts/mission_gothic_black.woff2") format("woff2"), url("/fonts/mission_gothic_black.woff") format("woff"), url("/fonts/mission_gothic_black.ttf") format("truetype"), url("/fonts/mission_gothic_black.svg#mission_gothicblack") format("svg");
+          font-weight: 800;
+          font-style: normal; }
+  </style>
 </head>
 <body style="background-color:black">
 <view id="all" width="100%" height="100%" padding="30">
@@ -106,8 +99,6 @@
         <checkbutton name="c2" height="60" width="60"></checkbutton>
         <labeltoggle name="l2" text="autosized toggle"></labeltoggle>
         <labeltoggle name="l1" height="50" width="200" text="fixed h/w toggle"></labeltoggle>
-
-
     </view>
     <view id="b" name="bw" x="${a.width + 50}" y="0" width="30%" height="auto" bgcolor="rgb(84,84,84)" padding="20">
         <spacedlayout axis="y" spacing="15"></spacedlayout>
@@ -132,14 +123,8 @@
         <handler type="coffee" event="oninit">
             @setAttribute('skin', 'default, custom')
         </handler>
-
     </view>
-
 </view>
-
-
-
-
 <!-- The MIT License (MIT)
 
 Copyright ( c ) 2014 Teem2 LLC

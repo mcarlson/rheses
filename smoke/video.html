@@ -1,36 +1,27 @@
 <html>
 <head>
-    <title>video player test</title>
-    <script type="text/javascript" src="/lib/jquery-1.9.1.min.js"></script>
-    <script type="text/javascript" src="/lib/acorn.js"></script>
-    <script type="text/javascript" src="/lib/coffee-script.js"></script>
-    <script type="text/javascript" src="/core/layout.js"></script>
-    <script type="text/javascript" src="/lib/chai.js"></script>
-    <script type="text/javascript" src="/lib/smoke_helper.js"></script>
+  <title>video player test</title>
+  <script>var BOILERPLATE_OPTS = {type:'smoke'};</script>
+  <script type="text/javascript" src="../boilerplate.js"></script>
 </head>
 <body>
-
 <view id="main" width="100%" height="100%" clip="true">
+  <videoplayer id="vp" controls="true" width="25%" height="25%" volume="0"
+               src="['http://www.quirksmode.org/html5/videos/big_buck_bunny.mp4',
+                     'http://www.quirksmode.org/html5/videos/big_buck_bunny.webm',
+                     'http://www.quirksmode.org/html5/videos/big_buck_bunny.ogv']">
+  </videoplayer>
 
-    <videoplayer id="vp" controls="true" width="25%" height="25%" volume="0"
-                 src="['http://www.quirksmode.org/html5/videos/big_buck_bunny.mp4',
-                       'http://www.quirksmode.org/html5/videos/big_buck_bunny.webm',
-                       'http://www.quirksmode.org/html5/videos/big_buck_bunny.ogv']">
-    </videoplayer>
-
-    <handler type="coffee" event="oninit">
-
-        assert.equal vp.playing, false
-        assert.equal vp.currenttime, 0
-        vp.setAttribute 'playing', true
-        vp.setAttribute 'volume', 0 #seems to be a bug in the native 'video' tag
-        setTimeout (->
-          vp.setAttribute 'playing', false
-          assert.notEqual(vp.currenttime, 0)
-        ), 5000
-    </handler>
-
-
+  <handler type="coffee" event="oninit">
+    assert.equal vp.playing, false
+    assert.equal vp.currenttime, 0
+    vp.setAttribute 'playing', true
+    vp.setAttribute 'volume', 0 #seems to be a bug in the native 'video' tag
+    setTimeout (->
+      vp.setAttribute 'playing', false
+      assert.notEqual(vp.currenttime, 0)
+    ), 5000
+  </handler>
 </view>
 </body>
 </html>
