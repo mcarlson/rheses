@@ -1,6 +1,6 @@
 <!-- The MIT License (MIT)
 
-Copyright ( c ) 2014 Teem2 LLC
+Copyright ( c ) 2014,2015 Teem2 LLC
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -24,9 +24,33 @@ SOFTWARE. -->
  * @extends dr.node
  * Enables audio capture from the microphone device.
  *
+ * This example uses the microphone to monitor the audio traffic, while also
+ * amplifying the audio signal
+ *
+ *     @example
+ *     <microphone id="mic" modifystream="true" visualize="false" stream="true">
+ *       <method name="processStream" args="audio">
+ *         if (!audio) return;
+ *
+ *         var inputBuffer = audio.inputBuffer;
+ *         var left = inputBuffer.getChannelData(0);
+ *         var right = inputBuffer.getChannelData(1);
+ *
+ *         var min = Math.min.apply(null, left);
+ *	   var max = Math.max.apply(null, right);
+ *	   console.log('min', min, 'max', max);
+ *       </method>
+ *
+ *     </microphone>
+ *
  */-->
 <class name="microphone" type="coffee" clickable="true" clip="true" scriptincludes="/lib/audiorecorder/js/recorderjs/recorder.js, /lib/filesaver/FileSaver.min.js">
   
+  <!--/**
+    * @attribute {Boolean} [visualize=true]
+    * When set to true a visualization of the audio stream will be displayed.
+    */-->
+  <attribute name="visualize" value="true" type="boolean"></attribute>
   <!--/**
     * @attribute {Number} fftsize
     * The number of fft frames to use when setting {@link #fft fft}. Must be a non-zero power of two in the range 32 to 2048.
@@ -37,6 +61,14 @@ SOFTWARE. -->
     * The amount of smoothing to apply to the FFT analysis. A value from 0 -> 1 where 0 represents no time averaging with the last FFT analysis frame.
     */-->
   <attribute name="fftsmoothing" value="0.8" type="number"></attribute>
+  <!--/**
+    * @attribute {Boolean} [modifystream=false]
+    * When set to true the audio stream is passed to processStream method.
+    * The audio object has an inputBuffer and outputBuffer. If you pass the
+    * inputBuffer data to the outputBuffer, the audio will be passed to the
+    * speaker.
+    */-->
+  <attribute name="modifystream" value="false" type="boolean"></attribute>
   <!--/**
     * @attribute {Boolean} [stream=false]
     * When set to true the user will be asked permission to access the device, and if permission is granted the stream will be started. When set to false the stream will be stopped. The {@link #streaming streaming} attribute indicates when the device is actually streaming.
@@ -135,6 +167,27 @@ SOFTWARE. -->
     <!--return @mediastream.getAudioTracks()[0].muted-->
   <!--</method>-->
 
+  <!--/**
+    * @method processStream
+    * Process raw audio data from the microphone.
+    * audioprocess objects are passed that contain stereo data samples.
+    * The default implementation copies the input buffer into the output buffer.
+    * @param {Object} audio audioprocess object.
+    */-->
+  <method name="processStream" args="audio">
+    inputBuffer = audio.inputBuffer
+    outputBuffer = audio.outputBuffer
+    left = inputBuffer.getChannelData(0)
+    right = inputBuffer.getChannelData(1)
+    oleft = outputBuffer.getChannelData(0)
+    oright = outputBuffer.getChannelData(1)
+
+    for i in [0..left.length] by 1
+      oleft[i] = left[i]
+      oright[i] = right[i]
+    #console.log('processStream', left.length)
+  </method>
+
   <method name="startStream" args="forceStart">
     return unless @inited
     return if @stream && !forceStart
@@ -147,14 +200,29 @@ SOFTWARE. -->
     gotLocalMediaStream = (localMediaStream) =>
       audioContext = new AudioContext()
       @_inputGain = audioContext.createGain()
+
       audioInput = audioContext.createMediaStreamSource(localMediaStream)
       audioInput.connect(@_inputGain)
-  
-      @_fftNode = audioContext.createAnalyser()
-      @_fftNode.fftSize = @fftsize
-      @_inputGain.connect(@_fftNode)
-      @_fftNode.smoothingTimeConstant = @fftsmoothing
-  
+
+      # FFT visualization
+      if @visualize
+        @_fftNode = audioContext.createAnalyser()
+        @_fftNode.fftSize = @fftsize
+        @_inputGain.connect(@_fftNode)
+        @_fftNode.smoothingTimeConstant = @fftsmoothing
+
+      # Raw results
+      if @modifystream
+        # Define number of stereo samples to buffer for each callback
+        @_bufferSize = 1024
+        @_rawstream = audioContext.createScriptProcessor(@_bufferSize, 2, 2)
+
+        @_rawstream.onaudioprocess = (audio) =>
+          @processStream(audio)
+
+        @_inputGain.connect(@_rawstream)
+        @_rawstream.connect(audioContext.destination)
+      
       @setAttribute('streaming', true)
       @setAttribute('mediastream', localMediaStream)
     
@@ -175,6 +243,8 @@ SOFTWARE. -->
 
     @_inputGain = null
     @_fftNode = null
+    @_rawstream.onaudioprocess = null if @_rawstream
+    @_rawstream = null
     
     @setAttribute('streaming', false)
   </method>

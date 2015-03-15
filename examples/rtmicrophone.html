@@ -1,0 +1,107 @@
+<html>
+<head>
+  <style type="text/css">
+    body {
+      font-family: 'Arial';
+      font-size: 18px;
+    }
+  </style>
+  
+  <title>dr33m | Realtime Microphone Example</title>
+  <link href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet"></link>
+  <script type="text/javascript" src="../lib/jquery-1.9.1.js"></script>
+  <script type="text/javascript" src="../lib/acorn.js"></script>
+  <script type="text/javascript" src="../lib/coffee-script.js"></script>
+  <script type="text/javascript" src="../layout.js"></script>
+</head>
+<body>
+  <view padding="30">
+
+    <handler event="oninit">
+      if (!mic.supported) {
+        message.setAttribute('text', 'Microphone is not supported in this browser');
+      }
+    </handler>
+
+    <microphone id="mic" modifystream="true">
+      <method name="processStream" args="audio">
+        // Override the default implementation and amplify the input
+        if (!audio) return;
+
+        var inputBuffer = audio.inputBuffer;
+        var outputBuffer = audio.outputBuffer;
+        var left = inputBuffer.getChannelData(0);
+        var right = inputBuffer.getChannelData(1);
+        var oleft = outputBuffer.getChannelData(0);
+        var oright = outputBuffer.getChannelData(1);
+
+        for (var i=0; i<(left.length); i++) {
+          oleft[i] = left[i] * 5;
+          oright[i] = right[i] * 5;
+        }
+      </method>
+    </microphone>
+
+    <spacedlayout inset="1" spacing="5" axis="y"></spacedlayout>
+    <text>Example: Amplify audio</text>
+
+    <!-- controls -->
+    <view height="30">
+      <spacedlayout inset="1" spacing="5"></spacedlayout>
+
+      <labelbutton text="Start" defaultcolor="plum" selectcolor="orchid">
+        <handler event="onclick">
+          mic.setAttribute('stream', true);
+        </handler>
+      </labelbutton>
+
+      <labelbutton text="Stop" defaultcolor="plum" selectcolor="orchid">
+        <handler event="onclick">
+          mic.setAttribute('stream', false);
+        </handler>
+      </labelbutton>
+
+      <labeltoggle text="Visualize">
+        <handler event="onselected" args="selected">
+          recordView.setAttribute('visible', selected);
+	</handler>
+      </labeltoggle>
+
+      <text width="300" id="message" color="black"></text>
+    </view>
+
+
+    <!-- audio visualization (fft) -->
+    <class name="bar" width="2" bgcolor="BlueViolet" height="${this.data}" y="30"></class>
+    <view id="recordView" width="${mic.fftsize}" height="300" bgcolor="black">
+    
+      <spacedlayout inset="1" spacing="1"></spacedlayout>
+      <replicator name="foo" classname="bar" data="${mic.fft}" pooling="true"></replicator>
+    </view>
+
+
+  </view>
+
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2015 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+</body>
+</html>
