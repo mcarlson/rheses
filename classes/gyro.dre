@@ -23,6 +23,15 @@ SOFTWARE. -->
      * @class dr.gyro {Input}
      * @extends dr.node
      * Receives gyroscope and compass data where available. See [https://w3c.github.io/deviceorientation/spec-source-orientation.html#deviceorientation](https://w3c.github.io/deviceorientation/spec-source-orientation.html#deviceorientation) and [https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html](https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html) for details.
+     *
+     *     @example
+     *     <gyro id="gyro"></gyro>
+     *
+     *     <spacedlayout axis="y"></spacedlayout>
+     *     <text id="text_beta" text="${'x axis: ' + gyro.beta}" fontsize="40"></text>
+     *     <text id="text_gamma" text="${'y axis: ' + gyro.gamma}" fontsize="${text_beta.fontsize}"></text>
+     *     <text id="text_alpha" text="${'z axis: ' + gyro.alpha}" fontsize="${text_beta.fontsize}"></text>
+     *
      */-->
     <class name="gyro" extends="node">
       <!--/**

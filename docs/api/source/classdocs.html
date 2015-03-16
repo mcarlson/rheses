@@ -787,6 +787,15 @@
 </span>     * @class dr.gyro {Input}
      * @extends dr.node
      * Receives gyroscope and compass data where available. See [https://w3c.github.io/deviceorientation/spec-source-orientation.html#deviceorientation](https://w3c.github.io/deviceorientation/spec-source-orientation.html#deviceorientation) and [https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html](https://developer.apple.com/library/safari/documentation/SafariDOMAdditions/Reference/DeviceOrientationEventClassRef/DeviceOrientationEvent/DeviceOrientationEvent.html) for details.
+     *
+     *     @example
+     *     &lt;gyro id=&quot;gyro&quot;&gt;&lt;/gyro&gt;
+     *
+     *     &lt;spacedlayout axis=&quot;y&quot;&gt;&lt;/spacedlayout&gt;
+     *     &lt;text id=&quot;text_beta&quot; text=&quot;${&#39;x axis: &#39; + gyro.beta}&quot; fontsize=&quot;40&quot;&gt;&lt;/text&gt;
+     *     &lt;text id=&quot;text_gamma&quot; text=&quot;${&#39;y axis: &#39; + gyro.gamma}&quot; fontsize=&quot;${text_beta.fontsize}&quot;&gt;&lt;/text&gt;
+     *     &lt;text id=&quot;text_alpha&quot; text=&quot;${&#39;z axis: &#39; + gyro.alpha}&quot; fontsize=&quot;${text_beta.fontsize}&quot;&gt;&lt;/text&gt;
+     *
      */
 <span id='dr-gyro-attribute-active'>/**
 </span>        * @attribute {Boolean} [active=false] (readonly)
