@@ -83,6 +83,8 @@ SOFTWARE. -->
     <attribute name="duration" value="1000" type="expression"></attribute>
     <setter name="duration" args="duration">
       if(this.to !== undefined){
+        // ok so, we have to delete the previous last key
+        if(this.duration in this.track) delete this.track[this.duration]
         this.track[duration] = this.to
       }
       if(this.animator) this.animator.update(this.track)
