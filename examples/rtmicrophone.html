@@ -23,9 +23,16 @@
       }
     </handler>
 
+    <class name="signaltext" extends="text">
+      <method name="format" args="signal">
+        var f = parseFloat(signal);
+	if (!f) f = 0.0;
+        return f.toFixed(4);
+      </method>
+    </class>
+
     <microphone id="mic" modifystream="true">
       <method name="processStream" args="audio">
-        // Override the default implementation and amplify the input
         if (!audio) return;
 
         var inputBuffer = audio.inputBuffer;
@@ -35,6 +42,11 @@
         var oleft = outputBuffer.getChannelData(0);
         var oright = outputBuffer.getChannelData(1);
 
+        // Show the left/right channel amplitude
+        channel1.setAttribute('text', Math.max.apply(null, left) - Math.min.apply(null, left));
+        channel2.setAttribute('text', Math.max.apply(null, right) - Math.min.apply(null, right));
+
+        // Amplify the audio
         for (var i=0; i<(left.length); i++) {
           oleft[i] = left[i] * 5;
           oright[i] = right[i] * 5;
@@ -61,22 +73,8 @@
         </handler>
       </labelbutton>
 
-      <labeltoggle text="Visualize">
-        <handler event="onselected" args="selected">
-          recordView.setAttribute('visible', selected);
-	</handler>
-      </labeltoggle>
-
-      <text width="300" id="message" color="black"></text>
-    </view>
-
-
-    <!-- audio visualization (fft) -->
-    <class name="bar" width="2" bgcolor="BlueViolet" height="${this.data}" y="30"></class>
-    <view id="recordView" width="${mic.fftsize}" height="300" bgcolor="black">
-    
-      <spacedlayout inset="1" spacing="1"></spacedlayout>
-      <replicator name="foo" classname="bar" data="${mic.fft}" pooling="true"></replicator>
+      <signaltext width="100" id="channel1" color="black"></signaltext>
+      <signaltext width="100" id="channel2" color="black"></signaltext>
     </view>
 
 
