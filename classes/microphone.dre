@@ -48,7 +48,7 @@ SOFTWARE. -->
   
   <!--/**
     * @attribute {Boolean} [visualize=true]
-    * When set to true a visualization of the audio stream will be displayed.
+    * When set to true, fft visualization data is computed and available in the fft attribute.
     */-->
   <attribute name="visualize" value="true" type="boolean"></attribute>
   <!--/**
@@ -281,15 +281,16 @@ SOFTWARE. -->
   </method>
 
   <handler event="onidle" reference="dr.idle">
-    return unless (@_fftNode && @streaming)
+    return unless @streaming
 
-    data = new Uint8Array(@_fftNode.frequencyBinCount)
-    @_fftNode.getByteFrequencyData(data)
-    @setAttribute('fft', data)
-    
     if @recording
       currentTime = new Date();
       @setAttribute('recordingtime', (currentTime - @_startTime)/1000)
+
+    if @_fftNode
+      data = new Uint8Array(@_fftNode.frequencyBinCount)
+      @_fftNode.getByteFrequencyData(data)
+      @setAttribute('fft', data)
   </handler>
   
   <method name="downloadRecording" args="fileName">
