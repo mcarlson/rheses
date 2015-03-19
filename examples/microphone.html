@@ -8,13 +8,14 @@
   </style>
   
   <title>dr33m | Microphone Example</title>
-  <link href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet"></link>
+  <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet"></link>
   <script type="text/javascript" src="../lib/jquery-1.9.1.js"></script>
   <script type="text/javascript" src="../lib/acorn.js"></script>
   <script type="text/javascript" src="../lib/coffee-script.js"></script>
   <script type="text/javascript" src="../core/layout.js"></script>
 </head>
 <body>
+
 <view padding="30">
 
   <class name="timetext" extends="text">
@@ -48,26 +49,26 @@
       <view>
         <spacedlayout axis="x" inset="4" spacing="6" updateparent="true"></spacedlayout>
         <view name="micBtn" width="16" height="16" bgcolor="Lavender">
-          <text name="txt" class="fa fa-microphone" color="DeepSkyBlue"></text>
+          <view name="ico" fontfamily="" class="fa fa-microphone" color="DeepSkyBlue"></view>
           <handler event="onclick">
             mic.setAttribute('stream', !mic.stream);
             if (mic.stream) {
-              this.txt.setAttribute('class', 'fa fa-microphone-slash')
+              this.ico.setAttribute('class', 'fa fa-microphone-slash')
             } else {
-              this.txt.setAttribute('class', 'fa fa-microphone')
+              this.ico.setAttribute('class', 'fa fa-microphone')
             }
           </handler>
         </view>
   
         <view name="recordBtn" width="16" height="16" bgcolor="Lavender">
-          <text name="txt" class="fa fa-dot-circle-o" color="DeepSkyBlue"></text>
+          <view name="ico" class="fa fa-dot-circle-o" color="DeepSkyBlue"></view>
   
           <handler event="onclick">
             mic.setAttribute('record', !mic.record);
             if (mic.record) {
-              this.txt.setAttribute('class', 'fa fa-stop')
+              this.ico.setAttribute('class', 'fa fa-stop')
             } else {
-              this.txt.setAttribute('class', 'fa fa-dot-circle-o')
+              this.ico.setAttribute('class', 'fa fa-dot-circle-o')
             }
           </handler>
         </view>
@@ -85,14 +86,14 @@
     <handler event="onvisible" args="visible">
       if (!visible) return;
 
-      this.controls.play_pause.playBtn.txt.setAttribute('class', 'fa fa-play')
+      this.controls.play_pause.playBtn.ico.setAttribute('class', 'fa fa-play')
     </handler>
     
     <view name="controls" bgcolor="Lavender" width="100%" height="30" padding="5" ignorelayout="true">
       <spacedlayout axis="x" inset="4" spacing="15"></spacedlayout>
       
       <view name="recordBtn" width="16" height="16" bgcolor="Lavender">
-        <text name="txt" class="fa fa-microphone" opacity=".5" color="DeepSkyBlue"></text>
+        <view name="ico" class="fa fa-microphone" opacity=".5" color="DeepSkyBlue"></view>
 
         <handler event="onclick">
           audio.setAttribute('playing', false);
@@ -106,7 +107,7 @@
         <spacedlayout axis="x" inset="4" spacing="6" updateparent="true"></spacedlayout>
 
         <view name="playBtn" width="16" height="16">
-          <text name="txt" class="fa fa-play" color="DeepSkyBlue"></text>
+          <view name="ico" class="fa fa-play" color="DeepSkyBlue"></view>
 
           <handler event="onclick">
             if (audio.playing) {
@@ -118,22 +119,22 @@
           
           <handler event="onplaying" reference="audio" args="playing">
             if (playing) {
-              this.txt.setAttribute('class', 'fa fa-pause')
+              this.ico.setAttribute('class', 'fa fa-pause')
             } else {
-              this.txt.setAttribute('class', 'fa fa-play')
+              this.ico.setAttribute('class', 'fa fa-play')
             }
           </handler>
           <handler event="onpaused" reference="audio" args="paused">
             if (paused) {
-              this.txt.setAttribute('class', 'fa fa-play')
+              this.ico.setAttribute('class', 'fa fa-play')
             } else {
-              this.txt.setAttribute('class', 'fa fa-pause')
+              this.ico.setAttribute('class', 'fa fa-pause')
             }
           </handler>
         </view>
 
         <view name="stopBtn" width="16" height="16">
-          <text name="txt" class="fa fa-stop" color="DeepSkyBlue"></text>
+          <view name="ico" class="fa fa-stop" color="DeepSkyBlue"></view>
 
           <handler event="onclick">
             audio.setAttribute('playing', false);
@@ -151,7 +152,7 @@
       </view>
 
       <view name="downloadBtn" width="16" height="16">
-        <text name="txt" class="fa fa-cloud-download" color="DeepSkyBlue"></text>
+        <view name="ico" class="fa fa-cloud-download" color="DeepSkyBlue"></view>
 
         <handler event="onclick">
           mic.downloadRecording('awesome_sound');
