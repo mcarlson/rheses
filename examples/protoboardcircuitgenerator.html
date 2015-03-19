@@ -1,187 +1,172 @@
 <html>
-	<head>
-		<title>Dreem UI Example: Generate Protoboard Circuits</title>
-		<script type="text/javascript" src="../lib/jquery-1.9.1.js"></script>
-		<script type="text/javascript" src="../lib/acorn.js"></script>
-		<script type="text/javascript" src="../lib/coffee-script.js"></script>
-		<script type="text/javascript" src="../core/layout.js"></script>
-		<style>
-			html,body{
-			height:100%;
-			margin:0px;
-			padding:0px;
-			border:0px none;
-			}
-			body {
-			font-family:Arial, Helvetica, sans-serif;
-			font-size:14px;
-			}
-		</style>
-	</head>
-	
-	<view width="100%" height="100%" scrollable="false" skin="default">
-	
-	<dataset name="settings">
-	 {
-		"boardwidthmm" : 50, 
-		"boardheightmm" : 50
-	 }
-	</dataset>
+<head>
+  <title>Dreem UI Example: Generate Protoboard Circuits</title>
+  <script type="text/javascript" src="../boilerplate.js"></script>
+</head>
+<body>
+  <view width="100%" height="100%" scrollable="false" skin="default">
+  
+  <dataset name="settings">
+   {
+    "boardwidthmm" : 50, 
+    "boardheightmm" : 50
+   }
+  </dataset>
 
-	<class name="horizcentertext" extends="text" x="${this.parent.width/2-this.width/2}" y="${this.parent.height/2-this.height/2}"></class>
-	<class type="javascript" name="zbutton" extends="labelbutton" padding="10" >
-		<handler event="onmouseover">
-			this.setAttribute('bgcolor', 'yellow');
-		</handler>
-		<handler event="onmouseout">
-			this.setAttribute('bgcolor', 'gray');
-		</handler>
-	</class>
-		
+  <class name="horizcentertext" extends="text" x="${this.parent.width/2-this.width/2}" y="${this.parent.height/2-this.height/2}"></class>
+  <class type="javascript" name="zbutton" extends="labelbutton" padding="10" >
+    <handler event="onmouseover">
+      this.setAttribute('bgcolor', 'yellow');
+    </handler>
+    <handler event="onmouseout">
+      this.setAttribute('bgcolor', 'gray');
+    </handler>
+  </class>
+    
 <view height="100%" width="${dragger.x}" bgcolor="#404040" >
  <spacedlayout axis="x"  inset="5" spacing="8" outset="5" ></spacedlayout>
-	<view height="100%" width="100%">
-	<spacedlayout axis="y"  inset="15" spacing="8" ></spacedlayout>
-		<text fontsize="40" font="Helvetica"   text="Build" color="#e0e0e0"></text>
-		<text fontsize="40" font="Helvetica"   text="Protoboards" color="#e0e0e0"></text>	
-			<view width="100%" height="auto" >			
-			<spacedlayout axis="y" spacing="0" updateparent="true" ></spacedlayout>			
-			<view width="100%" height="1" bgcolor="darkgray"></view>
-			<view width="100%" height="1" bgcolor="lightgray"></view>
-			</view>
-		<text text="width in MM" height="auto"  color="white"></text>		
-			<view height="auto" width="100%">
-			<spacedlayout spacing="8" updateparent="true"></spacedlayout>
-			<slider name="hslide" y="5" width="250" height="30" value="50" minvalue="15" maxvalue="250" bgcolor="#808080">
-			<handler event="onmouseup">
-				theboard.boardwidthmm = Math.round(this.parent.hslide.value);
-				</handler>
-				</slider>		
-			<text  color="white" text="${Math.round(this.parent.hslide.value)}" y="${this.parent.hslide.y + (this.parent.hslide.height-this.height)/2}"></text>
-			</view>
-		<text text="height in MM" color="white"></text>		
-			<view width="100%" height="auto">
-			<spacedlayout spacing="8" updateparent="true"></spacedlayout>
-			<slider name="hslide" y="5" width="250" height="30" value="50" minvalue="15" maxvalue="250" bgcolor="#808080">
-			<handler event="onmouseup">
-				theboard.boardheightmm = Math.round(this.parent.hslide.value);
-				</handler>
-			</slider>		
-			<text  color="white" text="${Math.round(this.parent.hslide.value)}" y="${this.parent.hslide.y + (this.parent.hslide.height-this.height)/2}"></text>
-		</view>
-		<text text="holes per segment"  color="white"></text>		
-		<view width="100%" height="auto" >
-			<spacedlayout spacing="8" updateparent="true"></spacedlayout>
-			<slider name="hslide" y="5" width="250" height="30" value="5" minvalue="2" maxvalue="10" bgcolor="#808080">
-				<handler event="onmouseup">
-				theboard.holespersegment = Math.round(this.parent.hslide.value);
-				</handler>
-			</slider>		
-			<text  color="white" text="${Math.round(this.parent.hslide.value)}" y="${this.parent.hslide.y + (this.parent.hslide.height-this.height)/2}"></text>
-			</view>
-			<text  color="white" text="segments between rails"></text>	
-			<view width="100%" height="auto" name="segments">
-				<spacedlayout spacing="8" updateparent="true"></spacedlayout>
-				<slider name="hslide" y="5" width="250" height="30" value="2" minvalue="1" maxvalue="10" bgcolor="#808080">
-					<handler event="onmouseup">
-				theboard.segmentsbetweenrails = Math.round(this.parent.hslide.value);
-				theboard.updateall();
-				</handler>
-				
-				
-				</slider>		
-				<text  color="white" text="${Math.round(this.parent.hslide.value)}" y="${this.parent.hslide.y + (this.parent.hslide.height-this.height)/2}"></text>
-			</view>
-			<checkbutton text="Siderails" color="white" selectcolor="green" defaultcolor="red"  selected="true">
-				<handler event="onselected" args="value">
-					theboard.siderails = value;
-				</handler>
-			</checkbutton>
-			<checkbutton text="Gnd and VCC rails" color="white" selectcolor="green" defaultcolor="red" selected="true">
-				<handler event="onselected" args="value">
-					theboard.gndvcclines = value;
-				</handler>
-			</checkbutton>
-			<zbutton text="Regenerate board">
-			<handler event="onclick">
-				theboard.updateall();
-			</handler>
-			</zbutton>
-			
-		</view>
-		</view>
-		<view name="blah2" height="100%" width="${this.parent.width - (dragger.x+10)}" x ="${dragger.x+10}" bgcolor="lightgray">
-			<view width="100%" height="100%" bgcolor = "white" >
-				<twojs id="theboard" bgcolor="darkgray" width="100%" height="100%">
-					<attribute name="boardwidthmm" value="50" type="number"></attribute>
-					<attribute name="boardheightmm" value="60" type="number"></attribute>	
-					<attribute name="rounding" value="3.2" type= "number"></attribute> 
-					<attribute name="holespersegment" value="4" type= "number"></attribute> 
-					<attribute name="gndvcclines" value="true" type = "boolean"></attribute> 
-					<attribute name="siderails" value="true" type = "boolean"></attribute> 
-					<attribute name="segmentsbetweenrails" value="2" type="number"></attribute>  
-					<method name="updateall">
+  <view height="100%" width="100%">
+  <spacedlayout axis="y"  inset="15" spacing="8" ></spacedlayout>
+    <text fontsize="40" font="Helvetica"   text="Build" color="#e0e0e0"></text>
+    <text fontsize="40" font="Helvetica"   text="Protoboards" color="#e0e0e0"></text>	
+      <view width="100%" height="auto" >			
+      <spacedlayout axis="y" spacing="0" updateparent="true" ></spacedlayout>			
+      <view width="100%" height="1" bgcolor="darkgray"></view>
+      <view width="100%" height="1" bgcolor="lightgray"></view>
+      </view>
+    <text text="width in MM" height="auto"  color="white"></text>		
+      <view height="auto" width="100%">
+      <spacedlayout spacing="8" updateparent="true"></spacedlayout>
+      <slider name="hslide" y="5" width="250" height="30" value="50" minvalue="15" maxvalue="250" bgcolor="#808080">
+      <handler event="onmouseup">
+        theboard.boardwidthmm = Math.round(this.parent.hslide.value);
+        </handler>
+        </slider>		
+      <text  color="white" text="${Math.round(this.parent.hslide.value)}" y="${this.parent.hslide.y + (this.parent.hslide.height-this.height)/2}"></text>
+      </view>
+    <text text="height in MM" color="white"></text>		
+      <view width="100%" height="auto">
+      <spacedlayout spacing="8" updateparent="true"></spacedlayout>
+      <slider name="hslide" y="5" width="250" height="30" value="50" minvalue="15" maxvalue="250" bgcolor="#808080">
+      <handler event="onmouseup">
+        theboard.boardheightmm = Math.round(this.parent.hslide.value);
+        </handler>
+      </slider>		
+      <text  color="white" text="${Math.round(this.parent.hslide.value)}" y="${this.parent.hslide.y + (this.parent.hslide.height-this.height)/2}"></text>
+    </view>
+    <text text="holes per segment"  color="white"></text>		
+    <view width="100%" height="auto" >
+      <spacedlayout spacing="8" updateparent="true"></spacedlayout>
+      <slider name="hslide" y="5" width="250" height="30" value="5" minvalue="2" maxvalue="10" bgcolor="#808080">
+        <handler event="onmouseup">
+        theboard.holespersegment = Math.round(this.parent.hslide.value);
+        </handler>
+      </slider>		
+      <text  color="white" text="${Math.round(this.parent.hslide.value)}" y="${this.parent.hslide.y + (this.parent.hslide.height-this.height)/2}"></text>
+      </view>
+      <text  color="white" text="segments between rails"></text>	
+      <view width="100%" height="auto" name="segments">
+        <spacedlayout spacing="8" updateparent="true"></spacedlayout>
+        <slider name="hslide" y="5" width="250" height="30" value="2" minvalue="1" maxvalue="10" bgcolor="#808080">
+          <handler event="onmouseup">
+        theboard.segmentsbetweenrails = Math.round(this.parent.hslide.value);
+        theboard.updateall();
+        </handler>
+        
+        
+        </slider>		
+        <text  color="white" text="${Math.round(this.parent.hslide.value)}" y="${this.parent.hslide.y + (this.parent.hslide.height-this.height)/2}"></text>
+      </view>
+      <checkbutton text="Siderails" color="white" selectcolor="green" defaultcolor="red"  selected="true">
+        <handler event="onselected" args="value">
+          theboard.siderails = value;
+        </handler>
+      </checkbutton>
+      <checkbutton text="Gnd and VCC rails" color="white" selectcolor="green" defaultcolor="red" selected="true">
+        <handler event="onselected" args="value">
+          theboard.gndvcclines = value;
+        </handler>
+      </checkbutton>
+      <zbutton text="Regenerate board">
+      <handler event="onclick">
+        theboard.updateall();
+      </handler>
+      </zbutton>
+      
+    </view>
+    </view>
+    <view name="blah2" height="100%" width="${this.parent.width - (dragger.x+10)}" x ="${dragger.x+10}" bgcolor="lightgray">
+      <view width="100%" height="100%" bgcolor = "white" >
+        <twojs id="theboard" bgcolor="darkgray" width="100%" height="100%">
+          <attribute name="boardwidthmm" value="50" type="number"></attribute>
+          <attribute name="boardheightmm" value="60" type="number"></attribute>	
+          <attribute name="rounding" value="3.2" type= "number"></attribute> 
+          <attribute name="holespersegment" value="4" type= "number"></attribute> 
+          <attribute name="gndvcclines" value="true" type = "boolean"></attribute> 
+          <attribute name="siderails" value="true" type = "boolean"></attribute> 
+          <attribute name="segmentsbetweenrails" value="2" type="number"></attribute>  
+          <method name="updateall">
 if (this.loaded != undefined) 
 {
-		this.buildboard();
-		this.rebuildgraphics();
+    this.buildboard();
+    this.rebuildgraphics();
 }
-		</method>
-		
-		<handler event="oninit">
-		this.loaded = true;
+    </method>
+    
+    <handler event="oninit">
+    this.loaded = true;
         console.log(this.siderails);
-		console.log(this.gndvcclines);
-		this.Xextents = 0;
+    console.log(this.gndvcclines);
+    this.Xextents = 0;
         this.Yextents = 0;
         
-		 this.LabelHeight = 1.2;
+     this.LabelHeight = 1.2;
          this.PadWidth = 1.8;
          this.DrillWidth = 1.0;
-		this.edgeclearance = 0.5;
-		this.mountholediameter = 3.2;
-		this.mountholeclearance = 4;		
-		this.edgeclearance = 0;
-		this.TraceWidth = 1.0;
-		
-		this.Hole = function(x,y,radius)
-		{
-			this.x = x;
-			this.y = y;
-			this.radius = radius;
-		}
-		
-		this.Pad = function(x,y,radius)
-		{
-			this.x = x;
-			this.y = y;
-			this.radius = radius;
-		}
-		
-		this.Trace = function(x1, y1, x2, y2, width)
-		{
-			this.x1 = x1;
-			this.y1 = y1;
-			this.x2 = x2;
-			this.y2 = y2;
-			this.width = width;
-		}
-		
-		this.Point = function(x,y)
-		{
-			this.x = x;
-			this.y = y;
-			
-		}
-		
-		this.Distance = function (a,b)
-		{
-			var dx = b.x - a.x;
-			var dy = b.y - a.y;
-			var l =Math.sqrt(dx*dx + dy*dy);
-			return l;
-		}
-		
+    this.edgeclearance = 0.5;
+    this.mountholediameter = 3.2;
+    this.mountholeclearance = 4;		
+    this.edgeclearance = 0;
+    this.TraceWidth = 1.0;
+    
+    this.Hole = function(x,y,radius)
+    {
+      this.x = x;
+      this.y = y;
+      this.radius = radius;
+    }
+    
+    this.Pad = function(x,y,radius)
+    {
+      this.x = x;
+      this.y = y;
+      this.radius = radius;
+    }
+    
+    this.Trace = function(x1, y1, x2, y2, width)
+    {
+      this.x1 = x1;
+      this.y1 = y1;
+      this.x2 = x2;
+      this.y2 = y2;
+      this.width = width;
+    }
+    
+    this.Point = function(x,y)
+    {
+      this.x = x;
+      this.y = y;
+      
+    }
+    
+    this.Distance = function (a,b)
+    {
+      var dx = b.x - a.x;
+      var dy = b.y - a.y;
+      var l =Math.sqrt(dx*dx + dy*dy);
+      return l;
+    }
+    
         this.PrepareGridSpace = function( XE, YE  ,avgblocklen ,  blocksperarea )
         {
 
@@ -189,7 +174,7 @@ if (this.loaded != undefined)
             this.GridRowBaseType = [];
             this.Xextents = XE;
             this.Yextents = YE;
-			
+      
             var div = blocksperarea * avgblocklen;
             if (this.gndvcclines) div += 2;
             var TotalAreas = (Math.floor(YE / div));
@@ -199,7 +184,7 @@ if (this.loaded != undefined)
             var ItemsLeftInBlock = avgblocklen;
             var  BlocksLeftInArea = Math.floor(blocksperarea / 2);
             var BlocksHad = 0;
-			while (this.GridRowBaseType.length < YE)
+      while (this.GridRowBaseType.length < YE)
             {
                 this.GridRowBaseType.push("B"+  BlocksHad.toString());
                 ItemsLeftInBlock--;
@@ -211,8 +196,8 @@ if (this.loaded != undefined)
                     BlocksHad++;
                     if (BlocksHad == TotalAreas * blocksperarea)
                     {
-					console.log("overflowing?", YE, this.GridRowBaseType.length, avgblocklen) 
-						
+          console.log("overflowing?", YE, this.GridRowBaseType.length, avgblocklen) 
+            
                         while (this.GridRowBaseType.length < YE)
                         {
                             this.GridRowBaseType.push("B"+ ( BlocksHad - 1).toString());
@@ -230,56 +215,56 @@ if (this.loaded != undefined)
                 }
 
             }
-			console.log(this.GridRowBaseType);
-			this.Grid = [];
+      console.log(this.GridRowBaseType);
+      this.Grid = [];
             for (var x = 0; x <= XE; x++)
             {
-				var gridrow = [];
+        var gridrow = [];
                 for (var y = 0; y <= YE; y++)
                 {
-					var ng = this.GridSpaceType(x, y);
+          var ng = this.GridSpaceType(x, y);
                     if (y == YE) ng = "None";
                     if (x == XE) ng = "None";
-					gridrow.push(ng);
+          gridrow.push(ng);
                     
                 }
-				this.Grid.push(gridrow);
+        this.Grid.push(gridrow);
                 
             }
-		}
-		
-		this.BuildGridGeom = function(XE, YE)
-		{
-		
-		    var XO = (this.boardwidthmm / 2) - (XE / 2.0) * 2.54;
+    }
+    
+    this.BuildGridGeom = function(XE, YE)
+    {
+    
+        var XO = (this.boardwidthmm / 2) - (XE / 2.0) * 2.54;
             var  YO = (this.boardheightmm / 2) - (YE / 2.0) * 2.54;
 
-			var C1 = new this.Point(this.mountholeclearance, this.mountholeclearance);
+      var C1 = new this.Point(this.mountholeclearance, this.mountholeclearance);
             var C2 = new this.Point(this.boardwidthmm - this.mountholeclearance, this.mountholeclearance);
             var C3 = new this.Point(this.boardwidthmm - this.mountholeclearance, this.boardheightmm - this.mountholeclearance);
             var C4 = new this.Point(this.mountholeclearance, this.boardheightmm - this.mountholeclearance);
             
-			this.Drills.push(new this.Hole(C1.x, C1.y, this.mountholediameter));
-			this.Drills.push(new this.Hole(C2.x, C2.y, this.mountholediameter));
-			this.Drills.push(new this.Hole(C3.x, C3.y, this.mountholediameter));
-			this.Drills.push(new this.Hole(C4.x, C4.y, this.mountholediameter));
-			
-			for ( x = 0; x < XE; x++)
+      this.Drills.push(new this.Hole(C1.x, C1.y, this.mountholediameter));
+      this.Drills.push(new this.Hole(C2.x, C2.y, this.mountholediameter));
+      this.Drills.push(new this.Hole(C3.x, C3.y, this.mountholediameter));
+      this.Drills.push(new this.Hole(C4.x, C4.y, this.mountholediameter));
+      
+      for ( x = 0; x < XE; x++)
             {
                 var xc = XO + x * 2.54 + 2.54 / 2;
                 for ( y = 0; y < YE; y++)
                 {
                      yc = YO + y * 2.54 + 2.54 / 2;
-					var P = new this.Point(xc,yc);
-					var mindist = this.edgeclearance+ this.mountholediameter / 2 + 1.27;
-					
-					if (this.Distance(P, C1)<  mindist) this.Grid[x][y] = "None";
+          var P = new this.Point(xc,yc);
+          var mindist = this.edgeclearance+ this.mountholediameter / 2 + 1.27;
+          
+          if (this.Distance(P, C1)<  mindist) this.Grid[x][y] = "None";
                     if (this.Distance(P, C2)<  mindist) this.Grid[x][y] = "None";
                     if (this.Distance(P, C3)<  mindist) this.Grid[x][y] = "None";
                     if (this.Distance(P, C4)<  mindist) this.Grid[x][y] = "None";
                     
-					
-					if (this.Grid[x][y] != "None")
+          
+          if (this.Grid[x][y] != "None")
                     {
                         this.Drills.push(new this.Hole(xc,yc, this.DrillWidth));
                         this.PadsTop.push(new this.Hole(xc,yc, this.PadWidth));
@@ -287,8 +272,8 @@ if (this.loaded != undefined)
                     }
                 }
             }
-			
-			 for ( x = -1; x < XE + 1; x++)
+      
+       for ( x = -1; x < XE + 1; x++)
             {
 
                 for ( y = -1; y < YE + 1; y++)
@@ -309,7 +294,7 @@ if (this.loaded != undefined)
                     {
                         if (s3 != "None")
                         {
-						this.TracesTop.push(new this.Trace(xc, yc, xc1, yc, this.TraceWidth));
+            this.TracesTop.push(new this.Trace(xc, yc, xc1, yc, this.TraceWidth));
 
                         }
                     }
@@ -324,15 +309,15 @@ if (this.loaded != undefined)
                     {
                         if (s3 != "None")
                         {
-												this.TracesTop.push(new this.Trace(xc, yc, xc, yc1, this.TraceWidth));
+                        this.TracesTop.push(new this.Trace(xc, yc, xc, yc1, this.TraceWidth));
 
                             
                         }
                     }
                     else
                     {
-					
-					                       var  PL2 = new this.Trace(xc - 2.54 / 2, yc +2.54 / 2, xc1 - 2.54 / 2, yc + 2.54 / 2, 0.1);
+          
+                                 var  PL2 = new this.Trace(xc - 2.54 / 2, yc +2.54 / 2, xc1 - 2.54 / 2, yc + 2.54 / 2, 0.1);
                         this.SilkTop.push(PL2);
                         this.SilkBottom.push(PL2);
  
@@ -340,8 +325,8 @@ if (this.loaded != undefined)
                     }
                 }
             }
-			
-		}
+      
+    }
         this.GridSpaceType = function( x,  y)
         {
             if (x < 0 || y < 0 || x >= this.Xextents || y >= this.Yextents) return "None";
@@ -364,121 +349,119 @@ if (this.loaded != undefined)
 
         }
 
-		this.buildboard();
-		this.rebuildgraphics();
+    this.buildboard();
+    this.rebuildgraphics();
   </handler>
   <method name="buildboard">
-  		this.GridRowBaseType = [];
-		this.Grid = [];
-		this.Drills = []
-		this.PadsTop = []
-		this.SilkTop = [];
-		this.SilkBottom = [];
-		this.PadsBottom = []
-		this.TracesTop = []
+      this.GridRowBaseType = [];
+    this.Grid = [];
+    this.Drills = []
+    this.PadsTop = []
+    this.SilkTop = [];
+    this.SilkBottom = [];
+    this.PadsBottom = []
+    this.TracesTop = []
 
-		var XE = Math.floor((this.boardwidthmm - Math.max(this.edgeclearance, this.LabelHeight) * 2) / 2.54);
+    var XE = Math.floor((this.boardwidthmm - Math.max(this.edgeclearance, this.LabelHeight) * 2) / 2.54);
         var YE = Math.floor((this.boardheightmm - Math.max(this.edgeclearance, this.LabelHeight) * 2) / 2.54);
-		this.PrepareGridSpace(XE,YE, this.holespersegment,this.segmentsbetweenrails);
-		this.BuildGridGeom(XE,YE);
+    this.PrepareGridSpace(XE,YE, this.holespersegment,this.segmentsbetweenrails);
+    this.BuildGridGeom(XE,YE);
   </method>
   <method name="rebuildgraphics">
   this.two.clear();
-	
-	
-	this.dpi = 10;
-	this.bw = this.boardwidthmm*this.dpi;
-	this.bh = this.boardheightmm*this.dpi;
-	this.cornerrad = this.rounding*this.dpi;
-	this.xa = this.cornerrad;
-	this.xb = this.bw - this.cornerrad;
-	this.ya = this.cornerrad;
-	this.yb = this.bh - this.cornerrad;
-	this.outlinevertices = [];
-	this.outlinevertices.push(new Two.Anchor(this.xa, 0));
-	this.outlinevertices.push(new Two.Anchor(this.xb, 0, this.xb));
-	this.outlinevertices.push(new Two.Anchor(this.bw, this.ya));
-	this.outlinevertices.push(new Two.Anchor(this.bw, this.yb));
-	this.outlinevertices.push(new Two.Anchor(this.xb, this.bh));
-	this.outlinevertices.push(new Two.Anchor(this.xa, this.bh));
-	this.outlinevertices.push(new Two.Anchor(0, this.yb));
-	this.outlinevertices.push(new Two.Anchor(0, this.ya));
-	this.outlinevertices.push(new Two.Anchor(this.xa, 0));
-	
-	this.outline = this.two.makePolygon(this.outlinevertices);
-	
-	this.group = this.two.makeGroup(this.outline);
-	for(a in this.TracesTop)
-	{
-		var C = this.two.makeLine
-			(this.TracesTop[a].x1*this.dpi, this.TracesTop[a].y1*this.dpi, 
-			this.TracesTop[a].x2*this.dpi, this.TracesTop[a].y2*this.dpi
-			);
-			C.linewidth = this.TracesTop[a].width * this.dpi;
-		C.stroke = "#10e000";
-		C.fill = "#10e000";
-		C.addTo(this.group);
-		//C.noStroke();
-	}
-	for(a in this.SilkTop)
-	{
-		var C = this.two.makeLine
-			(this.SilkTop[a].x1*this.dpi, this.SilkTop[a].y1*this.dpi, 
-			this.SilkTop[a].x2*this.dpi, this.SilkTop[a].y2*this.dpi
-			);
-			C.linewidth = this.SilkTop[a].width * this.dpi;
-		C.stroke = "White";
-		C.fill = "White";
-		C.addTo(this.group);
-		//C.noStroke();
-	}
+  
+  
+  this.dpi = 10;
+  this.bw = this.boardwidthmm*this.dpi;
+  this.bh = this.boardheightmm*this.dpi;
+  this.cornerrad = this.rounding*this.dpi;
+  this.xa = this.cornerrad;
+  this.xb = this.bw - this.cornerrad;
+  this.ya = this.cornerrad;
+  this.yb = this.bh - this.cornerrad;
+  this.outlinevertices = [];
+  this.outlinevertices.push(new Two.Anchor(this.xa, 0));
+  this.outlinevertices.push(new Two.Anchor(this.xb, 0, this.xb));
+  this.outlinevertices.push(new Two.Anchor(this.bw, this.ya));
+  this.outlinevertices.push(new Two.Anchor(this.bw, this.yb));
+  this.outlinevertices.push(new Two.Anchor(this.xb, this.bh));
+  this.outlinevertices.push(new Two.Anchor(this.xa, this.bh));
+  this.outlinevertices.push(new Two.Anchor(0, this.yb));
+  this.outlinevertices.push(new Two.Anchor(0, this.ya));
+  this.outlinevertices.push(new Two.Anchor(this.xa, 0));
+  
+  this.outline = this.two.makePolygon(this.outlinevertices);
+  
+  this.group = this.two.makeGroup(this.outline);
+  for(a in this.TracesTop)
+  {
+    var C = this.two.makeLine
+      (this.TracesTop[a].x1*this.dpi, this.TracesTop[a].y1*this.dpi, 
+      this.TracesTop[a].x2*this.dpi, this.TracesTop[a].y2*this.dpi
+      );
+      C.linewidth = this.TracesTop[a].width * this.dpi;
+    C.stroke = "#10e000";
+    C.fill = "#10e000";
+    C.addTo(this.group);
+    //C.noStroke();
+  }
+  for(a in this.SilkTop)
+  {
+    var C = this.two.makeLine
+      (this.SilkTop[a].x1*this.dpi, this.SilkTop[a].y1*this.dpi, 
+      this.SilkTop[a].x2*this.dpi, this.SilkTop[a].y2*this.dpi
+      );
+      C.linewidth = this.SilkTop[a].width * this.dpi;
+    C.stroke = "White";
+    C.fill = "White";
+    C.addTo(this.group);
+    //C.noStroke();
+  }
 
-		for(a in this.PadsTop)
-	{
-		var C = this.two.makeCircle(this.PadsTop[a].x*this.dpi, this.PadsTop[a].y*this.dpi, this.PadsTop[a].radius*0.5*this.dpi);
-		C.fill = "#e0e000";
-		C.addTo(this.group);
-		C.noStroke();
-		}
-	
-	for(a in this.Drills)
-	{
-		var C = this.two.makeCircle(this.Drills[a].x*this.dpi, this.Drills[a].y*this.dpi, this.Drills[a].radius*0.5*this.dpi);
-		C.fill = "black"
-		C.addTo(this.group);
-		C.noStroke();
-		}
-	this.group.translation.set(40,40);
-	
-	this.outline.fill = "darkgreen";
+    for(a in this.PadsTop)
+  {
+    var C = this.two.makeCircle(this.PadsTop[a].x*this.dpi, this.PadsTop[a].y*this.dpi, this.PadsTop[a].radius*0.5*this.dpi);
+    C.fill = "#e0e000";
+    C.addTo(this.group);
+    C.noStroke();
+    }
+  
+  for(a in this.Drills)
+  {
+    var C = this.two.makeCircle(this.Drills[a].x*this.dpi, this.Drills[a].y*this.dpi, this.Drills[a].radius*0.5*this.dpi);
+    C.fill = "black"
+    C.addTo(this.group);
+    C.noStroke();
+    }
+  this.group.translation.set(40,40);
+  
+  this.outline.fill = "darkgreen";
 
     this.two.update();
-	</method>
-</twojs>	</view>
-			
-			</view>
-		
-		<view width="10" x="300" height="100%" bgcolor="darkgray" id="dragger">
-			<attribute name="mouseIsDown" type="boolean" value="false"></attribute>
-			<handler event="onmousedown">
-				this.setAttribute('mouseIsDown', true);
-			</handler>
-			<handler event="onmouseup">
-				this.setAttribute('mouseIsDown', false);
-			</handler>
-			<handler event="onmouseover">
-				this.setAttribute('bgcolor', '#505040');
-			</handler>
-			<handler event="onmouseout">
-				this.setAttribute('bgcolor', 'darkgray');
-			</handler>
-			<dragstate applied="${this.parent.mouseIsDown}"  dragaxis="x">
-				<attribute name="bgcolor" type="string" value="black"></attribute>
-			</dragstate>
-		</view>
-	</view>
-	
-	<!-- The MIT License (MIT)
+  </method>
+</twojs></view>
+    </view>
+    <view width="10" x="300" height="100%" bgcolor="darkgray" id="dragger">
+      <attribute name="mouseIsDown" type="boolean" value="false"></attribute>
+      <handler event="onmousedown">
+        this.setAttribute('mouseIsDown', true);
+      </handler>
+      <handler event="onmouseup">
+        this.setAttribute('mouseIsDown', false);
+      </handler>
+      <handler event="onmouseover">
+        this.setAttribute('bgcolor', '#505040');
+      </handler>
+      <handler event="onmouseout">
+        this.setAttribute('bgcolor', 'darkgray');
+      </handler>
+      <dragstate applied="${this.parent.mouseIsDown}"  dragaxis="x">
+        <attribute name="bgcolor" type="string" value="black"></attribute>
+      </dragstate>
+    </view>
+  </view>
+</body>
+<!-- The MIT License (MIT)
 
 Copyright ( c ) 2014 Teem2 LLC
 
@@ -499,8 +482,4 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. -->
-
-
-
-
 </html>

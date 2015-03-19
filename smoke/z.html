@@ -1,15 +1,10 @@
 <html>
 <head>
-    <title>z index test</title>
-    <script type="text/javascript" src="/lib/jquery-1.9.1.min.js"></script>
-    <script type="text/javascript" src="/lib/acorn.js"></script>
-    <script type="text/javascript" src="/lib/coffee-script.js"></script>
-    <script type="text/javascript" src="/core/layout.js"></script>
-    <script type="text/javascript" src="/lib/chai.js"></script>
-    <script type="text/javascript" src="/lib/smoke_helper.js"></script>
+  <title>z index test</title>
+  <script>var BOILERPLATE_OPTS = {type:'smoke'};</script>
+  <script type="text/javascript" src="../boilerplate.js"></script>
 </head>
 <body>
-
 <view name="main-view" width="400" height="400" clip="true">
     <attribute name="topview" type="string" value=""></attribute>
 
@@ -30,7 +25,6 @@
     </view>
 
     <handler event="oninit">
-
         var ev = document.createEvent("MouseEvent");
         var el = document.elementFromPoint(50, 50);
         ev.initMouseEvent("click", true, true, window, null, 50, 50, 0, 0, false, false, false, false, 0, null);
@@ -49,7 +43,6 @@
             this.baz.moveToFront(); // Works
         </handler>
     </view>
-
 </view>
 </body>
 </html>
