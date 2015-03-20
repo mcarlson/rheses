@@ -30,6 +30,22 @@ SOFTWARE. -->
    * button. For example, in a labelbutton the entire button is the visual
    * element. For a checkbutton, the visual element is a square dr.view
    * that is inside the button.
+   *
+   * The following example shows a subclass that has a plain view as the visual element, and sets selected to true onmousedown. The selectcolor is automatically applied when selected is true.
+   * 
+   *     @example
+   *     <class name="purplebutton" extends="buttonbase" defaultcolor="purple" selectcolor="plum" width="100" height="40">
+   *        <view name="visual" width="100%" height="100%"></view>
+   *
+   *        <handler event="onmousedown">
+   *          this.setAttribute('selected', true)
+   *        </handler>
+   *
+   *        <handler event="onmouseup">
+   *          this.setAttribute('selected', false)
+   *        </handler>
+   *     </class>
+   *     <purplebutton></purplebutton>
    */-->
 <class name="buttonbase" type="coffee" clickable="true" clip="true" bordercolor="${this.selectcolor}">
   <!--/**
