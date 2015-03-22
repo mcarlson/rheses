@@ -77,12 +77,33 @@ SOFTWARE.
   extend(opts, global.BOILERPLATE_OPTS || {});
   var isSmoke = opts.type === 'smoke';
   
+  // Parse Query
+  var query = (function(pairs) {
+      var params = {};
+      if (Array.isArray(pairs)) {
+        var i = pairs.length, param;
+        while (i) {
+          param = pairs[--i].split('=', 2);
+          params[param[0]] = (param.length === 1) ? "" : decodeURIComponent(param[1].replace(/\+/g, " "));
+        }
+      }
+      return params;
+    })(window.location.search.substr(1).split('&')),
+    debug = query.debug,
+    runtime = query.runtime,
+    minify = query.minify;
+  
   // Config
+  var layoutQuery = [];
+  //if (debug === 'true') layoutQuery.push('debug=true'); // FIXME: uncomment this when the assembler supports conditional debug code.
+  if (runtime) layoutQuery.push('runtime=' + runtime);
+  layoutQuery = (layoutQuery.length > 0) ? '?' + layoutQuery.join('&') : '';
+  
   var scriptsToLoad = [
       'lib/jquery-1.9.1.js',
       'lib/acorn.js',
       'lib/coffee-script.js',
-      'core/layout.js',
+      'core/layout' + (minify === 'true' ? '.min' : '') + '.js' + layoutQuery,
       isSmoke ? '/lib/chai.js' : '',
       isSmoke ? '/lib/smoke_helper.js' : '',
     ],
