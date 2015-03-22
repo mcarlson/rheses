@@ -5159,6 +5159,44 @@
       return Path;
 
     })();
+    StartEventable = (function(_super) {
+      __extends(StartEventable, _super);
+
+      function StartEventable() {
+        return StartEventable.__super__.constructor.apply(this, arguments);
+      }
+
+      StartEventable.prototype.register = function(ev, callback) {
+        StartEventable.__super__.register.apply(this, arguments);
+        if (this.startEventTest()) {
+          return this.startEvent();
+        }
+      };
+
+      StartEventable.prototype.unregister = function(ev, callback) {
+        StartEventable.__super__.unregister.apply(this, arguments);
+        if (!this.startEventTest()) {
+          return this.stopEvent();
+        }
+      };
+
+      StartEventable.prototype.startEvent = function(event) {
+        if (this.eventStarted) {
+          return;
+        }
+        return this.eventStarted = true;
+      };
+
+      StartEventable.prototype.stopEvent = function(event) {
+        if (!this.eventStarted) {
+          return;
+        }
+        return this.eventStarted = false;
+      };
+
+      return StartEventable;
+
+    })(Eventable);
     starttime = Date.now();
     idle = (function() {
       var doTick, requestAnimationFrame, tickEvents, ticking;
@@ -5224,44 +5262,6 @@
         };
       }
     })();
-    StartEventable = (function(_super) {
-      __extends(StartEventable, _super);
-
-      function StartEventable() {
-        return StartEventable.__super__.constructor.apply(this, arguments);
-      }
-
-      StartEventable.prototype.register = function(ev, callback) {
-        StartEventable.__super__.register.apply(this, arguments);
-        if (this.startEventTest()) {
-          return this.startEvent();
-        }
-      };
-
-      StartEventable.prototype.unregister = function(ev, callback) {
-        StartEventable.__super__.unregister.apply(this, arguments);
-        if (!this.startEventTest()) {
-          return this.stopEvent();
-        }
-      };
-
-      StartEventable.prototype.startEvent = function(event) {
-        if (this.eventStarted) {
-          return;
-        }
-        return this.eventStarted = true;
-      };
-
-      StartEventable.prototype.stopEvent = function(event) {
-        if (!this.eventStarted) {
-          return;
-        }
-        return this.eventStarted = false;
-      };
-
-      return StartEventable;
-
-    })(Eventable);
 
     /**
      * @class dr.idle {Util}
