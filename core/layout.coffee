@@ -157,7 +157,7 @@ window.dr = do ->
         targetAttrs[key] = value
 
 ~["include","fragments/Node.frag"]~
-~["include","fragments/Sprite.frag"]~
+~["if","runtime","dali"]~~["include","fragments/dali/Sprite.frag"]~~["else"]~~["include","fragments/Sprite.frag"]~~["endif"]~
 ~["include","fragments/View.frag"]~
 
   warnings = []
