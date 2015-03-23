@@ -37,30 +37,30 @@ SOFTWARE. -->
       *  You might want to set the value of a text element based on the value of other attributes via a constraint. Here we set the value by concatenating three attributes together.
       * 
       *      @example
-      *      <attribute name="firstName" type="string" value="Lumpy"></attribute>
-      *      <attribute name="middleName" type="string" value="Space"></attribute>
-      *      <attribute name="lastName" type="string" value="Princess"></attribute>
+      *      <attribute name="firstname" type="string" value="Lumpy"></attribute>
+      *      <attribute name="middlename" type="string" value="Space"></attribute>
+      *      <attribute name="lastname" type="string" value="Princess"></attribute>
       * 
-      *      <text text="${this.parent.firstName + ' ' + this.parent.middleName + ' ' + this.parent.lastName}" color="hotpink"></text>
+      *      <text text="${this.parent.firstname + ' ' + this.parent.middlename + ' ' + this.parent.lastname}" color="hotpink"></text>
       * 
       *  Constraints can contain more complex JavaScript code
       * 
       *      @example
-      *      <attribute name="firstName" type="string" value="Lumpy"></attribute>
-      *      <attribute name="middleName" type="string" value="Space"></attribute>
-      *      <attribute name="lastName" type="string" value="Princess"></attribute>
+      *      <attribute name="firstname" type="string" value="Lumpy"></attribute>
+      *      <attribute name="middlename" type="string" value="Space"></attribute>
+      *      <attribute name="lastname" type="string" value="Princess"></attribute>
       * 
-      *      <text text="${this.parent.firstName.charAt(0) + ' ' + this.parent.middleName.charAt(0) + ' ' + this.parent.lastName.charAt(0)}" color="hotpink"></text>
+      *      <text text="${this.parent.firstname.charAt(0) + ' ' + this.parent.middlename.charAt(0) + ' ' + this.parent.lastname.charAt(0)}" color="hotpink"></text>
       * 
       *  We can simplify this by using a method to return the concatenation and constraining the text value to the return value of the method
       * 
       *      @example
-      *      <attribute name="firstName" type="string" value="Lumpy"></attribute>
-      *      <attribute name="middleName" type="string" value="Space"></attribute>
-      *      <attribute name="lastName" type="string" value="Princess"></attribute>
+      *      <attribute name="firstname" type="string" value="Lumpy"></attribute>
+      *      <attribute name="middlename" type="string" value="Space"></attribute>
+      *      <attribute name="lastname" type="string" value="Princess"></attribute>
       * 
       *      <method name="initials">
-      *        return this.firstName.charAt(0) + ' ' + this.middleName.charAt(0) + ' ' + this.lastName.charAt(0);
+      *        return this.firstname.charAt(0) + ' ' + this.middlename.charAt(0) + ' ' + this.lastname.charAt(0);
       *      </method>
       * 
       *      <text text="${this.parent.initials()}" color="hotpink"></text>
