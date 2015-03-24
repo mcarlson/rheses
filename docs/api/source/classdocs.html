@@ -1614,6 +1614,24 @@
 </span>     * @class dr.teem {Util, Events}
      * @extends dr.node
      * Connects to the shared event bus. When data is sent with a given type, a corresponding event is sent. For example, send(&#39;blah&#39;, {}) sends data with the &#39;blah&#39; type, other shims will receive the object via an &#39;onblah&#39; event.
+     *
+     * Here is an example of sending data via dr.teem. View the example in mutiple devices and see the value update in both.
+     *
+     *     @example
+     *     &lt;teem id=&quot;bus&quot;&gt;
+     *       &lt;handler event=&quot;onrandnum&quot; args=&quot;data&quot;&gt;
+     *          output.setAttribute(&#39;text&#39;, data.txt);
+     *       &lt;/handler&gt;
+     *     &lt;/teem&gt;
+     *     
+     *     &lt;spacedlayout axis=&quot;y&quot;&gt;&lt;/spacedlayout&gt;
+     *
+     *     &lt;labelbutton text=&quot;send message&quot;&gt;
+     *        &lt;handler event=&quot;onclick&quot;&gt;
+     *          bus.send(&#39;randnum&#39;, {&quot;txt&quot;:&#39;another random number: &#39; + Math.floor(Math.random() * 100000)});
+     *        &lt;/handler&gt;
+     *     &lt;/labelbutton&gt;
+     *     &lt;text id=&quot;output&quot;&gt;&lt;/text&gt;
      */
 <span id='dr-teem-attribute-pingtime'>/**
 </span>        * @attribute {Number} [pingtime=5000]

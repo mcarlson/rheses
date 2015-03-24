@@ -1,0 +1,107 @@
+<html>
+<head>
+  <title>dr33m | Audio Examples</title>
+  <link rel="stylesheet" href="./css/example.css"/>
+  <link href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet"></link>
+  <script type="text/javascript" src="../lib/jquery-1.9.1.js"></script>
+  <script type="text/javascript" src="../lib/acorn.js"></script>
+  <script type="text/javascript" src="../lib/coffee-script.js"></script>
+  <script type="text/javascript" src="../core/layout.js"></script>
+</head>
+<body>
+<view padding="20">
+  <teem id="bus">
+    <attribute name="alldata" type="expression" value="[]"></attribute>
+    <attribute name="myid" type="expression" value="Math.floor(Math.random() * 100000)"></attribute>
+    <attribute name="mycolor" type="string" value=""></attribute>
+    <attribute name="labelcolors" type="expression" value="['Teal', 'Tomato', 'Violet', 'HotPink']"></attribute>
+    
+    <handler event="onmsg" args="data">
+      this.alldata.push(data);
+      chatdata.setAttribute('data', this.alldata);
+    </handler>
+    
+    <handler event="oninit">
+      var colorInd = Math.floor(Math.random() * (this.labelcolors.length));
+      this.setAttribute('mycolor', this.labelcolors[colorInd]);
+    </handler>
+    
+    <method name="sendMsgWithId" args="msg">
+      this.send('msg', {"txt":msg, "friendId":this.myid, "color":this.mycolor});
+    </method>
+  </teem>
+  
+  <class name="chatitem" extends="view" width="250" height="${this.msgtxt.height}" padding="15">
+    <attribute name="data" value="null" type="expression"></attribute>
+    
+    <spacedlayout axis="y" layout="3"></spacedlayout>
+    
+    <text name="nametxt" text="sender" width="100%" fontsize="12" color="blue"></text>
+    <text name="msgtxt" multiline="true" width="100%" fontsize="12" padding="5"></text>
+    
+    <handler event="oninit">
+      this.msgtxt.setAttribute('text', this.data.txt)
+      this.nametxt.setAttribute('text', 'Friend' + this.data.friendId)
+      this.nametxt.setAttribute('color', this.data.color)
+      
+      window.setTimeout(function() {
+        chat.setAttribute('scrolly', 2000);
+      }, 1);
+    </handler>
+  </class>
+  
+  <spacedlayout axis="y" spacing="15"></spacedlayout>
+  
+  <text text="Chat with your teem!"></text>
+  
+  <view id="chat" width="300" height="200" border="1" bordercolor="black" scrollable="true">
+    <spacedlayout axis="y" spacing="20"></spacedlayout>
+    <replicator id="chatdata" classname="chatitem" data="[]"></replicator>
+  </view>
+  
+  <method name="enterText">
+    bus.sendMsgWithId(intext.text);
+    intext.setAttribute('text', '');
+  </method>
+  
+  <view height="auto">
+    <spacedlayout axis="y" spacing="5"></spacedlayout>
+    <text color="${bus.mycolor}" text="Type your message here:" fontsize="14"></text>
+    <inputtext id="intext" width="300" height="75" multiline="true" border="1" bordercolor="black">
+      <handler event="onkeyup" args="keydata">
+        if (keydata.keyCode == 13) {
+          this.parent.enterText();
+        }
+      </handler>
+    </inputtext>
+  </view>
+  
+  <labelbutton text="Send">
+    <handler event="onclick">
+      this.parent.enterText();
+    </handler>
+  </labelbutton>
+</view>
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+</body>
+</html>
