@@ -1661,30 +1661,30 @@
       *  You might want to set the value of a text element based on the value of other attributes via a constraint. Here we set the value by concatenating three attributes together.
       * 
       *      @example
-      *      &lt;attribute name=&quot;firstName&quot; type=&quot;string&quot; value=&quot;Lumpy&quot;&gt;&lt;/attribute&gt;
-      *      &lt;attribute name=&quot;middleName&quot; type=&quot;string&quot; value=&quot;Space&quot;&gt;&lt;/attribute&gt;
-      *      &lt;attribute name=&quot;lastName&quot; type=&quot;string&quot; value=&quot;Princess&quot;&gt;&lt;/attribute&gt;
+      *      &lt;attribute name=&quot;firstname&quot; type=&quot;string&quot; value=&quot;Lumpy&quot;&gt;&lt;/attribute&gt;
+      *      &lt;attribute name=&quot;middlename&quot; type=&quot;string&quot; value=&quot;Space&quot;&gt;&lt;/attribute&gt;
+      *      &lt;attribute name=&quot;lastname&quot; type=&quot;string&quot; value=&quot;Princess&quot;&gt;&lt;/attribute&gt;
       * 
-      *      &lt;text text=&quot;${this.parent.firstName + &#39; &#39; + this.parent.middleName + &#39; &#39; + this.parent.lastName}&quot; color=&quot;hotpink&quot;&gt;&lt;/text&gt;
+      *      &lt;text text=&quot;${this.parent.firstname + &#39; &#39; + this.parent.middlename + &#39; &#39; + this.parent.lastname}&quot; color=&quot;hotpink&quot;&gt;&lt;/text&gt;
       * 
       *  Constraints can contain more complex JavaScript code
       * 
       *      @example
-      *      &lt;attribute name=&quot;firstName&quot; type=&quot;string&quot; value=&quot;Lumpy&quot;&gt;&lt;/attribute&gt;
-      *      &lt;attribute name=&quot;middleName&quot; type=&quot;string&quot; value=&quot;Space&quot;&gt;&lt;/attribute&gt;
-      *      &lt;attribute name=&quot;lastName&quot; type=&quot;string&quot; value=&quot;Princess&quot;&gt;&lt;/attribute&gt;
+      *      &lt;attribute name=&quot;firstname&quot; type=&quot;string&quot; value=&quot;Lumpy&quot;&gt;&lt;/attribute&gt;
+      *      &lt;attribute name=&quot;middlename&quot; type=&quot;string&quot; value=&quot;Space&quot;&gt;&lt;/attribute&gt;
+      *      &lt;attribute name=&quot;lastname&quot; type=&quot;string&quot; value=&quot;Princess&quot;&gt;&lt;/attribute&gt;
       * 
-      *      &lt;text text=&quot;${this.parent.firstName.charAt(0) + &#39; &#39; + this.parent.middleName.charAt(0) + &#39; &#39; + this.parent.lastName.charAt(0)}&quot; color=&quot;hotpink&quot;&gt;&lt;/text&gt;
+      *      &lt;text text=&quot;${this.parent.firstname.charAt(0) + &#39; &#39; + this.parent.middlename.charAt(0) + &#39; &#39; + this.parent.lastname.charAt(0)}&quot; color=&quot;hotpink&quot;&gt;&lt;/text&gt;
       * 
       *  We can simplify this by using a method to return the concatenation and constraining the text value to the return value of the method
       * 
       *      @example
-      *      &lt;attribute name=&quot;firstName&quot; type=&quot;string&quot; value=&quot;Lumpy&quot;&gt;&lt;/attribute&gt;
-      *      &lt;attribute name=&quot;middleName&quot; type=&quot;string&quot; value=&quot;Space&quot;&gt;&lt;/attribute&gt;
-      *      &lt;attribute name=&quot;lastName&quot; type=&quot;string&quot; value=&quot;Princess&quot;&gt;&lt;/attribute&gt;
+      *      &lt;attribute name=&quot;firstname&quot; type=&quot;string&quot; value=&quot;Lumpy&quot;&gt;&lt;/attribute&gt;
+      *      &lt;attribute name=&quot;middlename&quot; type=&quot;string&quot; value=&quot;Space&quot;&gt;&lt;/attribute&gt;
+      *      &lt;attribute name=&quot;lastname&quot; type=&quot;string&quot; value=&quot;Princess&quot;&gt;&lt;/attribute&gt;
       * 
       *      &lt;method name=&quot;initials&quot;&gt;
-      *        return this.firstName.charAt(0) + &#39; &#39; + this.middleName.charAt(0) + &#39; &#39; + this.lastName.charAt(0);
+      *        return this.firstname.charAt(0) + &#39; &#39; + this.middlename.charAt(0) + &#39; &#39; + this.lastname.charAt(0);
       *      &lt;/method&gt;
       * 
       *      &lt;text text=&quot;${this.parent.initials()}&quot; color=&quot;hotpink&quot;&gt;&lt;/text&gt;
@@ -1711,7 +1711,7 @@
           * The size of the font in pixels.
           */
 <span id='dr-text-attribute-fontfamily'>/**
-</span>        * @attribute {Number} [fontfamily=&quot;&quot;]
+</span>        * @attribute {String} [fontfamily=&quot;&quot;]
         * The name of the font family to use, e.g. &quot;Helvetica&quot;  Include multiple fonts on a line, separated by commas.
         */
 <span id='dr-text-attribute-bold'>/**
