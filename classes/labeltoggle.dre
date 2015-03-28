@@ -1,6 +1,6 @@
 <!-- The MIT License (MIT)
 
-Copyright ( c ) 2014 Teem2 LLC
+Copyright ( c ) 2014-2015 Teem2 LLC
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -20,25 +20,23 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. -->
 
-  <!--/**
-     * @class dr.labeltoggle {UI Components}
-     * @extends dr.labelbutton
-     * Button class consisting of text centered in a view. The state of the
-     * button changes each time the button is clicked. The select property
-     * holds the current state of the button. The onselected event
-     * is generated when the button is the selected state.
-     *
-     *     @example
-     *     <spacedlayout axis="y"></spacedlayout>
-     *
-     *     <labeltoggle id="toggle" text="Click me to toggle" defaultcolor="plum" selectcolor="orchid"></labeltoggle>
-     *
-     *     <text text="${toggle.selected ? 'selected' : 'not selected'}"></text>
-     */-->    
-    <class name="labeltoggle" type="coffee" extends="labelbutton">
-
-      <handler event="onclick">
-        @setAttribute('selected', !@selected);
-      </handler>
-
-    </class>
+<!--/**
+   * @class dr.labeltoggle {UI Components}
+   * @extends dr.labelbutton
+   * Button class consisting of text centered in a view. The state of the
+   * button changes each time the button is clicked. The select property
+   * holds the current state of the button. The onselected event
+   * is generated when the button is the selected state.
+   *
+   *     @example
+   *     <spacedlayout axis="y"></spacedlayout>
+   *
+   *     <labeltoggle id="toggle" text="Click me to toggle" defaultcolor="plum" selectcolor="orchid"></labeltoggle>
+   *
+   *     <text text="${toggle.selected ? 'selected' : 'not selected'}"></text>
+   */-->
+<class name="labeltoggle" type="coffee" extends="labelbutton">
+  <handler event="onclick">
+    @setAttribute('selected', !@selected);
+  </handler>
+</class>

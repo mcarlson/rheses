@@ -158,9 +158,12 @@ window.dr = do ->
 
   Node = `~["include","fragments/Node.coffee"]~`
 ~["if","runtime","dali"]~
-  Sprite = `~["include","fragments/dali/Sprite.coffee"]~`
+  Sprite = `~["include","fragments/sprite/dali/Sprite.coffee"]~`
 ~["else"]~
-  Sprite = `~["include","fragments/Sprite.coffee"]~`
+  Sprite = `~["include","fragments/sprite/dom/Sprite.coffee"]~`
+  TextSprite = `~["include","fragments/sprite/dom/TextSprite.coffee"]~`
+  InputTextSprite = `~["include","fragments/sprite/dom/InputTextSprite.coffee"]~`
+  ArtSprite = `~["include","fragments/sprite/dom/ArtSprite.coffee"]~`
 ~["endif"]~
   View = `~["include","fragments/View.coffee"]~`
 
@@ -760,6 +763,10 @@ window.dr = do ->
     idle: new Idle()
     state: State
     _noop: noop
+    _sprite:Sprite
+    _textSprite:TextSprite
+    _inputTextSprite:InputTextSprite
+    _artSprite:ArtSprite
     ###*
     # @method initElements
     # Initializes all top-level views found in the document. Called automatically when the page loads, but can be called manually as needed.
