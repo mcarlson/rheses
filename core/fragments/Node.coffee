@@ -82,6 +82,9 @@ class Node extends Eventable
   # data must be set after text
   lateattributes = ['data', 'skin']
 
+  # Methods that must be installed before construct is called.
+  beforeConstructMethods = ['construct','createSprite']
+
   constructor: (el, attributes = {}) ->
     # Process attributes if mixins are defined so that attributes from
     # the mixins get applied
@@ -101,7 +104,7 @@ class Node extends Eventable
     # modify things.
     methods = attributes.$methods
     if methods
-      for methodName in ['construct','_createSprite']
+      for methodName in beforeConstructMethods
         methodObj = methods[methodName]
         if methodObj
           for {method, args} in methodObj
@@ -224,7 +227,7 @@ class Node extends Eventable
     # Install methods
     for name, methodlist of methods
       for {method, args, allocation} in methodlist
-        continue if name is 'construct' or name is '_createSprite'
+        continue if name in beforeConstructMethods
         hassuper = matchSuper.test(method)
         # console.log 'installing method', name, hassuper, args, method, allocation, @
         _installMethod(scope, name, compiler.compile(method, args, "#{tagname}$#{name}").bind(callbackscope), hassuper, allocation)

@@ -208,6 +208,9 @@ class Sprite
   setInnerHTML: (html) ->
     @el.innerHTML = html
 
+  getInnerHTML: ->
+    @el.innerHTML
+
   setText: (txt) ->
     if txt?
       for cld in @el.childNodes
@@ -228,10 +231,6 @@ class Sprite
       if child.nodeType is 3 then texts.push(child.data.trim())
       child = child.nextSibling;
     texts.join("")
-
-  getInnerHTML: ->
-    @el.innerHTML
-
 
   value: (value) ->
     return unless @input
@@ -287,9 +286,14 @@ class Sprite
     @el.getBoundingClientRect()
 
   getAbsolute: () ->
-    @jqel ?= $(@el)
-    pos = @jqel.offset()
-    {x: pos.left - window.pageXOffset, y: pos.top - window.pageYOffset}
+    bounds = @getBounds()
+    {x:bounds.left + window.pageXOffset, y:bounds.top + window.pageYOffset}
+
+  getScrollWidth: () ->
+    @el.scrollWidth
+
+  getScrollHeight: () ->
+    @el.scrollHeight
 
   set_class: (classname='') ->
     @__classname = classname
