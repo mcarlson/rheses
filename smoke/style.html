@@ -19,14 +19,14 @@
 
                 assert.equal(this.width, 100);
                 assert.equal(this.height, 30);
-                assert.equal($(this.sprite.input).width(), 98)
-                assert.equal($(this.sprite.input).height(), 28)
+                assert.equal($(this.sprite.input).width(), 79)
+                assert.equal($(this.sprite.input).height(), 17)
 
                 this.setAttribute('width', 200)
                 this.setAttribute('height', 100)
                 assert.equal(this.width, 200)
                 assert.equal(this.height, 100)
-                assert.equal($(this.sprite.input).width(), 181)
+                assert.equal($(this.sprite.input).width(), 179)
                 assert.equal($(this.sprite.input).height(), 87)
             </handler>
         </inputtext>
@@ -36,8 +36,8 @@
             Text
             <handler event="oninit">
                 assert.testCaseLabel = 'Default sizing';
-                assert.equal(this.width, 12)
-                assert.equal(this.height, 2)
+                assert.equal(this.width, 100)
+                assert.equal(this.height, 32)
             </handler>
         </inputtext>
 

@@ -44,10 +44,10 @@ SOFTWARE. -->
       *     @example
       *     <constantlayout attribute="y" value="10"></constantlayout>
       *
-      *     <view width="100" height="25" bgcolor="lightpink"></view>
-      *     <view width="100" height="25" bgcolor="plum"></view>
-      *     <view ignorelayout="true" width="100" height="25" bgcolor="black"></view>
-      *     <view width="100" height="25" bgcolor="lightblue"></view>
+      *     <view x="0" width="100" height="25" bgcolor="lightpink"></view>
+      *     <view x="100" width="100" height="25" bgcolor="plum"></view>
+      *     <view x="200" ignorelayout="true" width="100" height="25" bgcolor="black"></view>
+      *     <view x="300" width="100" height="25" bgcolor="lightblue"></view>
       */-->
 <class name="constantlayout" extends="layout" type="coffee">
   <!--/**

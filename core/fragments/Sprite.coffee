@@ -274,6 +274,8 @@ class Sprite
     @setStyle('font-weight', 'inherit', false, input)
     @setStyle('font-size', 'inherit', false, input)
     @setStyle('font-family', 'inherit', false, input)
+    @setStyle('width', '100%', false, input)
+    @setStyle('height', '100%', false, input)
 
     @el.appendChild(input)
     # console.log('createInputtextElement', text, multiline, width, height, input)

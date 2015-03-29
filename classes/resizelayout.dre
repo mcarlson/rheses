@@ -27,7 +27,7 @@ SOFTWARE. -->
       *
       * A view can be made stretchy by giving it a layouthint with a numerical
       * value, typically 1. Extra space is divided proportionally between all
-      * sretchy views based on that views percentage of the sum of the
+      * strechy views based on that views percentage of the sum of the
       * "stretchiness" of all stretchy views. For example, a view with a
       * layouthint of 2 will get twice as much space as another view with
       * a layouthint of 1.
@@ -42,9 +42,9 @@ SOFTWARE. -->
       *     <resizelayout spacing="2" inset="5" outset="5">
       *     </resizelayout>
       *
-      *     <view height="25" bgcolor="lightpink"></view>
+      *     <view height="25" bgcolor="pink"></view>
       *     <view height="35" bgcolor="plum" layouthint='{"weight":1}'></view>
-      *     <view height="15" bgcolor="lightblue"></view>
+      *     <view height="15" bgcolor="blue"></view>
       */-->
 <class name="resizelayout" extends="spacedlayout" type="coffee">
   <setter name="updateparent" args="updateparent">

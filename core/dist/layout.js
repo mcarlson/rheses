@@ -2023,6 +2023,8 @@
       this.setStyle('font-weight', 'inherit', false, input);
       this.setStyle('font-size', 'inherit', false, input);
       this.setStyle('font-family', 'inherit', false, input);
+      this.setStyle('width', '100%', false, input);
+      this.setStyle('height', '100%', false, input);
       this.el.appendChild(input);
       input.$view = this.el.$view;
       $(input).on('focus blur', this.handle);
@@ -4766,9 +4768,10 @@
  *           this.super();
  *         </method>
  *       </spacedlayout>
- *       <view width="50" height="50" bgcolor="lightpink" opacity=".3"></view>
+ *       <view width="50" height="50" bgcolor="pink" opacity=".3"></view>
  *       <view width="50" height="50" bgcolor="plum" opacity=".3"></view>
  *       <view width="50" height="50" bgcolor="lightblue" opacity=".3"></view>
+ *       <view width="50" height="50" bgcolor="blue" opacity=".3"></view>
  *     </view>
  *
  *     <text id="output" multiline="true" width="300"></text>
@@ -5427,7 +5430,7 @@
  *       milis.setAttribute('text', idleStatus);
  *     </handler>
  *
- *     <spacedlayout></spacedlayout>
+ *     <spacedlayout axis="y" spacing="5"></spacedlayout>
  *     <text text="Milliseconds since app started: "></text>
  *     <text id="milis"></text>
  */
@@ -5506,11 +5509,11 @@
  *     <view id="mousetracker" width="20" height="20" bgcolor="MediumTurquoise"></view>
  *
  *     <handler event="onx" args="x" reference="dr.mouse">
- *       mousetracker.setAttribute('x', x);
+ *       mousetracker.setAttribute('x', x - mousetracker.width);
  *     </handler>
  *
  *     <handler event="ony" args="y" reference="dr.mouse">
- *       mousetracker.setAttribute('y', y);
+ *       mousetracker.setAttribute('y', y - mousetracker.height);
  *     </handler>
  *
  *
@@ -6061,8 +6064,8 @@
      *        exampleLabel.setAttribute("text", "Parent view received width value of " + widthValue)
      *     </handler>
      *
-     *     <text id="exampleLabel" x="50" y="5" text="no value yet" color="coral" outline="1px dotted coral" padding="10px"></text>
-     *     <text x="50" y="${exampleLabel.y + exampleLabel.height + 20}" text="no value yet" color="white" bgcolor="#DDAA00" padding="10px">
+     *     <text id="exampleLabel" x="50" y="5" text="no value yet" color="coral" outline="1px dotted coral" padding="10"></text>
+     *     <text x="50" y="${exampleLabel.y + exampleLabel.height + 20}" text="no value yet" color="white" bgcolor="#DDAA00" padding="10">
      *       <handler event="onwidth" args="wValue">
      *          this.setAttribute("text", "This label received width value of " + wValue)
      *       </handler>
@@ -6108,6 +6111,8 @@
 
     /**
      * @class dr.attribute {Core Dreem, Events}
+     * @aside guide constraints
+     *
      * Adds a variable to a node, view, class or other class instance. Attributes can only be created with the &lt;attribute>&lt;/attribute> tag syntax.
      *
      * Attributes allow classes to declare new variables with a specific type and default value.

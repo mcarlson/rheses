@@ -25,11 +25,11 @@ SOFTWARE. -->
      * Provides an editable input text field.
      *
      *     @example
-     *     <spacedlayout axis="y"></spacedlayout>
+     *     <spacedlayout axis="y" spacing="10"></spacedlayout>
      *
-     *     <text text="Enter your name"></text>
+     *     <text text="Enter your name:"></text>
      *
-     *     <inputtext id="nameinput" bgcolor="white" border="1px solid lightgrey" width="200"></inputtext>
+     *     <inputtext id="nameinput" width="200"></inputtext>
      *
      *     <labelbutton text="submit">
      *       <handler event="onclick">
@@ -42,7 +42,9 @@ SOFTWARE. -->
      * It's possible to listen for an onchange event to find out when the user changed the inputtext value:
      *
      *     @example
-     *     <inputtext id="nameinput" bgcolor="white" border="1px solid lightgrey" width="200" onchange="console.log('onchange', this.text)"></inputtext>
+     *     <spacedlayout axis="y" spacing="10"></spacedlayout>
+     *     <text text="Type some text below and press enter:"></text>
+     *     <inputtext id="nameinput" width="200" onchange="alert('onchange event: ' + this.text)"></inputtext>
      *
      */-->
 <class name="inputtext" extends="view" type="coffee">
@@ -103,14 +105,6 @@ SOFTWARE. -->
     return data
   </setter>
 
-  <handler event="oninnerwidth" args="iw">
-    @sprite.setStyle('width', iw, true, @sprite.input)
-  </handler>
-
-  <handler event="oninnerheight" args="ih">
-    @sprite.setStyle('height', ih, true, @sprite.input)
-  </handler>
-
   <handler event="onclick">
     # fixes spec/inputext_spec.rb 'can be clicked into' by forwarding user-generated click events
     # a click() without focus() is not enough... See http://stackoverflow.com/questions/210643/in-javascript-can-i-make-a-click-event-fire-programmatically-for-a-file-input
@@ -132,7 +126,7 @@ SOFTWARE. -->
     @replicator.updateData(newdata)
   </handler>
 
-  <art name="indicator" y="${this.parent.height - this.height - 7}" height="10" width="10" z="1" inline="true">
+  <art name="indicator" y="${this.parent.height - this.height - 5}" height="10" width="10" z="1" inline="true" visible="false" clickable="false">
       <!--
       <svg name="triangle" height="100" width="100">
           <polygon name="polygon" points="0,100 0,0 100,100"/>
@@ -146,14 +140,10 @@ SOFTWARE. -->
     @sprite.createInputtextElement(@text, @multiline, @width, @height)
     #console.log('_createSprite', @sprite.input.$view == @, @sprite.el.$view == @)
 
-    unless @height
-      h = parseInt($(@sprite.input).css('height'))
-      domElem = $(@sprite.el)
-      borderH = parseInt(domElem.css('border-top-width')) + parseInt(domElem.css('border-bottom-width'))
-      paddingH = parseInt(domElem.css('padding-top')) + parseInt(domElem.css('padding-bottom'))
-      @setAttribute('height', h + borderH + paddingH)
+    unless @innerheight
+      @setAttribute('height', 16)
 
-    unless @width
+    unless @innerwidth
       @setAttribute('width', 100)
 
   </handler>

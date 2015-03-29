@@ -28,17 +28,18 @@ SOFTWARE. -->
  * amplifying the audio signal
  *
  *     @example
+ *     <text italic="true" fontsize="14">(please open the console to see the output of this example)</text>
  *     <microphone id="mic" modifystream="true" visualize="false" stream="true">
  *       <method name="processStream" args="audio">
- *         if (!audio) return;
+ *	       if (!audio) return;
  *
- *         var inputBuffer = audio.inputBuffer;
- *         var left = inputBuffer.getChannelData(0);
- *         var right = inputBuffer.getChannelData(1);
+ *	       var inputBuffer = audio.inputBuffer;
+ *	       var left = inputBuffer.getChannelData(0);
+ *	       var right = inputBuffer.getChannelData(1);
  *
- *         var min = Math.min.apply(null, left);
- *	   var max = Math.max.apply(null, right);
- *	   console.log('min', min, 'max', max);
+ *	       var min = Math.min.apply(null, left);
+ *	       var max = Math.max.apply(null, right);
+ *	       console.log('min', min, 'max', max);
  *       </method>
  *
  *     </microphone>

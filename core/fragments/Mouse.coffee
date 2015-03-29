@@ -9,11 +9,11 @@
 #     <view id="mousetracker" width="20" height="20" bgcolor="MediumTurquoise"></view>
 #
 #     <handler event="onx" args="x" reference="dr.mouse">
-#       mousetracker.setAttribute('x', x);
+#       mousetracker.setAttribute('x', x - mousetracker.width);
 #     </handler>
 #
 #     <handler event="ony" args="y" reference="dr.mouse">
-#       mousetracker.setAttribute('y', y);
+#       mousetracker.setAttribute('y', y - mousetracker.height);
 #     </handler>
 #
 #

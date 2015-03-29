@@ -31,7 +31,7 @@ SOFTWARE. -->
      *     @example
      *     <spacedlayout axis="y"></spacedlayout>
      *
-     *     <labeltoggle id="toggle" text="Click me to toggle" defaultcolor="plum" selectcolor="orchid"></labeltoggle>
+     *     <labeltoggle id="toggle" text="Click me to toggle"></labeltoggle>
      *
      *     <text text="${toggle.selected ? 'selected' : 'not selected'}"></text>
      */-->    

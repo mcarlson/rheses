@@ -405,7 +405,7 @@
      * This example shows how to load and play an mp3 audio file from the server:
      *
      *     @example
-     *     <audioplayer url="/music/YACHT_-_09_-_Im_In_Love_With_A_Ripper_Party_Mix_Instrumental.mp3" playing="true"></audioplayer>
+     *     <audioplayer url="/examples/music/YACHT_-_09_-_Im_In_Love_With_A_Ripper_Party_Mix_Instrumental.mp3" playing="true"></audioplayer>
      */
 /**
         * @attribute {String} url
@@ -640,10 +640,10 @@
       *     @example
       *     <constantlayout attribute="y" value="10"></constantlayout>
       *
-      *     <view width="100" height="25" bgcolor="lightpink"></view>
-      *     <view width="100" height="25" bgcolor="plum"></view>
-      *     <view ignorelayout="true" width="100" height="25" bgcolor="black"></view>
-      *     <view width="100" height="25" bgcolor="lightblue"></view>
+      *     <view x="0" width="100" height="25" bgcolor="lightpink"></view>
+      *     <view x="100" width="100" height="25" bgcolor="plum"></view>
+      *     <view x="200" ignorelayout="true" width="100" height="25" bgcolor="black"></view>
+      *     <view x="300" width="100" height="25" bgcolor="lightblue"></view>
       */
 /**
     * @attribute {String} [attribute=x]
@@ -704,14 +704,14 @@
      *        }
      *      }
      *     </dataset>
-     *     <spacedlayout></spacedlayout>
+     *     <spacedlayout axis="y" spacing="5"></spacedlayout>
      *     <replicator classname="text" datapath="$example/store/book[*]/title"></replicator>
      *
      * Data can be loaded from a URL when your backend server is ready, or reloaded to show changes over time:
      *
      *     @example wide
      *     <dataset name="example" url="/examples/data/example.json"></dataset>
-     *     <spacedlayout></spacedlayout>
+     *     <spacedlayout axis="y" spacing="5"></spacedlayout>
      *     <replicator classname="text" datapath="$example/store/book[*]/title"></replicator>
      */
 /**
@@ -743,6 +743,7 @@
       *
       *     @example
       *     <view width="100" height="100" bgcolor="plum">
+      *       <text text="DRAG ME!"></text>
       *       <attribute name="mouseIsDown" type="boolean" value="false"></attribute>
       *       <handler event="onmousedown">
       *         this.setAttribute('mouseIsDown', true);
@@ -761,6 +762,7 @@
       *
       *     @example
       *     <view width="100" height="100" bgcolor="plum">
+      *       <text text="DRAG ME!"></text>
       *       <attribute name="mouseIsDown" type="boolean" value="false"></attribute>
       *       <handler event="onmousedown">
       *         this.setAttribute('mouseIsDown', true);
@@ -838,11 +840,11 @@
      * Provides an editable input text field.
      *
      *     @example
-     *     <spacedlayout axis="y"></spacedlayout>
+     *     <spacedlayout axis="y" spacing="10"></spacedlayout>
      *
-     *     <text text="Enter your name"></text>
+     *     <text text="Enter your name:"></text>
      *
-     *     <inputtext id="nameinput" bgcolor="white" border="1px solid lightgrey" width="200"></inputtext>
+     *     <inputtext id="nameinput" width="200"></inputtext>
      *
      *     <labelbutton text="submit">
      *       <handler event="onclick">
@@ -855,7 +857,9 @@
      * It's possible to listen for an onchange event to find out when the user changed the inputtext value:
      *
      *     @example
-     *     <inputtext id="nameinput" bgcolor="white" border="1px solid lightgrey" width="200" onchange="console.log('onchange', this.text)"></inputtext>
+     *     <spacedlayout axis="y" spacing="10"></spacedlayout>
+     *     <text text="Type some text below and press enter:"></text>
+     *     <inputtext id="nameinput" width="200" onchange="alert('onchange event: ' + this.text)"></inputtext>
      *
      */
 /**
@@ -913,7 +917,7 @@
    *     @example
    *     <spacedlayout axis="y"></spacedlayout>
    *
-   *     <labelbutton text="click me" defaultcolor="plum" selectcolor="orchid">
+   *     <labelbutton text="click me">
    *       <handler event="onclick">
    *         hello.setAttribute('text', 'Hello Universe!');
    *       </handler>
@@ -936,7 +940,7 @@
      *     @example
      *     <spacedlayout axis="y"></spacedlayout>
      *
-     *     <labeltoggle id="toggle" text="Click me to toggle" defaultcolor="plum" selectcolor="orchid"></labeltoggle>
+     *     <labeltoggle id="toggle" text="Click me to toggle"></labeltoggle>
      *
      *     <text text="${toggle.selected ? 'selected' : 'not selected'}"></text>
      */
@@ -948,7 +952,8 @@
    * This example shows how to log all setAttribute() calls for a replicator to console.log():
    *
    *     @example
-   *     <dataset name="topmovies" url="/top_movies.json"></dataset>
+   *     <text italic="true" fontsize="14">(please open the console to see the output of this example)</text>
+   *     <dataset name="topmovies" url="/examples/data/top_movies.json"></dataset>
    *     <replicator datapath="$topmovies/searchResponse/results[*]/movie[take(/releaseYear,/duration,/rating)]" classname="logger"></replicator>
    */
 /**
@@ -1000,7 +1005,31 @@
  * @extends dr.node
  * Enables audio capture from the microphone device.
  *
+ * This example uses the microphone to monitor the audio traffic, while also
+ * amplifying the audio signal
+ *
+ *     @example
+ *     <text italic="true" fontsize="14">(please open the console to see the output of this example)</text>
+ *     <microphone id="mic" modifystream="true" visualize="false" stream="true">
+ *       <method name="processStream" args="audio">
+ *	       if (!audio) return;
+ *
+ *	       var inputBuffer = audio.inputBuffer;
+ *	       var left = inputBuffer.getChannelData(0);
+ *	       var right = inputBuffer.getChannelData(1);
+ *
+ *	       var min = Math.min.apply(null, left);
+ *	       var max = Math.max.apply(null, right);
+ *	       console.log('min', min, 'max', max);
+ *       </method>
+ *
+ *     </microphone>
+ *
  */
+/**
+    * @attribute {Boolean} [visualize=true]
+    * When set to true, fft visualization data is computed and available in the fft attribute.
+    */
 /**
     * @attribute {Number} fftsize
     * The number of fft frames to use when setting {@link #fft fft}. Must be a non-zero power of two in the range 32 to 2048.
@@ -1008,6 +1037,13 @@
 /**
     * @attribute {Number} [fftsmoothing=0.8]
     * The amount of smoothing to apply to the FFT analysis. A value from 0 -> 1 where 0 represents no time averaging with the last FFT analysis frame.
+    */
+/**
+    * @attribute {Boolean} [modifystream=false]
+    * When set to true the audio stream is passed to processStream method.
+    * The audio object has an inputBuffer and outputBuffer. If you pass the
+    * inputBuffer data to the outputBuffer, the audio will be passed to the
+    * speaker.
     */
 /**
     * @attribute {Boolean} [stream=false]
@@ -1056,6 +1092,13 @@
     * @attribute {Number} recordingtime
     * @readonly
     * The length of the recording in seconds. 
+    */
+/**
+    * @method processStream
+    * Process raw audio data from the microphone.
+    * audioprocess objects are passed that contain stereo data samples.
+    * The default implementation copies the input buffer into the output buffer.
+    * @param {Object} audio audioprocess object.
     */
 /**
    * @class dr.rangeslider {UI Components}
@@ -1153,21 +1196,21 @@
      * This example shows the replicator to creating four text instances, each corresponding to an item in the data attribute:
      *
      *     @example
-     *     <spacedlayout></spacedlayout>
+     *     <spacedlayout spacing="5"></spacedlayout>
      *     <replicator classname="text" data="[1,2,3,4]"></replicator>
      *
      * Changing the data attribute to a new array causes the replicator to create a new text for each item:
      *
      *     @example
-     *     <spacedlayout></spacedlayout>
-     *     <text onclick="repl.setAttribute('data', [5,6,7,8]);">Click to change data</text>
+     *     <spacedlayout spacing="5"></spacedlayout>
+     *     <text onclick="repl.setAttribute('data', [5,6,7,8]);">Click to change data:</text>
      *     <replicator id="repl" classname="text" data="[1,2,3,4]"></replicator>
      *
      * This example uses a {@link #filterexpression filterexpression} to filter the data to only numbers. Clicking changes {@link #filterexpression filterexpression} to show only non-numbers in the data:
      *
      *     @example
-     *     <spacedlayout></spacedlayout>
-     *     <text onclick="repl.setAttribute('filterexpression', '[^\\d]');">Click to change filter</text>
+     *     <spacedlayout spacing="5"></spacedlayout>
+     *     <text onclick="repl.setAttribute('filterexpression', '[^\\d]');">Click to change filter:</text>
      *     <replicator id="repl" classname="text" data="['a',1,'b',2,'c',3,4,5]" filterexpression="\d"></replicator>
      *
      * Replicators can be used to look up {@link #datapath datapath} expressions to values in JSON data in a dr.dataset. This example looks up the color of the bicycle in the dr.dataset named bikeshop:
@@ -1204,7 +1247,7 @@
      *        ]
      *      }
      *     </dataset>
-     *     <spacedlayout></spacedlayout>
+     *     <spacedlayout spacing="5"></spacedlayout>
      *     <replicator classname="text" datapath="$bikeshop/bicycle[*]/color"></replicator>
      *
      * It's possible to select a single item on from the array using an array index. This selects the second item:
@@ -1228,7 +1271,7 @@
      *        ]
      *      }
      *     </dataset>
-     *     <spacedlayout></spacedlayout>
+     *     <spacedlayout spacing="5"></spacedlayout>
      *     <replicator classname="text" datapath="$bikeshop/bicycle[1]/color"></replicator>
      *
      * It's also possible to replicate a range of items in the array with the [start,end,stepsize] operator. This replicates every other item:
@@ -1252,7 +1295,7 @@
      *        ]
      *      }
      *     </dataset>
-     *     <spacedlayout></spacedlayout>
+     *     <spacedlayout spacing="5"></spacedlayout>
      *     <replicator classname="text" datapath="$bikeshop/bicycle[0,3,2]/color"></replicator>
      *
      * Sometimes it's necessary to have complete control and flexibility over filtering and transforming results. Adding a [@] operator to the end of your datapath causes {@link #filterfunction filterfunction} to be called for each result. This example shows bike colors for bikes with a price greater than 20, in reverse order:
@@ -1276,7 +1319,7 @@
      *        ]
      *      }
      *     </dataset>
-     *     <spacedlayout></spacedlayout>
+     *     <spacedlayout spacing="5"></spacedlayout>
      *     <replicator classname="text" datapath="$bikeshop/bicycle[*][@]">
      *       <method name="filterfunction" args="obj, accum">
      *         // add the color to the beginning of the results if the price is greater than 20
@@ -1346,7 +1389,7 @@
       *
       * A view can be made stretchy by giving it a layouthint with a numerical
       * value, typically 1. Extra space is divided proportionally between all
-      * sretchy views based on that views percentage of the sum of the
+      * strechy views based on that views percentage of the sum of the
       * "stretchiness" of all stretchy views. For example, a view with a
       * layouthint of 2 will get twice as much space as another view with
       * a layouthint of 1.
@@ -1361,9 +1404,9 @@
       *     <resizelayout spacing="2" inset="5" outset="5">
       *     </resizelayout>
       *
-      *     <view height="25" bgcolor="lightpink"></view>
+      *     <view height="25" bgcolor="pink"></view>
       *     <view height="35" bgcolor="plum" layouthint='{"weight":1}'></view>
-      *     <view height="15" bgcolor="lightblue"></view>
+      *     <view height="15" bgcolor="blue"></view>
       */
 /**
       * @class dr.shim {Deprecated}
@@ -1401,6 +1444,25 @@
     * Sizes this view to the current size of the DOM elements within it.
     * @returns {void}
     */
+/**
+   * @class dr.skin {UI Components}
+   * @extends dr.view
+   * @aside guide skin
+   *
+   * A Skin a collection of cascading attribute configuration templates that can applied on top of Dreem objects.
+   *
+   *     @example
+   *     <skin name="example">
+   *       <text color="red" bgcolor="blue"></text>
+   *     </skin>
+   *
+   *     <spacedlayout axis="y" spacing="10"></spacedlayout>
+   *
+   *     <text text="This uses the default skin"></text>
+   *
+   *     <text skin="example" text="This uses the 'example' skin"></text>
+   *
+   */
 /**
      * @class dr.slider {UI Components}
      * @extends dr.view
@@ -1639,35 +1701,35 @@
       *  Here is a multiline text
       * 
       *      @example
-      *      <text multiline="true" text="Lorem ipsum dolor sit amet, consectetur adipiscing elit"></text>
+      *      <text multiline="true" width="200" text="Lorem ipsum dolor sit amet, consectetur adipiscing elit"></text>
       * 
       *  You might want to set the value of a text element based on the value of other attributes via a constraint. Here we set the value by concatenating three attributes together.
       * 
       *      @example
-      *      <attribute name="firstName" type="string" value="Lumpy"></attribute>
-      *      <attribute name="middleName" type="string" value="Space"></attribute>
-      *      <attribute name="lastName" type="string" value="Princess"></attribute>
+      *      <attribute name="firstname" type="string" value="Lumpy"></attribute>
+      *      <attribute name="middlename" type="string" value="Space"></attribute>
+      *      <attribute name="lastname" type="string" value="Princess"></attribute>
       * 
-      *      <text text="${this.parent.firstName + ' ' + this.parent.middleName + ' ' + this.parent.lastName}" color="hotpink"></text>
+      *      <text text="${this.parent.firstname + ' ' + this.parent.middlename + ' ' + this.parent.lastname}" color="hotpink"></text>
       * 
       *  Constraints can contain more complex JavaScript code
       * 
       *      @example
-      *      <attribute name="firstName" type="string" value="Lumpy"></attribute>
-      *      <attribute name="middleName" type="string" value="Space"></attribute>
-      *      <attribute name="lastName" type="string" value="Princess"></attribute>
+      *      <attribute name="firstname" type="string" value="Lumpy"></attribute>
+      *      <attribute name="middlename" type="string" value="Space"></attribute>
+      *      <attribute name="lastname" type="string" value="Princess"></attribute>
       * 
-      *      <text text="${this.parent.firstName.charAt(0) + ' ' + this.parent.middleName.charAt(0) + ' ' + this.parent.lastName.charAt(0)}" color="hotpink"></text>
+      *      <text text="${this.parent.firstname.charAt(0) + ' ' + this.parent.middlename.charAt(0) + ' ' + this.parent.lastname.charAt(0)}" color="hotpink"></text>
       * 
       *  We can simplify this by using a method to return the concatenation and constraining the text value to the return value of the method
       * 
       *      @example
-      *      <attribute name="firstName" type="string" value="Lumpy"></attribute>
-      *      <attribute name="middleName" type="string" value="Space"></attribute>
-      *      <attribute name="lastName" type="string" value="Princess"></attribute>
+      *      <attribute name="firstname" type="string" value="Lumpy"></attribute>
+      *      <attribute name="middlename" type="string" value="Space"></attribute>
+      *      <attribute name="lastname" type="string" value="Princess"></attribute>
       * 
       *      <method name="initials">
-      *        return this.firstName.charAt(0) + ' ' + this.middleName.charAt(0) + ' ' + this.lastName.charAt(0);
+      *        return this.firstname.charAt(0) + ' ' + this.middlename.charAt(0) + ' ' + this.lastname.charAt(0);
       *      </method>
       * 
       *      <text text="${this.parent.initials()}" color="hotpink"></text>
