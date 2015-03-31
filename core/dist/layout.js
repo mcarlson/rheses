@@ -99,7 +99,7 @@
 ;
 
   window.dr = (function() {
-    var ArtSprite, AutoPropertyLayout, COMMENT_NODE, Class, Eventable, Events, Idle, InputTextSprite, Keyboard, Layout, Module, Mouse, Node, Path, Sprite, StartEventable, State, TextSprite, View, Window, callOnIdle, capabilities, clone, closeTo, compiler, constraintScopes, debug, dom, eventq, exports, handlerq, idle, ignoredAttributes, instantiating, matchEvent, matchPercent, mixOf, mouseEvents, noop, querystring, showWarnings, specialtags, starttime, tagPackageSeparator, test, warnings, _initConstraints, _processAttrs;
+    var ArtSprite, AutoPropertyLayout, BitmapSprite, COMMENT_NODE, Class, Eventable, Events, Idle, InputTextSprite, Keyboard, Layout, Module, Mouse, Node, Path, Sprite, StartEventable, State, TextSprite, View, Window, callOnIdle, capabilities, clone, closeTo, compiler, constraintScopes, debug, dom, eventq, exports, handlerq, idle, ignoredAttributes, instantiating, matchEvent, matchPercent, mixOf, mouseEvents, noop, querystring, showWarnings, specialtags, starttime, tagPackageSeparator, test, warnings, _initConstraints, _processAttrs;
     COMMENT_NODE = window.Node.COMMENT_NODE;
     noop = function() {};
     closeTo = function(a, b, epsilon) {
@@ -2199,6 +2199,114 @@
   })(Sprite);
 
   return ArtSprite;
+
+}).call(this);
+;
+    BitmapSprite = 
+/**
+ * @class BitmapSprite
+ * @private
+ * Abstracts the underlying visual primitives for a bitmap component
+ */
+
+(function() {
+  var BitmapSprite,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  BitmapSprite = (function(_super) {
+    __extends(BitmapSprite, _super);
+
+    function BitmapSprite(view, jqel, attributes) {
+      BitmapSprite.__super__.constructor.apply(this, arguments);
+      this.el.style.backgroundSize = 'cover';
+    }
+
+    BitmapSprite.prototype.destroy = function() {
+      BitmapSprite.__super__.destroy.apply(this, arguments);
+      if (this._img) {
+        this._img.$view = null;
+        return this._img = null;
+      }
+    };
+
+    BitmapSprite.prototype.setSrc = function(v) {
+      var el, img, sprite, style, view;
+      el = this.el;
+      view = el.$view;
+      style = el.style;
+      if (!v) {
+        style.backgroundImage = '';
+        if (view.inited) {
+          return view.sendEvent('load', {
+            width: 0,
+            height: 0
+          });
+        }
+      } else {
+        style.backgroundImage = 'url("' + v + '")';
+        style.backgroundRepeat = 'no-repeat';
+        img = this._img;
+        if (!img) {
+          img = this._img = new Image();
+          img.$view = view;
+        }
+        img.src = v;
+        sprite = this;
+        img.onload = function() {
+          view = this.$view;
+          if (view) {
+            sprite.naturalWidth = img.width;
+            sprite.naturalHeight = img.height;
+            if (sprite.naturalSize) {
+              view.setAttribute('width', img.width);
+              view.setAttribute('height', img.height);
+            }
+            return view.sendEvent('load', {
+              width: img.width,
+              height: img.height
+            });
+          }
+        };
+        return img.onerror = function() {
+          view = this.$view;
+          if (view) {
+            sprite.naturalWidth = sprite.naturalHeight = void 0;
+            return view.sendEvent('error', img);
+          }
+        };
+      }
+    };
+
+    BitmapSprite.prototype.setStretches = function(v) {
+      if (v === 'scale') {
+        v = 'contain';
+      } else if (v === 'true') {
+        v = '100% 100%';
+      } else {
+        v = 'cover';
+      }
+      return this.el.style.backgroundSize = v;
+    };
+
+    BitmapSprite.prototype.setNaturalSize = function(v) {
+      var img, view;
+      this.naturalSize = v;
+      if (v) {
+        img = this._img;
+        if (img && (this.naturalWidth != null) && (this.naturalHeight != null)) {
+          view = img.$view;
+          view.setAttribute('width', this.naturalWidth);
+          return view.setAttribute('height', this.naturalHeight);
+        }
+      }
+    };
+
+    return BitmapSprite;
+
+  })(Sprite);
+
+  return BitmapSprite;
 
 }).call(this);
 ;
@@ -6013,6 +6121,7 @@
       _textSprite: TextSprite,
       _inputTextSprite: InputTextSprite,
       _artSprite: ArtSprite,
+      _bitmapSprite: BitmapSprite,
 
       /**
        * @method initElements
