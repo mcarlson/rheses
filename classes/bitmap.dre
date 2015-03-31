@@ -1,6 +1,6 @@
 <!-- The MIT License (MIT)
 
-Copyright ( c ) 2014 Teem2 LLC
+Copyright ( c ) 2014-2015 Teem2 LLC
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -20,92 +20,70 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. -->
 <!--/**
- * @class dr.bitmap {UI Components}
- * @extends dr.view
- * Loads an image from a URL.
- *
- *     @example
- *     <bitmap src="../api-examples-resources/shasta.jpg" width="230" height="161"></bitmap>
- *
- * Stretch an image to fill the entire view.
- *     @example
- *     <bitmap src="../api-examples-resources/shasta.jpg" width="300" height="150" stretches="true"></bitmap>
- *
- */-->
-<class name="bitmap">
-  <!--/**
-    * @attribute {String} src
-    * The bitmap URL to load
+    * @class dr.bitmap {UI Components}
+    * @extends dr.view
+    * Loads an image from a URL.
+    *
+    *     @example
+    *     <bitmap src="../api-examples-resources/shasta.jpg" width="230" height="161"></bitmap>
+    *
+    * Stretch an image to fill the entire view.
+    *     @example
+    *     <bitmap src="../api-examples-resources/shasta.jpg" width="300" height="150" stretches="true"></bitmap>
+    *
     */-->
-  <setter name="src" args="src">
-    if (! src) {
-      this.setAttribute('background-image', '');
-      this.sendEvent('load', {width: 0, height: 0});
-      return
-    }
-    if (this.src != src) {
-      this.setAttribute('background-image', 'url("' + src + '")');
-      this.setAttribute('background-repeat', 'no-repeat');
-
-      var img = this._img;
-      if (! img) {
-        img = this._img = new Image();
-        img.$view = this;
-      }
-
-      img.src = src;
-
-      // send load events 
-      img.onload = function() {
-          /**
-           * @event onload 
-           * Fired when the bitmap is loaded
-           * @param {Object} size An object containing the width and height
-           */
-        if (this.$view)
-          this.$view.sendEvent('load', {width: img.width, height: img.height});
-      }
-      img.onerror = function() {
-          /**
-           * @event onerror 
-           * Fired when there is an error loading the bitmap
-           */
-        if (this.$view)
-          this.$view.sendEvent('error', img);
-      }
-    }
-    return src
+<class name="bitmap" type="coffee">
+  <!--/**
+      * @attribute {String} [src='']
+      * The URL of the bitmap file to load.
+      */-->
+  <!--/**
+      * @event onload 
+      * Fired when the bitmap is loaded
+      * @param {Object} size An object containing the width and height
+      */-->
+  <!--/**
+      * @event onerror 
+      * Fired when there is an error loading the bitmap
+      */-->
+  <attribute name="src" type="string" value=""></attribute>
+  <setter name="src" args="v">
+    if @src isnt v
+      @sprite.setSrc(v)
+      @setAndFire('src', v)
+    return dr._noop
   </setter>
 
-  <method name="destroy">
-    if (this._img) {
-      this._img.$view = null
-      this._img = null
-    }
-    this.super()
-  </method>
-
   <!--/**
-    * @attribute {String} [stretches=false]
-    * How the image is scaled to the size of the view.
-    * Supported values are 'true', 'false', 'scale'.
-    * false will scale the image to completely fill the view, but may obscure parts of the image.
-    * true will stretch the image to fit the view.
-    * scale will scale the image so it visible within the view, but the image may not fill the entire view.
-    */-->
+      * @attribute {String} [stretches=false]
+      * How the image is scaled to the size of the view.
+      * Supported values are 'true', 'false', 'scale'.
+      * false will scale the image to completely fill the view, but may obscure parts of the image.
+      * true will stretch the image to fit the view.
+      * scale will scale the image so it visible within the view, but the image may not fill the entire view.
+      */-->
   <attribute name="stretches" type="string" value="false"></attribute>
-  <setter name="stretches" args="stretches">
-    if (this.stretches != stretches) {
-      var value = 'cover';
-      if (stretches == 'scale') {
-        value = 'contain'
-      }
-      else if (stretches == 'true'){
-        value = '100% 100%';
-      }
-
-      this.setAttribute('background-size', value);
-    }
-    return stretches;
+  <setter name="stretches" args="v">
+    if @stretches isnt v
+      @sprite.setStretches(v)
+      @setAndFire('stretches', v)
+    return dr._noop
   </setter>
+
+  <!--/**
+      * @attribute {Boolean} [naturalsize=false]
+      * If set to true the bitmap will be sized to the width/height of the
+      * bitmap data in pixels.
+      */-->
+  <attribute name="naturalsize" type="boolean" value="false"></attribute>
+  <setter name="naturalsize" args="v">
+    if @naturalsize isnt v
+      @sprite.setNaturalSize(v)
+      @setAndFire('naturalsize', v)
+    return dr._noop
+  </setter>
+
+  <method name="createSprite" args="spriteClass, el, attributes">
+    return @super(dr._bitmapSprite, el, attributes)
+  </method>
 </class>

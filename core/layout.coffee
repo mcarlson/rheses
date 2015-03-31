@@ -164,6 +164,7 @@ window.dr = do ->
   TextSprite = `~["include","fragments/sprite/dom/TextSprite.coffee"]~`
   InputTextSprite = `~["include","fragments/sprite/dom/InputTextSprite.coffee"]~`
   ArtSprite = `~["include","fragments/sprite/dom/ArtSprite.coffee"]~`
+  BitmapSprite = `~["include","fragments/sprite/dom/BitmapSprite.coffee"]~`
 ~["endif"]~
   View = `~["include","fragments/View.coffee"]~`
 
@@ -767,6 +768,7 @@ window.dr = do ->
     _textSprite:TextSprite
     _inputTextSprite:InputTextSprite
     _artSprite:ArtSprite
+    _bitmapSprite:BitmapSprite
     ###*
     # @method initElements
     # Initializes all top-level views found in the document. Called automatically when the page loads, but can be called manually as needed.
