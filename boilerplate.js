@@ -136,9 +136,9 @@ SOFTWARE.
       'lib/jquery-1.9.1.js',
       'lib/acorn.js',
       'lib/coffee-script.js',
-      'core/layout' + (minify === 'true' ? '.min' : '') + '.js' + layoutQuery,
-      isSmoke ? '/lib/chai.js' : '',
-      isSmoke ? '/lib/smoke_helper.js' : '',
+      layoutScript,
+      isSmoke ? 'lib/chai.js' : '',
+      isSmoke ? 'lib/smoke_helper.js' : '',
     ],
     cssRules = [
       ['html,body',
@@ -158,6 +158,6 @@ SOFTWARE.
   var i = 0, len = scriptsToLoad.length, scriptUrl;
   for (; len > i;) {
     scriptUrl = scriptsToLoad[i++];
-    if (scriptUrl) loadScript(opts.baseUrl + scriptUrl);
+    if (scriptUrl) loadScript(DREEM_ROOT + scriptUrl);
   }
 })(this);
