@@ -372,7 +372,7 @@ window.dr = do ->
             # find class script includes and load them in lexical order
 
             # initialize ONE integration
-            oneurl = '/lib/one_base.js'
+            oneurl = DREEM_ROOT + '/lib/one_base.js'
             $.ajax({
               dataType: "script",
               cache: true,

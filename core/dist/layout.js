@@ -4058,7 +4058,7 @@
                 loadIncludes(callback);
                 return;
               }
-              oneurl = '/lib/one_base.js';
+              oneurl = DREEM_ROOT + '/lib/one_base.js';
               return $.ajax({
                 dataType: "script",
                 cache: true,
