@@ -388,7 +388,7 @@ window.dr = do ->
               State::enumfalse(State::keys())
 
               # load scriptincludes
-              loadScript('/lib/animator.js', callback, 'Missing /lib/animator.js')
+              loadScript(DREEM_ROOT + '/lib/animator.js', callback, 'Missing /lib/animator.js')
               for el in jqel.find('[scriptincludes]')
                 for url in el.attributes.scriptincludes.value.split(',')
                   loadScript(url.trim(), callback, el.attributes.scriptincludeserror?.value.toString())
