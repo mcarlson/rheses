@@ -76,7 +76,34 @@ SOFTWARE.
   };
   extend(opts, global.BOILERPLATE_OPTS || {});
   var isSmoke = opts.type === 'smoke';
-  
+
+  DREEM_ROOT = opts.baseUrl;
+  if (document.currentScript) {
+    var script_src = document.currentScript.src;
+    if (script_src) {
+      var found = script_src.match(/^(.*)boilerplate.js.*/);
+      if (found.length > 1) {
+        DREEM_ROOT = found[1];
+      }
+    }
+  }
+
+  DREEM_SERVER_AVAILABLE = true;
+  DREEM_VERSION = "1.0";
+  var request = new XMLHttpRequest();
+  request.open('GET', DREEM_ROOT + 'version', false);
+  request.onreadystatechange = function(){
+    if (request.readyState === 4){
+      if (request.status === 200) {
+        DREEM_VERSION = request.responseText;
+      } else if (request.status === 404) {
+        DREEM_SERVER_AVAILABLE = false;
+        console.log(request.responseText);
+      }
+    }
+  };
+  request.send();
+
   // Parse Query
   var query = (function(pairs) {
       var params = {};
@@ -92,13 +119,19 @@ SOFTWARE.
     debug = query.debug,
     runtime = query.runtime,
     minify = query.minify;
-  
+
   // Config
   var layoutQuery = [];
   //if (debug === 'true') layoutQuery.push('debug=true'); // FIXME: uncomment this when the assembler supports conditional debug code.
   if (runtime) layoutQuery.push('runtime=' + runtime);
   layoutQuery = (layoutQuery.length > 0) ? '?' + layoutQuery.join('&') : '';
-  
+
+  var layoutScript = '/layout' + (minify === 'true' ? '.min' : '') + '.js' + layoutQuery;
+  if (!DREEM_SERVER_AVAILABLE) {
+    layoutScript = '/dist' + layoutScript;
+  }
+  layoutScript = 'core' + layoutScript;
+
   var scriptsToLoad = [
       'lib/jquery-1.9.1.js',
       'lib/acorn.js',
@@ -119,7 +152,7 @@ SOFTWARE.
         'font-size:14px'
       ]
     ];
-  
+
   // Execution
   writeCSS(cssRules);
   var i = 0, len = scriptsToLoad.length, scriptUrl;
