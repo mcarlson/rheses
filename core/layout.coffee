@@ -432,16 +432,19 @@ window.dr = do ->
         )
 
       validator = ->
-        $.ajax({
-          url: '/validate/',
-          data: {url: window.location.pathname},
-          success: (data) ->
-            # we have a teem server!
-            showWarnings(data) if (data.length)
-            filereloader()
-          error: (err) ->
-            console.warn('Validation requires the Teem server')
-        }).always(finalcallback)
+        if DREEM_SERVER_AVAILABLE
+          $.ajax({
+            url: '/validate/',
+            data: {url: window.location.pathname},
+            success: (data) ->
+              # we have a teem server!
+              showWarnings(data) if (data.length)
+              filereloader()
+            error: (err) ->
+              console.warn('Validation requires the Teem server')
+          }).always(finalcallback)
+        else
+          finalcallback()
 
       # call the validator after everything loads
       loadIncludes(if test then finalcallback else validator)
