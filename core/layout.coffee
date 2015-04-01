@@ -320,7 +320,7 @@ window.dr = do ->
         #preload skin
         unless fileloaded['skin']
           fileloaded['skin'] = true
-          loadInclude("/classes/skin.dre")
+          loadInclude(DREEM_ROOT + "/classes/skin.dre")
 
       # load includes
         for url, el of findIncludeURLs()
@@ -344,7 +344,7 @@ window.dr = do ->
           # load missing classes
           for name, el of findMissingClasses()
             fileloaded[name] = true
-            loadInclude("/classes/" + name.split(tagPackageSeparator).join('/') + ".dre", el) if name
+            loadInclude(DREEM_ROOT + "/classes/" + name.split(tagPackageSeparator).join('/') + ".dre", el) if name
             # console.log 'loading dre', name, url, el
 
           # console.log(filerequests, fileloaded, inlineclasses)
