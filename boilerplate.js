@@ -88,7 +88,7 @@ SOFTWARE.
     }
   }
 
-  DREEM_SERVER_AVAILABLE = true;
+  DREEM_SERVER_AVAILABLE = false;
   DREEM_VERSION = "1.0";
   var request = new XMLHttpRequest();
   request.open('GET', DREEM_ROOT + 'version', false);
@@ -96,9 +96,8 @@ SOFTWARE.
     if (request.readyState === 4){
       if (request.status === 200) {
         DREEM_VERSION = request.responseText;
-      } else if (request.status === 404) {
-        DREEM_SERVER_AVAILABLE = false;
-        console.log(request.responseText);
+        //xxx check version against expected version
+        DREEM_SERVER_AVAILABLE = true;
       }
     }
   };
