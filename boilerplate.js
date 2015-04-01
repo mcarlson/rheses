@@ -127,7 +127,7 @@ SOFTWARE.
 
   var layoutScript = '/layout' + (minify === 'true' ? '.min' : '') + '.js' + layoutQuery;
   if (!DREEM_SERVER_AVAILABLE) {
-//    layoutScript = '/dist' + layoutScript;
+    layoutScript = '/dist' + layoutScript;
   }
   layoutScript = 'core' + layoutScript;
 
