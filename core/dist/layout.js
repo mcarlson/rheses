@@ -4008,7 +4008,7 @@
           var el, url, _ref;
           if (!fileloaded['skin']) {
             fileloaded['skin'] = true;
-            loadInclude("/classes/skin.dre");
+            loadInclude(DREEM_ROOT + "/classes/skin.dre");
           }
           _ref = findIncludeURLs();
           for (url in _ref) {
@@ -4031,9 +4031,10 @@
             _ref1 = findMissingClasses();
             for (name in _ref1) {
               el = _ref1[name];
+              console.log('dreem root:', DREEM_ROOT);
               fileloaded[name] = true;
               if (name) {
-                loadInclude("/classes/" + name.split(tagPackageSeparator).join('/') + ".dre", el);
+                loadInclude(DREEM_ROOT + "/classes/" + name.split(tagPackageSeparator).join('/') + ".dre", el);
               }
             }
             $.when.apply($, filerequests).done(function() {

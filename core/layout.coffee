@@ -343,6 +343,7 @@ window.dr = do ->
 
           # load missing classes
           for name, el of findMissingClasses()
+            console.log('dreem root:', DREEM_ROOT)
             fileloaded[name] = true
             loadInclude(DREEM_ROOT + "/classes/" + name.split(tagPackageSeparator).join('/') + ".dre", el) if name
             # console.log 'loading dre', name, url, el
