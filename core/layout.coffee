@@ -343,7 +343,6 @@ window.dr = do ->
 
           # load missing classes
           for name, el of findMissingClasses()
-            console.log('dreem root:', DREEM_ROOT)
             fileloaded[name] = true
             loadInclude(DREEM_ROOT + "/classes/" + name.split(tagPackageSeparator).join('/') + ".dre", el) if name
             # console.log 'loading dre', name, url, el
@@ -432,22 +431,19 @@ window.dr = do ->
         )
 
       validator = ->
-        if DREEM_SERVER_AVAILABLE
-          $.ajax({
-            url: '/validate/',
-            data: {url: window.location.pathname},
-            success: (data) ->
-              # we have a teem server!
-              showWarnings(data) if (data.length)
-              filereloader()
-            error: (err) ->
-              console.warn('Validation requires the Teem server')
-          }).always(finalcallback)
-        else
-          finalcallback()
+        $.ajax({
+          url: '/validate/',
+          data: {url: window.location.pathname},
+          success: (data) ->
+            # we have a teem server!
+            showWarnings(data) if (data.length)
+            filereloader()
+          error: (err) ->
+            console.warn('Validation requires the Teem server')
+        }).always(finalcallback)
 
       # call the validator after everything loads
-      loadIncludes(if test then finalcallback else validator)
+      loadIncludes(if (test || DREEM_SERVER_AVAILABLE) then finalcallback else validator)
 
     # tags built into the browser that should be ignored, from http://www.w3.org/TR/html-markup/elements.html
     builtinTags = {'a': true, 'abbr': true, 'address': true, 'area': true, 'article': true, 'aside': true, 'audio': true, 'b': true, 'base': true, 'bdi': true, 'bdo': true, 'blockquote': true, 'body': true, 'br': true, 'button': true, 'canvas': true, 'caption': true, 'cite': true, 'code': true, 'col': true, 'colgroup': true, 'command': true, 'datalist': true, 'dd': true, 'del': true, 'details': true, 'dfn': true, 'div': true, 'dl': true, 'dt': true, 'em': true, 'embed': true, 'fieldset': true, 'figcaption': true, 'figure': true, 'footer': true, 'form': true, 'h1': true, 'h2': true, 'h3': true, 'h4': true, 'h5': true, 'h6': true, 'head': true, 'header': true, 'hgroup': true, 'hr': true, 'html': true, 'i': true, 'iframe': true, 'img': true, 'image': true, 'input': true, 'ins': true, 'kbd': true, 'keygen': true, 'label': true, 'legend': true, 'li': true, 'link': true, 'map': true, 'mark': true, 'menu': true, 'meta': true, 'meter': true, 'nav': true, 'noscript': true, 'object': true, 'ol': true, 'optgroup': true, 'option': true, 'output': true, 'p': true, 'param': true, 'pre': true, 'progress': true, 'q': true, 'rp': true, 'rt': true, 'ruby': true, 's': true, 'samp': true, 'script': true, 'section': true, 'select': true, 'small': true, 'source': true, 'span': true, 'strong': true, 'style': true, 'sub': true, 'summary': true, 'sup': true, 'table': true, 'tbody': true, 'td': true, 'textarea': true, 'tfoot': true, 'th': true, 'thead': true, 'time': true, 'title': true, 'tr': true, 'track': true, 'u': true, 'ul': true, 'var': true, 'video': true, 'wbr': true}

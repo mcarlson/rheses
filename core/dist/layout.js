@@ -4031,7 +4031,6 @@
             _ref1 = findMissingClasses();
             for (name in _ref1) {
               el = _ref1[name];
-              console.log('dreem root:', DREEM_ROOT);
               fileloaded[name] = true;
               if (name) {
                 loadInclude(DREEM_ROOT + "/classes/" + name.split(tagPackageSeparator).join('/') + ".dre", el);
@@ -4161,7 +4160,7 @@
             }
           }).always(finalcallback);
         };
-        return loadIncludes(test ? finalcallback : validator);
+        return loadIncludes(test || DREEM_SERVER_AVAILABLE ? finalcallback : validator);
       };
       builtinTags = {
         'a': true,
