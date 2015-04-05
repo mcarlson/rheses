@@ -89,15 +89,14 @@ SOFTWARE.
   }
 
   DREEM_SERVER_AVAILABLE = false;
-  DREEM_VERSION = "1.0";
+  var compatibleServerVersions = ["1.0.0"];
   var request = new XMLHttpRequest();
   request.open('GET', DREEM_ROOT + 'version', false);
-  request.onreadystatechange = function(){
+  request.onreadystatechange = function() {
     if (request.readyState === 4){
       if (request.status === 200) {
-        DREEM_VERSION = request.responseText;
-        //xxx check version against expected version
-        DREEM_SERVER_AVAILABLE = true;
+        var info = JSON.parse(request.responseText);
+        DREEM_SERVER_AVAILABLE = ~compatibleServerVersions.indexOf(info.version);
       }
     }
   };
@@ -127,7 +126,7 @@ SOFTWARE.
 
   var layoutScript = '/layout' + (minify === 'true' ? '.min' : '') + '.js' + layoutQuery;
   if (!DREEM_SERVER_AVAILABLE) {
-    console.log('Dreem server unavailable, defaulting to cache');
+    console.log('Compatible Dreem server unavailable, defaulting to cached javascript');
     layoutScript = '/dist' + layoutScript;
   }
   layoutScript = 'core' + layoutScript;
