@@ -87,6 +87,7 @@ SOFTWARE.
       }
     }
   }
+  console.log('Dreem root is: ', DREEM_ROOT)
 
   DREEM_SERVER_AVAILABLE = false;
   var compatibleServerVersions = ["1.0.0"];
