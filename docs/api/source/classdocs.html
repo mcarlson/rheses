@@ -16,46 +16,46 @@
 </head>
 <body onload="prettyPrint(); highlight();">
   <pre class="prettyprint lang-js"><span id='dr-ace'>/**
-</span>     * @class dr.ace {UI Components}
-     * @extends dr.view
-     * Ace editor component.
-     *
-     *     @example
-     *     &lt;ace id=&quot;editor&quot; width=&quot;500&quot; text=&#39;Hello World&#39;&gt;&lt;/ace&gt;
-     *
-     * The initial text can also be included inline, and include dreem code.
-     *
-     *     @example wide
-     *     &lt;ace id=&quot;editor&quot; width=&quot;500&quot;&gt;&lt;view width=&quot;100%&quot; height=&quot;100%&quot; bgcolor=&quot;thistle&quot;&gt;&lt;/view&gt;&lt;/ace&gt;
-     *
-     */
+</span>   * @class dr.ace {UI Components}
+   * @extends dr.view
+   * Ace editor component.
+   *
+   *     @example
+   *     &lt;ace id=&quot;editor&quot; width=&quot;500&quot; text=&#39;Hello World&#39;&gt;&lt;/ace&gt;
+   *
+   * The initial text can also be included inline, and include dreem code.
+   *
+   *     @example wide
+   *     &lt;ace id=&quot;editor&quot; width=&quot;500&quot;&gt;&lt;view width=&quot;100%&quot; height=&quot;100%&quot; bgcolor=&quot;thistle&quot;&gt;&lt;/view&gt;&lt;/ace&gt;
+   *
+   */
 <span id='dr-ace-attribute-theme'>/**
-</span>        * @attribute {string} [theme=&#39;ace/theme/chrome&#39;]
-        * Specify the ace theme to use.
-        */
+</span>  * @attribute {string} [theme=&#39;ace/theme/chrome&#39;]
+  * Specify the ace theme to use.
+  */
 <span id='dr-ace-attribute-mode'>/**
-</span>        * @attribute {string} [mode=&#39;ace/mode/dr&#39;]
-        * Specify the ace mode to use.
-        */
+</span>  * @attribute {string} [mode=&#39;ace/mode/dr&#39;]
+  * Specify the ace mode to use.
+  */
 <span id='dr-ace-attribute-text'>/**
-</span>        * @attribute {String} [text=&quot;&quot;]
-        * Initial text for the ace editor.
-        */
+</span>  * @attribute {String} [text=&quot;&quot;]
+  * Initial text for the ace editor.
+  */
 <span id='dr-ace-event-ontext'>/**
-</span>        * @event ontext
-        * Fired when the contents of the ace entry changes
-        * @param {dr.ace} view The dr.ace that fired the event
-        */
+</span>  * @event ontext
+  * Fired when the contents of the ace entry changes
+  * @param {dr.ace} view The dr.ace that fired the event
+  */
 <span id='dr-ace-attribute-pausedelay'>/**
-</span>        * @attribute {Number} [pausedelay=500]
-        * Time (msec) after user entry stops to fire onpausedelay event.
-        * 0 will disable this option.
-        */
+</span>  * @attribute {Number} [pausedelay=500]
+  * Time (msec) after user entry stops to fire onpausedelay event.
+  * 0 will disable this option.
+  */
 <span id='dr-ace-event-onpausedelay'>/**
-</span>        * @event onpausedelay
-        * Fired when user entries stops for a period of time.
-        * @param {dr.ace} view The dr.ace that fired the event
-        */
+</span>  * @event onpausedelay
+  * Fired when user entries stops for a period of time.
+  * @param {dr.ace} view The dr.ace that fired the event
+  */
 <span id='dr-alignlayout'>/**
 </span>      * @class dr.alignlayout {Layout}
       * @extends dr.variablelayout
@@ -303,117 +303,117 @@
       * Fired every step of the animation
       */
 <span id='dr-art'>/**
-</span>     * @class dr.art {UI Components}
-     * @extends dr.view
-     * Vector graphics support using svg.
-     *
-     * This example shows how to load an existing svg
-     *
-     *     @example
-     *     &lt;art width=&quot;100&quot; height=&quot;100&quot; src=&quot;/examples/img/siemens-clock.svg&quot;&gt;&lt;/art&gt;
-     *
-     * Paths within an svg can be selected using the path attribute
-     *
-     *     @example
-     *     &lt;art width=&quot;100&quot; height=&quot;100&quot; src=&quot;/examples/img/cursorshapes.svg&quot; path=&quot;0&quot;&gt;&lt;/art&gt;
-     *
-     * Attributes are automatically passed through to the SVG. Here, the fill color is changed
-     *
-     *     @example
-     *     &lt;art width=&quot;100&quot; height=&quot;100&quot; src=&quot;/examples/img/cursorshapes.svg&quot; path=&quot;0&quot; fill=&quot;coral&quot;&gt;&lt;/art&gt;
-     *
-     * Setting the path attribute animates between paths. This example animates when the mouse is clicked
-     *
-     *     @example
-     *     &lt;art width=&quot;100&quot; height=&quot;100&quot; src=&quot;/examples/img/cursorshapes.svg&quot; path=&quot;0&quot; fill=&quot;coral&quot;&gt;
-     *       &lt;handler event=&quot;onclick&quot;&gt;
-     *         this.setAttribute(&#39;path&#39;, this.path ^ 1);
-     *       &lt;/handler&gt;
-     *     &lt;/art&gt;
-     *
-     * The animationframe attribute controls which frame is displayed. The
-     * value is a floating point number to display a frame between two
-     * keyframes. For example, 1.4 will display the frame 40% between
-     * paths 1 and 2. This example will animate between keyframes 0, 1, 2.
-     *
-     *     @example
-     *     &lt;art id=&quot;art_3&quot; width=&quot;100&quot; height=&quot;100&quot; src=&quot;/examples/img/cursorshapes.svg&quot; path=&quot;0&quot; fill=&quot;coral&quot; animationspeed=&quot;1000&quot; animationcurve=&quot;linear&quot;&gt;
-     *       &lt;handler event=&quot;onclick&quot;&gt;
-     *         this.setAttribute(&#39;animationframe&#39;, 0);
-     *         this.animate({animationframe: 2}, 1000);
-     *       &lt;/handler&gt;
-     *     &lt;/art&gt;
-     *
-     * By default, the SVG&#39;s aspect ratio is preserved. Set the stretches attribute to true to change this behavior.
-     *
-     *     @example
-     *     &lt;art width=&quot;200&quot; height=&quot;100&quot; src=&quot;/examples/img/cursorshapes.svg&quot; path=&quot;0&quot; fill=&quot;coral&quot; stretches=&quot;true&quot;&gt;
-     *       &lt;handler event=&quot;onclick&quot;&gt;
-     *         this.setAttribute(&#39;path&#39;, this.path ^ 1);
-     *         this.animate({width: (this.width == 200 ? 100 : 200)});
-     *       &lt;/handler&gt;
-     *     &lt;/art&gt;
-     *
-     * The art component can work with the animator component to control which
-     * frame is displayed. For example, this will animate the graphic between
-     * frames 0, 1, 2, 3, and display the frame inside the component.
-     *
-     *     @example
-     *     &lt;class name=&quot;centertext2&quot; extends=&quot;text&quot; color=&quot;white&quot; height=&quot;40&quot; x=&quot;${this.parent.width/2-this.width/2}&quot; y=&quot;${this.parent.height/2-this.height/2}&quot;&gt;
-     *       &lt;method name=&quot;format&quot; args=&quot;value&quot;&gt;
-     *         if (value &lt; 0.0) return &#39;&#39;;
-     *         return value.toFixed(2);
-     *       &lt;/method&gt;
-     *     &lt;/class&gt;
-     *     &lt;art id=&quot;art_1&quot; width=&quot;100&quot; height=&quot;100&quot; src=&quot;/examples/img/cursorshapes.svg&quot; path=&quot;0&quot; stroke=&quot;coral&quot; fill=&quot;coral&quot; stretches=&quot;true&quot;&gt;
-     *       &lt;centertext2 text=&quot;${this.parent.animationframe}&quot;&gt;&lt;/centertext2&gt;
-     *       &lt;animator start=&quot;0&quot; from=&quot;0&quot; to=&quot;3&quot; attribute=&quot;animationframe&quot; duration=&quot;4000&quot; motion = &quot;outBounce&quot; repeat=&quot;1&quot;&gt;
-     *       &lt;/animator&gt;
-     *     &lt;/art&gt;
-     *
-     */
+</span> * @class dr.art {UI Components}
+ * @extends dr.view
+ * Vector graphics support using svg.
+ *
+ * This example shows how to load an existing svg
+ *
+ *     @example
+ *     &lt;art width=&quot;100&quot; height=&quot;100&quot; src=&quot;/examples/img/siemens-clock.svg&quot;&gt;&lt;/art&gt;
+ *
+ * Paths within an svg can be selected using the path attribute
+ *
+ *     @example
+ *     &lt;art width=&quot;100&quot; height=&quot;100&quot; src=&quot;/examples/img/cursorshapes.svg&quot; path=&quot;0&quot;&gt;&lt;/art&gt;
+ *
+ * Attributes are automatically passed through to the SVG. Here, the fill color is changed
+ *
+ *     @example
+ *     &lt;art width=&quot;100&quot; height=&quot;100&quot; src=&quot;/examples/img/cursorshapes.svg&quot; path=&quot;0&quot; fill=&quot;coral&quot;&gt;&lt;/art&gt;
+ *
+ * Setting the path attribute animates between paths. This example animates when the mouse is clicked
+ *
+ *     @example
+ *     &lt;art width=&quot;100&quot; height=&quot;100&quot; src=&quot;/examples/img/cursorshapes.svg&quot; path=&quot;0&quot; fill=&quot;coral&quot;&gt;
+ *       &lt;handler event=&quot;onclick&quot;&gt;
+ *         this.setAttribute(&#39;path&#39;, this.path ^ 1);
+ *       &lt;/handler&gt;
+ *     &lt;/art&gt;
+ *
+ * The animationframe attribute controls which frame is displayed. The
+ * value is a floating point number to display a frame between two
+ * keyframes. For example, 1.4 will display the frame 40% between
+ * paths 1 and 2. This example will animate between keyframes 0, 1, 2.
+ *
+ *     @example
+ *     &lt;art id=&quot;art_3&quot; width=&quot;100&quot; height=&quot;100&quot; src=&quot;/examples/img/cursorshapes.svg&quot; path=&quot;0&quot; fill=&quot;coral&quot; animationspeed=&quot;1000&quot; animationcurve=&quot;linear&quot;&gt;
+ *       &lt;handler event=&quot;onclick&quot;&gt;
+ *         this.setAttribute(&#39;animationframe&#39;, 0);
+ *         this.animate({animationframe: 2}, 1000);
+ *       &lt;/handler&gt;
+ *     &lt;/art&gt;
+ *
+ * By default, the SVG&#39;s aspect ratio is preserved. Set the stretches attribute to true to change this behavior.
+ *
+ *     @example
+ *     &lt;art width=&quot;200&quot; height=&quot;100&quot; src=&quot;/examples/img/cursorshapes.svg&quot; path=&quot;0&quot; fill=&quot;coral&quot; stretches=&quot;true&quot;&gt;
+ *       &lt;handler event=&quot;onclick&quot;&gt;
+ *         this.setAttribute(&#39;path&#39;, this.path ^ 1);
+ *         this.animate({width: (this.width == 200 ? 100 : 200)});
+ *       &lt;/handler&gt;
+ *     &lt;/art&gt;
+ *
+ * The art component can work with the animator component to control which
+ * frame is displayed. For example, this will animate the graphic between
+ * frames 0, 1, 2, 3, and display the frame inside the component.
+ *
+ *     @example
+ *     &lt;class name=&quot;centertext2&quot; extends=&quot;text&quot; color=&quot;white&quot; height=&quot;40&quot; x=&quot;${this.parent.width/2-this.width/2}&quot; y=&quot;${this.parent.height/2-this.height/2}&quot;&gt;
+ *       &lt;method name=&quot;format&quot; args=&quot;value&quot;&gt;
+ *         if (value &lt; 0.0) return &#39;&#39;;
+ *         return value.toFixed(2);
+ *       &lt;/method&gt;
+ *     &lt;/class&gt;
+ *     &lt;art id=&quot;art_1&quot; width=&quot;100&quot; height=&quot;100&quot; src=&quot;/examples/img/cursorshapes.svg&quot; path=&quot;0&quot; stroke=&quot;coral&quot; fill=&quot;coral&quot; stretches=&quot;true&quot;&gt;
+ *       &lt;centertext2 text=&quot;${this.parent.animationframe}&quot;&gt;&lt;/centertext2&gt;
+ *       &lt;animator start=&quot;0&quot; from=&quot;0&quot; to=&quot;3&quot; attribute=&quot;animationframe&quot; duration=&quot;4000&quot; motion = &quot;outBounce&quot; repeat=&quot;1&quot;&gt;
+ *       &lt;/animator&gt;
+ *     &lt;/art&gt;
+ *
+ */
 <span id='dr-art-attribute-inline'>/**
-</span>        * @attribute {Boolean} [inline=false]
-        * Set to true if the svg contents is found inline, as a comment
-        */
+</span>  * @attribute {Boolean} [inline=false]
+  * Set to true if the svg contents is found inline, as a comment
+  */
 <span id='dr-art-attribute-stretches'>/**
-</span>        * @attribute {Boolean} stretches [stretches=false]
-        * Set to true to stretch the svg to fill the view.
-        */
+</span>  * @attribute {Boolean} stretches [stretches=false]
+  * Set to true to stretch the svg to fill the view.
+  */
 <span id='dr-art-attribute-resize'>/**
-</span>        * @attribute {Boolean} [resize=false]
-        * By default, the art component size is fixed to the specified size.
-        * By setting resize=true, the art component is sized to the size 
-        * embedded in the svg.
-        */
+</span>  * @attribute {Boolean} [resize=false]
+  * By default, the art component size is fixed to the specified size.
+  * By setting resize=true, the art component is sized to the size 
+  * embedded in the svg.
+  */
 <span id='dr-art-attribute-src'>/**
-</span>        * @attribute {String} src
-        * The svg contents to load
-        */
+</span>  * @attribute {String} src
+  * The svg contents to load
+  */
 <span id='dr-art-attribute-path'>/**
-</span>        * @attribute {String|Number} path
-        * The svg path element to display. Can either be the name of the &amp;lt;g&amp;gt; element containing the path or a 0-based index.
-        */
+</span>  * @attribute {String|Number} path
+  * The svg path element to display. Can either be the name of the &amp;lt;g&amp;gt; element containing the path or a 0-based index.
+  */
 <span id='dr-art-attribute-animationspeed'>/**
-</span>        * @attribute {Number} [animationspeed=400]
-        * The number of milliseconds to use when animating between paths
-        */
+</span>  * @attribute {Number} [animationspeed=400]
+  * The number of milliseconds to use when animating between paths
+  */
 <span id='dr-art-attribute-animationframe'>/**
-</span>        * @attribute {Number} [animationframe=0]
-        * The current animation frame
-        */
+</span>  * @attribute {Number} [animationframe=0]
+  * The current animation frame
+  */
 <span id='dr-art-attribute-animationcurve'>/**
-</span>        * @attribute {&quot;linear&quot;/&quot;easeout&quot;/&quot;easein&quot;/&quot;easeinout&quot;/&quot;backin&quot;/&quot;backout&quot;/&quot;elastic&quot;/&quot;bounce&quot;} [animationcurve=&quot;linear&quot;]
-        * The name of the curve to use when animating between paths
-        */
+</span>  * @attribute {&quot;linear&quot;/&quot;easeout&quot;/&quot;easein&quot;/&quot;easeinout&quot;/&quot;backin&quot;/&quot;backout&quot;/&quot;elastic&quot;/&quot;bounce&quot;} [animationcurve=&quot;linear&quot;]
+  * The name of the curve to use when animating between paths
+  */
 <span id='dr-art-event-onready'>/**
-</span>        * @event onready
-        * Fired when the art is loaded and ready
-        */
+</span>  * @event onready
+  * Fired when the art is loaded and ready
+  */
 <span id='dr-art-event-ontween'>/**
-</span>        * @event ontween
-        * Fired when the art has animated its path to the next position
-        */
+</span>  * @event ontween
+  * Fired when the art has animated its path to the next position
+  */
 <span id='dr-audioplayer'>/**
 </span>     * @class dr.audioplayer {UI Components}
      * @extends dr.node
@@ -474,39 +474,44 @@
         * An array of numbers representing the FFT analysis of the audio as it&#39;s playing.
         */
 <span id='dr-bitmap'>/**
-</span>     * @class dr.bitmap {UI Components}
-     * @extends dr.view
-     * Loads an image from a URL.
-     *
-     *     @example
-     *     &lt;bitmap src=&quot;../api-examples-resources/shasta.jpg&quot; width=&quot;230&quot; height=&quot;161&quot;&gt;&lt;/bitmap&gt;
-     *
-     * Stretch an image to fill the entire view.
-     *     @example
-     *     &lt;bitmap src=&quot;../api-examples-resources/shasta.jpg&quot; width=&quot;300&quot; height=&quot;150&quot; stretches=&quot;true&quot;&gt;&lt;/bitmap&gt;
-     *
-     */
+</span>    * @class dr.bitmap {UI Components}
+    * @extends dr.view
+    * Loads an image from a URL.
+    *
+    *     @example
+    *     &lt;bitmap src=&quot;../api-examples-resources/shasta.jpg&quot; width=&quot;230&quot; height=&quot;161&quot;&gt;&lt;/bitmap&gt;
+    *
+    * Stretch an image to fill the entire view.
+    *     @example
+    *     &lt;bitmap src=&quot;../api-examples-resources/shasta.jpg&quot; width=&quot;300&quot; height=&quot;150&quot; stretches=&quot;true&quot;&gt;&lt;/bitmap&gt;
+    *
+    */
 <span id='dr-bitmap-attribute-src'>/**
-</span>        * @attribute {String} src
-        * The bitmap URL to load
-        */
+</span>      * @attribute {String} [src=&#39;&#39;]
+      * The URL of the bitmap file to load.
+      */
 <span id='dr-bitmap-event-onload'>/**
-</span>               * @event onload 
-               * Fired when the bitmap is loaded
-               * @param {Object} size An object containing the width and height
-               */
+</span>      * @event onload 
+      * Fired when the bitmap is loaded
+      * @param {Object} size An object containing the width and height
+      */
 <span id='dr-bitmap-event-onerror'>/**
-</span>               * @event onerror 
-               * Fired when there is an error loading the bitmap
-               */
+</span>      * @event onerror 
+      * Fired when there is an error loading the bitmap
+      */
 <span id='dr-bitmap-attribute-stretches'>/**
-</span>        * @attribute {String} [stretches=false]
-        * How the image is scaled to the size of the view.
-        * Supported values are &#39;true&#39;, &#39;false&#39;, &#39;scale&#39;.
-        * false will scale the image to completely fill the view, but may obscure parts of the image.
-        * true will stretch the image to fit the view.
-        * scale will scale the image so it visible within the view, but the image may not fill the entire view.
-        */
+</span>      * @attribute {String} [stretches=false]
+      * How the image is scaled to the size of the view.
+      * Supported values are &#39;true&#39;, &#39;false&#39;, &#39;scale&#39;.
+      * false will scale the image to completely fill the view, but may obscure parts of the image.
+      * true will stretch the image to fit the view.
+      * scale will scale the image so it visible within the view, but the image may not fill the entire view.
+      */
+<span id='dr-bitmap-attribute-naturalsize'>/**
+</span>      * @attribute {Boolean} [naturalsize=false]
+      * If set to true the bitmap will be sized to the width/height of the
+      * bitmap data in pixels.
+      */
 <span id='dr-bitmapbutton'>/**
 </span>      * @class dr.bitmapbutton {Deprecated}
       * @extends dr.statebutton
@@ -876,39 +881,39 @@
      *
      */
 <span id='dr-inputtext-event-onselect'>/**
-</span>       * @event onselect
-       * Fired when an inputtext is selected
-       * @param {dr.view} view The view that fired the event
-       */
+</span>   * @event onselect
+   * Fired when an inputtext is selected
+   * @param {dr.view} view The view that fired the event
+   */
 <span id='dr-inputtext-event-onchange'>/**
-</span>       * @event onchange
-       * Fired when an inputtext has changed
-       * @param {dr.view} view The view that fired the event
-       */
+</span>   * @event onchange
+   * Fired when an inputtext has changed
+   * @param {dr.view} view The view that fired the event
+   */
 <span id='dr-inputtext-event-onfocus'>/**
-</span>       * @event onfocus
-       * Fired when an inputtext is focused
-       * @param {dr.view} view The view that fired the event
-       */
+</span>   * @event onfocus
+   * Fired when an inputtext is focused
+   * @param {dr.view} view The view that fired the event
+   */
 <span id='dr-inputtext-event-onblur'>/**
-</span>       * @event onblur
-       * Fired when an inputtext is blurred or loses focus
-       * @param {dr.view} view The view that fired the event
-       */
+</span>   * @event onblur
+   * Fired when an inputtext is blurred or loses focus
+   * @param {dr.view} view The view that fired the event
+   */
 <span id='dr-inputtext-event-onkeydown'>/**
-</span>       * @event onkeydown
-       * Fired when a key goes down
-       * @param {Object} keys An object representing the keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
-       */
+</span>   * @event onkeydown
+   * Fired when a key goes down
+   * @param {Object} keys An object representing the keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
+   */
 <span id='dr-inputtext-event-onkeyup'>/**
-</span>       * @event onkeyup
-       * Fired when a key goes up
-       * @param {Object} keys An object representing the keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
-       */
+</span>   * @event onkeyup
+   * Fired when a key goes up
+   * @param {Object} keys An object representing the keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
+   */
 <span id='dr-inputtext-attribute-multiline'>/**
-</span>       * @attribute {Boolean} [multiline=false]
-       * Set to true for a multi-line input text field
-       */
+</span>   * @attribute {Boolean} [multiline=false]
+   * Set to true for a multi-line input text field
+   */
 <span id='dr-inputtext-attribute-text'>/**
 </span>       * @attribute {String} [text=&quot;&quot;]
        * The contents of this input text field
@@ -943,20 +948,20 @@
     * Sets this view&#39;s background color, same as setting defaultcolor.
     */
 <span id='dr-labeltoggle'>/**
-</span>     * @class dr.labeltoggle {UI Components}
-     * @extends dr.labelbutton
-     * Button class consisting of text centered in a view. The state of the
-     * button changes each time the button is clicked. The select property
-     * holds the current state of the button. The onselected event
-     * is generated when the button is the selected state.
-     *
-     *     @example
-     *     &lt;spacedlayout axis=&quot;y&quot;&gt;&lt;/spacedlayout&gt;
-     *
-     *     &lt;labeltoggle id=&quot;toggle&quot; text=&quot;Click me to toggle&quot; defaultcolor=&quot;plum&quot; selectcolor=&quot;orchid&quot;&gt;&lt;/labeltoggle&gt;
-     *
-     *     &lt;text text=&quot;${toggle.selected ? &#39;selected&#39; : &#39;not selected&#39;}&quot;&gt;&lt;/text&gt;
-     */
+</span>   * @class dr.labeltoggle {UI Components}
+   * @extends dr.labelbutton
+   * Button class consisting of text centered in a view. The state of the
+   * button changes each time the button is clicked. The select property
+   * holds the current state of the button. The onselected event
+   * is generated when the button is the selected state.
+   *
+   *     @example
+   *     &lt;spacedlayout axis=&quot;y&quot;&gt;&lt;/spacedlayout&gt;
+   *
+   *     &lt;labeltoggle id=&quot;toggle&quot; text=&quot;Click me to toggle&quot; defaultcolor=&quot;plum&quot; selectcolor=&quot;orchid&quot;&gt;&lt;/labeltoggle&gt;
+   *
+   *     &lt;text text=&quot;${toggle.selected ? &#39;selected&#39; : &#39;not selected&#39;}&quot;&gt;&lt;/text&gt;
+   */
 <span id='dr-logger'>/**
 </span>   * @class dr.logger {Util}
    * @extends dr.node
@@ -1017,7 +1022,30 @@
  * @extends dr.node
  * Enables audio capture from the microphone device.
  *
+ * This example uses the microphone to monitor the audio traffic, while also
+ * amplifying the audio signal
+ *
+ *     @example
+ *     &lt;microphone id=&quot;mic&quot; modifystream=&quot;true&quot; visualize=&quot;false&quot; stream=&quot;true&quot;&gt;
+ *       &lt;method name=&quot;processStream&quot; args=&quot;audio&quot;&gt;
+ *         if (!audio) return;
+ *
+ *         var inputBuffer = audio.inputBuffer;
+ *         var left = inputBuffer.getChannelData(0);
+ *         var right = inputBuffer.getChannelData(1);
+ *
+ *         var min = Math.min.apply(null, left);
+ *	   var max = Math.max.apply(null, right);
+ *	   console.log(&#39;min&#39;, min, &#39;max&#39;, max);
+ *       &lt;/method&gt;
+ *
+ *     &lt;/microphone&gt;
+ *
  */
+<span id='dr-microphone-attribute-visualize'>/**
+</span>    * @attribute {Boolean} [visualize=true]
+    * When set to true, fft visualization data is computed and available in the fft attribute.
+    */
 <span id='dr-microphone-attribute-fftsize'>/**
 </span>    * @attribute {Number} fftsize
     * The number of fft frames to use when setting {@link #fft fft}. Must be a non-zero power of two in the range 32 to 2048.
@@ -1025,6 +1053,13 @@
 <span id='dr-microphone-attribute-fftsmoothing'>/**
 </span>    * @attribute {Number} [fftsmoothing=0.8]
     * The amount of smoothing to apply to the FFT analysis. A value from 0 -&gt; 1 where 0 represents no time averaging with the last FFT analysis frame.
+    */
+<span id='dr-microphone-attribute-modifystream'>/**
+</span>    * @attribute {Boolean} [modifystream=false]
+    * When set to true the audio stream is passed to processStream method.
+    * The audio object has an inputBuffer and outputBuffer. If you pass the
+    * inputBuffer data to the outputBuffer, the audio will be passed to the
+    * speaker.
     */
 <span id='dr-microphone-attribute-stream'>/**
 </span>    * @attribute {Boolean} [stream=false]
@@ -1073,6 +1108,13 @@
 </span>    * @attribute {Number} recordingtime
     * @readonly
     * The length of the recording in seconds. 
+    */
+<span id='dr-microphone-method-processStream'>/**
+</span>    * @method processStream
+    * Process raw audio data from the microphone.
+    * audioprocess objects are passed that contain stereo data samples.
+    * The default implementation copies the input buffer into the output buffer.
+    * @param {Object} audio audioprocess object.
     */
 <span id='dr-rangeslider'>/**
 </span>   * @class dr.rangeslider {UI Components}
@@ -1661,30 +1703,30 @@
       *  You might want to set the value of a text element based on the value of other attributes via a constraint. Here we set the value by concatenating three attributes together.
       * 
       *      @example
-      *      &lt;attribute name=&quot;firstName&quot; type=&quot;string&quot; value=&quot;Lumpy&quot;&gt;&lt;/attribute&gt;
-      *      &lt;attribute name=&quot;middleName&quot; type=&quot;string&quot; value=&quot;Space&quot;&gt;&lt;/attribute&gt;
-      *      &lt;attribute name=&quot;lastName&quot; type=&quot;string&quot; value=&quot;Princess&quot;&gt;&lt;/attribute&gt;
+      *      &lt;attribute name=&quot;firstname&quot; type=&quot;string&quot; value=&quot;Lumpy&quot;&gt;&lt;/attribute&gt;
+      *      &lt;attribute name=&quot;middlename&quot; type=&quot;string&quot; value=&quot;Space&quot;&gt;&lt;/attribute&gt;
+      *      &lt;attribute name=&quot;lastname&quot; type=&quot;string&quot; value=&quot;Princess&quot;&gt;&lt;/attribute&gt;
       * 
-      *      &lt;text text=&quot;${this.parent.firstName + &#39; &#39; + this.parent.middleName + &#39; &#39; + this.parent.lastName}&quot; color=&quot;hotpink&quot;&gt;&lt;/text&gt;
+      *      &lt;text text=&quot;${this.parent.firstname + &#39; &#39; + this.parent.middlename + &#39; &#39; + this.parent.lastname}&quot; color=&quot;hotpink&quot;&gt;&lt;/text&gt;
       * 
       *  Constraints can contain more complex JavaScript code
       * 
       *      @example
-      *      &lt;attribute name=&quot;firstName&quot; type=&quot;string&quot; value=&quot;Lumpy&quot;&gt;&lt;/attribute&gt;
-      *      &lt;attribute name=&quot;middleName&quot; type=&quot;string&quot; value=&quot;Space&quot;&gt;&lt;/attribute&gt;
-      *      &lt;attribute name=&quot;lastName&quot; type=&quot;string&quot; value=&quot;Princess&quot;&gt;&lt;/attribute&gt;
+      *      &lt;attribute name=&quot;firstname&quot; type=&quot;string&quot; value=&quot;Lumpy&quot;&gt;&lt;/attribute&gt;
+      *      &lt;attribute name=&quot;middlename&quot; type=&quot;string&quot; value=&quot;Space&quot;&gt;&lt;/attribute&gt;
+      *      &lt;attribute name=&quot;lastname&quot; type=&quot;string&quot; value=&quot;Princess&quot;&gt;&lt;/attribute&gt;
       * 
-      *      &lt;text text=&quot;${this.parent.firstName.charAt(0) + &#39; &#39; + this.parent.middleName.charAt(0) + &#39; &#39; + this.parent.lastName.charAt(0)}&quot; color=&quot;hotpink&quot;&gt;&lt;/text&gt;
+      *      &lt;text text=&quot;${this.parent.firstname.charAt(0) + &#39; &#39; + this.parent.middlename.charAt(0) + &#39; &#39; + this.parent.lastname.charAt(0)}&quot; color=&quot;hotpink&quot;&gt;&lt;/text&gt;
       * 
       *  We can simplify this by using a method to return the concatenation and constraining the text value to the return value of the method
       * 
       *      @example
-      *      &lt;attribute name=&quot;firstName&quot; type=&quot;string&quot; value=&quot;Lumpy&quot;&gt;&lt;/attribute&gt;
-      *      &lt;attribute name=&quot;middleName&quot; type=&quot;string&quot; value=&quot;Space&quot;&gt;&lt;/attribute&gt;
-      *      &lt;attribute name=&quot;lastName&quot; type=&quot;string&quot; value=&quot;Princess&quot;&gt;&lt;/attribute&gt;
+      *      &lt;attribute name=&quot;firstname&quot; type=&quot;string&quot; value=&quot;Lumpy&quot;&gt;&lt;/attribute&gt;
+      *      &lt;attribute name=&quot;middlename&quot; type=&quot;string&quot; value=&quot;Space&quot;&gt;&lt;/attribute&gt;
+      *      &lt;attribute name=&quot;lastname&quot; type=&quot;string&quot; value=&quot;Princess&quot;&gt;&lt;/attribute&gt;
       * 
       *      &lt;method name=&quot;initials&quot;&gt;
-      *        return this.firstName.charAt(0) + &#39; &#39; + this.middleName.charAt(0) + &#39; &#39; + this.lastName.charAt(0);
+      *        return this.firstname.charAt(0) + &#39; &#39; + this.middlename.charAt(0) + &#39; &#39; + this.lastname.charAt(0);
       *      &lt;/method&gt;
       * 
       *      &lt;text text=&quot;${this.parent.initials()}&quot; color=&quot;hotpink&quot;&gt;&lt;/text&gt;
@@ -1707,9 +1749,9 @@
       * 
       */
 <span id='dr-text-attribute-fontsize'>/**
-</span>          * @attribute {Number} [fontsize]
-          * The size of the font in pixels.
-          */
+</span>        * @attribute {Number} [fontsize]
+        * The size of the font in pixels.
+        */
 <span id='dr-text-attribute-fontfamily'>/**
 </span>        * @attribute {Number} [fontfamily=&quot;&quot;]
         * The name of the font family to use, e.g. &quot;Helvetica&quot;  Include multiple fonts on a line, separated by commas.
