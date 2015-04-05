@@ -310,22 +310,22 @@
  * This example shows how to load an existing svg
  *
  *     @example
- *     &lt;art width=&quot;100&quot; height=&quot;100&quot; src=&quot;/examples/img/siemens-clock.svg&quot;&gt;&lt;/art&gt;
+ *     &lt;art width=&quot;100&quot; height=&quot;100&quot; src=&quot;${DREEM_ROOT + &#39;examples/img/siemens-clock.svg&#39;}&quot;&gt;&lt;/art&gt;
  *
  * Paths within an svg can be selected using the path attribute
  *
  *     @example
- *     &lt;art width=&quot;100&quot; height=&quot;100&quot; src=&quot;/examples/img/cursorshapes.svg&quot; path=&quot;0&quot;&gt;&lt;/art&gt;
+ *     &lt;art width=&quot;100&quot; height=&quot;100&quot; src=&quot;${DREEM_ROOT + &#39;examples/img/cursorshapes.svg&#39;}&quot; path=&quot;0&quot;&gt;&lt;/art&gt;
  *
  * Attributes are automatically passed through to the SVG. Here, the fill color is changed
  *
  *     @example
- *     &lt;art width=&quot;100&quot; height=&quot;100&quot; src=&quot;/examples/img/cursorshapes.svg&quot; path=&quot;0&quot; fill=&quot;coral&quot;&gt;&lt;/art&gt;
+ *     &lt;art width=&quot;100&quot; height=&quot;100&quot; src=&quot;${DREEM_ROOT + &#39;examples/img/cursorshapes.svg&#39;}&quot; path=&quot;0&quot; fill=&quot;coral&quot;&gt;&lt;/art&gt;
  *
  * Setting the path attribute animates between paths. This example animates when the mouse is clicked
  *
  *     @example
- *     &lt;art width=&quot;100&quot; height=&quot;100&quot; src=&quot;/examples/img/cursorshapes.svg&quot; path=&quot;0&quot; fill=&quot;coral&quot;&gt;
+ *     &lt;art width=&quot;100&quot; height=&quot;100&quot; src=&quot;${DREEM_ROOT + &#39;examples/img/cursorshapes.svg&#39;}&quot; path=&quot;0&quot; fill=&quot;coral&quot;&gt;
  *       &lt;handler event=&quot;onclick&quot;&gt;
  *         this.setAttribute(&#39;path&#39;, this.path ^ 1);
  *       &lt;/handler&gt;
@@ -337,7 +337,7 @@
  * paths 1 and 2. This example will animate between keyframes 0, 1, 2.
  *
  *     @example
- *     &lt;art id=&quot;art_3&quot; width=&quot;100&quot; height=&quot;100&quot; src=&quot;/examples/img/cursorshapes.svg&quot; path=&quot;0&quot; fill=&quot;coral&quot; animationspeed=&quot;1000&quot; animationcurve=&quot;linear&quot;&gt;
+ *     &lt;art id=&quot;art_3&quot; width=&quot;100&quot; height=&quot;100&quot; src=&quot;${DREEM_ROOT + &#39;examples/img/cursorshapes.svg&#39;}&quot; path=&quot;0&quot; fill=&quot;coral&quot; animationspeed=&quot;1000&quot; animationcurve=&quot;linear&quot;&gt;
  *       &lt;handler event=&quot;onclick&quot;&gt;
  *         this.setAttribute(&#39;animationframe&#39;, 0);
  *         this.animate({animationframe: 2}, 1000);
@@ -347,7 +347,7 @@
  * By default, the SVG&#39;s aspect ratio is preserved. Set the stretches attribute to true to change this behavior.
  *
  *     @example
- *     &lt;art width=&quot;200&quot; height=&quot;100&quot; src=&quot;/examples/img/cursorshapes.svg&quot; path=&quot;0&quot; fill=&quot;coral&quot; stretches=&quot;true&quot;&gt;
+ *     &lt;art width=&quot;200&quot; height=&quot;100&quot; src=&quot;${DREEM_ROOT + &#39;examples/img/cursorshapes.svg&#39;}&quot; path=&quot;0&quot; fill=&quot;coral&quot; stretches=&quot;true&quot;&gt;
  *       &lt;handler event=&quot;onclick&quot;&gt;
  *         this.setAttribute(&#39;path&#39;, this.path ^ 1);
  *         this.animate({width: (this.width == 200 ? 100 : 200)});
@@ -365,7 +365,7 @@
  *         return value.toFixed(2);
  *       &lt;/method&gt;
  *     &lt;/class&gt;
- *     &lt;art id=&quot;art_1&quot; width=&quot;100&quot; height=&quot;100&quot; src=&quot;/examples/img/cursorshapes.svg&quot; path=&quot;0&quot; stroke=&quot;coral&quot; fill=&quot;coral&quot; stretches=&quot;true&quot;&gt;
+ *     &lt;art id=&quot;art_1&quot; width=&quot;100&quot; height=&quot;100&quot; src=&quot;${DREEM_ROOT + &#39;examples/img/cursorshapes.svg&#39;}&quot; path=&quot;0&quot; stroke=&quot;coral&quot; fill=&quot;coral&quot; stretches=&quot;true&quot;&gt;
  *       &lt;centertext2 text=&quot;${this.parent.animationframe}&quot;&gt;&lt;/centertext2&gt;
  *       &lt;animator start=&quot;0&quot; from=&quot;0&quot; to=&quot;3&quot; attribute=&quot;animationframe&quot; duration=&quot;4000&quot; motion = &quot;outBounce&quot; repeat=&quot;1&quot;&gt;
  *       &lt;/animator&gt;

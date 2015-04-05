@@ -127,7 +127,7 @@ SOFTWARE.
 
   var layoutScript = '/layout' + (minify === 'true' ? '.min' : '') + '.js' + layoutQuery;
   if (!DREEM_SERVER_AVAILABLE) {
-    console.log('Compatible Dreem server unavailable, defaulting to cached javascript');
+    console.warn('Compatible Dreem server unavailable, defaulting to cached javascript');
     layoutScript = '/dist' + layoutScript;
   }
   layoutScript = 'core' + layoutScript;
