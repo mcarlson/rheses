@@ -70,7 +70,7 @@ SOFTWARE. -->
   * @param {dr.ace} view The dr.ace that fired the event
   */-->
 <class name="ace" width="300" height="100" clickable="true"
-  scriptincludes="/lib/ace/src-noconflict/ace.js" initchildren="false"
+  scriptincludes="lib/ace/src-noconflict/ace.js" initchildren="false"
   type="coffee"
 >
   <handler event="ondata" args="d">
