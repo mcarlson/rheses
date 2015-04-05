@@ -44,7 +44,7 @@ SOFTWARE. -->
  *     </microphone>
  *
  */-->
-<class name="microphone" type="coffee" clickable="true" clip="true" scriptincludes="/lib/audiorecorder/js/recorderjs/recorder.js, /lib/filesaver/FileSaver.min.js">
+<class name="microphone" type="coffee" clickable="true" clip="true" scriptincludes="lib/audiorecorder/js/recorderjs/recorder.js, lib/filesaver/FileSaver.min.js">
   
   <!--/**
     * @attribute {Boolean} [visualize=true]

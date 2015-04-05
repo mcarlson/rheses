@@ -142,7 +142,7 @@ SOFTWARE. -->
   * @event ontween
   * Fired when the art has animated its path to the next position
   */-->
-<class name="art" type="coffee" scriptincludes="../lib/snap.svg-min.js" clickable="true">
+<class name="art" type="coffee" scriptincludes="lib/snap.svg-min.js" clickable="true">
   <attribute name="inline" value="false" type="boolean"></attribute>
   <attribute name="src" value="" type="string"></attribute>
   <attribute name="animationspeed" value="400" type="number"></attribute>

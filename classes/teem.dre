@@ -42,7 +42,7 @@ SOFTWARE. -->
      *     </labelbutton>
      *     <text id="output"></text>
      */-->
-    <class name="teem" extends="node" scriptincludes="/primus/primus.io.js" scriptincludeserror="In order to use dr.teem, you need to be running the Teem server">
+    <class name="teem" extends="node" scriptincludes="primus/primus.io.js" scriptincludeserror="In order to use dr.teem, you need to be running the Teem server">
       <!--/**
         * @attribute {Number} [pingtime=5000]
         * The frequency used to ping to the server

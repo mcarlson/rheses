@@ -4025,7 +4025,7 @@
           var el, url, _ref;
           if (!fileloaded[&#39;skin&#39;]) {
             fileloaded[&#39;skin&#39;] = true;
-            loadInclude(DREEM_ROOT + &quot;/classes/skin.dre&quot;);
+            loadInclude(DREEM_ROOT + &quot;classes/skin.dre&quot;);
           }
           _ref = findIncludeURLs();
           for (url in _ref) {
@@ -4050,7 +4050,7 @@
               el = _ref1[name];
               fileloaded[name] = true;
               if (name) {
-                loadInclude(DREEM_ROOT + &quot;/classes/&quot; + name.split(tagPackageSeparator).join(&#39;/&#39;) + &quot;.dre&quot;, el);
+                loadInclude(DREEM_ROOT + &quot;classes/&quot; + name.split(tagPackageSeparator).join(&#39;/&#39;) + &quot;.dre&quot;, el);
               }
             }
             $.when.apply($, filerequests).done(function() {
@@ -4074,20 +4074,20 @@
                 loadIncludes(callback);
                 return;
               }
-              oneurl = DREEM_ROOT + &#39;/lib/one_base.js&#39;;
+              oneurl = DREEM_ROOT + &#39;lib/one_base.js&#39;;
               return $.ajax({
                 dataType: &quot;script&quot;,
                 cache: true,
                 url: oneurl
               }).done(function() {
-                var _k, _len2, _ref2, _results;
+                var trimmedUrl, _k, _len2, _ref2, _results;
                 ONE.base_.call(Eventable.prototype);
                 Eventable.prototype.enumfalse(Eventable.prototype.keys());
                 Node.prototype.enumfalse(Node.prototype.keys());
                 View.prototype.enumfalse(View.prototype.keys());
                 Layout.prototype.enumfalse(Layout.prototype.keys());
                 State.prototype.enumfalse(State.prototype.keys());
-                loadScript(DREEM_ROOT + &#39;/lib/animator.js&#39;, callback, &#39;Missing /lib/animator.js&#39;);
+                loadScript(DREEM_ROOT + &#39;lib/animator.js&#39;, callback, &#39;Missing /lib/animator.js&#39;);
                 _ref2 = jqel.find(&#39;[scriptincludes]&#39;);
                 _results = [];
                 for (_k = 0, _len2 = _ref2.length; _k &lt; _len2; _k++) {
@@ -4098,7 +4098,11 @@
                     _results1 = [];
                     for (_l = 0, _len3 = _ref3.length; _l &lt; _len3; _l++) {
                       url = _ref3[_l];
-                      _results1.push(loadScript(url.trim(), callback, (_ref4 = el.attributes.scriptincludeserror) != null ? _ref4.value.toString() : void 0));
+                      trimmedUrl = url.trim();
+                      if (!trimmedUrl.match(/^http:\/\//)) {
+                        trimmedUrl = DREEM_ROOT + trimmedUrl;
+                      }
+                      _results1.push(loadScript(trimmedUrl, callback, (_ref4 = el.attributes.scriptincludeserror) != null ? _ref4.value.toString() : void 0));
                     }
                     return _results1;
                   })());
@@ -4177,7 +4181,7 @@
             }
           }).always(finalcallback);
         };
-        return loadIncludes(test || DREEM_SERVER_AVAILABLE ? finalcallback : validator);
+        return loadIncludes(test ? finalcallback : validator);
       };
       builtinTags = {
         &#39;a&#39;: true,

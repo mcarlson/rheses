@@ -320,7 +320,7 @@ window.dr = do ->
         #preload skin
         unless fileloaded['skin']
           fileloaded['skin'] = true
-          loadInclude(DREEM_ROOT + "/classes/skin.dre")
+          loadInclude(DREEM_ROOT + "classes/skin.dre")
 
       # load includes
         for url, el of findIncludeURLs()
@@ -344,7 +344,7 @@ window.dr = do ->
           # load missing classes
           for name, el of findMissingClasses()
             fileloaded[name] = true
-            loadInclude(DREEM_ROOT + "/classes/" + name.split(tagPackageSeparator).join('/') + ".dre", el) if name
+            loadInclude(DREEM_ROOT + "classes/" + name.split(tagPackageSeparator).join('/') + ".dre", el) if name
             # console.log 'loading dre', name, url, el
 
           # console.log(filerequests, fileloaded, inlineclasses)
@@ -371,7 +371,7 @@ window.dr = do ->
             # find class script includes and load them in lexical order
 
             # initialize ONE integration
-            oneurl = DREEM_ROOT + '/lib/one_base.js'
+            oneurl = DREEM_ROOT + 'lib/one_base.js'
             $.ajax({
               dataType: "script",
               cache: true,
@@ -387,10 +387,12 @@ window.dr = do ->
               State::enumfalse(State::keys())
 
               # load scriptincludes
-              loadScript(DREEM_ROOT + '/lib/animator.js', callback, 'Missing /lib/animator.js')
+              loadScript(DREEM_ROOT + 'lib/animator.js', callback, 'Missing /lib/animator.js')
               for el in jqel.find('[scriptincludes]')
                 for url in el.attributes.scriptincludes.value.split(',')
-                  loadScript(url.trim(), callback, el.attributes.scriptincludeserror?.value.toString())
+                  trimmedUrl = url.trim()
+                  trimmedUrl = DREEM_ROOT + trimmedUrl unless trimmedUrl.match(/^\w+:\/\//) || trimmedUrl.match(/^\//)
+                  loadScript(trimmedUrl, callback, el.attributes.scriptincludeserror?.value.toString())
             ).fail(() ->
               console.warn("failed to load #{oneurl}")
             )
@@ -443,7 +445,7 @@ window.dr = do ->
         }).always(finalcallback)
 
       # call the validator after everything loads
-      loadIncludes(if (test || DREEM_SERVER_AVAILABLE) then finalcallback else validator)
+      loadIncludes(if test then finalcallback else validator)
 
     # tags built into the browser that should be ignored, from http://www.w3.org/TR/html-markup/elements.html
     builtinTags = {'a': true, 'abbr': true, 'address': true, 'area': true, 'article': true, 'aside': true, 'audio': true, 'b': true, 'base': true, 'bdi': true, 'bdo': true, 'blockquote': true, 'body': true, 'br': true, 'button': true, 'canvas': true, 'caption': true, 'cite': true, 'code': true, 'col': true, 'colgroup': true, 'command': true, 'datalist': true, 'dd': true, 'del': true, 'details': true, 'dfn': true, 'div': true, 'dl': true, 'dt': true, 'em': true, 'embed': true, 'fieldset': true, 'figcaption': true, 'figure': true, 'footer': true, 'form': true, 'h1': true, 'h2': true, 'h3': true, 'h4': true, 'h5': true, 'h6': true, 'head': true, 'header': true, 'hgroup': true, 'hr': true, 'html': true, 'i': true, 'iframe': true, 'img': true, 'image': true, 'input': true, 'ins': true, 'kbd': true, 'keygen': true, 'label': true, 'legend': true, 'li': true, 'link': true, 'map': true, 'mark': true, 'menu': true, 'meta': true, 'meter': true, 'nav': true, 'noscript': true, 'object': true, 'ol': true, 'optgroup': true, 'option': true, 'output': true, 'p': true, 'param': true, 'pre': true, 'progress': true, 'q': true, 'rp': true, 'rt': true, 'ruby': true, 's': true, 'samp': true, 'script': true, 'section': true, 'select': true, 'small': true, 'source': true, 'span': true, 'strong': true, 'style': true, 'sub': true, 'summary': true, 'sup': true, 'table': true, 'tbody': true, 'td': true, 'textarea': true, 'tfoot': true, 'th': true, 'thead': true, 'time': true, 'title': true, 'tr': true, 'track': true, 'u': true, 'ul': true, 'var': true, 'video': true, 'wbr': true}
