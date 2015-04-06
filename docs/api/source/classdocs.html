@@ -422,7 +422,13 @@
      * This example shows how to load and play an mp3 audio file from the server:
      *
      *     @example
-     *     &lt;audioplayer url=&quot;/music/YACHT_-_09_-_Im_In_Love_With_A_Ripper_Party_Mix_Instrumental.mp3&quot; playing=&quot;true&quot;&gt;&lt;/audioplayer&gt;
+     *     &lt;audioplayer id=&quot;player&quot; url=&quot;${DREEM_ROOT + &#39;examples/music/YACHT_-_09_-_Im_In_Love_With_A_Ripper_Party_Mix_Instrumental.mp3&#39;}&quot; playing=&quot;true&quot;&gt;&lt;/audioplayer&gt;
+     *     &lt;labelbutton text=&quot;Stop Player&quot;&gt;
+     *       &lt;handler event=&quot;onclick&quot;&gt;
+     *         player.setAttribute(&#39;playing&#39;, !player.playing)
+     *         this.setAttribute(&#39;text&#39;, (player.playing ? &#39;Stop&#39; : &#39;Start&#39;) + &#39; Player&#39;)
+     *       &lt;/handler&gt;
+     *     &lt;/labelbutton&gt;
      */
 <span id='dr-audioplayer-attribute-url'>/**
 </span>        * @attribute {String} url
