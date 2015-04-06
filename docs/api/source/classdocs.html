@@ -976,7 +976,7 @@
    * This example shows how to log all setAttribute() calls for a replicator to console.log():
    *
    *     @example
-   *     &lt;dataset name=&quot;topmovies&quot; url=&quot;/top_movies.json&quot;&gt;&lt;/dataset&gt;
+   *     &lt;dataset name=&quot;topmovies&quot; url=&quot;${DREEM_ROOT + &#39;examples/data/top_movies.json&#39;}&quot;&gt;&lt;/dataset&gt;
    *     &lt;replicator datapath=&quot;$topmovies/searchResponse/results[*]/movie[take(/releaseYear,/duration,/rating)]&quot; classname=&quot;logger&quot;&gt;&lt;/replicator&gt;
    */
 <span id='dr-markup'>/**
