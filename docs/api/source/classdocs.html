@@ -1041,11 +1041,15 @@
  *         var right = inputBuffer.getChannelData(1);
  *
  *         var min = Math.min.apply(null, left);
- *	   var max = Math.max.apply(null, right);
- *	   console.log(&#39;min&#39;, min, &#39;max&#39;, max);
+ *         var max = Math.max.apply(null, right);
  *       &lt;/method&gt;
- *
  *     &lt;/microphone&gt;
+ *     &lt;labelbutton text=&quot;Stop Recording&quot;&gt;
+ *       &lt;handler event=&quot;onclick&quot;&gt;
+ *         mic.setAttribute(&#39;recording&#39;, !mic.recording)
+ *         this.setAttribute(&#39;text&#39;, (mic.recording ? &#39;Stop&#39; : &#39;Start&#39;) + &#39; Recording&#39;)
+ *       &lt;/handler&gt;
+ *     &lt;/labelbutton&gt;
  *
  */
 <span id='dr-microphone-attribute-visualize'>/**

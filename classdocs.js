@@ -1024,11 +1024,15 @@
  *         var right = inputBuffer.getChannelData(1);
  *
  *         var min = Math.min.apply(null, left);
- *	   var max = Math.max.apply(null, right);
- *	   console.log('min', min, 'max', max);
+ *         var max = Math.max.apply(null, right);
  *       </method>
- *
  *     </microphone>
+ *     <labelbutton text="Stop Recording">
+ *       <handler event="onclick">
+ *         mic.setAttribute('recording', !mic.recording)
+ *         this.setAttribute('text', (mic.recording ? 'Stop' : 'Start') + ' Recording')
+ *       </handler>
+ *     </labelbutton>
  *
  */
 /**
