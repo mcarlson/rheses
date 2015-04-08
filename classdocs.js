@@ -1746,7 +1746,7 @@
         * The size of the font in pixels.
         */
 /**
-        * @attribute {Number} [fontfamily=""]
+        * @attribute {String} [fontfamily=""]
         * The name of the font family to use, e.g. "Helvetica"  Include multiple fonts on a line, separated by commas.
         */
 /**

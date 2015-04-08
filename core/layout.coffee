@@ -560,7 +560,7 @@ window.dr = do ->
         "padding:0"
         "margin:0"
         "text-decoration:none"
-        "font-family:mission-gothic, 'Helvetica Neue', Helvetica, Arial, sans-serif"
+        "font-family:inherit"
         "font-size:20px"
       ]
       spriteInputTextStyle = [

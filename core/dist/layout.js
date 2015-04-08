@@ -4412,7 +4412,7 @@
         style = document.createElement('style');
         style.type = 'text/css';
         spriteStyle = ["position:absolute", "pointer-events:none", "padding:0", "margin:0", "box-sizing:border-box", "border-color:transparent", "border-style:solid", "border-width:0"];
-        spriteTextStyle = ["white-space:nowrap", "padding:0", "margin:0", "text-decoration:none", "font-family:mission-gothic, 'Helvetica Neue', Helvetica, Arial, sans-serif", "font-size:20px"];
+        spriteTextStyle = ["white-space:nowrap", "padding:0", "margin:0", "text-decoration:none", "font-family:inherit", "font-size:20px"];
         spriteInputTextStyle = ["border:none", "outline:none", "background-color:transparent", "resize:none"];
         noSelectStyle = ["-webkit-touch-callout:none", "-webkit-user-select:none", "-khtml-user-select:none", "-moz-user-select:none", "-ms-user-select:none", "user-select:none"];
         warningsStyle = ["font-size:14px", "background-color:pink", "margin:0"];
