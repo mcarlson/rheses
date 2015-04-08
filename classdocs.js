@@ -293,22 +293,22 @@
  * This example shows how to load an existing svg
  *
  *     @example
- *     <art width="100" height="100" src="/examples/img/siemens-clock.svg"></art>
+ *     <art width="100" height="100" src="${DREEM_ROOT + 'examples/img/siemens-clock.svg'}"></art>
  *
  * Paths within an svg can be selected using the path attribute
  *
  *     @example
- *     <art width="100" height="100" src="/examples/img/cursorshapes.svg" path="0"></art>
+ *     <art width="100" height="100" src="${DREEM_ROOT + 'examples/img/cursorshapes.svg'}" path="0"></art>
  *
  * Attributes are automatically passed through to the SVG. Here, the fill color is changed
  *
  *     @example
- *     <art width="100" height="100" src="/examples/img/cursorshapes.svg" path="0" fill="coral"></art>
+ *     <art width="100" height="100" src="${DREEM_ROOT + 'examples/img/cursorshapes.svg'}" path="0" fill="coral"></art>
  *
  * Setting the path attribute animates between paths. This example animates when the mouse is clicked
  *
  *     @example
- *     <art width="100" height="100" src="/examples/img/cursorshapes.svg" path="0" fill="coral">
+ *     <art width="100" height="100" src="${DREEM_ROOT + 'examples/img/cursorshapes.svg'}" path="0" fill="coral">
  *       <handler event="onclick">
  *         this.setAttribute('path', this.path ^ 1);
  *       </handler>
@@ -320,7 +320,7 @@
  * paths 1 and 2. This example will animate between keyframes 0, 1, 2.
  *
  *     @example
- *     <art id="art_3" width="100" height="100" src="/examples/img/cursorshapes.svg" path="0" fill="coral" animationspeed="1000" animationcurve="linear">
+ *     <art id="art_3" width="100" height="100" src="${DREEM_ROOT + 'examples/img/cursorshapes.svg'}" path="0" fill="coral" animationspeed="1000" animationcurve="linear">
  *       <handler event="onclick">
  *         this.setAttribute('animationframe', 0);
  *         this.animate({animationframe: 2}, 1000);
@@ -330,7 +330,7 @@
  * By default, the SVG's aspect ratio is preserved. Set the stretches attribute to true to change this behavior.
  *
  *     @example
- *     <art width="200" height="100" src="/examples/img/cursorshapes.svg" path="0" fill="coral" stretches="true">
+ *     <art width="200" height="100" src="${DREEM_ROOT + 'examples/img/cursorshapes.svg'}" path="0" fill="coral" stretches="true">
  *       <handler event="onclick">
  *         this.setAttribute('path', this.path ^ 1);
  *         this.animate({width: (this.width == 200 ? 100 : 200)});
@@ -348,7 +348,7 @@
  *         return value.toFixed(2);
  *       </method>
  *     </class>
- *     <art id="art_1" width="100" height="100" src="/examples/img/cursorshapes.svg" path="0" stroke="coral" fill="coral" stretches="true">
+ *     <art id="art_1" width="100" height="100" src="${DREEM_ROOT + 'examples/img/cursorshapes.svg'}" path="0" stroke="coral" fill="coral" stretches="true">
  *       <centertext2 text="${this.parent.animationframe}"></centertext2>
  *       <animator start="0" from="0" to="3" attribute="animationframe" duration="4000" motion = "outBounce" repeat="1">
  *       </animator>
@@ -405,7 +405,13 @@
      * This example shows how to load and play an mp3 audio file from the server:
      *
      *     @example
-     *     <audioplayer url="/music/YACHT_-_09_-_Im_In_Love_With_A_Ripper_Party_Mix_Instrumental.mp3" playing="true"></audioplayer>
+     *     <audioplayer id="player" url="${DREEM_ROOT + 'examples/music/YACHT_-_09_-_Im_In_Love_With_A_Ripper_Party_Mix_Instrumental.mp3'}" playing="true"></audioplayer>
+     *     <labelbutton text="Stop Player">
+     *       <handler event="onclick">
+     *         player.setAttribute('playing', !player.playing)
+     *         this.setAttribute('text', (player.playing ? 'Stop' : 'Start') + ' Player')
+     *       </handler>
+     *     </labelbutton>
      */
 /**
         * @attribute {String} url
@@ -953,7 +959,7 @@
    * This example shows how to log all setAttribute() calls for a replicator to console.log():
    *
    *     @example
-   *     <dataset name="topmovies" url="/top_movies.json"></dataset>
+   *     <dataset name="topmovies" url="${DREEM_ROOT + 'examples/data/top_movies.json'}"></dataset>
    *     <replicator datapath="$topmovies/searchResponse/results[*]/movie[take(/releaseYear,/duration,/rating)]" classname="logger"></replicator>
    */
 /**
@@ -1018,11 +1024,15 @@
  *         var right = inputBuffer.getChannelData(1);
  *
  *         var min = Math.min.apply(null, left);
- *	   var max = Math.max.apply(null, right);
- *	   console.log('min', min, 'max', max);
+ *         var max = Math.max.apply(null, right);
  *       </method>
- *
  *     </microphone>
+ *     <labelbutton text="Stop Recording">
+ *       <handler event="onclick">
+ *         mic.setAttribute('recording', !mic.recording)
+ *         this.setAttribute('text', (mic.recording ? 'Stop' : 'Start') + ' Recording')
+ *       </handler>
+ *     </labelbutton>
  *
  */
 /**

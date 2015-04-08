@@ -76,7 +76,33 @@ SOFTWARE.
   };
   extend(opts, global.BOILERPLATE_OPTS || {});
   var isSmoke = opts.type === 'smoke';
-  
+
+  DREEM_ROOT = opts.baseUrl;
+  if (document.currentScript) {
+    var script_src = document.currentScript.src;
+    if (script_src) {
+      var found = script_src.match(/^(.*)boilerplate.js.*/);
+      if (found.length > 1) {
+        DREEM_ROOT = found[1];
+      }
+    }
+  }
+//  console.log('Dreem root is: ', DREEM_ROOT)
+
+  DREEM_SERVER_AVAILABLE = false;
+  var compatibleServerVersions = ["1.0.0"];
+  var request = new XMLHttpRequest();
+  request.open('GET', DREEM_ROOT + 'version', false);
+  request.onreadystatechange = function() {
+    if (request.readyState === 4){
+      if (request.status === 200) {
+        var info = JSON.parse(request.responseText);
+        DREEM_SERVER_AVAILABLE = ~compatibleServerVersions.indexOf(info.version);
+      }
+    }
+  };
+  request.send();
+
   // Parse Query
   var query = (function(pairs) {
       var params = {};
@@ -92,20 +118,27 @@ SOFTWARE.
     debug = query.debug,
     runtime = query.runtime,
     minify = query.minify;
-  
+
   // Config
   var layoutQuery = [];
   //if (debug === 'true') layoutQuery.push('debug=true'); // FIXME: uncomment this when the assembler supports conditional debug code.
   if (runtime) layoutQuery.push('runtime=' + runtime);
   layoutQuery = (layoutQuery.length > 0) ? '?' + layoutQuery.join('&') : '';
-  
+
+  var layoutScript = '/layout' + (minify === 'true' ? '.min' : '') + '.js' + layoutQuery;
+  if (!DREEM_SERVER_AVAILABLE) {
+    console.warn('Compatible Dreem server unavailable, defaulting to cached javascript');
+    layoutScript = '/dist' + layoutScript;
+  }
+  layoutScript = 'core' + layoutScript;
+
   var scriptsToLoad = [
       'lib/jquery-1.9.1.js',
       'lib/acorn.js',
       'lib/coffee-script.js',
-      'core/layout' + (minify === 'true' ? '.min' : '') + '.js' + layoutQuery,
-      isSmoke ? '/lib/chai.js' : '',
-      isSmoke ? '/lib/smoke_helper.js' : '',
+      layoutScript,
+      isSmoke ? 'lib/chai.js' : '',
+      isSmoke ? 'lib/smoke_helper.js' : '',
     ],
     cssRules = [
       ['html,body',
@@ -119,12 +152,12 @@ SOFTWARE.
         'font-size:14px'
       ]
     ];
-  
+
   // Execution
   writeCSS(cssRules);
   var i = 0, len = scriptsToLoad.length, scriptUrl;
   for (; len > i;) {
     scriptUrl = scriptsToLoad[i++];
-    if (scriptUrl) loadScript(opts.baseUrl + scriptUrl);
+    if (scriptUrl) loadScript(DREEM_ROOT + scriptUrl);
   }
 })(this);

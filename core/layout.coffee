@@ -320,7 +320,7 @@ window.dr = do ->
         #preload skin
         unless fileloaded['skin']
           fileloaded['skin'] = true
-          loadInclude("/classes/skin.dre")
+          loadInclude(DREEM_ROOT + "classes/skin.dre")
 
       # load includes
         for url, el of findIncludeURLs()
@@ -344,7 +344,7 @@ window.dr = do ->
           # load missing classes
           for name, el of findMissingClasses()
             fileloaded[name] = true
-            loadInclude("/classes/" + name.split(tagPackageSeparator).join('/') + ".dre", el) if name
+            loadInclude(DREEM_ROOT + "classes/" + name.split(tagPackageSeparator).join('/') + ".dre", el) if name
             # console.log 'loading dre', name, url, el
 
           # console.log(filerequests, fileloaded, inlineclasses)
@@ -371,7 +371,7 @@ window.dr = do ->
             # find class script includes and load them in lexical order
 
             # initialize ONE integration
-            oneurl = '/lib/one_base.js'
+            oneurl = DREEM_ROOT + 'lib/one_base.js'
             $.ajax({
               dataType: "script",
               cache: true,
@@ -387,10 +387,12 @@ window.dr = do ->
               State::enumfalse(State::keys())
 
               # load scriptincludes
-              loadScript('/lib/animator.js', callback, 'Missing /lib/animator.js')
+              loadScript(DREEM_ROOT + 'lib/animator.js', callback, 'Missing /lib/animator.js')
               for el in jqel.find('[scriptincludes]')
                 for url in el.attributes.scriptincludes.value.split(',')
-                  loadScript(url.trim(), callback, el.attributes.scriptincludeserror?.value.toString())
+                  trimmedUrl = url.trim()
+                  trimmedUrl = DREEM_ROOT + trimmedUrl unless trimmedUrl.match(/^\w+:\/\//) || trimmedUrl.match(/^\//)
+                  loadScript(trimmedUrl, callback, el.attributes.scriptincludeserror?.value.toString())
             ).fail(() ->
               console.warn("failed to load #{oneurl}")
             )

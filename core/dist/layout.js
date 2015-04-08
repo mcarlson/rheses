@@ -4008,7 +4008,7 @@
           var el, url, _ref;
           if (!fileloaded['skin']) {
             fileloaded['skin'] = true;
-            loadInclude("/classes/skin.dre");
+            loadInclude(DREEM_ROOT + "classes/skin.dre");
           }
           _ref = findIncludeURLs();
           for (url in _ref) {
@@ -4033,7 +4033,7 @@
               el = _ref1[name];
               fileloaded[name] = true;
               if (name) {
-                loadInclude("/classes/" + name.split(tagPackageSeparator).join('/') + ".dre", el);
+                loadInclude(DREEM_ROOT + "classes/" + name.split(tagPackageSeparator).join('/') + ".dre", el);
               }
             }
             $.when.apply($, filerequests).done(function() {
@@ -4057,20 +4057,20 @@
                 loadIncludes(callback);
                 return;
               }
-              oneurl = '/lib/one_base.js';
+              oneurl = DREEM_ROOT + 'lib/one_base.js';
               return $.ajax({
                 dataType: "script",
                 cache: true,
                 url: oneurl
               }).done(function() {
-                var _k, _len2, _ref2, _results;
+                var trimmedUrl, _k, _len2, _ref2, _results;
                 ONE.base_.call(Eventable.prototype);
                 Eventable.prototype.enumfalse(Eventable.prototype.keys());
                 Node.prototype.enumfalse(Node.prototype.keys());
                 View.prototype.enumfalse(View.prototype.keys());
                 Layout.prototype.enumfalse(Layout.prototype.keys());
                 State.prototype.enumfalse(State.prototype.keys());
-                loadScript('/lib/animator.js', callback, 'Missing /lib/animator.js');
+                loadScript(DREEM_ROOT + 'lib/animator.js', callback, 'Missing /lib/animator.js');
                 _ref2 = jqel.find('[scriptincludes]');
                 _results = [];
                 for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
@@ -4081,7 +4081,11 @@
                     _results1 = [];
                     for (_l = 0, _len3 = _ref3.length; _l < _len3; _l++) {
                       url = _ref3[_l];
-                      _results1.push(loadScript(url.trim(), callback, (_ref4 = el.attributes.scriptincludeserror) != null ? _ref4.value.toString() : void 0));
+                      trimmedUrl = url.trim();
+                      if (!(trimmedUrl.match(/^\w+:\/\//) || trimmedUrl.match(/^\//))) {
+                        trimmedUrl = DREEM_ROOT + trimmedUrl;
+                      }
+                      _results1.push(loadScript(trimmedUrl, callback, (_ref4 = el.attributes.scriptincludeserror) != null ? _ref4.value.toString() : void 0));
                     }
                     return _results1;
                   })());
