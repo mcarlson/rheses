@@ -83,11 +83,10 @@ SOFTWARE. -->
       * 
       */-->
 <class name="text" with="sizetodom" type="coffee">
-
-    <!--/**
-          * @attribute {Number} [fontsize]
-          * The size of the font in pixels.
-          */-->
+  <!--/**
+        * @attribute {Number} [fontsize]
+        * The size of the font in pixels.
+        */-->
   <attribute name="fontsize" type="emptynumber" value=""></attribute>
   <setter name="fontsize" args="v">
     if @fontsize isnt v
@@ -99,7 +98,7 @@ SOFTWARE. -->
   </setter>
 
   <!--/**
-        * @attribute {Number} [fontfamily=""]
+        * @attribute {String} [fontfamily=""]
         * The name of the font family to use, e.g. "Helvetica"  Include multiple fonts on a line, separated by commas.
         */-->
   <attribute name="fontfamily" type="string" value=""></attribute>
@@ -251,11 +250,8 @@ SOFTWARE. -->
     return retval
   </setter>
 
-  <method name="_createSprite" args="el, attributes">
-    @super()
-    # Sync the text attribute to the text between the tags.
-    attributes.text ||= @sprite.getText()
-    @sprite.createTextElement()
+  <method name="createSprite" args="spriteClass, el, attributes">
+    return @super(dr._textSprite, el, attributes)
   </method>
 
   <method name="construct" args="el, attributes">

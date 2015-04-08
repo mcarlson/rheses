@@ -49,7 +49,7 @@ SOFTWARE. -->
    *       </handler>
    *     </twojs>
    */-->
-<class name="twojs" width="800" height="400" type="coffee" scriptincludes="/lib/two.min.js" bgcolor="lightgrey">
+<class name="twojs" width="800" height="400" type="coffee" scriptincludes="lib/two.min.js" bgcolor="lightgrey">
 
   <!--/**
     * @attribute {Object} two

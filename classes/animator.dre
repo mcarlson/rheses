@@ -34,7 +34,7 @@ SOFTWARE. -->
     *       </animator>
     *     </view>
     */-->
-  <class name="animator" extends='node' scriptincludes="/lib/animator.js">
+  <class name="animator" extends='node' scriptincludes="lib/animator.js">
     <method name="construct">
       this.track = {}
       this.super()

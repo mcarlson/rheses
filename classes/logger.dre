@@ -7,7 +7,7 @@
    *
    *     @example
    *     <text italic="true" fontsize="14">(please open the console to see the output of this example)</text>
-   *     <dataset name="topmovies" url="/examples/data/top_movies.json"></dataset>
+   *     <dataset name="topmovies" url="${DREEM_ROOT + 'examples/data/top_movies.json'}"></dataset>
    *     <replicator datapath="$topmovies/searchResponse/results[*]/movie[take(/releaseYear,/duration,/rating)]" classname="logger"></replicator>
    */-->
 <class name="logger" extends="node">

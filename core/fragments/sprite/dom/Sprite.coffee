@@ -5,7 +5,9 @@
 ###
 class Sprite
 #    guid = 0
-  constructor: (jqel, view, tagname = 'div') ->
+  constructor: (view, jqel, attributes) ->
+    tagname = attributes.$tagname or 'div'
+    
     # console.log 'new sprite', jqel, view, tagname
     if not jqel?
       # console.log 'creating element', tagname
@@ -22,7 +24,7 @@ class Sprite
     # normalize to jQuery object
 #      guid++
 #      jqel.attr('id', 'jqel-' + guid) if not jqel.attr('id')
-    @css_baseclass = 'sprite'
+    @css_baseclass ?= 'sprite'
     @_updateClass()
 
   setAttribute: (name, value) ->
@@ -201,96 +203,26 @@ class Sprite
 
   destroy: ->
     @el.parentNode.removeChild(@el)
-    @input = @input.$view = null if @input
     @el = @jqel = @el.$view = null
 
   setInnerHTML: (html) ->
     @el.innerHTML = html
 
-  setText: (txt) ->
-    if txt?
-      for cld in @el.childNodes
-        if cld && cld.nodeType == 3
-          @el.removeChild(cld)
-
-      tnode = document.createTextNode(txt);
-      @el.appendChild(tnode)
-
-  getText: ->
-    # Firefox doesn't support innerText and textContent gives us more than
-    # we want. Instead, walk the dom children and concat all the text nodes.
-    # The nodes get trimmed since line feeds and other junk whitespace will
-    # show up as text nodes.
-    child = @el.firstChild
-    texts = []
-    while child
-      if child.nodeType is 3 then texts.push(child.data.trim())
-      child = child.nextSibling;
-    texts.join("")
-
   getInnerHTML: ->
     @el.innerHTML
-
-
-  value: (value) ->
-    return unless @input
-    if value?
-      @input.value = value
-    else
-      @input.value
-
-  handle: (event) ->
-    view = event.target.$view
-    return unless view
-    # console.log 'event', event.type, view
-    view.sendEvent(event.type, view)
-
-  createTextElement: () ->
-    @css_baseclass = 'sprite sprite-text noselect'
-    @_updateClass()
-
-  createInputtextElement: (text, multiline, width, height) ->
-    @css_baseclass = 'sprite noselect'
-    @_updateClass()
-
-    if multiline
-      input = document.createElement('textarea')
-    else
-      input = document.createElement('input')
-      input.setAttribute('type', 'text')
-    # don't try to init this tag
-    input.$init = true
-    input.setAttribute('value', text)
-    input.setAttribute('class', 'sprite-inputtext')
-    if width
-      @setStyle('width', width, true, input)
-    if height
-      @setStyle('height', height, true, input)
-
-    @setStyle('color', 'inherit', false, input)
-    @setStyle('background', 'inherit', false, input)
-    @setStyle('font-variant', 'inherit', false, input)
-    @setStyle('font-style', 'inherit', false, input)
-    @setStyle('font-weight', 'inherit', false, input)
-    @setStyle('font-size', 'inherit', false, input)
-    @setStyle('font-family', 'inherit', false, input)
-    @setStyle('width', '100%', false, input)
-    @setStyle('height', '100%', false, input)
-
-    @el.appendChild(input)
-    # console.log('createInputtextElement', text, multiline, width, height, input)
-
-    input.$view = @el.$view
-    $(input).on('focus blur', @handle)
-    @input = input
 
   getBounds: () ->
     @el.getBoundingClientRect()
 
   getAbsolute: () ->
-    @jqel ?= $(@el)
-    pos = @jqel.offset()
-    {x: pos.left - window.pageXOffset, y: pos.top - window.pageYOffset}
+    bounds = @getBounds()
+    {x:bounds.left + window.pageXOffset, y:bounds.top + window.pageYOffset}
+
+  getScrollWidth: () ->
+    @el.scrollWidth
+
+  getScrollHeight: () ->
+    @el.scrollHeight
 
   set_class: (classname='') ->
     @__classname = classname

@@ -1,31 +1,62 @@
 <html>
 <head>
+  <testingtimer><!--200--></testingtimer>
   <title>template-workshop 2nd</title>
   <script>var BOILERPLATE_OPTS = {type:'smoke'};</script>
   <script type="text/javascript" src="../boilerplate.js"></script>
 </head>
 <body>
 <view>
-  <bitmap id="koala" x="100" y="200" width="200" height="200" src="./shoarma.jpg">
+  <spacedlayout axis="y" spacing="1" inset="10"></spacedlayout>
+  <bitmap id="koala" x="10" width="150" height="100" bgcolor="red" src="./shoarma.jpg">
     <handler event="onload" args="size">
       if (this.src) {
         assert.equal(size.width, 259)
         assert.equal(size.height, 194)
-        koala.setAttribute('src', '')
+        this.setAttribute('src', '')
       } else {
         assert.equal(size.width, 0)
         assert.equal(size.height, 0)
       }
     </handler>
   </bitmap>
+  
+  <bitmap name="foo" x="10" width="150" height="100" bgcolor="red" naturalsize="true">
+    <handler event="onload" args="size">
+      assert.equal(size.width, 259)
+      assert.equal(size.height, 194)
+    </handler>
+  </bitmap>
+  
+  <bitmap x="10" width="150" height="100" bgcolor="red" src="./shoarma.jpg" stretches="scale">
+    <handler event="onload" args="size">
+      assert.equal(size.width, 259)
+      assert.equal(size.height, 194)
+    </handler>
+  </bitmap>
+  
+  <bitmap x="10" width="150" height="100" bgcolor="red" src="./shoarma.jpg" naturalsize="true">
+    <handler event="onload" args="size">
+      assert.equal(this.width, 259)
+      assert.equal(this.height, 194)
+    </handler>
+  </bitmap>
+  
   <handler event="oninit">
-    assert.equal(koala.sprite.el.style.marginLeft, '100px');
-    assert.equal(koala.sprite.el.style.marginTop, '200px');
+    var foo = this.foo;
+    assert.equal(foo.width, 150);
+    assert.equal(foo.height, 100);
+    foo.setAttribute('src', './shoarma.jpg');
+    
+    setTimeout(function() {
+      assert.equal(foo.width, 259);
+      assert.equal(foo.height, 194);
+    }, 100);
   </handler>
 </view>
 <!-- The MIT License (MIT)
 
-Copyright ( c ) 2014 Teem2 LLC
+Copyright ( c ) 2014-2015 Teem2 LLC
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

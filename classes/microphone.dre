@@ -31,21 +31,25 @@ SOFTWARE. -->
  *     <text italic="true" fontsize="14">(please open the console to see the output of this example)</text>
  *     <microphone id="mic" modifystream="true" visualize="false" stream="true">
  *       <method name="processStream" args="audio">
- *	       if (!audio) return;
+ *         if (!audio) return;
  *
- *	       var inputBuffer = audio.inputBuffer;
- *	       var left = inputBuffer.getChannelData(0);
- *	       var right = inputBuffer.getChannelData(1);
+ *         var inputBuffer = audio.inputBuffer;
+ *         var left = inputBuffer.getChannelData(0);
+ *         var right = inputBuffer.getChannelData(1);
  *
- *	       var min = Math.min.apply(null, left);
- *	       var max = Math.max.apply(null, right);
- *	       console.log('min', min, 'max', max);
+ *         var min = Math.min.apply(null, left);
+ *         var max = Math.max.apply(null, right);
  *       </method>
- *
  *     </microphone>
+ *     <labelbutton text="Stop Recording">
+ *       <handler event="onclick">
+ *         mic.setAttribute('recording', !mic.recording)
+ *         this.setAttribute('text', (mic.recording ? 'Stop' : 'Start') + ' Recording')
+ *       </handler>
+ *     </labelbutton>
  *
  */-->
-<class name="microphone" type="coffee" clickable="true" clip="true" scriptincludes="/lib/audiorecorder/js/recorderjs/recorder.js, /lib/filesaver/FileSaver.min.js">
+<class name="microphone" type="coffee" clickable="true" clip="true" scriptincludes="lib/audiorecorder/js/recorderjs/recorder.js, lib/filesaver/FileSaver.min.js">
   
   <!--/**
     * @attribute {Boolean} [visualize=true]

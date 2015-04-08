@@ -116,7 +116,7 @@
 ;
 
   window.dr = (function() {
-    var AutoPropertyLayout, COMMENT_NODE, Class, Eventable, Events, Idle, Keyboard, Layout, Module, Mouse, Node, Path, Sprite, StartEventable, State, View, Window, callOnIdle, capabilities, clone, closeTo, compiler, constraintScopes, debug, dom, eventq, exports, handlerq, idle, ignoredAttributes, instantiating, matchEvent, matchPercent, mixOf, mouseEvents, noop, querystring, showWarnings, specialtags, starttime, tagPackageSeparator, test, warnings, _initConstraints, _processAttrs;
+    var ArtSprite, AutoPropertyLayout, BitmapSprite, COMMENT_NODE, Class, Eventable, Events, Idle, InputTextSprite, Keyboard, Layout, Module, Mouse, Node, Path, Sprite, StartEventable, State, TextSprite, View, Window, callOnIdle, capabilities, clone, closeTo, compiler, constraintScopes, debug, dom, eventq, exports, handlerq, idle, ignoredAttributes, instantiating, matchEvent, matchPercent, mixOf, mouseEvents, noop, querystring, showWarnings, specialtags, starttime, tagPackageSeparator, test, warnings, _initConstraints, _processAttrs;
     COMMENT_NODE = window.Node.COMMENT_NODE;
     noop = function() {};
     closeTo = function(a, b, epsilon) {
@@ -1032,7 +1032,7 @@
 </span>     * @attribute {String} scriptincludeserror
      * An error to show if scriptincludes fail to load
      */
-    var earlyattributes, lateattributes, matchConstraint, matchSuper, _eventCallback, _installMethod;
+    var beforeConstructMethods, earlyattributes, lateattributes, matchConstraint, matchSuper, _eventCallback, _installMethod;
 
     __extends(Node, _super);
 
@@ -1040,8 +1040,10 @@
 
     lateattributes = [&#39;data&#39;, &#39;skin&#39;];
 
+    beforeConstructMethods = [&#39;construct&#39;, &#39;createSprite&#39;];
+
     function Node(el, attributes) {
-      var args, hassuper, method, methodName, methodObj, methods, mixedAttributes, supressTagname, _i, _j, _len, _len1, _ref, _ref1;
+      var args, hassuper, method, methodName, methodObj, methods, mixedAttributes, supressTagname, _i, _j, _len, _len1, _ref;
       if (attributes == null) {
         attributes = {};
       }
@@ -1058,13 +1060,12 @@
       }
       methods = attributes.$methods;
       if (methods) {
-        _ref = [&#39;construct&#39;, &#39;_createSprite&#39;];
-        for (_i = 0, _len = _ref.length; _i &lt; _len; _i++) {
-          methodName = _ref[_i];
+        for (_i = 0, _len = beforeConstructMethods.length; _i &lt; _len; _i++) {
+          methodName = beforeConstructMethods[_i];
           methodObj = methods[methodName];
           if (methodObj) {
             for (_j = 0, _len1 = methodObj.length; _j &lt; _len1; _j++) {
-              _ref1 = methodObj[_j], method = _ref1.method, args = _ref1.args;
+              _ref = methodObj[_j], method = _ref.method, args = _ref.args;
               hassuper = matchSuper.test(method);
               _installMethod(this, methodName, compiler.compile(method, args, &quot;&quot; + attributes.$tagname + &quot;$&quot; + methodName).bind(this), hassuper);
             }
@@ -1253,7 +1254,7 @@
         methodlist = methods[name];
         for (_i = 0, _len = methodlist.length; _i &lt; _len; _i++) {
           _ref = methodlist[_i], method = _ref.method, args = _ref.args, allocation = _ref.allocation;
-          if (name === &#39;construct&#39; || name === &#39;_createSprite&#39;) {
+          if (__indexOf.call(beforeConstructMethods, name) &gt;= 0) {
             continue;
           }
           hassuper = matchSuper.test(method);
@@ -1712,11 +1713,10 @@
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i &lt; l; i++) { if (i in this &amp;&amp; this[i] === item) return i; } return -1; };
 
   Sprite = (function() {
-    function Sprite(jqel, view, tagname) {
-      if (tagname == null) {
-        tagname = &#39;div&#39;;
-      }
+    function Sprite(view, jqel, attributes) {
       this._handleScroll = __bind(this._handleScroll, this);
+      var tagname;
+      tagname = attributes.$tagname || &#39;div&#39;;
       if (jqel == null) {
         this.el = document.createElement(tagname);
         this.el.$init = true;
@@ -1724,7 +1724,9 @@
         this.el = jqel;
       }
       this.el.$view = view;
-      this.css_baseclass = &#39;sprite&#39;;
+      if (this.css_baseclass == null) {
+        this.css_baseclass = &#39;sprite&#39;;
+      }
       this._updateClass();
     }
 
@@ -1947,9 +1949,6 @@
 
     Sprite.prototype.destroy = function() {
       this.el.parentNode.removeChild(this.el);
-      if (this.input) {
-        this.input = this.input.$view = null;
-      }
       return this.el = this.jqel = this.el.$view = null;
     };
 
@@ -1957,95 +1956,8 @@
       return this.el.innerHTML = html;
     };
 
-    Sprite.prototype.setText = function(txt) {
-      var cld, tnode, _i, _len, _ref;
-      if (txt != null) {
-        _ref = this.el.childNodes;
-        for (_i = 0, _len = _ref.length; _i &lt; _len; _i++) {
-          cld = _ref[_i];
-          if (cld &amp;&amp; cld.nodeType === 3) {
-            this.el.removeChild(cld);
-          }
-        }
-        tnode = document.createTextNode(txt);
-        return this.el.appendChild(tnode);
-      }
-    };
-
-    Sprite.prototype.getText = function() {
-      var child, texts;
-      child = this.el.firstChild;
-      texts = [];
-      while (child) {
-        if (child.nodeType === 3) {
-          texts.push(child.data.trim());
-        }
-        child = child.nextSibling;
-      }
-      return texts.join(&quot;&quot;);
-    };
-
     Sprite.prototype.getInnerHTML = function() {
       return this.el.innerHTML;
-    };
-
-    Sprite.prototype.value = function(value) {
-      if (!this.input) {
-        return;
-      }
-      if (value != null) {
-        return this.input.value = value;
-      } else {
-        return this.input.value;
-      }
-    };
-
-    Sprite.prototype.handle = function(event) {
-      var view;
-      view = event.target.$view;
-      if (!view) {
-        return;
-      }
-      return view.sendEvent(event.type, view);
-    };
-
-    Sprite.prototype.createTextElement = function() {
-      this.css_baseclass = &#39;sprite sprite-text noselect&#39;;
-      return this._updateClass();
-    };
-
-    Sprite.prototype.createInputtextElement = function(text, multiline, width, height) {
-      var input;
-      this.css_baseclass = &#39;sprite noselect&#39;;
-      this._updateClass();
-      if (multiline) {
-        input = document.createElement(&#39;textarea&#39;);
-      } else {
-        input = document.createElement(&#39;input&#39;);
-        input.setAttribute(&#39;type&#39;, &#39;text&#39;);
-      }
-      input.$init = true;
-      input.setAttribute(&#39;value&#39;, text);
-      input.setAttribute(&#39;class&#39;, &#39;sprite-inputtext&#39;);
-      if (width) {
-        this.setStyle(&#39;width&#39;, width, true, input);
-      }
-      if (height) {
-        this.setStyle(&#39;height&#39;, height, true, input);
-      }
-      this.setStyle(&#39;color&#39;, &#39;inherit&#39;, false, input);
-      this.setStyle(&#39;background&#39;, &#39;inherit&#39;, false, input);
-      this.setStyle(&#39;font-variant&#39;, &#39;inherit&#39;, false, input);
-      this.setStyle(&#39;font-style&#39;, &#39;inherit&#39;, false, input);
-      this.setStyle(&#39;font-weight&#39;, &#39;inherit&#39;, false, input);
-      this.setStyle(&#39;font-size&#39;, &#39;inherit&#39;, false, input);
-      this.setStyle(&#39;font-family&#39;, &#39;inherit&#39;, false, input);
-      this.setStyle(&#39;width&#39;, &#39;100%&#39;, false, input);
-      this.setStyle(&#39;height&#39;, &#39;100%&#39;, false, input);
-      this.el.appendChild(input);
-      input.$view = this.el.$view;
-      $(input).on(&#39;focus blur&#39;, this.handle);
-      return this.input = input;
     };
 
     Sprite.prototype.getBounds = function() {
@@ -2053,15 +1965,20 @@
     };
 
     Sprite.prototype.getAbsolute = function() {
-      var pos;
-      if (this.jqel == null) {
-        this.jqel = $(this.el);
-      }
-      pos = this.jqel.offset();
+      var bounds;
+      bounds = this.getBounds();
       return {
-        x: pos.left - window.pageXOffset,
-        y: pos.top - window.pageYOffset
+        x: bounds.left + window.pageXOffset,
+        y: bounds.top + window.pageYOffset
       };
+    };
+
+    Sprite.prototype.getScrollWidth = function() {
+      return this.el.scrollWidth;
+    };
+
+    Sprite.prototype.getScrollHeight = function() {
+      return this.el.scrollHeight;
     };
 
     Sprite.prototype.set_class = function(classname) {
@@ -2123,6 +2040,290 @@
   }
 
   return Sprite;
+
+}).call(this);
+;
+    TextSprite = 
+<span id='TextSprite'>/**
+</span> * @class TextSprite
+ * @private
+ * Abstracts the underlying visual primitives for a text component
+ */
+
+(function() {
+  var TextSprite,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  TextSprite = (function(_super) {
+    __extends(TextSprite, _super);
+
+    function TextSprite(view, jqel, attributes) {
+      if (this.css_baseclass == null) {
+        this.css_baseclass = &#39;sprite sprite-text noselect&#39;;
+      }
+      TextSprite.__super__.constructor.apply(this, arguments);
+      attributes.text || (attributes.text = this.getText());
+    }
+
+    TextSprite.prototype.setText = function(txt) {
+      var cld, tnode, _i, _len, _ref;
+      if (txt != null) {
+        _ref = this.el.childNodes;
+        for (_i = 0, _len = _ref.length; _i &lt; _len; _i++) {
+          cld = _ref[_i];
+          if (cld &amp;&amp; cld.nodeType === 3) {
+            this.el.removeChild(cld);
+          }
+        }
+        tnode = document.createTextNode(txt);
+        return this.el.appendChild(tnode);
+      }
+    };
+
+    TextSprite.prototype.getText = function() {
+      var child, texts;
+      child = this.el.firstChild;
+      texts = [];
+      while (child) {
+        if (child.nodeType === 3) {
+          texts.push(child.data.trim());
+        }
+        child = child.nextSibling;
+      }
+      return texts.join(&quot;&quot;);
+    };
+
+    return TextSprite;
+
+  })(Sprite);
+
+  return TextSprite;
+
+}).call(this);
+;
+    InputTextSprite = 
+<span id='InputTextSprite'>/**
+</span> * @class InputTextSprite
+ * @private
+ * Abstracts the underlying visual primitives for an input text component
+ */
+
+(function() {
+  var InputTextSprite,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  InputTextSprite = (function(_super) {
+    __extends(InputTextSprite, _super);
+
+    function InputTextSprite(view, jqel, attributes) {
+      var input;
+      if (this.css_baseclass == null) {
+        this.css_baseclass = &#39;sprite noselect&#39;;
+      }
+      InputTextSprite.__super__.constructor.apply(this, arguments);
+      attributes.text || (attributes.text = this.getText());
+      if (attributes.multiline === &#39;true&#39;) {
+        input = document.createElement(&#39;textarea&#39;);
+      } else {
+        input = document.createElement(&#39;input&#39;);
+        input.setAttribute(&#39;type&#39;, &#39;text&#39;);
+      }
+      input.$init = true;
+      input.setAttribute(&#39;class&#39;, &#39;sprite-inputtext&#39;);
+      this.setStyle(&#39;color&#39;, &#39;inherit&#39;, false, input);
+      this.setStyle(&#39;background&#39;, &#39;inherit&#39;, false, input);
+      this.setStyle(&#39;font-variant&#39;, &#39;inherit&#39;, false, input);
+      this.setStyle(&#39;font-style&#39;, &#39;inherit&#39;, false, input);
+      this.setStyle(&#39;font-weight&#39;, &#39;inherit&#39;, false, input);
+      this.setStyle(&#39;font-size&#39;, &#39;inherit&#39;, false, input);
+      this.setStyle(&#39;font-family&#39;, &#39;inherit&#39;, false, input);
+      this.el.appendChild(input);
+      input.$view = view;
+      $(input).on(&#39;focus blur&#39;, this.handle);
+      this.input = input;
+    }
+
+    InputTextSprite.prototype.handle = function(event) {
+      var view;
+      view = event.target.$view;
+      if (!view) {
+        return;
+      }
+      return view.sendEvent(event.type, view);
+    };
+
+    InputTextSprite.prototype.destroy = function() {
+      InputTextSprite.__super__.destroy.apply(this, arguments);
+      if (this.input) {
+        return this.input = this.input.$view = null;
+      }
+    };
+
+    InputTextSprite.prototype.value = function(value) {
+      if (value != null) {
+        return this.input.value = value;
+      } else {
+        return this.input.value;
+      }
+    };
+
+    return InputTextSprite;
+
+  })(TextSprite);
+
+  return InputTextSprite;
+
+}).call(this);
+;
+    ArtSprite = 
+<span id='TextSprite'>/**
+</span> * @class TextSprite
+ * @private
+ * Abstracts the underlying visual primitives for a text component
+ */
+
+(function() {
+  var ArtSprite,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  ArtSprite = (function(_super) {
+    __extends(ArtSprite, _super);
+
+    function ArtSprite() {
+      return ArtSprite.__super__.constructor.apply(this, arguments);
+    }
+
+    ArtSprite.prototype.clearInline = function() {
+      var cld, _i, _len, _ref, _results;
+      _ref = this.el.childNodes;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i &lt; _len; _i++) {
+        cld = _ref[_i];
+        if (cld &amp;&amp; cld.nodeType === 3) {
+          _results.push(this.el.removeChild(cld));
+        } else {
+          _results.push(void 0);
+        }
+      }
+      return _results;
+    };
+
+    return ArtSprite;
+
+  })(Sprite);
+
+  return ArtSprite;
+
+}).call(this);
+;
+    BitmapSprite = 
+<span id='BitmapSprite'>/**
+</span> * @class BitmapSprite
+ * @private
+ * Abstracts the underlying visual primitives for a bitmap component
+ */
+
+(function() {
+  var BitmapSprite,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  BitmapSprite = (function(_super) {
+    __extends(BitmapSprite, _super);
+
+    function BitmapSprite(view, jqel, attributes) {
+      BitmapSprite.__super__.constructor.apply(this, arguments);
+      this.el.style.backgroundSize = &#39;cover&#39;;
+    }
+
+    BitmapSprite.prototype.destroy = function() {
+      BitmapSprite.__super__.destroy.apply(this, arguments);
+      if (this._img) {
+        this._img.$view = null;
+        return this._img = null;
+      }
+    };
+
+    BitmapSprite.prototype.setSrc = function(v) {
+      var el, img, sprite, style, view;
+      el = this.el;
+      view = el.$view;
+      style = el.style;
+      if (!v) {
+        style.backgroundImage = &#39;&#39;;
+        if (view.inited) {
+          return view.sendEvent(&#39;load&#39;, {
+            width: 0,
+            height: 0
+          });
+        }
+      } else {
+        style.backgroundImage = &#39;url(&quot;&#39; + v + &#39;&quot;)&#39;;
+        style.backgroundRepeat = &#39;no-repeat&#39;;
+        img = this._img;
+        if (!img) {
+          img = this._img = new Image();
+          img.$view = view;
+        }
+        img.src = v;
+        sprite = this;
+        img.onload = function() {
+          view = this.$view;
+          if (view) {
+            sprite.naturalWidth = img.width;
+            sprite.naturalHeight = img.height;
+            if (sprite.naturalSize) {
+              view.setAttribute(&#39;width&#39;, img.width);
+              view.setAttribute(&#39;height&#39;, img.height);
+            }
+            return view.sendEvent(&#39;load&#39;, {
+              width: img.width,
+              height: img.height
+            });
+          }
+        };
+        return img.onerror = function() {
+          view = this.$view;
+          if (view) {
+            sprite.naturalWidth = sprite.naturalHeight = void 0;
+            return view.sendEvent(&#39;error&#39;, img);
+          }
+        };
+      }
+    };
+
+    BitmapSprite.prototype.setStretches = function(v) {
+      if (v === &#39;scale&#39;) {
+        v = &#39;contain&#39;;
+      } else if (v === &#39;true&#39;) {
+        v = &#39;100% 100%&#39;;
+      } else {
+        v = &#39;cover&#39;;
+      }
+      return this.el.style.backgroundSize = v;
+    };
+
+    BitmapSprite.prototype.setNaturalSize = function(v) {
+      var img, view;
+      this.naturalSize = v;
+      if (v) {
+        img = this._img;
+        if (img &amp;&amp; (this.naturalWidth != null) &amp;&amp; (this.naturalHeight != null)) {
+          view = img.$view;
+          view.setAttribute(&#39;width&#39;, this.naturalWidth);
+          return view.setAttribute(&#39;height&#39;, this.naturalHeight);
+        }
+      }
+    };
+
+    return BitmapSprite;
+
+  })(Sprite);
+
+  return BitmapSprite;
 
 }).call(this);
 ;
@@ -2682,7 +2883,7 @@
       this.opacity = 1;
       this.clip = this.scrollable = this.clickable = this.isaligned = this.isvaligned = this.ignorelayout = this.scrollbars = false;
       this.visible = true;
-      this._createSprite(el, attributes);
+      this.createSprite(Sprite, el, attributes);
       return View.__super__.construct.apply(this, arguments);
     };
 
@@ -2697,8 +2898,11 @@
       return View.__super__.initialize.apply(this, arguments);
     };
 
-    View.prototype._createSprite = function(el, attributes) {
-      return this.sprite = new Sprite(el, this, attributes.$tagname);
+    View.prototype.createSprite = function(spriteClass, el, attributes) {
+      if (spriteClass == null) {
+        spriteClass = Sprite;
+      }
+      return this.sprite = new spriteClass(this, el, attributes);
     };
 
     View.prototype.destroy = function(skipevents) {
@@ -2972,7 +3176,7 @@
       if (isNaN(v)) {
         v = 0;
       } else {
-        v = Math.max(0, Math.min(this.sprite.el.scrollWidth - this.width + this.leftborder + this.rightborder, v));
+        v = Math.max(0, Math.min(this.sprite.getScrollWidth() - this.width + this.leftborder + this.rightborder, v));
       }
       if (this.scrollx !== v) {
         this.sprite.set_scrollx(v);
@@ -2985,7 +3189,7 @@
       if (isNaN(v)) {
         v = 0;
       } else {
-        v = Math.max(0, Math.min(this.sprite.el.scrollHeight - this.height + this.topborder + this.bottomborder, v));
+        v = Math.max(0, Math.min(this.sprite.getScrollHeight() - this.height + this.topborder + this.bottomborder, v));
       }
       if (this.scrolly !== v) {
         this.sprite.set_scrolly(v);
@@ -3821,7 +4025,7 @@
           var el, url, _ref;
           if (!fileloaded[&#39;skin&#39;]) {
             fileloaded[&#39;skin&#39;] = true;
-            loadInclude(&quot;/classes/skin.dre&quot;);
+            loadInclude(DREEM_ROOT + &quot;classes/skin.dre&quot;);
           }
           _ref = findIncludeURLs();
           for (url in _ref) {
@@ -3846,7 +4050,7 @@
               el = _ref1[name];
               fileloaded[name] = true;
               if (name) {
-                loadInclude(&quot;/classes/&quot; + name.split(tagPackageSeparator).join(&#39;/&#39;) + &quot;.dre&quot;, el);
+                loadInclude(DREEM_ROOT + &quot;classes/&quot; + name.split(tagPackageSeparator).join(&#39;/&#39;) + &quot;.dre&quot;, el);
               }
             }
             $.when.apply($, filerequests).done(function() {
@@ -3870,20 +4074,20 @@
                 loadIncludes(callback);
                 return;
               }
-              oneurl = &#39;/lib/one_base.js&#39;;
+              oneurl = DREEM_ROOT + &#39;lib/one_base.js&#39;;
               return $.ajax({
                 dataType: &quot;script&quot;,
                 cache: true,
                 url: oneurl
               }).done(function() {
-                var _k, _len2, _ref2, _results;
+                var trimmedUrl, _k, _len2, _ref2, _results;
                 ONE.base_.call(Eventable.prototype);
                 Eventable.prototype.enumfalse(Eventable.prototype.keys());
                 Node.prototype.enumfalse(Node.prototype.keys());
                 View.prototype.enumfalse(View.prototype.keys());
                 Layout.prototype.enumfalse(Layout.prototype.keys());
                 State.prototype.enumfalse(State.prototype.keys());
-                loadScript(&#39;/lib/animator.js&#39;, callback, &#39;Missing /lib/animator.js&#39;);
+                loadScript(DREEM_ROOT + &#39;lib/animator.js&#39;, callback, &#39;Missing /lib/animator.js&#39;);
                 _ref2 = jqel.find(&#39;[scriptincludes]&#39;);
                 _results = [];
                 for (_k = 0, _len2 = _ref2.length; _k &lt; _len2; _k++) {
@@ -3894,7 +4098,11 @@
                     _results1 = [];
                     for (_l = 0, _len3 = _ref3.length; _l &lt; _len3; _l++) {
                       url = _ref3[_l];
-                      _results1.push(loadScript(url.trim(), callback, (_ref4 = el.attributes.scriptincludeserror) != null ? _ref4.value.toString() : void 0));
+                      trimmedUrl = url.trim();
+                      if (!(trimmedUrl.match(/^\w+:\/\//) || trimmedUrl.match(/^\//))) {
+                        trimmedUrl = DREEM_ROOT + trimmedUrl;
+                      }
+                      _results1.push(loadScript(trimmedUrl, callback, (_ref4 = el.attributes.scriptincludeserror) != null ? _ref4.value.toString() : void 0));
                     }
                     return _results1;
                   })());
@@ -4221,7 +4429,7 @@
         style = document.createElement(&#39;style&#39;);
         style.type = &#39;text/css&#39;;
         spriteStyle = [&quot;position:absolute&quot;, &quot;pointer-events:none&quot;, &quot;padding:0&quot;, &quot;margin:0&quot;, &quot;box-sizing:border-box&quot;, &quot;border-color:transparent&quot;, &quot;border-style:solid&quot;, &quot;border-width:0&quot;];
-        spriteTextStyle = [&quot;white-space:nowrap&quot;, &quot;padding:0&quot;, &quot;margin:0&quot;, &quot;text-decoration:none&quot;, &quot;font-family:mission-gothic, &#39;Helvetica Neue&#39;, Helvetica, Arial, sans-serif&quot;, &quot;font-size:20px&quot;];
+        spriteTextStyle = [&quot;white-space:nowrap&quot;, &quot;padding:0&quot;, &quot;margin:0&quot;, &quot;text-decoration:none&quot;, &quot;font-family:inherit&quot;, &quot;font-size:20px&quot;];
         spriteInputTextStyle = [&quot;border:none&quot;, &quot;outline:none&quot;, &quot;background-color:transparent&quot;, &quot;resize:none&quot;];
         noSelectStyle = [&quot;-webkit-touch-callout:none&quot;, &quot;-webkit-user-select:none&quot;, &quot;-khtml-user-select:none&quot;, &quot;-moz-user-select:none&quot;, &quot;-ms-user-select:none&quot;, &quot;user-select:none&quot;];
         warningsStyle = [&quot;font-size:14px&quot;, &quot;background-color:pink&quot;, &quot;margin:0&quot;];
@@ -5931,6 +6139,11 @@
       idle: new Idle(),
       state: State,
       _noop: noop,
+      _sprite: Sprite,
+      _textSprite: TextSprite,
+      _inputTextSprite: InputTextSprite,
+      _artSprite: ArtSprite,
+      _bitmapSprite: BitmapSprite,
 
 <span id='dr-method-initElements'>      /**
 </span>       * @method initElements

@@ -43,13 +43,16 @@ SOFTWARE. -->
     * @attribute {String} [bgcolor]
     * Sets this view's background color, same as setting defaultcolor.
     */-->
-  
   <method name="construct" args="el, attributes">
     if attributes.bgcolor
       attributes.defaultcolor = attributes.bgcolor
       delete attributes.bgcolor
     
     this.super()
+  </method>
+
+  <method name="createSprite" args="spriteClass, el, attributes">
+    return @super(dr._textSprite, el, attributes)
   </method>
 
   <handler event="oninit">

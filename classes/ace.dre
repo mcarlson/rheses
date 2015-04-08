@@ -20,157 +20,152 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. -->
 
-  <!--/**
-     * @class dr.ace {UI Components}
-     * @extends dr.view
-     * Ace editor component.
-     *
-     *     @example
-     *     <ace id="editor" width="500" text='Hello World'></ace>
-     *
-     * The initial text can also be included inline, and include dreem code.
-     *
-     *     @example wide
-     *     <ace id="editor" width="500"><view width="100%" height="100%" bgcolor="thistle"></view></ace>
-     *
-     */-->
+<!--/**
+   * @class dr.ace {UI Components}
+   * @extends dr.view
+   * Ace editor component.
+   *
+   *     @example
+   *     <ace id="editor" width="500" text='Hello World'></ace>
+   *
+   * The initial text can also be included inline, and include dreem code.
+   *
+   *     @example wide
+   *     <ace id="editor" width="500"><view width="100%" height="100%" bgcolor="thistle"></view></ace>
+   *
+   */-->
 <!-- Don't use until dr syntax highlighter is available via cdn
     <class name="ace" width="300" height="100" clickable="true" scriptincludes="http://cdnjs.cloudflare.com/ajax/libs/ace/1.1.3/ace.js">
 -->
+<!--/**
+  * @attribute {string} [theme='ace/theme/chrome']
+  * Specify the ace theme to use.
+  */-->
 
-      <!--/**
-        * @attribute {string} [theme='ace/theme/chrome']
-        * Specify the ace theme to use.
-        */-->
+<!--/**
+  * @attribute {string} [mode='ace/mode/dr']
+  * Specify the ace mode to use.
+  */-->
 
-      <!--/**
-        * @attribute {string} [mode='ace/mode/dr']
-        * Specify the ace mode to use.
-        */-->
+<!--/**
+  * @attribute {String} [text=""]
+  * Initial text for the ace editor.
+  */-->
 
-      <!--/**
-        * @attribute {String} [text=""]
-        * Initial text for the ace editor.
-        */-->
+<!--/**
+  * @event ontext
+  * Fired when the contents of the ace entry changes
+  * @param {dr.ace} view The dr.ace that fired the event
+  */-->
 
-      <!--/**
-        * @event ontext
-        * Fired when the contents of the ace entry changes
-        * @param {dr.ace} view The dr.ace that fired the event
-        */-->
+<!--/**
+  * @attribute {Number} [pausedelay=500]
+  * Time (msec) after user entry stops to fire onpausedelay event.
+  * 0 will disable this option.
+  */-->
 
-      <!--/**
-        * @attribute {Number} [pausedelay=500]
-        * Time (msec) after user entry stops to fire onpausedelay event.
-        * 0 will disable this option.
-        */-->
+<!--/**
+  * @event onpausedelay
+  * Fired when user entries stops for a period of time.
+  * @param {dr.ace} view The dr.ace that fired the event
+  */-->
+<class name="ace" width="300" height="100" clickable="true"
+  scriptincludes="lib/ace/src-noconflict/ace.js" initchildren="false"
+  type="coffee"
+>
+  <handler event="ondata" args="d">
+    @setAttribute('text', d)
+  </handler>
 
-      <!--/**
-        * @event onpausedelay
-        * Fired when user entries stops for a period of time.
-        * @param {dr.ace} view The dr.ace that fired the event
-        */-->
+  <attribute name="theme" type="string" value="ace/theme/chrome"/>
+  <handler event="ontheme">
+    if @editor then @editor.setTheme(@theme)
+  </handler>
 
-    <class name="ace" width="300" height="100" clickable="true" scriptincludes="/lib/ace/src-noconflict/ace.js" initchildren="false">
-      <handler event="ondata" args="d">
-        this.setAttribute('text', d)
-      </handler>
+  <attribute name="mode" type="string" value="ace/mode/dr"/>
+  <handler event="onmode">
+    if @editor then @editor.getSession().setMode(@mode)
+  </handler>
 
-      <attribute name="theme" type="string" value="ace/theme/chrome"/>
-      <handler event="ontheme">
-        if (this.editor)
-          this.editor.setTheme(this.theme);
-      </handler>
+  <setter name="text" args="text">
+    if @editor and @editor.getValue() isnt text
+      # console.log('set_text', text)
+      @editor.setValue(text)
+    return text
+  </setter>
 
-      <attribute name="mode" type="string" value="ace/mode/dr"/>
-      <handler event="onmode">
-        if (this.editor)
-          this.editor.getSession().setMode(this.mode);
-      </handler>
+  <handler event="onwidth" method="handleResize"></handler>
+  <handler event="onheight" method="handleResize"></handler>
 
-      <setter name="text" args="text">
-        if (this.editor && this.editor.getValue() != text) {
-          // console.log('set_text', text)
-          this.editor.setValue(text);
-        }
-        return text
-      </setter>
+  <attribute name="pausedelay" type="number" value="500"/>
+  <handler event="onpausedelay">
+    delete @_lastkeytime
+  </handler>
 
-      <handler event="onwidth" method="handleResize"></handler>
-      <handler event="onheight" method="handleResize"></handler>
+  <method name="createSprite" args="spriteClass, el, attributes">
+    return @super(dr._textSprite, el, attributes)
+  </method>
 
-      <attribute name="pausedelay" type="number" value="500"/>
-      <handler event="onpausedelay">
-        delete this._lastkeytime;
-      </handler>
+  <handler event="oninit">
+    # Get initial text (match behavior of inputtext)
+    text = @text or @sprite.getInnerHTML()
+    @sprite.setText('')
 
-      <handler event="oninit">
-        // Get initial text (match behavior of inputtext)
-        text = this.text || this.sprite.getInnerHTML();
-        this.sprite.setText('');
+    # I couldn't get jquery syntax to work so directly modify the DOM.
+    acediv = document.createElement("div")
+    acediv.style.position = "absolute"
+    acediv.style.width = @width
+    acediv.style.height = @height
+    @sprite.el.appendChild(acediv)
+    acediv.$init = true
 
-        // I couldn't get jquery syntax to work so directly modify the DOM.
-        var acediv = document.createElement("DIV");
-        acediv.style.position = "absolute";
-        acediv.style.width = this.width;
-        acediv.style.height = this.height;
-        this.sprite.el.appendChild(acediv);
-        acediv.$init = true;
+    # Keep track of original div in this.acediv, and editor in this.editor
+    @acediv = acediv
+    @editor = ace.edit(acediv)
 
-        // Keep track of original div in this.acediv, and editor in this.editor
-        this.acediv = acediv;
-        this.editor = ace.edit(acediv);
+    # Set a default theme and mode
+    @editor.setTheme(@theme)
+    @editor.getSession().setMode(@mode)
 
-        // Set a default theme and mode
-        this.editor.setTheme(this.theme);
-        this.editor.getSession().setMode(this.mode);
+    # Disable syntax checking
+    @editor.getSession().setUseWorker(false)
 
-	// Disable syntax checking
-	this.editor.getSession().setUseWorker(false);
+    # Text changes immediately update this.text
+    @editor.on("change", @handleChange)
 
-        // Text changes immediately update this.text
-        this.editor.on("change", this.handleChange);
+    # To remove line numbers, enable next line
+    #@editor.renderer.setShowGutter(false)
 
-        // To remove line numbers, enable next line
-        //this.editor.renderer.setShowGutter(false);
+    @editor.setValue(text)
+    @text = text
 
-        this.editor.setValue(text);
-        this.text = text;
+    #console.log("editor", @editor)
+  </handler>
 
-        //console.log("editor", this.editor);
-      </handler>
+  <method name="handleChange">
+    @setAttribute('text', @editor.getValue())
+    #console.log("handleChange", @text)
+    if @pausedelay > 0
+      @_lastkeytime = new Date()
+      #console.log("lastkeytime = ", @_lastkeytime)
+  </method>
 
-      <handler event="onbgcolor" args="color">
-      </handler>
+  <handler event="onidle" reference="dr.idle">
+    if @_lastkeytime
+      now = new Date()
+      elapsed = now - this._lastkeytime
+      if elapsed > @pausedelay
+        # Editor has been silent. Show onkeypause event
+        delete @_lastkeytime
+        @sendEvent('keypause', @)
+  </handler>
 
-      <method name="handleChange">
-        this.setAttribute('text', this.editor.getValue());
-        //console.log("handleChange", this.text);
-        if (this.pausedelay > 0) {
-          this._lastkeytime = new Date();
-          //console.log("lastkeytime = ", this._lastkeytime);
-        }
-      </method>
+  <method name="handleResize">
+    if @editor
+      @acediv.style.width = @width
+      @acediv.style.height = @height
 
-      <handler event="onidle" reference="dr.idle">
-        if (this._lastkeytime) {
-          var now = new Date();
-          var elapsed = now - this._lastkeytime;
-            if (elapsed > this.pausedelay) {
-            // Editor has been silent. Show onkeypause event
-            delete this._lastkeytime;
-            this.sendEvent('keypause', this);
-          }
-        }
-      </handler>
-
-      <method name="handleResize">
-        if (this.editor) {
-          this.acediv.style.width = this.width;
-          this.acediv.style.height = this.height;
-
-          this.editor.resize();
-          //console.log("handleResize");
-        }
-      </method>
-    </class>
+      @editor.resize()
+      #console.log("handleResize")
+  </method>
+</class>

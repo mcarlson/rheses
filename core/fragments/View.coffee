@@ -457,7 +457,7 @@ class View extends Node
     @visible = true
 
     # console.log 'sprite tagname', attributes.$tagname
-    @_createSprite(el, attributes)
+    @createSprite(Sprite, el, attributes)
     super
     # console.log 'new view', el, attributes, @
 
@@ -467,8 +467,8 @@ class View extends Node
     @__updateBounds()
     super
 
-  _createSprite: (el, attributes) ->
-    @sprite = new Sprite(el, @, attributes.$tagname)
+  createSprite: (spriteClass = Sprite, el, attributes) ->
+    @sprite = new spriteClass(@, el, attributes)
 
   destroy: (skipevents) ->
     # console.log 'destroy view', @
@@ -697,7 +697,7 @@ class View extends Node
     if isNaN v
       v = 0
     else
-      v = Math.max(0, Math.min(@sprite.el.scrollWidth - @width + @leftborder + @rightborder, v))
+      v = Math.max(0, Math.min(@sprite.getScrollWidth() - @width + @leftborder + @rightborder, v))
     if @scrollx isnt v
       @sprite.set_scrollx(v)
       @setAndFire('scrollx', v)
@@ -707,7 +707,7 @@ class View extends Node
     if isNaN v
       v = 0
     else
-      v = Math.max(0, Math.min(@sprite.el.scrollHeight - @height + @topborder + @bottomborder, v))
+      v = Math.max(0, Math.min(@sprite.getScrollHeight() - @height + @topborder + @bottomborder, v))
     if @scrolly isnt v
       @sprite.set_scrolly(v)
       @setAndFire('scrolly', v)

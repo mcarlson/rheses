@@ -158,9 +158,13 @@ window.dr = do ->
 
   Node = `~["include","fragments/Node.coffee"]~`
 ~["if","runtime","dali"]~
-  Sprite = `~["include","fragments/dali/Sprite.coffee"]~`
+  Sprite = `~["include","fragments/sprite/dali/Sprite.coffee"]~`
 ~["else"]~
-  Sprite = `~["include","fragments/Sprite.coffee"]~`
+  Sprite = `~["include","fragments/sprite/dom/Sprite.coffee"]~`
+  TextSprite = `~["include","fragments/sprite/dom/TextSprite.coffee"]~`
+  InputTextSprite = `~["include","fragments/sprite/dom/InputTextSprite.coffee"]~`
+  ArtSprite = `~["include","fragments/sprite/dom/ArtSprite.coffee"]~`
+  BitmapSprite = `~["include","fragments/sprite/dom/BitmapSprite.coffee"]~`
 ~["endif"]~
   View = `~["include","fragments/View.coffee"]~`
 
@@ -316,7 +320,7 @@ window.dr = do ->
         #preload skin
         unless fileloaded['skin']
           fileloaded['skin'] = true
-          loadInclude("/classes/skin.dre")
+          loadInclude(DREEM_ROOT + "classes/skin.dre")
 
       # load includes
         for url, el of findIncludeURLs()
@@ -340,7 +344,7 @@ window.dr = do ->
           # load missing classes
           for name, el of findMissingClasses()
             fileloaded[name] = true
-            loadInclude("/classes/" + name.split(tagPackageSeparator).join('/') + ".dre", el) if name
+            loadInclude(DREEM_ROOT + "classes/" + name.split(tagPackageSeparator).join('/') + ".dre", el) if name
             # console.log 'loading dre', name, url, el
 
           # console.log(filerequests, fileloaded, inlineclasses)
@@ -367,7 +371,7 @@ window.dr = do ->
             # find class script includes and load them in lexical order
 
             # initialize ONE integration
-            oneurl = '/lib/one_base.js'
+            oneurl = DREEM_ROOT + 'lib/one_base.js'
             $.ajax({
               dataType: "script",
               cache: true,
@@ -383,10 +387,12 @@ window.dr = do ->
               State::enumfalse(State::keys())
 
               # load scriptincludes
-              loadScript('/lib/animator.js', callback, 'Missing /lib/animator.js')
+              loadScript(DREEM_ROOT + 'lib/animator.js', callback, 'Missing /lib/animator.js')
               for el in jqel.find('[scriptincludes]')
                 for url in el.attributes.scriptincludes.value.split(',')
-                  loadScript(url.trim(), callback, el.attributes.scriptincludeserror?.value.toString())
+                  trimmedUrl = url.trim()
+                  trimmedUrl = DREEM_ROOT + trimmedUrl unless trimmedUrl.match(/^\w+:\/\//) || trimmedUrl.match(/^\//)
+                  loadScript(trimmedUrl, callback, el.attributes.scriptincludeserror?.value.toString())
             ).fail(() ->
               console.warn("failed to load #{oneurl}")
             )
@@ -470,7 +476,7 @@ window.dr = do ->
         console.warn 'could not find class for tag', tagname, el unless builtinTags[tagname]
         return
       else if builtinTags[tagname]
-        console.warn 'refusing to create a class that would overwrite the builtin tag', tagname unless tagname is 'input'
+        console.warn 'refusing to create a class that would overwrite the builtin tag', tagname unless (tagname is 'input' or tagname is 'textarea')
         return
 
       attributes = flattenattributes(el.attributes)
@@ -554,7 +560,7 @@ window.dr = do ->
         "padding:0"
         "margin:0"
         "text-decoration:none"
-        "font-family:mission-gothic, 'Helvetica Neue', Helvetica, Arial, sans-serif"
+        "font-family:inherit"
         "font-size:20px"
       ]
       spriteInputTextStyle = [
@@ -760,6 +766,11 @@ window.dr = do ->
     idle: new Idle()
     state: State
     _noop: noop
+    _sprite:Sprite
+    _textSprite:TextSprite
+    _inputTextSprite:InputTextSprite
+    _artSprite:ArtSprite
+    _bitmapSprite:BitmapSprite
     ###*
     # @method initElements
     # Initializes all top-level views found in the document. Called automatically when the page loads, but can be called manually as needed.

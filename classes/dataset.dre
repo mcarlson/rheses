@@ -76,7 +76,7 @@ SOFTWARE. -->
      *     <spacedlayout axis="y" spacing="5"></spacedlayout>
      *     <replicator classname="text" datapath="$example/store/book[*]/title"></replicator>
      */-->
-    <class name="dataset" type="coffee" extends="node" scriptincludes="/lib/json.async.js">
+    <class name="dataset" type="coffee" extends="node" scriptincludes="lib/json.async.js">
       <!--/**
         * @attribute {String} name (required)
         * The name of the dataset

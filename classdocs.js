@@ -1,44 +1,44 @@
 /**
-     * @class dr.ace {UI Components}
-     * @extends dr.view
-     * Ace editor component.
-     *
-     *     @example
-     *     <ace id="editor" width="500" text='Hello World'></ace>
-     *
-     * The initial text can also be included inline, and include dreem code.
-     *
-     *     @example wide
-     *     <ace id="editor" width="500"><view width="100%" height="100%" bgcolor="thistle"></view></ace>
-     *
-     */
+   * @class dr.ace {UI Components}
+   * @extends dr.view
+   * Ace editor component.
+   *
+   *     @example
+   *     <ace id="editor" width="500" text='Hello World'></ace>
+   *
+   * The initial text can also be included inline, and include dreem code.
+   *
+   *     @example wide
+   *     <ace id="editor" width="500"><view width="100%" height="100%" bgcolor="thistle"></view></ace>
+   *
+   */
 /**
-        * @attribute {string} [theme='ace/theme/chrome']
-        * Specify the ace theme to use.
-        */
+  * @attribute {string} [theme='ace/theme/chrome']
+  * Specify the ace theme to use.
+  */
 /**
-        * @attribute {string} [mode='ace/mode/dr']
-        * Specify the ace mode to use.
-        */
+  * @attribute {string} [mode='ace/mode/dr']
+  * Specify the ace mode to use.
+  */
 /**
-        * @attribute {String} [text=""]
-        * Initial text for the ace editor.
-        */
+  * @attribute {String} [text=""]
+  * Initial text for the ace editor.
+  */
 /**
-        * @event ontext
-        * Fired when the contents of the ace entry changes
-        * @param {dr.ace} view The dr.ace that fired the event
-        */
+  * @event ontext
+  * Fired when the contents of the ace entry changes
+  * @param {dr.ace} view The dr.ace that fired the event
+  */
 /**
-        * @attribute {Number} [pausedelay=500]
-        * Time (msec) after user entry stops to fire onpausedelay event.
-        * 0 will disable this option.
-        */
+  * @attribute {Number} [pausedelay=500]
+  * Time (msec) after user entry stops to fire onpausedelay event.
+  * 0 will disable this option.
+  */
 /**
-        * @event onpausedelay
-        * Fired when user entries stops for a period of time.
-        * @param {dr.ace} view The dr.ace that fired the event
-        */
+  * @event onpausedelay
+  * Fired when user entries stops for a period of time.
+  * @param {dr.ace} view The dr.ace that fired the event
+  */
 /**
       * @class dr.alignlayout {Layout}
       * @extends dr.variablelayout
@@ -286,117 +286,117 @@
       * Fired every step of the animation
       */
 /**
-     * @class dr.art {UI Components}
-     * @extends dr.view
-     * Vector graphics support using svg.
-     *
-     * This example shows how to load an existing svg
-     *
-     *     @example
-     *     <art width="100" height="100" src="/examples/img/siemens-clock.svg"></art>
-     *
-     * Paths within an svg can be selected using the path attribute
-     *
-     *     @example
-     *     <art width="100" height="100" src="/examples/img/cursorshapes.svg" path="0"></art>
-     *
-     * Attributes are automatically passed through to the SVG. Here, the fill color is changed
-     *
-     *     @example
-     *     <art width="100" height="100" src="/examples/img/cursorshapes.svg" path="0" fill="coral"></art>
-     *
-     * Setting the path attribute animates between paths. This example animates when the mouse is clicked
-     *
-     *     @example
-     *     <art width="100" height="100" src="/examples/img/cursorshapes.svg" path="0" fill="coral">
-     *       <handler event="onclick">
-     *         this.setAttribute('path', this.path ^ 1);
-     *       </handler>
-     *     </art>
-     *
-     * The animationframe attribute controls which frame is displayed. The
-     * value is a floating point number to display a frame between two
-     * keyframes. For example, 1.4 will display the frame 40% between
-     * paths 1 and 2. This example will animate between keyframes 0, 1, 2.
-     *
-     *     @example
-     *     <art id="art_3" width="100" height="100" src="/examples/img/cursorshapes.svg" path="0" fill="coral" animationspeed="1000" animationcurve="linear">
-     *       <handler event="onclick">
-     *         this.setAttribute('animationframe', 0);
-     *         this.animate({animationframe: 2}, 1000);
-     *       </handler>
-     *     </art>
-     *
-     * By default, the SVG's aspect ratio is preserved. Set the stretches attribute to true to change this behavior.
-     *
-     *     @example
-     *     <art width="200" height="100" src="/examples/img/cursorshapes.svg" path="0" fill="coral" stretches="true">
-     *       <handler event="onclick">
-     *         this.setAttribute('path', this.path ^ 1);
-     *         this.animate({width: (this.width == 200 ? 100 : 200)});
-     *       </handler>
-     *     </art>
-     *
-     * The art component can work with the animator component to control which
-     * frame is displayed. For example, this will animate the graphic between
-     * frames 0, 1, 2, 3, and display the frame inside the component.
-     *
-     *     @example
-     *     <class name="centertext2" extends="text" color="white" height="40" x="${this.parent.width/2-this.width/2}" y="${this.parent.height/2-this.height/2}">
-     *       <method name="format" args="value">
-     *         if (value < 0.0) return '';
-     *         return value.toFixed(2);
-     *       </method>
-     *     </class>
-     *     <art id="art_1" width="100" height="100" src="/examples/img/cursorshapes.svg" path="0" stroke="coral" fill="coral" stretches="true">
-     *       <centertext2 text="${this.parent.animationframe}"></centertext2>
-     *       <animator start="0" from="0" to="3" attribute="animationframe" duration="4000" motion = "outBounce" repeat="1">
-     *       </animator>
-     *     </art>
-     *
-     */
+ * @class dr.art {UI Components}
+ * @extends dr.view
+ * Vector graphics support using svg.
+ *
+ * This example shows how to load an existing svg
+ *
+ *     @example
+ *     <art width="100" height="100" src="${DREEM_ROOT + 'examples/img/siemens-clock.svg'}"></art>
+ *
+ * Paths within an svg can be selected using the path attribute
+ *
+ *     @example
+ *     <art width="100" height="100" src="${DREEM_ROOT + 'examples/img/cursorshapes.svg'}" path="0"></art>
+ *
+ * Attributes are automatically passed through to the SVG. Here, the fill color is changed
+ *
+ *     @example
+ *     <art width="100" height="100" src="${DREEM_ROOT + 'examples/img/cursorshapes.svg'}" path="0" fill="coral"></art>
+ *
+ * Setting the path attribute animates between paths. This example animates when the mouse is clicked
+ *
+ *     @example
+ *     <art width="100" height="100" src="${DREEM_ROOT + 'examples/img/cursorshapes.svg'}" path="0" fill="coral">
+ *       <handler event="onclick">
+ *         this.setAttribute('path', this.path ^ 1);
+ *       </handler>
+ *     </art>
+ *
+ * The animationframe attribute controls which frame is displayed. The
+ * value is a floating point number to display a frame between two
+ * keyframes. For example, 1.4 will display the frame 40% between
+ * paths 1 and 2. This example will animate between keyframes 0, 1, 2.
+ *
+ *     @example
+ *     <art id="art_3" width="100" height="100" src="${DREEM_ROOT + 'examples/img/cursorshapes.svg'}" path="0" fill="coral" animationspeed="1000" animationcurve="linear">
+ *       <handler event="onclick">
+ *         this.setAttribute('animationframe', 0);
+ *         this.animate({animationframe: 2}, 1000);
+ *       </handler>
+ *     </art>
+ *
+ * By default, the SVG's aspect ratio is preserved. Set the stretches attribute to true to change this behavior.
+ *
+ *     @example
+ *     <art width="200" height="100" src="${DREEM_ROOT + 'examples/img/cursorshapes.svg'}" path="0" fill="coral" stretches="true">
+ *       <handler event="onclick">
+ *         this.setAttribute('path', this.path ^ 1);
+ *         this.animate({width: (this.width == 200 ? 100 : 200)});
+ *       </handler>
+ *     </art>
+ *
+ * The art component can work with the animator component to control which
+ * frame is displayed. For example, this will animate the graphic between
+ * frames 0, 1, 2, 3, and display the frame inside the component.
+ *
+ *     @example
+ *     <class name="centertext2" extends="text" color="white" height="40" x="${this.parent.width/2-this.width/2}" y="${this.parent.height/2-this.height/2}">
+ *       <method name="format" args="value">
+ *         if (value < 0.0) return '';
+ *         return value.toFixed(2);
+ *       </method>
+ *     </class>
+ *     <art id="art_1" width="100" height="100" src="${DREEM_ROOT + 'examples/img/cursorshapes.svg'}" path="0" stroke="coral" fill="coral" stretches="true">
+ *       <centertext2 text="${this.parent.animationframe}"></centertext2>
+ *       <animator start="0" from="0" to="3" attribute="animationframe" duration="4000" motion = "outBounce" repeat="1">
+ *       </animator>
+ *     </art>
+ *
+ */
 /**
-        * @attribute {Boolean} [inline=false]
-        * Set to true if the svg contents is found inline, as a comment
-        */
+  * @attribute {Boolean} [inline=false]
+  * Set to true if the svg contents is found inline, as a comment
+  */
 /**
-        * @attribute {Boolean} stretches [stretches=false]
-        * Set to true to stretch the svg to fill the view.
-        */
+  * @attribute {Boolean} stretches [stretches=false]
+  * Set to true to stretch the svg to fill the view.
+  */
 /**
-        * @attribute {Boolean} [resize=false]
-        * By default, the art component size is fixed to the specified size.
-        * By setting resize=true, the art component is sized to the size 
-        * embedded in the svg.
-        */
+  * @attribute {Boolean} [resize=false]
+  * By default, the art component size is fixed to the specified size.
+  * By setting resize=true, the art component is sized to the size 
+  * embedded in the svg.
+  */
 /**
-        * @attribute {String} src
-        * The svg contents to load
-        */
+  * @attribute {String} src
+  * The svg contents to load
+  */
 /**
-        * @attribute {String|Number} path
-        * The svg path element to display. Can either be the name of the &lt;g&gt; element containing the path or a 0-based index.
-        */
+  * @attribute {String|Number} path
+  * The svg path element to display. Can either be the name of the &lt;g&gt; element containing the path or a 0-based index.
+  */
 /**
-        * @attribute {Number} [animationspeed=400]
-        * The number of milliseconds to use when animating between paths
-        */
+  * @attribute {Number} [animationspeed=400]
+  * The number of milliseconds to use when animating between paths
+  */
 /**
-        * @attribute {Number} [animationframe=0]
-        * The current animation frame
-        */
+  * @attribute {Number} [animationframe=0]
+  * The current animation frame
+  */
 /**
-        * @attribute {"linear"/"easeout"/"easein"/"easeinout"/"backin"/"backout"/"elastic"/"bounce"} [animationcurve="linear"]
-        * The name of the curve to use when animating between paths
-        */
+  * @attribute {"linear"/"easeout"/"easein"/"easeinout"/"backin"/"backout"/"elastic"/"bounce"} [animationcurve="linear"]
+  * The name of the curve to use when animating between paths
+  */
 /**
-        * @event onready
-        * Fired when the art is loaded and ready
-        */
+  * @event onready
+  * Fired when the art is loaded and ready
+  */
 /**
-        * @event ontween
-        * Fired when the art has animated its path to the next position
-        */
+  * @event ontween
+  * Fired when the art has animated its path to the next position
+  */
 /**
      * @class dr.audioplayer {UI Components}
      * @extends dr.node
@@ -405,7 +405,13 @@
      * This example shows how to load and play an mp3 audio file from the server:
      *
      *     @example
-     *     <audioplayer url="/examples/music/YACHT_-_09_-_Im_In_Love_With_A_Ripper_Party_Mix_Instrumental.mp3" playing="true"></audioplayer>
+     *     <audioplayer id="player" url="${DREEM_ROOT + 'examples/music/YACHT_-_09_-_Im_In_Love_With_A_Ripper_Party_Mix_Instrumental.mp3'}" playing="true"></audioplayer>
+     *     <labelbutton text="Stop Player">
+     *       <handler event="onclick">
+     *         player.setAttribute('playing', !player.playing)
+     *         this.setAttribute('text', (player.playing ? 'Stop' : 'Start') + ' Player')
+     *       </handler>
+     *     </labelbutton>
      */
 /**
         * @attribute {String} url
@@ -457,39 +463,44 @@
         * An array of numbers representing the FFT analysis of the audio as it's playing.
         */
 /**
-     * @class dr.bitmap {UI Components}
-     * @extends dr.view
-     * Loads an image from a URL.
-     *
-     *     @example
-     *     <bitmap src="../api-examples-resources/shasta.jpg" width="230" height="161"></bitmap>
-     *
-     * Stretch an image to fill the entire view.
-     *     @example
-     *     <bitmap src="../api-examples-resources/shasta.jpg" width="300" height="150" stretches="true"></bitmap>
-     *
-     */
+    * @class dr.bitmap {UI Components}
+    * @extends dr.view
+    * Loads an image from a URL.
+    *
+    *     @example
+    *     <bitmap src="../api-examples-resources/shasta.jpg" width="230" height="161"></bitmap>
+    *
+    * Stretch an image to fill the entire view.
+    *     @example
+    *     <bitmap src="../api-examples-resources/shasta.jpg" width="300" height="150" stretches="true"></bitmap>
+    *
+    */
 /**
-        * @attribute {String} src
-        * The bitmap URL to load
-        */
+      * @attribute {String} [src='']
+      * The URL of the bitmap file to load.
+      */
 /**
-               * @event onload 
-               * Fired when the bitmap is loaded
-               * @param {Object} size An object containing the width and height
-               */
+      * @event onload 
+      * Fired when the bitmap is loaded
+      * @param {Object} size An object containing the width and height
+      */
 /**
-               * @event onerror 
-               * Fired when there is an error loading the bitmap
-               */
+      * @event onerror 
+      * Fired when there is an error loading the bitmap
+      */
 /**
-        * @attribute {String} [stretches=false]
-        * How the image is scaled to the size of the view.
-        * Supported values are 'true', 'false', 'scale'.
-        * false will scale the image to completely fill the view, but may obscure parts of the image.
-        * true will stretch the image to fit the view.
-        * scale will scale the image so it visible within the view, but the image may not fill the entire view.
-        */
+      * @attribute {String} [stretches=false]
+      * How the image is scaled to the size of the view.
+      * Supported values are 'true', 'false', 'scale'.
+      * false will scale the image to completely fill the view, but may obscure parts of the image.
+      * true will stretch the image to fit the view.
+      * scale will scale the image so it visible within the view, but the image may not fill the entire view.
+      */
+/**
+      * @attribute {Boolean} [naturalsize=false]
+      * If set to true the bitmap will be sized to the width/height of the
+      * bitmap data in pixels.
+      */
 /**
       * @class dr.bitmapbutton {Deprecated}
       * @extends dr.statebutton
@@ -863,39 +874,39 @@
      *
      */
 /**
-       * @event onselect
-       * Fired when an inputtext is selected
-       * @param {dr.view} view The view that fired the event
-       */
+   * @event onselect
+   * Fired when an inputtext is selected
+   * @param {dr.view} view The view that fired the event
+   */
 /**
-       * @event onchange
-       * Fired when an inputtext has changed
-       * @param {dr.view} view The view that fired the event
-       */
+   * @event onchange
+   * Fired when an inputtext has changed
+   * @param {dr.view} view The view that fired the event
+   */
 /**
-       * @event onfocus
-       * Fired when an inputtext is focused
-       * @param {dr.view} view The view that fired the event
-       */
+   * @event onfocus
+   * Fired when an inputtext is focused
+   * @param {dr.view} view The view that fired the event
+   */
 /**
-       * @event onblur
-       * Fired when an inputtext is blurred or loses focus
-       * @param {dr.view} view The view that fired the event
-       */
+   * @event onblur
+   * Fired when an inputtext is blurred or loses focus
+   * @param {dr.view} view The view that fired the event
+   */
 /**
-       * @event onkeydown
-       * Fired when a key goes down
-       * @param {Object} keys An object representing the keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
-       */
+   * @event onkeydown
+   * Fired when a key goes down
+   * @param {Object} keys An object representing the keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
+   */
 /**
-       * @event onkeyup
-       * Fired when a key goes up
-       * @param {Object} keys An object representing the keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
-       */
+   * @event onkeyup
+   * Fired when a key goes up
+   * @param {Object} keys An object representing the keyboard state, including shiftKey, allocation, ctrlKey, metaKey, keyCode and type
+   */
 /**
-       * @attribute {Boolean} [multiline=false]
-       * Set to true for a multi-line input text field
-       */
+   * @attribute {Boolean} [multiline=false]
+   * Set to true for a multi-line input text field
+   */
 /**
        * @attribute {String} [text=""]
        * The contents of this input text field
@@ -953,7 +964,7 @@
    *
    *     @example
    *     <text italic="true" fontsize="14">(please open the console to see the output of this example)</text>
-   *     <dataset name="topmovies" url="/examples/data/top_movies.json"></dataset>
+   *     <dataset name="topmovies" url="${DREEM_ROOT + 'examples/data/top_movies.json'}"></dataset>
    *     <replicator datapath="$topmovies/searchResponse/results[*]/movie[take(/releaseYear,/duration,/rating)]" classname="logger"></replicator>
    */
 /**
@@ -1012,18 +1023,22 @@
  *     <text italic="true" fontsize="14">(please open the console to see the output of this example)</text>
  *     <microphone id="mic" modifystream="true" visualize="false" stream="true">
  *       <method name="processStream" args="audio">
- *	       if (!audio) return;
+ *         if (!audio) return;
  *
- *	       var inputBuffer = audio.inputBuffer;
- *	       var left = inputBuffer.getChannelData(0);
- *	       var right = inputBuffer.getChannelData(1);
+ *         var inputBuffer = audio.inputBuffer;
+ *         var left = inputBuffer.getChannelData(0);
+ *         var right = inputBuffer.getChannelData(1);
  *
- *	       var min = Math.min.apply(null, left);
- *	       var max = Math.max.apply(null, right);
- *	       console.log('min', min, 'max', max);
+ *         var min = Math.min.apply(null, left);
+ *         var max = Math.max.apply(null, right);
  *       </method>
- *
  *     </microphone>
+ *     <labelbutton text="Stop Recording">
+ *       <handler event="onclick">
+ *         mic.setAttribute('recording', !mic.recording)
+ *         this.setAttribute('text', (mic.recording ? 'Stop' : 'Start') + ' Recording')
+ *       </handler>
+ *     </labelbutton>
  *
  */
 /**
@@ -1752,11 +1767,11 @@
       * 
       */
 /**
-          * @attribute {Number} [fontsize]
-          * The size of the font in pixels.
-          */
+        * @attribute {Number} [fontsize]
+        * The size of the font in pixels.
+        */
 /**
-        * @attribute {Number} [fontfamily=""]
+        * @attribute {String} [fontfamily=""]
         * The name of the font family to use, e.g. "Helvetica"  Include multiple fonts on a line, separated by commas.
         */
 /**

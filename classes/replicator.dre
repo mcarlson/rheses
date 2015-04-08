@@ -162,7 +162,7 @@ SOFTWARE. -->
      *
      * See [https://github.com/flitbit/json-path](https://github.com/flitbit/json-path) for more details.
      */-->
-    <class name="replicator" type="coffee" extends="node" scriptincludes="/lib/json-path+json-ptr-0.1.3.min.js">
+    <class name="replicator" type="coffee" extends="node" scriptincludes="lib/json-path+json-ptr-0.1.3.min.js">
       <!--/**
         * @attribute {Boolean} [pooling=false]
         * If true, reuse views when replicating.
