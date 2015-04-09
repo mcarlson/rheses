@@ -17,9 +17,10 @@
 #           this.super();
 #         </method>
 #       </spacedlayout>
-#       <view width="50" height="50" bgcolor="lightpink" opacity=".3"></view>
+#       <view width="50" height="50" bgcolor="pink" opacity=".3"></view>
 #       <view width="50" height="50" bgcolor="plum" opacity=".3"></view>
 #       <view width="50" height="50" bgcolor="lightblue" opacity=".3"></view>
+#       <view width="50" height="50" bgcolor="blue" opacity=".3"></view>
 #     </view>
 #
 #     <text id="output" multiline="true" width="300"></text>

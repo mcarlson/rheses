@@ -4993,9 +4993,10 @@
  *           this.super();
  *         &lt;/method&gt;
  *       &lt;/spacedlayout&gt;
- *       &lt;view width=&quot;50&quot; height=&quot;50&quot; bgcolor=&quot;lightpink&quot; opacity=&quot;.3&quot;&gt;&lt;/view&gt;
+ *       &lt;view width=&quot;50&quot; height=&quot;50&quot; bgcolor=&quot;pink&quot; opacity=&quot;.3&quot;&gt;&lt;/view&gt;
  *       &lt;view width=&quot;50&quot; height=&quot;50&quot; bgcolor=&quot;plum&quot; opacity=&quot;.3&quot;&gt;&lt;/view&gt;
  *       &lt;view width=&quot;50&quot; height=&quot;50&quot; bgcolor=&quot;lightblue&quot; opacity=&quot;.3&quot;&gt;&lt;/view&gt;
+ *       &lt;view width=&quot;50&quot; height=&quot;50&quot; bgcolor=&quot;blue&quot; opacity=&quot;.3&quot;&gt;&lt;/view&gt;
  *     &lt;/view&gt;
  *
  *     &lt;text id=&quot;output&quot; multiline=&quot;true&quot; width=&quot;300&quot;&gt;&lt;/text&gt;
@@ -5654,7 +5655,7 @@
  *       milis.setAttribute(&#39;text&#39;, idleStatus);
  *     &lt;/handler&gt;
  *
- *     &lt;spacedlayout&gt;&lt;/spacedlayout&gt;
+ *     &lt;spacedlayout axis=&quot;y&quot; spacing=&quot;5&quot;&gt;&lt;/spacedlayout&gt;
  *     &lt;text text=&quot;Milliseconds since app started: &quot;&gt;&lt;/text&gt;
  *     &lt;text id=&quot;milis&quot;&gt;&lt;/text&gt;
  */
@@ -5733,11 +5734,11 @@
  *     &lt;view id=&quot;mousetracker&quot; width=&quot;20&quot; height=&quot;20&quot; bgcolor=&quot;MediumTurquoise&quot;&gt;&lt;/view&gt;
  *
  *     &lt;handler event=&quot;onx&quot; args=&quot;x&quot; reference=&quot;dr.mouse&quot;&gt;
- *       mousetracker.setAttribute(&#39;x&#39;, x);
+ *       mousetracker.setAttribute(&#39;x&#39;, x - mousetracker.width);
  *     &lt;/handler&gt;
  *
  *     &lt;handler event=&quot;ony&quot; args=&quot;y&quot; reference=&quot;dr.mouse&quot;&gt;
- *       mousetracker.setAttribute(&#39;y&#39;, y);
+ *       mousetracker.setAttribute(&#39;y&#39;, y - mousetracker.height);
  *     &lt;/handler&gt;
  *
  *
@@ -6293,8 +6294,8 @@
      *        exampleLabel.setAttribute(&quot;text&quot;, &quot;Parent view received width value of &quot; + widthValue)
      *     &lt;/handler&gt;
      *
-     *     &lt;text id=&quot;exampleLabel&quot; x=&quot;50&quot; y=&quot;5&quot; text=&quot;no value yet&quot; color=&quot;coral&quot; outline=&quot;1px dotted coral&quot; padding=&quot;10px&quot;&gt;&lt;/text&gt;
-     *     &lt;text x=&quot;50&quot; y=&quot;${exampleLabel.y + exampleLabel.height + 20}&quot; text=&quot;no value yet&quot; color=&quot;white&quot; bgcolor=&quot;#DDAA00&quot; padding=&quot;10px&quot;&gt;
+     *     &lt;text id=&quot;exampleLabel&quot; x=&quot;50&quot; y=&quot;5&quot; text=&quot;no value yet&quot; color=&quot;coral&quot; outline=&quot;1px dotted coral&quot; padding=&quot;10&quot;&gt;&lt;/text&gt;
+     *     &lt;text x=&quot;50&quot; y=&quot;${exampleLabel.y + exampleLabel.height + 20}&quot; text=&quot;no value yet&quot; color=&quot;white&quot; bgcolor=&quot;#DDAA00&quot; padding=&quot;10&quot;&gt;
      *       &lt;handler event=&quot;onwidth&quot; args=&quot;wValue&quot;&gt;
      *          this.setAttribute(&quot;text&quot;, &quot;This label received width value of &quot; + wValue)
      *       &lt;/handler&gt;
@@ -6340,6 +6341,8 @@
 
 <span id='dr-attribute'>    /**
 </span>     * @class dr.attribute {Core Dreem, Events}
+     * @aside guide constraints
+     *
      * Adds a variable to a node, view, class or other class instance. Attributes can only be created with the &amp;lt;attribute&gt;&amp;lt;/attribute&gt; tag syntax.
      *
      * Attributes allow classes to declare new variables with a specific type and default value.

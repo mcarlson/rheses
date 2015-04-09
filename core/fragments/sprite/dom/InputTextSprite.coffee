@@ -9,6 +9,7 @@ class InputTextSprite extends TextSprite
     super
     attributes.text ||= @getText()
 
+    input = null
     if attributes.multiline is 'true'
       input = document.createElement('textarea')
     else
@@ -17,9 +18,9 @@ class InputTextSprite extends TextSprite
     
     # don't try to init this tag
     input.$init = true
-    
+
     input.setAttribute('class', 'sprite-inputtext')
-    
+
     @setStyle('color', 'inherit', false, input)
     @setStyle('background', 'inherit', false, input)
     @setStyle('font-variant', 'inherit', false, input)
@@ -27,6 +28,8 @@ class InputTextSprite extends TextSprite
     @setStyle('font-weight', 'inherit', false, input)
     @setStyle('font-size', 'inherit', false, input)
     @setStyle('font-family', 'inherit', false, input)
+    @setStyle('width', '100%', false, input)
+    @setStyle('height', '100%', false, input)
 
     @el.appendChild(input)
 

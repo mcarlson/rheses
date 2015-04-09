@@ -8,7 +8,7 @@
 #       milis.setAttribute('text', idleStatus);
 #     </handler>
 #
-#     <spacedlayout></spacedlayout>
+#     <spacedlayout axis="y" spacing="5"></spacedlayout>
 #     <text text="Milliseconds since app started: "></text>
 #     <text id="milis"></text>
 ###

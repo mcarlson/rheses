@@ -32,7 +32,7 @@ SOFTWARE. -->
       *  Here is a multiline text
       * 
       *      @example
-      *      <text multiline="true" text="Lorem ipsum dolor sit amet, consectetur adipiscing elit"></text>
+      *      <text multiline="true" width="200" text="Lorem ipsum dolor sit amet, consectetur adipiscing elit"></text>
       * 
       *  You might want to set the value of a text element based on the value of other attributes via a constraint. Here we set the value by concatenating three attributes together.
       * 

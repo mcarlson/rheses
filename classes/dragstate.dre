@@ -32,6 +32,7 @@ SOFTWARE. -->
       *
       *     @example
       *     <view width="100" height="100" bgcolor="plum">
+      *       <text text="DRAG ME!"></text>
       *       <attribute name="mouseIsDown" type="boolean" value="false"></attribute>
       *       <handler event="onmousedown">
       *         this.setAttribute('mouseIsDown', true);
@@ -50,6 +51,7 @@ SOFTWARE. -->
       *
       *     @example
       *     <view width="100" height="100" bgcolor="plum">
+      *       <text text="DRAG ME!"></text>
       *       <attribute name="mouseIsDown" type="boolean" value="false"></attribute>
       *       <handler event="onmousedown">
       *         this.setAttribute('mouseIsDown', true);

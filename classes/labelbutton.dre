@@ -30,7 +30,7 @@ SOFTWARE. -->
    *     @example
    *     <spacedlayout axis="y"></spacedlayout>
    *
-   *     <labelbutton text="click me" defaultcolor="plum" selectcolor="orchid">
+   *     <labelbutton text="click me">
    *       <handler event="onclick">
    *         hello.setAttribute('text', 'Hello Universe!');
    *       </handler>
@@ -105,7 +105,7 @@ SOFTWARE. -->
 
   <attribute name="indicatorsize" type="number" value="10"></attribute>
 
-  <art name="indicator" clickable="false" inline="true" x="0" y="${this.parent.height - (this.parent.border || this.parent.bottomborder || 0) - this.height - this.parent.indicatorsize}" height="${this.parent.indicatorsize}" width="${this.parent.indicatorsize}" z="1">
+  <art visible="false" name="indicator" clickable="false" inline="true" x="0" y="${this.parent.height - (this.parent.border || this.parent.bottomborder || 0) - this.height - this.parent.indicatorsize}" height="${this.parent.indicatorsize}" width="${this.parent.indicatorsize}" z="1">
       <!--
       <svg name="triangle" height="100" width="100">
           <polygon name="polygon" points="0,100 0,0 100,100"/>

@@ -476,7 +476,7 @@ window.dr = do ->
         console.warn 'could not find class for tag', tagname, el unless builtinTags[tagname]
         return
       else if builtinTags[tagname]
-        console.warn 'refusing to create a class that would overwrite the builtin tag', tagname unless tagname is 'input'
+        console.warn 'refusing to create a class that would overwrite the builtin tag', tagname unless (tagname is 'input' or tagname is 'textarea')
         return
 
       attributes = flattenattributes(el.attributes)
@@ -914,8 +914,8 @@ window.dr = do ->
   #        exampleLabel.setAttribute("text", "Parent view received width value of " + widthValue)
   #     </handler>
   #
-  #     <text id="exampleLabel" x="50" y="5" text="no value yet" color="coral" outline="1px dotted coral" padding="10px"></text>
-  #     <text x="50" y="${exampleLabel.y + exampleLabel.height + 20}" text="no value yet" color="white" bgcolor="#DDAA00" padding="10px">
+  #     <text id="exampleLabel" x="50" y="5" text="no value yet" color="coral" outline="1px dotted coral" padding="10"></text>
+  #     <text x="50" y="${exampleLabel.y + exampleLabel.height + 20}" text="no value yet" color="white" bgcolor="#DDAA00" padding="10">
   #       <handler event="onwidth" args="wValue">
   #          this.setAttribute("text", "This label received width value of " + wValue)
   #       </handler>
@@ -956,6 +956,8 @@ window.dr = do ->
 
   ###*
   # @class dr.attribute {Core Dreem, Events}
+  # @aside guide constraints
+  #
   # Adds a variable to a node, view, class or other class instance. Attributes can only be created with the &lt;attribute>&lt;/attribute> tag syntax.
   #
   # Attributes allow classes to declare new variables with a specific type and default value.

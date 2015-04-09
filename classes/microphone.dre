@@ -28,6 +28,7 @@ SOFTWARE. -->
  * amplifying the audio signal
  *
  *     @example
+ *     <text italic="true" fontsize="14">(please open the console to see the output of this example)</text>
  *     <microphone id="mic" modifystream="true" visualize="false" stream="true">
  *       <method name="processStream" args="audio">
  *         if (!audio) return;

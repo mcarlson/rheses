@@ -1,3 +1,24 @@
+<!--/**
+   * @class dr.skin {UI Components}
+   * @extends dr.view
+   * @aside guide skin
+   *
+   * A Skin a collection of cascading attribute configuration templates that can applied on top of Dreem objects.
+   *
+   *     @example
+   *     <skin name="example">
+   *       <text color="red" bgcolor="blue"></text>
+   *     </skin>
+   *
+   *     <spacedlayout axis="y" spacing="10"></spacedlayout>
+   *
+   *     <text text="This uses the default skin"></text>
+   *
+   *     <text skin="example" text="This uses the 'example' skin"></text>
+   *
+   */-->
+
+
 <class type="coffee" name="skin" initchildren="false" visible="false">
 
     <setter name="name" args="name">
@@ -71,7 +92,7 @@
 
         for key, value of attrs
           continue if key == 'name'
-          if !view.$instanceattributes || !view.$instanceattributes[key]
+          if override || !view.$instanceattributes || !view.$instanceattributes[key]
             if typeof(value) == 'string'
               view.setAttribute(key, value)
             else if child = view[key]
@@ -90,12 +111,12 @@
 <skin name="default">
   <text fontweight="200" clip="true" color="white" fontsize="20" fontfamily="'mission-gothic', 'Helvetica Neue', Helvetica, Arial, sans-serif"></text>
 
-  <inputtext color="white" fontweight="300" fontsize="20" leftpadding="10" leftborder="2" bottomborder="2" bordercolor="white" fontfamily="'mission-gothic', 'Helvetica Neue', Helvetica, Arial, sans-serif">
-    <art name="indicator" fill="white" x="-5"></art>
+  <inputtext color="white" height="32" fontweight="300" fontsize="20" leftpadding="12" leftborder="2" bottomborder="2" bordercolor="white" fontfamily="'mission-gothic', 'Helvetica Neue', Helvetica, Arial, sans-serif">
+    <art name="indicator" fill="white" x="-9" visible="true"></art>
   </inputtext>
 
   <labelbutton border="2" padding="3" textcolor="rgb(207,207,207)" defaultcolor="rgb(63,63,63)">
-    <art name="indicator" fill="white"></art>
+    <art visible="true" name="indicator" fill="white"></art>
     <text color="rgb(207,207,207)" name="label" fontweight="200" text-transform="uppercase" fontsize="20" fontfamily="'mission-gothic', 'Helvetica Neue', Helvetica, Arial, sans-serif"></text>
   </labelbutton>
 
@@ -115,7 +136,7 @@
   </checkbutton>
 
   <labeltoggle border="2" padding="3" textcolor="rgb(207,207,207)" defaultcolor="rgb(63,63,63)">
-    <art name="indicator" fill="white"></art>
+    <art visible="true" name="indicator" fill="white"></art>
     <text color="rgb(207,207,207)" name="label" text-transform="uppercase" fontweight="200" fontsize="20" fontfamily="'mission-gothic', 'Helvetica Neue', Helvetica, Arial, sans-serif"></text>
   </labeltoggle>
 </skin>

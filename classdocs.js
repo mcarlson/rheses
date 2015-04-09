@@ -651,10 +651,10 @@
       *     @example
       *     <constantlayout attribute="y" value="10"></constantlayout>
       *
-      *     <view width="100" height="25" bgcolor="lightpink"></view>
-      *     <view width="100" height="25" bgcolor="plum"></view>
-      *     <view ignorelayout="true" width="100" height="25" bgcolor="black"></view>
-      *     <view width="100" height="25" bgcolor="lightblue"></view>
+      *     <view x="0" width="100" height="25" bgcolor="lightpink"></view>
+      *     <view x="100" width="100" height="25" bgcolor="plum"></view>
+      *     <view x="200" ignorelayout="true" width="100" height="25" bgcolor="black"></view>
+      *     <view x="300" width="100" height="25" bgcolor="lightblue"></view>
       */
 /**
     * @attribute {String} [attribute=x]
@@ -715,14 +715,14 @@
      *        }
      *      }
      *     </dataset>
-     *     <spacedlayout></spacedlayout>
+     *     <spacedlayout axis="y" spacing="5"></spacedlayout>
      *     <replicator classname="text" datapath="$example/store/book[*]/title"></replicator>
      *
      * Data can be loaded from a URL when your backend server is ready, or reloaded to show changes over time:
      *
      *     @example wide
      *     <dataset name="example" url="/examples/data/example.json"></dataset>
-     *     <spacedlayout></spacedlayout>
+     *     <spacedlayout axis="y" spacing="5"></spacedlayout>
      *     <replicator classname="text" datapath="$example/store/book[*]/title"></replicator>
      */
 /**
@@ -754,6 +754,7 @@
       *
       *     @example
       *     <view width="100" height="100" bgcolor="plum">
+      *       <text text="DRAG ME!"></text>
       *       <attribute name="mouseIsDown" type="boolean" value="false"></attribute>
       *       <handler event="onmousedown">
       *         this.setAttribute('mouseIsDown', true);
@@ -772,6 +773,7 @@
       *
       *     @example
       *     <view width="100" height="100" bgcolor="plum">
+      *       <text text="DRAG ME!"></text>
       *       <attribute name="mouseIsDown" type="boolean" value="false"></attribute>
       *       <handler event="onmousedown">
       *         this.setAttribute('mouseIsDown', true);
@@ -849,11 +851,11 @@
      * Provides an editable input text field.
      *
      *     @example
-     *     <spacedlayout axis="y"></spacedlayout>
+     *     <spacedlayout axis="y" spacing="10"></spacedlayout>
      *
-     *     <text text="Enter your name"></text>
+     *     <text text="Enter your name:"></text>
      *
-     *     <inputtext id="nameinput" bgcolor="white" border="1px solid lightgrey" width="200"></inputtext>
+     *     <inputtext id="nameinput" width="200"></inputtext>
      *
      *     <labelbutton text="submit">
      *       <handler event="onclick">
@@ -866,7 +868,9 @@
      * It's possible to listen for an onchange event to find out when the user changed the inputtext value:
      *
      *     @example
-     *     <inputtext id="nameinput" bgcolor="white" border="1px solid lightgrey" width="200" onchange="console.log('onchange', this.text)"></inputtext>
+     *     <spacedlayout axis="y" spacing="10"></spacedlayout>
+     *     <text text="Type some text below and press enter:"></text>
+     *     <inputtext id="nameinput" width="200" onchange="alert('onchange event: ' + this.text)"></inputtext>
      *
      */
 /**
@@ -924,7 +928,7 @@
    *     @example
    *     <spacedlayout axis="y"></spacedlayout>
    *
-   *     <labelbutton text="click me" defaultcolor="plum" selectcolor="orchid">
+   *     <labelbutton text="click me">
    *       <handler event="onclick">
    *         hello.setAttribute('text', 'Hello Universe!');
    *       </handler>
@@ -937,20 +941,20 @@
     * Sets this view's background color, same as setting defaultcolor.
     */
 /**
-   * @class dr.labeltoggle {UI Components}
-   * @extends dr.labelbutton
-   * Button class consisting of text centered in a view. The state of the
-   * button changes each time the button is clicked. The select property
-   * holds the current state of the button. The onselected event
-   * is generated when the button is the selected state.
-   *
-   *     @example
-   *     <spacedlayout axis="y"></spacedlayout>
-   *
-   *     <labeltoggle id="toggle" text="Click me to toggle" defaultcolor="plum" selectcolor="orchid"></labeltoggle>
-   *
-   *     <text text="${toggle.selected ? 'selected' : 'not selected'}"></text>
-   */
+     * @class dr.labeltoggle {UI Components}
+     * @extends dr.labelbutton
+     * Button class consisting of text centered in a view. The state of the
+     * button changes each time the button is clicked. The select property
+     * holds the current state of the button. The onselected event
+     * is generated when the button is the selected state.
+     *
+     *     @example
+     *     <spacedlayout axis="y"></spacedlayout>
+     *
+     *     <labeltoggle id="toggle" text="Click me to toggle"></labeltoggle>
+     *
+     *     <text text="${toggle.selected ? 'selected' : 'not selected'}"></text>
+     */
 /**
    * @class dr.logger {Util}
    * @extends dr.node
@@ -959,6 +963,7 @@
    * This example shows how to log all setAttribute() calls for a replicator to console.log():
    *
    *     @example
+   *     <text italic="true" fontsize="14">(please open the console to see the output of this example)</text>
    *     <dataset name="topmovies" url="${DREEM_ROOT + 'examples/data/top_movies.json'}"></dataset>
    *     <replicator datapath="$topmovies/searchResponse/results[*]/movie[take(/releaseYear,/duration,/rating)]" classname="logger"></replicator>
    */
@@ -1015,6 +1020,7 @@
  * amplifying the audio signal
  *
  *     @example
+ *     <text italic="true" fontsize="14">(please open the console to see the output of this example)</text>
  *     <microphone id="mic" modifystream="true" visualize="false" stream="true">
  *       <method name="processStream" args="audio">
  *         if (!audio) return;
@@ -1205,21 +1211,21 @@
      * This example shows the replicator to creating four text instances, each corresponding to an item in the data attribute:
      *
      *     @example
-     *     <spacedlayout></spacedlayout>
+     *     <spacedlayout spacing="5"></spacedlayout>
      *     <replicator classname="text" data="[1,2,3,4]"></replicator>
      *
      * Changing the data attribute to a new array causes the replicator to create a new text for each item:
      *
      *     @example
-     *     <spacedlayout></spacedlayout>
-     *     <text onclick="repl.setAttribute('data', [5,6,7,8]);">Click to change data</text>
+     *     <spacedlayout spacing="5"></spacedlayout>
+     *     <text onclick="repl.setAttribute('data', [5,6,7,8]);">Click to change data:</text>
      *     <replicator id="repl" classname="text" data="[1,2,3,4]"></replicator>
      *
      * This example uses a {@link #filterexpression filterexpression} to filter the data to only numbers. Clicking changes {@link #filterexpression filterexpression} to show only non-numbers in the data:
      *
      *     @example
-     *     <spacedlayout></spacedlayout>
-     *     <text onclick="repl.setAttribute('filterexpression', '[^\\d]');">Click to change filter</text>
+     *     <spacedlayout spacing="5"></spacedlayout>
+     *     <text onclick="repl.setAttribute('filterexpression', '[^\\d]');">Click to change filter:</text>
      *     <replicator id="repl" classname="text" data="['a',1,'b',2,'c',3,4,5]" filterexpression="\d"></replicator>
      *
      * Replicators can be used to look up {@link #datapath datapath} expressions to values in JSON data in a dr.dataset. This example looks up the color of the bicycle in the dr.dataset named bikeshop:
@@ -1256,7 +1262,7 @@
      *        ]
      *      }
      *     </dataset>
-     *     <spacedlayout></spacedlayout>
+     *     <spacedlayout spacing="5"></spacedlayout>
      *     <replicator classname="text" datapath="$bikeshop/bicycle[*]/color"></replicator>
      *
      * It's possible to select a single item on from the array using an array index. This selects the second item:
@@ -1280,7 +1286,7 @@
      *        ]
      *      }
      *     </dataset>
-     *     <spacedlayout></spacedlayout>
+     *     <spacedlayout spacing="5"></spacedlayout>
      *     <replicator classname="text" datapath="$bikeshop/bicycle[1]/color"></replicator>
      *
      * It's also possible to replicate a range of items in the array with the [start,end,stepsize] operator. This replicates every other item:
@@ -1304,7 +1310,7 @@
      *        ]
      *      }
      *     </dataset>
-     *     <spacedlayout></spacedlayout>
+     *     <spacedlayout spacing="5"></spacedlayout>
      *     <replicator classname="text" datapath="$bikeshop/bicycle[0,3,2]/color"></replicator>
      *
      * Sometimes it's necessary to have complete control and flexibility over filtering and transforming results. Adding a [@] operator to the end of your datapath causes {@link #filterfunction filterfunction} to be called for each result. This example shows bike colors for bikes with a price greater than 20, in reverse order:
@@ -1328,7 +1334,7 @@
      *        ]
      *      }
      *     </dataset>
-     *     <spacedlayout></spacedlayout>
+     *     <spacedlayout spacing="5"></spacedlayout>
      *     <replicator classname="text" datapath="$bikeshop/bicycle[*][@]">
      *       <method name="filterfunction" args="obj, accum">
      *         // add the color to the beginning of the results if the price is greater than 20
@@ -1398,7 +1404,7 @@
       *
       * A view can be made stretchy by giving it a layouthint with a numerical
       * value, typically 1. Extra space is divided proportionally between all
-      * sretchy views based on that views percentage of the sum of the
+      * strechy views based on that views percentage of the sum of the
       * "stretchiness" of all stretchy views. For example, a view with a
       * layouthint of 2 will get twice as much space as another view with
       * a layouthint of 1.
@@ -1413,9 +1419,9 @@
       *     <resizelayout spacing="2" inset="5" outset="5">
       *     </resizelayout>
       *
-      *     <view height="25" bgcolor="lightpink"></view>
+      *     <view height="25" bgcolor="pink"></view>
       *     <view height="35" bgcolor="plum" layouthint='{"weight":1}'></view>
-      *     <view height="15" bgcolor="lightblue"></view>
+      *     <view height="15" bgcolor="blue"></view>
       */
 /**
       * @class dr.shim {Deprecated}
@@ -1453,6 +1459,25 @@
     * Sizes this view to the current size of the DOM elements within it.
     * @returns {void}
     */
+/**
+   * @class dr.skin {UI Components}
+   * @extends dr.view
+   * @aside guide skin
+   *
+   * A Skin a collection of cascading attribute configuration templates that can applied on top of Dreem objects.
+   *
+   *     @example
+   *     <skin name="example">
+   *       <text color="red" bgcolor="blue"></text>
+   *     </skin>
+   *
+   *     <spacedlayout axis="y" spacing="10"></spacedlayout>
+   *
+   *     <text text="This uses the default skin"></text>
+   *
+   *     <text skin="example" text="This uses the 'example' skin"></text>
+   *
+   */
 /**
      * @class dr.slider {UI Components}
      * @extends dr.view
@@ -1691,7 +1716,7 @@
       *  Here is a multiline text
       * 
       *      @example
-      *      <text multiline="true" text="Lorem ipsum dolor sit amet, consectetur adipiscing elit"></text>
+      *      <text multiline="true" width="200" text="Lorem ipsum dolor sit amet, consectetur adipiscing elit"></text>
       * 
       *  You might want to set the value of a text element based on the value of other attributes via a constraint. Here we set the value by concatenating three attributes together.
       * 
