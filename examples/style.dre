@@ -1,0 +1,56 @@
+<skin name="custom">
+  <custom name="outer" bgcolor="purple">
+    <view name="inner" bgcolor="orange"></view>
+    <text name="txt" color="lightblue" fontfamily="serif"></text>
+  </custom>
+</skin>
+
+<class name="custom" width="100" height="100" bgcolor="pink">
+  <view name="inner" x="${(this.parent.width - this.width)/2}" y="${(this.parent.height - this.height)/2}" width="50" height="50"></view>
+  <text name="txt" x="0" y="0" text="CUSTOM"></text>
+</class>
+
+<view id="a" name="vw" width="30%" height="auto" bgcolor="rgb(84,84,84)" padding="20" skin="default+custom">
+  <spacedlayout axis="y" spacing="15"></spacedlayout>
+  <text        name="txt" resize="true" text='Skinned via skin="dreem" attribute in markup' color="cyan" bold="true"></text>
+
+  <custom name="cc"></custom>
+
+  <text        name="t1" id="ff" resize="true" text="420.20 some text here auto resize"></text>
+  <checkbutton name="c3" text="pink auto size" selectcolor="pink"></checkbutton>
+  <checkbutton name="c4" width="130" height="35" text="red fixed size" selectcolor="red"></checkbutton>
+  <text        name="t2" resize="false" height="30" width="100" text="fixed size text here"></text>
+  <rangeslider name="r1" height="20" width="200"></rangeslider>
+  <labelbutton name="b1" height="40" width="200" text="fixed w/h btn"></labelbutton>
+  <labelbutton name="b2" text="autoresizing"></labelbutton>
+  <slider      name="s1" height="20" width="200"></slider>
+  <checkbutton name="c1"></checkbutton>
+  <inputtext   name="i1" height="40" width="200" text="420.20 some text here"></inputtext>
+  <checkbutton name="c2" height="60" width="60"></checkbutton>
+  <labeltoggle name="l2" text="autosized toggle"></labeltoggle>
+  <labeltoggle name="l1" height="50" width="200" text="fixed h/w toggle"></labeltoggle>
+</view>
+<view id="b" name="bw" x="${a.width + 50}" y="0" width="30%" height="auto" bgcolor="rgb(84,84,84)" padding="20">
+  <spacedlayout axis="y" spacing="15"></spacedlayout>
+  <text        resize="true" text="Skinned via setAttribute('skin', 'dreem') in oninit" color="orange"></text>
+
+  <custom name="cc"></custom>
+
+  <text        name="t1" id="ff" resize="true" text="420.20 some text here auto resize"></text>
+  <checkbutton name="c3" text="pink auto size" selectcolor="pink"></checkbutton>
+  <checkbutton name="c4" width="130" height="35" text="red fixed size" selectcolor="red"></checkbutton>
+  <text        name="t2" resize="false" height="30" width="100" text="fixed size text here"></text>
+  <rangeslider name="r1" height="20" width="200"></rangeslider>
+  <labelbutton name="b1" height="40" width="200" text="fixed w/h btn"></labelbutton>
+  <labelbutton name="b2" text="autoresizing"></labelbutton>
+  <slider      name="s1" height="20" width="200"></slider>
+  <checkbutton name="c1"></checkbutton>
+  <inputtext   name="i1" height="40" width="200" text="420.20 some text here"></inputtext>
+  <checkbutton name="c2" height="60" width="60"></checkbutton>
+  <labeltoggle name="l2" text="autosized toggle"></labeltoggle>
+  <labeltoggle name="l1" height="50" width="200" text="fixed h/w toggle"></labeltoggle>
+
+  <handler type="coffee" event="oninit">
+    @setAttribute('skin', 'default, custom')
+  </handler>
+</view>
