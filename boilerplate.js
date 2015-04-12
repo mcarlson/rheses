@@ -92,7 +92,7 @@ SOFTWARE.
   DREEM_SERVER_AVAILABLE = false;
   var compatibleServerVersions = ["1.0.0", "1.0.1"];
   var request = new XMLHttpRequest();
-  request.open('GET', DREEM_ROOT + 'info', false);
+  request.open('GET', DREEM_ROOT + 'version', false);
   request.onreadystatechange = function() {
     if (request.readyState === 4){
       if (request.status === 200) {
