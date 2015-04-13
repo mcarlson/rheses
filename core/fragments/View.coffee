@@ -1021,10 +1021,13 @@ class View extends Node
     noop
 
   set_skin: (name) ->
-    if name isnt @skin
+    if @inited and name isnt @skin
       @skin = name
       @reskin()
       @setAndFire('skin', name)
+    else if !@inited
+      @listenTo @, 'init', (sv)->
+        sv.set_skin(name)
     noop
 
   attachSkinListener: () ->

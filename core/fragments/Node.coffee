@@ -80,7 +80,7 @@ class Node extends Eventable
   # nodes can be identified
   earlyattributes = ['name', 'parent']
   # data must be set after text
-  lateattributes = ['data', 'skin']
+  lateattributes = ['data']
 
   # Methods that must be installed before construct is called.
   beforeConstructMethods = ['construct','createSprite']

@@ -32,16 +32,16 @@ SOFTWARE. -->
      *     @example
      *     <spacedlayout axis="y"></spacedlayout>
      *
-     *     <checkbutton text="pink" selectcolor="pink" defaultcolor="lightgrey" bgcolor="white"></checkbutton>
-     *     <checkbutton text="blue" selectcolor="lightblue" defaultcolor="lightgrey" bgcolor="white"></checkbutton>
-     *     <checkbutton text="green" selectcolor="lightgreen" defaultcolor="lightgrey" bgcolor="white"></checkbutton>
+     *     <checkbutton text="pink" selectcolor="pink"></checkbutton>
+     *     <checkbutton text="blue" selectcolor="lightblue"></checkbutton>
+     *     <checkbutton text="green" selectcolor="lightgreen"></checkbutton>
      *
      * Here we listen for the onselected event on a checkbox and print the value that is passed to the handler.
      *
      *     @example
      *     <spacedlayout axis="y"></spacedlayout>
      *
-     *     <checkbutton text="green" selectcolor="lightgreen" defaultcolor="lightgrey" bgcolor="white">
+     *     <checkbutton text="green" selectcolor="lightgreen">
      *       <handler event="onselected" args="value">
      *         displayselected.setAttribute('text', value);
      *       </handler>

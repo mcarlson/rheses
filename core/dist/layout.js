@@ -41,6 +41,7 @@
     ellipsis: 'textOverflow',
     fontfamily: 'fontFamily',
     fontweight: 'fontWeight',
+    texttransform: 'textTransform',
     fontsize: 'fontSize',
     italic: 'fontStyle',
     leftborder: 'borderLeftWidth',
@@ -1021,7 +1022,7 @@
 
     earlyattributes = ['name', 'parent'];
 
-    lateattributes = ['data', 'skin'];
+    lateattributes = ['data'];
 
     beforeConstructMethods = ['construct', 'createSprite'];
 
@@ -1725,6 +1726,7 @@
         case 'whitespace':
         case 'fontsize':
         case 'fontfamily':
+        case 'texttransform':
         case 'fontweight':
         case 'text-transform':
         case 'boxshadow':
@@ -3588,10 +3590,14 @@
     };
 
     View.prototype.set_skin = function(name) {
-      if (name !== this.skin) {
+      if (this.inited && name !== this.skin) {
         this.skin = name;
         this.reskin();
         this.setAndFire('skin', name);
+      } else if (!this.inited) {
+        this.listenTo(this, 'init', function(sv) {
+          return sv.set_skin(name);
+        });
       }
       return noop;
     };

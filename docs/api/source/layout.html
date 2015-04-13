@@ -58,6 +58,7 @@
     ellipsis: &#39;textOverflow&#39;,
     fontfamily: &#39;fontFamily&#39;,
     fontweight: &#39;fontWeight&#39;,
+    texttransform: &#39;textTransform&#39;,
     fontsize: &#39;fontSize&#39;,
     italic: &#39;fontStyle&#39;,
     leftborder: &#39;borderLeftWidth&#39;,
@@ -1038,7 +1039,7 @@
 
     earlyattributes = [&#39;name&#39;, &#39;parent&#39;];
 
-    lateattributes = [&#39;data&#39;, &#39;skin&#39;];
+    lateattributes = [&#39;data&#39;];
 
     beforeConstructMethods = [&#39;construct&#39;, &#39;createSprite&#39;];
 
@@ -1742,6 +1743,7 @@
         case &#39;whitespace&#39;:
         case &#39;fontsize&#39;:
         case &#39;fontfamily&#39;:
+        case &#39;texttransform&#39;:
         case &#39;fontweight&#39;:
         case &#39;text-transform&#39;:
         case &#39;boxshadow&#39;:
@@ -2124,6 +2126,7 @@
       }
       InputTextSprite.__super__.constructor.apply(this, arguments);
       attributes.text || (attributes.text = this.getText());
+      input = null;
       if (attributes.multiline === &#39;true&#39;) {
         input = document.createElement(&#39;textarea&#39;);
       } else {
@@ -2139,6 +2142,8 @@
       this.setStyle(&#39;font-weight&#39;, &#39;inherit&#39;, false, input);
       this.setStyle(&#39;font-size&#39;, &#39;inherit&#39;, false, input);
       this.setStyle(&#39;font-family&#39;, &#39;inherit&#39;, false, input);
+      this.setStyle(&#39;width&#39;, &#39;100%&#39;, false, input);
+      this.setStyle(&#39;height&#39;, &#39;100%&#39;, false, input);
       this.el.appendChild(input);
       input.$view = view;
       $(input).on(&#39;focus blur&#39;, this.handle);
@@ -3602,10 +3607,14 @@
     };
 
     View.prototype.set_skin = function(name) {
-      if (name !== this.skin) {
+      if (this.inited &amp;&amp; name !== this.skin) {
         this.skin = name;
         this.reskin();
         this.setAndFire(&#39;skin&#39;, name);
+      } else if (!this.inited) {
+        this.listenTo(this, &#39;init&#39;, function(sv) {
+          return sv.set_skin(name);
+        });
       }
       return noop;
     };
@@ -4347,7 +4356,7 @@
           }
           return;
         } else if (builtinTags[tagname]) {
-          if (tagname !== &#39;input&#39;) {
+          if (!(tagname === &#39;input&#39; || tagname === &#39;textarea&#39;)) {
             console.warn(&#39;refusing to create a class that would overwrite the builtin tag&#39;, tagname);
           }
           return;

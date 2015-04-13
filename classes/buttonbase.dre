@@ -125,14 +125,12 @@ SOFTWARE. -->
 
   <handler event="oninnerheight" method="handleResize" reference="this.label"></handler>
   <handler event="oninnerwidth" method="handleResize" reference="this.label"></handler>
-  <handler event="onskin" method="handleResize" reference="this.label"></handler>
 
   <handler event="onwidth" method="handleResize"></handler>
   <handler event="onheight" method="handleResize"></handler>
 
   <handler event="oninnerheight" method="handleResize"></handler>
   <handler event="oninnerwidth" method="handleResize"></handler>
-  <handler event="onskin" method="handleResize"></handler>
 
   <method name="handleResize">
     # Custom behavior in subclasses
