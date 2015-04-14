@@ -12,7 +12,7 @@
 
 <spacedlayout spacing="30"></spacedlayout>
 
-<view id="a" name="vw" width="30%" height="auto" bgcolor="rgb(84,84,84)" padding="20">
+<view id="a" width="30%" height="auto" bgcolor="rgb(84,84,84)" padding="20">
   <spacedlayout axis="y" spacing="15"></spacedlayout>
   <text        name="txt" resize="true" text="The raw, unskinned components" color="cyan" bold="true"></text>
 
@@ -32,7 +32,7 @@
   <labeltoggle name="l2" text="autosized toggle"></labeltoggle>
   <labeltoggle name="l1" height="50" width="200" text="fixed h/w toggle"></labeltoggle>
 </view>
-<view id="b" name="bw" y="0" width="30%" height="auto" bgcolor="rgb(84,84,84)" padding="20" skin="default+custom">
+<view id="b" y="0" width="30%" height="auto" bgcolor="rgb(84,84,84)" padding="20" skin="default+custom">
   <spacedlayout axis="y" spacing="15"></spacedlayout>
   <text        resize="true" text="Now skinned with both 'default' and 'custom' skins (see code)" color="cyan"></text>
 

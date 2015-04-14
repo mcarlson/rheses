@@ -104,6 +104,7 @@
             @applyTo(subview)
 
         view.$appliedskin = @name
+        view.postSkinHack() if view.postSkinHack
 
     </method>
 </class>
@@ -111,7 +112,7 @@
 <skin name="default">
   <text fontweight="200" clip="true" color="white" fontsize="20" fontfamily="'mission-gothic', 'Helvetica Neue', Helvetica, Arial, sans-serif"></text>
 
-  <inputtext color="white" height="32" fontweight="300" fontsize="20" leftpadding="12" leftborder="2" bottomborder="2" bordercolor="white" fontfamily="'mission-gothic', 'Helvetica Neue', Helvetica, Arial, sans-serif">
+  <inputtext bgcolor="rgb(63,63,63)" color="white" height="32" fontweight="300" fontsize="20" leftpadding="12" leftborder="2" bottomborder="2" bordercolor="white" fontfamily="'mission-gothic', 'Helvetica Neue', Helvetica, Arial, sans-serif">
     <art name="indicator" fill="white" x="-9" visible="true"></art>
   </inputtext>
 

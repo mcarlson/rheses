@@ -167,5 +167,4 @@ SOFTWARE. -->
       <handler event="onmousedown" method="_showselection"></handler>
       <handler event="onmouseup" method="_showselection"></handler>
 
-
     </class>
