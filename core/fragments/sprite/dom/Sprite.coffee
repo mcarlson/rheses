@@ -30,7 +30,7 @@ class Sprite
   setAttribute: (name, value) ->
     switch name
       # Attributes that map to DOM element style attributes
-      when 'width', 'height', 'z', 'opacity', 'bgcolor', 'color', 'whitespace', 'fontsize', 'fontfamily', 'fontweight', 'text-transform', 'boxshadow', 'leftpadding', 'rightpadding', 'toppadding', 'bottompadding', 'leftborder', 'rightborder', 'topborder', 'bottomborder', 'bordercolor', 'borderstyle'
+      when 'width', 'height', 'z', 'opacity', 'bgcolor', 'color', 'whitespace', 'fontsize', 'fontfamily', 'texttransform', 'fontweight', 'text-transform', 'boxshadow', 'leftpadding', 'rightpadding', 'toppadding', 'bottompadding', 'leftborder', 'rightborder', 'topborder', 'bottomborder', 'bordercolor', 'borderstyle'
         @setStyle(name, value)
       when 'bold'
         @setStyle(name, if value then 'bold' else 'normal')

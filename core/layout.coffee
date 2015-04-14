@@ -34,6 +34,7 @@ stylemap =
   ellipsis: 'textOverflow'
   fontfamily: 'fontFamily'
   fontweight: 'fontWeight'
+  texttransform: 'textTransform'
   fontsize: 'fontSize'
   italic: 'fontStyle'
   leftborder: 'borderLeftWidth'

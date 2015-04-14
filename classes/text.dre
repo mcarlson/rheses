@@ -119,6 +119,15 @@ SOFTWARE. -->
     return dr._noop
   </setter>
 
+  <attribute name="texttransform" type="string" value=""></attribute>
+  <setter name="texttransform" args="v">
+    if @texttransform isnt v
+      @sprite.setAttribute('texttransform', v)
+      @setAndFire('texttransform', v)
+      if @inited then @sizeToDom()
+    return dr._noop
+  </setter>
+
   <!--/**
         * @attribute {Boolean} [bold=false]
         * Use bold text.
