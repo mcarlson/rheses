@@ -3613,7 +3613,7 @@
     };
 
     View.prototype.reskin = function() {
-      var skin, skinname, skins, _i, _len, _results;
+      var sk, skinname, skins, _i, _len, _results;
       this.attachSkinListener();
       if (!window.dr.skins) {
         console.log("<skin> hasn't been initialized yet", this);
@@ -3624,8 +3624,8 @@
         _results = [];
         for (_i = 0, _len = skins.length; _i < _len; _i++) {
           skinname = skins[_i];
-          if (skin = window.dr.skins[skinname]) {
-            _results.push(skin.applyTo(this));
+          if (sk = window.dr.skins[skinname]) {
+            _results.push(sk.applyTo(this));
           } else {
             _results.push(console.log('Cannot apply skin:', skinname));
           }

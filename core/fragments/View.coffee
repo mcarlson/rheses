@@ -1047,8 +1047,8 @@ class View extends Node
     if @skin
       skins = @skin.split(/[^A-Za-z0-9_-]+/)
       for skinname in skins
-        if skin = window.dr.skins[skinname]
-          skin.applyTo(@)
+        if sk = window.dr.skins[skinname]
+          sk.applyTo(@)
         else
           console.log('Cannot apply skin:', skinname)
 

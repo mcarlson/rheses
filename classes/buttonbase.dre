@@ -139,4 +139,21 @@ SOFTWARE. -->
     if !@_fixedwidth? then @_fixedwidth = @innerwidth > 0
     if !@_fixedheight? then @_fixedheight = @innerheight > 0
   </method>
+
+  <method type="javascript" name="postSkinHack" args="v">
+    // This is a terrible solution, but currently I cannot track down what is causing the actual problem (it possibly may be a bug in chrome?)
+    // It seems as though the getBoundingClientRect() call (from Sprite.getBounds()) does not always
+    // update itself immediately when the font size/family/weight changes until a short, random time after
+    // the page has been loaded, which means the original sizeToDom() call has sized the component incorrectly and
+    // the handleResize has already happened.
+    // This hack forces the vulnerable components (i.e. those that auto-size) to resize themselves, but should
+    // be removed and replaced with a better solution as soon as there is one available.
+
+    var self = this;
+    setTimeout(function() {
+      self.label.sizeToDom();
+      self.handleResize();
+    }, 15);
+  </method>
+
 </class>
