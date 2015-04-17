@@ -63,6 +63,16 @@ SOFTWARE. -->
         return loaded
       </setter>
       <!--/**
+        * @attribute {Number} volume
+        * The audio volume (0-1)
+        */-->
+      <attribute name="volume" value="0.5" type="number"></attribute>
+      <setter name="volume" args="volume">
+        if (this.audioElement)
+          this.audioElement.setAttribute('volume', volume);
+        return volume;
+      </setter>
+      <!--/**
         * @attribute {Boolean} playing
         * If true, the audio is playing.
         */-->
@@ -169,6 +179,7 @@ SOFTWARE. -->
           var _this = this;
           if (! this.audioElement) {
             this.audioElement = document.createElement('audio')
+            this.audioElement.setAttribute('volume', this.volume);
             this.sprite.el.appendChild(this.audioElement)
             this.audioElement.ondurationchange = function(data) {
               // console.log('ondurationchange', _this.audioElement.duration)
