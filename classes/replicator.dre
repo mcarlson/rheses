@@ -293,7 +293,7 @@ SOFTWARE. -->
 
       <handler event="oninit">
         @setAttribute('_dataset', @_dataset) unless @dataset
-        @applyData();
+        @applyData() unless @data.nil? || @data.length == 0
       </handler>
 
       <handler event="onclassname" method="applyData"></handler>
@@ -449,7 +449,10 @@ SOFTWARE. -->
 
         finalize = () =>
           # init constraints for all children created
-          dr.initConstraints()
+          try
+            dr.initConstraints()
+          catch e
+            console.warn("CAUGHT CONSTRAINTS ERROR", e, e.stack)
           if @parent.layouts
             for layout in @parent.layouts
               layout.setAttribute('locked', false) # Updates automatically since the layout was already locked.

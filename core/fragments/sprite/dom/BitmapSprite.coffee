@@ -47,6 +47,20 @@ class BitmapSprite extends Sprite
           sprite.naturalWidth = sprite.naturalHeight = undefined
           view.sendEvent('error', img)
 
+  setWindow: (w) ->
+    # The window is x,y,w,h
+    args = w.split(',', 4)
+    if (args.length != 4)
+      @setStyle('background-position', '')
+    else
+      view = @el.$view
+      view.setAttribute('width', args[2])
+      view.setAttribute('height', args[3])
+
+      style = @el.style
+      style.backgroundSize = ''
+      style.backgroundPosition = -args[0] + 'px ' + -args[1] + 'px'
+    
   setStretches: (v) ->
     if v is 'scale'
       v = 'contain'
