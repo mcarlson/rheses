@@ -8,6 +8,20 @@
 <view id="all" width="100%" height="100%" clip="true">
   <spacedlayout axis="y" spacing="3"></spacedlayout>
 
+  <!-- Search -->
+  <view width="auto" height="auto">
+    <spacedlayout axis="x" spacing="3"></spacedlayout>
+    <inputtext id="search" text="California" height="25" bgcolor="gray"></inputtext>
+    <labelbutton text="Search">
+      <handler event="onclick">
+        streamer.tracks(search.text, {streaming: 'public'});
+      </handler>
+    </labelbutton>
+  </view>
+
+  <view height="50"></view>
+
+  <!-- Playback -->
   <text text="Select a track to play"></text>
   
   <labelbutton text="Stop Audio">
@@ -19,6 +33,7 @@
   <audioplayer id="player" volume="0.2">
   </audioplayer>
 
+  <!-- Soundcloud -->
   <teem-soundcloud id="streamer">
     <method name="track" args="trackno">
       this.api_redirect('tracks/' + trackno + '/stream')      ;
@@ -32,10 +47,6 @@
       player.play();
     </handler>
 
-    <handler event="oninit"> 
-      // Retrieve one page of tracks
-      this.api('tracks?')
-    </handler>
     <handler event="onresponse" args="response">
       // console.log('soundcloud received data', response);
       if (!response || Object.keys(response).length == 0) return;
@@ -44,6 +55,7 @@
 
   </teem-soundcloud>
 
+  <!-- Tracks -->
   <dataset name="scdata"></dataset>
 
   <!-- Each soundcloud response is stored as a track -->
