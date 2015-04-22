@@ -5,9 +5,9 @@ getting started with dreem
 --------------------------
 It is quick and easy to get started writing your dreem application. After cloning the project, you will need to serve the dreem files through a web server to satisfy the browser's same-origin policy. SimpleHTTPServer is a quick and easy option to get started. From within the dreem root directory just run:
 
-    python -m SimpleHTTPServer
+    ./bin/teemserver
     
-This will turn that directory into a webserver and allow you to run any of the example files on localhost, such as [http://localhost:8000/data.html]()
+This will turn that directory into a webserver and allow you to run any of the example files on localhost, such as [http://localhost:8080/examples/spirallayout.html]()
 
 That's all you need to do to get set up to build a dreem application. There are many sample files in the root directory that you can reference to get familiar with the language. You will also want to build the API documentation to run on your machine as it is currently not hosted anywhere on the web. This is a simple process, and instructions are included below.
 
@@ -22,17 +22,6 @@ installing the sublime plugin
 
 For Sublime Text, use the preferences -> browse packages menu, back out a folder and browse to 'Installed Packages', then copy /tools/Dreem.sublime-package there.
 
-building
---------
-This is only required when editing the coffeescript core.
-Make sure coffescript is installed
-
-    npm install -g coffee-script
- 
-And run
-
-    coffee -mo ./ -cw *.coffee
-    
 building the documentation
 --------------------------
 
@@ -60,7 +49,7 @@ running smoke tests
 
 The smoke tests docs are run with [http://phantomjs.org/](), so you'll need to install it. Next, run:
 
-	phantomjs ./bin/phantomrunner.js
+	  phantomjs ./bin/phantomrunner.js
 
 If you get RESOURCE ERROR messages, try specifying a different timeout argument. The smaller the number, the faster the tests will run:
     
