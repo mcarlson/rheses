@@ -7,7 +7,7 @@ It is quick and easy to get started writing your dreem application. After clonin
 
     ./bin/teemserver
     
-This will turn that directory into a webserver and allow you to run any of the example files on localhost, such as [http://localhost:8080/examples/spirallayout.html]()
+This will turn that directory into a webserver and allow you to run any of the example files on localhost, such as [http://localhost:8080/examples/spirallayout.html](http://localhost:8080/examples/spirallayout.html)
 
 That's all you need to do to get set up to build a dreem application. There are many sample files in the root directory that you can reference to get familiar with the language. You will also want to build the API documentation to run on your machine as it is currently not hosted anywhere on the web. This is a simple process, and instructions are included below.
 
