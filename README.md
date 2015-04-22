@@ -3,7 +3,7 @@ dreem
 
 getting started with dreem
 --------------------------
-It is quick and easy to get started writing your dreem application. After cloning the project, you will need to serve the dreem files through a web server to satisfy the browser's same-origin policy. SimpleHTTPServer is a quick and easy option to get started. From within the dreem root directory just run:
+It is quick and easy to get started writing your dreem application. After cloning the project, you will need to serve the dreem files through a web server to satisfy the browser's same-origin policy.  From within the dreem root directory just run:
 
     ./bin/teemserver
     
