@@ -15,7 +15,7 @@ You can put your dreem files right in the root dreem directory or a subdirectory
 
     ln -s ~/dev/mydreemapp ./mydreemapp
     
-Now you can access your files at http://localhost:8000/mydreemapp/
+Now you can access your files at [http://localhost:8000/mydreemapp/](http://localhost:8000/mydreemapp/)
 
 installing the sublime plugin
 -----------------------------
@@ -25,7 +25,7 @@ For Sublime Text, use the preferences -> browse packages menu, back out a folder
 building the documentation
 --------------------------
 
-The API docs are built with [https://github.com/senchalabs/jsduck](). Install jsduck as a ruby gem using bundler by running
+The API docs are built with [https://github.com/senchalabs/jsduck](https://github.com/senchalabs/jsduck). Install jsduck as a ruby gem using bundler by running
 
     gem install bundler
     bundle install
@@ -42,14 +42,14 @@ With jsduck installed run:
 building Snap.svg
 -----------------
 
-The art component uses a customized version of Snap.svg to display svg files. The changes allow any frame between two paths to be displayed. See [https://github.com/teem2/Snap.svg] for build instructions. Once built, a copy of [https://github.com/teem2/Snap.svg/blob/master/dist/snap.svg-min.js] should be copied into this repository at [https://github.com/teem2/dreem/tree/master/lib].
+The art component uses a customized version of Snap.svg to display svg files. The changes allow any frame between two paths to be displayed. See [https://github.com/teem2/Snap.svg](https://github.com/teem2/Snap.svg) for build instructions. Once built, a copy of [https://github.com/teem2/Snap.svg/blob/master/dist/snap.svg-min.js](https://github.com/teem2/Snap.svg/blob/master/dist/snap.svg-min.js) should be copied into this repository at [https://github.com/teem2/dreem/tree/master/lib](https://github.com/teem2/dreem/tree/master/lib).
 
 running smoke tests
 --------------------------
 
-The smoke tests docs are run with [http://phantomjs.org/](), so you'll need to install it. Next, run:
+The smoke tests docs are run with [http://phantomjs.org/](http://phantomjs.org/), so you'll need to install it. Next, run:
 
-	  phantomjs ./bin/phantomrunner.js
+    phantomjs ./bin/phantomrunner.js
 
 If you get RESOURCE ERROR messages, try specifying a different timeout argument. The smaller the number, the faster the tests will run:
     
@@ -91,7 +91,7 @@ If you see an error like:
     An error occurred while installing capybara-webkit (1.3.0), and Bundler cannot continue.
     Make sure that `gem install capybara-webkit -v '1.3.0'` succeeds before bundling.
 
-Per [http://stackoverflow.com/questions/11354656/error-error-error-installing-capybara-webkit]() if you are in Ubuntu:
+Per [http://stackoverflow.com/questions/11354656/error-error-error-installing-capybara-webkit](http://stackoverflow.com/questions/11354656/error-error-error-installing-capybara-webkit) if you are in Ubuntu:
 
     sudo apt-get install qt4-dev-tools libqt4-dev libqt4-core libqt4-gui
 
@@ -103,7 +103,7 @@ Then run this again:
 
     bundle install    
 
-Windows users: capybara-webkit can only install on a 32-bit version of Windows. See [https://github.com/thoughtbot/capybara-webkit#windows-support]()
+Windows users: capybara-webkit can only install on a 32-bit version of Windows. See [https://github.com/thoughtbot/capybara-webkit#windows-support](https://github.com/thoughtbot/capybara-webkit#windows-support)
 		
 <!-- The MIT License (MIT)
 
