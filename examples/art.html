@@ -8,7 +8,7 @@
   <class name="centertext2" extends="text" color="white" height="40" x="${this.parent.width/2-this.width/2}" y="${this.parent.height/2-this.height/2}">
     <method name="format" args="value">
       if (value < 0.0) return '';
-      return value.toFixed(2);
+      return Number(value).toFixed(2);
     </method>
   </class>
 
