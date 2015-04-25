@@ -2,6 +2,7 @@
   "name": "dreem",
   "version": "0.1.0",
   "devDependencies": {
+    "phantomjs": "~1.9.8",
     "grunt": "~0.4.5",
     "grunt-saucelabs": "~8.5.0",
     "teemserver": "1.0.6"

@@ -52,7 +52,7 @@ The art component uses a customized version of Snap.svg to display svg files. Th
 running smoke tests
 --------------------------
 
-The smoke tests docs are run with [http://phantomjs.org/](http://phantomjs.org/), so you'll need to install it. Next, run:
+The smoke tests docs are run with [http://phantomjs.org/ 1.9.8](http://phantomjs.org/), so you'll need to install it (note: phantomjs2.0 currently cannot run all the tests successfully, use no later than 1.9.8). After you've installed it, run:
 
     phantomjs ./bin/phantomrunner.js
 
