@@ -29,17 +29,17 @@ You can put your dreem files right in the root dreem directory or a subdirectory
 
 Allow you to access your files from `/mydreemapp/` here: [http://localhost:8080/mydreemapp/](http://localhost:8080/mydreemapp/)
 
-Additionally you can specify a `DREEM_PROJECTS_ROOT` environment variable on the command line, you can specify a special projects directory that dreem will serve from `/projects`.  For example:
+If you would like a pace from which to serve Dreem projects without placing them in the root, you can use `/projects` by specifing the `DREEM_PROJECTS_ROOT` environment variable on the command line.  For example:
 
     DREEM_PROJECTS_ROOT="../apps/demos/" ./bin/teemserver
     
-Will mount the `../apps/demos/` directory under the `/projects` url [http://localhost:8080/projects/](http://localhost:8080/projects/)
+Will mount the `../apps/demos/` directory under the `/projects` url [http://localhost:8080/projects/](http://localhost:8080/projects/).  Note: `/projects` is a special URL, this is not a general purpose route mapping.
 
 If you have additional external components to load, place them all in a top-level directory and use the `DREEM_COMPONENTS_ROOT` variable to indicate where to find them:
 
     DREEM_COMPONENTS_ROOT="../workspace/components/" ./bin/teemserver
     
-If working on dreem core itself or want to use a different set of core components, the dreem server can be given a different `DREEM_ROOT`:
+If working on dreem core itself or want to use a different set of core components, the dreem server can be given a different `DREEM_ROOT`, for example:
 
     DREEM_ROOT="../dreem2core/" ./bin/teemserver
 
