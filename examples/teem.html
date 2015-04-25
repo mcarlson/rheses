@@ -1,12 +1,9 @@
 <html>
 <head>
-  <title>dr33m | Audio Examples</title>
+  <title>dr33m | Teem Example</title>
   <link rel="stylesheet" href="./css/example.css"/>
   <link href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet"></link>
-  <script type="text/javascript" src="../lib/jquery-1.9.1.js"></script>
-  <script type="text/javascript" src="../lib/acorn.js"></script>
-  <script type="text/javascript" src="../lib/coffee-script.js"></script>
-  <script type="text/javascript" src="../core/layout.js"></script>
+  <script type="text/javascript" src="../boilerplate.js"></script>
 </head>
 <body>
 <view padding="20">
@@ -70,7 +67,7 @@
     <inputtext id="intext" width="300" height="75" multiline="true" border="1" bordercolor="black">
       <handler event="onkeyup" args="keydata">
         if (keydata.keyCode == 13) {
-          this.parent.enterText();
+          this.parent.parent.enterText();
         }
       </handler>
     </inputtext>
