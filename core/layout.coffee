@@ -430,7 +430,13 @@ window.dr = do ->
               # alert('reload')
               window.location.reload()
         }).done((data) ->
+          console.log('File changed on server', data, 'reloading page')
           filereloader()
+        ).fail((jqXHR, textStatus, errorThrown) ->
+          if jqXHR.status == 0
+            filereloader()
+          else
+            console.log('Watchfile AJAX request failed', jqXHR.status, textStatus, errorThrown);
         )
 
       validator = ->

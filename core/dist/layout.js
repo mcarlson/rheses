@@ -4153,7 +4153,14 @@
               }
             }
           }).done(function(data) {
+            console.log('File changed on server', data, 'reloading page');
             return filereloader();
+          }).fail(function(jqXHR, textStatus, errorThrown) {
+            if (jqXHR.status === 0) {
+              return filereloader();
+            } else {
+              return console.log('Watchfile AJAX request failed', jqXHR.status, textStatus, errorThrown);
+            }
           });
         };
         validator = function() {
