@@ -3,10 +3,14 @@ dreem
 
 getting started with dreem
 --------------------------
-It is quick and easy to get started writing your dreem application. After cloning the project, install the required node modules:
+
+It is quick and easy to get started writing your dreem application, first install [Node.js v0.10.x](http://nodejs.org/download/) and clone the repo:
+
+    git clone https://github.com/teem2/dreem.git
+
+After cloning the project, install the required node modules:
 
     npm install
-
 
 You will need to serve the dreem files through a web server to satisfy the browser's same-origin policy.  From within the dreem root directory just run:
 
