@@ -12,20 +12,6 @@
 		</style>
 		<script src='../lib/animator.js'></script>
 		<script>
-			function reloader(){
-				var rtime = Date.now()
-				var x = new XMLHttpRequest()
-				x.onreadystatechange = function(){
-					if(x.readyState != 4) return
-					if(x.status == 200){
-						return location.reload()
-					}
-					setTimeout(reloader, (Date.now() - rtime) < 1000?500:0)
-				}
-				x.open('GET', "/_reloader_")
-				x.send()
-			}
-
 			function create_canvas(title){
 				var width = 350
 				var height = 75
@@ -229,9 +215,7 @@
 					tests[i]()
 				}
 				else tests[run_tests]()
-
-				if(location.href.indexOf('file:')!=0) reloader()
-			}	
+			}
 		</script>
 	</head>
 	<body>
