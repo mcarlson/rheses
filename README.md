@@ -20,11 +20,29 @@ This will turn that directory into a webserver and allow you to run any of the e
 
 That's all you need to do to get set up to build a dreem application. There are many sample files in the root directory that you can reference to get familiar with the language. You will also want to build the API documentation to run on your machine as it is currently not hosted anywhere on the web. This is a simple process, and instructions are included below.
 
-You can put your dreem files right in the root dreem directory or a subdirectory to get started. However, if you want to keep your files in source control its helpful to keep them separate from the dreem git repo. You can easily do so by creating a softlink in the dreem directory that points to a separate directory located elsewhere in your machine. For example, if your dreem installation is located at ~/dev/dreem, and you want to keep your dreem application in ~/dev/mydreemapp, then within ~/dev/dreem run:
+adding your own dreem code
+--------------------------
+
+You can put your dreem files right in the root dreem directory or a subdirectory to get started, or use a symlink to another directory, for example this:
 
     ln -s ~/dev/mydreemapp ./mydreemapp
+
+will allow you to access your files here [http://localhost:8080/mydreemapp/](http://localhost:8080/mydreemapp/)
+
+Additionally you can specify a `DREEM_PROJECTS_ROOT` environment variable on the command line, you can specify a special directory that dreem will serve from `/projects`.
+
+    DREEM_PROJECTS_ROOT="../apps/demos" ./bin/teemserver
     
-Now you can access your files at [http://localhost:8000/mydreemapp/](http://localhost:8000/mydreemapp/)
+will allow you to access the `../apps/demos` files under the `/projects` directtory [http://localhost:8080/projects/](http://localhost:8080/projects/)
+
+If you have external components to load, place them all in a top-level directory and use the `DREEM_COMPONENTS_ROOT` variable to indicate where to find them:
+
+    DREEM_COMPONENTS_ROOT="../workspace/components" ./bin/teemserver
+    
+If working on dreem core itself or want to use a different set of core components, the dreem server can be given a different `DREEM_ROOT`:
+
+    DREEM_ROOT="../dreem2core" ./bin/teemserver
+
 
 installing the sublime plugin
 -----------------------------
