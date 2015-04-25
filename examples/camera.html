@@ -2,7 +2,6 @@
 <head>
   <title>dr33m | Camera Example</title>
   <script type="text/javascript" src="../boilerplate.js"></script>
-  <link href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet"></link>
 </head>
 <body>
 <view padding="30" skin="default">
@@ -17,30 +16,26 @@
 
     <spacedlayout axis="y" spacing="1"></spacedlayout>
 
-    <view name="controls" bgcolor="Lavender" width="100%" height="30" padding="5">
-      <spacedlayout axis="x" inset="4" spacing="15"></spacedlayout>
-
-      <view>
-        <spacedlayout axis="x" inset="4" spacing="6" updateparent="true"></spacedlayout>
-        <view name="camBtn" width="16" height="16" bgcolor="Lavender">
-          <text name="txt" class="fa fa-video-camera" color="DeepSkyBlue"></text>
-          <handler event="onclick">
-            cam.setAttribute('stream', !cam.stream);
-            if (cam.stream) {
-              this.txt.setAttribute('class', 'fa fa-stop')
-            } else {
-              this.txt.setAttribute('class', 'fa fa-video-camera')
-            }
-          </handler>
-        </view>
+    <view name="controls" bgcolor="Lavender" width="100%" height="30" leftpadding="5" toppadding="1">
+      <spacedlayout axis="x" spacing="15"></spacedlayout>
+      <view name="camBtn" clickable="true" width="75" height="25">
+        <text name="txt" color="DeepSkyBlue" bold="true">[START]</text>
+        <handler event="onclick">
+          cam.setAttribute('stream', !cam.stream);
+          if (cam.stream) {
+            this.txt.setAttribute('text', '[STOP]')
+          } else {
+            this.txt.setAttribute('text', '[START]')
+          }
+        </handler>
       </view>
     </view>
-    
+
     <videoplayer id="video" width="400" height="300" controls="false" playing="false">
-      
+
       <handler event="onmediastream" reference="cam" args="mediastream">
         if (!mediastream) return;
-        
+
         var webmUrl = (window.URL || window.webkitURL).createObjectURL(mediastream)
         this.setAttribute('src', {"video/webm": webmUrl})
         this.setAttribute('playing', true)

@@ -251,7 +251,7 @@ SOFTWARE. -->
     <method name="__loadvideo" args="sources">
         if @video && @video.canPlayType && @video.load
           @setAttribute 'playing', false
-          @video.src = undefined
+          @video.src = ''
 
           for type, src of sources
             if @video.canPlayType(type)
