@@ -29,11 +29,11 @@ You can put your dreem files right in the root dreem directory or a subdirectory
 
 Allow you to access your files from `/mydreemapp/` here: [http://localhost:8080/mydreemapp/](http://localhost:8080/mydreemapp/)
 
-If you would like a pace from which to serve Dreem projects without placing them in the root, you can use `/projects` by specifing the `DREEM_PROJECTS_ROOT` environment variable on the command line.  For example:
+If you would like a pace from which to serve Dreem projects without placing them in the root, you can use the special `/projects` path by specifing the `DREEM_PROJECTS_ROOT` environment variable on the command line.  For example:
 
     DREEM_PROJECTS_ROOT="../apps/demos/" ./bin/teemserver
     
-Will mount the `../apps/demos/` directory under the `/projects` url [http://localhost:8080/projects/](http://localhost:8080/projects/).  Note: `/projects` is a special URL, this is not a general purpose route mapping.
+Will mount the `../apps/demos/` directory under the `/projects` url [http://localhost:8080/projects/](http://localhost:8080/projects/).  
 
 loading external components
 ---------------------------
