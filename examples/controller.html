@@ -20,11 +20,11 @@
   });
 </script>
 <view>
-  <shim id="bus" websocket="true"></shim>
+  <teem id="bus" websocket="true"></teem>
   <node>
     <gyro>
       <method name="setAttribute" args="name, val">
-        if (! bus) return;
+        if (!bus || !name || !val) return;
         if (this['_' + name] !== val) {
           this['_' + name] = val;
           bus.send(name.toString(), val.toString());
@@ -33,7 +33,7 @@
     </gyro>
     <touch>
       <method name="setAttribute" args="name, val">
-        if (! bus) return;
+        if (!bus || !name || !val) return;
         if (this[name] !== val) {
           this['_' + name] = val;
           bus.send(name.toString(), val.toString());
