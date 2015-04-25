@@ -35,15 +35,14 @@ If you would like a pace from which to serve Dreem projects without placing them
     
 Will mount the `../apps/demos/` directory under the `/projects` url [http://localhost:8080/projects/](http://localhost:8080/projects/).  Note: `/projects` is a special URL, this is not a general purpose route mapping.
 
+loading external components
+---------------------------
+
 If you have additional external components to load, place them all in a top-level directory and use the `DREEM_COMPONENTS_ROOT` variable to indicate where to find them:
 
     DREEM_COMPONENTS_ROOT="../workspace/components/" ./bin/teemserver
     
-If working on dreem core itself or want to use a different set of core components, the dreem server can be given a different `DREEM_ROOT`, for example:
-
-    DREEM_ROOT="../dreem2core/" ./bin/teemserver
-
-Additional server documentation can be found on the [teemserver README](https://github.com/teem2/server).
+Additional server settings can be found on the [teemserver README](https://github.com/teem2/server).
 
 installing the sublime plugin
 -----------------------------
