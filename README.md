@@ -27,22 +27,23 @@ You can put your dreem files right in the root dreem directory or a subdirectory
 
     ln -s ~/dev/mydreemapp ./mydreemapp
 
-will allow you to access your files here [http://localhost:8080/mydreemapp/](http://localhost:8080/mydreemapp/)
+Allow you to access your files from `/mydreemapp/` here: [http://localhost:8080/mydreemapp/](http://localhost:8080/mydreemapp/)
 
-Additionally you can specify a `DREEM_PROJECTS_ROOT` environment variable on the command line, you can specify a special directory that dreem will serve from `/projects`.
+Additionally you can specify a `DREEM_PROJECTS_ROOT` environment variable on the command line, you can specify a special projects directory that dreem will serve from `/projects`.  For example:
 
-    DREEM_PROJECTS_ROOT="../apps/demos" ./bin/teemserver
+    DREEM_PROJECTS_ROOT="../apps/demos/" ./bin/teemserver
     
-will allow you to access the `../apps/demos` files under the `/projects` directtory [http://localhost:8080/projects/](http://localhost:8080/projects/)
+Will mount the `../apps/demos/` directory under the `/projects` url [http://localhost:8080/projects/](http://localhost:8080/projects/)
 
-If you have external components to load, place them all in a top-level directory and use the `DREEM_COMPONENTS_ROOT` variable to indicate where to find them:
+If you have additional external components to load, place them all in a top-level directory and use the `DREEM_COMPONENTS_ROOT` variable to indicate where to find them:
 
-    DREEM_COMPONENTS_ROOT="../workspace/components" ./bin/teemserver
+    DREEM_COMPONENTS_ROOT="../workspace/components/" ./bin/teemserver
     
 If working on dreem core itself or want to use a different set of core components, the dreem server can be given a different `DREEM_ROOT`:
 
-    DREEM_ROOT="../dreem2core" ./bin/teemserver
+    DREEM_ROOT="../dreem2core/" ./bin/teemserver
 
+Additional server documentation can be found on the [teemserver README](https://github.com/teem2/server).
 
 installing the sublime plugin
 -----------------------------
