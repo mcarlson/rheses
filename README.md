@@ -3,7 +3,12 @@ dreem
 
 getting started with dreem
 --------------------------
-It is quick and easy to get started writing your dreem application. After cloning the project, you will need to serve the dreem files through a web server to satisfy the browser's same-origin policy.  From within the dreem root directory just run:
+It is quick and easy to get started writing your dreem application. After cloning the project, install the required node modules:
+
+    npm install
+
+
+You will need to serve the dreem files through a web server to satisfy the browser's same-origin policy.  From within the dreem root directory just run:
 
     ./bin/teemserver
     
