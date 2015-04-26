@@ -34,7 +34,7 @@
 </view>
 <view id="b" y="0" width="30%" height="auto" bgcolor="rgb(84,84,84)" padding="20" skin="default+custom">
   <spacedlayout axis="y" spacing="15"></spacedlayout>
-  <text        resize="true" text="Now skinned with both 'default' and 'custom' skins (see code)" color="cyan"></text>
+  <text        resize="true" text="Skinned with 'default' and 'custom' skin (see code)" color="cyan"></text>
 
   <custom name="cc"></custom>
 
