@@ -298,12 +298,12 @@
  * Paths within an svg can be selected using the path attribute
  *
  *     @example
- *     <art width="100" height="100" src="${DREEM_ROOT + 'examples/img/cursorshapes.svg'}" path="0"></art>
+ *     <art width="100" height="100" src="${DREEM_ROOT + 'examples/img/cursorshapes.svg'}" path="2"></art>
  *
  * Attributes are automatically passed through to the SVG. Here, the fill color is changed
  *
  *     @example
- *     <art width="100" height="100" src="${DREEM_ROOT + 'examples/img/cursorshapes.svg'}" path="0" fill="coral"></art>
+ *     <art width="100" height="100" src="${DREEM_ROOT + 'examples/img/cursorshapes.svg'}" path="2" fill="coral"></art>
  *
  * Setting the path attribute animates between paths. This example animates when the mouse is clicked
  *
@@ -344,6 +344,7 @@
  *     @example
  *     <class name="centertext2" extends="text" color="white" height="40" x="${this.parent.width/2-this.width/2}" y="${this.parent.height/2-this.height/2}">
  *       <method name="format" args="value">
+ *         value = Number(value);
  *         if (value < 0.0) return '';
  *         return value.toFixed(2);
  *       </method>
@@ -426,6 +427,10 @@
         * @attribute {Boolean} loaded
         * @readonly
         * If true, the audio is done loading
+        */
+/**
+        * @attribute {Number} volume
+        * The audio volume (0-1)
         */
 /**
         * @attribute {Boolean} playing
@@ -1415,13 +1420,16 @@
       * the same axis as the resizelayout will result in unexpected behavior 
       * and should therefore be avoided.
       *
+      * Warning, providing no layouthint defaults the weight to 0, which will cause the view not to render.
+      *
       *     @example
-      *     <resizelayout spacing="2" inset="5" outset="5">
+      *     <resizelayout spacing="10" inset="10" outset="10">
       *     </resizelayout>
       *
-      *     <view height="25" bgcolor="pink"></view>
-      *     <view height="35" bgcolor="plum" layouthint='{"weight":1}'></view>
-      *     <view height="15" bgcolor="blue"></view>
+      *     <view y="10" height="20" bgcolor="pink" layouthint='{"weight":2}'></view>
+      *     <view y="10" height="20" bgcolor="plum" layouthint='{"weight":3}'></view>
+      *     <view y="10" height="20" bgcolor="lightgreen" layouthint='{"weight":1}'></view>
+      *
       */
 /**
       * @class dr.shim {Deprecated}
