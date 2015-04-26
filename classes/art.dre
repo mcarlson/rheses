@@ -33,12 +33,12 @@ SOFTWARE. -->
  * Paths within an svg can be selected using the path attribute
  *
  *     @example
- *     <art width="100" height="100" src="${DREEM_ROOT + 'examples/img/cursorshapes.svg'}" path="0"></art>
+ *     <art width="100" height="100" src="${DREEM_ROOT + 'examples/img/cursorshapes.svg'}" path="2"></art>
  *
  * Attributes are automatically passed through to the SVG. Here, the fill color is changed
  *
  *     @example
- *     <art width="100" height="100" src="${DREEM_ROOT + 'examples/img/cursorshapes.svg'}" path="0" fill="coral"></art>
+ *     <art width="100" height="100" src="${DREEM_ROOT + 'examples/img/cursorshapes.svg'}" path="2" fill="coral"></art>
  *
  * Setting the path attribute animates between paths. This example animates when the mouse is clicked
  *
@@ -79,6 +79,7 @@ SOFTWARE. -->
  *     @example
  *     <class name="centertext2" extends="text" color="white" height="40" x="${this.parent.width/2-this.width/2}" y="${this.parent.height/2-this.height/2}">
  *       <method name="format" args="value">
+ *         value = Number(value);
  *         if (value < 0.0) return '';
  *         return value.toFixed(2);
  *       </method>
