@@ -4151,6 +4151,14 @@
               if (indexOf.call(paths, url) >= 0) {
                 return window.location.reload();
               }
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+              console.log('xWatchfile AJAX request failed', jqXHR.status, textStatus, errorThrown);
+              if (jqXHR.status === 0) {
+                return filereloader();
+              } else {
+                return console.log('Watchfile AJAX request failed', jqXHR.status, textStatus, errorThrown);
+              }
             }
           }).done(function(data) {
             console.log('File changed on server', data, 'reloading page');

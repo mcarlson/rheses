@@ -429,6 +429,11 @@ window.dr = do ->
             if url in paths
               # alert('reload')
               window.location.reload()
+          error: (jqXHR, textStatus, errorThrown) ->
+            if jqXHR.status == 0
+              filereloader()
+            else
+              console.log('Watchfile AJAX request failed', jqXHR.status, textStatus, errorThrown);
         }).done((data) ->
           console.log('File changed on server', data, 'reloading page')
           filereloader()
