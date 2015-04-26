@@ -4151,21 +4151,12 @@
               if (indexOf.call(paths, url) >= 0) {
                 return window.location.reload();
               }
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-              if (jqXHR.status === 0) {
-                console.log('Connecting to watcher error, reloading:', textStatus);
-                return setTimeout(filereloader, 3000);
-              } else {
-                return console.log('Watchfile AJAX request failed', jqXHR.status, textStatus, errorThrown);
-              }
             }
           }).done(function(data) {
             console.log('File changed on server', data, 'reloading page');
             return filereloader();
           }).fail(function(jqXHR, textStatus, errorThrown) {
             if (jqXHR.status === 0) {
-              console.log('Connecting to watcher timed-out, reloading:', textStatus);
               return setTimeout(filereloader, 3000);
             } else {
               return console.log('Watchfile AJAX request failed', jqXHR.status, textStatus, errorThrown);

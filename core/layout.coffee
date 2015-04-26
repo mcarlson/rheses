@@ -429,18 +429,11 @@ window.dr = do ->
             if url in paths
               # alert('reload')
               window.location.reload()
-          error: (jqXHR, textStatus, errorThrown) ->
-            if jqXHR.status == 0
-              console.log('Connecting to watcher error, reloading:', textStatus)
-              setTimeout(filereloader, 3000)
-            else
-              console.log('Watchfile AJAX request failed', jqXHR.status, textStatus, errorThrown);
         }).done((data) ->
           console.log('File changed on server', data, 'reloading page')
-          setTimeout(filereloader, 1000)
+          filereloader()
         ).fail((jqXHR, textStatus, errorThrown) ->
           if jqXHR.status == 0
-            console.log('Connecting to watcher timed-out, reloading:', textStatus)
             setTimeout(filereloader, 3000)
           else
             console.log('Watchfile AJAX request failed', jqXHR.status, textStatus, errorThrown);
