@@ -315,12 +315,12 @@
  * Paths within an svg can be selected using the path attribute
  *
  *     @example
- *     &lt;art width=&quot;100&quot; height=&quot;100&quot; src=&quot;${DREEM_ROOT + &#39;examples/img/cursorshapes.svg&#39;}&quot; path=&quot;0&quot;&gt;&lt;/art&gt;
+ *     &lt;art width=&quot;100&quot; height=&quot;100&quot; src=&quot;${DREEM_ROOT + &#39;examples/img/cursorshapes.svg&#39;}&quot; path=&quot;2&quot;&gt;&lt;/art&gt;
  *
  * Attributes are automatically passed through to the SVG. Here, the fill color is changed
  *
  *     @example
- *     &lt;art width=&quot;100&quot; height=&quot;100&quot; src=&quot;${DREEM_ROOT + &#39;examples/img/cursorshapes.svg&#39;}&quot; path=&quot;0&quot; fill=&quot;coral&quot;&gt;&lt;/art&gt;
+ *     &lt;art width=&quot;100&quot; height=&quot;100&quot; src=&quot;${DREEM_ROOT + &#39;examples/img/cursorshapes.svg&#39;}&quot; path=&quot;2&quot; fill=&quot;coral&quot;&gt;&lt;/art&gt;
  *
  * Setting the path attribute animates between paths. This example animates when the mouse is clicked
  *
@@ -361,6 +361,7 @@
  *     @example
  *     &lt;class name=&quot;centertext2&quot; extends=&quot;text&quot; color=&quot;white&quot; height=&quot;40&quot; x=&quot;${this.parent.width/2-this.width/2}&quot; y=&quot;${this.parent.height/2-this.height/2}&quot;&gt;
  *       &lt;method name=&quot;format&quot; args=&quot;value&quot;&gt;
+ *         value = Number(value);
  *         if (value &lt; 0.0) return &#39;&#39;;
  *         return value.toFixed(2);
  *       &lt;/method&gt;
@@ -443,6 +444,10 @@
 </span>        * @attribute {Boolean} loaded
         * @readonly
         * If true, the audio is done loading
+        */
+<span id='dr-audioplayer-attribute-volume'>/**
+</span>        * @attribute {Number} volume
+        * The audio volume (0-1)
         */
 <span id='dr-audioplayer-attribute-playing'>/**
 </span>        * @attribute {Boolean} playing

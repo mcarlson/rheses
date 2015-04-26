@@ -120,25 +120,25 @@ SOFTWARE.
     minify = query.minify;
 
   // Config
-  var layoutQuery = [];
-  //if (debug === 'true') layoutQuery.push('debug=true'); // FIXME: uncomment this when the assembler supports conditional debug code.
-  if (runtime) layoutQuery.push('runtime=' + runtime);
-  layoutQuery = (layoutQuery.length > 0) ? '?' + layoutQuery.join('&') : '';
+  var dreemQuery = [];
+  //if (debug === 'true') dreemQuery.push('debug=true'); // FIXME: uncomment this when the assembler supports conditional debug code.
+  if (runtime) dreemQuery.push('runtime=' + runtime);
+  dreemQuery = (dreemQuery.length > 0) ? '?' + dreemQuery.join('&') : '';
 
-  var layoutScript = '/layout' + (minify === 'true' ? '.min' : '') + '.js' + layoutQuery;
+  var dreemScript = '/dreem' + (minify === 'true' ? '.min' : '') + '.js' + dreemQuery;
   if (!DREEM_SERVER_AVAILABLE) {
     console.warn('Compatible Dreem server unavailable, defaulting to cached javascript');
-    layoutScript = '/dist' + layoutScript;
+    dreemScript = '/dist' + dreemScript;
   }
-  layoutScript = 'core' + layoutScript;
+  dreemScript = 'core' + dreemScript;
 
   var scriptsToLoad = [
       'lib/jquery-1.9.1.js',
       'lib/acorn.js',
       'lib/coffee-script.js',
-      layoutScript,
+      dreemScript,
       isSmoke ? 'lib/chai.js' : '',
-      isSmoke ? 'lib/smoke_helper.js' : '',
+      isSmoke ? 'lib/smoke_helper.js' : ''
     ],
     cssRules = [
       ['html,body',
