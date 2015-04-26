@@ -430,8 +430,7 @@ window.dr = do ->
               # alert('reload')
               window.location.reload()
         }).done((data) ->
-          console.log('File changed on server', data, 'reloading page')
-          filereloader()
+          console.log('[RELOAD]', data, 'changed on server, reloading page')
         ).fail((jqXHR, textStatus, errorThrown) ->
           if jqXHR.status == 0
             setTimeout(filereloader, 3000)
