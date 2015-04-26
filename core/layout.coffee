@@ -431,15 +431,17 @@ window.dr = do ->
               window.location.reload()
           error: (jqXHR, textStatus, errorThrown) ->
             if jqXHR.status == 0
-              filereloader()
+              console.log('Connecting to watcher error, reloading:', textStatus)
+              setTimeout(filereloader, 3000)
             else
               console.log('Watchfile AJAX request failed', jqXHR.status, textStatus, errorThrown);
         }).done((data) ->
           console.log('File changed on server', data, 'reloading page')
-          filereloader()
+          setTimeout(filereloader, 1000)
         ).fail((jqXHR, textStatus, errorThrown) ->
           if jqXHR.status == 0
-            filereloader()
+            console.log('Connecting to watcher timed-out, reloading:', textStatus)
+            setTimeout(filereloader, 3000)
           else
             console.log('Watchfile AJAX request failed', jqXHR.status, textStatus, errorThrown);
         )
@@ -451,7 +453,7 @@ window.dr = do ->
           success: (data) ->
             # we have a teem server!
             showWarnings(data) if (data.length)
-            filereloader()
+            setTimeout(filereloader, 1000)
           error: (err) ->
             console.warn('Validation requires the Teem server')
         }).always(finalcallback)
