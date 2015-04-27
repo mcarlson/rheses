@@ -2283,6 +2283,21 @@
       }
     };
 
+    BitmapSprite.prototype.setWindow = function(w) {
+      var args, style, view;
+      args = w.split(',', 4);
+      if (args.length !== 4) {
+        return this.setStyle('background-position', '');
+      } else {
+        view = this.el.$view;
+        view.setAttribute('width', args[2]);
+        view.setAttribute('height', args[3]);
+        style = this.el.style;
+        style.backgroundSize = '';
+        return style.backgroundPosition = -args[0] + 'px ' + -args[1] + 'px';
+      }
+    };
+
     BitmapSprite.prototype.setStretches = function(v) {
       if (v === 'scale') {
         v = 'contain';

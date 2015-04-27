@@ -86,4 +86,47 @@ SOFTWARE. -->
   <method name="createSprite" args="spriteClass, el, attributes">
     return @super(dr._bitmapSprite, el, attributes)
   </method>
+
+  <handler event="onwidth" method="computeRatios"></handler>
+  <handler event="onheight" method="computeRatios"></handler>
+  <handler event="onstretches" method="computeRatios"></handler>
+  <handler event="onload" method="computeRatios"></handler>
+
+  <method name="computeRatios">
+    # Compute the scaling factors between view coordinates and image coords.
+    # image_x = ratio_x * view_x
+    # image_y = ratio_y * view_y
+    return unless @width && @height
+    sprite = @sprite;
+    @ratio_x = sprite.naturalWidth / @width
+    @ratio_y = sprite.naturalHeight / @height
+
+    if @stretches is 'scale'
+      # x and y scaling are the same
+      @ratio_x = @ratio_y = Math.max(@ratio_x, @ratio_y)
+    else if @stretches is 'true'
+      # Stretch to fit the field of view. This is what we computed
+    else
+      # 'false', Fill the field of view
+      @ratio_x = @ratio_y = Math.min(@ratio_x, @ratio_y)
+
+    # console.log('computeRatios', @ratio_x, @ratio_y)
+  </method>
+
+
+  <!--/**
+    * @attribute {String} [window='']
+    * A window (section) of the image is displayed by specifying four,
+    * comma-separated values:
+    *   x,y  The coordinates of the upper-left hand corner of the image
+    *   w,h  The width and height of the window to display.
+    */-->
+  <attribute name="window" type="string" value=""></attribute>
+  <setter name="window" args="window">
+    if @window isnt window
+      @sprite.setWindow(window)
+      @setAndFire('window', window)
+    return dr._noop
+  </setter>
+
 </class>
