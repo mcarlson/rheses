@@ -1437,13 +1437,16 @@
       * the same axis as the resizelayout will result in unexpected behavior 
       * and should therefore be avoided.
       *
+      * Warning, providing no layouthint defaults the weight to 0, which will cause the view not to render.
+      *
       *     @example
-      *     &lt;resizelayout spacing=&quot;2&quot; inset=&quot;5&quot; outset=&quot;5&quot;&gt;
+      *     &lt;resizelayout spacing=&quot;10&quot; inset=&quot;10&quot; outset=&quot;10&quot;&gt;
       *     &lt;/resizelayout&gt;
       *
-      *     &lt;view height=&quot;25&quot; bgcolor=&quot;pink&quot;&gt;&lt;/view&gt;
-      *     &lt;view height=&quot;35&quot; bgcolor=&quot;plum&quot; layouthint=&#39;{&quot;weight&quot;:1}&#39;&gt;&lt;/view&gt;
-      *     &lt;view height=&quot;15&quot; bgcolor=&quot;blue&quot;&gt;&lt;/view&gt;
+      *     &lt;view y=&quot;10&quot; height=&quot;20&quot; bgcolor=&quot;pink&quot; layouthint=&#39;{&quot;weight&quot;:2}&#39;&gt;&lt;/view&gt;
+      *     &lt;view y=&quot;10&quot; height=&quot;20&quot; bgcolor=&quot;plum&quot; layouthint=&#39;{&quot;weight&quot;:3}&#39;&gt;&lt;/view&gt;
+      *     &lt;view y=&quot;10&quot; height=&quot;20&quot; bgcolor=&quot;lightgreen&quot; layouthint=&#39;{&quot;weight&quot;:1}&#39;&gt;&lt;/view&gt;
+      *
       */
 <span id='dr-shim'>/**
 </span>      * @class dr.shim {Deprecated}

@@ -6,11 +6,11 @@
 </head>
 <body>
 <view skin="default">
-  <shim id="bus">
+  <teem id="bus">
     <handler event="onerror" args="err">
       console.log('err', err)
     </handler>
-  </shim>
+  </teem>
 
   <class name="genreyear" width="15" height="60" opacity=".15">
     <handler event="onmouseover">
@@ -74,6 +74,7 @@
       this.animate({opacity: 1}, 200)
     </handler>
     <handler event="ondata" args="data" type="coffee">
+      src = ''
       if data.images
         for image in data.images
           if image.width > 100 and 140 > image.width

@@ -1420,13 +1420,16 @@
       * the same axis as the resizelayout will result in unexpected behavior 
       * and should therefore be avoided.
       *
+      * Warning, providing no layouthint defaults the weight to 0, which will cause the view not to render.
+      *
       *     @example
-      *     <resizelayout spacing="2" inset="5" outset="5">
+      *     <resizelayout spacing="10" inset="10" outset="10">
       *     </resizelayout>
       *
-      *     <view height="25" bgcolor="pink"></view>
-      *     <view height="35" bgcolor="plum" layouthint='{"weight":1}'></view>
-      *     <view height="15" bgcolor="blue"></view>
+      *     <view y="10" height="20" bgcolor="pink" layouthint='{"weight":2}'></view>
+      *     <view y="10" height="20" bgcolor="plum" layouthint='{"weight":3}'></view>
+      *     <view y="10" height="20" bgcolor="lightgreen" layouthint='{"weight":1}'></view>
+      *
       */
 /**
       * @class dr.shim {Deprecated}
