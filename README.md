@@ -4,13 +4,17 @@ dreem
 getting started with dreem
 --------------------------
 
-It is quick and easy to get started writing your dreem application, first install [Node.js v0.10.x](http://nodejs.org/download/) and clone the repo:
+It is quick and easy to get started writing your dreem application, first install [Node.js v0.10.x](http://nodejs.org/download/) and [Ruby 2.x](http://rubyinstaller.org/downloads/), and then clone the repo:
 
     git clone https://github.com/teem2/dreem.git
 
 After cloning the project, install the required node modules:
 
     npm install
+    
+And run bundler (install bundler with `gem install bundler` if required):
+    
+    bundle install
 
 You will need to serve the dreem files through a web server to satisfy the browser's same-origin policy.  From within the dreem root directory just run:
 
@@ -19,6 +23,12 @@ You will need to serve the dreem files through a web server to satisfy the brows
 This will turn that directory into a webserver and allow you to run any of the example files on localhost, such as [http://localhost:8080/examples/spirallayout.html](http://localhost:8080/examples/spirallayout.html)
 
 That's all you need to do to get set up to build a dreem application. There are many sample files in the root directory that you can reference to get familiar with the language. You will also want to build the API documentation to run on your machine as it is currently not hosted anywhere on the web. This is a simple process, and instructions are included below.
+
+getting started on Windows
+--------------------------
+
+On some Windows installations it may ne necessary to install the ruby [Development Kit, described here](https://github.com/oneclick/rubyinstaller/wiki/Development-Kit).  
+
 
 adding your own dreem code
 --------------------------
