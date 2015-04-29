@@ -1,19 +1,19 @@
 
 /*
  * The MIT License (MIT)
-#
+ *
  * Copyright ( c ) 2015 Teem2 LLC
-#
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
-#
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
-#
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -25,10 +25,10 @@
 
 (function() {
   var hackstyle, stylemap,
-    slice = [].slice,
-    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    hasProp = {}.hasOwnProperty,
-    indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+    __slice = [].slice,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   stylemap = {
     bold: 'fontWeight',
@@ -100,7 +100,7 @@
 ;
 
   window.dr = (function() {
-    var ArtSprite, AutoPropertyLayout, BitmapSprite, COMMENT_NODE, Class, Eventable, Events, Idle, InputTextSprite, Keyboard, Layout, Module, Mouse, Node, Path, Sprite, StartEventable, State, TextSprite, View, Window, _initConstraints, _processAttrs, callOnIdle, capabilities, clone, closeTo, compiler, constraintScopes, debug, dom, eventq, exports, handlerq, idle, ignoredAttributes, instantiating, matchEvent, matchPercent, mixOf, mouseEvents, noop, querystring, showWarnings, specialtags, starttime, tagPackageSeparator, test, warnings;
+    var ArtSprite, AutoPropertyLayout, BitmapSprite, COMMENT_NODE, Class, Eventable, Events, Idle, InputTextSprite, Keyboard, Layout, Module, Mouse, Node, Path, Sprite, StartEventable, State, TextSprite, View, Window, callOnIdle, capabilities, clone, closeTo, compiler, constraintScopes, debug, dom, eventq, exports, handlerq, idle, ignoredAttributes, instantiating, matchEvent, matchPercent, mixOf, mouseEvents, noop, querystring, showWarnings, specialtags, starttime, tagPackageSeparator, test, warnings, _initConstraints, _processAttrs;
     COMMENT_NODE = window.Node.COMMENT_NODE;
     noop = function() {};
     closeTo = function(a, b, epsilon) {
@@ -108,10 +108,10 @@
       return Math.abs(a - b) < epsilon;
     };
     mixOf = function() {
-      var Mixed, base, i, j, method, mixin, mixins, name, ref;
-      base = arguments[0], mixins = 2 <= arguments.length ? slice.call(arguments, 1) : [];
-      Mixed = (function(superClass) {
-        extend(Mixed, superClass);
+      var Mixed, base, i, method, mixin, mixins, name, _i, _ref;
+      base = arguments[0], mixins = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
+      Mixed = (function(_super) {
+        __extends(Mixed, _super);
 
         function Mixed() {
           return Mixed.__super__.constructor.apply(this, arguments);
@@ -120,11 +120,11 @@
         return Mixed;
 
       })(base);
-      for (i = j = mixins.length - 1; j >= 0; i = j += -1) {
+      for (i = _i = mixins.length - 1; _i >= 0; i = _i += -1) {
         mixin = mixins[i];
-        ref = mixin.prototype;
-        for (name in ref) {
-          method = ref[name];
+        _ref = mixin.prototype;
+        for (name in _ref) {
+          method = _ref[name];
           Mixed.prototype[name] = method;
         }
       }
@@ -140,7 +140,7 @@
 
 (function() {
   var Events,
-    indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   Events = {
     triggerlock: null,
@@ -151,14 +151,14 @@
      * @param {Function} callback called when the event is fired
      */
     register: function(ev, callback) {
-      var base, evs, j, len, name;
+      var evs, name, _base, _i, _len;
       evs = ev.split(' ');
       if (!(this.hasOwnProperty('events') && this.events)) {
         this.events = {};
       }
-      for (j = 0, len = evs.length; j < len; j++) {
-        name = evs[j];
-        (base = this.events)[name] || (base[name] = []);
+      for (_i = 0, _len = evs.length; _i < _len; _i++) {
+        name = evs[_i];
+        (_base = this.events)[name] || (_base[name] = []);
         this.events[name].push(callback);
       }
       return this;
@@ -182,21 +182,21 @@
      * @param {String} ev the name of the event to fire
      */
     trigger: function(ev, value, scope) {
-      var callback, j, len, list, ref;
-      list = this.hasOwnProperty('events') && ((ref = this.events) != null ? ref[ev] : void 0);
+      var callback, list, _i, _len, _ref;
+      list = this.hasOwnProperty('events') && ((_ref = this.events) != null ? _ref[ev] : void 0);
       if (!list) {
         return;
       }
       if (this.triggerlock) {
-        if (indexOf.call(this.triggerlock, ev) >= 0) {
+        if (__indexOf.call(this.triggerlock, ev) >= 0) {
           return this;
         }
         this.triggerlock.push(ev);
       } else {
         this.triggerlock = [ev];
       }
-      for (j = 0, len = list.length; j < len; j++) {
-        callback = list[j];
+      for (_i = 0, _len = list.length; _i < _len; _i++) {
+        callback = list[_i];
         callback.call(this, value, scope);
       }
       this.triggerlock = null;
@@ -248,12 +248,12 @@
      * @param {Function} callback called when the event would have been fired
      */
     stopListening: function(obj, ev, callback) {
-      var idx, index, j, k, l, len, len1, len2, listeningTo, ref, ref1, ref2, val;
+      var idx, index, listeningTo, val, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
       if (obj) {
         obj.unregister(ev, callback);
-        ref = [this.listeningTo, this.listeningToOnce];
-        for (j = 0, len = ref.length; j < len; j++) {
-          listeningTo = ref[j];
+        _ref = [this.listeningTo, this.listeningToOnce];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          listeningTo = _ref[_i];
           if (!listeningTo) {
             continue;
           }
@@ -261,7 +261,7 @@
           if (idx > -1) {
             listeningTo.splice(idx, 1);
           } else {
-            for (index = k = 0, len1 = listeningTo.length; k < len1; index = ++k) {
+            for (index = _j = 0, _len1 = listeningTo.length; _j < _len1; index = ++_j) {
               val = listeningTo[index];
               if (obj === val.obj && ev === val.ev && callback === val.callback) {
                 listeningTo.splice(index, 1);
@@ -271,9 +271,9 @@
           }
         }
       } else {
-        ref1 = this.listeningTo;
-        for (l = 0, len2 = ref1.length; l < len2; l++) {
-          ref2 = ref1[l], obj = ref2.obj, ev = ref2.ev, callback = ref2.callback;
+        _ref1 = this.listeningTo;
+        for (_k = 0, _len2 = _ref1.length; _k < _len2; _k++) {
+          _ref2 = _ref1[_k], obj = _ref2.obj, ev = _ref2.ev, callback = _ref2.callback;
           obj.unregister(ev, callback);
         }
         this.listeningTo = void 0;
@@ -287,15 +287,15 @@
      * @param {Function} callback called when the event would have been fired
      */
     unregister: function(ev, callback) {
-      var cb, evs, i, j, k, len, len1, list, name, ref;
+      var cb, evs, i, list, name, _i, _j, _len, _len1, _ref;
       if (!ev) {
         this.events = {};
         return this;
       }
       evs = ev.split(' ');
-      for (j = 0, len = evs.length; j < len; j++) {
-        name = evs[j];
-        list = (ref = this.events) != null ? ref[name] : void 0;
+      for (_i = 0, _len = evs.length; _i < _len; _i++) {
+        name = evs[_i];
+        list = (_ref = this.events) != null ? _ref[name] : void 0;
         if (!list) {
           continue;
         }
@@ -303,7 +303,7 @@
           delete this.events[name];
           continue;
         }
-        for (i = k = 0, len1 = list.length; k < len1; i = ++k) {
+        for (i = _j = 0, _len1 = list.length; _j < _len1; i = ++_j) {
           cb = list[i];
           if (!(cb === callback)) {
             continue;
@@ -331,7 +331,7 @@
 
 (function() {
   var Module, moduleKeywords,
-    indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   moduleKeywords = ['included', 'extended'];
 
@@ -345,18 +345,18 @@
      */
 
     Module.include = function(obj) {
-      var key, ref, value;
+      var key, value, _ref;
       if (!obj) {
         throw new Error('include(obj) requires obj');
       }
       for (key in obj) {
         value = obj[key];
-        if (indexOf.call(moduleKeywords, key) < 0) {
+        if (__indexOf.call(moduleKeywords, key) < 0) {
           this.prototype[key] = value;
         }
       }
-      if ((ref = obj.included) != null) {
-        ref.call(this, obj);
+      if ((_ref = obj.included) != null) {
+        _ref.call(this, obj);
       }
       return this;
     };
@@ -386,10 +386,10 @@
 
 (function() {
   var Eventable,
-    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    hasProp = {}.hasOwnProperty;
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  Eventable = (function(superClass) {
+  Eventable = (function(_super) {
 
     /**
      * @method include
@@ -397,7 +397,7 @@
      */
     var typemappings;
 
-    extend(Eventable, superClass);
+    __extends(Eventable, _super);
 
     function Eventable() {
       return Eventable.__super__.constructor.apply(this, arguments);
@@ -611,7 +611,7 @@
      */
 
     Eventable.prototype.sendEvent = function(name, value) {
-      var ref;
+      var _ref;
       if (instantiating) {
         eventq.push({
           scope: this,
@@ -620,7 +620,7 @@
         });
         return;
       }
-      if ((ref = this.events) != null ? ref[name] : void 0) {
+      if ((_ref = this.events) != null ? _ref[name] : void 0) {
         this.trigger(name, value, this);
       }
       return this;
@@ -854,15 +854,15 @@
     handlerq = [];
     eventq = [];
     _initConstraints = function() {
-      var ev, j, k, l, len, len1, len2, name, scope, value;
+      var ev, name, scope, value, _i, _j, _k, _len, _len1, _len2;
       instantiating = false;
-      for (j = 0, len = handlerq.length; j < len; j++) {
-        scope = handlerq[j];
+      for (_i = 0, _len = handlerq.length; _i < _len; _i++) {
+        scope = handlerq[_i];
         scope._bindHandlers();
       }
       handlerq = [];
-      for (k = 0, len1 = eventq.length; k < len1; k++) {
-        ev = eventq[k];
+      for (_j = 0, _len1 = eventq.length; _j < _len1; _j++) {
+        ev = eventq[_j];
         scope = ev.scope, name = ev.name, value = ev.value;
         if (name === 'init') {
           scope.inited = true;
@@ -870,8 +870,8 @@
         scope.sendEvent(name, value);
       }
       eventq = [];
-      for (l = 0, len2 = constraintScopes.length; l < len2; l++) {
-        scope = constraintScopes[l];
+      for (_k = 0, _len2 = constraintScopes.length; _k < _len2; _k++) {
+        scope = constraintScopes[_k];
         scope._bindConstraints();
       }
       return constraintScopes = [];
@@ -886,55 +886,55 @@
       return newobj;
     };
     _processAttrs = function(sourceAttrs, targetAttrs) {
-      var j, key, len, mixin, mixinName, mixins, propname, results, val, value;
+      var key, mixin, mixinName, mixins, propname, val, value, _i, _len, _results;
       if (sourceAttrs["with"] != null) {
         mixins = sourceAttrs["with"].split(',').reverse();
-        for (j = 0, len = mixins.length; j < len; j++) {
-          mixinName = mixins[j];
+        for (_i = 0, _len = mixins.length; _i < _len; _i++) {
+          mixinName = mixins[_i];
           mixin = dr[mixinName.trim()];
           if (mixin) {
             _processAttrs(mixin.classattributes, targetAttrs);
           }
         }
       }
-      results = [];
+      _results = [];
       for (key in sourceAttrs) {
         value = sourceAttrs[key];
         if (key === 'with') {
           continue;
         } else if ((key === '$methods' || key === '$types') && key in targetAttrs) {
           targetAttrs[key] = clone(targetAttrs[key]);
-          results.push((function() {
-            var results1;
-            results1 = [];
+          _results.push((function() {
+            var _results1;
+            _results1 = [];
             for (propname in value) {
               val = value[propname];
               if (key === '$methods' && targetAttrs[key][propname]) {
-                results1.push(targetAttrs[key][propname] = targetAttrs[key][propname].concat(val));
+                _results1.push(targetAttrs[key][propname] = targetAttrs[key][propname].concat(val));
               } else {
-                results1.push(targetAttrs[key][propname] = val);
+                _results1.push(targetAttrs[key][propname] = val);
               }
             }
-            return results1;
+            return _results1;
           })());
         } else if (key === '$handlers' && key in targetAttrs) {
-          results.push(targetAttrs[key] = targetAttrs[key].concat(value));
+          _results.push(targetAttrs[key] = targetAttrs[key].concat(value));
         } else {
-          results.push(targetAttrs[key] = value);
+          _results.push(targetAttrs[key] = value);
         }
       }
-      return results;
+      return _results;
     };
     Node = 
 /**
  * @class dr.node {Core Dreem}
  * @extends Eventable
  * The nonvisual base class for everything in dreem. Handles parent/child relationships between tags.
-#
+ *
  * Nodes can contain methods, handlers, setters, [constraints](#!/guide/constraints), attributes and other node instances.
-#
+ *
  * Here we define a data node that contains movie data.
-#
+ *
  *     <node id="data">
  *       <node>
  *         <attribute name="title" type="string" value="Bill and Teds Excellent Adventure"></attribute>
@@ -949,9 +949,9 @@
  *         <attribute name="length" type="number" value="94"></attribute>
  *       </node>
  *     </node>
-#
+ *
  * This node defines a set of math helper methods. The node provides a tidy container for these related utility functions.
-#
+ *
  *     <node id="utils">
  *       <method name="add" args="a,b">
  *         return a+b;
@@ -960,41 +960,41 @@
  *         return a-b;
  *       </method>
  *     </node>
-#
+ *
  * You can also create a sub-class of node to contain non visual functionality. Here is an example of an inches to metric conversion class that is instantiated with the inches value and can convert it to either cm or m.
-#
+ *
  *     @example
-#
+ *
  *     <class name="inchesconverter" extends="node">
  *       <attribute name="inchesval" type="number" value="0"></attribute>
-#
+ *
  *       <method name="centimetersval">
  *         return this.inchesval*2.54;
  *       </method>
-#
+ *
  *       <method name="metersval">
  *         return (this.inchesval*2.54)/100;
  *       </method>
  *     </class>
-#
+ *
  *     <inchesconverter id="conv" inchesval="2"></inchesconverter>
-#
+ *
  *     <spacedlayout axis="y"></spacedlayout>
  *     <text text="${conv.inchesval + ' inches'}"></text>
  *     <text text="${conv.centimetersval() + ' cm'}"></text>
  *     <text text="${conv.metersval() + ' m'}"></text>
-#
-#
+ *
+ *
  */
 
 (function() {
   var Node,
-    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    hasProp = {}.hasOwnProperty,
-    indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
-    slice = [].slice;
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
+    __slice = [].slice;
 
-  Node = (function(superClass) {
+  Node = (function(_super) {
 
     /**
      * @attribute {String} name
@@ -1016,9 +1016,9 @@
      * @attribute {String} scriptincludeserror
      * An error to show if scriptincludes fail to load
      */
-    var _eventCallback, _installMethod, beforeConstructMethods, earlyattributes, lateattributes, matchConstraint, matchSuper;
+    var beforeConstructMethods, earlyattributes, lateattributes, matchConstraint, matchSuper, _eventCallback, _installMethod;
 
-    extend(Node, superClass);
+    __extends(Node, _super);
 
     earlyattributes = ['name', 'parent'];
 
@@ -1027,7 +1027,7 @@
     beforeConstructMethods = ['construct', 'createSprite'];
 
     function Node(el, attributes) {
-      var args, hassuper, j, k, len, len1, method, methodName, methodObj, methods, mixedAttributes, ref, supressTagname;
+      var args, hassuper, method, methodName, methodObj, methods, mixedAttributes, supressTagname, _i, _j, _len, _len1, _ref;
       if (attributes == null) {
         attributes = {};
       }
@@ -1044,14 +1044,14 @@
       }
       methods = attributes.$methods;
       if (methods) {
-        for (j = 0, len = beforeConstructMethods.length; j < len; j++) {
-          methodName = beforeConstructMethods[j];
+        for (_i = 0, _len = beforeConstructMethods.length; _i < _len; _i++) {
+          methodName = beforeConstructMethods[_i];
           methodObj = methods[methodName];
           if (methodObj) {
-            for (k = 0, len1 = methodObj.length; k < len1; k++) {
-              ref = methodObj[k], method = ref.method, args = ref.args;
+            for (_j = 0, _len1 = methodObj.length; _j < _len1; _j++) {
+              _ref = methodObj[_j], method = _ref.method, args = _ref.args;
               hassuper = matchSuper.test(method);
-              _installMethod(this, methodName, compiler.compile(method, args, attributes.$tagname + "$" + methodName).bind(this), hassuper);
+              _installMethod(this, methodName, compiler.compile(method, args, "" + attributes.$tagname + "$" + methodName).bind(this), hassuper);
             }
           }
         }
@@ -1067,14 +1067,14 @@
      */
 
     Node.prototype.createChild = function(attributes, async) {
-      var classname, el, ref;
+      var classname, el, _ref;
       if (attributes == null) {
         attributes = {};
       }
       if (async == null) {
         async = false;
       }
-      classname = (ref = attributes["class"]) != null ? ref : 'node';
+      classname = (_ref = attributes["class"]) != null ? _ref : 'node';
       delete attributes["class"];
       if (typeof dr[classname] !== 'function') {
         showWarnings(["Unrecognized class " + classname + " in createChild()"]);
@@ -1095,9 +1095,9 @@
        * @readonly
        * An array of this node's child nodes
        */
-      var deferbindings, j, k, l, len, len1, len2, len3, m, name, parent, ref, ref1, ref2, ref3, ref4, skiponinit, tagname;
+      var deferbindings, name, parent, skiponinit, tagname, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref, _ref1, _ref2, _ref3, _ref4;
       this.subnodes = [];
-      this.types = (ref = attributes.$types) != null ? ref : {};
+      this.types = (_ref = attributes.$types) != null ? _ref : {};
       delete attributes.$types;
       skiponinit = attributes.$skiponinit;
       delete attributes.$skiponinit;
@@ -1121,20 +1121,20 @@
       if (attributes.$handlers) {
         this.installHandlers(attributes.$handlers, tagname);
         if (attributes.clickable !== "false") {
-          ref1 = (function() {
-            var k, len, ref1, ref2, results;
-            ref1 = attributes.$handlers;
-            results = [];
-            for (k = 0, len = ref1.length; k < len; k++) {
-              name = ref1[k];
-              if (ref2 = name.ev.substr(2), indexOf.call(mouseEvents, ref2) >= 0) {
-                results.push(name);
+          _ref1 = (function() {
+            var _j, _len, _ref1, _ref2, _results;
+            _ref1 = attributes.$handlers;
+            _results = [];
+            for (_j = 0, _len = _ref1.length; _j < _len; _j++) {
+              name = _ref1[_j];
+              if (_ref2 = name.ev.substr(2), __indexOf.call(mouseEvents, _ref2) >= 0) {
+                _results.push(name);
               }
             }
-            return results;
+            return _results;
           })();
-          for (j = 0, len = ref1.length; j < len; j++) {
-            name = ref1[j];
+          for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+            name = _ref1[_i];
             attributes.clickable = true;
             break;
           }
@@ -1144,33 +1144,33 @@
       if (!deferbindings) {
         this._bindHandlers();
       }
-      ref2 = (function() {
-        var l, len1, results;
-        results = [];
-        for (l = 0, len1 = earlyattributes.length; l < len1; l++) {
-          name = earlyattributes[l];
+      _ref2 = (function() {
+        var _k, _len1, _results;
+        _results = [];
+        for (_k = 0, _len1 = earlyattributes.length; _k < _len1; _k++) {
+          name = earlyattributes[_k];
           if (name in attributes) {
-            results.push(name);
+            _results.push(name);
           }
         }
-        return results;
+        return _results;
       })();
-      for (k = 0, len1 = ref2.length; k < len1; k++) {
-        name = ref2[k];
+      for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
+        name = _ref2[_j];
         this.setAttribute(name, attributes[name]);
       }
-      ref3 = (function() {
-        var results;
-        results = [];
+      _ref3 = (function() {
+        var _results;
+        _results = [];
         for (name in attributes) {
-          if (!(indexOf.call(lateattributes, name) >= 0 || indexOf.call(earlyattributes, name) >= 0)) {
-            results.push(name);
+          if (!(__indexOf.call(lateattributes, name) >= 0 || __indexOf.call(earlyattributes, name) >= 0)) {
+            _results.push(name);
           }
         }
-        return results;
+        return _results;
       })();
-      for (l = 0, len2 = ref3.length; l < len2; l++) {
-        name = ref3[l];
+      for (_k = 0, _len2 = _ref3.length; _k < _len2; _k++) {
+        name = _ref3[_k];
         this.bindAttribute(name, attributes[name], tagname);
       }
       parent = this.parent;
@@ -1178,19 +1178,19 @@
         parent.sendEvent('subnodes', this);
         parent.doSubnodeAdded(this);
       }
-      ref4 = (function() {
-        var len3, n, results;
-        results = [];
-        for (n = 0, len3 = lateattributes.length; n < len3; n++) {
-          name = lateattributes[n];
+      _ref4 = (function() {
+        var _len3, _m, _results;
+        _results = [];
+        for (_m = 0, _len3 = lateattributes.length; _m < _len3; _m++) {
+          name = lateattributes[_m];
           if (name in attributes) {
-            results.push(name);
+            _results.push(name);
           }
         }
-        return results;
+        return _results;
       })();
-      for (m = 0, len3 = ref4.length; m < len3; m++) {
-        name = ref4[m];
+      for (_l = 0, _len3 = _ref4.length; _l < _len3; _l++) {
+        name = _ref4[_l];
         this.bindAttribute(name, attributes[name], tagname);
       }
       if (this.constraints) {
@@ -1227,7 +1227,7 @@
     matchSuper = /this.super\(|this\["super"\]\(/;
 
     Node.prototype.installMethods = function(methods, tagname, scope, callbackscope) {
-      var allocation, args, hassuper, j, len, method, methodlist, name, ref;
+      var allocation, args, hassuper, method, methodlist, name, _i, _len, _ref;
       if (scope == null) {
         scope = this;
       }
@@ -1236,27 +1236,27 @@
       }
       for (name in methods) {
         methodlist = methods[name];
-        for (j = 0, len = methodlist.length; j < len; j++) {
-          ref = methodlist[j], method = ref.method, args = ref.args, allocation = ref.allocation;
-          if (indexOf.call(beforeConstructMethods, name) >= 0) {
+        for (_i = 0, _len = methodlist.length; _i < _len; _i++) {
+          _ref = methodlist[_i], method = _ref.method, args = _ref.args, allocation = _ref.allocation;
+          if (__indexOf.call(beforeConstructMethods, name) >= 0) {
             continue;
           }
           hassuper = matchSuper.test(method);
-          _installMethod(scope, name, compiler.compile(method, args, tagname + "$" + name).bind(callbackscope), hassuper, allocation);
+          _installMethod(scope, name, compiler.compile(method, args, "" + tagname + "$" + name).bind(callbackscope), hassuper, allocation);
         }
       }
     };
 
     Node.prototype.installHandlers = function(handlers, tagname, scope) {
-      var args, ev, handler, handlerobj, j, len, method, name, reference, script;
+      var args, ev, handler, handlerobj, method, name, reference, script, _i, _len;
       if (scope == null) {
         scope = this;
       }
       if (this.handlers == null) {
         this.handlers = [];
       }
-      for (j = 0, len = handlers.length; j < len; j++) {
-        handler = handlers[j];
+      for (_i = 0, _len = handlers.length; _i < _len; _i++) {
+        handler = handlers[_i];
         ev = handler.ev, name = handler.name, script = handler.script, args = handler.args, reference = handler.reference, method = handler.method;
         ev = ev.substr(2);
         if (method) {
@@ -1276,12 +1276,12 @@
     };
 
     Node.prototype.removeHandlers = function(handlers, tagname, scope) {
-      var args, ev, handler, j, len, method, name, reference, refeval, script;
+      var args, ev, handler, method, name, reference, refeval, script, _i, _len;
       if (scope == null) {
         scope = this;
       }
-      for (j = 0, len = handlers.length; j < len; j++) {
-        handler = handlers[j];
+      for (_i = 0, _len = handlers.length; _i < _len; _i++) {
+        handler = handlers[_i];
         ev = handler.ev, name = handler.name, script = handler.script, args = handler.args, reference = handler.reference, method = handler.method;
         ev = ev.substr(2);
         if (reference != null) {
@@ -1320,7 +1320,7 @@
       if (fnargs == null) {
         fnargs = ['value'];
       }
-      js = compiler.compile(script, fnargs, tagname + "$on" + name);
+      js = compiler.compile(script, fnargs, "" + tagname + "$on" + name);
       return function() {
         var args;
         if (arguments.length) {
@@ -1345,7 +1345,7 @@
         }
         return scope[methodname] = function() {
           var args, prevOwn, prevValue, retval;
-          args = 1 <= arguments.length ? slice.call(arguments, 0) : [];
+          args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
           prevOwn = scope.hasOwnProperty('super');
           if (prevOwn) {
             prevValue = scope['super'];
@@ -1353,7 +1353,7 @@
           if (exists) {
             scope['super'] = function() {
               var i, params, superargs;
-              superargs = 1 <= arguments.length ? slice.call(arguments, 0) : [];
+              superargs = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
               i = superargs.length;
               params = args.splice(0);
               while (i) {
@@ -1376,7 +1376,7 @@
     };
 
     Node.prototype.setConstraint = function(property, expression, skipbinding) {
-      var bindexpression, bindings, j, len, scope, scopes;
+      var bindexpression, bindings, scope, scopes, _i, _len;
       if (this.constraints != null) {
         this._unbindConstraint(property);
       } else {
@@ -1388,8 +1388,8 @@
       };
       bindings = this.constraints[property].bindings;
       scopes = compiler.findBindings(expression);
-      for (j = 0, len = scopes.length; j < len; j++) {
-        scope = scopes[j];
+      for (_i = 0, _len = scopes.length; _i < _len; _i++) {
+        scope = scopes[_i];
         bindexpression = scope.binding;
         if (bindings[bindexpression] == null) {
           bindings[bindexpression] = [];
@@ -1406,12 +1406,12 @@
     };
 
     Node.prototype._unbindConstraint = function(property) {
-      var callback, callbackbindings, i, j, len, prop, ref, ref1, scope;
-      if (!(this.constraints && ((ref = this.constraints[property]) != null ? ref.callback : void 0))) {
+      var callback, callbackbindings, i, prop, scope, _i, _len, _ref, _ref1;
+      if (!(this.constraints && ((_ref = this.constraints[property]) != null ? _ref.callback : void 0))) {
         return;
       }
-      ref1 = this.constraints[property], callback = ref1.callback, callbackbindings = ref1.callbackbindings;
-      for (i = j = 0, len = callbackbindings.length; j < len; i = j += 2) {
+      _ref1 = this.constraints[property], callback = _ref1.callback, callbackbindings = _ref1.callbackbindings;
+      for (i = _i = 0, _len = callbackbindings.length; _i < _len; i = _i += 2) {
         prop = callbackbindings[i];
         scope = callbackbindings[i + 1];
         scope.unregister(prop, callback);
@@ -1420,10 +1420,10 @@
     };
 
     Node.prototype._bindConstraints = function() {
-      var bindexpression, binding, bindinglist, bindings, boundref, constraint, expression, fn, j, len, name, property, ref;
-      ref = this.constraints;
-      for (name in ref) {
-        constraint = ref[name];
+      var bindexpression, binding, bindinglist, bindings, boundref, constraint, expression, fn, name, property, _i, _len, _ref;
+      _ref = this.constraints;
+      for (name in _ref) {
+        constraint = _ref[name];
         bindings = constraint.bindings, expression = constraint.expression;
         if (constraint.callbackbindings == null) {
           constraint.callbackbindings = [];
@@ -1440,8 +1440,8 @@
           if (!(boundref instanceof Eventable)) {
             console.log("Binding to non-Eventable " + bindexpression + " of constraint " + expression + " for " + this.$tagname + (this.id ? '#' + this.id : this.name ? '.' + name : ''));
           }
-          for (j = 0, len = bindinglist.length; j < len; j++) {
-            binding = bindinglist[j];
+          for (_i = 0, _len = bindinglist.length; _i < _len; _i++) {
+            binding = bindinglist[_i];
             property = binding.property;
             if (boundref instanceof Eventable) {
               boundref.register(property, constraint.callback);
@@ -1454,7 +1454,7 @@
     };
 
     Node.prototype._bindHandlers = function(send) {
-      var binding, callback, ev, j, len, name, ref, reference, refeval, scope;
+      var binding, callback, ev, name, reference, refeval, scope, _i, _len, _ref;
       if (!this.handlers) {
         return;
       }
@@ -1462,9 +1462,9 @@
         handlerq.push(this);
         return;
       }
-      ref = this.handlers;
-      for (j = 0, len = ref.length; j < len; j++) {
-        binding = ref[j];
+      _ref = this.handlers;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        binding = _ref[_i];
         scope = binding.scope, name = binding.name, ev = binding.ev, callback = binding.callback, reference = binding.reference;
         if (reference) {
           refeval = this._valueLookup(reference)();
@@ -1643,7 +1643,7 @@
      */
 
     Node.prototype.destroy = function(skipevents) {
-      var j, len, property, ref, ref1, subnode;
+      var property, subnode, _i, _len, _ref, _ref1;
       this.destroyed = true;
 
       /**
@@ -1661,12 +1661,12 @@
         this.stopListening();
       }
       this.unregister();
-      if (((ref = this.parent) != null ? ref[this.name] : void 0) === this) {
+      if (((_ref = this.parent) != null ? _ref[this.name] : void 0) === this) {
         delete this.parent[this.name];
       }
-      ref1 = this.subnodes;
-      for (j = 0, len = ref1.length; j < len; j++) {
-        subnode = ref1[j];
+      _ref1 = this.subnodes;
+      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+        subnode = _ref1[_i];
         if (subnode != null) {
           subnode.destroy(true);
         }
@@ -1693,12 +1693,12 @@
 
 (function() {
   var Sprite, fcamelCase, knownstyles, rdashAlpha, ss, ss2,
-    bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-    indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   Sprite = (function() {
     function Sprite(view, jqel, attributes) {
-      this._handleScroll = bind(this._handleScroll, this);
+      this._handleScroll = __bind(this._handleScroll, this);
       var tagname;
       tagname = attributes.$tagname || 'div';
       if (jqel == null) {
@@ -2017,7 +2017,7 @@
       if (name === '$instanceattributes') {
         return;
       }
-      if (!internal && !(name in stylemap) && !(indexOf.call(knownstyles, name) >= 0)) {
+      if (!internal && !(name in stylemap) && !(__indexOf.call(knownstyles, name) >= 0)) {
         console.warn("Setting unknown CSS property " + name + " = " + value + " on ", this.el.$view, stylemap, internal);
       }
       return ss2(name, value, internal, el);
@@ -2037,11 +2037,11 @@
 
 (function() {
   var TextSprite,
-    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    hasProp = {}.hasOwnProperty;
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  TextSprite = (function(superClass) {
-    extend(TextSprite, superClass);
+  TextSprite = (function(_super) {
+    __extends(TextSprite, _super);
 
     function TextSprite(view, jqel, attributes) {
       if (this.css_baseclass == null) {
@@ -2052,11 +2052,11 @@
     }
 
     TextSprite.prototype.setText = function(txt) {
-      var cld, i, len, ref, tnode;
+      var cld, tnode, _i, _len, _ref;
       if (txt != null) {
-        ref = this.el.childNodes;
-        for (i = 0, len = ref.length; i < len; i++) {
-          cld = ref[i];
+        _ref = this.el.childNodes;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          cld = _ref[_i];
           if (cld && cld.nodeType === 3) {
             this.el.removeChild(cld);
           }
@@ -2096,11 +2096,11 @@
 
 (function() {
   var InputTextSprite,
-    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    hasProp = {}.hasOwnProperty;
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  InputTextSprite = (function(superClass) {
-    extend(InputTextSprite, superClass);
+  InputTextSprite = (function(_super) {
+    __extends(InputTextSprite, _super);
 
     function InputTextSprite(view, jqel, attributes) {
       var input;
@@ -2174,29 +2174,29 @@
 
 (function() {
   var ArtSprite,
-    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    hasProp = {}.hasOwnProperty;
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  ArtSprite = (function(superClass) {
-    extend(ArtSprite, superClass);
+  ArtSprite = (function(_super) {
+    __extends(ArtSprite, _super);
 
     function ArtSprite() {
       return ArtSprite.__super__.constructor.apply(this, arguments);
     }
 
     ArtSprite.prototype.clearInline = function() {
-      var cld, i, len, ref, results;
-      ref = this.el.childNodes;
-      results = [];
-      for (i = 0, len = ref.length; i < len; i++) {
-        cld = ref[i];
+      var cld, _i, _len, _ref, _results;
+      _ref = this.el.childNodes;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        cld = _ref[_i];
         if (cld && cld.nodeType === 3) {
-          results.push(this.el.removeChild(cld));
+          _results.push(this.el.removeChild(cld));
         } else {
-          results.push(void 0);
+          _results.push(void 0);
         }
       }
-      return results;
+      return _results;
     };
 
     return ArtSprite;
@@ -2216,11 +2216,11 @@
 
 (function() {
   var BitmapSprite,
-    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    hasProp = {}.hasOwnProperty;
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  BitmapSprite = (function(superClass) {
-    extend(BitmapSprite, superClass);
+  BitmapSprite = (function(_super) {
+    __extends(BitmapSprite, _super);
 
     function BitmapSprite(view, jqel, attributes) {
       BitmapSprite.__super__.constructor.apply(this, arguments);
@@ -2283,6 +2283,21 @@
       }
     };
 
+    BitmapSprite.prototype.setWindow = function(w) {
+      var args, style, view;
+      args = w.split(',', 4);
+      if (args.length !== 4) {
+        return this.setStyle('background-position', '');
+      } else {
+        view = this.el.$view;
+        view.setAttribute('width', args[2]);
+        view.setAttribute('height', args[3]);
+        style = this.el.style;
+        style.backgroundSize = '';
+        return style.backgroundPosition = -args[0] + 'px ' + -args[1] + 'px';
+      }
+    };
+
     BitmapSprite.prototype.setStretches = function(v) {
       if (v === 'scale') {
         v = 'contain';
@@ -2321,74 +2336,74 @@
  * @class dr.view {UI Components}
  * @extends dr.node
  * The visual base class for everything in dreem. Views extend dr.node to add the ability to set and animate visual attributes, and interact with the mouse.
-#
+ *
  * Views are positioned inside their parent according to their x and y coordinates.
-#
+ *
  * Views can contain methods, handlers, setters, constraints, attributes and other view, node or class instances.
-#
+ *
  * Views can be easily converted to reusable classes/tags by changing their outermost &lt;view> tags to &lt;class> and adding a name attribute.
-#
+ *
  * Views support a number of builtin attributes. Setting attributes that aren't listed explicitly will pass through to the underlying Sprite implementation.
-#
+ *
  * Views currently integrate with jQuery, so any changes made to their CSS via jQuery will automatically cause them to update.
-#
+ *
  * Note that dreem apps must be contained inside a top-level &lt;view>&lt;/view> tag.
-#
+ *
  * The following example shows a pink view that contains a smaller blue view offset 10 pixels from the top and 10 from the left.
-#
+ *
  *     @example
  *     <view width="200" height="100" bgcolor="lightpink">
-#
+ *
  *       <view width="50" height="50" x="10" y="10" bgcolor="lightblue"></view>
-#
+ *
  *     </view>
-#
+ *
  * Here the blue view is wider than its parent pink view, and because the clip attribute of the parent is set to false it extends beyond the parents bounds.
-#
+ *
  *     @example
  *     <view width="200" height="100" bgcolor="lightpink" clip="false">
-#
+ *
  *       <view width="250" height="50" x="10" y="10" bgcolor="lightblue"></view>
-#
+ *
  *     </view>
-#
+ *
  * Now we set the clip attribute on the parent view to true, causing the overflowing child view to be clipped at its parent's boundary.
-#
+ *
  *     @example
  *     <view width="200" height="100" bgcolor="lightpink" clip="true">
-#
+ *
  *       <view width="250" height="50" x="10" y="10" bgcolor="lightblue"></view>
-#
+ *
  *     </view>
-#
+ *
  * Here we demonstrate how unsupported attributes are passed to the underlying sprite system. We make the child view semi-transparent by setting opacity. Although this is not in the list of supported attributes it is still applied.
-#
+ *
  *     @example
  *     <view width="200" height="100" bgcolor="lightpink">
-#
+ *
  *       <view width="250" height="50" x="10" y="10" bgcolor="lightblue" opacity=".5"></view>
-#
+ *
  *     </view>
-#
+ *
  * It is convenient to [constrain](#!/guide/constraints) a view's size and position to attributes of its parent view. Here we'll position the inner view so that its inset by 10 pixels in its parent.
-#
+ *
  *     @example
  *     <view width="200" height="100" bgcolor="lightpink">
-#
+ *
  *       <view width="${this.parent.width-this.inset*2}" height="${this.parent.height-this.inset*2}" x="${this.inset}" y="${this.inset}" bgcolor="lightblue">
  *         <attribute name="inset" type="number" value="10"></attribute>
  *       </view>
-#
+ *
  *     </view>
  */
 
 (function() {
   var View,
-    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    hasProp = {}.hasOwnProperty;
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  View = (function(superClass) {
-    extend(View, superClass);
+  View = (function(_super) {
+    __extends(View, _super);
 
     function View() {
       return View.__super__.constructor.apply(this, arguments);
@@ -2636,7 +2651,7 @@
     /**
      * @attribute {Number} [z=0]
      * Sets this view's z position (higher values are on top of other views)
-    #
+     *
      * *(note: setting a 'z' value for a view implicitly sets its parent's 'transform-style' to 'preserve-3d')*
      */
 
@@ -2814,7 +2829,7 @@
        * @readonly
        * An array of this views's layouts. Only defined when needed.
        */
-      var key, ref, type, types;
+      var key, type, types, _ref;
       this.subviews = [];
       types = {
         border: 'positivenumber',
@@ -2855,9 +2870,9 @@
         $tagname: 'string',
         $textcontent: 'string'
       };
-      ref = attributes.$types;
-      for (key in ref) {
-        type = ref[key];
+      _ref = attributes.$types;
+      for (key in _ref) {
+        type = _ref[key];
         types[key] = type;
       }
       this._declaredTypes = attributes.$types = types;
@@ -3613,7 +3628,7 @@
     };
 
     View.prototype.reskin = function() {
-      var i, len, results, sk, skinname, skins;
+      var sk, skinname, skins, _i, _len, _results;
       this.attachSkinListener();
       if (!window.dr.skins) {
         console.log("<skin> hasn't been initialized yet", this);
@@ -3621,26 +3636,26 @@
       }
       if (this.skin) {
         skins = this.skin.split(/[^A-Za-z0-9_-]+/);
-        results = [];
-        for (i = 0, len = skins.length; i < len; i++) {
-          skinname = skins[i];
+        _results = [];
+        for (_i = 0, _len = skins.length; _i < _len; _i++) {
+          skinname = skins[_i];
           if (sk = window.dr.skins[skinname]) {
-            results.push(sk.applyTo(this));
+            _results.push(sk.applyTo(this));
           } else {
-            results.push(console.log('Cannot apply skin:', skinname));
+            _results.push(console.log('Cannot apply skin:', skinname));
           }
         }
-        return results;
+        return _results;
       } else if (this.parent && this.parent.reskin) {
         return this.parent.reskin();
       }
     };
 
     View.prototype.moveToFront = function() {
-      var i, len, ref, subview;
-      ref = this.parent.subviews;
-      for (i = 0, len = ref.length; i < len; i++) {
-        subview = ref[i];
+      var subview, _i, _len, _ref;
+      _ref = this.parent.subviews;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        subview = _ref[_i];
         if (!subview.z) {
           subview.setAttribute('z', 0);
         }
@@ -3658,10 +3673,10 @@
      */
 
     View.prototype.moveToBack = function() {
-      var i, len, ref, subview;
-      ref = this.parent.subviews;
-      for (i = 0, len = ref.length; i < len; i++) {
-        subview = ref[i];
+      var subview, _i, _len, _ref;
+      _ref = this.parent.subviews;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        subview = _ref[_i];
         if (!subview.z) {
           subview.setAttribute('z', 0);
         }
@@ -3853,10 +3868,10 @@
     dom = (function() {
       var builtinTags, checkRequiredAttributes, exports, findAutoIncludes, flattenattributes, getChildElements, htmlDecode, initAllElements, initElement, initFromElement, processSpecialTags, requiredAttributes, sendInit, writeCSS;
       flattenattributes = function(namednodemap) {
-        var attributes, i, j, len;
+        var attributes, i, _i, _len;
         attributes = {};
-        for (j = 0, len = namednodemap.length; j < len; j++) {
-          i = namednodemap[j];
+        for (_i = 0, _len = namednodemap.length; _i < _len; _i++) {
+          i = namednodemap[_i];
           attributes[i.name] = i.value;
         }
         return attributes;
@@ -3879,16 +3894,16 @@
         });
       };
       getChildElements = function(el) {
-        var child, j, len, ref, results;
-        ref = el.childNodes;
-        results = [];
-        for (j = 0, len = ref.length; j < len; j++) {
-          child = ref[j];
+        var child, _i, _len, _ref, _results;
+        _ref = el.childNodes;
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          child = _ref[_i];
           if (child.nodeType === 1) {
-            results.push(child);
+            _results.push(child);
           }
         }
-        return results;
+        return _results;
       };
       findAutoIncludes = function(parentel, finalcallback) {
         var blacklist, dependencies, fileloaded, filereloader, filerequests, findIncludeURLs, findMissingClasses, includedScripts, inlineclasses, jqel, loadInclude, loadIncludes, loadMixins, loadScript, loadqueue, scriptloading, validator;
@@ -3950,41 +3965,41 @@
           return filerequests.push(prom);
         };
         loadMixins = function(el, names) {
-          var j, len, mixin, ref, results;
+          var mixin, _i, _len, _ref, _results;
           if (names == null) {
             names = {};
           }
           if (el.attributes["with"] && (el.attributes["with"].value != null)) {
-            ref = el.attributes["with"].value.split(',');
-            results = [];
-            for (j = 0, len = ref.length; j < len; j++) {
-              mixin = ref[j];
-              results.push(names[mixin.trim()] = el);
+            _ref = el.attributes["with"].value.split(',');
+            _results = [];
+            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+              mixin = _ref[_i];
+              _results.push(names[mixin.trim()] = el);
             }
-            return results;
+            return _results;
           }
         };
         findMissingClasses = function(names) {
-          var el, j, len, name, out, ref, ref1, ref2;
+          var el, name, out, _i, _len, _ref, _ref1, _ref2;
           if (names == null) {
             names = {};
           }
-          ref = jqel.find('*');
-          for (j = 0, len = ref.length; j < len; j++) {
-            el = ref[j];
+          _ref = jqel.find('*');
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            el = _ref[_i];
             name = el.localName;
             if (name === 'class') {
               if (el.attributes["extends"]) {
                 names[el.attributes["extends"].value] = el;
               }
               loadMixins(el, names);
-              inlineclasses[(ref1 = el.attributes.name) != null ? ref1.value : void 0] = true;
+              inlineclasses[(_ref1 = el.attributes.name) != null ? _ref1.value : void 0] = true;
             } else if (name === 'replicator') {
               names[name] = el;
               names[el.attributes.classname.value] = el;
               loadMixins(el, names);
             } else {
-              if (ref2 = el.parentNode.localName, indexOf.call(specialtags, ref2) < 0) {
+              if (_ref2 = el.parentNode.localName, __indexOf.call(specialtags, _ref2) < 0) {
                 names[name] = el;
                 loadMixins(el, names);
               }
@@ -3993,20 +4008,20 @@
           out = {};
           for (name in names) {
             el = names[name];
-            if (!(name in dr || name in fileloaded || indexOf.call(specialtags, name) >= 0 || name in inlineclasses || builtinTags[name])) {
+            if (!(name in dr || name in fileloaded || __indexOf.call(specialtags, name) >= 0 || name in inlineclasses || builtinTags[name])) {
               out[name] = el;
             }
           }
           return out;
         };
         findIncludeURLs = function(urls) {
-          var el, j, len, ref, url;
+          var el, url, _i, _len, _ref;
           if (urls == null) {
             urls = {};
           }
-          ref = jqel.find('include');
-          for (j = 0, len = ref.length; j < len; j++) {
-            el = ref[j];
+          _ref = jqel.find('include');
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            el = _ref[_i];
             url = el.attributes.href.value;
             el.parentNode.removeChild(el);
             urls[url] = el;
@@ -4014,46 +4029,46 @@
           return urls;
         };
         loadIncludes = function(callback) {
-          var el, ref, url;
+          var el, url, _ref;
           if (!fileloaded['skin']) {
             fileloaded['skin'] = true;
             loadInclude(DREEM_ROOT + "classes/skin.dre");
           }
-          ref = findIncludeURLs();
-          for (url in ref) {
-            el = ref[url];
+          _ref = findIncludeURLs();
+          for (url in _ref) {
+            el = _ref[url];
             loadInclude(url, el);
           }
           return $.when.apply($, filerequests).done(function() {
-            var args, file, html, includeRE, j, len, name, ref1, results, xhr;
-            args = 1 <= arguments.length ? slice.call(arguments, 0) : [];
+            var args, file, html, includeRE, name, xhr, _i, _len, _ref1, _results;
+            args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
             if (filerequests.length === 1) {
               args = [args];
             }
             filerequests = [];
             includeRE = /<[\/]*library>/gi;
-            for (j = 0, len = args.length; j < len; j++) {
-              xhr = args[j];
+            for (_i = 0, _len = args.length; _i < _len; _i++) {
+              xhr = args[_i];
               html = xhr[0].replace(includeRE, '');
               jqel.prepend(html);
             }
-            ref1 = findMissingClasses();
-            for (name in ref1) {
-              el = ref1[name];
+            _ref1 = findMissingClasses();
+            for (name in _ref1) {
+              el = _ref1[name];
               fileloaded[name] = true;
               if (name) {
                 loadInclude(DREEM_ROOT + "classes/" + name.split(tagPackageSeparator).join('/') + ".dre", el);
               }
             }
             $.when.apply($, filerequests).done(function() {
-              var args, includes, k, len1, oneurl;
-              args = 1 <= arguments.length ? slice.call(arguments, 0) : [];
+              var args, includes, oneurl, _j, _len1;
+              args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
               if (filerequests.length === 1) {
                 args = [args];
               }
               filerequests = [];
-              for (k = 0, len1 = args.length; k < len1; k++) {
-                xhr = args[k];
+              for (_j = 0, _len1 = args.length; _j < _len1; _j++) {
+                xhr = args[_j];
                 jqel.prepend(xhr[0]);
                 jqel.contents().each(function() {
                   if (this.nodeType === COMMENT_NODE) {
@@ -4072,7 +4087,7 @@
                 cache: true,
                 url: oneurl
               }).done(function() {
-                var l, len2, ref2, results, trimmedUrl;
+                var trimmedUrl, _k, _len2, _ref2, _results;
                 ONE.base_.call(Eventable.prototype);
                 Eventable.prototype.enumfalse(Eventable.prototype.keys());
                 Node.prototype.enumfalse(Node.prototype.keys());
@@ -4080,53 +4095,53 @@
                 Layout.prototype.enumfalse(Layout.prototype.keys());
                 State.prototype.enumfalse(State.prototype.keys());
                 loadScript(DREEM_ROOT + 'lib/animator.js', callback, 'Missing /lib/animator.js');
-                ref2 = jqel.find('[scriptincludes]');
-                results = [];
-                for (l = 0, len2 = ref2.length; l < len2; l++) {
-                  el = ref2[l];
-                  results.push((function() {
-                    var len3, m, ref3, ref4, results1;
-                    ref3 = el.attributes.scriptincludes.value.split(',');
-                    results1 = [];
-                    for (m = 0, len3 = ref3.length; m < len3; m++) {
-                      url = ref3[m];
+                _ref2 = jqel.find('[scriptincludes]');
+                _results = [];
+                for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
+                  el = _ref2[_k];
+                  _results.push((function() {
+                    var _l, _len3, _ref3, _ref4, _results1;
+                    _ref3 = el.attributes.scriptincludes.value.split(',');
+                    _results1 = [];
+                    for (_l = 0, _len3 = _ref3.length; _l < _len3; _l++) {
+                      url = _ref3[_l];
                       trimmedUrl = url.trim();
                       if (!(trimmedUrl.match(/^\w+:\/\//) || trimmedUrl.match(/^\//))) {
                         trimmedUrl = DREEM_ROOT + trimmedUrl;
                       }
-                      results1.push(loadScript(trimmedUrl, callback, (ref4 = el.attributes.scriptincludeserror) != null ? ref4.value.toString() : void 0));
+                      _results1.push(loadScript(trimmedUrl, callback, (_ref4 = el.attributes.scriptincludeserror) != null ? _ref4.value.toString() : void 0));
                     }
-                    return results1;
+                    return _results1;
                   })());
                 }
-                return results;
+                return _results;
               }).fail(function() {
                 return console.warn("failed to load " + oneurl);
               });
             }).fail(function() {
-              var args, k, len1;
-              args = 1 <= arguments.length ? slice.call(arguments, 0) : [];
+              var args, _j, _len1;
+              args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
               if (args.length === 1) {
                 args = [args];
               }
-              for (k = 0, len1 = args.length; k < len1; k++) {
-                xhr = args[k];
+              for (_j = 0, _len1 = args.length; _j < _len1; _j++) {
+                xhr = args[_j];
                 showWarnings(["failed to load " + xhr.url + " for element " + xhr.el.outerHTML]);
               }
             });
-            results = [];
+            _results = [];
             for (file in fileloaded) {
-              results.push(fileloaded[file] = true);
+              _results.push(fileloaded[file] = true);
             }
-            return results;
+            return _results;
           }).fail(function() {
-            var args, j, len, xhr;
-            args = 1 <= arguments.length ? slice.call(arguments, 0) : [];
+            var args, xhr, _i, _len;
+            args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
             if (args.length === 1) {
               args = [args];
             }
-            for (j = 0, len = args.length; j < len; j++) {
-              xhr = args[j];
+            for (_i = 0, _len = args.length; _i < _len; _i++) {
+              xhr = args[_i];
               showWarnings(["failed to load " + xhr.url + " for element " + xhr.el.outerHTML]);
             }
           });
@@ -4137,7 +4152,7 @@
           dependencies.push(window.location.pathname);
           dependencies.push('/core/dreem.coffee');
           paths = dependencies.filter(function(path) {
-            if (indexOf.call(blacklist, path) < 0) {
+            if (__indexOf.call(blacklist, path) < 0) {
               return true;
             }
           });
@@ -4148,7 +4163,7 @@
               url: paths
             },
             success: function(url) {
-              if (indexOf.call(paths, url) >= 0) {
+              if (__indexOf.call(paths, url) >= 0) {
                 return window.location.reload();
               }
             }
@@ -4322,7 +4337,7 @@
         if (tagname in requiredAttributes) {
           for (attrname in requiredAttributes[tagname]) {
             if (!(attrname in attributes)) {
-              error = tagname + "." + attrname + " must be defined on " + tag.outerHTML;
+              error = "" + tagname + "." + attrname + " must be defined on " + tag.outerHTML;
               if (parenttag) {
                 error = error + (" inside " + parenttag.outerHTML);
               }
@@ -4333,7 +4348,7 @@
         return error;
       };
       initElement = function(el, parent) {
-        var attr, attributes, checkChildren, child, children, event, eventname, isClass, isState, j, k, len, len1, li, skiponinit, tagname;
+        var attr, attributes, checkChildren, child, children, event, eventname, isClass, isState, li, skiponinit, tagname, _i, _j, _len, _len1;
         if (el.$init) {
           return;
         }
@@ -4353,8 +4368,8 @@
         attributes = flattenattributes(el.attributes);
         checkRequiredAttributes(tagname, attributes, el);
         attributes.$tagname = tagname;
-        for (j = 0, len = mouseEvents.length; j < len; j++) {
-          event = mouseEvents[j];
+        for (_i = 0, _len = mouseEvents.length; _i < _len; _i++) {
+          event = mouseEvents[_i];
           eventname = 'on' + event;
           if (eventname in attributes) {
             if (attributes.clickable !== false) {
@@ -4394,19 +4409,19 @@
         if (!(isClass || isState)) {
           if (!dr[tagname].skipinitchildren) {
             children = (function() {
-              var k, len1, ref, ref1, results;
-              ref = dom.getChildElements(el);
-              results = [];
-              for (k = 0, len1 = ref.length; k < len1; k++) {
-                child = ref[k];
-                if (ref1 = child.localName, indexOf.call(specialtags, ref1) < 0) {
-                  results.push(child);
+              var _j, _len1, _ref, _ref1, _results;
+              _ref = dom.getChildElements(el);
+              _results = [];
+              for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+                child = _ref[_j];
+                if (_ref1 = child.localName, __indexOf.call(specialtags, _ref1) < 0) {
+                  _results.push(child);
                 }
               }
-              return results;
+              return _results;
             })();
-            for (k = 0, len1 = children.length; k < len1; k++) {
-              child = children[k];
+            for (_j = 0, _len1 = children.length; _j < _len1; _j++) {
+              child = children[_j];
               initElement(child, parent);
             }
           }
@@ -4435,23 +4450,23 @@
         return document.getElementsByTagName('head')[0].appendChild(style);
       };
       initAllElements = function(selector) {
-        var el, j, len;
+        var el, _i, _len;
         if (selector == null) {
           selector = $('view').not('view view');
         }
-        for (j = 0, len = selector.length; j < len; j++) {
-          el = selector[j];
+        for (_i = 0, _len = selector.length; _i < _len; _i++) {
+          el = selector[_i];
           initFromElement(el);
         }
       };
       htmlDecode = function(input) {
-        var child, e, j, len, out, ref;
+        var child, e, out, _i, _len, _ref;
         e = document.createElement('div');
         e.innerHTML = input;
         out = '';
-        ref = e.childNodes;
-        for (j = 0, len = ref.length; j < len; j++) {
-          child = ref[j];
+        _ref = e.childNodes;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          child = _ref[_i];
           if ((child.nodeValue != null) && (child.nodeType === 3 || child.nodeType === 8)) {
             out += child.nodeValue;
           } else {
@@ -4461,7 +4476,7 @@
         return out;
       };
       processSpecialTags = function(el, classattributes, defaulttype) {
-        var args, attributes, base1, child, children, handler, j, len, name, ref, ref1, script, tagname, type;
+        var args, attributes, child, children, handler, name, script, tagname, type, _base, _i, _len, _ref, _ref1;
         if (classattributes.$types == null) {
           classattributes.$types = {};
         }
@@ -4472,27 +4487,27 @@
           classattributes.$handlers = [];
         }
         children = (function() {
-          var j, len, ref, ref1, results;
-          ref = dom.getChildElements(el);
-          results = [];
-          for (j = 0, len = ref.length; j < len; j++) {
-            child = ref[j];
-            if (ref1 = child.localName, indexOf.call(specialtags, ref1) >= 0) {
-              results.push(child);
+          var _i, _len, _ref, _ref1, _results;
+          _ref = dom.getChildElements(el);
+          _results = [];
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            child = _ref[_i];
+            if (_ref1 = child.localName, __indexOf.call(specialtags, _ref1) >= 0) {
+              _results.push(child);
             }
           }
-          return results;
+          return _results;
         })();
-        for (j = 0, len = children.length; j < len; j++) {
-          child = children[j];
+        for (_i = 0, _len = children.length; _i < _len; _i++) {
+          child = children[_i];
           attributes = flattenattributes(child.attributes);
           tagname = child.localName;
-          args = ((ref = attributes.args) != null ? ref : '').split();
+          args = ((_ref = attributes.args) != null ? _ref : '').split();
           script = htmlDecode(child.innerHTML);
           if (script == null) {
             console.warn('Invalid tag', name, child);
           }
-          type = (ref1 = attributes.type) != null ? ref1 : defaulttype;
+          type = (_ref1 = attributes.type) != null ? _ref1 : defaulttype;
           name = attributes.name;
           checkRequiredAttributes(tagname, attributes, child, el);
           switch (tagname) {
@@ -4512,8 +4527,8 @@
               if (tagname === 'setter') {
                 name = "set_" + (name.toLowerCase());
               }
-              if ((base1 = classattributes.$methods)[name] == null) {
-                base1[name] = [];
+              if ((_base = classattributes.$methods)[name] == null) {
+                _base[name] = [];
               }
               classattributes.$methods[name].push({
                 method: compiler.transform(script, type),
@@ -4542,11 +4557,11 @@
  * @class dr.state {Core Dreem}
  * @extends dr.node
  * Allows a group of attributes, methods, handlers and instances to be removed and applied as a group.
-#
+ *
  * Like views and nodes, states can contain methods, handlers, setters, constraints, attributes and other view, node or class instances.
-#
+ *
  * Currently, states must end with the string 'state' in their name to work properly.
-#
+ *
  *     @example
  *     <spacedlayout axis="y"></spacedlayout>
  *     <view id="square" width="100" height="100" bgcolor="lightgrey">
@@ -4560,9 +4575,9 @@
  *         square.setAttribute('ispink', true);
  *       </handler>
  *     </labelbutton>
-#
+ *
  * You can set the 'applied' attribute to true to activate a state.
-#
+ *
  *     @example
  *     <view id="square" width="200" height="100" bgcolor="lightgrey">
  *       <state name="pinkstate">
@@ -4572,20 +4587,20 @@
  *         this.pinkstate.setAttribute('applied', true);
  *       </handler>
  *     </view>
-#
+ *
  */
 
 (function() {
   var State,
-    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    hasProp = {}.hasOwnProperty,
-    indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
-  State = (function(superClass) {
-    extend(State, superClass);
+  State = (function(_super) {
+    __extends(State, _super);
 
     function State(el, attributes) {
-      var base, base1, child, compilertype, finish, handler, j, k, len, len1, name, oldbody, processedChildren, ref, ref1, value;
+      var child, compilertype, finish, handler, name, oldbody, processedChildren, value, _base, _base1, _i, _j, _len, _len1, _ref, _ref1;
       if (attributes == null) {
         attributes = {};
       }
@@ -4597,28 +4612,28 @@
       compilertype = attributes.type;
       processedChildren = dom.processSpecialTags(el, attributes, compilertype);
       oldbody = el.innerHTML.trim();
-      for (j = 0, len = processedChildren.length; j < len; j++) {
-        child = processedChildren[j];
+      for (_i = 0, _len = processedChildren.length; _i < _len; _i++) {
+        child = processedChildren[_i];
         child.parentNode.removeChild(child);
       }
       this.instancebody = el.innerHTML.trim();
       if (oldbody) {
         el.innerHTML = oldbody;
       }
-      this.types = (ref = attributes.$types) != null ? ref : {};
+      this.types = (_ref = attributes.$types) != null ? _ref : {};
       this.setAttribute('parent', attributes.parent);
-      if ((base = this.parent).states == null) {
-        base.states = [];
+      if ((_base = this.parent).states == null) {
+        _base.states = [];
       }
-      if ((base1 = this.parent.states).origmethods == null) {
-        base1.origmethods = {};
+      if ((_base1 = this.parent.states).origmethods == null) {
+        _base1.origmethods = {};
       }
       this.parent.states.push(this);
       this.parent.sendEvent('states', this.parent.states);
       this.statemethods = attributes.$methods;
       for (name in attributes) {
         value = attributes[name];
-        if (!(indexOf.call(this.skipattributes, name) >= 0 || name.charAt(0) === '$')) {
+        if (!(__indexOf.call(this.skipattributes, name) >= 0 || name.charAt(0) === '$')) {
           if (name !== 'name') {
             this.applyattributes[name] = value;
           }
@@ -4628,9 +4643,9 @@
       if (attributes.applied) {
         this.bindAttribute('applied', attributes.applied, 'state');
       }
-      ref1 = attributes.$handlers;
-      for (k = 0, len1 = ref1.length; k < len1; k++) {
-        handler = ref1[k];
+      _ref1 = attributes.$handlers;
+      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+        handler = _ref1[_j];
         if (handler.ev === 'onapplied') {
           this.installHandlers([handler], 'state', this);
           this._bindHandlers();
@@ -4683,7 +4698,7 @@
     };
 
     State.prototype._apply = function() {
-      var children, childrenbefore, el, i, j, k, l, len, len1, len2, name, origmethods, parentel, ref, state, subnode;
+      var children, childrenbefore, el, i, name, origmethods, parentel, state, subnode, _i, _j, _k, _len, _len1, _len2, _ref;
       if (this.applied) {
         return;
       }
@@ -4691,14 +4706,14 @@
       origmethods = this.parent.states.origmethods;
       for (name in this.statemethods) {
         if (name in this.parent) {
-          if (indexOf.call(origmethods, name) < 0) {
+          if (__indexOf.call(origmethods, name) < 0) {
             origmethods[name] = this.parent[name];
           }
         }
       }
-      ref = this.parent.states;
-      for (j = 0, len = ref.length; j < len; j++) {
-        state = ref[j];
+      _ref = this.parent.states;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        state = _ref[_i];
         if (state.applied || state === this) {
           this.parent.installMethods(state.statemethods, this.parent.$tagname, this.parent, this.parent);
         }
@@ -4706,15 +4721,15 @@
       if (this.instancebody) {
         parentel = this.parent.sprite.el;
         childrenbefore = dom.getChildElements(parentel);
-        for (k = 0, len1 = childrenbefore.length; k < len1; k++) {
-          el = childrenbefore[k];
+        for (_j = 0, _len1 = childrenbefore.length; _j < _len1; _j++) {
+          el = childrenbefore[_j];
           if (el.$view) {
             el.$view = null;
           }
         }
         parentel.innerHTML += this.instancebody;
         children = dom.getChildElements(parentel);
-        for (i = l = 0, len2 = children.length; l < len2; i = ++l) {
+        for (i = _k = 0, _len2 = children.length; _k < _len2; i = ++_k) {
           el = children[i];
           if (i < childrenbefore.length) {
             subnode = this.parent.subnodes[i];
@@ -4735,7 +4750,7 @@
     };
 
     State.prototype._remove = function() {
-      var child, j, len, ref, state;
+      var child, state, _i, _len, _ref;
       if (!this.applied) {
         return;
       }
@@ -4743,9 +4758,9 @@
       while (child = this.children.pop()) {
         child.destroy();
       }
-      ref = this.parent.states;
-      for (j = 0, len = ref.length; j < len; j++) {
-        state = ref[j];
+      _ref = this.parent.states;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        state = _ref[_i];
         if (state.applied && state !== this) {
           this.parent.installMethods(state.statemethods, this.parent.$tagname, this.parent, this.parent);
         }
@@ -4767,54 +4782,54 @@
 /**
  * @class dr.class {Core Dreem}
  * Allows new tags to be created. Classes only be created with the &lt;class>&lt;/class> tag syntax.
-#
+ *
  * Classes can extend any other class, and they extend dr.view by default.
-#
+ *
  * Once declared, classes invoked with the declarative syntax, e.g. &lt;classname>&lt;/classname>.
-#
+ *
  * If a class can't be found in the document, dreem will automatically attempt to load it from the classes/* directory.
-#
+ *
  * Like views and nodes, classes can contain methods, handlers, setters, constraints, attributes and other view, node or class instances.
-#
+ *
  * Here is a class called 'tile' that extends dr.view. It sets the bgcolor, width, and height attributes. An instance of tile is created using declarative syntax.
-#
+ *
  *     @example
  *     <class name="tile" extends="view" bgcolor="thistle" width="100" height="100"></class>
-#
+ *
  *     <tile></tile>
-#
+ *
  * Now we'll extend the tile class with a class called 'labeltile', which contains a label inside of the box. We'll declare one each of tile and labeltile, and position them with a spacedlayout.
-#
+ *
  *     @example
  *     <class name="tile" extends="view" bgcolor="thistle" width="100" height="100"></class>
-#
+ *
  *     <class name="labeltile" extends="tile">
  *       <text text="Tile"></text>
  *     </class>
-#
+ *
  *     <spacedlayout></spacedlayout>
  *     <tile></tile>
  *     <labeltile></labeltile>
-#
+ *
  * Attributes that are declared inside of a class definition can be set when the instance is declared. Here we bind the label text to the value of an attribute called label.
-#
+ *
  *     @example
  *     <class name="tile" extends="view" bgcolor="thistle" width="100" height="100"></class>
-#
+ *
  *     <class name="labeltile" extends="tile">
  *       <attribute name="label" type="string" value=""></attribute>
  *       <text text="${this.parent.label}"></text>
  *     </class>
-#
+ *
  *     <spacedlayout></spacedlayout>
  *     <tile></tile>
  *     <labeltile label="The Tile"></labeltile>
-#
+ *
  */
 
 (function() {
   var Class,
-    indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   Class = (function() {
 
@@ -4838,7 +4853,7 @@
      * If false, class instances won't initialize their children.
      */
     function Class(el, classattributes) {
-      var child, compilertype, context, extend, haschildren, i, idx, ignored, instancebody, j, k, klass, len, len1, len2, len3, name, newContext, oldbody, part, parts, processedChildren, ref, skipinitchildren;
+      var child, compilertype, context, extend, haschildren, idx, ignored, instancebody, klass, len, name, newContext, oldbody, part, parts, processedChildren, skipinitchildren, _i, _j, _k, _len, _len1, _len2, _ref;
       if (classattributes == null) {
         classattributes = {};
       }
@@ -4850,17 +4865,17 @@
       for (ignored in ignoredAttributes) {
         delete classattributes[ignored];
       }
-      ref = el.childNodes;
-      for (i = 0, len1 = ref.length; i < len1; i++) {
-        child = ref[i];
+      _ref = el.childNodes;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        child = _ref[_i];
         if ((child != null) && child.nodeType === COMMENT_NODE) {
           child.parentNode.removeChild(child);
         }
       }
       processedChildren = dom.processSpecialTags(el, classattributes, compilertype);
       oldbody = el.innerHTML.trim();
-      for (j = 0, len2 = processedChildren.length; j < len2; j++) {
-        child = processedChildren[j];
+      for (_j = 0, _len1 = processedChildren.length; _j < _len1; _j++) {
+        child = processedChildren[_j];
         child.parentNode.removeChild(child);
       }
       haschildren = dom.getChildElements(el).length > 0;
@@ -4872,7 +4887,7 @@
         console.warn('overwriting class', name);
       }
       dr[name] = klass = function(instanceel, instanceattributes, internal, skipchildren) {
-        var attributes, children, k, len3, parent, ref1, sendInit, viewel, viewhtml;
+        var attributes, children, parent, sendInit, viewel, viewhtml, _k, _len2, _ref1;
         attributes = clone(classattributes);
         _processAttrs(instanceattributes, attributes);
         if (attributes.$instanceattributes == null) {
@@ -4888,7 +4903,7 @@
         attributes.$skiponinit = true;
         attributes.$deferbindings = haschildren;
         parent = new dr[extend](instanceel, attributes, true, true);
-        viewel = (ref1 = parent.sprite) != null ? ref1.el : void 0;
+        viewel = (_ref1 = parent.sprite) != null ? _ref1.el : void 0;
         if (instanceel) {
           if (!viewel) {
             instanceel.setAttribute('class', 'hidden');
@@ -4905,20 +4920,20 @@
           }
           if (!skipchildren) {
             children = (function() {
-              var k, len3, ref2, ref3, results;
-              ref2 = dom.getChildElements(viewel);
-              results = [];
-              for (k = 0, len3 = ref2.length; k < len3; k++) {
-                child = ref2[k];
-                if (ref3 = child.localName, indexOf.call(specialtags, ref3) < 0) {
-                  results.push(child);
+              var _k, _len2, _ref2, _ref3, _results;
+              _ref2 = dom.getChildElements(viewel);
+              _results = [];
+              for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
+                child = _ref2[_k];
+                if (_ref3 = child.localName, __indexOf.call(specialtags, _ref3) < 0) {
+                  _results.push(child);
                 }
               }
-              return results;
+              return _results;
             })();
             if (!skipinitchildren) {
-              for (k = 0, len3 = children.length; k < len3; k++) {
-                child = children[k];
+              for (_k = 0, _len2 = children.length; _k < _len2; _k++) {
+                child = children[_k];
                 dom.initElement(child, parent);
               }
             }
@@ -4945,7 +4960,7 @@
         len = parts.length;
         if (len > 1) {
           context = dr;
-          for (idx = k = 0, len3 = parts.length; k < len3; idx = ++k) {
+          for (idx = _k = 0, _len2 = parts.length; _k < _len2; idx = ++_k) {
             part = parts[idx];
             if (idx === len - 1) {
               context[part] = klass;
@@ -4976,14 +4991,14 @@
  * @class dr.layout {Layout}
  * @extends dr.node
  * The base class for all layouts.
-#
+ *
  * When a new layout is added, it will automatically create and add itself to a layouts array in its parent. In addition, an onlayouts event is fired in the parent when the layouts array changes. This allows the parent to access the layout(s) later.
-#
+ *
  * Here is a view that contains a spacedlayout.
-#
+ *
  *     @example
  *     <spacedlayout axis="y"></spacedlayout>
-#
+ *
  *     <view bgcolor="oldlace" width="auto" height="auto">
  *       <spacedlayout>
  *         <method name="startMonitoringSubview" args="view">
@@ -4996,25 +5011,25 @@
  *       <view width="50" height="50" bgcolor="lightblue" opacity=".3"></view>
  *       <view width="50" height="50" bgcolor="blue" opacity=".3"></view>
  *     </view>
-#
+ *
  *     <text id="output" multiline="true" width="300"></text>
-#
+ *
  */
 
 (function() {
   var Layout,
-    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    hasProp = {}.hasOwnProperty;
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  Layout = (function(superClass) {
-    extend(Layout, superClass);
+  Layout = (function(_super) {
+    __extends(Layout, _super);
 
     function Layout() {
       return Layout.__super__.constructor.apply(this, arguments);
     }
 
     Layout.prototype.construct = function(el, attributes) {
-      var attrLocked, base, j, len, subview, subviews;
+      var attrLocked, subview, subviews, _base, _i, _len;
       if (attributes.$types == null) {
         attributes.$types = {};
       }
@@ -5028,15 +5043,15 @@
       this.listenTo(this.parent, 'subviewAdded', this.addSubview.bind(this));
       this.listenTo(this.parent, 'subviewRemoved', this.removeSubview.bind(this));
       this.listenTo(this.parent, 'init', this.update.bind(this));
-      if ((base = this.parent).layouts == null) {
-        base.layouts = [];
+      if ((_base = this.parent).layouts == null) {
+        _base.layouts = [];
       }
       this.parent.layouts.push(this);
       this.parent.sendEvent('layouts', this.parent.layouts);
       subviews = this.parent.subviews;
       if (subviews && this.parent.inited) {
-        for (j = 0, len = subviews.length; j < len; j++) {
-          subview = subviews[j];
+        for (_i = 0, _len = subviews.length; _i < _len; _i++) {
+          subview = subviews[_i];
           this.addSubview(subview);
         }
       }
@@ -5195,14 +5210,14 @@
      */
 
     Layout.prototype.startMonitoringAllSubviews = function() {
-      var i, results, svs;
+      var i, svs, _results;
       svs = this.subviews;
       i = svs.length;
-      results = [];
+      _results = [];
       while (i) {
-        results.push(this.startMonitoringSubview(svs[--i]));
+        _results.push(this.startMonitoringSubview(svs[--i]));
       }
-      return results;
+      return _results;
     };
 
 
@@ -5226,14 +5241,14 @@
      */
 
     Layout.prototype.stopMonitoringAllSubviews = function() {
-      var i, results, svs;
+      var i, svs, _results;
       svs = this.subviews;
       i = svs.length;
-      results = [];
+      _results = [];
       while (i) {
-        results.push(this.stopMonitoringSubview(svs[--i]));
+        _results.push(this.stopMonitoringSubview(svs[--i]));
       }
-      return results;
+      return _results;
     };
 
 
@@ -5276,11 +5291,11 @@
 ;
     AutoPropertyLayout = (function() {
   var AutoPropertyLayout,
-    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    hasProp = {}.hasOwnProperty;
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  AutoPropertyLayout = (function(superClass) {
-    extend(AutoPropertyLayout, superClass);
+  AutoPropertyLayout = (function(_super) {
+    __extends(AutoPropertyLayout, _super);
 
     function AutoPropertyLayout() {
       return AutoPropertyLayout.__super__.constructor.apply(this, arguments);
@@ -5531,11 +5546,11 @@
 ;
     StartEventable = (function() {
   var StartEventable,
-    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    hasProp = {}.hasOwnProperty;
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  StartEventable = (function(superClass) {
-    extend(StartEventable, superClass);
+  StartEventable = (function(_super) {
+    __extends(StartEventable, _super);
 
     function StartEventable() {
       return StartEventable.__super__.constructor.apply(this, arguments);
@@ -5616,11 +5631,11 @@
       var callback, queue;
       queue = [];
       callback = function(time) {
-        var cb, j, len, localqueue;
+        var cb, localqueue, _i, _len;
         localqueue = queue;
         queue = [];
-        for (j = 0, len = localqueue.length; j < len; j++) {
-          cb = localqueue[j];
+        for (_i = 0, _len = localqueue.length; _i < _len; _i++) {
+          cb = localqueue[_i];
           cb(time);
         }
         if (queue.length) {
@@ -5647,12 +5662,12 @@
  * @class dr.idle {Util}
  * @extends Eventable
  * Sends onidle events when the application is active and idle.
-#
+ *
  *     @example
  *     <handler event="onidle" reference="dr.idle" args="idleStatus">
  *       milis.setAttribute('text', idleStatus);
  *     </handler>
-#
+ *
  *     <spacedlayout axis="y" spacing="5"></spacedlayout>
  *     <text text="Milliseconds since app started: "></text>
  *     <text id="milis"></text>
@@ -5660,22 +5675,22 @@
 
 (function() {
   var Idle,
-    bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    hasProp = {}.hasOwnProperty;
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  Idle = (function(superClass) {
-    extend(Idle, superClass);
+  Idle = (function(_super) {
+    __extends(Idle, _super);
 
     function Idle() {
-      this.sender = bind(this.sender, this);
-      this.startEvent = bind(this.startEvent, this);
+      this.sender = __bind(this.sender, this);
+      this.startEvent = __bind(this.startEvent, this);
       return Idle.__super__.constructor.apply(this, arguments);
     }
 
     Idle.prototype.startEventTest = function() {
-      var ref, start;
-      start = (ref = this.events['idle']) != null ? ref.length : void 0;
+      var start, _ref;
+      start = (_ref = this.events['idle']) != null ? _ref.length : void 0;
       if (start) {
         return start;
       }
@@ -5725,33 +5740,33 @@
  * @class dr.mouse {Input}
  * @extends Eventable
  * Sends mouse events. Often used to listen to onmouseover/x/y events to follow the mouse position.
-#
+ *
  * Here we attach events handlers to the onx and ony events of dr.mouse, and set the x,y coordinates of a square view so it follows the mouse.
-#
+ *
  *     @example
  *     <view id="mousetracker" width="20" height="20" bgcolor="MediumTurquoise"></view>
-#
+ *
  *     <handler event="onx" args="x" reference="dr.mouse">
  *       mousetracker.setAttribute('x', x - mousetracker.width);
  *     </handler>
-#
+ *
  *     <handler event="ony" args="y" reference="dr.mouse">
  *       mousetracker.setAttribute('y', y - mousetracker.height);
  *     </handler>
-#
-#
+ *
+ *
  */
 
 (function() {
   var Mouse,
-    bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    hasProp = {}.hasOwnProperty;
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  Mouse = (function(superClass) {
+  Mouse = (function(_super) {
     var lastTouchDown, lastTouchOver, skipEvent;
 
-    extend(Mouse, superClass);
+    __extends(Mouse, _super);
 
 
     /**
@@ -5789,9 +5804,9 @@
      */
 
     function Mouse() {
-      this.sender = bind(this.sender, this);
-      this.handle = bind(this.handle, this);
-      this.touchHandler = bind(this.touchHandler, this);
+      this.sender = __bind(this.sender, this);
+      this.handle = __bind(this.handle, this);
+      this.touchHandler = __bind(this.touchHandler, this);
       this.x = 0;
       this.y = 0;
       this.docSelector = $(document);
@@ -5818,8 +5833,8 @@
     };
 
     Mouse.prototype.startEventTest = function() {
-      var ref, ref1, ref2;
-      return ((ref = this.events['mousemove']) != null ? ref.length : void 0) || ((ref1 = this.events['x']) != null ? ref1.length : void 0) || ((ref2 = this.events['y']) != null ? ref2.length : void 0);
+      var _ref, _ref1, _ref2;
+      return ((_ref = this.events['mousemove']) != null ? _ref.length : void 0) || ((_ref1 = this.events['x']) != null ? _ref1.length : void 0) || ((_ref2 = this.events['y']) != null ? _ref2.length : void 0);
     };
 
     Mouse.prototype.sendMouseEvent = function(type, first) {
@@ -5952,29 +5967,29 @@
  * @class dr.window {Util}
  * @extends Eventable
  * Sends window resize events. Often used to dynamically reposition views as the window size changes.
-#
+ *
  *     <handler event="onwidth" reference="dr.window" args="newWidth">
  *       //adjust views
  *     </handler>
-#
+ *
  *     <handler event="onheight" reference="dr.window" args="newHeight">
  *       //adjust views
  *     </handler>
-#
-#
+ *
+ *
  */
 
 (function() {
   var Window,
-    bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    hasProp = {}.hasOwnProperty;
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  Window = (function(superClass) {
-    extend(Window, superClass);
+  Window = (function(_super) {
+    __extends(Window, _super);
 
     function Window() {
-      this.handle = bind(this.handle, this);
+      this.handle = __bind(this.handle, this);
       var handleVisibilityChange, hidden, visibilityChange;
       window.addEventListener('resize', this.handle, false);
       this.visible = true;
@@ -6007,8 +6022,8 @@
     }
 
     Window.prototype.startEventTest = function() {
-      var ref, ref1;
-      return ((ref = this.events['width']) != null ? ref.length : void 0) || ((ref1 = this.events['height']) != null ? ref1.length : void 0);
+      var _ref, _ref1;
+      return ((_ref = this.events['width']) != null ? _ref.length : void 0) || ((_ref1 = this.events['height']) != null ? _ref1.length : void 0);
     };
 
     Window.prototype.handle = function(event) {
@@ -6041,12 +6056,12 @@
  * @class dr.keyboard {Input}
  * @extends Eventable
  * Sends keyboard events.
-#
+ *
  * You might want to listen for keyboard events globally. In this example, we display the code of the key being pressed. Note that you'll need to click on the example to activate it before you will see keyboard events.
-#
+ *
  *     @example
  *     <text id="keycode" text="Key Code:"></text>
-#
+ *
  *     <handler event="onkeyup" args="keys" reference="dr.keyboard">
  *       keycode.setAttribute('text', 'Key Code: ' + keys.keyCode);
  *     </handler>
@@ -6054,15 +6069,15 @@
 
 (function() {
   var Keyboard,
-    bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    hasProp = {}.hasOwnProperty;
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  Keyboard = (function(superClass) {
-    extend(Keyboard, superClass);
+  Keyboard = (function(_super) {
+    __extends(Keyboard, _super);
 
     function Keyboard() {
-      this.handle = bind(this.handle, this);
+      this.handle = __bind(this.handle, this);
       this.keys = {
         shiftKey: false,
         altKey: false,
@@ -6117,13 +6132,13 @@
 }).call(this);
 ;
     window.onerror = function(e) {
-      return showWarnings([(e.toString()) + ". Try running in debug mode for more info. " + window.location.href + (querystring ? '&' : '?') + "debug"]);
+      return showWarnings(["" + (e.toString()) + ". Try running in debug mode for more info. " + window.location.href + (querystring ? '&' : '?') + "debug"]);
     };
 
     /**
      * @class dr {Core Dreem}
      * Holds builtin and user-created classes and public APIs.
-    #
+     *
      * All classes listed here can be invoked with the declarative syntax, e.g. &lt;node>&lt;/node> or &lt;view>&lt;/view>
      */
     return exports = {
@@ -6160,40 +6175,40 @@
     /**
      * @class dr.method {Core Dreem}
      * Declares a member function in a node, view, class or other class instance. Methods can only be created with the &lt;method>&lt;/method> tag syntax.
-    #
+     *
      * If a method overrides an existing method, any existing (super) method(s) will be called first automatically.
-    #
+     *
      * Let's define a method called changeColor in a view that sets the background color to pink.
-    #
+     *
      *     @example
-    #
+     *
      *     <view id="square" width="100" height="100">
      *       <method name="changeColor">
      *         this.setAttribute('bgcolor', 'pink');
      *       </method>
      *     </view>
-    #
+     *
      *     <handler event="oninit">
      *       square.changeColor();
      *     </handler>
-    #
+     *
      * Here we define the changeColor method in a class called square. We create an instance of the class and call the method on the intance.
-    #
+     *
      *     @example
      *     <class name="square" width="100" height="100">
      *       <method name="changeColor">
      *         this.setAttribute('bgcolor', 'pink');
      *       </method>
      *     </class>
-    #
+     *
      *     <square id="square1"></square>
-    #
+     *
      *     <handler event="oninit">
      *       square1.changeColor();
      *     </handler>
-    #
+     *
      * Now we'll subclass the square class with a bluesquare class, and override the changeColor method to color the square blue. We also add an inner square who's color is set in the changeColor method of the square superclass. Notice that the color of this square is set when the method is called on the subclass.
-    #
+     *
      *     @example
      *     <class name="square" width="100" height="100">
      *       <view name="inner" width="25" height="25"></view>
@@ -6202,23 +6217,23 @@
      *         this.setAttribute('bgcolor', 'pink');
      *       </method>
      *     </class>
-    #
+     *
      *     <class name="bluesquare" extends="square">
      *       <method name="changeColor">
      *         this.setAttribute('bgcolor', 'blue');
      *       </method>
      *     </class>
-    #
+     *
      *     <spacedlayout></spacedlayout>
-    #
+     *
      *     <square id="square1"></square>
      *     <bluesquare id="square2"></bluesquare>
-    #
+     *
      *     <handler event="oninit">
      *       square1.changeColor();
      *       square2.changeColor();
      *     </handler>
-    #
+     *
      */
 
     /**
@@ -6239,9 +6254,9 @@
     /**
      * @class dr.setter
      * Declares a setter in a node, view, class or other class instance. Setters can only be created with the &lt;setter>&lt;/setter> tag syntax.
-    #
+     *
      * Setters allow the default behavior of attribute changes to be changed.
-    #
+     *
      * Like dr.method, if a setter overrides an existing setter any existing (super) setter(s) will be called first automatically.
      * @ignore
      */
@@ -6264,52 +6279,52 @@
     /**
      * @class dr.handler {Core Dreem, Events}
      * Declares a handler in a node, view, class or other class instance. Handlers can only be created with the `<handler></handler>` tag syntax.
-    #
+     *
      * Handlers are called when an event fires with new value, if available.
-    #
+     *
      * Here is a simple handler that listens for an onx event in the local scope. The handler runs when x changes:
-    #
+     *
      *     <handler event="onx">
      *       // do something now that x has changed
      *     </handler>
-    #
+     *
      * When a handler uses the args attribute, it can recieve the value that changed:
-    #
+     *
      * Sometimes it's nice to use a single method to respond to multiple events:
-    #
+     *
      *     <handler event="onx" method="handlePosition"></handler>
      *     <handler event="ony" method="handlePosition"></handler>
      *     <method name="handlePosition">
      *       // do something now that x or y have changed
      *     </method>
-    #
-    #
+     *
+     *
      * When a handler uses the args attribute, it can receive the value that changed:
-    #
+     *
      *     @example
-    #
+     *
      *     <handler event="onwidth" args="widthValue">
      *        exampleLabel.setAttribute("text", "Parent view received width value of " + widthValue)
      *     </handler>
-    #
+     *
      *     <text id="exampleLabel" x="50" y="5" text="no value yet" color="coral" outline="1px dotted coral" padding="10"></text>
      *     <text x="50" y="${exampleLabel.y + exampleLabel.height + 20}" text="no value yet" color="white" bgcolor="#DDAA00" padding="10">
      *       <handler event="onwidth" args="wValue">
      *          this.setAttribute("text", "This label received width value of " + wValue)
      *       </handler>
      *     </text>
-    #
-    #
+     *
+     *
      * It's also possible to listen for events on another scope. This handler listens for onidle events on dr.idle instead of the local scope:
-    #
+     *
      *     @example
-    #
+     *
      *     <handler event="onidle" args="time" reference="dr.idle">
      *       exampleLabel.setAttribute('text', 'received time from dr.idle.onidle: ' + Math.round(time));
      *     </handler>
      *     <text id="exampleLabel" x="50" y="5" text="no value yet" color="coral" outline="1px dotted coral" padding="10px"></text>
-    #
-    #
+     *
+     *
      */
 
     /**
@@ -6340,24 +6355,24 @@
     /**
      * @class dr.attribute {Core Dreem, Events}
      * @aside guide constraints
-    #
+     *
      * Adds a variable to a node, view, class or other class instance. Attributes can only be created with the &lt;attribute>&lt;/attribute> tag syntax.
-    #
+     *
      * Attributes allow classes to declare new variables with a specific type and default value.
-    #
+     *
      * Attributes automatically send events when their value changes.
-    #
+     *
      * Here we create a new class with a custom attribute representing a person's mood, along with two instances. One instance has the default mood of 'happy', the other sets the mood attribute to 'sad'. Note there's nothing visible in this example yet:
-    #
+     *
      *     <class name="person">
      *       <attribute name="mood" type="string" value="happy"></attribute>
      *     </class>
-    #
+     *
      *     <person></person>
      *     <person mood="sad"></person>
-    #
+     *
      * Let's had a handler to make our color change with the mood. Whenever the mood attribute changes, the color changes with it:
-    #
+     *
      *     @example
      *     <class name="person" width="100" height="100">
      *       <attribute name="mood" type="string" value="happy"></attribute>
@@ -6369,13 +6384,13 @@
      *         this.setAttribute('bgcolor', color);
      *       </handler>
      *     </class>
-    #
+     *
      *     <spacedlayout></spacedlayout>
      *     <person></person>
      *     <person mood="sad"></person>
-    #
+     *
      * You can add as many attributes as you like to a class. Here, we add a numeric attribute for size, which changes the height and width attributes via a constraint:
-    #
+     *
      *     @example
      *     <class name="person" width="${this.size}" height="${this.size}">
      *       <attribute name="mood" type="string" value="happy"></attribute>
@@ -6388,7 +6403,7 @@
      *       </handler>
      *       <attribute name="size" type="number" value="20"></attribute>
      *     </class>
-    #
+     *
      *     <spacedlayout></spacedlayout>
      *     <person></person>
      *     <person mood="sad" size="50"></person>

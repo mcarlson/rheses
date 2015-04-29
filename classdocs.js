@@ -507,6 +507,13 @@
       * bitmap data in pixels.
       */
 /**
+    * @attribute {String} [window='']
+    * A window (section) of the image is displayed by specifying four,
+    * comma-separated values:
+    *   x,y  The coordinates of the upper-left hand corner of the image
+    *   w,h  The width and height of the window to display.
+    */
+/**
       * @class dr.bitmapbutton {Deprecated}
       * @extends dr.statebutton
       * bitmapbutton has been deprecated, use dr.statebutton instead
