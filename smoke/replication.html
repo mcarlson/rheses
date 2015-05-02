@@ -163,8 +163,11 @@
       dr.idle.callOnIdle(function() {
         assert.equal(_this.subviews.length, 3)
         assert.equal(_this.subnodes.length, 10)
-        assert.equal(_this.subviews[2].text, '63.88')
-        assert.equal(_this.subviews[2].width, 100)
+        assert.equal(_this.subviews[2].text, '63.88');
+
+        dr.idle.callOnIdle(function() {
+          assert.equal(_this.subviews[2].width, 100);
+        })
       })
     </handler>
   </view>
