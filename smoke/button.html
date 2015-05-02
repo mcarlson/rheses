@@ -15,8 +15,8 @@
     <method name="testsize" args="x,y,width,height,textx,texty">
       assert.closeTo(@x, x, 5, "x")
       assert.closeTo(@y, y, 5, "y")
-      assert.closeTo(@width, width, 10, "width")
-      assert.closeTo(@height, height, 10, "height")
+      assert.closeTo(@width, width, 11, "width")
+      assert.closeTo(@height, height, 11, "height")
       assert.closeTo(@textx, textx, 6, "textx")
       assert.closeTo(@texty, texty, 6, "texty")
     </method>
@@ -66,11 +66,11 @@
       assert.testCaseLabel = 'labelbutton tests, fixed height';
 
       assert.equal(@text, 'Text');
-      @testsize(0,0,55,100,10,38);
+      @testsize(0,0,55,100,11,38);
 
       @setAttribute('text', 'NewText');
       assert.equal(@text, 'NewText');
-      @testsize(0,0,100,100,10,38);
+      @testsize(0,0,100,100,11,38);
     </handler>
   </labelbuttontest>
 
@@ -82,8 +82,8 @@
     <method name="testsize" args="x,y,width,height,textx,texty">
       assert.closeTo(@x, x, 5, "x")
       assert.closeTo(@y, y, 5, "y")
-      assert.closeTo(@width, width, 10, "width")
-      assert.closeTo(@height, height, 10, "height")
+      assert.closeTo(@width, width, 11, "width")
+      assert.closeTo(@height, height, 11, "height")
       assert.closeTo(@textx, textx, 6, "textx")
       assert.closeTo(@texty, texty, 6, "texty")
     </method>
@@ -129,11 +129,11 @@
       assert.testCaseLabel = 'labeltoggle tests, fixed height';
 
       assert.equal(@text, 'Text');
-      @testsize(0,0,55,100,10,38);
+      @testsize(0,0,55,100,11,38);
 
       @setAttribute('text', 'NewText');
       assert.equal(@text, 'NewText');
-      @testsize(0,0,100,100,10,38);
+      @testsize(0,0,100,100,11,38);
     </handler>
   </labeltoggletest>
 
@@ -146,10 +146,10 @@
     <method name="testsize" args="x,y,width,height,textx,texty">
       assert.closeTo(@x, x, 5, "x")
       assert.closeTo(@y, y, 5, "y")
-      assert.closeTo(@width, width, 10, "width")
-      assert.closeTo(@height, height, 10, "height")
-      assert.closeTo(@textx, textx, 6, "textx")
-      assert.closeTo(@texty, texty, 6, "texty")
+      assert.closeTo(@width, width, 11, "width")
+      assert.closeTo(@height, height, 11, "height")
+      assert.closeTo(@textx, textx, 8, "textx")
+      assert.closeTo(@texty, texty, 8, "texty")
     </method>
   </class>
 
