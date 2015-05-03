@@ -310,50 +310,52 @@ refusing to create a class that would overwrite the builtin tag b
         <handler event="oninit">
           assert.testCaseLabel = 'nowrap fixed';
 
-          assert.equal(this.multiline, false);
-          assert.equal($(this.sprite.el).css('white-space'), 'nowrap');
-          assert.equal(this.width, 50)
-          assert.equal(this.height, this.parent.nowrap_auto.height)
+          assert.equal(this.multiline, false, 'multiline should be false');
+          assert.equal($(this.sprite.el).css('white-space'), 'nowrap', 'css whitespace should be nowrap');
+          assert.equal(this.width, 50, 'width should be 50')
+          assert.equal(this.height, this.parent.nowrap_auto.height, 'nowrap fixed height should be the same as nowrap auto')
         </handler>
       </text>
       <text bgcolor="red" width="50">foo bar
       baz
         <handler event="oninit">
-          assert.equal(this.multiline, false);
-          assert.equal($(this.sprite.el).css('white-space'), 'nowrap');
-          assert.equal(this.width, this.parent.nowrap_fixed.width)
-          assert.equal(this.height, this.parent.nowrap_fixed.height)
+          assert.testCaseLabel = 'nowrap fixed, newline in text';
+          assert.equal(this.multiline, false, 'multiline should be false');
+          assert.equal($(this.sprite.el).css('white-space'), 'nowrap', 'css whitespace should be nowrap');
+          assert.equal(this.width, this.parent.nowrap_fixed.width, 'this.parent.nowrap_fixed.width should be the same as nowrap fixed example')
+          assert.equal(this.height, this.parent.nowrap_fixed.height, 'this.parent.nowrap_fixed.height should be the same as nowrap fixed example')
           
           // Turn ellipsis on
           this.setAttribute('ellipsis', true);
           
-          assert.equal(this.ellipsis, true);
-          assert.equal($(this.sprite.el).css('white-space'), 'nowrap');
-          assert.equal($(this.sprite.el).css('overflow'), 'hidden');
-          assert.equal($(this.sprite.el).css('text-overflow'), 'ellipsis');
-          assert.equal(this.width, this.parent.nowrap_fixed.width)
-          assert.equal(this.height, this.parent.nowrap_fixed.height)
+          assert.equal(this.ellipsis, true, 'ellipsis should be true');
+          assert.equal($(this.sprite.el).css('white-space'), 'nowrap', 'css whitespace should be nowrap');
+          assert.equal($(this.sprite.el).css('overflow'), 'hidden', 'overflow should be hidden');
+          assert.equal($(this.sprite.el).css('text-overflow'), 'ellipsis', 'css text-overflow should be ellipsis');
+          assert.equal(this.width, this.parent.nowrap_fixed.width, 'this.parent.nowrap_fixed.width should be the same as nowrap fixed example')
+          assert.equal(this.height, this.parent.nowrap_fixed.height, 'this.parent.nowrap_fixed.height should be the same as nowrap fixed example')
         </handler>
       </text>
       <text bgcolor="red" width="50" ellipsis="true">foo bar baz
         <handler event="oninit">
-          assert.equal(this.multiline, false);
-          assert.equal(this.ellipsis, true);
-          assert.equal($(this.sprite.el).css('white-space'), 'nowrap');
-          assert.equal($(this.sprite.el).css('overflow'), 'hidden');
-          assert.equal($(this.sprite.el).css('text-overflow'), 'ellipsis');
-          assert.equal(this.width, this.parent.nowrap_fixed.width)
-          assert.equal(this.height, this.parent.nowrap_fixed.height)
+          assert.testCaseLabel = 'nowrap fixed, ellipsis is true';
+          assert.equal(this.multiline, false, 'multiline should be false');
+          assert.equal(this.ellipsis, true, 'ellipsis should be true');
+          assert.equal($(this.sprite.el).css('white-space'), 'nowrap', 'css whitespace should be nowrap');
+          assert.equal($(this.sprite.el).css('overflow'), 'hidden', 'overflow should be hidden');
+          assert.equal($(this.sprite.el).css('text-overflow'), 'ellipsis', 'css text-overflow should be ellipsis');
+          assert.equal(this.width, this.parent.nowrap_fixed.width, 'this.parent.nowrap_fixed.width should be the same as nowrap fixed example')
+          assert.equal(this.height, this.parent.nowrap_fixed.height, 'this.parent.nowrap_fixed.height should be the same as nowrap fixed example')
           
           // Turn ellipsis off
           this.setAttribute('ellipsis', false);
           
-          assert.equal(this.ellipsis, false);
-          assert.equal($(this.sprite.el).css('white-space'), 'nowrap');
-          assert.equal($(this.sprite.el).css('overflow'), 'visible');
-          assert.equal($(this.sprite.el).css('text-overflow'), 'clip');
-          assert.equal(this.width, this.parent.nowrap_fixed.width)
-          assert.equal(this.height, this.parent.nowrap_fixed.height)
+          assert.equal(this.ellipsis, false, 'ellipsis should be false');
+          assert.equal($(this.sprite.el).css('white-space'), 'nowrap', 'css whitespace should be nowrap');
+          assert.equal($(this.sprite.el).css('overflow'), 'visible', 'overflow should be visible');
+          assert.equal($(this.sprite.el).css('text-overflow'), 'clip', 'css text-overflow should be clip');
+          assert.equal(this.width, this.parent.nowrap_fixed.width, 'this.parent.nowrap_fixed.width should be the same as nowrap fixed example')
+          assert.equal(this.height, this.parent.nowrap_fixed.height, 'this.parent.nowrap_fixed.height should be the same as nowrap fixed example')
         </handler>
       </text>
       
