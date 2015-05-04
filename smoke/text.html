@@ -291,8 +291,8 @@ refusing to create a class that would overwrite the builtin tag b
 
           assert.equal(this.multiline, false);
           assert.equal($(this.sprite.el).css('white-space'), 'nowrap');
-          assert.closeTo(this.width, 90, 10)
-          assert.closeTo(this.height, 24, 10)
+          assert.closeTo(this.width, 90, 11, 'width check')
+          assert.closeTo(this.height, 24, 10, 'height check')
         </handler>
       </text>
       <text bgcolor="pink">foo bar
@@ -421,8 +421,8 @@ refusing to create a class that would overwrite the builtin tag b
           
           assert.equal(this.multiline, false);
           assert.equal($(this.sprite.el).css('white-space'), 'nowrap');
-          assert.closeTo(this.width, 120, 10);
-          assert.closeTo(this.height, 24, 10);
+          assert.closeTo(this.width, 120, 11, 'width check');
+          assert.closeTo(this.height, 24, 10, 'height check');
           
           // Change to fixed width
           this.setAttribute('width', 60);
@@ -453,13 +453,13 @@ refusing to create a class that would overwrite the builtin tag b
           
           assert.equal(this.multiline, false);
           assert.equal(this.sprite.el.style['white-space'], 'nowrap');
-          assert.closeTo(this.width, 120, 10);
-          assert.closeTo(this.height, 24, 10);
+          assert.closeTo(this.width, 120, 11, 'check width after changed back to single line');
+          assert.closeTo(this.height, 24, 10, 'check height after changed back to single line');
           
           // Change to back multiline
           this.setAttribute('multiline', true);
           
-          assert.equal(this.multiline, true);
+          assert.equal(this.multiline, true)
           assert.equal(this.sprite.el.style['white-space'], 'pre');
           assert.closeTo(this.width, 90, 10);
           assert.closeTo(this.height, 48, 10);
