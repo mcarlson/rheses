@@ -454,7 +454,7 @@ refusing to create a class that would overwrite the builtin tag b
           assert.equal(this.multiline, false);
           assert.equal(this.sprite.el.style['white-space'], 'nowrap');
           assert.closeTo(this.width, 120, 11, 'check width after changed back to single line');
-          assert.closeTo(this.height, 24, 10, 'check height after changed back to single line');
+          assert.closeTo(this.height, 24, 10  , 'check height after changed back to single line');
           
           // Change to back multiline
           this.setAttribute('multiline', true);
@@ -474,7 +474,7 @@ refusing to create a class that would overwrite the builtin tag b
           this.setAttribute('fontsize', 32);
           
           assert.closeTo(this.width, 150, 10);
-          assert.closeTo(this.height, 72, 10);
+          assert.closeTo(this.height, 72, 12, 'height check after fontsize change');
         </handler>
       </text>
     </view>
