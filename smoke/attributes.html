@@ -168,8 +168,8 @@ error parsing json value '{'test': 'invalid'}' for attribute 'foo'
   <handler event="oninit">
     assert.testCaseLabel = 'checking main width';
     
-    assert.notEqual(main.width, 100)
-    assert.equal(main.width, $('body').width())
+    assert.notEqual(main.width, 100, 'main view width should not equal 100')
+    assert.closeTo(main.width, $('body').width(), 17, 'main view width should equal the body width')
   </handler>
 
   <!-- Binding to the same attribute with a different constraint value unregisters the previous constraint -->
