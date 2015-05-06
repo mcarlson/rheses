@@ -72,6 +72,11 @@ window.dr = do ->
         Mixed::[name] = method
     Mixed
 
+  reverseSort = (a, b) ->
+    return 1 if (a < b)
+    return -1 if (b < a)
+    return 0
+
   matchPercent = /%$/
 
   Events = `~["include","fragments/Events.coffee"]~`

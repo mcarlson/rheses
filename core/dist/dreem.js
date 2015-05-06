@@ -100,7 +100,7 @@
 ;
 
   window.dr = (function() {
-    var ArtSprite, AutoPropertyLayout, BitmapSprite, COMMENT_NODE, Class, Eventable, Events, Idle, InputTextSprite, Keyboard, Layout, Module, Mouse, Node, Path, Sprite, StartEventable, State, TextSprite, View, Window, _initConstraints, _processAttrs, callOnIdle, capabilities, clone, closeTo, compiler, constraintScopes, debug, dom, eventq, exports, handlerq, idle, ignoredAttributes, instantiating, matchEvent, matchPercent, mixOf, mouseEvents, noop, querystring, showWarnings, specialtags, starttime, tagPackageSeparator, test, warnings;
+    var ArtSprite, AutoPropertyLayout, BitmapSprite, COMMENT_NODE, Class, Eventable, Events, Idle, InputTextSprite, Keyboard, Layout, Module, Mouse, Node, Path, Sprite, StartEventable, State, TextSprite, View, Window, _initConstraints, _processAttrs, callOnIdle, capabilities, clone, closeTo, compiler, constraintScopes, debug, dom, eventq, exports, handlerq, idle, ignoredAttributes, instantiating, matchEvent, matchPercent, mixOf, mouseEvents, noop, querystring, reverseSort, showWarnings, specialtags, starttime, tagPackageSeparator, test, warnings;
     COMMENT_NODE = window.Node.COMMENT_NODE;
     noop = function() {};
     closeTo = function(a, b, epsilon) {
@@ -129,6 +129,15 @@
         }
       }
       return Mixed;
+    };
+    reverseSort = function(a, b) {
+      if (a < b) {
+        return 1;
+      }
+      if (b < a) {
+        return -1;
+      }
+      return 0;
     };
     matchPercent = /%$/;
     Events = 
@@ -1159,7 +1168,7 @@
         name = ref2[k];
         this.setAttribute(name, attributes[name]);
       }
-      ref3 = (function() {
+      ref3 = ((function() {
         var results;
         results = [];
         for (name in attributes) {
@@ -1168,7 +1177,7 @@
           }
         }
         return results;
-      })();
+      })()).sort(reverseSort);
       for (l = 0, len2 = ref3.length; l < len2; l++) {
         name = ref3[l];
         this.bindAttribute(name, attributes[name], tagname);

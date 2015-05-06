@@ -68,11 +68,17 @@ SOFTWARE. -->
       <attribute name="value" type="number" value="0"></attribute>
       <handler event="onvalue" method="visualize"></handler>
       <setter name="value" args="v">
-          return Math.min(@maxvalue, Math.max(v, @minvalue))
+          if @inited
+            return Math.min(@maxvalue, Math.max(v, @minvalue))
+          else
+            return v
       </setter>
 
 
-      <handler event="oninit" method="visualize"></handler>
+      <handler event="oninit">
+        @setAttribute('value', @value)
+        @visualize()
+      </handler>
       <handler event="onwidth" method="visualize"></handler>
       <handler event="onheight" method="visualize"></handler>
 
