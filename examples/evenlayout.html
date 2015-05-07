@@ -1,0 +1,116 @@
+<html>
+<head>
+  <title>dr33m | Layout Examples</title>
+  <script type="text/javascript" src="../boilerplate.js"></script>
+</head>
+<body>
+<view width="100%" height="100%" padding="20">
+  <class name="evenlayout" extends="variablelayout" updateparent="true" type="coffee">
+    <attribute name="itemsize" type="number" value="150"></attribute>
+    <handler event="onitemsize" method="update"></handler>
+    
+    <attribute name="minspacing" type="number" value="15"></attribute>
+    <handler event="onminspacing" method="update"></handler>
+    
+    <attribute name="mincount" type="number" value="5"></attribute>
+    <handler event="onmincount" method="update"></handler>
+    
+    <handler event="oninit">
+      @listenTo(@parent, 'innerwidth', @update)
+    </handler>
+    
+    <method name="doBeforeUpdate">
+      # Calculate actual spacing
+      count = 0
+      itemsize = @itemsize
+      while @mincount > count
+        spacing = @minspacing
+        size = @parent.innerwidth - spacing
+        
+        extent = itemsize + spacing
+        count = Math.floor(size / extent)
+        remainder = size - count * extent
+        if remainder > 0
+          spacing += remainder / (count + 1)
+        
+        @__count = count
+        @__itemsize = itemsize
+        @value = @__linePos = @__spacing = spacing
+        
+        itemsize = itemsize * 3/4
+    </method>
+    
+    <method name="updateSubview" args="count, view, attribute, value">
+      size = @__itemsize
+      spacing = @__spacing
+      
+      view.setAttribute('width', size)
+      view.setAttribute('height', size)
+      
+      view.setAttribute('x', value)
+      view.setAttribute('y', @__linePos)
+      
+      if count % @__count is 0
+        @__linePos += size + spacing
+        return spacing
+      else
+        return value + size + spacing
+    </method>
+    
+    <method name="updateParent" args="attribute, value">
+      @parent.setAttribute('height', @__linePos + @__itemsize + @__spacing + @parent.height - @parent.innerheight)
+    </method>
+  </class>
+  
+  <class name="item" bgcolor="#999999" type="coffee">
+    <setter name="width" args="width">
+      if width >= 150
+        this.setAttribute('bgcolor', '#999999')
+      else if width >= 112
+        this.setAttribute('bgcolor', '#666666')
+      else if width >= 84
+        this.setAttribute('bgcolor', '#333333')
+      else if width >= 63
+        this.setAttribute('bgcolor', '#000000')
+      else
+        this.setAttribute('bgcolor', '#990000')
+      
+      return @super()
+    </setter>
+  </class>
+  
+  <view width="100%" height="100%" border="1" bordercolor="black" bgcolor="#cccccc" scrollable="true">
+    <view width="100%">
+      <evenlayout name="layout" locked="true"></evenlayout>
+      
+      <handler event="oninit">
+        var count = 200;
+        while (--count) this.createChild({class: 'item'});
+        this.layout.setAttribute('locked', false);
+      </handler>
+    </view>
+  </view>
+</view>
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+</body>
+</html>

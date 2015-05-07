@@ -1,0 +1,92 @@
+<html>
+<head>
+  <title>dr33m | Art Examples</title>
+  <script type="text/javascript" src="../boilerplate.js"></script>
+</head>
+<body>
+<view id="all" width="100%" height="100%" scrollable="true">
+  <class name="centertext2" extends="text" color="white" height="40" x="${this.parent.width/2-this.width/2}" y="${this.parent.height/2-this.height/2}">
+    <method name="format" args="value">
+      value = Number(value);
+      if (value < 0.0) return '';
+      return value.toFixed(2);
+    </method>
+  </class>
+
+  <spacedlayout axis="y" spacing="10"></spacedlayout>
+
+  <labelbutton text="Animate">
+    <!-- Scale the object by the specified zoom factor -->
+    <method name="scale" args="obj,z">
+      obj.animate({width: z * obj.width, height: z * obj.height});
+    </method>
+
+    <handler event="onclick">
+      // Morph between the 2 paths
+      if (this.path == null) this.path = 1
+      art_1.setAttribute('path', this.path);
+      //animate_path(this.path)
+      this.path = this.path ^ 1;
+
+      if (!this.zoom) this.zoom = 2.0;
+
+      resizing=[art_1, art_2, art_3, art_4, art_5];
+      for (var i in resizing) {
+        this.scale(resizing[i], this.zoom);
+      }
+
+      this.zoom = 1.0 / this.zoom;
+    </handler>
+  </labelbutton>
+
+  <art id="art_1" width="100" height="100" src="./img/cursorshapes.svg" path="0" stroke="coral" fill="coral" stretches="true" animationcurve="bounce" animationspeed="2000">
+    <handler event="onready">
+      console.log("onready");
+    </handler>
+    <handler event="ontween">
+      console.log("animation finished")
+    </handler>
+    <handler event="onclick">
+      this.setAttribute('path', this.path ^ 1);
+      size = this.width == 100 ? 200 : 100;
+      this.animate({width: size})
+    </handler>
+  </art>
+
+  <art id="art_2" width="100" height="100" src="./img/siemens-clock.svg">
+  </art>
+
+  <view width="auto" height="auto">
+    <spacedlayout axis="x" spacing="10"></spacedlayout>
+
+    <art id="art_3" width="100" height="100" src="./img/cursorshapes.svg" path="0" fill="coral" animationspeed="1000" animationcurve="linear">
+      <centertext2 text="${this.parent.animationframe}"></centertext2>
+      <handler event="onclick">
+      this.setAttribute('path', this.path ^ 1);
+      </handler>
+    </art>
+
+
+    <text y="${art_3.y + art_3.height/2 - this.height/2}">Frame:</text>
+    <slider width="200" height="10" y="${art_3.y + art_3.height/2 - this.height/2}" bgcolor="#808080" selectcolor="coral">
+      <handler event="onvalue">
+        frame = 2 * this.value / (this.maxvalue - this.minvalue)
+        art_3.setAttribute('animationframe', frame);
+      </handler>
+    </slider>
+  </view>
+
+  <art id="art_4" width="100" height="100" inline="true"><!--<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events" version="1.1" viewBox="0 0 200 200"><circle cx="100" cy="100" r="80" stroke="blue" stroke-width="2" fill="red" /></svg>-->
+    <handler event="onclick">
+      console.log("onclick circle")
+    </handler>
+  </art>
+
+  <!-- resize=true -->
+  <art id="art_5" resize="true" inline="true"><!--<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events" version="1.1" viewBox="0 0 200 200"><circle cx="100" cy="100" r="80" stroke="blue" stroke-width="2" fill="red" /></svg>-->
+  </art>
+
+
+</view>
+</body>
+</html>

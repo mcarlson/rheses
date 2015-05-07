@@ -1,0 +1,391 @@
+<html>
+<head>
+  <title>dr33m | View size Smoke Tests</title>
+  <script>var BOILERPLATE_OPTS = {type:'smoke'};</script>
+  <script type="text/javascript" src="../boilerplate.js"></script>
+</head>
+<body>
+  <view width="auto" bgcolor="#cccccc" padding="5">
+    <class name="block" width="100" height="50" bgcolor="#999999"></class>
+    <class name="item" width="25" height="25" bgcolor="#666666"></class>
+    
+    <spacedlayout axis="y" spacing="5" updateparent="true"></spacedlayout>
+    
+    <!-- Absolute Sizing -->
+    <block name="basic">
+      <handler event="oninit">
+        assert.equal(this.width, 100);
+        assert.equal(this.height, 50);
+      </handler>
+    </block>
+    
+    <!-- Constrained Sizing -->
+    <block name="constrained">
+      <item name="inner" width="${this.parent.width - this.foo}" height="${this.parent.height - this.foo}">
+        <attribute name="foo" type="number" value="10"></attribute>
+      </item>
+      <handler event="oninit">
+        assert.equal(this.inner.width, 90);
+        assert.equal(this.inner.height, 40);
+      </handler>
+    </block>
+    
+    <!-- Percentage Sizing -->
+    <block name="percentage">
+      <item name="inner" width="100%" height="100%"></item>
+      <handler event="oninit">
+        assert.equal(this.inner.width, 100);
+        assert.equal(this.inner.height, 50);
+      </handler>
+    </block>
+    
+    <block>
+      <item name="inner" width="80%" height="70%"></item>
+      <handler event="oninit">
+        assert.equal(this.inner.width, 80);
+        assert.equal(this.inner.height, 35);
+        assert.equal($(this.inner.sprite.el).css('marginLeft'), '0px');
+        assert.equal($(this.inner.sprite.el).css('marginTop'), '0px');
+      </handler>
+    </block>
+    
+    <!-- Auto Sizing -->
+    <block name="auto1" width="auto" height="auto">
+      <handler event="oninit">
+        assert.equal(this.width, 0);
+        assert.equal(this.height, 0);
+      </handler>
+    </block>
+    
+    <block name="auto2" width="auto" height="auto">
+      <item name="v1" width="100" height="40"></item>
+      <item name="v2" x="200"></item>
+      <item name="v3" y="50"></item>
+      <handler event="oninit">
+        assert.equal(this.width, 225);
+        assert.equal(this.height, 75);
+      </handler>
+    </block>
+    
+    <block name="auto3" width="auto" height="auto" border="1" bordercolor="black" padding="2">
+      <item name="inner" width="100" height="50"></item>
+      <handler event="oninit">
+        assert.equal(this.width, 106);
+        assert.equal(this.height, 56);
+      </handler>
+    </block>
+    
+    <!-- Nested auto sizes -->
+    <block name="auto4" width="auto" height="auto" border="1" bordercolor="black" padding="2">
+      <item name="inner" x="5" y="10" width="auto" height="auto">
+        <item name="inner" x="50" y="25" bgcolor="#ffffff"></item>
+      </item>
+      <handler event="oninit">
+        assert.equal(this.width, 86);
+        assert.equal(this.height, 66);
+      </handler>
+    </block>
+    
+    <!-- Auto size with percent children -->
+    <block name="auto5" width="auto" height="auto">
+      <item name="v1" x="50%" y="50%" width="50%" height="50%" bgcolor="#ff0000"></item>
+      <item name="v2" x="205"></item>
+      <item name="v3" y="55"></item>
+      <handler event="oninit">
+        assert.equal(this.width, 230);
+        assert.equal(this.height, 80);
+      </handler>
+    </block>
+    
+    <!-- Auto size with parent constrained children -->
+    <block name="auto6a" width="auto" height="auto" bgcolor="green">
+      <item name="v1"
+        x="${this.parent.width / 2}" y="${this.parent.height / 2}"
+        width="${this.parent.width / 2}" height="${this.parent.height / 2}"
+        bgcolor="#ff0000"
+      ></item>
+      <item name="v2" x="105"></item>
+      <item name="v3" y="55"></item>
+      <handler event="oninit">
+        assert.equal(this.width, 130);
+        assert.equal(this.height, 80);
+      </handler>
+    </block>
+    
+    <!-- Auto size with a single parent constrained child should result
+         in a view with 0 size. -->
+    <block name="auto6b" width="auto" height="auto" bgcolor="orange">
+      <item name="v1"
+        width="${this.parent.width}" height="${this.parent.height}"
+        bgcolor="#ff0000"
+      ></item>
+      <handler event="oninit">
+        assert.equal(this.width, 0);
+        assert.equal(this.height, 0);
+      </handler>
+    </block>
+    
+    <!-- Auto size with right/center or middle/bottom aligned children -->
+    <block name="auto7" width="auto" height="auto">
+      <item name="v1" x="right" y="bottom" bgcolor="#ff0000"></item>
+      <item name="v2" x="205"></item>
+      <item name="v3" y="55"></item>
+      <handler event="oninit">
+        assert.equal(this.width, 230);
+        assert.equal(this.height, 80);
+      </handler>
+    </block>
+    
+    <handler event="oninit">
+      //// Verify Basic Sizing ////
+      var block = this.basic, v1, v2, v3, v4, v5;
+      
+      // Set width to a valid value
+      block.setAttribute('width', 1);
+      assert.equal(block.width, 1);
+      
+      // Set width to an invalid value
+      block.setAttribute('width', -1);
+      assert.equal(block.width, 0);
+      block.setAttribute('width', 'foo');
+      assert.equal(block.width, 0);
+      
+      // Set height to a valid value
+      block.setAttribute('height', 1);
+      assert.equal(block.height, 1);
+      
+      // Set height to an invalid value
+      block.setAttribute('height', -1);
+      assert.equal(block.height, 0);
+      block.setAttribute('height', 'foo');
+      assert.equal(block.height, 0);
+      
+      // Give it a size that we can see just to make the smoketest pretty for visual inspection
+      block.setAttribute('width', 100);
+      block.setAttribute('height', 5);
+      
+      
+      //// Verify Constrained Sizing ////
+      block = this.constrained;
+      v1 = block.inner;
+      
+      // Change constraint target value
+      v1.setAttribute('foo', 5);
+      assert.equal(v1.width, 95);
+      assert.equal(v1.height, 45);
+      
+      // Set to absolute to verify the constraint is removed
+      v1.setAttribute('width', 100);
+      assert.equal(v1.width, 100);
+      v1.setAttribute('foo', 15);
+      assert.equal(v1.width, 100);
+      assert.equal(v1.height, 35);
+      
+      
+      //// Verify Percentage Sizing ////
+      block = this.percentage;
+      v1 = block.inner;
+      
+      // Change percentage
+      v1.setAttribute('width', '50%');
+      assert.equal(v1.width, 50);
+      
+      // Change to absolute
+      v1.setAttribute('width', 70);
+      assert.equal(v1.width, 70);
+      block.setAttribute('width', 200);
+      assert.equal(v1.width, 70);
+      
+      // Change back to percent
+      v1.setAttribute('width', '50%');
+      assert.equal(v1.width, 100);
+      
+      
+      //// Verify Auto Sizing ////
+      block = this.auto1;
+      
+      // Add a view
+      v1 = this.createChild({class: 'item', parent:block});
+      assert.equal(block.width, 25);
+      assert.equal(block.height, 25);
+      
+      // Remove a view
+      v1.destroy();
+      assert.equal(block.width, 0);
+      assert.equal(block.height, 0);
+      
+      // Destroy a view with auto size just to make sure it doesn't throw an error
+      block.destroy();
+      
+      // Hide a view
+      block = this.auto2;
+      v1 = block.v1;
+      v2 = block.v2;
+      v3 = block.v3;
+      v3.setAttribute('visible', false);
+      assert.equal(block.width, 225);
+      assert.equal(block.height, 40);
+      
+      // Show a view
+      v3.setAttribute('visible', true);
+      assert.equal(block.width, 225);
+      assert.equal(block.height, 75);
+      
+      // Move a view
+      v3.setAttribute('y', 60);
+      assert.equal(block.width, 225);
+      assert.equal(block.height, 85);
+      
+      // Resize a view
+      v3.setAttribute('height', 20);
+      assert.equal(block.width, 225);
+      assert.equal(block.height, 80);
+      
+      // Turn off auto
+      block.setAttribute('width', 100);
+      assert.equal(block.width, 100);
+      assert.equal(block.height, 80);
+      v2.setAttribute('x', 150);
+      assert.equal(block.width, 100);
+      assert.equal(block.height, 80);
+      
+      // Turn on auto
+      block.setAttribute('width', 'auto');
+      assert.equal(block.width, 175);
+      assert.equal(block.height, 80);
+      
+      // Change position of child of an auto sized view with percent children
+      // The percent children should be ignored.
+      block = this.auto5;
+      v1 = block.v1;
+      v2 = block.v2;
+      v3 = block.v3;
+      
+      v2.setAttribute('x', 105);
+      assert.equal(block.width, 130);
+      assert.equal(block.height, 80);
+      assert.equal(v1.x, 65);
+      assert.equal(v1.y, 40);
+      assert.equal(v1.width, 65);
+      assert.equal(v1.height, 40);
+      v1.setAttribute('width', '100%');
+      assert.equal(block.width, 130);
+      assert.equal(block.height, 80);
+      assert.equal(v1.x, 65);
+      assert.equal(v1.y, 40);
+      assert.equal(v1.width, 130);
+      assert.equal(v1.height, 40);
+      
+      v1.setAttribute('width', 130);
+      v1.setAttribute('x', 70); // Triggers an event since the value is different thus causing the AutoLayout to update
+      assert.equal(block.width, 200);
+      assert.equal(block.height, 80);
+      
+      v1.setAttribute('height', 50);
+      v1.setAttribute('y', 45); // Triggers an event since the value is different thus causing the AutoLayout to update
+      assert.equal(block.width, 200);
+      assert.equal(block.height, 95);
+      
+      // Change position of child of an auto sized view with a child
+      // that is constrained to the parent width/height. Because constraints
+      // prevent loops the constained child view will behave as expected even
+      // though the actual relationship is a circular reference.
+      block = this.auto6a;
+      v1 = block.v1;
+      v2 = block.v2;
+      v3 = block.v3;
+      
+      v2.setAttribute('x', 50);
+      
+      assert.equal(v2.x, 50);
+      assert.equal(v1.x, 65);
+      assert.equal(v1.width, 65);
+      assert.equal(block.width, 130);
+      assert.equal(block.height, 80);
+      
+      v2.setAttribute('x', 155);
+      
+      assert.equal(v2.x, 155);
+      assert.equal(v1.x, 90);
+      assert.equal(v1.width, 90);
+      assert.equal(block.width, 180);
+      assert.equal(block.height, 80);
+      
+      // Add a view to the empty block and we should see the constrained
+      // view resize itself.
+      block = this.auto6b;
+      v1 = block.v1;
+      
+      v2 = block.createChild({class: 'item', x:45, y:45});
+      
+      assert.equal(v2.x, 45);
+      assert.equal(v2.y, 45);
+      assert.equal(v1.width, 70);
+      assert.equal(v1.height, 70);
+      assert.equal(block.width, 70);
+      assert.equal(block.height, 70);
+      
+      // Nothing should change after view destruction
+      v2.destroy();
+      
+      assert.equal(v2.destroyed, true);
+      assert.equal(v1.width, 70);
+      assert.equal(v1.height, 70);
+      assert.equal(block.width, 70);
+      assert.equal(block.height, 70);
+      
+      // Change position of child of an auto sized view with aligned children
+      // The aligned children should be ignored.
+      block = this.auto7;
+      v1 = block.v1;
+      v2 = block.v2;
+      v3 = block.v3;
+      
+      v2.setAttribute('x', 105);
+      assert.equal(block.width, 130);
+      assert.equal(block.height, 80);
+      assert.equal(v1.x, 105);
+      assert.equal(v1.y, 55);
+      
+      v1.setAttribute('x', 'center');
+      assert.equal(v1.x, 52.5);
+      assert.equal(v1.y, 55);
+      
+      v1.setAttribute('width', 130);
+      v1.setAttribute('x', 65);
+      assert.equal(block.width, 195);
+      assert.equal(block.height, 80);
+      
+      v1.setAttribute('height', 50);
+      v1.setAttribute('y', 40);
+      assert.equal(block.width, 195);
+      assert.equal(block.height, 90);
+      
+      // Finally, verify root view since we gave it a width of auto
+      assert.equal(this.width, 210);
+      assert.equal(this.height, 752);
+    </handler>
+  </view>
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+</body>
+</html>

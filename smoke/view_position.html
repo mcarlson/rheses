@@ -1,0 +1,311 @@
+<html>
+<head>
+  <title>dr33m | View position Smoke Tests</title>
+  <script>var BOILERPLATE_OPTS = {type:'smoke'};</script>
+  <script type="text/javascript" src="../boilerplate.js"></script>
+</head>
+<body>
+  <view width="auto" height="auto" bgcolor="#cccccc" padding="5">
+    <class name="block" x="10" y="5" width="100" height="50" bgcolor="#999999"></class>
+    <class name="item" width="20" height="20" bgcolor="#666666"></class>
+    
+    <!-- Absolute Positioning -->
+    <block name="basic">
+      <handler event="oninit">
+        assert.equal(this.x, 10);
+        assert.equal(this.y, 5);
+      </handler>
+    </block>
+    
+    <block name="basic" x="foo" y="bar">
+      <handler event="oninit">
+        // Invalid declarative values become 0.
+        assert.equal(this.x, 0);
+        assert.equal(this.y, 0);
+      </handler>
+    </block>
+    
+    <!-- Constrained Positioning -->
+    <block name="constrained" x="10" y="60">
+      <item name="inner" x="${this.parent.width - this.width - this.foo}" y="${this.parent.height - this.height - this.foo}">
+        <attribute name="foo" type="number" value="10"></attribute>
+      </item>
+      <handler event="oninit">
+        assert.equal(this.inner.x, 70);
+        assert.equal(this.inner.y, 20);
+      </handler>
+    </block>
+    
+    <!-- Percentage Positioning -->
+    <block name="percentage" y="120">
+      <item name="inner" x="50%" y="50%"></item>
+      <handler event="oninit">
+        assert.equal(this.inner.x, 50);
+        assert.equal(this.inner.y, 25);
+      </handler>
+    </block>
+    
+    <block y="180">
+      <item name="inner" x="80%" y="70%"></item>
+      <handler event="oninit">
+        assert.equal(this.inner.x, 80);
+        assert.equal(this.inner.y, 35);
+      </handler>
+    </block>
+    
+    <!-- Aligned Positioning -->
+    <block name="align1" y="240" border="1" bordercolor="black" padding="2">
+      <item name="inner" x="left" y="top"></item>
+      <handler event="oninit">
+        assert.equal(this.inner.x, 0);
+        assert.equal(this.inner.y, 0);
+      </handler>
+    </block>
+    
+    <block name="align2" y="300" border="1" bordercolor="black" padding="2">
+      <item name="inner" x="center" y="middle"></item>
+      <item name="inner2" x="middle" y="center" width="10" height="10" bgcolor="red"></item>
+      <handler event="oninit">
+        assert.equal(this.inner.x, (100 - 6 - 20) / 2);
+        assert.equal(this.inner.y, (50 - 6 - 20) / 2);
+        assert.equal(this.inner2.x, (100 - 6 - 10) / 2);
+        assert.equal(this.inner2.y, (50 - 6 - 10) / 2);
+      </handler>
+    </block>
+    
+    <block name="align3" y="360" border="1" bordercolor="black" padding="2">
+      <item name="inner" x="right" y="bottom"></item>
+      <handler event="oninit">
+        assert.equal(this.inner.x, 100 - 6 - 20);
+        assert.equal(this.inner.y, 50 - 6 - 20);
+      </handler>
+    </block>
+    
+    <!-- Nested alignment -->
+    <block name="alignNested" y="420" border="1" bordercolor="black" padding="2">
+      <item name="inner" x="right" y="bottom" width="50%" height="40" padding="4">
+        <item name="innermost" x="right" y="center" bgcolor="red"></item>
+      </item>
+      <handler event="oninit">
+        var inner = this.inner,
+          innermost = inner.innermost,
+          innerWidth = 0.5 * (100 - 6);
+        
+        assert.equal(inner.x, 100 - 6 - innerWidth);
+        assert.equal(inner.y, 50 - 6 - 40);
+        
+        assert.equal(innermost.x, innerWidth - 8 - 20);
+        assert.equal(innermost.y, (40 - 8 - 20) / 2);
+      </handler>
+    </block>
+    
+    <!-- Using align with a constant layout for simple switching of alignment. -->
+    <block name="special" y="480" width="120" height="120" border="1" bordercolor="black" padding="2">
+      <constantlayout name="layout1" attribute="x" value="'middle'"></constantlayout>
+      <spacedlayout name="layout2" axis="y" spacing="1"></spacedlayout>
+      
+      <item name="v1" width="10" height="40"></item>
+      <item name="v2" width="20" height="30"></item>
+      <item name="v3" width="30" height="20"></item>
+      <item name="v4" width="40" height="10"></item>
+      <handler event="oninit">
+        assert.equal(this.v1.x, (120 - 6 - 10) / 2);
+        assert.equal(this.v2.x, (120 - 6 - 20) / 2);
+        assert.equal(this.v3.x, (120 - 6 - 30) / 2);
+        assert.equal(this.v4.x, (120 - 6 - 40) / 2);
+      </handler>
+    </block>
+    
+    
+    <handler event="oninit">
+      //// Verify Basic Positioning ////
+      var block = this.basic, v1, v2, v3, v4, layout1, layout2;
+      
+      // Set x to a valid value
+      block.setAttribute('x', 1);
+      assert.equal(block.x, 1, 'Programatic setAttribute for x with a valid value.');
+      
+      // Set x to a negative value
+      block.setAttribute('x', -1);
+      assert.equal(block.x, -1, 'Programatic setAttribute for x with a negative value.');
+      
+      // Set x to an invalid value
+      block.setAttribute('x', 'foo');
+      assert.equal(block.x, -1, 'Programatic setAttribute for x with an invalid value.');
+      
+      // Set y to a valid value
+      block.setAttribute('y', 1);
+      assert.equal(block.y, 1, 'Programatic setAttribute for y with a valid value.');
+      
+      // Set y to a negative value
+      block.setAttribute('y', -1);
+      assert.equal(block.y, -1, 'Programatic setAttribute for y with a negative value.');
+      
+      // Set y to an invalid value
+      block.setAttribute('y', 'foo');
+      assert.equal(block.y, -1, 'Programatic setAttribute for x with an invalid value.');
+      
+      
+      //// Verify Constrained Positioning ////
+      block = this.constrained;
+      v1 = block.inner;
+      
+      // Change constraint target value
+      v1.setAttribute('foo', 5);
+      assert.equal(v1.x, 75, 'Constraints work for x.');
+      assert.equal(v1.y, 25, 'Constraints work for y.');
+      
+      // Set to absolute to verify the constraint is removed
+      v1.setAttribute('x', 50);
+      assert.equal(v1.x, 50, 'Constraint removed when an absolute value is set for x.');
+      v1.setAttribute('foo', 10);
+      assert.equal(v1.x, 50, 'Constraint is really gone for x.');
+      assert.equal(v1.y, 20, 'Constraint still exists for y.');
+      
+      
+      //// Verify Percentage Positioning ////
+      block = this.percentage;
+      v1 = block.inner;
+      
+      // Change percentage
+      v1.setAttribute('x', '25%');
+      assert.equal(v1.x, 25, 'Percentage value for x can be updated via setAttribute.');
+      
+      // Change to absolute
+      v1.setAttribute('x', 70);
+      assert.equal(v1.x, 70, 'Percentage value can be removed by setAttribute with an absolute value.');
+      block.setAttribute('width', 200);
+      assert.equal(v1.x, 70, 'Percentage value was really removed because resizing the parent had no effect.');
+      
+      // Change back to percent
+      v1.setAttribute('x', '50%');
+      assert.equal(v1.x, 100, 'Changing back to a percent updates the position immediately.');
+      
+      
+      //// Verify Aligned Positioning ////
+      block = this.align1;
+      v1 = block.inner;
+      
+      // Change to another align value
+      v1.setAttribute('x', 'cENter'); // Also verify case doesn't matter
+      assert.equal(v1.x, 37);
+      assert.equal(v1.y, 0);
+      v1.setAttribute('y', 'middle');
+      assert.equal(v1.x, 37);
+      assert.equal(v1.y, 12);
+      
+      // Change to an absolute value
+      v1.setAttribute('x', 50);
+      assert.equal(v1.x, 50);
+      assert.equal(v1.y, 12);
+      v1.setAttribute('y', 15);
+      assert.equal(v1.x, 50);
+      assert.equal(v1.y, 15);
+      
+      // Resize parent should have no effect
+      block.setAttribute('width', 200);
+      block.setAttribute('height', 30);
+      assert.equal(v1.x, 50);
+      assert.equal(v1.y, 15);
+      
+      // Change back to an align value should result in immediate update
+      v1.setAttribute('x', 'right');
+      assert.equal(v1.x, 174);
+      assert.equal(v1.y, 15);
+      v1.setAttribute('y', 'bottom');
+      assert.equal(v1.x, 174);
+      assert.equal(v1.y, 4);
+      
+      // Add a view with an alignment should get positioned correctly
+      v2 = this.createChild({class: 'item', parent:block, x:'center', y:'center'});
+      assert.equal(v2.x, (200 - 6 - 20) / 2);
+      assert.equal(v2.y, (30 - 6 - 20) / 2);
+      
+      // Destroy view to make sure no error is thrown
+      v2.destroy();
+      
+      // Resize view should reposition
+      v1.setAttribute('width', 10);
+      assert.equal(v1.x, 184);
+      assert.equal(v1.y, 4);
+      v1.setAttribute('height', 10);
+      assert.equal(v1.x, 184);
+      assert.equal(v1.y, 14);
+      
+      // Change to an invalid string value. This should make the 
+      // position absolute using the current value.
+      v1.setAttribute('x', 'foo');
+      assert.equal(v1.x, 184);
+      assert.equal(v1.y, 14);
+      v1.setAttribute('width', 20);
+      assert.equal(v1.x, 184);
+      assert.equal(v1.y, 14);
+      v1.setAttribute('height', 20);
+      assert.equal(v1.x, 184);
+      assert.equal(v1.y, 4);
+      
+      
+      //// Verify aligned positioning via constantlayout ////
+      block = this.special;
+      v1 = block.v1;
+      v2 = block.v2;
+      v3 = block.v3;
+      v4 = block.v4;
+      layout1 = block.layout1;
+      layout2 = block.layout2;
+      
+      // Change alignment
+      layout1.setAttribute('value', "'begin'");
+      assert.equal(v1.x, 0);
+      assert.equal(v2.x, 0);
+      assert.equal(v3.x, 0);
+      assert.equal(v4.x, 0);
+      
+      layout1.setAttribute('value', "'end'");
+      assert.equal(v1.x, 120 - 6 - 10);
+      assert.equal(v2.x, 120 - 6 - 20);
+      assert.equal(v3.x, 120 - 6 - 30);
+      assert.equal(v4.x, 120 - 6 - 40);
+      
+      // Change axis
+      layout1.setAttribute('value', "'invalid'"); // Clear out alignments on x
+      layout1.setAttribute('attribute', "y");
+      layout1.setAttribute('value', "'middle'");
+      block.setAttribute('width', 130); // Verify alignment on x was cleared
+      
+      assert.equal(v1.x, 120 - 6 - 10);
+      assert.equal(v2.x, 120 - 6 - 20);
+      assert.equal(v3.x, 120 - 6 - 30);
+      assert.equal(v4.x, 120 - 6 - 40);
+      
+      assert.equal(v1.y, (120 - 6 - 40) / 2);
+      assert.equal(v2.y, (120 - 6 - 30) / 2);
+      assert.equal(v3.y, (120 - 6 - 20) / 2);
+      assert.equal(v4.y, (120 - 6 - 10) / 2);
+      
+      layout2.setAttribute('axis', "x");
+    </handler>
+  </view>
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+</body>
+</html>

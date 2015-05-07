@@ -1,0 +1,159 @@
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014-2015 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+
+<!--/**
+   * @class dr.buttonbase {UI Components}
+   * @extends dr.view
+   * Base class for button components. Buttons share common elements,
+   * including their ability to be selected, a visual element to display
+   * their state, and a default and selected color.
+   * The visual element is a dr.view that shows the current state of the
+   * button. For example, in a labelbutton the entire button is the visual
+   * element. For a checkbutton, the visual element is a square dr.view
+   * that is inside the button.
+   *
+   * The following example shows a subclass that has a plain view as the visual element, and sets selected to true onmousedown. The selectcolor is automatically applied when selected is true.
+   * 
+   *     @example
+   *     <class name="purplebutton" extends="buttonbase" defaultcolor="purple" selectcolor="plum" width="100" height="40">
+   *        <view name="visual" width="100%" height="100%"></view>
+   *
+   *        <handler event="onmousedown">
+   *          this.setAttribute('selected', true)
+   *        </handler>
+   *
+   *        <handler event="onmouseup">
+   *          this.setAttribute('selected', false)
+   *        </handler>
+   *     </class>
+   *     <purplebutton></purplebutton>
+   */-->
+<class name="buttonbase" type="coffee" clickable="true" clip="true" bordercolor="${this.selectcolor}">
+  <!--/**
+    * @attribute {Number} [padding=3]
+    * Amount of padding pixels around the button.
+    */-->
+
+  <!--/**
+    * @attribute {String} [defaultcolor="#808080"]
+    * The default color of the visual button element when not selected.
+    */-->
+  <!--/**
+    * @attribute {String} [selectcolor="#a0a0a0"]
+    * The selected color of the visual button element when selected.
+    */-->
+  <attribute name="defaultcolor" type="string" value="black"></attribute>
+  <handler event="ondefaultcolor" method="visualize"></handler>
+
+  <attribute name="textcolor" type="string" value="white"></attribute>
+  <handler event="ontextcolor" method="visualize"></handler>
+
+  <attribute name="selectcolor" type="string" value="white"></attribute>
+  <handler event="onselectcolor" method="visualize"></handler>
+
+  <!--/**
+    * @attribute {Boolean} [selected=false]
+    * The current state of the button.
+    */-->
+  <!--/**
+    * @event onselected
+    * Fired when the state of the button changes.
+    * @param {dr.buttonbase} view The dr.buttonbase that fired the event
+    */-->
+  <!-- selected: button state -->
+  <attribute name="selected" type="boolean" value="false"></attribute>
+  <handler event="onselected" method="visualize"></handler>
+
+  <!-- visualize: Show the current button state -->
+  <method name="visualize">
+    if @visual
+      if @selected
+        @visual.setAttribute('bgcolor', @selectcolor);
+      else
+        @visual.setAttribute('bgcolor', @defaultcolor);
+
+    if @label
+      if !@label.text || @label.text.length == 0
+        @label.setAttribute('visible', false)
+      else
+        @label.setAttribute('visible', true)
+
+      if @selected
+        @label.setAttribute('color', @defaultcolor);
+      else
+        @label.setAttribute('color', @textcolor);
+  </method>
+
+  <handler event="oninit" method="visualize"></handler>
+
+  <!-- text_x, text_y: Location of button text within button -->
+  <attribute name="textx" type="number" value="0"></attribute>
+  <attribute name="texty" type="number" value="0"></attribute>
+  <attribute name="text" type="string" value=""></attribute>
+
+  <!-- label: Text label -->
+  <!--/**
+    * @attribute {String} [text=""]
+    * Button text.
+    */-->
+  <text name="label" type="coffee" resize="true"
+    x="${this.parent.textx}" y="${this.parent.texty}" text="${this.parent.text}">
+  </text>
+
+  <handler event="onwidth" method="handleResize" reference="this.label"></handler>
+  <handler event="onheight" method="handleResize" reference="this.label"></handler>
+  <handler event="ontext" method="handleResize" reference="this.label"></handler>
+
+  <handler event="oninnerheight" method="handleResize" reference="this.label"></handler>
+  <handler event="oninnerwidth" method="handleResize" reference="this.label"></handler>
+
+  <handler event="onwidth" method="handleResize"></handler>
+  <handler event="onheight" method="handleResize"></handler>
+
+  <handler event="oninnerheight" method="handleResize"></handler>
+  <handler event="oninnerwidth" method="handleResize"></handler>
+
+  <method name="handleResize">
+    # Custom behavior in subclasses
+
+    # Detect if the button was supplied with a size. Computed once
+    if !@_fixedwidth? then @_fixedwidth = @innerwidth > 0
+    if !@_fixedheight? then @_fixedheight = @innerheight > 0
+  </method>
+
+  <method type="javascript" name="postSkinHack" args="v">
+    // This is a terrible solution, but currently I cannot track down what is causing the actual problem (it possibly may be a bug in chrome?)
+    // It seems as though the getBoundingClientRect() call (from Sprite.getBounds()) does not always
+    // update itself immediately when the font size/family/weight changes until a short, random time after
+    // the page has been loaded, which means the original sizeToDom() call has sized the component incorrectly and
+    // the handleResize has already happened.
+    // This hack forces the vulnerable components (i.e. those that auto-size) to resize themselves, but should
+    // be removed and replaced with a better solution as soon as there is one available.
+
+    var self = this;
+    setTimeout(function() {
+      self.label.sizeToDom();
+      self.handleResize();
+    }, 15);
+  </method>
+
+</class>

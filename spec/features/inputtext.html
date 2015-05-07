@@ -1,0 +1,35 @@
+<html lang="en">
+<head>
+  <title>Input Text Examples</title>
+  <script type="text/javascript" src="../../boilerplate.js"></script>
+</head>
+<body>
+<view width="100%" height="100%" clip="true">
+  <spacedlayout axis="y" spacing="15"></spacedlayout>
+
+  <text text="Enter your name"></text>
+
+  <inputtext id="nameinput" bgcolor="white" border="1" bordercolor="grey" width="100" height="30"></inputtext>
+
+  <labelbutton id="submitbtn" text="submit">
+    <handler event="onclick">
+      welcome.setAttribute('text', 'Welcome ' + nameinput.text);
+    </handler>
+  </labelbutton>
+
+  <text id="welcome"></text>
+
+  <labelbutton id="widthbtn" text="widthify">
+    <handler event="onclick">
+      nameinput.setAttribute('width', 300);
+    </handler>
+  </labelbutton>
+
+  <labelbutton id="heightbtn" text="heightify">
+    <handler event="onclick">
+      nameinput.setAttribute('height', 50);
+    </handler>
+  </labelbutton>
+</view>
+</body>
+</html>

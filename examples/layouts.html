@@ -1,0 +1,180 @@
+<html>
+<head>
+  <title>dr33m | Layout Examples</title>
+  <script type="text/javascript" src="../boilerplate.js"></script>
+</head>
+<body>
+<view bgcolor="#cccccc" width="auto" padding="25" scrollable="true">
+  <class name="item" extends="view" height="15" width="100" bgcolor="red">
+    <handler event="onclick" type="coffee">
+      @count ?= 0
+      @count++
+      
+      switch @count
+        when 1
+          @setAttribute('width', 2 * @width)
+          @setAttribute('height', 2 * @height)
+        when 2
+          @setAttribute('width', @width / 2)
+          @setAttribute('height', @height / 2)
+        when 3
+          attrs = {class: 'item', parent:@parent, width:50, height:50, bgcolor:'purple'}
+          if @layouthint then attrs.layouthint = JSON.stringify(@layouthint)
+          if @ignorelayout then attrs.ignorelayout = JSON.stringify(@ignorelayout)
+          @createChild(attrs)
+        when 4
+          @destroy()
+    </handler>
+  </class>
+  
+  <class name="item2" extends="item" height="20" width="40" bgcolor="red"></class>
+  
+  <spacedlayout axis="y" spacing="5" updateparent="true"></spacedlayout>
+  
+  <view padding="5" border="2" bordercolor="black" height="auto" bgcolor="#999999">
+    <spacedlayout name="layoutX" inset="4" spacing="1" outset="4" updateparent="true"></spacedlayout>
+    <spacedlayout name="layoutY1" axis="y" inset="4" spacing="5"></spacedlayout>
+    <spacedlayout name="layoutY2" axis="y" inset="4" spacing="10"></spacedlayout>
+    <constantlayout name="bgcolor" attribute="bgcolor" value="'green'"></constantlayout>
+    
+    <view name="inner" width="100%" height="100%" ignorelayout="true" bgcolor="#cccccc"></view>
+    
+    <item width="15" height="15" ignorelayout='{"layoutY1":true}'></item>
+    <item width="15" height="15" ignorelayout='{"layoutY2":true}'></item>
+    <item width="15" height="15" ignorelayout='{"layoutY1":true}'></item>
+    <item width="15" height="15" ignorelayout='{"layoutY2":true, "bgcolor":true}'></item>
+    <item width="15" height="15" ignorelayout='{"layoutY1":true}'></item>
+    <item width="15" height="15" ignorelayout='{"layoutY2":true}'></item>
+    <item width="15" height="15" ignorelayout='{"layoutY1":true}'></item>
+    <item width="15" height="15" ignorelayout='{"layoutY2":true}'></item>
+    <item width="15" height="15" ignorelayout='{"layoutY1":true}'></item>
+    <item width="15" height="15" ignorelayout='{"layoutY2":true, "bgcolor":true}'></item>
+    <item width="15" height="15" ignorelayout='{"layoutY1":true}'></item>
+  </view>
+  
+  <view padding="5" border="2" bordercolor="black" height="auto" bgcolor="#999999">
+    <spacedlayout name="layoutX" inset="4" spacing="1" outset="3" updateparent="true"></spacedlayout>
+    
+    <view name="inner" width="100%" height="100%" ignorelayout="true" bgcolor="#cccccc"></view>
+    
+    <item name="v1" y="top" width="25" height="25">
+      <animator attribute="rotation" from="0" to="360" duration="1000" repeat="25"></animator>
+    </item>
+    <item name="v2" width="20"></item>
+    <item name="v3" y="top" width="30" height="30" xscale="2" xanchor="right">
+      <animator attribute="rotation" from="0" to="360" duration="5000" repeat="5"></animator>
+      <animator attribute="yscale" from="1" to="3" duration="5000" repeat="5" bounce="true"></animator>
+    </item>
+    <item name="v4" width="40"></item>
+    <item name="v5" width="50"></item>
+  </view>
+  
+  <view width="300" height="auto" bgcolor="#999999" padding="2" border="1" bordercolor="black">
+    <view width="10" height="20" bgcolor="green"></view>
+    <view height="20" layouthint='{"weight":1}' bgcolor="red"></view>
+    <view layouthint='{"weight":2}' height="20" bgcolor="purple"></view>
+    <view height="20" layouthint='{"weight":1}' bgcolor="red"></view>
+    <view width="10" height="20" bgcolor="yellow"></view>
+    
+    <resizelayout spacing="1" inset="1" outset="1"></resizelayout>
+  </view>
+  
+  <view bgcolor="#999999" width="300" id="foo" padding="10" border="2" bordercolor="#99ff33">
+    <item2 bgcolor="green"></item2>
+    <item2 layouthint='{"break":true}'></item2>
+    <item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2>
+    <item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2>
+    <item2 bgcolor="orange">
+      <animator attribute="rotation" from="0" to="360" duration="1000" repeat="25"></animator>
+    </item2>
+    <item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2>
+    <item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2>
+    <item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2>
+    <item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2><item2></item2>
+    <item2 bgcolor="yellow"></item2>
+    
+    <wrappinglayout id="bar" inset="5" outset="10" spacing="1"
+      lineinset="2" lineoutset="8" linespacing="4" updateparent="true"
+    ></wrappinglayout>
+  </view>
+  
+  <view bgcolor="#999999" width="auto">
+    <item bgcolor="green"></item>
+    <item></item>
+    <item></item>
+    <item></item>
+    <item></item>
+    <item></item>
+    <item ignorelayout="true" bgcolor="black"></item>
+    <item></item>
+    <item bgcolor="yellow"></item>
+    
+    <constantlayout value="20"></constantlayout>
+    
+    <variablelayout attribute="y" value="10" updateparent="true">
+      <method name="updateSubview" args="count, view, attribute, value">
+        view.setAttribute(attribute, value)
+        return value + view.height + 5
+      </method>
+      <method name="updateParent" args="attribute, value">
+        this.parent.setAttribute(attribute === 'x' ? 'width' : 'height', value + 5)
+      </method>
+    </variablelayout>
+  </view>
+  
+  <view width="200" bgcolor="#999999">
+    <item width="10" height="100" bgcolor="green"></item>
+    <item width="20" height="50"></item>
+    <item width="30" height="90"></item>
+    <item width="40" height="20"></item>
+    <item width="50" height="75" bgcolor="yellow"></item>
+    
+    <alignlayout align="top" updateparent="true"></alignlayout>
+    <spacedlayout></spacedlayout>
+  </view>
+  
+  <view bgcolor="#999999" padding="2" border="1" bordercolor="black">
+    <item width="10" height="100" bgcolor="green"></item>
+    <item width="20" height="50"></item>
+    <item width="30" height="90"></item>
+    <item width="40" height="20"></item>
+    <item width="50" height="75" bgcolor="yellow"></item>
+    
+    <alignlayout updateparent="true"></alignlayout>
+    <spacedlayout axis="x" inset="1" spacing="1" outset="2" reverse="true" updateparent="true"></spacedlayout>
+  </view>
+  
+  <view bgcolor="#999999">
+    <item width="10" height="100" bgcolor="green"></item>
+    <item width="20" height="50"></item>
+    <item width="30" height="90"></item>
+    <item width="40" height="20"></item>
+    <item width="50" height="75" bgcolor="yellow"></item>
+    
+    <alignlayout align="bottom" updateparent="true"></alignlayout>
+    <spacedlayout axis="x" inset="5" spacing="1" outset="10" updateparent="true"></spacedlayout>
+  </view>
+</view>
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+</body>
+</html>

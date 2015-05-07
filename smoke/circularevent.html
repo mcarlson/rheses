@@ -1,0 +1,95 @@
+<html>
+<head>
+  <title>rhes.es</title>
+  <script>var BOILERPLATE_OPTS = {type:'smoke'};</script>
+  <script type="text/javascript" src="../boilerplate.js"></script>
+</head>
+<body>
+<view width="100%">
+  <view name="redbox" width="100" height="${this.width}" bgcolor="red">
+    <handler event="onheight" args="h">
+      this.setAttribute('width', h + 100)
+    </handler>
+  </view>
+  <handler event="oninit">
+    assert.equal(this.redbox.height, 200)
+    assert.equal(this.redbox.width, 200)
+  </handler>
+
+  <!-- Useful for debugging, from tracker bug 77982314 -->
+  <!--<class name="error13" bgcolor="#808080" width="20">-->
+    <!--<handler event="onwidth">-->
+      <!--this.setAttribute('width', this.width+1);-->
+    <!--</handler>-->
+  <!--</class>-->
+  <!--<error13>-->
+    <!--<handler event="oninit">-->
+      <!--assert.equal(this.width, 21);-->
+    <!--</handler>-->
+  <!--</error13>-->
+
+  <!--&lt;!&ndash; This doesn't work because the sprite is not changed &ndash;&gt;-->
+  <!--<class name="error13a" bgcolor="#808080" width="20" height="20">-->
+    <!--<handler event="onwidth">-->
+      <!--this.width = this.width + 50;-->
+    <!--</handler>-->
+    <!--<handler event="onheight">-->
+      <!--this.height = this.height + 50;-->
+    <!--</handler>-->
+  <!--</class>-->
+
+  <!--&lt;!&ndash; This works because a lock is added &ndash;&gt;-->
+  <!--<class name="error13b" bgcolor="#808080" width="20" height="20">-->
+    <!--<handler event="onwidth">-->
+      <!--if (this.locked) return;-->
+      <!--this.locked=true;-->
+      <!--this.setAttribute('width', this.width+50);-->
+      <!--this.locked=false;-->
+    <!--</handler>-->
+    <!--<handler event="onheight">-->
+      <!--if (this.locked) return;-->
+      <!--this.locked=true;-->
+      <!--this.setAttribute('height', this.height+50);-->
+      <!--this.locked=false;-->
+    <!--</handler>-->
+  <!--</class>-->
+
+  <!--<error13a>-->
+    <!--<handler event="oninit">-->
+      <!--assert.equal(this.width, 70);-->
+      <!--assert.equal(this.height, 70);-->
+    <!--</handler>-->
+  <!--</error13a>-->
+  <!--<error13b x="200">-->
+    <!--<handler event="oninit">-->
+      <!--assert.equal(this.width, 70);-->
+      <!--assert.equal(this.height, 70);-->
+    <!--</handler>-->
+  <!--</error13b>-->
+
+  <!-- This blows the stack if busted, see https://www.pivotaltracker.com/story/show/84528284 -->
+  <text text="${this.height}"></text>
+</view>
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+</body>
+</html>

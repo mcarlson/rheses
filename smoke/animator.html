@@ -1,0 +1,148 @@
+<html>
+<head>
+  <testingtimer><!--1000--></testingtimer>
+  <title>dr33m | Animator Smoke Tests</title>
+  <script>var BOILERPLATE_OPTS = {type:'smoke'};</script>
+  <script type="text/javascript" src="../boilerplate.js"></script>
+</head>
+<body>
+  <view>
+    <spacedlayout axis="x" spacing="1"></spacedlayout>
+
+    <!-- Test using animate method -->
+    <view bgcolor="darkgrey" width="auto" height="auto">
+      <view name="foo" bgcolor='red' x="0" y="0" width="100" height="80">
+        <handler event='oninit'>
+          this.animate({x:100, y:10}, 200)
+        </handler>
+      </view>
+
+      <view name="bar" bgcolor='red' x="0" y="100" width="100" height="80">
+        <handler event='oninit'>
+          this.animate({x:100, y:100, width:50, height:50, bgcolor:'blue'}, 150)
+        </handler>
+      </view>
+
+      <!-- Test destroying while an animation is running -->
+      <view name="baz" bgcolor='red' x="0" y="200" width="100" height="80">
+        <handler event='oninit' type="coffee">
+          this.animate({x:100, width:50, height:100, bgcolor:'green'}, 200)
+          setTimeout(() =>
+            this.destroy()
+          ,100)
+        </handler>
+      </view>
+
+      <!-- Test animating attributes on a node -->
+      <node name="buz">
+        <attribute name="x" value="0" type="number"></attribute>
+        <handler event='oninit'>
+          this.animate({x:100}, 80)
+        </handler>
+      </node>
+
+      <!-- Verify animations ran -->
+      <handler event="oninit" type="coffee">
+        setTimeout(() =>
+          assert.equal(@foo.x, 100)
+          assert.equal(@foo.y, 10)
+          
+          assert.equal(@bar.x, 100)
+          assert.equal(@bar.y, 100)
+          assert.equal(@bar.width, 50)
+          assert.equal(@bar.height, 50)
+          assert.equal(@bar.bgcolor, '#0000ff')
+          
+          assert.equal(@baz, undefined)
+          
+          assert.equal(@buz.x, 100)
+        500)
+      </handler>
+    </view>
+
+    <view id="container" bgcolor="lightgrey" width="auto" height="auto">
+      <animator target="koala" attribute="x" to="300" duration="300" control='0.01,1.0' motion="bret" repeat="2" bounce="true">
+        <handler event="onend">
+          assert.equal(koala.x, 100);
+          container.koalaRan = true;
+        </handler> 
+      </animator>
+      <bitmap id="koala" x="100" y="200" width="200" height="200" src="./shoarma.jpg"></bitmap>
+
+      <bitmap name="foo" x="100" y="0" width="200" height="200" src="./shoarma.jpg">
+        <animator start='500' attribute="x" to="300" duration="300" motion="outBounce" repeat="1">
+          <handler event="onend">
+            assert.equal(this.parent.x, 300);
+            container.fooRan = true;
+          </handler>
+        </animator>
+      </bitmap>
+
+      <bitmap name="bar" x="100" y="400" width="200" height="200" src="./shoarma.jpg">
+        <animator attribute="x" to="300" duration="300" motion="linear" repeat="2" bounce="true">
+          <handler event="onend">
+            assert.equal(this.parent.x, 100);
+            container.barRan = true;
+          </handler>
+        </animator>
+      </bitmap>
+
+      <view name="baz" bgcolor='red' x="10" y="610" width="auto" height="auto">
+        <text text='Relative'></text>
+        <animator relative='true' attribute="x" duration="500" to="10" motion="inOutExpo">
+          <handler event='onend'>
+            assert.equal(this.parent.x, 20);
+            container.bazRan = true;
+          </handler>
+        </animator>
+      </view>
+
+      <bitmap name="buz" x="100" y="600" width="200" height="200" src="./shoarma.jpg">
+        <animator attribute="x" to="300" duration="300" motion="linear" repeat="2" bounce="true">
+          <handler event="onend">
+            assert.equal(this.parent.x, 100);
+            container.buzRan = true;
+          </handler>
+          <handler event="ontick">
+            this.parent.destroy()
+            container.buzTickRan = true;
+          </handler>
+        </animator>
+      </bitmap>
+
+      <!-- Verify animations ran -->
+      <handler event="oninit" type="coffee">
+        setTimeout(() =>
+          assert.equal(@koalaRan, true)
+          assert.equal(@fooRan, true)
+          assert.equal(@barRan, true)
+          assert.equal(@bazRan, true)
+          
+          assert.equal(@buzRan, undefined)
+          assert.equal(@buzTickRan, true)
+        800)
+      </handler>
+    </view>
+  </view>
+<!-- The MIT License (MIT)
+Copyright ( c ) 2014-2015 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+</body>
+</html>

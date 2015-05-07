@@ -1,0 +1,117 @@
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+<!--/**
+ * @class dr.camera {UI Components}
+ * @extends dr.node
+ * Enables video and audio capture from the camera and microphone devices.
+ *
+ */-->
+<class name="camera" type="coffee" clickable="true" clip="true">
+
+  <!--/**
+    * @attribute {Boolean} [stream=false]
+    * When set to true the user will be asked permission to access the device, and if permission is granted the stream will be started. When set to false the stream will be stopped. The {@link #streaming streaming} attribute indicates when the device is actually streaming.
+    */-->
+  <attribute name="stream" type="boolean" value="false"></attribute>
+  <setter name="stream" args="stream">
+    if (stream)
+      @startStream()
+    else
+      @stopStream()
+  
+    return stream
+  </setter>
+  <!--/**
+    * @attribute {Boolean} [audio=true]
+    * Set this to false if you don't want audio captured in the stream. 
+    */-->
+  <attribute name="audio" type="boolean" value="true"></attribute>
+  
+  <!--/**
+    * @attribute {LocalMediaStream} mediastream
+    * @readonly
+    * The input stream from the camera.
+    */-->
+  <attribute name="mediastream" type="expression" value="null"/>
+  <!--/**
+    * @attribute {Boolean} [streaming=false]
+    * @readonly
+    * True when input is streaming from the device. False when it has been stopped, or if the user has denied access to the device.
+    */-->
+  <attribute name="streaming" type="boolean" value="false"/>
+  <!--/**
+    * @attribute {Boolean} [permissiondenied=false]
+    * @readonly
+    * True if the user has denied permission to access the device.
+    */-->
+  <attribute name="permissiondenied" type="boolean" value="false"/>
+  <!--/**
+    * @attribute {Boolean} [supported=true]
+    * @readonly
+    * False if the camera component is not supported in the users browser. 
+    */-->
+  <attribute name="supported" type="boolean" value="true"></attribute>
+  
+  <method name="construct" args="element, attributes">
+    navigator.getUserMedia = navigator.getUserMedia ||
+      navigator.webkitGetUserMedia ||
+      navigator.mozGetUserMedia ||
+      navigator.msGetUserMedia
+  
+    attributes['supported'] = !!navigator.getUserMedia
+  
+    @super(element, attributes)
+  </method>
+  
+  <handler event="oninit">
+    @startStream(!!'forceStart') if @stream
+  </handler>
+  
+  <method name="startStream" args="forceStart">
+    return unless @inited
+    return if @stream && !forceStart
+  
+    errorCallback = (e) =>
+      console.log('User denied permission to access the microphone', e)
+      @setAttribute('permissiondenied', true)
+      @setAttribute('stream', false) ####reset this so they can try again
+  
+    gotLocalMediaStream = (localMediaStream) =>
+      @setAttribute('streaming', true)
+      @setAttribute('mediastream', localMediaStream)
+  
+      #in case stream was set to false before we get this callback
+      @stopStream() unless @stream
+  
+    navigator.getUserMedia({video: true, audio: @audio}, gotLocalMediaStream, errorCallback)
+  </method>
+  
+  <method name="stopStream">
+    return unless @streaming
+  
+    for track in @mediastream.getAudioTracks()
+      track.stop();
+    @mediastream.stop();
+  
+    @setAttribute('streaming', false)
+  </method>
+</class>

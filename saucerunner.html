@@ -1,0 +1,161 @@
+<html>
+<head>
+  <title>rhes.es</title>
+  <script type="text/javascript" src="boilerplate.js"></script>
+</head>
+<body>
+<view id="all" width="100%" height="100%" clip="true">
+  <handler event="oninit">
+    var files;
+    
+    //this is for testing this runner itself, to run through all smokes run through the dreem server localhost:8080/saucerun
+    files = [
+      'http://localhost:8080/smoke/text.html',
+      'http://localhost:8080/smoke/inputtext.html',
+      'http://localhost:8080/smoke/ace.html',
+      'http://localhost:8080/smoke/animator.html',
+      'http://localhost:8080/smoke/animgroup.html',
+      'http://localhost:8080/smoke/art.html',
+      'http://localhost:8080/smoke/attributes.html',
+      'http://localhost:8080/smoke/bitmap.html',
+      'http://localhost:8080/smoke/button.html'
+    ];
+
+    //to run all the smokes run from the server localhost:8080/saucerun, 
+    //which populates this DYNAMIC_FILES collection with all files from the smoke directory
+    var DYNAMIC_FILES = null;
+    if (DYNAMIC_FILES) files = DYNAMIC_FILES;
+    
+    var successCount = 0;
+    var failedCount = 0;
+    var tests = [];
+    var currentTestName;
+    
+    function reportFailure(results) {
+      var message;
+   
+      if (!results) {
+        message = 'did not report any results';
+      } else {
+        message = '' + results.failed + ' failed of ' + results.total + ' tests:: \n';
+        for (var i in results.tests) {
+          var test = results.tests[i];
+    
+          if (test.result == false) {
+            message += test.name + ' ' + test.message + '\n';
+          }
+        }
+      }
+
+      failedCount++;
+      tests.push({
+        "name": currentTestName,
+        "result": false,
+        "message": message,
+        "duration": results ? results.duration : 0
+      });
+    }
+    
+    function reportSuccess(results) {
+      successCount++;
+      tests.push({
+        "name": currentTestName,
+        "result": true,
+        "message": '' + results.passed + ' passing of ' + results.total + ' tests',
+        "duration": results.duration
+      });
+    }
+    
+    var startTime = new Date();
+    function reportAllResults() {
+      var duration = (new Date() - startTime) / 1000;
+      window.global_test_results = {
+        "passed": successCount,
+        "failed": failedCount,
+        "total": successCount + failedCount,
+        "duration": duration,
+        "tests": tests
+      }
+    }
+    
+    function collate() {
+      var results = window.testframe.contentWindow.global_test_results;
+    
+      if (!results) {
+        reportFailure(null);
+      } else if (results.failed > 0) {
+        reportFailure(results);
+      } else {
+        reportSuccess(results);
+      }
+
+      runNextTest();
+    }
+    
+    var testIndex = 0;
+    function runNextTest() {
+      if (testIndex >= files.length) {
+        reportAllResults();
+        return;
+      }
+    
+      currentTestName = files[testIndex];
+
+      testIndex++;
+
+      if (window.testframe) {
+        document.body.removeChild(window.testframe);
+      }
+
+      var testframe = document.createElement("iframe");
+      testframe.style.width = "100%";
+      testframe.style.height = "100%";
+      testframe.style.position = "absolute";
+      testframe.style.left = 0;
+      testframe.style.top = 0;
+      testframe.src = currentTestName;
+      document.body.appendChild(testframe);
+
+      testframe.onload = function() {
+        var maxChecks = 40;
+        var totalChecks = 0;
+        var checker = function() {
+          totalChecks++;
+          if (window.testframe.contentWindow.global_test_results || (totalChecks >= maxChecks)) {
+            collate();
+          } else {
+            window.setTimeout(checker, 500);
+          }
+        }
+        checker();
+      }
+    
+      window.testframe = testframe;
+    }
+
+    runNextTest();
+  </handler>
+</view>
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+</body>
+</html>

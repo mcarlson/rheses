@@ -1,0 +1,78 @@
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+<!--/**
+      * @class dr.constantlayout {Layout}
+      * @extends dr.layout
+      * A layout that sets the target attribute name to the target value for
+      * each sibling view of the layout.
+      *
+      * This layout is useful if you want to ensure that an attribute value is 
+      * shared in common by most or all children of a view. It also makes
+      * updating that value easy since you can change the value on the
+      * constant layout and it will be applied to all the managed sibling views.
+      *
+      * This constant layout will set the y attribute to 10 for every sibling
+      * view. Furthermore, since it's a layout, any new sibling view added
+      * will also have its y attribute set to 10. Also, notice that the sibling
+      * view with the black bgcolor has ignorelayout set to true. This means
+      * that view will be ignored by the layout and will thus not have its
+      * y attribute set to 10. You can change ignorelayout at runtime and the
+      * view will be added to, or removed from the layout. If you do remove a 
+      * view at runtime from the layout the y attribute for that view will not 
+      * be changed, but subsequent changes to the layout will no longer effect
+      * the view.
+      *
+      *     @example
+      *     <constantlayout attribute="y" value="10"></constantlayout>
+      *
+      *     <view x="0" width="100" height="25" bgcolor="lightpink"></view>
+      *     <view x="100" width="100" height="25" bgcolor="plum"></view>
+      *     <view x="200" ignorelayout="true" width="100" height="25" bgcolor="black"></view>
+      *     <view x="300" width="100" height="25" bgcolor="lightblue"></view>
+      */-->
+<class name="constantlayout" extends="layout" type="coffee">
+  <!--/**
+    * @attribute {String} [attribute=x]
+    * The name of the attribute to update on each subview.
+    */-->
+  <attribute name="attribute" type="string" value="x"></attribute>
+  <handler event="onattribute" method="update"></handler>
+
+  <!--/**
+    * @attribute {*} [value=0]
+    * The value to set the attribute to on each subview.
+    */-->
+  <attribute name="value" type="expression" value="0"></attribute>
+  <handler event="onvalue" method="update"></handler>
+
+  <!--/**
+    * @method update
+    * Set the attribute to the value on every subview managed by this layout.
+    */-->
+  <method name="update">
+    if @canUpdate() # Only update if we can.
+      attribute = @attribute
+      value = @value
+      for subview in @subviews
+        subview.setAttribute(attribute, value)
+  </method>
+</class>

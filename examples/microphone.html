@@ -1,0 +1,192 @@
+<html>
+<head>
+  <title>dr33m | Microphone Example</title>
+  <script type="text/javascript" src="../boilerplate.js"></script>
+  <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet"></link>
+</head>
+<body>
+
+<view padding="30">
+  <class name="timetext" extends="text">
+    <method name="format" args="time" type="coffee">
+      minutes = Math.floor(time / 60)
+      seconds = Math.floor(time) - minutes * 60
+      seconds = '0' + seconds if (seconds < 10)
+      return minutes + ':' + seconds
+    </method>
+  </class>
+  
+  <class name="bar" width="2" bgcolor="BlueViolet" height="${this.data}" y="30"></class>
+  
+  <microphone id="mic"></microphone>
+
+  <audioplayer id="audio" fftsize="512" playing="false" loop="false">
+  </audioplayer>
+  
+  <view id="recordView" width="${mic.fftsize * 1.5}" height="300" bgcolor="black">
+    <handler event="onvisible" args="visible">
+      if (!visible) return;
+      
+      mic.clearRecordingData();
+    </handler>
+    
+    <spacedlayout inset="1" spacing="1"></spacedlayout>
+
+    <view name="controls" bgcolor="Lavender" width="100%" height="30" padding="5" ignorelayout="true">
+      <spacedlayout axis="x" inset="4" spacing="15"></spacedlayout>
+
+      <view>
+        <spacedlayout axis="x" inset="4" spacing="6" updateparent="true"></spacedlayout>
+        <view name="micBtn" width="16" height="16" bgcolor="Lavender">
+          <view name="ico" fontfamily="" class="fa fa-microphone" color="DeepSkyBlue"></view>
+          <handler event="onclick">
+            mic.setAttribute('stream', !mic.stream);
+            if (mic.stream) {
+              this.ico.setAttribute('class', 'fa fa-microphone-slash')
+            } else {
+              this.ico.setAttribute('class', 'fa fa-microphone')
+            }
+          </handler>
+        </view>
+  
+        <view name="recordBtn" width="16" height="16" bgcolor="Lavender">
+          <view name="ico" class="fa fa-dot-circle-o" color="DeepSkyBlue"></view>
+  
+          <handler event="onclick">
+            mic.setAttribute('record', !mic.record);
+            if (mic.record) {
+              this.ico.setAttribute('class', 'fa fa-stop')
+            } else {
+              this.ico.setAttribute('class', 'fa fa-dot-circle-o')
+            }
+          </handler>
+        </view>
+      </view>
+
+      <view name="time">
+        <timetext name="t1" y="-1" text="${mic.recordingtime}"></timetext>
+      </view>
+    </view>
+  
+    <replicator name="foo" classname="bar" data="${mic.fft}" pooling="true"></replicator>
+  </view>
+  
+  <view id="playView" width="${audio.fftsize * 1.5}" height="300" bgcolor="black" visible="false">
+    <handler event="onvisible" args="visible">
+      if (!visible) return;
+
+      this.controls.play_pause.playBtn.ico.setAttribute('class', 'fa fa-play')
+    </handler>
+    
+    <view name="controls" bgcolor="Lavender" width="100%" height="30" padding="5" ignorelayout="true">
+      <spacedlayout axis="x" inset="4" spacing="15"></spacedlayout>
+      
+      <view name="recordBtn" width="16" height="16" bgcolor="Lavender">
+        <view name="ico" class="fa fa-microphone" opacity=".5" color="DeepSkyBlue"></view>
+
+        <handler event="onclick">
+          audio.setAttribute('playing', false);
+
+          playView.setAttribute('visible', false);
+          recordView.setAttribute('visible', true);
+        </handler>
+      </view>
+
+      <view name="play_pause">
+        <spacedlayout axis="x" inset="4" spacing="6" updateparent="true"></spacedlayout>
+
+        <view name="playBtn" width="16" height="16">
+          <view name="ico" class="fa fa-play" color="DeepSkyBlue"></view>
+
+          <handler event="onclick">
+            if (audio.playing) {
+              audio.setAttribute('paused', !audio.paused);
+            } else {
+              audio.setAttribute('playing', true);
+            }
+          </handler>
+          
+          <handler event="onplaying" reference="audio" args="playing">
+            if (playing) {
+              this.ico.setAttribute('class', 'fa fa-pause')
+            } else {
+              this.ico.setAttribute('class', 'fa fa-play')
+            }
+          </handler>
+          <handler event="onpaused" reference="audio" args="paused">
+            if (paused) {
+              this.ico.setAttribute('class', 'fa fa-play')
+            } else {
+              this.ico.setAttribute('class', 'fa fa-pause')
+            }
+          </handler>
+        </view>
+
+        <view name="stopBtn" width="16" height="16">
+          <view name="ico" class="fa fa-stop" color="DeepSkyBlue"></view>
+
+          <handler event="onclick">
+            audio.setAttribute('playing', false);
+          </handler>
+        </view>
+      </view>
+
+      <view name="time">
+        <spacedlayout axis="x" inset="4" spacing="4" updateparent="true"></spacedlayout>
+        <timetext name="t1" y="-1" text="${audio.time}"></timetext>
+
+        <text y="-1">/</text>
+
+        <timetext name="t2" y="-1" text="${audio.duration}"></timetext>
+      </view>
+
+      <view name="downloadBtn" width="16" height="16">
+        <view name="ico" class="fa fa-cloud-download" color="DeepSkyBlue"></view>
+
+        <handler event="onclick">
+          mic.downloadRecording('awesome_sound');
+        </handler>
+      </view>
+    </view>
+    
+    <spacedlayout inset="1" spacing="1"></spacedlayout>
+    <replicator name="foo" classname="bar" data="${audio.fft}" pooling="true"></replicator>
+  </view>
+  
+  <handler event="oninit">
+  </handler>
+
+  <handler event="onplaybackurl" reference="mic" args="url">
+    if (!url) return;
+    
+    audio.setAttribute('url', url);
+    audio.setAttribute('paused', false);
+    audio.setAttribute('playing', false);
+    
+    recordView.setAttribute('visible', false);
+    playView.setAttribute('visible', true);
+  </handler>
+</view>
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+</body>
+</html>

@@ -1,0 +1,472 @@
+<html>
+<head>
+  <title>dr33m | View border and padding Smoke Tests</title>
+  <script>var BOILERPLATE_OPTS = {type:'smoke'};</script>
+  <script type="text/javascript" src="../boilerplate.js"></script>
+</head>
+<body>
+  <view name="root" width="auto" height="auto" bgcolor="#eeeeee" padding="5">
+    <class name="block" x="10" y="5" width="100" height="50" bgcolor="#999999" bordercolor="black"></class>
+    <class name="item" width="20" height="20" bgcolor="#666666"></class>
+
+    <spacedlayout axis="y" spacing="5"></spacedlayout>
+
+    <!-- Basic Borders -->
+    <block>
+      <item name="inner" width="100%" height="100%" bgcolor="#cccccc"></item>
+      <handler event="oninit">
+        var style = this.sprite.el.style;
+
+        // Initial CSS properties
+        assert.equal(style.borderWidth, '');
+        assert.equal(style.borderColor, 'black');
+        assert.equal(style.borderStyle, '');
+
+        // Initial model properties
+        assert.equal(this.border, 0);
+        assert.equal(this.topborder, 0);
+        assert.equal(this.bottomborder, 0);
+        assert.equal(this.leftborder, 0);
+        assert.equal(this.rightborder, 0);
+
+        assert.equal(this.width, 100);
+        assert.equal(this.height, 50);
+        assert.equal(this.innerwidth, 100);
+        assert.equal(this.innerheight, 50);
+
+        // Set border to a valid value
+        this.setAttribute('border', 1);
+        assert.equal(this.border, 1);
+        assert.equal(this.inner.width, 98);
+        assert.equal(this.inner.height, 48);
+        assert.equal(style.borderWidth, '1px');
+
+        // Prevent negative values
+        this.setAttribute('border', -1);
+        assert.equal(this.border, 0);
+        assert.equal(style.borderWidth, '0px');
+
+        // Set border to an invalid value
+        this.setAttribute('border', 'foo');
+        assert.equal(this.border, 0);
+        assert.equal(style.borderWidth, '0px');
+      </handler>
+    </block>
+
+    <block border="2">
+      <item name="inner" width="100%" height="100%" bgcolor="#cccccc"></item>
+      <handler event="oninit">
+        var jqelInner = $(this.inner.sprite.el);
+
+        assert.equal(this.width, 100);
+        assert.equal(this.height, 50);
+        assert.equal(this.innerwidth, 96);
+        assert.equal(this.innerheight, 46);
+
+        assert.equal(jqelInner.css('marginLeft'), '0px');
+        assert.equal(jqelInner.css('marginTop'), '0px');
+      </handler>
+    </block>
+
+    <!-- Border style and color -->
+    <block border="4" bordercolor="red" borderstyle="dotted">
+      <item name="inner" width="100%" height="100%" bgcolor="#cccccc"></item>
+      <handler event="oninit">
+        var style = this.sprite.el.style;
+        
+        assert.equal(this.width, 100);
+        assert.equal(this.height, 50);
+        assert.equal(this.innerwidth, 92);
+        assert.equal(this.innerheight, 42);
+        
+        assert.equal(this.border, 4);
+        assert.equal(this.bordercolor, 'red');
+        assert.equal(this.borderstyle, 'dotted');
+        
+        assert.equal(style.borderWidth, '4px');
+        assert.equal(style.borderColor, 'red');
+        assert.equal(style.borderStyle, 'dotted');
+        
+        this.setAttribute('bordercolor', 'green');
+        
+        assert.equal(this.bordercolor, 'green');
+        assert.equal(style.borderColor, 'green');
+        
+        this.setAttribute('borderstyle', 'solid');
+        
+        assert.equal(this.borderstyle, 'solid');
+        assert.equal(style.borderStyle, 'solid');
+      </handler>
+    </block>
+
+    <!-- Basic Padding -->
+    <block>
+      <item name="inner" width="100%" height="100%" bgcolor="#cccccc"></item>
+      <handler event="oninit">
+        var style = this.sprite.el.style;
+
+        // Initial CSS properties
+        assert.equal(style.padding, '');
+
+        // Initial model properties
+        assert.equal(this.padding, 0);
+        assert.equal(this.toppadding, 0);
+        assert.equal(this.bottompadding, 0);
+        assert.equal(this.leftpadding, 0);
+        assert.equal(this.rightpadding, 0);
+
+        assert.equal(this.width, 100);
+        assert.equal(this.height, 50);
+        assert.equal(this.innerwidth, 100);
+        assert.equal(this.innerheight, 50);
+
+        // Set padding to a valid value
+        this.setAttribute('padding', 1);
+        assert.equal(this.padding, 1);
+        assert.equal(this.inner.width, 98);
+        assert.equal(this.inner.height, 48);
+        
+        assert.equal(style.padding, '1px');
+
+        // Prevent negative values
+        this.setAttribute('padding', -1);
+        assert.equal(this.padding, 0);
+        assert.equal(style.padding, '0px');
+
+        // Set padding to an invalid value
+        this.setAttribute('padding', 'foo');
+        assert.equal(this.padding, 0);
+        assert.equal(style.padding, '0px');
+      </handler>
+    </block>
+
+    <block padding="2">
+      <item name="inner" width="100%" height="100%" bgcolor="#cccccc"></item>
+      <handler event="oninit">
+        var jqelInner = $(this.inner.sprite.el);
+
+        assert.equal(this.width, 100);
+        assert.equal(this.height, 50);
+        assert.equal(this.innerwidth, 96);
+        assert.equal(this.innerheight, 46);
+
+        assert.equal(jqelInner.css('marginLeft'), '0px');
+        assert.equal(jqelInner.css('marginTop'), '0px');
+      </handler>
+    </block>
+
+    <!-- Basic Border and Padding -->
+    <block name="basic" border="2" padding="3">
+      <item name="inner" width="100%" height="100%" bgcolor="#cccccc"></item>
+      <handler event="oninit">
+        var jqelInner = $(this.inner.sprite.el);
+
+        assert.equal(this.width, 100);
+        assert.equal(this.height, 50);
+        assert.equal(this.innerwidth, 90);
+        assert.equal(this.innerheight, 40);
+
+        assert.equal(jqelInner.css('marginLeft'), '0px');
+        assert.equal(jqelInner.css('marginTop'), '0px');
+      </handler>
+    </block>
+    
+    <!-- Border and Padding combined with percentage size and position -->
+    <view name="combined"
+      width="100" height="100" bgcolor="#999999"
+      border="4" bordercolor="#ff0000" borderstyle="dotted" padding="8"
+    >
+      <view name="resizer" x="50%" y="50%" width="50%" height="50%" bgcolor="#bbbbbb"></view>
+    </view>
+
+    <view name="combined2"
+      width="100" height="100" bgcolor="#999999"
+      border="4" bordercolor="#ff0000" borderstyle="dotted" padding="8"
+    >
+      <view name="resizer" x="50%" y="50%" width="50%" height="50%" bgcolor="#bbbbbb"></view>
+    </view>
+
+    <!-- Complex Border and Padding -->
+    <block name="complex"
+      topborder="3" bottomborder="1" leftborder="5" rightborder="10"
+      toppadding="6" bottompadding="15" leftpadding="5" rightpadding="35"
+    >
+      <item name="inner" width="100%" height="100%" bgcolor="red"></item>
+      <handler event="oninit">
+        var jqelInner = $(this.inner.sprite.el),
+          jqel = $(this.sprite.el),
+          style = this.sprite.el.style;
+        
+        assert.equal(jqelInner.css('marginLeft'), '0px');
+        assert.equal(jqelInner.css('marginTop'), '0px');
+        
+        assert.equal(this.width, 100);
+        assert.equal(this.height, 50);
+        assert.equal(this.innerwidth, 45);
+        assert.equal(this.innerheight, 25);
+        
+        // Verify individual properties
+        assert.equal(this.topborder, 3);
+        assert.equal(this.bottomborder, 1);
+        assert.equal(this.leftborder, 5);
+        assert.equal(this.rightborder, 10);
+        assert.equal(this.border, undefined);
+        
+        assert.equal(style.borderTopWidth, '3px');
+        assert.equal(style.borderBottomWidth, '1px');
+        assert.equal(style.borderLeftWidth, '5px');
+        assert.equal(style.borderRightWidth, '10px');
+        
+        assert.equal(this.toppadding, 6);
+        assert.equal(this.bottompadding, 15);
+        assert.equal(this.leftpadding, 5);
+        assert.equal(this.rightpadding, 35);
+        assert.equal(this.padding, undefined);
+        
+        assert.equal(style.paddingTop, '6px');
+        assert.equal(style.paddingBottom, '15px');
+        assert.equal(style.paddingLeft, '5px');
+        assert.equal(style.paddingRight, '35px');
+        
+        
+        // Set an individual bordervalue
+        this.setAttribute('topborder', 11);
+        assert.equal(this.topborder, 11);
+        assert.equal(style.borderTopWidth, '11px');
+        assert.equal(this.innerheight, 17);
+        
+        // Set all individual border values to the same value and verify border gets set
+        this.setAttribute('bottomborder', 11);
+        this.setAttribute('leftborder', 11);
+        this.setAttribute('rightborder', 11);
+        assert.equal(this.innerwidth, 38);
+        assert.equal(this.innerheight, 7);
+        
+        assert.equal(this.topborder, 11);
+        assert.equal(this.bottomborder, 11);
+        assert.equal(this.leftborder, 11);
+        assert.equal(this.rightborder, 11);
+        assert.equal(this.border, 11);
+        
+        assert.equal(style.borderTopWidth, '11px');
+        assert.equal(style.borderBottomWidth, '11px');
+        assert.equal(style.borderLeftWidth, '11px');
+        assert.equal(style.borderRightWidth, '11px');
+        
+        // Set an individual border value and verify border becomes undefined
+        this.setAttribute('rightborder', 5);
+        assert.equal(this.innerwidth, 44);
+        
+        assert.equal(this.rightborder, 5);
+        assert.equal(this.border, undefined);
+        
+        assert.equal(style.borderTopWidth, '11px');
+        assert.equal(style.borderBottomWidth, '11px');
+        assert.equal(style.borderLeftWidth, '11px');
+        assert.equal(style.borderRightWidth, '5px');
+        
+        
+        // Set an individual paddingvalue
+        this.setAttribute('toppadding', 7);
+        assert.equal(this.toppadding, 7);
+        assert.equal(style.paddingTop, '7px');
+        assert.equal(this.innerheight, 6);
+        
+        // Set all individual padding values to the same value and verify padding gets set
+        this.setAttribute('bottompadding', 7);
+        this.setAttribute('leftpadding', 7);
+        this.setAttribute('rightpadding', 7);
+        assert.equal(this.innerwidth, 70);
+        assert.equal(this.innerheight, 14);
+        
+        assert.equal(this.toppadding, 7);
+        assert.equal(this.bottompadding, 7);
+        assert.equal(this.leftpadding, 7);
+        assert.equal(this.rightpadding, 7);
+        assert.equal(this.padding, 7);
+        
+        assert.equal(style.paddingTop, '7px');
+        assert.equal(style.paddingBottom, '7px');
+        assert.equal(style.paddingLeft, '7px');
+        assert.equal(style.paddingRight, '7px');
+        
+        // Set an individual padding value and verify padding becomes undefined
+        this.setAttribute('rightpadding', 5);
+        assert.equal(this.innerwidth, 72);
+        
+        assert.equal(this.rightpadding, 5);
+        assert.equal(this.padding, undefined);
+        
+        assert.equal(style.paddingTop, '7px');
+        assert.equal(style.paddingBottom, '7px');
+        assert.equal(style.paddingLeft, '7px');
+        assert.equal(style.paddingRight, '5px');
+      </handler>
+    </block>
+
+    <handler event="oninit">
+      //// Verify width/height can't be smaller than border and padding ////
+      var block = this.basic,
+        item = block.inner;
+
+      // Initial conditions
+      assert.equal(block.width, 100);
+      assert.equal(block.height, 50);
+      assert.equal(block.innerwidth, 90);
+      assert.equal(block.innerheight, 40);
+      assert.equal(block.border, 2);
+      assert.equal(block.padding, 3);
+
+      // Prevent sizing below 2 * (border + padding)
+      block.setAttribute('width', 2);
+      assert.equal(block.width, 10, 'Width should be limited by twice border + padding');
+      assert.equal(block.innerwidth, 0);
+      block.setAttribute('height', 2);
+      assert.equal(block.height, 10, 'Height should be limited by twice border + padding');
+      assert.equal(block.innerheight, 0);
+
+      // Increasing Border/padding should increase width/height
+      block.setAttribute('border', 4);
+      assert.equal(block.width, 14, 'Width should increase by 4.');
+      assert.equal(block.innerwidth, 0);
+      assert.equal(block.height, 14, 'Height should increase by 4.');
+      assert.equal(block.innerheight, 0);
+
+      block.setAttribute('padding', 5);
+      assert.equal(block.width, 18, 'Width should increase by 4.');
+      assert.equal(block.innerwidth, 0);
+      assert.equal(block.height, 18, 'Height should increase by 4.');
+      assert.equal(block.innerheight, 0);
+
+      // Decreasing Border/padding should increase inner width/height
+      block.setAttribute('border', 1);
+      assert.equal(block.width, 18);
+      assert.equal(block.innerwidth, 6);
+      assert.equal(block.height, 18);
+      assert.equal(block.innerheight, 6);
+
+      block.setAttribute('padding', 2);
+      assert.equal(block.width, 18);
+      assert.equal(block.innerwidth, 12);
+      assert.equal(block.height, 18);
+      assert.equal(block.innerheight, 12);
+
+
+      // Test combined: resizes correctly when percentage width and heights are changed
+      var container = this.combined,
+        resizer = container.resizer;
+      
+      assert.equal(resizer.x, 38);
+      assert.equal(resizer.y, 38);
+      assert.equal(resizer.width, 38);
+      assert.equal(resizer.height, 38);
+      
+      resizer.setAttribute('width', '25%');
+      
+      assert.equal(resizer.x, 38);
+      assert.equal(resizer.y, 38);
+      assert.equal(resizer.width, 19);
+      assert.equal(resizer.height, 38);
+      
+      resizer.setAttribute('height', '25%');
+      
+      assert.equal(resizer.height, 19);
+      
+      resizer.setAttribute('width', 30);
+      resizer.setAttribute('height', 30);
+      container.setAttribute('border', 2);
+      
+      assert.equal(resizer.x, 40);
+      assert.equal(resizer.y, 40);
+      assert.equal(resizer.width, 30);
+      assert.equal(resizer.height, 30);
+      
+      resizer.setAttribute('width', '50%');
+      
+      assert.equal(resizer.x, 40);
+      assert.equal(resizer.y, 40);
+      assert.equal(resizer.width, 40);
+      assert.equal(resizer.height, 30);
+      
+      resizer.setAttribute('height', '50%');
+      
+      assert.equal(resizer.height, 40);
+      
+      container.setAttribute('border', 0);
+      
+      assert.equal(resizer.x, 42);
+      assert.equal(resizer.y, 42);
+      assert.equal(resizer.width, 42);
+      assert.equal(resizer.height, 42);
+      
+      
+      // Test combined: repositions correctly when percentage x and y is changed
+      container = this.combined2;
+      resizer = container.resizer;
+      
+      assert.equal(resizer.x, 38);
+      assert.equal(resizer.y, 38);
+      assert.equal(resizer.width, 38);
+      assert.equal(resizer.height, 38);
+      
+      resizer.setAttribute('x', '25%');
+      
+      assert.equal(resizer.x, 19);
+      assert.equal(resizer.y, 38);
+      assert.equal(resizer.width, 38);
+      assert.equal(resizer.height, 38);
+      
+      resizer.setAttribute('y', '25%');
+      assert.equal(resizer.y, 19);
+      
+      resizer.setAttribute('x', 30);
+      resizer.setAttribute('y', 30);
+      container.setAttribute('border', 2);
+      
+      assert.equal(resizer.x, 30);
+      assert.equal(resizer.y, 30);
+      assert.equal(resizer.width, 40);
+      assert.equal(resizer.height, 40);
+      
+      resizer.setAttribute('x', '50%');
+      
+      assert.equal(resizer.x, 40);
+      assert.equal(resizer.y, 30);
+      assert.equal(resizer.width, 40);
+      assert.equal(resizer.height, 40);
+      
+      resizer.setAttribute('y', '50%');
+      
+      assert.equal(resizer.y, 40);
+      
+      container.setAttribute('border', 0);
+      
+      assert.equal(resizer.x, 42);
+      assert.equal(resizer.y, 42);
+      assert.equal(resizer.width, 42);
+      assert.equal(resizer.height, 42);
+    </handler>
+</view>
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+</body>
+</html>

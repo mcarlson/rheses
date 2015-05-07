@@ -1,0 +1,110 @@
+<html>
+<head>
+  <style type="text/css">
+    body {
+      font-family: 'Arial';
+      font-size: 18px;
+    }
+  </style>
+
+  <title>dr33m | Gyro Example</title>
+  <link href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet"></link>
+  <script type="text/javascript" src="../boilerplate.js"></script>
+</head>
+<body>
+<view padding="30">
+  
+  <class name="cube3d" extends="threejs" width="800" height="500">
+    <attribute name="cube" type="expression" value="null"></attribute>
+  </class>
+  
+  <spacedlayout axis="y"></spacedlayout>
+  
+  <cube3d id="threedcube">
+    <method name="initScene" args="scene">
+      var geometry = new THREE.BoxGeometry( 1, 1, 1 ); 
+      var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } ); 
+      var cube = new THREE.Mesh( geometry, material ); 
+      scene.add(cube); 
+      this.camera.position.z =3;
+      
+      this.setAttribute('cube', cube);
+
+      threedcube.cube.rotation.x += 0.5;
+      threedcube.cube.rotation.y += 0.5;
+    </method>  
+  </cube3d>
+  
+  <text id="text_beta" text="${'x axis: ' + gyro.beta}" fontsize="40"></text>
+  <text id="text_gamma" text="${'y axis: ' + gyro.gamma}" fontsize="${text_beta.fontsize}"></text>
+  <text id="text_alpha" text="${'z axis: ' + gyro.alpha}" fontsize="${text_beta.fontsize}"></text>
+  
+  <gyro id="gyro">
+    <handler event="onbeta" method="updateImg">
+    </handler>
+    <handler event="onalpha" method="updateImg">
+    </handler>
+    <handler event="ongamma" method="updateImg">
+    </handler>
+    
+    <attribute name="old_beta" type="expression" value="[0,0,0,0,0]"></attribute>
+    <attribute name="old_gamma" type="expression" value="[0,0,0,0,0]"></attribute>
+    <attribute name="old_alpha" type="expression" value="[0,0,0,0,0]"></attribute>
+    
+    <method name="updateImg">
+      if(!threedcube.cube) {
+        return;
+      }
+
+      threedcube.cube.rotation.x = gyro.beta*(Math.PI/180);
+      threedcube.cube.rotation.y = gyro.gamma*(Math.PI/180);
+      threedcube.cube.rotation.z = gyro.alpha*(Math.PI/180);
+      
+      //style the text color red when the axis is changing a lot
+      if (Math.abs(gyro.old_beta.shift() - gyro.beta) >= 2) {
+        text_beta.setAttribute('color', 'red');
+      } else {
+        text_beta.setAttribute('color', 'black');
+      }
+
+      if (Math.abs(gyro.old_gamma.shift() - gyro.gamma) >= 2) {
+        text_gamma.setAttribute('color', 'red');
+      } else {
+        text_gamma.setAttribute('color', 'black');
+      }
+
+      if (Math.abs(gyro.old_alpha.shift() - gyro.alpha) >= 2) {
+        text_alpha.setAttribute('color', 'red');
+      } else {
+        text_alpha.setAttribute('color', 'black');
+      }
+      
+      gyro.old_beta.push(gyro.beta);
+      gyro.old_gamma.push(gyro.gamma);
+      gyro.old_alpha.push(gyro.alpha);
+    </method>
+  </gyro>
+</view>
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+</body>
+</html>

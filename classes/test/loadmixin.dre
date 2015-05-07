@@ -1,0 +1,3 @@
+<class name="test-loadmixin">
+  <attribute name="mixinloaded" type="boolean" value="true"></attribute>
+</class>

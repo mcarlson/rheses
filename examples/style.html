@@ -1,0 +1,148 @@
+<html>
+<head>
+  <title>DREEM - Visual Style</title>
+  <script type="text/javascript" src="../boilerplate.js"></script>
+  <style type="text/css">
+      @charset "UTF-8";
+      @font-face {
+          font-family: 'mission-gothic';
+          src: url("../fonts/mission_gothic_thin.eot");
+          src: url("../fonts/mission_gothic_thin.eot?#iefix") format("embedded-opentype"), url("../fonts/mission_gothic_thin.woff2") format("woff2"), url("../fonts/mission_gothic_thin.woff") format("woff"), url("../fonts/mission_gothic_thin.ttf") format("truetype"), url("../fonts/mission_gothic_thin.svg#mission_gothicthin") format("svg");
+          font-weight: 200;
+          font-style: normal; }
+      @font-face {
+          font-family: 'mission-gothic';
+          src: url("../fonts/mission_gothic_regular.eot");
+          src: url("../fonts/mission_gothic_regular.eot?#iefix") format("embedded-opentype"), url("../fonts/mission_gothic_regular.woff2") format("woff2"), url("../fonts/mission_gothic_regular.woff") format("woff"), url("../fonts/mission_gothic_regular.ttf") format("truetype"), url("../fonts/mission_gothic_regular.svg#mission_gothicregular") format("svg");
+          font-weight: 400;
+          font-style: normal; }
+      @font-face {
+          font-family: 'mission-gothic';
+          src: url("../fonts/mission_gothic_regular_italic.eot");
+          src: url("../fonts/mission_gothic_regular_italic.eot?#iefix") format("embedded-opentype"), url("../fonts/mission_gothic_regular_italic.woff2") format("woff2"), url("../fonts/mission_gothic_regular_italic.woff") format("woff"), url("../fonts/mission_gothic_regular_italic.ttf") format("truetype"), url("../fonts/mission_gothic_regular_italic.svg#mission_gothicregular_italic") format("svg");
+          font-weight: 400;
+          font-style: italic; }
+      @font-face {
+          font-family: 'mission-gothic';
+          src: url("../fonts/mission_gothic_thin_italic.eot");
+          src: url("../fonts/mission_gothic_thin_italic.eot?#iefix") format("embedded-opentype"), url("../fonts/mission_gothic_thin_italic.woff2") format("woff2"), url("../fonts/mission_gothic_thin_italic.woff") format("woff"), url("../fonts/mission_gothic_thin_italic.ttf") format("truetype"), url("../fonts/mission_gothic_thin_italic.svg#mission_gothicthin_italic") format("svg");
+          font-weight: 200;
+          font-style: italic; }
+      @font-face {
+          font-family: 'mission-gothic';
+          src: url("../fonts/mission_gothic_light_italic.eot");
+          src: url("../fonts/mission_gothic_light_italic.eot?#iefix") format("embedded-opentype"), url("../fonts/mission_gothic_light_italic.woff2") format("woff2"), url("../fonts/mission_gothic_light_italic.woff") format("woff"), url("../fonts/mission_gothic_light_italic.ttf") format("truetype"), url("../fonts/mission_gothic_light_italic.svg#mission_gothiclight_italic") format("svg");
+          font-weight: 300;
+          font-style: italic; }
+      @font-face {
+          font-family: 'mission-gothic';
+          src: url("../fonts/mission_gothic_light.eot");
+          src: url("../fonts/mission_gothic_light.eot?#iefix") format("embedded-opentype"), url("../fonts/mission_gothic_light.woff2") format("woff2"), url("../fonts/mission_gothic_light.woff") format("woff"), url("../fonts/mission_gothic_light.ttf") format("truetype"), url("../fonts/mission_gothic_light.svg#mission_gothiclight") format("svg");
+          font-weight: 300;
+          font-style: normal; }
+      @font-face {
+          font-family: 'mission-gothic';
+          src: url("../fonts/mission_gothic_bold_italic.eot");
+          src: url("../fonts/mission_gothic_bold_italic.eot?#iefix") format("embedded-opentype"), url("../fonts/mission_gothic_bold_italic.woff2") format("woff2"), url("../fonts/mission_gothic_bold_italic.woff") format("woff"), url("../fonts/mission_gothic_bold_italic.ttf") format("truetype"), url("../fonts/mission_gothic_bold_italic.svg#mission_gothicbold_italic") format("svg");
+          font-weight: 700;
+          font-style: italic; }
+      @font-face {
+          font-family: 'mission-gothic';
+          src: url("../fonts/mission_gothic_bold.eot");
+          src: url("../fonts/mission_gothic_bold.eot?#iefix") format("embedded-opentype"), url("../fonts/mission_gothic_bold.woff2") format("woff2"), url("../fonts/mission_gothic_bold.woff") format("woff"), url("../fonts/mission_gothic_bold.ttf") format("truetype"), url("../fonts/mission_gothic_bold.svg#mission_gothicbold") format("svg");
+          font-weight: 700;
+          font-style: normal; }
+      @font-face {
+          font-family: 'mission-gothic';
+          src: url("../fonts/mission_gothic_black_italic.eot");
+          src: url("../fonts/mission_gothic_black_italic.eot?#iefix") format("embedded-opentype"), url("../fonts/mission_gothic_black_italic.woff2") format("woff2"), url("../fonts/mission_gothic_black_italic.woff") format("woff"), url("../fonts/mission_gothic_black_italic.ttf") format("truetype"), url("../fonts/mission_gothic_black_italic.svg#mission_gothicblack_italic") format("svg");
+          font-weight: 800;
+          font-style: italic; }
+      @font-face {
+          font-family: 'mission-gothic';
+          src: url("../fonts/mission_gothic_black.eot");
+          src: url("../fonts/mission_gothic_black.eot?#iefix") format("embedded-opentype"), url("../fonts/mission_gothic_black.woff2") format("woff2"), url("../fonts/mission_gothic_black.woff") format("woff"), url("../fonts/mission_gothic_black.ttf") format("truetype"), url("../fonts/mission_gothic_black.svg#mission_gothicblack") format("svg");
+          font-weight: 800;
+          font-style: normal; }
+  </style>
+</head>
+<body style="background-color:black">
+<view id="all" width="100%" height="100%" padding="30">
+    <skin name="custom">
+        <custom name="outer" bgcolor="purple">
+            <view name="inner" bgcolor="orange"></view>
+            <text name="txt" color="lightblue" fontfamily="serif"></text>
+        </custom>
+    </skin>
+
+    <class name="custom" width="100" height="100" bgcolor="pink">
+        <view name="inner" x="${(this.parent.width - this.width)/2}" y="${(this.parent.height - this.height)/2}" width="50" height="50"></view>
+        <text name="txt" x="0" y="0" text="CUSTOM"></text>
+    </class>
+
+    <spacedlayout spacing="30"></spacedlayout>
+
+    <view id="a" width="30%" height="auto" bgcolor="rgb(84,84,84)" padding="20">
+        <spacedlayout axis="y" spacing="15"></spacedlayout>
+        <text        name="txt" resize="true" text="The raw, unskinned components" color="cyan" bold="true"></text>
+
+        <custom name="cc"></custom>
+
+        <text        name="t1" id="ff" resize="true" text="420.20 some text here auto resize"></text>
+        <checkbutton name="c3" text="pink auto size" selectcolor="pink"></checkbutton>
+        <checkbutton name="c4" width="130" height="35" text="red fixed size" selectcolor="red"></checkbutton>
+        <text        name="t2" resize="false" height="30" width="100" text="fixed size text here"></text>
+        <rangeslider name="r1" height="20" width="200" lowvalue="30"></rangeslider>
+        <labelbutton name="b1" height="40" width="200" text="fixed w/h btn"></labelbutton>
+        <labelbutton name="b2" text="autoresizing button will stretch"></labelbutton>
+        <slider      name="s1" height="20" width="200"></slider>
+        <checkbutton name="c1"></checkbutton>
+        <inputtext   name="i1" height="40" width="200" text="420.20 some text here"></inputtext>
+        <checkbutton name="c2" height="60" width="60"></checkbutton>
+        <labeltoggle name="l2" text="autosized toggle"></labeltoggle>
+        <labeltoggle name="l1" height="50" width="200" text="fixed h/w toggle"></labeltoggle>
+    </view>
+    <view id="b" y="0" width="30%" height="auto" bgcolor="rgb(84,84,84)" padding="20" skin="default+custom">
+        <spacedlayout axis="y" spacing="15"></spacedlayout>
+        <text        resize="true" text="Skinned with 'default' and 'custom' skin (see code)" color="cyan"></text>
+
+        <custom name="cc"></custom>
+
+        <text        name="t1" id="ff" resize="true" text="420.20 some text here auto resize"></text>
+        <checkbutton name="c3" text="pink auto size" selectcolor="pink"></checkbutton>
+        <checkbutton name="c4" width="130" height="35" text="red fixed size" selectcolor="red"></checkbutton>
+        <text        name="t2" resize="false" height="30" width="100" text="fixed size text here"></text>
+        <rangeslider name="r1" height="20" width="200" lowvalue="30"></rangeslider>
+        <labelbutton name="b1" height="40" width="200" text="fixed w/h btn"></labelbutton>
+        <labelbutton name="b2" text="autoresizing button will stretch"></labelbutton>
+        <slider      name="s1" height="20" width="200"></slider>
+        <checkbutton name="c1"></checkbutton>
+        <inputtext   name="i1" height="40" width="200" text="420.20 some text here"></inputtext>
+        <checkbutton name="c2" height="60" width="60"></checkbutton>
+        <labeltoggle name="l2" text="autosized toggle"></labeltoggle>
+        <labeltoggle name="l1" height="50" width="200" text="fixed h/w toggle"></labeltoggle>
+    </view>
+</view>
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+</body>
+</html>

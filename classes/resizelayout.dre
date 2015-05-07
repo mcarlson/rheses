@@ -1,0 +1,158 @@
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+<!--/**
+      * @class dr.resizelayout {Layout}
+      * @extends dr.spacedlayout
+      * An extension of spaced layout that allows one or more "stretchy" views 
+      * to fill in any remaining space.
+      *
+      * A view can be made stretchy by giving it a layouthint with a numerical
+      * value, typically 1. Extra space is divided proportionally between all
+      * strechy views based on that views percentage of the sum of the
+      * "stretchiness" of all stretchy views. For example, a view with a
+      * layouthint of 2 will get twice as much space as another view with
+      * a layouthint of 1.
+      *
+      * Since resizelayouts rely on the presence of extra space, the
+      * updateparent and updateparent attributes are not applicable to a 
+      * resizelayout. Similarly, using auto sizing on the parent view along 
+      * the same axis as the resizelayout will result in unexpected behavior 
+      * and should therefore be avoided.
+      *
+      * Warning, providing no layouthint defaults the weight to 0, which will cause the view not to render.
+      *
+      *     @example
+      *     <resizelayout spacing="10" inset="10" outset="10">
+      *     </resizelayout>
+      *
+      *     <view y="10" height="20" bgcolor="pink" layouthint='{"weight":2}'></view>
+      *     <view y="10" height="20" bgcolor="plum" layouthint='{"weight":3}'></view>
+      *     <view y="10" height="20" bgcolor="lightgreen" layouthint='{"weight":1}'></view>
+      *
+      */-->
+<class name="resizelayout" extends="spacedlayout" type="coffee">
+  <setter name="updateparent" args="updateparent">
+    # The updateparent attribute is unused in resizelayout.
+    return updateparent
+  </setter>
+  
+  <method name="stopMonitoringAllSubviews" args="view">
+    @super()
+    if @__innerAttrName? then @stopListening(@parent, @__innerAttrName, @update)
+  </method>
+  
+  <method name="startMonitoringAllSubviews" args="view">
+    @super()
+    @listenTo(@parent, @__innerAttrName, @update)
+  </method>
+  
+  <method name="startMonitoringSubview" args="view">
+    # Don't monitor width/height of the "stretchy" subviews since this 
+    # layout resizes them so you would get an infinite loop.
+    hint = view.getLayoutHint(@name, 'weight')
+    if !(Number(hint) > 0)
+      @listenTo(view, @__measureAttrName, @update)
+      @listenTo(view, @__diffAttrName, @update)
+    @listenTo(view, 'visible', @update)
+    @listenTo(view, 'layouthint', @update)
+  </method>
+  
+  <method name="stopMonitoringSubview" args="view">
+    # Don't monitor width/height of the "stretchy" subviews since this 
+    # layout resizes them so you would get an infinite loop.
+    hint = view.getLayoutHint(@name, 'weight')
+    if !(Number(hint) > 0)
+      @stopListening(view, @__measureAttrName, @update)
+      @stopListening(view, @__diffAttrName, @update)
+    @stopListening(view, 'visible', @update)
+    @stopListening(view, 'layouthint', @update)
+  </method>
+  
+  <method name="doBeforeUpdate">
+    # Get size to fill
+    measureAttrName = @__measureAttrName
+    remainder = @parent[@__innerAttrName]
+    
+    # Calculate minimum required size
+    remainder -= @value + @outset
+    
+    spacing = @spacing
+    name = @name
+    count = 0
+    resizeSum = 0
+    spacingAfter = spacing
+    
+    for sv in @subviews
+      if @skipSubview(sv) then continue
+      ++count
+      weight = Number(sv.getLayoutHint(name, 'weight'))
+      if weight > 0
+        resizeSum += weight
+      else
+        remainder -= sv[measureAttrName]
+      
+      # Determine hint based spacing
+      if count > 1
+        before = sv.getLayoutHint(name, 'spacingbefore')
+        if isNaN before
+          remainder -= spacingAfter
+        else
+          remainder -= before
+      
+      spacingAfter = sv.getLayoutHint(name, 'spacingafter')
+      if isNaN spacingAfter then spacingAfter = spacing
+    
+    if count != 0
+      # Store for update
+      @remainder = remainder
+      @resizeSum = resizeSum
+      @scalingFactor = remainder / resizeSum
+      @resizeSumUsed = @remainderUsed = 0
+  </method>
+
+  <method name="updateSubview" args="count, view, attribute, value">
+    hint = Number(view.getLayoutHint(@name, 'weight'))
+    if hint > 0
+      @resizeSumUsed += hint
+      
+      size = if @resizeSum == @resizeSumUsed then @remainder - @remainderUsed else Math.round(hint * @scalingFactor)
+      
+      @remainderUsed += size
+      
+      # If the stretchy view is transformed then convert the width to compensate
+      # Note that this will only work as expected with scaling, not with 
+      # rotation since compensation for rotation requires an adjustment of both
+      # with and height which is beyond the scope of this layout.
+      if view.__boundsAreDifferent
+        size *= view[@__parentAttrName] / view[@__measureAttrName]
+      
+      # parent attr name is also suitable for resize views since it will just
+      # be width or height
+      view.setAttribute(@__parentAttrName, size)
+    
+    return @super()
+  </method>
+  
+  <method name="updateParent" args="attribute, value">
+    # No resizing of parent since this view expands to fill the parent.
+  </method>
+</class>

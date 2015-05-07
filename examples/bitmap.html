@@ -1,0 +1,56 @@
+<html>
+<head>
+  <title>dr33m | Bitmap Examples</title>
+  <script type="text/javascript" src="../boilerplate.js"></script>
+</head>
+<body>
+<view id="all" width="100%" height="100%" clip="true" skin="default">
+  <spacedlayout axis="y" spacing="3"></spacedlayout>
+
+  <labelbutton width="auto" height="auto" text="Change stretching">
+    <method name="toggle" args="v">
+      value = v.stretches;
+      if (value == 'true') {
+        value = 'false';
+      }
+      else if (value == 'scale') {
+        value = 'true';
+      }
+      else {
+        value = 'scale';
+      }
+      v.setAttribute('stretches', value);
+    </method>
+    <handler event="onclick">
+      this.toggle(b1);
+    </handler>
+  </labelbutton>
+
+  <bitmap id="b1" src="largeimage.jpg" width="500" height="250">
+    <text font-weight="bold" text="${this.parent.stretches}"></text>
+
+    <handler event="onmousemove" reference="dr.mouse" args="obj">
+      // Mouse moves over this bitmap shows a region of image in zoom bitmap.
+      if (!obj) return;
+
+      var xoffset = obj.x - this.x;
+      var yoffset = obj.y - this.y;
+      if (xoffset >= 0 && xoffset < this.width && yoffset >= 0 && yoffset < this.height) {
+        // The window refers to the view coordinates. The image size is stored
+        // in the sprite (as naturalWidth and naturalHeight).
+        image_x = this.ratio_x * xoffset;
+        image_y = this.ratio_y * yoffset;
+        // console.log('coords', image_x, image_y);
+
+        zoom.setAttribute('window', image_x + ',' + image_y + ',' + zoom.width + ',' + zoom.height);
+}
+
+    </handler>
+  </bitmap>
+
+  <bitmap id="zoom" src="largeimage.jpg" width="75" height="75" window="0,0,75,75">
+  </bitmap>
+  
+</view>
+</body>
+</html>

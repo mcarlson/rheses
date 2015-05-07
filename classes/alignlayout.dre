@@ -1,0 +1,213 @@
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+<!--/**
+      * @class dr.alignlayout {Layout}
+      * @extends dr.variablelayout
+      * A variablelayout that aligns each view vertically or horizontally
+      * relative to all the other views.
+      *
+      * If updateparent is true the parent will be sized to fit the
+      * aligned views such that the view with the greatest extent will have
+      * a position of 0. If instead updateparent is false the views will
+      * be aligned within the inner extent of the parent view.
+      *
+      *     @example
+      *     <alignlayout align="middle" updateparent="true"></alignlayout>
+      *
+      *     <view x="0" width="50" height="35" bgcolor="plum"></view>
+      *     <view x="55" width="50" height="25" bgcolor="lightpink"></view>
+      *     <view x="110" width="50" height="15" bgcolor="lightblue"></view>
+      */-->
+<class name="alignlayout" extends="variablelayout" type="coffee">
+  <!--/**
+    * @attribute {String} [align='middle']
+    * Determines which way the views are aligned. Supported values are 
+    * 'left', 'center', 'right' for horizontal alignment and 'top', 'middle' 
+    * and 'bottom' for vertical alignment.
+    */-->
+  <attribute name="align" type="string" value="middle"></attribute>
+  <setter name="align" args="align">
+    if @align isnt align
+      # Stop monitoring since we may end up changing the axis. This needs to
+      # be done before the new align value is set since stopMonitoringSubview
+      # needs to know the old values.
+      @stopMonitoringAllSubviews()
+      
+      # Setup private attributes based on axis
+      switch align
+        when 'left', 'center', 'right'
+          # The layout is oriented horizontally
+          @__parentAttrName = 'width'        # The attr to update on the parent if updateparent is true
+          @__innerAttrName = 'innerwidth'    # The attr used to get available space
+          @__measureAttrName = 'boundswidth' # The attr to measure the size needed for a subview
+          @__diffAttrName = 'boundsxdiff'    # The attr used to offset the position of a transformed subview so it will appear to be aligned
+          @__setterAttrName = 'x'            # The attr to set on a subview to position it
+          @__alignattr = 'isaligned'         # The attr on a subview to determine if it is aligning itself and should thus be ignored.
+        when 'top', 'middle', 'bottom'
+          # The layout is oriented vertically
+          @__parentAttrName = 'height'
+          @__innerAttrName = 'innerheight'
+          @__measureAttrName = 'boundsheight'
+          @__diffAttrName = 'boundsydiff'
+          @__setterAttrName = 'y'
+          @__alignattr = 'isvaligned'
+      
+      @setAndFire('align', align)
+      
+      if @inited
+        # Start monitoring again and update since we have new alignment. This needs
+        # to be done after the new align value is set since startMonitoringSubview
+        # needs to use the new values.
+        @startMonitoringAllSubviews()
+        @update()
+      else
+        @__redoMonitoring = true
+    
+    return dr._noop
+  </setter>
+  
+  <!--/**
+    * @attribute {boolean} [inset=0]
+    * Determines if the parent will be sized to fit the aligned views such 
+    * that the view with the greatest extent will have a position of 0. If 
+    * instead updateparent is false the views will be aligned within the 
+    * inner extent of the parent view.
+    */-->
+  <setter name="updateparent" args="updateparent">
+    if @updateparent isnt updateparent
+      # Stop monitoring since we will have different updateparent behavior
+      @stopMonitoringAllSubviews()
+      
+      @setAndFire('updateparent', updateparent)
+      
+      if @inited
+        # Start monitoring again and update since we have new updateparent 
+        # behavior
+        @startMonitoringAllSubviews()
+      else
+        @__redoMonitoring = true
+    
+    return dr._noop
+  </setter>
+  
+  <handler event="oninit">
+    if @__redoMonitoring
+      @stopMonitoringAllSubviews()
+      @startMonitoringAllSubviews()
+  </handler>
+  
+  <method name="stopMonitoringAllSubviews" args="view">
+    @super()
+    
+    # When not collapsing we were monitoring the parent's inner measure
+    # Also verify that __innerAttrName exists, otherwise stopListening will
+    # clear all the listeners.
+    if not @updateparent and @__innerAttrName? then @stopListening(@parent, @__innerAttrName, @update)
+  </method>
+  
+  <method name="startMonitoringAllSubviews" args="view">
+    @super()
+    
+    # When not collapsing we need to monitor the parent's inner measure
+    if not @updateparent then @listenTo(@parent, @__innerAttrName, @update)
+  </method>
+  
+  <method name="startMonitoringSubview" args="view">
+    @super()
+    
+    # Monitor each subview's measure, bounds offset and self alignment state
+    @listenTo(view, @__measureAttrName, @update)
+    @listenTo(view, @__diffAttrName, @update)
+    @listenTo(view, @__alignattr, @update)
+  </method>
+  
+  <method name="stopMonitoringSubview" args="view">
+    @super()
+    
+    # No longer monitor each subview's measure, bounds offset and self 
+    # alignment state
+    @stopListening(view, @__measureAttrName, @update)
+    @stopListening(view, @__diffAttrName, @update)
+    @stopListening(view, @__alignattr, @update)
+  </method>
+  
+  <method name="skipSubview" args="view">
+    # Don't position subviews that are handling their own alignment
+    if view[@__alignattr] then return true
+    
+    # Use visibility as well
+    return @super()
+  </method>
+  
+  <!--/**
+    * @method doBeforeUpdate
+    * Determine the maximum subview width/height according to the alignment.
+    * This is only necessary if updateparent is true since we will need to
+    * know what size to make the parent as well as what size to align the
+    * subviews within.
+    */-->
+  <method name="doBeforeUpdate">
+    if @updateparent
+      # Walk all the subviews to determine the largest size needed to fit
+      # them all.
+      measureAttrName = @__measureAttrName
+      svs = @subviews
+      i = svs.length
+      value = 0
+      while i
+        sv = svs[--i]
+        if @skipSubview(sv) then continue
+        value = Math.max(value, sv[measureAttrName])
+      
+      # Convert invalid values into a size of 0
+      if isNaN(value) or 0 >= value then value = 0
+      
+      # Store the value to use for alignment
+      @setAttribute('value', value)
+  </method>
+  
+  <method name="updateSubview" args="count, view, attribute, value">
+    switch @align
+      when 'center','middle'
+        if @updateparent
+          actualVal = (value - view[@__measureAttrName]) / 2
+        else
+          actualVal = (@parent[@__innerAttrName] - view[@__measureAttrName]) / 2
+      when 'right','bottom'
+        if @updateparent
+          actualVal = value - view[@__measureAttrName]
+        else
+          actualVal = @parent[@__innerAttrName] - view[@__measureAttrName]
+      else
+        actualVal = 0
+    view.setAttribute(@__setterAttrName, view[@__diffAttrName] + actualVal)
+    
+    return value
+  </method>
+  
+  <method name="updateParent" args="attribute, value">
+    # Resize the parent and allow for the difference between innersize and size
+    # due to border and padding.
+    parent = @parent
+    parent.setAttribute(@__parentAttrName, value + parent[@__parentAttrName] - parent[@__innerAttrName])
+  </method>
+</class>

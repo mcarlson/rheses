@@ -1,0 +1,3 @@
+*.map -diff
+classdocs.js -diff
+dreem.js -diff

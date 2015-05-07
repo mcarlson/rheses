@@ -1,0 +1,60 @@
+<html>
+<head>
+  <title>rhes.es - Text Component Smoke Tests</title>
+  <script>var BOILERPLATE_OPTS = {type:'smoke'};</script>
+  <script type="text/javascript" src="../boilerplate.js"></script>
+</head>
+<body>
+<view id="all" width="100%" height="100%" clip="true">
+  <spacedlayout axis="y" spacing="15"></spacedlayout>
+
+  <!-- Setting text values, see text.html for more text tests -->
+  <labelbutton width="100" height="30">
+    <handler event="oninit">
+      assert.testCaseLabel = 'Setting text values';
+      assert.equal(this.text, '')
+      assert.equal(this.label.text, '')
+      assert.equal(this.label.sprite.el.innerText || '', '')
+    </handler>
+  </labelbutton>
+  
+  <!-- Setting bgcolor should override defaultcolor -->
+  <labelbutton width="100" height="30" bgcolor="OliveDrab">
+    <handler event="oninit">
+      assert.testCaseLabel = 'Setting bgcolor should set default color';
+      assert.equal(this.defaultcolor, 'OliveDrab')
+    </handler>
+  </labelbutton>
+
+  <!-- Setting bgcolor should override defaultcolor if defaultcolor set -->
+  <labelbutton width="100" height="30" bgcolor="OliveDrab" defaultcolor="thistle">
+    <handler event="oninit">
+      assert.testCaseLabel = 'Setting bgcolor should override defaultcolor if defaultcolor set';
+      assert.equal(this.defaultcolor, 'OliveDrab')
+    </handler>
+  </labelbutton>
+
+</view>
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+</body>
+</html>

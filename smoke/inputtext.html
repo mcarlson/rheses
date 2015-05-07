@@ -1,0 +1,139 @@
+<html>
+<head>
+  <title>rhes.es</title>
+  <style type="text/css">
+    body {
+      font-family: 'Arial';
+      font-size: 14px;
+    }
+    input {
+      font-family: 'Arial';
+      font-size: 14px;
+      margin: 0px;
+      padding: 0px;
+    }
+  </style>
+  <script>var BOILERPLATE_OPTS = {type:'smoke'};</script>
+  <script type="text/javascript" src="../boilerplate.js"></script>
+</head>
+<body>
+
+<!-- InputText smoke tests. See spec/features/inputtext_spec.rb for interactive tests -->
+<view width="100%" height="100%">
+  <spacedlayout axis="y" spacing="15"></spacedlayout>
+
+  <!-- Setting text with static attribute -->
+  <inputtext>
+    <handler event="oninit">
+      assert.testCaseLabel = 'Setting text with static attribute';
+      assert.equal(this.text, "", "no attr set");
+    </handler>
+  </inputtext>
+
+  <inputtext text="">
+    <handler event="oninit">
+      assert.equal(this.text, "", "attr set to empty string");
+    </handler>
+  </inputtext>
+
+  <inputtext text="some text" bgcolor="thistle">
+    <handler event="oninit">
+      assert.equal(this.text, "some text", "attr set to some text");
+    </handler>
+  </inputtext>
+
+  <!-- Setting text with a constraint -->
+  <view width="auto" height="auto">
+    <attribute name="text" type="string" value="some text"></attribute>
+
+    <inputtext bgcolor="lightgreen" text="${this.parent.text}">
+      <handler event="oninit">
+        assert.testCaseLabel = 'Setting text with a constraint';
+        assert.equal($(this.sprite.input)[0].value, 'some text')
+        assert.equal(this.text, "some text");
+      </handler>
+    </inputtext>
+  </view>
+
+  <view width="auto" height="auto">
+    <inputtext bgcolor="lightyellow" text="${this.parent.text}">
+      <handler event="oninit">
+        assert.equal($(this.sprite.input)[0].value, '')
+        assert.equal(this.text, '');
+      </handler>
+    </inputtext>
+  </view>
+
+  <!-- Setting width and height -->
+  <inputtext width="100" height="30" bgcolor="lightpink">
+    <handler event="oninit">
+      assert.testCaseLabel = 'Setting width and height';
+      
+      assert.equal(this.width, 100);
+      assert.equal(this.height, 30);
+
+      this.setAttribute('width', 140)
+      this.setAttribute('height', 100)
+      assert.equal(this.width, 140)
+      assert.equal(this.height, 100)
+    </handler>
+  </inputtext>
+
+  <!-- Setting text between tags -->
+  <inputtext>
+    some other text
+    <handler event="oninit">
+      assert.testCaseLabel = 'Setting text between tags';
+      assert.equal(this.text, 'some other text')
+    </handler>
+  </inputtext>
+
+  <!-- Default sizing -->
+  <inputtext bgcolor="green">
+    Text
+    <handler event="oninit">
+      assert.testCaseLabel = 'Default sizing';
+      assert.equal(this.width, 100)
+      assert.equal(this.height, 16)
+    </handler>
+  </inputtext>
+
+  <!-- Multiline -->
+  <inputtext bgcolor="thistle" multiline="true">
+    Test content heres some more test content to make this a lot bigger
+    <handler event="oninit">
+      assert.testCaseLabel = 'Multiline';
+      assert.equal($(this.sprite.el).children('textarea').length, 1)
+    </handler>
+  </inputtext>
+  <inputtext bgcolor="thistle" multiline="false">
+    Test content heres some more test content to make this a lot bigger
+    <handler event="oninit">
+      assert.equal($(this.sprite.el).children('textarea').length, 0)
+    </handler>
+  </inputtext>
+
+</view>
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+</body>
+</html>

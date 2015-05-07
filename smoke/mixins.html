@@ -1,0 +1,256 @@
+<html>
+<head>
+  <title>dr33m | mixin Smoke Tests</title>
+  <script>var BOILERPLATE_OPTS = {type:'smoke'};</script>
+  <script type="text/javascript" src="../boilerplate.js"></script>
+</head>
+<body>
+  <view id="container" width="100%" height="100%">
+    <class name="sizemixin" extends="state" type="coffee" applied="true" width="100" height="10">
+      <attribute name="misc" type="string" value="hello"></attribute>
+      <attribute name="count" type="number" value="0"></attribute>
+      <handler event="onwidth" args="width">
+        this.count++;
+      </handler>
+      <method name="doFoo" args="foo">
+        return 'foo' + foo;
+      </method>
+    </class>
+    
+    <class name="colormixin" extends="state" type="coffee" applied="true" bgcolor="green">
+      <method name="doBar" args="bar">
+        return 'bar' + bar;
+      </method>
+      <setter name="height" args="height">
+        return @super(2 * height)
+      </setter>
+    </class>
+    
+    <!-- Mixins don't have to be "states". In fact they work better as non-states. -->
+    <class name="sizeandcolormixin" extends="node" with="sizemixin, colormixin" type="coffee" bgcolor="orange" misc="welcome">
+      <handler event="onwidth">
+        this.count++;
+      </handler>
+      <method name="doFoo" args="foo">
+        return 'FOO' + this.super();
+      </method>
+      <setter name="height" args="height">
+        return @super(height + 5)
+      </setter>
+    </class>
+    
+    <class name="viewmixin" extends="node" type="coffee">
+      <method name="initialize" args="skipevents">
+        @createChild({class:'view', name:'v1', width:20, height:5, bgcolor:'red'})
+        @createChild({class:'view', with:'colormixin', name:'v2', x:25, width:20, height:5, bgcolor:'yellow'})
+        @super()
+      </method>
+    </class>
+    
+    <class name="everything" with="sizemixin, colormixin, viewmixin">
+    </class>
+    
+    <spacedlayout axis="y" spacing="1"></spacedlayout>
+    
+    <!-- Test child syntax to verify that "states" still work. -->
+    <view>
+      <sizemixin></sizemixin>
+      <colormixin></colormixin>
+      <handler event="oninit">
+        assert.equal(this.width, 100);
+        assert.equal(this.height, 10); // colormixin gets applied after the sizemixin
+        assert.equal(this.bgcolor, 'green');
+        
+        assert.equal(this.doFoo('blah'), 'fooblah');
+        assert.equal(this.doBar('hey'), 'barhey');
+        
+        assert.equal(this.misc, 'hello');
+        assert.equal(this.count, 1);
+      </handler>
+    </view>
+    
+    <!-- Test "with" syntax. -->
+    <view with="sizemixin, colormixin, viewmixin">
+      <handler event="oninit">
+        assert.equal(this.width, 100);
+        assert.equal(this.height, 20);
+        assert.equal(this.bgcolor, 'green');
+        
+        assert.equal(this.v1.width, 20);
+        assert.equal(this.v1.height, 5);
+        assert.equal(this.v1.bgcolor, 'red');
+        assert.equal(this.v2.width, 20);
+        assert.equal(this.v2.height, 10);
+        assert.equal(this.v2.x, 25);
+        assert.equal(this.v2.bgcolor, 'yellow');
+        
+        assert.equal(this.doFoo('blah'), 'fooblah');
+        assert.equal(this.doBar('hey'), 'barhey');
+        
+        assert.equal(this.misc, 'hello');
+        assert.equal(this.count, 1);
+      </handler>
+    </view>
+    <view with="sizeandcolormixin, viewmixin,test-loadmixin,">
+      <handler event="oninit">
+        assert.equal(this.width, 100);
+        assert.equal(this.height, 30); // 2 * (10 + 5)
+        assert.equal(this.bgcolor, 'orange');
+        
+        assert.equal(this.v1.width, 20);
+        assert.equal(this.v1.height, 5);
+        assert.equal(this.v1.bgcolor, 'red');
+        assert.equal(this.v2.width, 20);
+        assert.equal(this.v2.height, 10);
+        assert.equal(this.v2.x, 25);
+        assert.equal(this.v2.bgcolor, 'yellow');
+        
+        assert.equal(this.doFoo('blah'), 'FOOfooblah');
+        assert.equal(this.doBar('hey'), 'barhey');
+        
+        assert.equal(this.misc, 'welcome');
+        assert.equal(this.count, 2);
+        assert.equal(typeof this.mixinloaded, 'boolean');
+        assert.equal(this.mixinloaded, true);
+      </handler>
+    </view>
+    <view with="sizeandcolormixin" bgcolor="purple" misc="greetings">
+      <handler event="onwidth">
+        this.count++;
+      </handler>
+      <method name="doBar" args="bar">
+        return 'BAR' + this.super();
+      </method>
+      <method name="doBaz" args="baz">
+        return 'baz' + baz;
+      </method>
+      <setter name="height" args="height">
+        return this.super(height + 4)
+      </setter>
+      <handler event="oninit">
+        assert.equal(this.width, 100);
+        assert.equal(this.height, 38); // 2 * (10 + 5 + 4)
+        assert.equal(this.bgcolor, 'purple');
+        
+        assert.equal(this.doFoo('blah'), 'FOOfooblah');
+        assert.equal(this.doBar('hey'), 'BARbarhey');
+        assert.equal(this.doBaz('you'), 'bazyou');
+        
+        assert.equal(this.misc, 'greetings');
+        assert.equal(this.count, 3);
+      </handler>
+    </view>
+    
+    <!-- Test "with" and child syntax together. -->
+    <view with="sizemixin">
+      <colormixin></colormixin>
+      <handler event="oninit">
+        assert.equal(this.width, 100);
+        assert.equal(this.height, 10); // colormixin gets applied too late since it's a state
+        assert.equal(this.bgcolor, 'green');
+        
+        assert.equal(this.doFoo('blah'), 'fooblah');
+        assert.equal(this.doBar('hey'), 'barhey');
+        
+        assert.equal(this.misc, 'hello');
+        assert.equal(this.count, 1);
+        
+        // Set height again since the state is now applied
+        this.setAttribute('height', 15);
+        assert.equal(this.height, 30);
+      </handler>
+    </view>
+    
+    <everything>
+      <handler event="oninit">
+        assert.equal(this.width, 100);
+        assert.equal(this.height, 20);
+        assert.equal(this.bgcolor, 'green');
+        
+        assert.equal(this.v1.width, 20);
+        assert.equal(this.v1.height, 5);
+        assert.equal(this.v1.bgcolor, 'red');
+        assert.equal(this.v2.width, 20);
+        assert.equal(this.v2.height, 10);
+        assert.equal(this.v2.x, 25);
+        assert.equal(this.v2.bgcolor, 'yellow');
+        
+        assert.equal(this.doFoo('blah'), 'fooblah');
+        assert.equal(this.doBar('hey'), 'barhey');
+        
+        assert.equal(this.misc, 'hello');
+        assert.equal(this.count, 1);
+      </handler>
+    </everything>
+    
+    <!-- Verify mixin ordering -->
+    <class name="a" extends="node" type="coffee">
+      <method name="doIt" args="value">
+        return 'a ' + (@super() || value)
+      </method>
+    </class>
+    <class name="b" extends="node" type="coffee">
+      <method name="doIt" args="value">
+        return 'b ' + (@super() || value)
+      </method>
+    </class>
+    <class name="c" extends="node" type="coffee">
+      <method name="doIt" args="value">
+        return 'c ' + (@super() || value)
+      </method>
+    </class>
+    
+    <class name="d" extends="node" type="coffee">
+      <method name="doIt" args="value">
+        return 'd ' + (@super() || value)
+      </method>
+    </class>
+    <class name="e" extends="node" type="coffee">
+      <method name="doIt" args="value">
+        return 'e ' + (@super() || value)
+      </method>
+    </class>
+    <class name="f" extends="node" type="coffee">
+      <method name="doIt" args="value">
+        return 'f ' + (@super() || value)
+      </method>
+    </class>
+    
+    <class name="def" with="d,e,f" extends="node" type="coffee">
+      <method name="doIt" args="value">
+        return 'parent ' + (@super() || value)
+      </method>
+    </class>
+    
+    <def with="a,b,c" type="coffee">
+      <method name="doIt" args="value">
+        return 'instance ' + (@super() || value)
+      </method>
+      <handler event="oninit">
+        assert.equal(@doIt('VALUE'), 'instance a b c parent d e f VALUE')
+      </handler>
+    </def>
+  </view>
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+</body>
+</html>

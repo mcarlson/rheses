@@ -1,0 +1,90 @@
+<html>
+<head>
+  <title>dr33m | Handler Smoke Tests</title>
+  <script>var BOILERPLATE_OPTS = {type:'smoke'};</script>
+  <script type="text/javascript" src="../boilerplate.js"></script>
+</head>
+<body>
+  <view width="100%" height="100%" clip="true">
+    <spacedlayout axis="y" spacing="15"></spacedlayout>
+
+    <!-- Events are thrown for attributes set in the declaration -->
+    <!-- Also verifies that oninit fires after the other on<attr> events -->
+    <view bgcolor="AliceBlue" width="50" height="20">
+      <handler event="onbgcolor" args="c">
+        window.bgColorHandled = true
+      </handler>
+      <handler event="oninit">
+        assert.equal(window.bgColorHandled, true)
+      </handler>
+    </view>
+
+    <!-- Handler executes after the new value has been set -->
+    <view bgcolor="AliceBlue" width="50" height="20">
+      <handler event="onbgcolor" args="c">
+        assert.equal(c, this.bgcolor)
+      </handler>
+    </view>
+
+    <!-- Attaching by reference -->
+    <view id="v1" name="v1" width="50" height="50" bgcolor="green" clickable="true"></view>
+    <view id="v2" name="v2" width="50" height="50" bgcolor="green" clickable="true">
+      <!-- Verifies two handlers with the same event name but different
+           references don't step on each other. -->
+      <handler event="onclick" reference="v1">
+        this.v1clicked = true
+      </handler>
+      <handler event="onclick">
+        this.v2clicked = true
+      </handler>
+      
+      <handler event="oninit">
+        assert.equal(this.v1clicked, undefined, 'Verify initial state.');
+        assert.equal(this.v2clicked, undefined, 'Verify initial state.');
+        
+        $(v1.sprite.el).trigger('click');
+        
+        assert.equal(this.v1clicked, true);
+        assert.equal(this.v2clicked, undefined);
+        
+        $(this.sprite.el).trigger('click');
+        
+        assert.equal(this.v1clicked, true);
+        assert.equal(this.v2clicked, true);
+      </handler>
+    </view>
+
+    <checkbutton id="greenbox" text="green" selectcolor="lightgreen" defaultcolor="lightgrey" bgcolor="white"></checkbutton>
+    <handler event="onselected" args="value" reference="greenbox">
+      window.hasBeenSelected = true
+    </handler>
+    <handler event="oninit">
+      greenbox.setAttribute('selected', true)
+      window.setTimeout(function() {
+        assert.equal(window.hasBeenSelected, true)
+      }, 0);
+    </handler>
+  </view>
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2015 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+</body>
+</html>

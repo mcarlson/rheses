@@ -1,0 +1,363 @@
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+
+  <!--/**
+    * @class dr.animator {Animation}
+    * @extends dr.node
+    * Animator class that can animate keys on other objects
+    *
+    *     @example nested
+    *     <view bgcolor="red" x="0" y="0" width="100" height="100">
+    *       <animator attribute="x" to="200" duration="1000">
+    *         <handler event="onend">
+    *           console.log('the animation ended')
+    *         </handler>
+    *       </animator>
+    *     </view>
+    */-->
+  <class name="animator" extends='node' scriptincludes="lib/animator.js">
+    <method name="construct">
+      this.track = {}
+      this.super()
+    </method>
+    <!--/**
+      * @attribute {Number} delay=0
+      * The amount of time to delay the start of the animation
+      */-->
+    <attribute name="delay" value="0" type="expression"></attribute>
+    <setter name="delay" args="delay">
+      this.track.delay = delay
+      if(this.animator) this.animator.update(this.track)
+      return delay
+    </setter>
+
+    <!--/**
+      * @attribute {String} from
+      * The value to start the animation from, if not specified is read from the target attribute
+      */-->
+    <attribute name="from" value="" type="string"></attribute>
+    <setter name="from" args="from">
+      if(this.animator){
+        this.track[0] = this.from === ""? this.target_obj[this.attribute]: this.from
+        this.animator.update(this.track)
+      }
+      return from
+    </setter>
+
+    <!--/**
+      * @attribute {String} to=0
+      * The value to animate to. Is identical to specifying a <keyframe at='{duration}'>{to}</keyframe>
+      */-->
+    <attribute name="to" value="0" type="string"></attribute>
+    <setter name="to" args="to">
+      if(this.duration !== undefined){
+        this.track[this.duration] = to
+      }
+      if(this.animator) this.animator.update(this.track)
+      return to
+    </setter>
+
+    <!--/**
+      * @attribute {Number} duration=1000
+      * The duration of the animation. Is identical to specifying a <keyframe at='{duration}'>{to}</keyframe>
+      */-->
+    <attribute name="duration" value="1000" type="expression"></attribute>
+    <setter name="duration" args="duration">
+      if(this.to !== undefined){
+        // ok so, we have to delete the previous last key
+        if(this.duration in this.track) delete this.track[this.duration]
+        this.track[duration] = this.to
+      }
+      if(this.animator) this.animator.update(this.track)
+      return duration
+    </setter>
+
+    <!--/**
+      * @attribute {String} attribute
+      * The name of the attribute this animator is animating
+      */-->
+    <attribute name="attribute" value="" type="string"></attribute>
+    <!--/**
+      * @attribute {String} target
+      * Name of the target object id, not needed if animator is used as a child tag in the target node
+      */-->
+    <attribute name="target" value="" type="string"></attribute>
+    <setter name="target" args="target">
+      if(this.animator){
+        if(!target){
+          var parent = this.parent
+          // SEVERE BUG. Parentnode is not set correctly
+          while(parent.$tagname == 'animgroup') parent = parent.parent
+
+          this.target_obj = parent
+        }
+        else{ 
+          // otherwise we have to look it up by name
+          var node = document.getElementById(this.target)
+          if(!node) throw new Error('Cannot find animation target '+this.target)
+          this.target_obj = node.$view
+          if(!target) throw new Error('Animation target does not have a $view '+this.target)
+        }
+      }
+      return target
+    </setter>
+    <!--/**
+      * @attribute {Boolean} paused=false
+      * wether or not the animator is paused
+      */-->
+    <attribute name="paused" value="false" type="boolean"></attribute>
+    <setter name="paused" args="paused">
+      this.track.paused = paused // to make sure it starts paused
+
+      if(paused){
+        if(this.animator) this.animator.pause()
+      }
+      else{
+        if(this.animator){
+          this.animator.resume()
+        }
+        else{
+          if(this.parent.$tagname == 'animgroup') return paused
+          if(this.initialized) this.startAnim()
+        }
+      }
+      return paused
+    </setter>
+    <!--/** 
+      * @attribute {String} motion=bret
+      * name of the motion the animation is following
+      * valid values are:
+      * 'bezier' use a cubic bezier motion function
+      *   use control points in control='x1,y1,x2,y2' 
+      *   for example control='0,0,1,1'
+      *   bezier control points work the same as the CSS3 cubic-bezier easing
+      * 'bret' uses brets animation function, has 2 control points
+      *   control='start,end' value near 0 (0.01) will produce a curved line
+      *   where values near 1.0 will produce a straight line
+      *   this way you can control the 'easing' from 'smooth' (0.01) to 'hard' (1.0)
+      *   on each side start / end of the animation
+      *   for example control='0.01,1.00' produces an animation with a smooth start and a hard end 
+      * 'linear' simple linear motion
+      * the following curves can be seen here http://api.jqueryui.com/easings/
+      * 'inQuad' use a t^2 curve
+      * 'outQuad' t^2 curve on out
+      * 'inOutQuad' mix of inQuad and outQuad
+      * 'inCubic' use a t^3 curve
+      * 'outCubic' t^3 curve on out
+      * 'inOutCubic' mix of inCubic and outCubic
+      * 'inQuart' t^4 curve
+      * 'outQuart' t^4 curve on out
+      * 'inOutQuart' mix of inQuart and outQuart
+      * 'inQuint' t^5 curve
+      * 'outQuint' t^5 curve on out
+      * 'inOutQuint' mix of inQuint and outQuint
+      * 'inSine' sin(t) curve
+      * 'outSine' sin(t) on out
+      * 'inOutSine' mix of inSine and outSine
+      * 'inExpo' e^t curve
+      * 'outExpo' e^t curve on end
+      * 'inOutExpo' mix of inExpo and outExpo
+      * 'inElastic' elastic (like bounce, but overshoots) curve
+      * 'outElastic' elastic on end
+      * 'inOutElastic' mix of inElastic and outElastic
+      * 'inBack' overshooting curve
+      * 'outBack' overshooting on end
+      * 'inOutBack' mix of inBack and outBack
+      * 'inBounce' Bouncing curve
+      * 'outBounce' Bouncing curve on end
+      * 'inOutBounce' mix of inBounce and outBounce
+      */-->
+    <attribute name="motion" value="bret" type="string"></attribute>
+    <setter name="motion" args="motion">
+      this.track.motion = motion
+      if(this.animator) this.animator.update(this.track)
+      return motion
+    </setter>
+    <!--/**
+      * @attribute {String} control=0.01
+      * control points for the bret and bezier motions
+      */-->
+    <attribute name="control" value="0.01" type="string"></attribute>
+    <setter name="control" args="control">
+      this.track.control = control.split(',').map(function(v){
+        return parseFloat(v)
+      })
+      if(this.animator) this.animator.update(this.track)
+      return control
+    </setter>
+
+    <!--/**
+      * @attribute {Number} repeat=1
+      * how many times to repeat the loop (repeat 2 runs something twice)
+      */-->
+    <attribute name="repeat" value="1" type="expression"></attribute>
+    <setter name="repeat" args="repeat">
+      this.track.repeat = repeat
+      if(this.animator) this.animator.update(this.track)
+      return repeat
+    </setter>
+
+    <!--/**
+      * @attribute {Boolean} bounce=false
+      * turn on bounce looping
+      */-->
+    <attribute name="bounce" value="false" type="boolean"></attribute>
+    <setter name="bounce" args="bounce">
+      this.track.bounce = bounce
+      if(this.animator) this.animator.update(this.track)
+      return bounce
+    </setter>
+
+    <!--/**
+      * @attribute {Boolean} relative=false
+      * animation is relative to original value
+      */-->        
+    <attribute name="relative" value="false" type="boolean"></attribute>
+
+    <!--/**
+      * @event onstart
+      * Fired when animation starts
+      */-->
+
+    <!--/**
+      * @event onend
+      * Fired when animation ends
+      */-->
+
+    <!--/**
+      * @event ontick
+      * Fired every step of the animation
+      */-->
+
+    <!-- Internal prepare animation to play -->
+    <method name="prepare" args='standalone'>
+
+      // lets create the animator
+      this.animator = Animator.createAnimator()
+
+      // call the setter to get our target_obj
+      this.set_target(this.target)
+
+      if(this.from !== "") this.track[0] = this.from
+      else{
+        if(this.relative){
+          this.relative_to = this.target_obj[this.attribute]
+          this.track[0] = 0
+        }
+        else this.track[0] = this.target_obj[this.attribute]
+      }
+
+      if(standalone){
+        this.animator.play(this.track)
+      }
+      else
+        this.animator.playStateless(this.track)
+
+      if(this.track.paused) this.animator.pause()
+    
+      // returns the length of the animation and track
+
+      // lets also include our repeat settings
+      return this.animator.current.end_time * this.repeat + this.delay
+
+    </method>
+
+    <!-- Internal do a timestep-->
+    <method name="timestep" args="time, sample_first">
+      // ok so how do we decide when we need to sample this thing?
+      if(sample_first && this.from === ""){
+        // resample relative
+        if(this.relative){
+          this.relative_to = this.target_obj[this.attribute]
+          this.track[0] = 0
+        } 
+        else this.track[0] = this.target_obj[this.attribute]
+
+        this.animator.update(this.track)
+      }
+      var value = this.animator.timestep(time)
+      if(this.debug) console.log(time, value)
+
+      if(this.relative_to !== undefined){
+        this.target_obj.setAttribute(this.attribute, this.relative_to + value)
+      }
+      else{
+        this.target_obj.setAttribute(this.attribute, value)
+      }
+
+    </method>
+
+    <!-- Internal start animation-->
+    <method name="startAnim">
+      this.prepare(true)
+
+      var dup = 0
+      var animTick = function(time){
+        if (this.target_obj.destroyed) return
+        this.timestep(time)
+        this.sendEvent('tick')
+        if(this.animator.ended){
+          this.sendEvent('end')
+          // remove the animator so it reinitializes when putting paused on false again
+          this.animator = undefined
+        }
+        else{
+          dr.idle.callOnIdle(animTick)
+        }
+        // the animator works with timelines, so lets set up our timeline from the childlist.
+      }.bind(this)
+      dr.idle.callOnIdle(animTick)
+
+    </method>
+    
+    <method name="construct" args="element, attributes">
+      // inherit these properties from the parent node
+      var inherit_set = ['from', 'to', 'duration', 'attribute', 'target', 'relative']
+      for(var i = 0; i < inherit_set.length; i++){
+        var inherit = inherit_set[i]
+        var parent = attributes.parent
+        var overloads = {}
+        while(parent && parent.$tagname == 'animgroup'){
+          if(element.getAttribute(inherit) === null && parent[inherit] !== undefined && !overloads[inherit]){
+            attributes[inherit] = parent[inherit]
+            overloads[inherit] = true
+          }
+          parent = parent.parent
+        }
+      }
+      this.super(element, attributes)
+    </method>
+
+    <handler event="oninit"><!--
+      var parent = this.parent
+      this.initialized = true
+      if(parent.$tagname == 'animgroup'){
+        if(!parent.slave_anims) parent.slave_anims = []
+        parent.slave_anims.push(this)
+        return
+      }
+
+      if(!this.paused) setTimeout(function(){
+        this.startAnim()
+      }.bind(this), 0)
+    --></handler>
+  </class>

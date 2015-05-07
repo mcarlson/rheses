@@ -1,0 +1,170 @@
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+
+  <!--/**
+     * @class dr.checkbutton {UI Components}
+     * @extends dr.buttonbase
+     * Button class consisting of text and a visual element to show the
+     * current state of the component. The state of the
+     * button changes each time the button is clicked. The select property
+     * holds the current state of the button. The onselected event
+     * is generated when the button is the selected state.
+     *
+     *     @example
+     *     <spacedlayout axis="y"></spacedlayout>
+     *
+     *     <checkbutton text="pink" selectcolor="pink"></checkbutton>
+     *     <checkbutton text="blue" selectcolor="lightblue"></checkbutton>
+     *     <checkbutton text="green" selectcolor="lightgreen"></checkbutton>
+     *
+     * Here we listen for the onselected event on a checkbox and print the value that is passed to the handler.
+     *
+     *     @example
+     *     <spacedlayout axis="y"></spacedlayout>
+     *
+     *     <checkbutton text="green" selectcolor="lightgreen">
+     *       <handler event="onselected" args="value">
+     *         displayselected.setAttribute('text', value);
+     *       </handler>
+     *     </checkbutton>
+     *
+     *     <view>
+     *       <spacedlayout></spacedlayout>
+     *       <text text="Selected:"></text>
+     *       <text id="displayselected"></text>
+     *     </view>
+     *
+     */-->
+    <class name="checkbutton" type="coffee" extends="buttonbase" defaultcolor="transparent">
+
+      <!-- check_x, check_y: Location of check box with button -->
+      <!-- check_w, check_h: Size of check box with button -->
+      <attribute name="checkx" type="number" value="0"></attribute>
+      <attribute name="checky" type="number" value="0"></attribute>
+      <attribute name="checkw" type="number" value="0"></attribute>
+      <attribute name="checkh" type="number" value="0"></attribute>
+      <attribute name="innerspacing" type="number" value="0"></attribute>
+
+      <!-- check: Show button state -->
+      <art name="check" clickable="false" inline="true" x="${this.parent.checkx}" y="${this.parent.checky}" width="${this.parent.checkw}" height="${this.parent.checkh}">
+          <!--
+          <svg name="triangle" height="100" width="100">
+              <polygon name="polygon" points="0,100 0,0 100,100"/>
+          </svg>
+          -->
+      </art>
+
+      <method name="visualize">
+        @super()
+
+        if @selected
+          @check.setAttribute('fill', @selectcolor)
+          @label.setAttribute('color', @selectcolor)
+        else
+          @check.setAttribute('fill', @textcolor)
+          @label.setAttribute('color', @textcolor)
+
+      </method>
+
+      <handler event="oninit">
+        # visual is the object that makes a visual change when selected
+        @visual = @check
+
+        @handleResize()
+
+        @visualize()
+      </handler>
+
+      <method name="handleResize">
+        @super()
+
+        return if @_resize_lock
+        @_resize_lock = true
+
+        defaultchecksize = 20
+
+        checkx = checky = 0
+        textx = texty = 0
+
+        height = @innerheight
+        width = @innerwidth
+
+        if !@_fixedheight
+          height = Math.max(@label.height, defaultchecksize)
+
+        if !@_fixedwidth
+          width = @label.height
+          width += @innerspacing + @label.width if @label.visible
+          width = Math.max(width, defaultchecksize)
+
+        checkw = width
+        checkh = height
+
+        if @label.visible
+          checkw = Math.max(checkw - @label.width - @innerspacing, @label.height)
+          textx = checkw + @innerspacing
+          texty = (height / 2.0) - (@label.height / 2.0)
+
+        checks = Math.min(checkw, checkh)
+
+        checky = (height / 2.0) - (checks / 2.0) if checky == 0
+        checky = Math.max(checky, 0)
+        checky = Math.min(checky, height - checks)
+
+        checkx = (width / 2.0) - (checks / 2.0) if checkx ==0 && @_fixedwidth && !@label.visible
+        checkx = Math.max(checkx, 0)
+        checkx = Math.min(checkx, width - checks)
+
+        settings = {checkx: checkx, checky: checky, checkw: checks, checkh: checks, textx: textx, texty: texty}
+
+        bpw = @leftborder + @leftpadding + @rightborder + @rightpadding
+        bph = @topborder + @toppadding + @bottomborder + @bottompadding
+
+        settings.height = height + bph if !@_fixedheight
+        settings.width = width + bpw if !@_fixedwidth
+
+        @setAttributes(settings)
+
+        @_resize_lock = false
+      </method>
+
+      <handler event="onclick">
+        @setAttribute('selected', !@selected);
+      </handler>
+
+      <method name="_showselection">
+
+        if !@selected
+          @check.setAttribute('fill', @selectcolor)
+          @check.setAttribute('bgcolor', @selectcolor)
+          @label.setAttribute('color', @selectcolor)
+        else
+          @check.setAttribute('fill', @textcolor)
+          @check.setAttribute('bgcolor', @defaultcolor)
+          @label.setAttribute('color', @textcolor)
+
+      </method>
+
+      <handler event="onmousedown" method="_showselection"></handler>
+      <handler event="onmouseup" method="_showselection"></handler>
+
+    </class>

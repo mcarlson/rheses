@@ -1,0 +1,115 @@
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014-2015 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+
+<!--/**
+   * @class dr.labelbutton {UI Components}
+   * @extends dr.buttonbase
+   * Button class consisting of text centered in a view. The onclick event
+   * is generated when the button is clicked. The visual state of the
+   * button changes during onmousedown/onmouseup.
+   *
+   *     @example
+   *     <spacedlayout axis="y"></spacedlayout>
+   *
+   *     <labelbutton text="click me">
+   *       <handler event="onclick">
+   *         hello.setAttribute('text', 'Hello Universe!');
+   *       </handler>
+   *     </labelbutton>
+   *
+   *     <text id="hello"></text>
+   */-->
+<class name="labelbutton" type="coffee" extends="buttonbase">
+  <!--/**
+    * @attribute {String} [bgcolor]
+    * Sets this view's background color, same as setting defaultcolor.
+    */-->
+  <method name="construct" args="el, attributes">
+    if attributes.bgcolor
+      attributes.defaultcolor = attributes.bgcolor
+      delete attributes.bgcolor
+    
+    this.super()
+  </method>
+
+  <method name="createSprite" args="spriteClass, el, attributes">
+    return @super(dr._textSprite, el, attributes)
+  </method>
+
+  <handler event="oninit">
+    if !@text or @text.length == 0
+      @inline = @sprite.getText()
+      if @inline
+        @setAttribute('text', @inline) if !@text
+
+    # visual is the object that makes a visual change when selected
+    @visual = @
+
+    @handleResize()
+
+    @visualize()
+  </handler>
+
+  <method name="handleResize">
+    @super()
+    return if @_resize_lock
+
+    settings = {}
+
+    if @_fixedwidth
+      settings.textx = (@innerwidth - @label.width) / 2
+    else
+      settings.width = @label.width + @leftpadding + @rightpadding + @leftborder + @rightborder + (@indicatorsize * 1.5) + 2
+      settings.textx = @indicatorsize + 1
+
+    if @_fixedheight
+      settings.texty = (@innerheight - @label.height)/2.0
+    else
+      settings.height = @label.height + @toppadding + @bottompadding + @topborder + @bottomborder
+
+    @_resize_lock = true
+    @setAttributes(settings)
+    @_resize_lock = false
+  </method>
+
+  <handler event="onmousedown">
+    @visual.setAttribute('bgcolor', @selectcolor)
+    @label.setAttribute('color', @defaultcolor)
+    @indicator.setAttribute('fill', @defaultcolor)
+  </handler>
+
+  <handler event="onmouseup">
+    @visual.setAttribute('bgcolor', @defaultcolor)
+    @label.setAttribute('color', @textcolor)
+    @indicator.setAttribute('fill', @textcolor)
+  </handler>
+
+  <attribute name="indicatorsize" type="number" value="10"></attribute>
+
+  <art visible="false" name="indicator" clickable="false" inline="true" x="0" y="${this.parent.height - (this.parent.border || this.parent.bottomborder || 0) - this.height - this.parent.indicatorsize}" height="${this.parent.indicatorsize}" width="${this.parent.indicatorsize}" z="1">
+      <!--
+      <svg name="triangle" height="100" width="100">
+          <polygon name="polygon" points="0,100 0,0 100,100"/>
+      </svg>
+      -->
+  </art>
+</class>

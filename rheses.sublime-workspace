@@ -400,7 +400,7 @@
 	"buffers":
 	[
 		{
-			"file": "layout.coffee",
+			"file": "dreem.coffee",
 			"settings":
 			{
 				"buffer_size": 32491,
@@ -696,11 +696,11 @@
 		"/Users/maxcarlson/bzc/magik/leapweb/lib/shipping_helper.rb",
 		"/Users/maxcarlson/bzc/magik/leapweb/app/models/shipping_method.rb",
 		"/Users/maxcarlson/rheses/rheses.js",
-		"/Users/maxcarlson/rheses/layout.js",
+		"/Users/maxcarlson/rheses/dreem.js",
 		"/Users/maxcarlson/rheses/rheses.min.js",
 		"/Users/maxcarlson/rheses/acorn.js",
 		"/Users/maxcarlson/rheses/layout.html",
-		"/Users/maxcarlson/rheses/layout.min.js",
+		"/Users/maxcarlson/rheses/dreem.min.js",
 		"/Users/maxcarlson/rheses/jquery-1.9.1.js"
 	],
 	"find":
@@ -871,7 +871,7 @@
 			[
 				{
 					"buffer": 0,
-					"file": "layout.coffee",
+					"file": "dreem.coffee",
 					"semi_transient": true,
 					"settings":
 					{
@@ -1340,15 +1340,15 @@
 			],
 			[
 				"layj",
-				"layout.js"
+				"dreem.js"
 			],
 			[
 				"laym",
-				"layout.min.js"
+				"dreem.min.js"
 			],
 			[
 				"laymi",
-				"layout.min.js"
+				"dreem.min.js"
 			],
 			[
 				"j",

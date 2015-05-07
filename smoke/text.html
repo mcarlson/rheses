@@ -1,0 +1,504 @@
+<html>
+<expectedoutput><!--
+refusing to create a class that would overwrite the builtin tag b
+--></expectedoutput>
+<head>
+  <title>dr33m | Text Smoke Tests</title>
+  <script>var BOILERPLATE_OPTS = {type:'smoke'};</script>
+  <script type="text/javascript" src="../boilerplate.js"></script>
+</head>
+<body>
+  <view width="100%" height="100%" scrollable="true">
+    <spacedlayout axis="x" spacing="1"></spacedlayout>
+
+    <!-- SETTING TEXT VALUES -->
+    <view width="auto" height="auto" bgcolor="lightgrey">
+      <spacedlayout axis="y" spacing="1"></spacedlayout>
+      
+      <!-- No text or empty text -->
+      <text bgcolor="lightpink">
+        <handler event="oninit">
+          var el = this.sprite.el;
+          assert.equal(this.text, '', 'Text should be empty');
+          assert.equal(this.sprite.getText(), '', 'No innerText should exist #1');
+        </handler>
+      </text>
+
+      <text text="" bgcolor="lightpink">
+        <handler event="oninit">
+          var el = this.sprite.el;
+          assert.equal(this.text, '', 'Text should be empty');
+          assert.equal(this.sprite.getText(), '', 'No innerText should exist #2');
+        </handler>
+      </text>
+
+      <!-- Setting text with string -->
+      <text text="some text" bgcolor="lightgreen">
+        <handler event="oninit">
+          var el = this.sprite.el;
+          assert.equal(this.text, 'some text', 'Text should exist.');
+          assert.equal(this.sprite.getText(), 'some text', 'innerText should exist #3');
+        </handler>
+      </text>
+
+      <!-- Setting text inside tags -->
+      <text bgcolor="green">
+        Some text goes here
+        <handler event="oninit">
+          var el = this.sprite.el,
+            testVal = 'Some text goes here';
+          assert.equal(this.text, testVal, 'text set as innerText inside the tag');
+          assert.equal(this.sprite.getText(), testVal, 'innerText should exist #4');
+        </handler>
+      </text>
+
+      <!-- Setting text with constraint -->
+      <view width="auto" height="auto">
+        <text text="${this.parent.text}" bgcolor="orange">
+          <handler event="oninit">
+            var el = this.sprite.el;
+            assert.equal(this.text, 'undefined', 'text set with a constraint where constraint evals to undefined');
+            assert.equal(this.sprite.getText(), 'undefined', 'No innerText should exist #5');
+          </handler>
+        </text>
+      </view>
+
+      <view width="auto" height="auto">
+        <attribute name="text" value="" type="string"></attribute>
+        <text text="${this.parent.text}" bgcolor="orange">
+          <handler event="oninit">
+            var el = this.sprite.el;
+            assert.equal(this.text, '', 'text set with a constraint where constraint evals to the empty string');
+            assert.equal(this.sprite.getText(), '', 'No innerText should exist #6');
+          </handler>
+        </text>
+      </view>
+
+      <view width="auto" height="auto">
+        <attribute name="text" value="some text" type="string"></attribute>
+        <text text="${this.parent.text}" bgcolor="orange">
+          <handler event="oninit">
+            var el = this.sprite.el,
+              testVal = 'some text';
+            assert.equal(this.text, testVal, 'text set with a constraint where constraint evals to a string');
+            assert.equal(this.sprite.getText(), testVal, 'innerText should exist #7');
+          </handler>
+        </text>
+      </view>
+
+      <!-- Whitespace:normal -->
+      <text width="150" multiline="true" bgcolor="purple">This text should wrap at my width.
+        <handler event="oninit">
+          var el = this.sprite.el,
+            testVal = 'This text should wrap at my width.';
+          assert.equal(this.text, testVal, 'Multiline text should work.');
+          assert.equal(this.sprite.getText(), testVal, 'innerText should exist #8');
+        </handler>
+      </text>
+
+      <text width="150" multiline="true" bgcolor="purple">This
+      text should wrap at my width.
+        <handler event="oninit">
+          var el = this.sprite.el,
+            testVal = 'This\n      text should wrap at my width.';
+          assert.equal(this.text, testVal, 'Multiline text with a line ending should work.');
+          assert.equal(this.sprite.getText(), testVal, 'innerText should exist #9');
+        </handler>
+      </text>
+
+      <!-- Text with markup -->
+      <text bgcolor="violet">This is <b>bold</b>.
+        <handler event="oninit">
+          var el = this.sprite.el,
+            testVal = 'This is.';
+          assert.equal(this.text, testVal, 'Text with markup should work with tag warnings.');
+          assert.equal(this.sprite.getText(), testVal, 'innerText should exist #10');
+        </handler>
+      </text>
+
+      <text bgcolor="violet">This is &lt;b&gt;bold&lt;/b&gt;.
+        <handler event="oninit">
+          var el = this.sprite.el,
+            testVal = 'This is &lt;b&gt;bold&lt;/b&gt;.';
+          assert.equal(this.text, testVal, 'Text with markup should work.');
+          assert.equal(this.sprite.getText(), testVal, 'innerText should exist #11');
+        </handler>
+      </text>
+
+      <text text="This is &lt;b&gt;bold&lt;/b&gt;." bgcolor="violet">
+        <handler event="oninit">
+          var el = this.sprite.el,
+            testVal = 'This is &lt;b&gt;bold&lt;/b&gt;.';
+          assert.equal(this.text, testVal, 'Text with markup should work.');
+          assert.equal(this.sprite.getText(), testVal, 'innerText should exist #12');
+        </handler>
+      </text>
+
+      <!-- Setting text via Replication -->
+      <dataset name="book">[
+        {
+          "title": "Text from data"
+        },
+        {
+          "title": "Text from data"
+        },
+        {
+          "title": "Text from data"
+        }
+      ]</dataset>
+
+      <class name="titletext" extends="text">
+        <handler event="oninit">
+          assert.equal(this.text, 'Text from data', 'replication test');
+        </handler>
+      </class>
+
+      <replicator classname="titletext" datapath="$book/title">
+        <handler event="oninit">
+          assert.equal(this.children[0].text, 'Text from data', 'replication test');
+          assert.equal(this.children[1].text, 'Text from data', 'replication test');
+          assert.equal(this.children[2].text, 'Text from data', 'replication test');
+        </handler>
+      </replicator>
+    </view>
+
+    <!-- TEXT STYLING -->
+    <view width="auto" height="auto" bgcolor="lightgrey">
+      <spacedlayout axis="y" spacing="1"></spacedlayout>
+
+      <text bold="true" text="bold text">
+        <handler event="oninit">
+          assert.equal(this.bold, true);
+          assert.equal(this.sprite.el.style['font-weight'], 'bold');
+        </handler>
+      </text>
+      
+      <text italic="true" text="italic text">
+        <handler event="oninit">
+          assert.equal(this.italic, true);
+          assert.equal(this.sprite.el.style['font-style'], 'italic');
+        </handler>
+      </text>
+      
+      <text smallcaps="true" text="smallcaps text">
+        <handler event="oninit">
+          assert.equal(this.smallcaps, true);
+          assert.equal(this.sprite.el.style['font-variant'], 'small-caps');
+        </handler>
+      </text>
+      
+      <text underline="true" text="underline text">
+        <handler event="oninit">
+          assert.equal(this.underline, true);
+          assert.equal(this.sprite.el.style['text-decoration'], 'underline');
+        </handler>
+      </text>
+      
+      <text strike="true" text="strike text">
+        <handler event="oninit">
+          assert.equal(this.strike, true);
+          assert.equal(this.sprite.el.style['text-decoration'], 'line-through');
+        </handler>
+      </text>
+      
+      <text fontsize="32" text="font size">
+        <handler event="oninit">
+          assert.equal(this.fontsize, 32);
+          assert.equal(this.sprite.el.style['font-size'], '32px');
+        </handler>
+      </text>
+
+      <text fontsize="12pt" text="Fontsize in pt should become px">
+        <handler event="oninit">
+          assert.equal(this.fontsize, 12, 'fontsize should be 12');
+          assert.equal(this.sprite.el.style['font-size'], '12px');
+        </handler>
+      </text>
+
+      <text fontfamily="'Brush Script MT', cursive" text="font family">
+        <handler event="oninit">
+          assert.equal(this.fontfamily, "'Brush Script MT', cursive");
+          var ff = this.sprite.el.style['font-family'];
+          ff = ff.split('"').join("\'");
+          ff = ff.split(', ').join(",");
+          assert.equal(ff, "\'Brush Script MT\',cursive");
+        </handler>
+      </text>
+      
+      <text color="red" text="color">
+        <handler event="oninit">
+          assert.equal(this.color, "red");
+          assert.equal(this.sprite.el.style['color'], "red");
+        </handler>
+      </text>
+      
+      <text text="Multiple font properties" bgcolor="blue"
+        underline="true" bold="true" italic="true" smallcaps="true" fontsize="32"
+        fontfamily="'Brush Script MT', cursive" color="#9999ff"
+      >
+        <handler event="oninit">
+          var style = this.sprite.el.style;
+          
+          assert.equal(this.fontfamily, "'Brush Script MT', cursive", 'fontfamily not set');
+          assert.equal(this.fontsize, 32, 'fontsize not set');
+          assert.equal(this.bold, true, 'bold not set');
+          assert.equal(this.italic, true, 'italic not set');
+          assert.equal(this.underline, true, 'underline not set');
+          assert.equal(this.strike, false, 'underline not set');
+          assert.equal(this.smallcaps, true, 'smallcaps not set');
+          assert.equal(this.color, '#9999ff', 'color not set');
+          
+          var ff = style['font-family'];
+          ff = ff.split('"').join("\'");
+          ff = ff.split(', ').join(",");
+          assert.equal(ff, "\'Brush Script MT\',cursive", 'missing size style');
+          assert.equal(style['font-size'], '32px', 'missing size style');
+          assert.equal(style['font-weight'], 'bold', 'missing bold style');
+          assert.equal(style['font-style'], 'italic', 'missing italic style');
+          assert.equal(style['text-decoration'], 'underline', 'missing underline style');
+          assert.equal(style['font-variant'], 'small-caps', 'missing smallcaps style');
+          assert.equal(style['color'], 'rgb(153, 153, 255)', 'missing color style');
+          
+          // Change to strike
+          this.setAttribute('strike', true);
+          assert.equal(this.underline, false);
+          assert.equal(this.strike, true);
+          assert.equal(style['text-decoration'], 'line-through');
+          
+          // Verify setting underline to false doesn't mess up strike
+          this.setAttribute('underline', false);
+          assert.equal(this.underline, false);
+          assert.equal(this.strike, true);
+          assert.equal(style['text-decoration'], 'line-through');
+          
+          // Change underline and strike to false
+          this.setAttribute('strike', false);
+          assert.equal(this.underline, false);
+          assert.equal(this.strike, false);
+          assert.equal(style['text-decoration'], 'none');
+        </handler>
+      </text>
+    </view>
+
+    <!-- TEXT SIZING -->
+    <view width="auto" height="auto" bgcolor="lightgrey">
+      <spacedlayout axis="y" spacing="1"></spacedlayout>
+      
+      <!-- nowrap auto -->
+      <text name="nowrap_auto" bgcolor="pink">foo bar baz
+        <handler event="oninit">
+          assert.testCaseLabel = 'nowrap auto';
+
+          assert.equal(this.multiline, false);
+          assert.equal($(this.sprite.el).css('white-space'), 'nowrap');
+          assert.closeTo(this.width, 90, 11, 'width check')
+          assert.closeTo(this.height, 24, 10, 'height check')
+        </handler>
+      </text>
+      <text bgcolor="pink">foo bar
+      baz
+        <handler event="oninit">
+          assert.equal(this.multiline, false);
+          assert.equal($(this.sprite.el).css('white-space'), 'nowrap');
+          assert.equal(this.width, this.parent.nowrap_auto.width)
+          assert.equal(this.height, this.parent.nowrap_auto.height)
+        </handler>
+      </text>
+      
+      <!-- nowrap fixed -->
+      <text name="nowrap_fixed" bgcolor="red" width="50" scrollable="true">foo bar baz
+        <handler event="oninit">
+          assert.testCaseLabel = 'nowrap fixed';
+
+          assert.equal(this.multiline, false, 'multiline should be false');
+          assert.equal($(this.sprite.el).css('white-space'), 'nowrap', 'css whitespace should be nowrap');
+          assert.equal(this.width, 50, 'width should be 50')
+          assert.equal(this.height, this.parent.nowrap_auto.height, 'nowrap fixed height should be the same as nowrap auto')
+        </handler>
+      </text>
+      <text bgcolor="red" width="50">foo bar
+      baz
+        <handler event="oninit">
+          assert.testCaseLabel = 'nowrap fixed, newline in text';
+          assert.equal(this.multiline, false, 'multiline should be false');
+          assert.equal($(this.sprite.el).css('white-space'), 'nowrap', 'css whitespace should be nowrap');
+          assert.equal(this.width, this.parent.nowrap_fixed.width, 'this.parent.nowrap_fixed.width should be the same as nowrap fixed example')
+          assert.equal(this.height, this.parent.nowrap_fixed.height, 'this.parent.nowrap_fixed.height should be the same as nowrap fixed example')
+          
+          // Turn ellipsis on
+          this.setAttribute('ellipsis', true);
+          
+          assert.equal(this.ellipsis, true, 'ellipsis should be true');
+          assert.equal($(this.sprite.el).css('white-space'), 'nowrap', 'css whitespace should be nowrap');
+          assert.equal($(this.sprite.el).css('overflow'), 'hidden', 'overflow should be hidden');
+          assert.equal($(this.sprite.el).css('text-overflow'), 'ellipsis', 'css text-overflow should be ellipsis');
+          assert.equal(this.width, this.parent.nowrap_fixed.width, 'this.parent.nowrap_fixed.width should be the same as nowrap fixed example')
+          assert.equal(this.height, this.parent.nowrap_fixed.height, 'this.parent.nowrap_fixed.height should be the same as nowrap fixed example')
+        </handler>
+      </text>
+      <text bgcolor="red" width="50" ellipsis="true">foo bar baz
+        <handler event="oninit">
+          assert.testCaseLabel = 'nowrap fixed, ellipsis is true';
+          assert.equal(this.multiline, false, 'multiline should be false');
+          assert.equal(this.ellipsis, true, 'ellipsis should be true');
+          assert.equal($(this.sprite.el).css('white-space'), 'nowrap', 'css whitespace should be nowrap');
+          assert.equal($(this.sprite.el).css('overflow'), 'hidden', 'overflow should be hidden');
+          assert.equal($(this.sprite.el).css('text-overflow'), 'ellipsis', 'css text-overflow should be ellipsis');
+          assert.equal(this.width, this.parent.nowrap_fixed.width, 'this.parent.nowrap_fixed.width should be the same as nowrap fixed example')
+          assert.equal(this.height, this.parent.nowrap_fixed.height, 'this.parent.nowrap_fixed.height should be the same as nowrap fixed example')
+          
+          // Turn ellipsis off
+          this.setAttribute('ellipsis', false);
+          
+          assert.equal(this.ellipsis, false, 'ellipsis should be false');
+          assert.equal($(this.sprite.el).css('white-space'), 'nowrap', 'css whitespace should be nowrap');
+          assert.equal($(this.sprite.el).css('overflow'), 'visible', 'overflow should be visible');
+          assert.equal($(this.sprite.el).css('text-overflow'), 'clip', 'css text-overflow should be clip');
+          assert.equal(this.width, this.parent.nowrap_fixed.width, 'this.parent.nowrap_fixed.width should be the same as nowrap fixed example')
+          assert.equal(this.height, this.parent.nowrap_fixed.height, 'this.parent.nowrap_fixed.height should be the same as nowrap fixed example')
+        </handler>
+      </text>
+      
+      <!-- multiline auto -->
+      <text multiline="true" bgcolor="lightgreen">foo bar baz
+        <handler event="oninit">
+          assert.testCaseLabel = 'multiline auto';
+
+          assert.equal(this.multiline, true);
+          assert.equal(this.sprite.el.style['white-space'], 'pre');
+          assert.equal(this.width, this.parent.nowrap_auto.width)
+          assert.equal(this.height, this.parent.nowrap_auto.height)
+        </handler>
+      </text>
+      <text multiline="true" bgcolor="lightgreen">foo bar
+      baz
+        <handler event="oninit">
+          assert.equal(this.multiline, true);
+          assert.equal(this.sprite.el.style['white-space'], 'pre');
+          assert.closeTo(this.width, 65, 10)
+          assert.closeTo(this.height, 48, 10)
+        </handler>
+      </text>
+      
+      <!-- multiline fixed -->
+      <text multiline="true" width="60" bgcolor="green">f o o b a r b a z
+        <handler event="oninit">
+          assert.testCaseLabel = 'multiline fixed';
+
+          assert.equal(this.multiline, true);
+          assert.equal(this.sprite.el.style['white-space'], 'pre-wrap');
+          assert.equal(this.width, 60);
+          assert.closeTo(this.height, 68, 10)
+        </handler>
+      </text>
+      <text multiline="true" width="60" bgcolor="green">f o o b a r
+      b a z
+        <handler event="oninit">
+          assert.equal(this.multiline, true);
+          assert.equal(this.sprite.el.style['white-space'], 'pre-wrap');
+          assert.equal(this.width, 60);
+          assert.closeTo(this.height, 90, 10)
+        </handler>
+      </text>
+      
+      <!-- multiline with a fixed height -->
+      <text multiline="true" width="50" height="40" bgcolor="yellow" scrollable="true">f o o b a r b a z
+        <handler event="oninit">
+          assert.testCaseLabel = 'multiline with a fixed height';
+          
+          assert.equal(this.multiline, true);
+          assert.equal(this.sprite.el.style['white-space'], 'pre-wrap');
+          assert.equal(this.width, 50);
+          assert.equal(this.height, 40)
+        </handler>
+      </text>
+      
+      <!-- Change fixed and multiline -->
+      <text bgcolor="orange" multiline="false">f o o b 
+      a r b a z
+        <handler event="oninit">
+          assert.testCaseLabel = 'Change fixed and multiline';
+          
+          assert.equal(this.multiline, false);
+          assert.equal($(this.sprite.el).css('white-space'), 'nowrap');
+          assert.closeTo(this.width, 120, 11, 'width check');
+          assert.closeTo(this.height, 24, 10, 'height check');
+          
+          // Change to fixed width
+          this.setAttribute('width', 60);
+          
+          assert.equal(this.multiline, false);
+          assert.equal($(this.sprite.el).css('white-space'), 'nowrap');
+          assert.equal(this.width, 60);
+          assert.closeTo(this.height, 24, 10);
+          
+          // Change to multiline
+          this.setAttribute('multiline', true);
+          
+          assert.equal(this.multiline, true);
+          assert.equal(this.sprite.el.style['white-space'], 'pre-wrap');
+          assert.equal(this.width, 60);
+          assert.closeTo(this.height, 68, 10);
+          
+          // Change to auto width
+          this.setAttribute('width', 'auto');
+          
+          assert.equal(this.multiline, true);
+          assert.equal(this.sprite.el.style['white-space'], 'pre');
+          assert.closeTo(this.width, 90, 10);
+          assert.closeTo(this.height, 48, 10);
+          
+          // Change to back single line
+          this.setAttribute('multiline', false);
+          
+          assert.equal(this.multiline, false);
+          assert.equal(this.sprite.el.style['white-space'], 'nowrap');
+          assert.closeTo(this.width, 120, 11, 'check width after changed back to single line');
+          assert.closeTo(this.height, 24, 10  , 'check height after changed back to single line');
+          
+          // Change to back multiline
+          this.setAttribute('multiline', true);
+          
+          assert.equal(this.multiline, true)
+          assert.equal(this.sprite.el.style['white-space'], 'pre');
+          assert.closeTo(this.width, 90, 10);
+          assert.closeTo(this.height, 48, 10);
+          
+          // Make bold and observe a resize
+          this.setAttribute('bold', true);
+          
+          assert.closeTo(this.width, 100, 10);
+          assert.closeTo(this.height, 48, 10);
+          
+          // Change fontsize and observe a resize
+          this.setAttribute('fontsize', 32);
+          
+          assert.closeTo(this.width, 150, 10);
+          assert.closeTo(this.height, 72, 12, 'height check after fontsize change');
+        </handler>
+      </text>
+    </view>
+  </view>
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014-2015 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+</body>
+</html>

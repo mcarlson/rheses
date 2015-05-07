@@ -1,0 +1,294 @@
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2015 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+<!--/**
+      * @class dr.text {UI Components}
+      * @extends dr.view
+      * Text component that supports single and multi-line text.
+      * 
+      *  The text component can be fixed size, or sized to fit the size of the text.
+      * 
+      *      @example
+      *      <text text="Hello World!" bgcolor="red"></text>
+      * 
+      *  Here is a multiline text
+      * 
+      *      @example
+      *      <text multiline="true" width="200" text="Lorem ipsum dolor sit amet, consectetur adipiscing elit"></text>
+      * 
+      *  You might want to set the value of a text element based on the value of other attributes via a constraint. Here we set the value by concatenating three attributes together.
+      * 
+      *      @example
+      *      <attribute name="firstname" type="string" value="Lumpy"></attribute>
+      *      <attribute name="middlename" type="string" value="Space"></attribute>
+      *      <attribute name="lastname" type="string" value="Princess"></attribute>
+      * 
+      *      <text text="${this.parent.firstname + ' ' + this.parent.middlename + ' ' + this.parent.lastname}" color="hotpink"></text>
+      * 
+      *  Constraints can contain more complex JavaScript code
+      * 
+      *      @example
+      *      <attribute name="firstname" type="string" value="Lumpy"></attribute>
+      *      <attribute name="middlename" type="string" value="Space"></attribute>
+      *      <attribute name="lastname" type="string" value="Princess"></attribute>
+      * 
+      *      <text text="${this.parent.firstname.charAt(0) + ' ' + this.parent.middlename.charAt(0) + ' ' + this.parent.lastname.charAt(0)}" color="hotpink"></text>
+      * 
+      *  We can simplify this by using a method to return the concatenation and constraining the text value to the return value of the method
+      * 
+      *      @example
+      *      <attribute name="firstname" type="string" value="Lumpy"></attribute>
+      *      <attribute name="middlename" type="string" value="Space"></attribute>
+      *      <attribute name="lastname" type="string" value="Princess"></attribute>
+      * 
+      *      <method name="initials">
+      *        return this.firstname.charAt(0) + ' ' + this.middlename.charAt(0) + ' ' + this.lastname.charAt(0);
+      *      </method>
+      * 
+      *      <text text="${this.parent.initials()}" color="hotpink"></text>
+      * 
+      *  You can override the format method to provide custom formatting for text elements. Here is a subclass of text, timetext, with the format method overridden to convert the text given in seconds into a formatted string.
+      * 
+      *      @example
+      *      <class name="timetext" extends="text">
+      *        <method name="format" args="seconds">
+      *          var minutes = Math.floor(seconds / 60);
+      *          var seconds = Math.floor(seconds) - minutes * 60;
+      *          if (seconds < 10) {
+      *            seconds = '0' + seconds;
+      *          }
+      *          return minutes + ':' + seconds;
+      *        </method>
+      *      </class>
+      * 
+      *      <timetext text="240"></timetext>
+      * 
+      */-->
+<class name="text" with="sizetodom" type="coffee">
+  <!--/**
+        * @attribute {Number} [fontsize]
+        * The size of the font in pixels.
+        */-->
+  <attribute name="fontsize" type="emptynumber" value=""></attribute>
+  <setter name="fontsize" args="v">
+    if @fontsize isnt v
+      @sprite.setAttribute('fontsize', v)
+      @setAndFire('fontsize', v)
+      if @inited then @sizeToDom()
+
+    return dr._noop
+  </setter>
+
+  <!--/**
+        * @attribute {String} [fontfamily=""]
+        * The name of the font family to use, e.g. "Helvetica"  Include multiple fonts on a line, separated by commas.
+        */-->
+  <attribute name="fontfamily" type="string" value=""></attribute>
+  <setter name="fontfamily" args="v">
+    if @fontfamily isnt v
+      @sprite.setAttribute('fontfamily', v)
+      @setAndFire('fontfamily', v)
+      if @inited then @sizeToDom()
+    return dr._noop
+  </setter>
+
+  <attribute name="fontweight" type="number" value=""></attribute>
+  <setter name="fontweight" args="v">
+    if @fontweight isnt v
+      @sprite.setAttribute('fontweight', v)
+      @setAndFire('fontweight', v)
+      if @inited then @sizeToDom()
+    return dr._noop
+  </setter>
+
+  <attribute name="texttransform" type="string" value=""></attribute>
+  <setter name="texttransform" args="v">
+    if @texttransform isnt v
+      @sprite.setAttribute('texttransform', v)
+      @setAndFire('texttransform', v)
+      if @inited then @sizeToDom()
+    return dr._noop
+  </setter>
+
+  <!--/**
+        * @attribute {Boolean} [bold=false]
+        * Use bold text.
+        */-->
+  <attribute name="bold" type="boolean" value="false"></attribute>
+  <setter name="bold" args="v">
+    if @bold isnt v
+      @sprite.setAttribute('bold', v)
+      @setAndFire('bold', v)
+      if @inited then @sizeToDom()
+    return dr._noop
+  </setter>
+
+  <!--/**
+        * @attribute {Boolean} [italic=false]
+        * Use italic text.
+        */-->
+  <attribute name="italic" type="boolean" value="false"></attribute>
+  <setter name="italic" args="v">
+    if @italic isnt v
+      @sprite.setAttribute('italic', v)
+      @setAndFire('italic', v)
+      if @inited then @sizeToDom()
+    return dr._noop
+  </setter>
+
+  <!--/**
+        * @attribute {Boolean} [smallcaps=false]
+        * Use small caps style.
+        */-->
+  <attribute name="smallcaps" type="boolean" value="false"></attribute>
+  <setter name="smallcaps" args="v">
+    if @smallcaps isnt v
+      @sprite.setAttribute('smallcaps', v)
+      @setAndFire('smallcaps', v)
+      if @inited then @sizeToDom()
+    return dr._noop
+  </setter>
+
+  <!--/**
+        * @attribute {Boolean} [underline=false]
+        * Draw and underline under text (note, is incompatible with dr.text#strike)
+        */-->
+  <attribute name="underline" type="boolean" value="false"></attribute>
+  <setter name="underline" args="underline">
+    @setAndFire('underline', underline)
+    if underline
+      if @strike then @setAttribute('strike', false)
+      @sprite.setAttribute('text-decoration', 'underline')
+    else if not @strike
+      @sprite.setAttribute('text-decoration', 'none')
+    if @inited then @sizeToDom()
+    return dr._noop
+  </setter>
+
+  <!--/**
+        * @attribute {Boolean} [strike=false]
+        * Draw and strike-through the text (note, is incompatible with dr.text#underline)
+        */-->
+  <attribute name="strike" type="boolean" value="false"></attribute>
+  <setter name="strike" args="strike">
+    @setAndFire('strike', strike)
+    if strike
+      if @underline then @setAttribute('underline', false)
+      @sprite.setAttribute('text-decoration', 'line-through')
+    else if not @underline
+      @sprite.setAttribute('text-decoration', 'none')
+    if @inited then @sizeToDom()
+    return dr._noop
+  </setter>
+
+  <!--/**
+        * @attribute {Boolean} [multiline=false]
+        * Determines how line breaks within the text are handled.
+        */-->
+  <attribute name="multiline" type="boolean" value="false"></attribute>
+  <setter name="multiline" args="multiline">
+    if @multiline isnt multiline
+      if multiline
+        if @inited and not @__hasSetWidth
+          whitespace = 'pre'
+        else
+          whitespace = 'pre-wrap'
+      else
+        whitespace = 'nowrap'
+      @sprite.setAttribute('whitespace', whitespace)
+      @setAndFire('multiline', multiline)
+      if @inited then @sizeToDom()
+    return dr._noop
+  </setter>
+
+  <!--/**
+        * @attribute {Boolean} [ellipsis=false]
+        * Determines if ellipsis shouls be shown or not. Only works when
+        * multiline is false.
+        */-->
+  <attribute name="ellipsis" type="boolean" value="false"></attribute>
+  <setter name="ellipsis" args="ellipsis">
+    if ellipsis isnt @ellipsis
+      @sprite.setAttribute('ellipsis', ellipsis)
+      @setAndFire('ellipsis', ellipsis)
+      if @inited then @sizeToDom()
+    return dr._noop
+  </setter>
+
+  <!--/**
+        * @attribute {String} [text=""]
+        * The contents of this input text field
+        */-->
+  <attribute name="text" type="string" value=""></attribute>
+  <setter name="text" args="text">
+    if text isnt @text
+      @sprite.setText(@format(text))
+      @setAndFire('text', text)
+      if @inited then @sizeToDom()
+    return dr._noop
+  </setter>
+
+  <setter name="data" args="data">
+    @setAttribute('text', data, true)
+    return data
+  </setter>
+
+  <setter name="width" args="v, noDomChange">
+    retval = @super()
+    if @inited and not @__internalUpdate and not @__noSpecialValueHandling
+      @_preventBadWhitespace()
+      @sizeToDom()
+    return retval
+  </setter>
+
+  <method name="createSprite" args="spriteClass, el, attributes">
+    return @super(dr._textSprite, el, attributes)
+  </method>
+
+  <method name="construct" args="el, attributes">
+    # setup default to reduce events during initialization.
+    @fontsize = @fontfamily = ''
+    @bold = @italic = @smallcaps = @multiline = @ellipsis = false
+
+    @super()
+  </method>
+
+  <method name="initialize" args="skipevents">
+    @_preventBadWhitespace()
+    @super()
+  </method>
+
+  <method name="_preventBadWhitespace">
+    if @multiline then @sprite.setAttribute('whitespace', if @__hasSetWidth then 'pre-wrap' else 'pre')
+  </method>
+
+  <!--/**
+        * @method format
+        * Format the text to be displayed. The default behavior is to
+        * return the text intact. Override to change formatting. This method
+        * is called whenever the text attribute is set.
+        * @param {String} str The current value of the text component.
+        * @return {String} The formated string to display in the component.
+        */-->
+  <method name="format" args="str">
+    return str
+  </method>
+</class>

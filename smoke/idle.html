@@ -1,0 +1,53 @@
+<html>
+<head>
+  <title>rhes.es</title>
+  <script>var BOILERPLATE_OPTS = {type:'smoke'};</script>
+  <script type="text/javascript" src="../boilerplate.js"></script>
+</head>
+<body>
+<view id="all" width="100%" height="100%" clip="true">
+  <text text="${this.parent.time}"></text>
+  <handler event="onidle" reference="dr.idle" args="t">
+    this.setAttribute('time', t)
+  </handler>
+
+  <method name="testCallOnIdle" args="time">
+    this.counter++
+    this.lasttime = time
+    dr.idle.callOnIdle(this.testCallOnIdle)
+  </method>
+
+  <handler event="oninit" type="coffee">
+    this.counter = 0
+    setTimeout(() =>
+      assert.isNumber(this.time, 'dr.idle.onidle should send a number')
+      # console.log('counter', this.counter)
+      assert.closeTo(this.counter, 7, 5)
+      assert.equal(typeof this.lasttime, 'number')
+    , 100)
+    this.testCallOnIdle()
+  </handler>
+</view>
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+</body>
+</html>

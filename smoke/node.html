@@ -1,0 +1,227 @@
+<html>
+<head>
+  <title>Dr33m - Node Smoke Tests</title>
+  <script>var BOILERPLATE_OPTS = {type:'smoke'};</script>
+  <script type="text/javascript" src="../boilerplate.js"></script>
+</head>
+<body>
+<view id="all" width="100%" height="100%" clip="true">
+  <class name="item" x="5" width="10" height="10" bgcolor="#cccccc" clickable="true">
+  </class>
+
+  <view name="outer" width="200" height="200" bgcolor="green">
+    <method name="getTestArray">return this.testArr || (this.testArr = []);</method>
+
+    <handler event="onsubviewAdded" args="sv">
+      var testArr = this.getTestArray();
+      testArr.push('onsubviewAdded ' + this.name + ':' + sv.name );
+    </handler>
+    <handler event="onsubviewRemoved" args="sv">
+      var testArr = this.getTestArray();
+      testArr.push('onsubviewRemoved ' + this.name + ':' + sv.name );
+    </handler>
+
+    <method name="doSubnodeAdded" args="node">
+      var testArr = this.getTestArray();
+      testArr.push('doSubnodeAdded ' + this.name + ':' + node.name );
+      this.super();
+    </method>
+    <method name="doSubnodeRemoved" args="node">
+      var testArr = this.getTestArray();
+      testArr.push('doSubnodeRemoved ' + this.name + ':' + node.name );
+      this.super();
+    </method>
+
+    <method name="doSubviewAdded" args="sv">
+      var testArr = this.getTestArray();
+      testArr.push('doSubviewAdded ' + this.name + ':' + sv.name );
+    </method>
+    <method name="doSubviewRemoved" args="sv">
+      var testArr = this.getTestArray();
+      testArr.push('doSubviewRemoved ' + this.name + ':' + sv.name );
+    </method>
+
+    <method name="doLayoutAdded" args="layout">
+      var testArr = this.getTestArray();
+      testArr.push('doLayoutAdded ' + this.name + ':' + layout.name );
+    </method>
+    <method name="doLayoutRemoved" args="layout">
+      var testArr = this.getTestArray();
+      testArr.push('doLayoutRemoved ' + this.name + ':' + layout.name );
+    </method>
+
+    <handler event="onlayouts" args="layouts">
+      var testArr = this.getTestArray();
+      //console.log('onlayouts', layouts, this)
+      assert.equal(layouts[0].name, 'baz');
+      testArr.push('onlayouts ' + this.name + ':' + layouts[0].name );
+    </handler>
+
+    <node name="foo">
+      <handler event="oninit">
+        var testArr = this.parent.getTestArray();
+        testArr.push(this.name + '.oninit.handler');
+      </handler>
+    </node>
+
+    <view name="bar" width="100" height="100" bgcolor="red">
+      <handler event="oninit">
+        var testArr = this.parent.getTestArray();
+        testArr.push(this.name + '.oninit.handler');
+      </handler>
+    </view>
+
+    <spacedlayout name="baz" axis="y">
+      <handler event="oninit">
+        var testArr = this.parent.getTestArray();
+        testArr.push(this.name + '.oninit.handler');
+      </handler>
+    </spacedlayout>
+
+    <item name="hey">
+      <handler event="oninit">
+        var testArr = this.parent.getTestArray();
+        testArr.push(this.name + '.oninit.handler');
+      </handler>
+    </item>
+
+    <item name="there">
+      <handler event="oninit">
+        var testArr = this.parent.getTestArray();
+        testArr.push(this.name + '.oninit.handler');
+      </handler>
+    </item>
+
+    <!-- https://www.pivotaltracker.com/story/show/84258034 -->
+    <class name="cl1" initchildren="false">
+      <handler event="oninit">
+        var testArr = this.parent.getTestArray();
+        testArr.push(this.name + '.oninit.handler');
+      </handler>
+    </class>
+
+    <class name="cl2">
+      <view></view>
+    </class>
+
+    <class name="cl3" extends="cl2" initchildren="false">
+      <handler event="oninit">
+        var testArr = this.parent.getTestArray();
+        testArr.push(this.name + '.oninit.handler');
+      </handler>
+    </class>
+
+    <cl1 name="works"></cl1>
+    <cl3 name="doesnotwork"></cl3>
+
+    <handler event="oninit">
+      var testArr = this.getTestArray();
+      testArr.push(this.name + '.oninit.handler');
+
+      var matchArr = [
+        'doSubnodeAdded outer:foo',
+
+        'doSubnodeAdded outer:bar',
+        'doSubviewAdded outer:bar',
+
+        'doSubnodeAdded outer:baz',
+        'doLayoutAdded outer:baz',
+
+        'doSubnodeAdded outer:hey',
+        'doSubviewAdded outer:hey',
+
+        'doSubnodeAdded outer:there',
+        'doSubviewAdded outer:there',
+
+        'doSubnodeAdded outer:works',
+        'doSubviewAdded outer:works',
+
+        'doSubnodeAdded outer:doesnotwork',
+        'doSubviewAdded outer:doesnotwork',
+
+        'onsubviewAdded outer:bar',
+        'onlayouts outer:baz',
+        'onsubviewAdded outer:hey',
+        'onsubviewAdded outer:there',
+        'onsubviewAdded outer:works',
+        'onsubviewAdded outer:doesnotwork',
+
+        'foo.oninit.handler',
+        'bar.oninit.handler',
+        'baz.oninit.handler',
+        'hey.oninit.handler',
+        'there.oninit.handler',
+        'works.oninit.handler',
+        'doesnotwork.oninit.handler',
+
+        'outer.oninit.handler'
+      ];
+      assert.equal(matchArr.join(), testArr.join());
+    </handler>
+  </view>
+
+  <!-- https://www.pivotaltracker.com/story/show/79651666 -->
+  <view width="auto" height="auto" bgcolor="oldlace">
+    <spacedlayout spacing="15"></spacedlayout>
+
+    <view width="50" height="50" bgcolor="lightpink" opacity=".3"></view>
+    <view width="50" height="50" bgcolor="plum" opacity=".3"></view>
+    <view width="50" height="50" bgcolor="lightblue" opacity=".3"></view>
+
+    <handler event="onlayouts" args="layouts">
+      output.setAttribute('text', output.text + ' testing');
+    </handler>
+  </view>
+  <text id="output" multiline="true"></text>
+  <handler event="oninit">
+    assert.equal(output.text, ' testing testing testing')
+  </handler>
+
+  <view>
+    <handler event="oninit">
+      // create a new node
+      child = this.createChild()
+      assert.equal(this.subnodes.length, 1)
+      assert.equal(this.subviews.length, 0)
+      // create a new view
+      child = this.createChild({class: 'view'})
+      assert.equal(this.subnodes.length, 2)
+      assert.equal(this.subviews.length, 1)
+      // create a new view with attributes
+      child = this.createChild({class: 'view', bgcolor: 'blue', width: 10, height: 10, opacity: .5})
+      assert.equal(this.subnodes.length, 3)
+      assert.equal(this.subviews.length, 2)
+    </handler>
+  </view>
+
+  <!-- Ensure setAttribute() and sendEvent() are chainable -->
+  <view>
+    <handler event="oninit">
+      var chainable = this.setAttribute('x', 1).sendEvent('foo', true)
+      assert.equal(chainable, this)
+    </handler>
+  </view>
+</view>
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+</body>
+</html>

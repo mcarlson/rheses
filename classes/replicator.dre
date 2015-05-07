@@ -1,0 +1,464 @@
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2014 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+  <!--/**
+     * @class dr.replicator {Data}
+     * @extends dr.node
+     * Handles replication and data binding.
+     *
+     * This example shows the replicator to creating four text instances, each corresponding to an item in the data attribute:
+     *
+     *     @example
+     *     <spacedlayout spacing="5"></spacedlayout>
+     *     <replicator classname="text" data="[1,2,3,4]"></replicator>
+     *
+     * Changing the data attribute to a new array causes the replicator to create a new text for each item:
+     *
+     *     @example
+     *     <spacedlayout spacing="5"></spacedlayout>
+     *     <text onclick="repl.setAttribute('data', [5,6,7,8]);">Click to change data:</text>
+     *     <replicator id="repl" classname="text" data="[1,2,3,4]"></replicator>
+     *
+     * This example uses a {@link #filterexpression filterexpression} to filter the data to only numbers. Clicking changes {@link #filterexpression filterexpression} to show only non-numbers in the data:
+     *
+     *     @example
+     *     <spacedlayout spacing="5"></spacedlayout>
+     *     <text onclick="repl.setAttribute('filterexpression', '[^\\d]');">Click to change filter:</text>
+     *     <replicator id="repl" classname="text" data="['a',1,'b',2,'c',3,4,5]" filterexpression="\d"></replicator>
+     *
+     * Replicators can be used to look up {@link #datapath datapath} expressions to values in JSON data in a dr.dataset. This example looks up the color of the bicycle in the dr.dataset named bikeshop:
+     *
+     *     @example
+     *     <dataset name="bikeshop">
+     *      {
+     *        "bicycle": {
+     *          "color": "red",
+     *          "price": 19.95
+     *        }
+     *      }
+     *     </dataset>
+     *     <replicator classname="text" datapath="$bikeshop/bicycle/color"></replicator>
+     *
+     * Matching one or more items will cause the replicator to create multiple copies:
+     *
+     *     @example
+     *     <dataset name="bikeshop">
+     *      {
+     *        "bicycle": [
+     *          {
+     *           "color": "red",
+     *           "price": 19.95
+     *          },
+     *          {
+     *           "color": "green",
+     *           "price": 29.95
+     *          },
+     *          {
+     *           "color": "blue",
+     *           "price": 59.95
+     *          }
+     *        ]
+     *      }
+     *     </dataset>
+     *     <spacedlayout spacing="5"></spacedlayout>
+     *     <replicator classname="text" datapath="$bikeshop/bicycle[*]/color"></replicator>
+     *
+     * It's possible to select a single item on from the array using an array index. This selects the second item:
+     *
+     *     @example
+     *     <dataset name="bikeshop">
+     *      {
+     *        "bicycle": [
+     *          {
+     *           "color": "red",
+     *           "price": 19.95
+     *          },
+     *          {
+     *           "color": "green",
+     *           "price": 29.95
+     *          },
+     *          {
+     *           "color": "blue",
+     *           "price": 59.95
+     *          }
+     *        ]
+     *      }
+     *     </dataset>
+     *     <spacedlayout spacing="5"></spacedlayout>
+     *     <replicator classname="text" datapath="$bikeshop/bicycle[1]/color"></replicator>
+     *
+     * It's also possible to replicate a range of items in the array with the [start,end,stepsize] operator. This replicates every other item:
+     *
+     *     @example
+     *     <dataset name="bikeshop">
+     *      {
+     *        "bicycle": [
+     *          {
+     *           "color": "red",
+     *           "price": 19.95
+     *          },
+     *          {
+     *           "color": "green",
+     *           "price": 29.95
+     *          },
+     *          {
+     *           "color": "blue",
+     *           "price": 59.95
+     *          }
+     *        ]
+     *      }
+     *     </dataset>
+     *     <spacedlayout spacing="5"></spacedlayout>
+     *     <replicator classname="text" datapath="$bikeshop/bicycle[0,3,2]/color"></replicator>
+     *
+     * Sometimes it's necessary to have complete control and flexibility over filtering and transforming results. Adding a [@] operator to the end of your datapath causes {@link #filterfunction filterfunction} to be called for each result. This example shows bike colors for bikes with a price greater than 20, in reverse order:
+     *
+     *     @example
+     *     <dataset name="bikeshop">
+     *      {
+     *        "bicycle": [
+     *          {
+     *           "color": "red",
+     *           "price": 19.95
+     *          },
+     *          {
+     *           "color": "green",
+     *           "price": 29.95
+     *          },
+     *          {
+     *           "color": "blue",
+     *           "price": 59.95
+     *          }
+     *        ]
+     *      }
+     *     </dataset>
+     *     <spacedlayout spacing="5"></spacedlayout>
+     *     <replicator classname="text" datapath="$bikeshop/bicycle[*][@]">
+     *       <method name="filterfunction" args="obj, accum">
+     *         // add the color to the beginning of the results if the price is greater than 20
+     *         if (obj.price > 20)
+     *           accum.unshift(obj.color);
+     *         return accum
+     *       </method>
+     *     </replicator>
+     *
+     * See [https://github.com/flitbit/json-path](https://github.com/flitbit/json-path) for more details.
+     */-->
+    <class name="replicator" type="coffee" extends="node" scriptincludes="lib/json-path+json-ptr-0.1.3.min.js">
+      <!--/**
+        * @attribute {Boolean} [pooling=false]
+        * If true, reuse views when replicating.
+        */-->
+      <attribute name="pooling" value="false" type="boolean"></attribute>
+
+      <!--/**
+        * @attribute {Boolean} [async=true]
+        * If true, create views asynchronously
+        */-->
+      <attribute name="async" value="true" type="boolean"></attribute>
+
+      <!--/**
+        * @attribute {Array} [data=[]]
+        * The list of items to replicate. If {@link #datapath datapath} is set, it is converted to an array and stored here.
+        */-->
+      <attribute name="data" value="[]" type="expression"></attribute>
+
+      <!--/**
+        * @attribute {String} classname (required)
+        * The name of the class to be replicated.
+        */-->
+      <attribute name="classname" value="node" type="string"></attribute>
+
+      <!--/**
+        * @attribute {String} datapath
+        * The datapath expression to be replicated.
+        * See [https://github.com/flitbit/json-path](https://github.com/flitbit/json-path) for details.
+        */-->
+      <setter name="datapath" args="datapath">
+        return unless datapath
+        orig = datapath
+        # console.log('evaluating datapath', datapath)
+        re = /^\$([^\/]+)/
+        match = datapath.match(re)
+        if match and match[1]
+          # absolute datapath
+          @setAttribute('_dataset', match[1])
+          datapath = datapath.replace(re, '')
+
+        @setAndFire('datapath', datapath)
+
+        @parsedpath = JsonPath.parseSelector(datapath)
+        # console.log('evaluated datapath', datapath, @parsedpath)
+        return orig
+      </setter>
+
+      <!-- TODO: why can't this attribute/setter be named _dataset? -->
+<!--       TODO: attribute value is overwritten by "" later!!!
+      <attribute name="_dataset" value="" type="string"></attribute> -->
+      <setter name="_dataset" args="dataset">
+        return dataset unless dataset and dr.datasets?[dataset]
+        @dataset = dr.datasets[dataset]
+        @_dataset = dataset
+
+        # console.log('listening to dataset', dataset, dr.datasets, @dataset, @_dataset)
+        @listenTo(@dataset, 'data', (data) =>
+          # console.log('callback', @, data)
+          @data = data
+          @applyData()
+        )
+        @sendEvent('dataset', @dataset)
+        return dataset
+      </setter>
+
+      <!-- TODO: make this a relative datapath -->
+      <!--/**
+        * @attribute {String} [sortfield=""]
+        * The field in the data to use for sorting. Only sort then this
+        */-->
+      <attribute name="sortfield" value="" type="string"></attribute>
+
+      <!--/**
+        * @attribute {Boolean} [sortasc=true]
+        * If true, sort ascending.
+        */-->
+      <attribute name="sortasc" value="true" type="boolean"></attribute>
+
+      <!--/**
+        * @attribute {String} [filterexpression=""]
+        * If defined, data will be filtered against a [regular expression](https://developer.mozilla.org/en/docs/Web/JavaScript/Guide/Regular_Expressions).
+        */-->
+      <attribute name="filterexpression" value="" type="string"></attribute>
+
+      <setter name="filterexpression" args="regex">
+        _filterexpression = new RegExp(regex)
+        # console.log('filtering on', regex, _filterexpression)
+        @_filterexpressionfunc = (value) ->
+          return (value + '').match(_filterexpression) if (value)
+        @doReplication()
+        return regex
+      </setter>
+
+      <attribute name="lazycount" value="Infinity" type="number"></attribute>
+
+      <handler event="onsortfield">
+        # console.log 'onsortfield', @sortfield, @data
+        @buildsortfunc()
+        @applyData()
+      </handler>
+
+      <handler event="onsortasc">
+        # console.log 'onsortasc', @sortasc, @data
+        @buildsortfunc()
+        @applyData()
+      </handler>
+
+      <method name="buildsortfunc">
+        if @sortfield
+          sortfield = @sortfield
+          sortasc = @sortasc
+          @sortfunc = (a, b) ->
+            keyA = a[sortfield]
+            keyB = b[sortfield]
+            # Compare the 2 sort fields
+            result = 0
+            if keyA > keyB
+              result = 1
+            else if keyA < keyB
+              result = -1
+
+            # console.log sortfield, sortasc
+            result = -result if (not sortasc)
+            result
+        else
+          @sortfunc = null
+      </method>
+
+      <handler event="oninit">
+        @setAttribute('_dataset', @_dataset) unless @dataset
+        @applyData();
+      </handler>
+
+      <handler event="onclassname" method="applyData"></handler>
+
+      <handler event="ondata" method="applyData"></handler>
+
+      <handler event="ondatapath" method="applyData"></handler>
+
+      <handler event="ondestroy" method="clear"></handler>
+
+      <method name="updateData" args="data">
+        # remove dataset declaration
+        re = /^\$([^\/]+)/
+        @dataset.updateData(@datapath.replace(re, ''), data);
+      </method>
+
+      <!--/**
+        * @method refresh
+        * Refreshes the dataset manually
+        */-->
+      <method name="refresh">
+        this.applyData()
+      </method>
+
+      <method name="clear">
+        # @parent.setAttribute('display', 'none')
+        if @children
+          for child in @children
+            # console.log 'destroying child', child
+            child.destroy()
+        @children = []
+        # @parent.setAttribute('display', null)
+      </method>
+
+      <!--/**
+        * @method filterfunction
+        * @abstract
+        * Called to filter data.
+        * @param obj An individual item to be processed.
+        * @param {Object[]} accum The array of items that have been accumulated. To keep a processed item, it must be added to the accum array.
+        * @returns {Object[]} The accum array. Must be returned otherwise results will be lost.
+        */-->
+      <method name="applyData">
+        return unless @inited and @parent and @classname
+        # console.log('applyData', @data, @classname, @parent, @children, @, @inited)
+
+        unless @classname of dr
+          console.warn 'missing class for replicator', @classname, 'skipping replication'
+          return
+
+        return if @locked
+
+        if @datapath
+          if @_dataset
+            # absolute datapath
+            # console.log 'evaluating absolute datapath', @datapath, @_dataset
+            unless @dataset
+              console.warn 'missing dataset', @_dataset
+              return
+
+            if @datapath == '$' + @_dataset
+              # console.log('dataset only', @datapath, @dataset)
+              # replicate an instance with data attribute set to the dataset
+              @data = [@dataset]
+            else
+              # console.log('evaluating absolute selector', @datapath, @dataset.data, @parsedpath)
+              @data = JsonPath.executeSelectors(@dataset.data, @parsedpath, @filterfunction?.bind(@))
+          else
+            # relative datapath, look for dataset reference in parents
+            parentdata = @_findInParents('data')
+            if parentdata?
+              # console.log 'found dataset in parent ', parentdata
+              if parentdata.$tagname is 'dataset' and parentdata.data
+                # console.log 'found parentdata.data', parentdata
+                parentdata = parentdata.data
+              # console.log('executing relative selector', @datapath, @parsedpath, parentdata)
+              @data = JsonPath.executeSelectors(parentdata, @parsedpath, @filterfunction?.bind(@))
+              # console.log('looking for data', @datapath, parentdata, data)
+            else
+              console.warn('No parent datapath found', @datapath, @)
+        else
+          # no datapath
+          filterfunction = @filterfunction
+          if filterfunction? and @data?
+            filterfunction = filterfunction.bind(@)
+            accum = []
+            for datum in @data
+              accum = filterfunction(datum, accum)
+            @data = accum
+
+        return unless @data
+
+        @_origdata = @data
+
+        if @data.length > @lazycount
+          setTimeout(() =>
+            @doReplication()
+          , 0);
+        else
+          @doReplication()
+      </method>
+
+      <!--/**
+        * @event onreplicated
+        * Fired when the replicator is done
+        * @param {dr.replicator} replicator The dr.replicator that fired the event
+        */-->
+      <method name="doReplication">
+        return unless @data and @parent
+
+        locked = @locked
+        @locked = true
+
+        if @filterexpression and @_filterexpressionfunc
+          @data = @_origdata.filter(@_filterexpressionfunc)
+          # console.log('_filterexpressionfunc', @_filterexpressionfunc, @data, @_origdata)
+
+        @data.sort(@sortfunc) if (@sortfunc)
+        @sendEvent('data', @data) if @data.length
+
+        if @classname == 'node'
+          # bail out before actually replicating
+          @locked = locked
+          return
+
+        if @parent.layouts
+          for layout in @parent.layouts
+            layout.setAttribute('locked', true)
+
+        #console.log @data.length
+        @children ?= []
+        if @pooling 
+          for child, i in @children
+            datum = @data[i]
+            # console.log 'replicator updating', i, child, 'in', datum
+            if i < @data.length
+              child.setAttribute('data', datum)
+              child.setAttribute('visible', true);
+            else
+              child.setAttribute('visible', false);
+          if @data.length > @children.length
+            i = @children.length;
+            while @data.length > @children.length
+              datum = @data[i++]
+              @children.push(@createChild({class: @classname, data: datum, parent: @parent, replicator: @}, @async))
+              # console.log 'replicator created', @classname, @children[@children.length - 1]
+        else
+          @clear()
+          for datum in @data
+            # console.log 'replicator creating', @classname, 'in', @parent
+            @children.push(@createChild({class: @classname, data: datum, parent: @parent, replicator: @}, @async))
+            # console.log 'replicator created', @classname, @children[@children.length - 1]
+
+        finalize = () =>
+          # init constraints for all children created
+          dr.initConstraints()
+          if @parent.layouts
+            for layout in @parent.layouts
+              layout.setAttribute('locked', false) # Updates automatically since the layout was already locked.
+          @locked = locked
+          @sendEvent('replicated', @)
+
+        if @async
+          dr.idle.callOnIdle(finalize)
+        else
+          finalize()
+      </method>
+    </class>

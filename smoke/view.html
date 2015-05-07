@@ -1,0 +1,308 @@
+<html>
+<testingtimer><!--500--></testingtimer>
+<head>
+  <title>dr33m | View Tests</title>
+  <script>var BOILERPLATE_OPTS = {type:'smoke'};</script>
+  <script type="text/javascript" src="../boilerplate.js"></script>
+</head>
+<body>
+  <!-- InputText smoke tests. See spec/features/inputtext_spec.rb for interactive tests -->
+  <view width="auto" height="auto" padding="25">
+    <spacedlayout axis="y" spacing="15"></spacedlayout>
+
+    <!-- Default DOM property and CSS property Tests -->
+    <view>
+      <handler event="oninit">
+        assert.testCaseLabel = 'Default DOM property and CSS property Tests';
+        
+        var el = this.sprite.el, jqel = $(el);
+        
+        assert.equal(el.$init, true, 'A $init property should be set to true on the dom element.');
+        assert.equal(el.$view, this, 'A $view reference back to the dr.View should exist.');
+        
+        assert.equal(el.clientTop, 0);
+        assert.equal(el.clientLeft, 0);
+        assert.equal(el.clientWidth, 0);
+        assert.equal(el.clientHeight, 0);
+        
+        assert.equal(el.draggable, false);
+        assert.equal(el.hidden, false);
+        assert.equal(el.isContentEditable, false);
+        
+        assert.equal(el.localName, 'view');
+        assert.equal(el.nodeName, 'VIEW');
+        assert.equal(el.tagName, 'VIEW');
+        
+        assert.equal(jqel.css('box-sizing'), 'border-box');
+        assert.equal(jqel.css('display'), 'block')
+      </handler>
+    </view>
+
+    <!-- Visibility -->
+    <view bgcolor="lightgreen" width="100" height="50" visible="false">
+      <handler event="oninit">
+        assert.testCaseLabel = 'Visibility';
+        assert.equal(this.sprite.el.style.visibility, 'hidden');
+        assert.equal($(this.sprite.el).css('visibility'), 'hidden');
+      </handler>
+    </view>
+
+    <view bgcolor="lightpink" width="100" height="50" visible="true">
+      <handler event="oninit">
+        assert.equal(this.sprite.el.style.visibility, '');
+        assert.equal($(this.sprite.el).css('visibility'), 'visible')
+      </handler>
+    </view>
+
+    <view bgcolor="thistle" width="100" height="50">
+      <handler event="oninit">
+        assert.equal(this.sprite.el.style.visibility, '');
+        assert.equal($(this.sprite.el).css('visibility'), 'visible')
+      </handler>
+    </view>
+
+    <view bgcolor="green" width="100" height="50" visible="false" scrollable="true">
+      <view name="mouser" bgcolor="red" x="15" y="15" width="50" height="25">
+        <handler event="onmouseover">
+          this.setAttribute('bgcolor', 'blue');
+        </handler>
+        <handler event="onmouseout">
+          this.setAttribute('bgcolor', 'red');
+        </handler>
+      </view>
+      <view name="inner" bgcolor="orange" x="25" y="25" width="100" height="50" clickable="true"></view>
+      
+      <handler event="oninit">
+        var elem = this.sprite.el,
+          innerElem = this.inner.sprite.el;
+        
+        assert.equal(elem.style.visibility, 'hidden');
+        assert.equal($(elem).css('visibility'), 'hidden');
+        assert.equal(innerElem.style.visibility, '');
+        assert.equal($(innerElem).css('visibility'), 'hidden');
+        
+        // Scrollable in principle though hidden.
+        assert.equal(125, elem.scrollWidth);
+        assert.equal(75, elem.scrollHeight);
+        
+        this.setAttribute('visible', true);
+        
+        assert.equal(elem.style.visibility, '');
+        assert.equal($(elem).css('visibility'), 'visible');
+        assert.equal(innerElem.style.visibility, '');
+        assert.equal($(innerElem).css('visibility'), 'visible');
+        
+        this.inner.setAttribute('visible', false);
+        
+        assert.equal(elem.style.visibility, '');
+        assert.equal($(elem).css('visibility'), 'visible');
+        assert.equal(innerElem.style.visibility, 'hidden');
+        assert.equal($(innerElem).css('visibility'), 'hidden');
+        
+        setTimeout(function() {
+          // No longer scrollable since the view that extended outside is no longer visible.
+          assert.equal(100, elem.scrollWidth);
+          assert.equal(50, elem.scrollHeight);
+        }, 300);
+      </handler>
+    </view>
+
+    <!-- Default attribute value events -->
+    <!--clickable:false, clip:false, scrollable:false, visible:true,
+          bordercolor:'transparent', borderstyle:'solid', border:0,
+          padding:0-->
+    <view x="2" width="55" height="20" bgcolor="red" clickable="false">
+      <handler event="onx" args="arg">
+        window.logdefaults += ",x:" + arg;
+      </handler>
+      <handler event="ony" args="arg">
+        window.logdefaults += ",y:" + arg;
+      </handler>
+      <handler event="onwidth" args="arg">
+        window.logdefaults += ",width:" + arg;
+      </handler>
+      <handler event="onheight" args="arg">
+        window.logdefaults += ",height:" + arg;
+      </handler>
+      <handler event="onclickable" args="arg">
+        window.logdefaults += ",clickable:" + arg;
+      </handler>
+      <handler event="onclip" args="arg">
+        window.logdefaults += ",clip:" + arg;
+      </handler>
+      <handler event="onscrollable" args="arg">
+        window.logdefaults += ",scrollable:" + arg;
+      </handler>
+      <handler event="onvisible" args="arg">
+        window.logdefaults += ",visible:" + arg;
+      </handler>
+      <handler event="onbordercolor" args="arg">
+        window.logdefaults += ",bordercolor:" + arg;
+      </handler>
+      <handler event="onborderstyle" args="arg">
+        window.logdefaults += ",borderstyle:" + arg;
+      </handler>
+      <handler event="onborder" args="arg">
+        window.logdefaults += ",border:" + arg;
+      </handler>
+      <handler event="onpadding" args="arg">
+        window.logdefaults += ",padding:" + arg;
+      </handler>
+      <handler event="onbgcolor" args="arg">
+        window.logdefaults += ",bgcolor:" + arg;
+      </handler>
+
+      <handler event="oninit">
+        assert.testCaseLabel = 'Default attribute value events';
+        assert.equal(window.logdefaults, 'undefined,x:2,width:55,height:20,bgcolor:red')
+      </handler>
+
+      <!-- Setting the class attribute shouldn't overwrite sprite css baseclass -->
+      <view class="foo">
+        <handler event="oninit">
+          assert.testCaseLabel = 'Setting the class attribute shouldnt overwrite sprite css baseclass';
+          assert.include(this.sprite.el.getAttribute("class"), 'sprite')
+          assert.include(this.sprite.el.getAttribute("class"), 'foo')
+        </handler>
+      </view>
+    </view>
+
+    <!-- z, rotation & scale -->
+    <view id="zrs" width="100" height="50" border="2px" bordercolor="lightblue" perspective="5">
+      <view name="topView" x="10" y="10" width="5" height="5" bgcolor="orange" z="1" perspective="0"></view>
+      <view name="rotateViewDeg" x="80" y="10" xanchor="5" yanchor="10" zanchor="1" width="15" height="15" bgcolor="pink" rotation="45"></view>
+      <view name="xScaleView" x="75" y="20" width="20" height="20" bgcolor="darkgreen" xscale="0.1"></view>
+      <view name="yScaleView" x="75" y="20" width="20" height="20" bgcolor="red" yscale="0.2"></view>
+      <view id="xmz" name="scaleRotateBottomView" x="50" y="20" width="20" height="20" bgcolor="blue"
+        z="-10" rotation="-115" xscale="10.5" yscale="10.4"
+      ></view>
+
+      <handler event="oninit">
+        // Check both generic and vendor syntax so that the tests will pass in firefox.
+        var transform = this.topView.sprite.el.style['transform'] || this.topView.sprite.el.style['-webkit-transform'];
+        assert.equal((transform == 'translate3d(0, 0, 1px)') || (transform == 'translate3d(0px, 0px, 1px)'), true, 'Verify translate.')
+
+        transform = this.rotateViewDeg.sprite.el.style['transform'] || this.rotateViewDeg.sprite.el.style['-webkit-transform'];
+        assert.equal((transform == ' rotate3d(0, 0, 1.0, 45deg)') || (transform == 'rotate3d(0, 0, 1, 45deg)'), true, 'Verify roate.')
+
+        transformOrigin = this.rotateViewDeg.sprite.el.style['transform-origin'] || this.rotateViewDeg.sprite.el.style['-webkit-transform-origin'];
+        assert.equal('5px 10px 1px', transformOrigin, 'Verify transform origin.')
+
+        transform = this.xScaleView.sprite.el.style['transform'] || this.xScaleView.sprite.el.style['-webkit-transform'];
+        assert.equal((transform == ' scale3d(0.1, 1, 1.0)') || (transform == 'scale3d(0.1, 1, 1)'), true, 'Verify x-scale.')
+
+        transform = this.yScaleView.sprite.el.style['transform'] || this.yScaleView.sprite.el.style['-webkit-transform'];
+        assert.equal((transform == ' scale3d(1, 0.2, 1.0)') || (transform == 'scale3d(1, 0.2, 1)'), true, 'Verify y-scale.')
+
+        transform = this.scaleRotateBottomView.sprite.el.style['transform'] || this.scaleRotateBottomView.sprite.el.style['-webkit-transform'];
+        assert.equal((transform == 'scale3d(10.5, 10.4, 1.0) rotate3d(0, 0, 1.0, -115deg) translate3d(0, 0, -10px)') || (transform == 'scale3d(10.5, 10.4, 1) rotate3d(0, 0, 1, -115deg) translate3d(0px, 0px, -10px)'), true, 'Verify all transforms.')
+      </handler>
+    </view>
+
+    <!-- ensure that opacity passes float vales through unchanged -->
+    <view bgcolor="red" width="100" height="50" opacity="0.22">
+      <!-- Note: the Math.round is due to floating point errors not matching 0.22 with 0.22 -->
+      <handler event="oninit">
+          assert.equal(Math.round($(this.sprite.el).css('opacity') * 100), 22);
+      </handler>
+    </view>
+
+    <!-- Setting cursor -->
+    <view bgcolor="PaleVioletRed" width="100" height="50" cursor="crosshair" clickable="true">
+      <handler event="oninit">
+        assert.equal(this.cursor, 'crosshair', 'cursor should be crosshair when set');
+        assert.equal($(this.sprite.el).css('cursor'), 'crosshair', 'sprite cursor should be crosshair when clickable is true');
+      </handler>
+    </view>
+    <view bgcolor="PaleVioletRed" width="100" height="50" clickable="true">
+      <handler event="oninit">
+        assert.equal($(this.sprite.el).css('cursor'), 'pointer', 'sprite cursor should be pointer by default when clickable is true');
+      </handler>
+    </view>
+    <view bgcolor="PaleVioletRed" width="100" height="50" cursor="crosshair" clickable="false">
+      <handler event="oninit">
+        this.setAttribute('clickable', true)
+        assert.equal(this.cursor, 'crosshair', 'cursor should be crosshair after clickable set true');
+        assert.equal($(this.sprite.el).css('cursor'), 'crosshair', 'sprite cursor should be crosshair after clickable set true');
+      </handler>
+    </view>
+    <view bgcolor="PaleVioletRed" width="100" height="50" cursor="crosshair" clickable="true">
+      <handler event="oninit">
+        this.setAttribute('cursor', 'progress')
+        assert.equal(this.cursor, 'progress', 'cursor should be progress when set at runtime');
+        assert.equal($(this.sprite.el).css('cursor'), 'progress', 'sprite cursor should be progress when set at runtime');
+      </handler>
+    </view>
+
+    <!-- Box shadow -->
+    <view bgcolor="Orange" width="100" height="50" boxshadow="10px 10px 5px 0px #888888">
+      <handler event="oninit">
+        assert.equal($(this.sprite.el).css('box-shadow'), 'rgb(136, 136, 136) 10px 10px 5px 0px', 'box-shadow style should be set on sprite');
+      </handler>
+    </view>
+
+    <!-- Click Test -->
+    <view bgcolor="pink" width="100" height="50">
+      <handler event="onclick">
+        this.setAttribute('bgcolor', 'AntiqueWhite');
+      </handler>
+      <handler event="oninit">
+        assert.equal(this.bgcolor, 'pink', 'Verify initial state.');
+        $(this.sprite.el).trigger('click');
+        assert.equal(this.bgcolor, 'AntiqueWhite', 'onclick was executed.');
+      </handler>
+    </view>
+    
+    <!-- Constraint to an initial value works -->
+    <view width="100" height="100" bgcolor="lightblue">
+      <view name="v1" width="50" height="50" bgcolor="red">
+        <view name="inner" width="25" height="25" bgcolor="yellow"></view>
+      </view>
+      
+      <view name="v2"
+        x="${(this.parent.v1.x === 0 ? 50 : 25) + this.parent.v1.inner.height}"
+        y="${(this.parent.v1.inner.x === 0 ? 50 : 25) + (this.parent.v1.width / 2)}"
+        width="25" height="25" bgcolor="green"
+      ></view>
+      
+      <handler event="oninit">
+        assert.equal(this.v2.x, 75);
+        assert.equal(this.v2.y, 75);
+        
+        // Change a default value and verify the constraint updated
+        this.v1.setAttribute('x', 1);
+        
+        assert.equal(this.v2.x, 50);
+        assert.equal(this.v2.y, 75);
+        
+        // Change a default value and verify the constraint updated
+        this.v1.inner.setAttribute('x', 1);
+        
+        assert.equal(this.v2.x, 50);
+        assert.equal(this.v2.y, 50);
+      </handler>
+    </view>
+  </view>
+<!-- The MIT License (MIT)
+
+Copyright ( c ) 2015 Teem2 LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+</body>
+</html>
