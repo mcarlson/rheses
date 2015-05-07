@@ -181,7 +181,7 @@ class Node extends Eventable
       @setAttribute(name, attributes[name])
 
     # Bind to event expressions and set attributes
-    for name in (name for name of attributes when not (name in lateattributes or name in earlyattributes))
+    for name in (name for name of attributes when not (name in lateattributes or name in earlyattributes)).sort(reverseSort)
       @bindAttribute(name, attributes[name], tagname)
 
     # Need to fire subnode added events after attributes have been set since
